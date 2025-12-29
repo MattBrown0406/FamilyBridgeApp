@@ -34,6 +34,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from '@/components/ui/sheet';
 import { Textarea } from '@/components/ui/textarea';
 import { NotificationBell } from '@/components/NotificationBell';
 import { MeetingCheckin } from '@/components/MeetingCheckin';
@@ -161,6 +168,7 @@ const FamilyChat = () => {
   const [warningCount, setWarningCount] = useState(0);
   const [cooldownEndTime, setCooldownEndTime] = useState<number | null>(null);
   const [cooldownRemaining, setCooldownRemaining] = useState(0);
+  const [membersSheetOpen, setMembersSheetOpen] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -1083,13 +1091,19 @@ const FamilyChat = () => {
             <Button variant="ghost" size="icon" onClick={() => navigate('/dashboard')}>
               <ArrowLeft className="h-5 w-5" />
             </Button>
-            <div className="flex items-center gap-2">
+            <button 
+              className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+              onClick={() => setMembersSheetOpen(true)}
+            >
               <Heart className="h-6 w-6 text-primary" />
-              <div>
+              <div className="text-left">
                 <h1 className="font-display font-semibold text-foreground">{family?.name}</h1>
-                <p className="text-xs text-muted-foreground">{members.length} members</p>
+                <p className="text-xs text-muted-foreground flex items-center gap-1">
+                  <Users className="h-3 w-3" />
+                  {members.length} members
+                </p>
               </div>
-            </div>
+            </button>
             <div className="ml-auto flex items-center gap-2">
               {currentUserRole === 'moderator' && (
                 <Badge variant="outline">
@@ -1106,7 +1120,7 @@ const FamilyChat = () => {
       {/* Main Content */}
       <main className="flex-1 container mx-auto px-4 py-4 overflow-hidden">
         <Tabs defaultValue="messages" className="h-full flex flex-col">
-          <TabsList className="grid w-full grid-cols-6 mb-4 shrink-0">
+          <TabsList className="grid w-full grid-cols-5 mb-4 shrink-0">
             <TabsTrigger value="messages" className="flex items-center gap-2">
               <MessageCircle className="h-4 w-4" />
               <span className="hidden sm:inline">Messages</span>
@@ -1126,10 +1140,6 @@ const FamilyChat = () => {
             <TabsTrigger value="boundaries" className="flex items-center gap-2">
               <ShieldCheck className="h-4 w-4" />
               <span className="hidden sm:inline">Boundaries</span>
-            </TabsTrigger>
-            <TabsTrigger value="members" className="flex items-center gap-2">
-              <Users className="h-4 w-4" />
-              <span className="hidden sm:inline">Members</span>
             </TabsTrigger>
           </TabsList>
 
@@ -1912,183 +1922,191 @@ const FamilyChat = () => {
             </Card>
           </TabsContent>
 
-          {/* Members Tab */}
-          <TabsContent value="members" className="mt-0 space-y-4">
-            {/* Payment Handles Card */}
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg font-display">Your Payment Handles</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Add your payment usernames so family members can send you money when requests are approved.
-                </p>
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium w-24 shrink-0">PayPal.me/</span>
-                    <Input
-                      placeholder="username"
-                      value={paypalUsername}
-                      onChange={(e) => setPaypalUsername(e.target.value)}
-                      className="flex-1"
-                    />
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium w-24 shrink-0">Venmo @</span>
-                    <Input
-                      placeholder="username"
-                      value={venmoUsername}
-                      onChange={(e) => setVenmoUsername(e.target.value)}
-                      className="flex-1"
-                    />
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium w-24 shrink-0">Cash App $</span>
-                    <Input
-                      placeholder="username"
-                      value={cashappUsername}
-                      onChange={(e) => setCashappUsername(e.target.value)}
-                      className="flex-1"
-                    />
-                  </div>
-                  <Button
-                    onClick={savePaymentHandles}
-                    disabled={isSavingPayment}
-                    className="w-full mt-2"
-                  >
-                    {isSavingPayment ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                        Saving...
-                      </>
-                    ) : (
-                      'Save Payment Handles'
-                    )}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Family Members List */}
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg font-display">Family Members</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {members.map((member) => (
-                    <div
-                      key={member.id}
-                      className="flex items-center justify-between p-3 rounded-lg bg-secondary/50"
-                    >
-                      <div className="flex items-center gap-3">
-                        <Avatar>
-                          <AvatarFallback className="bg-primary/10 text-primary">
-                            {getInitials(member.full_name)}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="font-medium text-foreground">
-                            {member.full_name}
-                            {member.user_id === user?.id && (
-                              <span className="text-muted-foreground ml-2">(You)</span>
-                            )}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {currentUserRole === 'moderator' && member.user_id !== user?.id && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => openEditMember(member)}
-                            title="Edit profile"
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                        )}
-                        <Badge
-                          variant={
-                            member.role === 'moderator'
-                              ? 'default'
-                              : member.role === 'recovering'
-                              ? 'outline'
-                              : 'secondary'
-                          }
-                        >
-                          {member.role}
-                        </Badge>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-            {/* Edit Member Profile Dialog */}
-            <Dialog open={!!editingMember} onOpenChange={(open) => !open && setEditingMember(null)}>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle className="font-display">Edit Member Profile</DialogTitle>
-                  <DialogDescription>
-                    Update {editingMember?.full_name}'s profile information.
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="space-y-4 pt-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="editFullName">Full Name</Label>
-                    <Input
-                      id="editFullName"
-                      value={editFullName}
-                      onChange={(e) => setEditFullName(e.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="editPaypal">PayPal Username</Label>
-                    <Input
-                      id="editPaypal"
-                      placeholder="username"
-                      value={editPaypal}
-                      onChange={(e) => setEditPaypal(e.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="editVenmo">Venmo Username</Label>
-                    <Input
-                      id="editVenmo"
-                      placeholder="username"
-                      value={editVenmo}
-                      onChange={(e) => setEditVenmo(e.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="editCashapp">Cash App Username</Label>
-                    <Input
-                      id="editCashapp"
-                      placeholder="username"
-                      value={editCashapp}
-                      onChange={(e) => setEditCashapp(e.target.value)}
-                    />
-                  </div>
-                  <Button
-                    className="w-full"
-                    onClick={handleSaveMemberProfile}
-                    disabled={isSavingMember}
-                  >
-                    {isSavingMember ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                        Saving...
-                      </>
-                    ) : (
-                      'Save Profile'
-                    )}
-                  </Button>
-                </div>
-              </DialogContent>
-            </Dialog>
-          </TabsContent>
         </Tabs>
       </main>
+
+      {/* Members Sheet */}
+      <Sheet open={membersSheetOpen} onOpenChange={setMembersSheetOpen}>
+        <SheetContent className="w-full sm:max-w-md overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle className="font-display flex items-center gap-2">
+              <Users className="h-5 w-5 text-primary" />
+              {family?.name}
+            </SheetTitle>
+            <SheetDescription>
+              {members.length} family members
+            </SheetDescription>
+          </SheetHeader>
+
+          <div className="mt-6 space-y-6">
+            {/* Payment Handles Card */}
+            <div className="space-y-3">
+              <h3 className="font-medium text-foreground">Your Payment Handles</h3>
+              <p className="text-sm text-muted-foreground">
+                Add your payment usernames so family members can send you money when requests are approved.
+              </p>
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium w-24 shrink-0">PayPal.me/</span>
+                  <Input
+                    placeholder="username"
+                    value={paypalUsername}
+                    onChange={(e) => setPaypalUsername(e.target.value)}
+                    className="flex-1"
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium w-24 shrink-0">Venmo @</span>
+                  <Input
+                    placeholder="username"
+                    value={venmoUsername}
+                    onChange={(e) => setVenmoUsername(e.target.value)}
+                    className="flex-1"
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium w-24 shrink-0">Cash App $</span>
+                  <Input
+                    placeholder="username"
+                    value={cashappUsername}
+                    onChange={(e) => setCashappUsername(e.target.value)}
+                    className="flex-1"
+                  />
+                </div>
+                <Button
+                  onClick={savePaymentHandles}
+                  disabled={isSavingPayment}
+                  className="w-full mt-2"
+                >
+                  {isSavingPayment ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                      Saving...
+                    </>
+                  ) : (
+                    'Save Payment Handles'
+                  )}
+                </Button>
+              </div>
+            </div>
+
+            {/* Family Members List */}
+            <div className="space-y-3">
+              <h3 className="font-medium text-foreground">Family Members</h3>
+              <div className="space-y-3">
+                {members.map((member) => (
+                  <div
+                    key={member.id}
+                    className="flex items-center justify-between p-3 rounded-lg bg-secondary/50"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Avatar>
+                        <AvatarFallback className="bg-primary/10 text-primary">
+                          {getInitials(member.full_name)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="font-medium text-foreground">
+                          {member.full_name}
+                          {member.user_id === user?.id && (
+                            <span className="text-muted-foreground ml-2">(You)</span>
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {currentUserRole === 'moderator' && member.user_id !== user?.id && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => openEditMember(member)}
+                          title="Edit profile"
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                      )}
+                      <Badge
+                        variant={
+                          member.role === 'moderator'
+                            ? 'default'
+                            : member.role === 'recovering'
+                            ? 'outline'
+                            : 'secondary'
+                        }
+                      >
+                        {member.role}
+                      </Badge>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </SheetContent>
+      </Sheet>
+
+      {/* Edit Member Profile Dialog */}
+      <Dialog open={!!editingMember} onOpenChange={(open) => !open && setEditingMember(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="font-display">Edit Member Profile</DialogTitle>
+            <DialogDescription>
+              Update {editingMember?.full_name}'s profile information.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 pt-4">
+            <div className="space-y-2">
+              <Label htmlFor="editFullName">Full Name</Label>
+              <Input
+                id="editFullName"
+                value={editFullName}
+                onChange={(e) => setEditFullName(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="editPaypal">PayPal Username</Label>
+              <Input
+                id="editPaypal"
+                placeholder="username"
+                value={editPaypal}
+                onChange={(e) => setEditPaypal(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="editVenmo">Venmo Username</Label>
+              <Input
+                id="editVenmo"
+                placeholder="username"
+                value={editVenmo}
+                onChange={(e) => setEditVenmo(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="editCashapp">Cash App Username</Label>
+              <Input
+                id="editCashapp"
+                placeholder="username"
+                value={editCashapp}
+                onChange={(e) => setEditCashapp(e.target.value)}
+              />
+            </div>
+            <Button
+              className="w-full"
+              onClick={handleSaveMemberProfile}
+              disabled={isSavingMember}
+            >
+              {isSavingMember ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  Saving...
+                </>
+              ) : (
+                'Save Profile'
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
