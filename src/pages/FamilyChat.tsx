@@ -97,41 +97,66 @@ const FamilyChat = () => {
 
   const fetchFamilyData = async () => {
     try {
-      // Fetch family info
+      if (!familyId) {
+        throw new Error('Missing family id');
+      }
+
+      // Fetch family info (RLS-protected: only members can see it)
       const { data: familyData, error: familyError } = await supabase
         .from('families')
         .select('*')
         .eq('id', familyId)
-        .single();
+        .maybeSingle();
 
       if (familyError) throw familyError;
+      if (!familyData) {
+        toast({
+          title: 'Not found',
+          description: 'That family group does not exist or you no longer have access.',
+          variant: 'destructive',
+        });
+        navigate('/dashboard');
+        return;
+      }
       setFamily(familyData);
 
-      // Fetch members with profiles
+      // Fetch members (cannot embed profiles here because there is no FK relationship)
       const { data: membersData, error: membersError } = await supabase
         .from('family_members')
-        .select(`
-          id,
-          user_id,
-          role,
-          profiles (
-            full_name
-          )
-        `)
+        .select('id, user_id, role')
         .eq('family_id', familyId);
 
       if (membersError) throw membersError;
-      
-      const formattedMembers = (membersData || []).map(m => ({
+
+      const memberRows = membersData || [];
+      const memberUserIds = Array.from(new Set(memberRows.map((m) => m.user_id)));
+
+      const profilesById = new Map<string, string>();
+
+      if (memberUserIds.length > 0) {
+        const { data: profilesData, error: profilesError } = await supabase
+          .from('profiles')
+          .select('id, full_name')
+          .in('id', memberUserIds);
+
+        if (profilesError) throw profilesError;
+
+        for (const p of profilesData || []) {
+          profilesById.set(p.id, p.full_name);
+        }
+      }
+
+      const formattedMembers: Member[] = memberRows.map((m) => ({
         id: m.id,
         user_id: m.user_id,
         role: m.role,
-        full_name: (m.profiles as any)?.full_name || 'Unknown',
+        full_name: profilesById.get(m.user_id) || 'Unknown',
       }));
+
       setMembers(formattedMembers);
 
       // Set current user role
-      const currentMember = formattedMembers.find(m => m.user_id === user?.id);
+      const currentMember = formattedMembers.find((m) => m.user_id === user?.id);
       if (currentMember) {
         setCurrentUserRole(currentMember.role);
       }
@@ -139,20 +164,22 @@ const FamilyChat = () => {
       // Fetch messages
       const { data: messagesData, error: messagesError } = await supabase
         .from('messages')
-        .select(`
+        .select(
+          `
           id,
           content,
           sender_id,
           was_filtered,
           created_at
-        `)
+        `
+        )
         .eq('family_id', familyId)
         .order('created_at', { ascending: true });
 
       if (messagesError) throw messagesError;
 
-      const messagesWithNames = (messagesData || []).map(msg => {
-        const sender = formattedMembers.find(m => m.user_id === msg.sender_id);
+      const messagesWithNames = (messagesData || []).map((msg) => {
+        const sender = formattedMembers.find((m) => m.user_id === msg.sender_id);
         return {
           ...msg,
           sender_name: sender?.full_name || 'Unknown',
