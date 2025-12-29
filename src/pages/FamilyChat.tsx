@@ -39,6 +39,7 @@ import { MeetingCheckin } from '@/components/MeetingCheckin';
 import { CheckinHistory } from '@/components/CheckinHistory';
 import { LocationCheckinRequest } from '@/components/LocationCheckinRequest';
 import { LocationCheckinResponse } from '@/components/LocationCheckinResponse';
+import { LocationCapture, LocationData } from '@/components/LocationCapture';
 
 const REQUEST_REASONS = [
   'Electric',
@@ -129,6 +130,7 @@ const FamilyChat = () => {
   const [isRequesting, setIsRequesting] = useState(false);
   const [currentUserRole, setCurrentUserRole] = useState<string>('member');
   const [checkinRefreshKey, setCheckinRefreshKey] = useState(0);
+  const [capturedLocation, setCapturedLocation] = useState<LocationData | null>(null);
   
   // Payment handles
   const [paypalUsername, setPaypalUsername] = useState('');
@@ -1214,6 +1216,24 @@ const FamilyChat = () => {
                 userRole={currentUserRole}
               />
               
+              {/* Shared Location Capture Card */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center gap-2 font-display text-lg">
+                    <MapPin className="h-5 w-5 text-primary" />
+                    Capture My Location
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Capture your current location to use for meeting check-ins or location requests.
+                  </p>
+                  <LocationCapture 
+                    onLocationCaptured={setCapturedLocation}
+                  />
+                </CardContent>
+              </Card>
+              
               {/* Location Check-in Request (for family members) */}
               <LocationCheckinRequest 
                 familyId={familyId!}
@@ -1222,7 +1242,11 @@ const FamilyChat = () => {
               
               <MeetingCheckin 
                 familyId={familyId!} 
-                onCheckinComplete={() => setCheckinRefreshKey(k => k + 1)} 
+                onCheckinComplete={() => {
+                  setCheckinRefreshKey(k => k + 1);
+                  setCapturedLocation(null);
+                }}
+                capturedLocation={capturedLocation}
               />
               <CheckinHistory 
                 familyId={familyId!} 

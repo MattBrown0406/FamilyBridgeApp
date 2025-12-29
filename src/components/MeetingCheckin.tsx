@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
@@ -8,8 +8,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, CheckCircle } from 'lucide-react';
-import { LocationCapture, LocationData } from '@/components/LocationCapture';
+import { Loader2, CheckCircle, MapPin } from 'lucide-react';
+import { LocationData } from '@/components/LocationCapture';
 
 const MEETING_TYPES = [
   { value: 'AA', label: 'Alcoholics Anonymous (AA)' },
@@ -28,9 +28,10 @@ const MEETING_TYPES = [
 interface MeetingCheckinProps {
   familyId: string;
   onCheckinComplete?: () => void;
+  capturedLocation?: LocationData | null;
 }
 
-export const MeetingCheckin = ({ familyId, onCheckinComplete }: MeetingCheckinProps) => {
+export const MeetingCheckin = ({ familyId, onCheckinComplete, capturedLocation }: MeetingCheckinProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -38,17 +39,14 @@ export const MeetingCheckin = ({ familyId, onCheckinComplete }: MeetingCheckinPr
   const [meetingName, setMeetingName] = useState('');
   const [meetingAddress, setMeetingAddress] = useState('');
   const [notes, setNotes] = useState('');
-  const [latitude, setLatitude] = useState<number | null>(null);
-  const [longitude, setLongitude] = useState<number | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleLocationCaptured = (location: LocationData) => {
-    setLatitude(location.latitude);
-    setLongitude(location.longitude);
-    if (location.address) {
-      setMeetingAddress(location.address);
+  // Update address when location is captured
+  useEffect(() => {
+    if (capturedLocation?.address) {
+      setMeetingAddress(capturedLocation.address);
     }
-  };
+  }, [capturedLocation]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,7 +60,7 @@ export const MeetingCheckin = ({ familyId, onCheckinComplete }: MeetingCheckinPr
       return;
     }
 
-    if (latitude === null || longitude === null) {
+    if (!capturedLocation) {
       toast({
         title: 'Location required',
         description: 'Please capture your location before checking in.',
@@ -80,8 +78,8 @@ export const MeetingCheckin = ({ familyId, onCheckinComplete }: MeetingCheckinPr
         meeting_type: meetingType as 'AA' | 'Al-Anon' | 'NA' | 'Nar-Anon' | 'Refuge Recovery' | 'Smart Recovery' | 'ACA' | 'CoDA' | 'Families Anonymous' | 'Celebrate Recovery' | 'Other',
         meeting_name: meetingName.trim() || null,
         meeting_address: meetingAddress.trim() || null,
-        latitude,
-        longitude,
+        latitude: capturedLocation.latitude,
+        longitude: capturedLocation.longitude,
         notes: notes.trim() || null,
       });
 
@@ -97,8 +95,6 @@ export const MeetingCheckin = ({ familyId, onCheckinComplete }: MeetingCheckinPr
       setMeetingName('');
       setMeetingAddress('');
       setNotes('');
-      setLatitude(null);
-      setLongitude(null);
       
       onCheckinComplete?.();
     } catch (error) {
@@ -122,16 +118,26 @@ export const MeetingCheckin = ({ familyId, onCheckinComplete }: MeetingCheckinPr
         </CardTitle>
         <CardDescription>
           Check in at your recovery meeting to let your family know you're attending.
-          Your location will be shared to verify attendance.
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Location Button */}
-          <div className="space-y-2">
-            <Label>Your Location</Label>
-            <LocationCapture onLocationCaptured={handleLocationCaptured} />
-          </div>
+          {/* Location Status */}
+          {capturedLocation ? (
+            <div className="flex items-center gap-2 p-3 bg-primary/10 rounded-lg">
+              <MapPin className="h-5 w-5 text-primary shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-primary">Location ready</p>
+                <p className="text-xs text-muted-foreground truncate">
+                  {capturedLocation.address || `${capturedLocation.latitude.toFixed(6)}, ${capturedLocation.longitude.toFixed(6)}`}
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="p-3 bg-muted/50 rounded-lg text-sm text-muted-foreground">
+              Capture your location above before checking in.
+            </div>
+          )}
 
           {/* Meeting Type */}
           <div className="space-y-2">
@@ -191,7 +197,7 @@ export const MeetingCheckin = ({ familyId, onCheckinComplete }: MeetingCheckinPr
           <Button
             type="submit"
             className="w-full"
-            disabled={isSubmitting || !meetingType || latitude === null}
+            disabled={isSubmitting || !meetingType || !capturedLocation}
           >
             {isSubmitting ? (
               <>
