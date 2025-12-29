@@ -61,7 +61,7 @@ const Dashboard = () => {
             invite_code
           )
         `)
-        .eq('user_id', user?.id);
+        .eq('user_id', user.id);
 
       if (memberError) throw memberError;
 
@@ -97,6 +97,16 @@ const Dashboard = () => {
   };
 
   const handleCreateFamily = async () => {
+    if (!user) {
+      toast({
+        title: 'Not signed in',
+        description: 'Please sign in again to create a family group.',
+        variant: 'destructive',
+      });
+      navigate('/auth');
+      return;
+    }
+
     if (!newFamilyName.trim()) {
       toast({
         title: 'Name required',
@@ -114,7 +124,7 @@ const Dashboard = () => {
         .insert({
           name: newFamilyName.trim(),
           description: newFamilyDescription.trim() || null,
-          created_by: user?.id,
+          created_by: user.id,
         })
         .select()
         .single();
@@ -126,7 +136,7 @@ const Dashboard = () => {
         .from('family_members')
         .insert({
           family_id: family.id,
-          user_id: user?.id,
+          user_id: user.id,
           role: 'moderator',
         });
 
@@ -154,6 +164,16 @@ const Dashboard = () => {
   };
 
   const handleJoinFamily = async () => {
+    if (!user) {
+      toast({
+        title: 'Not signed in',
+        description: 'Please sign in again to join a family group.',
+        variant: 'destructive',
+      });
+      navigate('/auth');
+      return;
+    }
+
     if (!inviteCode.trim()) {
       toast({
         title: 'Code required',
@@ -186,8 +206,8 @@ const Dashboard = () => {
         .from('family_members')
         .select('id')
         .eq('family_id', family.id)
-        .eq('user_id', user?.id)
-        .single();
+        .eq('user_id', user.id)
+        .maybeSingle();
 
       if (existing) {
         toast({
@@ -203,7 +223,7 @@ const Dashboard = () => {
         .from('family_members')
         .insert({
           family_id: family.id,
-          user_id: user?.id,
+          user_id: user.id,
           role: 'member',
         });
 
