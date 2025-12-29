@@ -11,3 +11,6 @@ verify_jwt = false
 
 [functions.expire-location-request]
 verify_jwt = false
+
+[functions.check-liquor-license]
+verify_jwt = false

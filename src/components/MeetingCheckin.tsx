@@ -8,8 +8,9 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, CheckCircle, MapPin } from 'lucide-react';
+import { Loader2, CheckCircle, MapPin, AlertTriangle } from 'lucide-react';
 import { LocationData } from '@/components/LocationCapture';
+import { Badge } from '@/components/ui/badge';
 
 const MEETING_TYPES = [
   { value: 'AA', label: 'Alcoholics Anonymous (AA)' },
@@ -24,6 +25,12 @@ const MEETING_TYPES = [
   { value: 'Celebrate Recovery', label: 'Celebrate Recovery' },
   { value: 'Other', label: 'Other Recovery Meeting' },
 ];
+
+interface LiquorCheckResult {
+  hasLiquorLicense: boolean;
+  confidence: string;
+  places: Array<{ name: string; type: string; reason: string }>;
+}
 
 interface MeetingCheckinProps {
   familyId: string;
@@ -40,6 +47,8 @@ export const MeetingCheckin = ({ familyId, onCheckinComplete, capturedLocation }
   const [meetingAddress, setMeetingAddress] = useState('');
   const [notes, setNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [liquorCheck, setLiquorCheck] = useState<LiquorCheckResult | null>(null);
+  const [isCheckingLiquor, setIsCheckingLiquor] = useState(false);
 
   // Update address when location is captured
   useEffect(() => {
@@ -47,6 +56,100 @@ export const MeetingCheckin = ({ familyId, onCheckinComplete, capturedLocation }
       setMeetingAddress(capturedLocation.address);
     }
   }, [capturedLocation]);
+
+  // Check for liquor license when location is captured
+  useEffect(() => {
+    const checkLiquorLicense = async () => {
+      if (!capturedLocation) {
+        setLiquorCheck(null);
+        return;
+      }
+
+      setIsCheckingLiquor(true);
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/check-liquor-license`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+            },
+            body: JSON.stringify({
+              latitude: capturedLocation.latitude,
+              longitude: capturedLocation.longitude,
+              address: capturedLocation.address,
+            }),
+          }
+        );
+
+        if (response.ok) {
+          const result = await response.json();
+          setLiquorCheck(result);
+          console.log('Liquor check result:', result);
+        } else {
+          console.error('Failed to check liquor license');
+          setLiquorCheck(null);
+        }
+      } catch (error) {
+        console.error('Error checking liquor license:', error);
+        setLiquorCheck(null);
+      } finally {
+        setIsCheckingLiquor(false);
+      }
+    };
+
+    checkLiquorLicense();
+  }, [capturedLocation]);
+
+  const notifyModerators = async (checkinId: string, liquorPlaces: Array<{ name: string; type: string; reason: string }>) => {
+    try {
+      // Get all moderators in the family
+      const { data: moderators, error: modError } = await supabase
+        .from('family_members')
+        .select('user_id')
+        .eq('family_id', familyId)
+        .eq('role', 'moderator');
+
+      if (modError) throw modError;
+
+      // Get the user's name for the notification
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('full_name')
+        .eq('id', user?.id)
+        .single();
+
+      const userName = profile?.full_name || 'A family member';
+      const placeNames = liquorPlaces.map(p => p.name).join(', ');
+
+      // Create notifications for all moderators (except if the user is also a moderator)
+      const notifications = moderators
+        ?.filter(m => m.user_id !== user?.id)
+        .map(moderator => ({
+          user_id: moderator.user_id,
+          family_id: familyId,
+          type: 'liquor_alert',
+          title: '⚠️ Liquor License Alert',
+          body: `${userName} checked in near a location with a liquor license: ${placeNames}`,
+          related_id: checkinId,
+        })) || [];
+
+      if (notifications.length > 0) {
+        const { error: notifError } = await supabase
+          .from('notifications')
+          .insert(notifications);
+
+        if (notifError) {
+          console.error('Error creating liquor alert notifications:', notifError);
+        } else {
+          console.log(`Sent liquor alert to ${notifications.length} moderator(s)`);
+        }
+      }
+    } catch (error) {
+      console.error('Error notifying moderators:', error);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,7 +175,7 @@ export const MeetingCheckin = ({ familyId, onCheckinComplete, capturedLocation }
     setIsSubmitting(true);
 
     try {
-      const { error } = await supabase.from('meeting_checkins').insert({
+      const { data, error } = await supabase.from('meeting_checkins').insert({
         user_id: user?.id,
         family_id: familyId,
         meeting_type: meetingType as 'AA' | 'Al-Anon' | 'NA' | 'Nar-Anon' | 'Refuge Recovery' | 'Smart Recovery' | 'ACA' | 'CoDA' | 'Families Anonymous' | 'Celebrate Recovery' | 'Other',
@@ -81,13 +184,20 @@ export const MeetingCheckin = ({ familyId, onCheckinComplete, capturedLocation }
         latitude: capturedLocation.latitude,
         longitude: capturedLocation.longitude,
         notes: notes.trim() || null,
-      });
+      }).select('id').single();
 
       if (error) throw error;
 
+      // If liquor license was detected, notify moderators
+      if (liquorCheck?.hasLiquorLicense && data?.id) {
+        await notifyModerators(data.id, liquorCheck.places);
+      }
+
       toast({
         title: 'Check-in successful! 🎉',
-        description: 'Your family has been notified of your meeting attendance.',
+        description: liquorCheck?.hasLiquorLicense 
+          ? 'Your family has been notified. Note: This location is near an establishment with a liquor license.'
+          : 'Your family has been notified of your meeting attendance.',
       });
 
       // Reset form
@@ -95,6 +205,7 @@ export const MeetingCheckin = ({ familyId, onCheckinComplete, capturedLocation }
       setMeetingName('');
       setMeetingAddress('');
       setNotes('');
+      setLiquorCheck(null);
       
       onCheckinComplete?.();
     } catch (error) {
@@ -124,14 +235,44 @@ export const MeetingCheckin = ({ familyId, onCheckinComplete, capturedLocation }
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Location Status */}
           {capturedLocation ? (
-            <div className="flex items-center gap-2 p-3 bg-primary/10 rounded-lg">
-              <MapPin className="h-5 w-5 text-primary shrink-0" />
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-primary">Location ready</p>
-                <p className="text-xs text-muted-foreground truncate">
-                  {capturedLocation.address || `${capturedLocation.latitude.toFixed(6)}, ${capturedLocation.longitude.toFixed(6)}`}
-                </p>
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 p-3 bg-primary/10 rounded-lg">
+                <MapPin className="h-5 w-5 text-primary shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-primary">Location ready</p>
+                  <p className="text-xs text-muted-foreground truncate">
+                    {capturedLocation.address || `${capturedLocation.latitude.toFixed(6)}, ${capturedLocation.longitude.toFixed(6)}`}
+                  </p>
+                </div>
               </div>
+
+              {/* Liquor License Warning */}
+              {isCheckingLiquor && (
+                <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg">
+                  <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                  <span className="text-sm text-muted-foreground">Checking location...</span>
+                </div>
+              )}
+
+              {liquorCheck?.hasLiquorLicense && (
+                <div className="flex items-start gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
+                  <AlertTriangle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="text-sm font-medium text-destructive">Liquor License Detected</p>
+                      <Badge variant="destructive" className="text-xs">
+                        {liquorCheck.confidence === 'high' ? 'High Confidence' : 'Possible Match'}
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Nearby: {liquorCheck.places.map(p => p.name).join(', ')}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Moderators will be notified of this check-in location.
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             <div className="p-3 bg-muted/50 rounded-lg text-sm text-muted-foreground">
