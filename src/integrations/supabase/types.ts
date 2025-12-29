@@ -49,6 +49,9 @@ export type Database = {
           family_id: string
           id: string
           joined_at: string
+          relationship_type:
+            | Database["public"]["Enums"]["relationship_type"]
+            | null
           role: Database["public"]["Enums"]["family_role"]
           user_id: string
         }
@@ -56,6 +59,9 @@ export type Database = {
           family_id: string
           id?: string
           joined_at?: string
+          relationship_type?:
+            | Database["public"]["Enums"]["relationship_type"]
+            | null
           role?: Database["public"]["Enums"]["family_role"]
           user_id: string
         }
@@ -63,6 +69,9 @@ export type Database = {
           family_id?: string
           id?: string
           joined_at?: string
+          relationship_type?:
+            | Database["public"]["Enums"]["relationship_type"]
+            | null
           role?: Database["public"]["Enums"]["family_role"]
           user_id?: string
         }
@@ -419,6 +428,17 @@ export type Database = {
         | "CoDA"
         | "Families Anonymous"
         | "Celebrate Recovery"
+      relationship_type:
+        | "recovering"
+        | "parent"
+        | "spouse_partner"
+        | "sibling"
+        | "child"
+        | "grandparent"
+        | "aunt_uncle"
+        | "cousin"
+        | "friend"
+        | "other"
       request_status: "pending" | "approved" | "denied"
     }
     CompositeTypes: {
@@ -560,6 +580,18 @@ export const Constants = {
         "CoDA",
         "Families Anonymous",
         "Celebrate Recovery",
+      ],
+      relationship_type: [
+        "recovering",
+        "parent",
+        "spouse_partner",
+        "sibling",
+        "child",
+        "grandparent",
+        "aunt_uncle",
+        "cousin",
+        "friend",
+        "other",
       ],
       request_status: ["pending", "approved", "denied"],
     },

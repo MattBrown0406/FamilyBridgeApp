@@ -7,8 +7,21 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+type RelationshipType = 
+  | 'recovering'
+  | 'parent'
+  | 'spouse_partner'
+  | 'sibling'
+  | 'child'
+  | 'grandparent'
+  | 'aunt_uncle'
+  | 'cousin'
+  | 'friend'
+  | 'other';
+
 type JoinFamilyBody = {
   inviteCode?: string;
+  relationshipType?: RelationshipType;
 };
 
 serve(async (req) => {
@@ -49,9 +62,22 @@ serve(async (req) => {
 
     const body = (await req.json().catch(() => ({}))) as JoinFamilyBody;
     const inviteCode = (body.inviteCode || "").trim().toLowerCase();
+    const relationshipType = body.relationshipType;
 
     if (!inviteCode || inviteCode.length > 32) {
       return new Response(JSON.stringify({ error: "Invalid invite code" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const validRelationships: RelationshipType[] = [
+      'recovering', 'parent', 'spouse_partner', 'sibling', 'child',
+      'grandparent', 'aunt_uncle', 'cousin', 'friend', 'other'
+    ];
+
+    if (!relationshipType || !validRelationships.includes(relationshipType)) {
+      return new Response(JSON.stringify({ error: "Relationship type is required" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -102,9 +128,17 @@ serve(async (req) => {
       });
     }
 
+    // If user is 'recovering', set role to 'recovering', otherwise 'member'
+    const memberRole = relationshipType === 'recovering' ? 'recovering' : 'member';
+
     const { error: joinError } = await supabaseAdmin
       .from("family_members")
-      .insert({ family_id: family.id, user_id: userId, role: "member" });
+      .insert({ 
+        family_id: family.id, 
+        user_id: userId, 
+        role: memberRole,
+        relationship_type: relationshipType 
+      });
 
     if (joinError) {
       console.log("family_members join error", joinError);
