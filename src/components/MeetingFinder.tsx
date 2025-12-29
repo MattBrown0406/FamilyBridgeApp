@@ -102,18 +102,6 @@ const REGION_GROUPS: RegionGroup[] = [
       },
     ],
   },
-  {
-    label: 'Al-Anon Online Meetings',
-    fellowship: 'Al-Anon',
-    regions: [
-      {
-        name: 'Solution-Oriented Al-Anon (Online)',
-        feedUrl: 'https://sheets.code4recovery.org/storage/1KcNIvfd0vhC_CHsqjnO0lUw1mSSNuP4CDMuN3T_6_yg.json',
-        type: 'sheets',
-        description: 'Solution-focused Al-Anon meetings worldwide',
-      },
-    ],
-  },
   // AA State Groups
   { label: 'Alabama', fellowship: 'AA', regions: [
     { name: 'Birmingham', feedUrl: 'https://birminghamaa.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
@@ -591,6 +579,33 @@ export const MeetingFinder = () => {
             </SelectContent>
           </Select>
         </div>
+
+        {/* Al-Anon External Link */}
+        {selectedFellowship === 'Al-Anon' && (
+          <Card className="border-primary/30 bg-primary/5">
+            <CardContent className="py-4">
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex-1">
+                  <h4 className="font-medium text-foreground">Al-Anon Meeting Finder</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Al-Anon and Alateen meetings are available through the official Al-Anon Family Groups website, including both in-person and online meetings worldwide.
+                  </p>
+                </div>
+                <Button asChild variant="outline" size="sm">
+                  <a
+                    href="https://al-anon.org/al-anon-meetings/find-an-al-anon-meeting/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2"
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                    Find Al-Anon Meetings
+                  </a>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* ACA External Link */}
         {selectedFellowship === 'ACA' && (
