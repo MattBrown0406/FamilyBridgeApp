@@ -14,8 +14,9 @@ import { useToast } from '@/hooks/use-toast';
 import { 
   Heart, ArrowLeft, Send, Loader2, Users, DollarSign, 
   MessageCircle, AlertTriangle, Check, X, Shield, MapPin,
-  ExternalLink, CreditCard, CheckCircle2
+  ExternalLink, CreditCard, CheckCircle2, Paperclip, Image
 } from 'lucide-react';
+import { Label } from '@/components/ui/label';
 import { format } from 'date-fns';
 import {
   Dialog,
@@ -62,6 +63,7 @@ interface FinancialRequest {
   requester_paypal?: string | null;
   requester_venmo?: string | null;
   requester_cashapp?: string | null;
+  attachment_url?: string | null;
 }
 
 interface Family {
@@ -96,6 +98,11 @@ const FamilyChat = () => {
   const [venmoUsername, setVenmoUsername] = useState('');
   const [cashappUsername, setCashappUsername] = useState('');
   const [isSavingPayment, setIsSavingPayment] = useState(false);
+  
+  // Bill attachment
+  const [billAttachment, setBillAttachment] = useState<File | null>(null);
+  const [billPreview, setBillPreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -287,6 +294,7 @@ const FamilyChat = () => {
         payment_method,
         payment_confirmed_at,
         payment_confirmed_by_user_id,
+        attachment_url,
         financial_votes (
           approved,
           voter_id
@@ -332,6 +340,7 @@ const FamilyChat = () => {
         requester_paypal: profile?.paypal_username || null,
         requester_venmo: profile?.venmo_username || null,
         requester_cashapp: profile?.cashapp_username || null,
+        attachment_url: req.attachment_url,
       };
     });
     setFinancialRequests(requestsWithNames);
@@ -419,6 +428,29 @@ const FamilyChat = () => {
 
     setIsRequesting(true);
     try {
+      let attachmentUrl: string | null = null;
+
+      // Upload bill attachment if provided
+      if (billAttachment && user) {
+        const fileExt = billAttachment.name.split('.').pop();
+        const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from('bill-attachments')
+          .upload(fileName, billAttachment);
+
+        if (uploadError) {
+          console.error('Upload error:', uploadError);
+          throw new Error('Failed to upload bill attachment');
+        }
+
+        const { data: urlData } = supabase.storage
+          .from('bill-attachments')
+          .getPublicUrl(fileName);
+        
+        attachmentUrl = urlData.publicUrl;
+      }
+
       const { error } = await supabase
         .from('financial_requests')
         .insert({
@@ -426,6 +458,7 @@ const FamilyChat = () => {
           requester_id: user?.id,
           amount,
           reason: requestReason.trim(),
+          attachment_url: attachmentUrl,
         });
 
       if (error) throw error;
@@ -437,6 +470,11 @@ const FamilyChat = () => {
 
       setRequestAmount('');
       setRequestReason('');
+      setBillAttachment(null);
+      setBillPreview(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
       fetchFinancialRequests(members);
     } catch (error) {
       console.error('Error creating request:', error);
@@ -447,6 +485,45 @@ const FamilyChat = () => {
       });
     } finally {
       setIsRequesting(false);
+    }
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: 'Invalid file',
+          description: 'Please select an image file (JPG, PNG, etc.)',
+          variant: 'destructive',
+        });
+        return;
+      }
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast({
+          title: 'File too large',
+          description: 'Please select an image under 5MB.',
+          variant: 'destructive',
+        });
+        return;
+      }
+      setBillAttachment(file);
+      // Create preview
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setBillPreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const clearAttachment = () => {
+    setBillAttachment(null);
+    setBillPreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
     }
   };
 
@@ -727,6 +804,7 @@ const FamilyChat = () => {
                   <form onSubmit={handleCreateRequest} className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
+                        <Label className="text-xs text-muted-foreground mb-1 block">Amount</Label>
                         <Input
                           type="number"
                           placeholder="Amount ($)"
@@ -737,13 +815,60 @@ const FamilyChat = () => {
                         />
                       </div>
                       <div>
+                        <Label className="text-xs text-muted-foreground mb-1 block">Reason</Label>
                         <Input
-                          placeholder="Reason for request"
+                          placeholder="e.g., Electric bill, Rent"
                           value={requestReason}
                           onChange={(e) => setRequestReason(e.target.value)}
                         />
                       </div>
                     </div>
+                    
+                    {/* Bill Attachment */}
+                    <div>
+                      <Label className="text-xs text-muted-foreground mb-2 block">
+                        Bill/Receipt Photo (recommended for utilities)
+                      </Label>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileSelect}
+                        className="hidden"
+                      />
+                      {billPreview ? (
+                        <div className="relative">
+                          <img
+                            src={billPreview}
+                            alt="Bill preview"
+                            className="w-full max-h-48 object-contain rounded-lg border border-border"
+                          />
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            className="absolute top-2 right-2"
+                            onClick={clearAttachment}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="w-full"
+                          onClick={() => fileInputRef.current?.click()}
+                        >
+                          <Paperclip className="h-4 w-4 mr-2" />
+                          Attach Bill/Receipt Photo
+                        </Button>
+                      )}
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Include a photo showing the account name, number, and amount due.
+                      </p>
+                    </div>
+
                     <Button type="submit" disabled={isRequesting} className="w-full">
                       {isRequesting ? (
                         <>
@@ -822,6 +947,31 @@ const FamilyChat = () => {
                               </div>
                             </div>
                             <p className="text-sm mb-3">{req.reason}</p>
+
+                            {/* Bill Attachment */}
+                            {req.attachment_url && (
+                              <Dialog>
+                                <DialogTrigger asChild>
+                                  <button className="mb-3 flex items-center gap-2 text-sm text-primary hover:underline">
+                                    <Image className="h-4 w-4" />
+                                    View Bill/Receipt
+                                  </button>
+                                </DialogTrigger>
+                                <DialogContent className="max-w-2xl">
+                                  <DialogHeader>
+                                    <DialogTitle>Bill/Receipt</DialogTitle>
+                                    <DialogDescription>
+                                      Attached documentation for this request
+                                    </DialogDescription>
+                                  </DialogHeader>
+                                  <img
+                                    src={req.attachment_url}
+                                    alt="Bill attachment"
+                                    className="w-full max-h-[70vh] object-contain rounded-lg"
+                                  />
+                                </DialogContent>
+                              </Dialog>
+                            )}
                             
                             {/* Vote counts */}
                             <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
