@@ -2540,6 +2540,10 @@ const FamilyChat = () => {
                           <Check className="h-4 w-4 text-primary shrink-0 mt-0.5" />
                           <span>Location check-in requests should be responded to promptly and honestly.</span>
                         </li>
+                        <li className="flex items-start gap-2">
+                          <Check className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                          <span>Any relapse must be disclosed to the family within 24 hours.</span>
+                        </li>
                       </ul>
                     </div>
                   </div>
