@@ -32,7 +32,7 @@ serve(async (req) => {
   }
 
   try {
-    const { feedUrl } = await req.json();
+    const { feedUrl, feedType = 'sheets' } = await req.json();
 
     if (!feedUrl) {
       return new Response(
@@ -41,7 +41,7 @@ serve(async (req) => {
       );
     }
 
-    console.log("Fetching meetings from:", feedUrl);
+    console.log(`Fetching meetings from: ${feedUrl} (type: ${feedType})`);
 
     const response = await fetch(feedUrl, {
       headers: {
@@ -53,44 +53,26 @@ serve(async (req) => {
     if (!response.ok) {
       console.error("Feed fetch failed:", response.status, response.statusText);
       return new Response(
-        JSON.stringify({ error: "Failed to fetch meeting data" }),
+        JSON.stringify({ error: "Failed to fetch meeting data", status: response.status }),
         { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
     const data = await response.json();
     
-    // Handle different response formats
+    // Handle different response formats based on feed type
     let meetings: Meeting[] = [];
     
-    if (Array.isArray(data)) {
-      meetings = data;
-    } else if (data.meetings && Array.isArray(data.meetings)) {
-      meetings = data.meetings;
-    } else if (data.data && Array.isArray(data.data)) {
-      meetings = data.data;
+    if (feedType === 'central-query') {
+      // OIAA central-query API format
+      meetings = parseCentralQueryData(data);
+    } else if (feedType === 'tsml') {
+      // 12 Step Meeting List WordPress plugin format
+      meetings = parseTSMLData(data);
+    } else {
+      // Google Sheets / default format
+      meetings = parseSheetsData(data);
     }
-
-    // Normalize and clean the meeting data
-    meetings = meetings.map((m: any) => ({
-      name: m.name || "Unnamed Meeting",
-      slug: m.slug || m.id || String(Math.random()),
-      day: typeof m.day === "number" ? m.day : (Array.isArray(m.day) ? m.day[0] : undefined),
-      time: m.time,
-      end_time: m.end_time,
-      location: m.location || m.group,
-      address: m.address || m.formatted_address,
-      city: m.city,
-      state: m.state || m.region,
-      postal_code: m.postal_code || m.zip,
-      types: Array.isArray(m.types) ? m.types : [],
-      notes: m.notes,
-      url: m.url,
-      conference_url: m.conference_url,
-      conference_phone: m.conference_phone,
-      latitude: parseFloat(m.latitude) || undefined,
-      longitude: parseFloat(m.longitude) || undefined,
-    }));
 
     console.log(`Returning ${meetings.length} meetings`);
 
@@ -106,3 +88,108 @@ serve(async (req) => {
     );
   }
 });
+
+// Parse OIAA Central Query API data
+function parseCentralQueryData(data: any): Meeting[] {
+  let rawMeetings: any[] = [];
+  
+  if (Array.isArray(data)) {
+    rawMeetings = data;
+  } else if (data.meetings && Array.isArray(data.meetings)) {
+    rawMeetings = data.meetings;
+  } else if (data.data && Array.isArray(data.data)) {
+    rawMeetings = data.data;
+  }
+
+  return rawMeetings.map((m: any) => ({
+    name: m.name || "Unnamed Meeting",
+    slug: m.slug || m.id || String(Math.random()),
+    day: typeof m.day === "number" ? m.day : undefined,
+    time: m.time,
+    end_time: m.end_time,
+    location: m.location || "Online Meeting",
+    address: m.address,
+    city: m.city,
+    state: m.state,
+    types: Array.isArray(m.types) ? m.types : [],
+    notes: m.notes,
+    url: m.url,
+    conference_url: m.conference_url,
+    conference_phone: m.conference_phone,
+    latitude: m.latitude ? parseFloat(m.latitude) : undefined,
+    longitude: m.longitude ? parseFloat(m.longitude) : undefined,
+  }));
+}
+
+// Parse 12 Step Meeting List (TSML) WordPress plugin data
+function parseTSMLData(data: any): Meeting[] {
+  let rawMeetings: any[] = [];
+  
+  if (Array.isArray(data)) {
+    rawMeetings = data;
+  } else if (data.meetings && Array.isArray(data.meetings)) {
+    rawMeetings = data.meetings;
+  }
+
+  return rawMeetings.map((m: any) => {
+    // TSML uses day as number 0-6 (Sunday-Saturday)
+    let day = typeof m.day === "number" ? m.day : undefined;
+    if (typeof m.day === "string") {
+      day = parseInt(m.day, 10);
+      if (isNaN(day)) day = undefined;
+    }
+
+    return {
+      name: m.name || "Unnamed Meeting",
+      slug: m.slug || m.id?.toString() || String(Math.random()),
+      day,
+      time: m.time,
+      end_time: m.end_time,
+      location: m.location || m.location_notes,
+      address: m.formatted_address || m.address,
+      city: m.city,
+      state: m.state,
+      postal_code: m.postal_code,
+      types: Array.isArray(m.types) ? m.types : [],
+      notes: m.notes,
+      url: m.url,
+      conference_url: m.conference_url,
+      conference_phone: m.conference_phone,
+      latitude: m.latitude ? parseFloat(m.latitude) : undefined,
+      longitude: m.longitude ? parseFloat(m.longitude) : undefined,
+    };
+  });
+}
+
+// Parse Google Sheets / Code for Recovery sheets format
+function parseSheetsData(data: any): Meeting[] {
+  let rawMeetings: any[] = [];
+  
+  if (Array.isArray(data)) {
+    rawMeetings = data;
+  } else if (data.meetings && Array.isArray(data.meetings)) {
+    rawMeetings = data.meetings;
+  } else if (data.data && Array.isArray(data.data)) {
+    rawMeetings = data.data;
+  }
+
+  return rawMeetings.map((m: any) => ({
+    name: m.name || "Unnamed Meeting",
+    slug: m.slug || m.id || String(Math.random()),
+    day: typeof m.day === "number" ? m.day : (Array.isArray(m.day) ? m.day[0] : undefined),
+    time: m.time,
+    end_time: m.end_time,
+    location: m.location || m.group,
+    address: m.address || m.formatted_address,
+    city: m.city,
+    state: m.state || m.region,
+    postal_code: m.postal_code || m.zip,
+    types: Array.isArray(m.types) ? m.types : [],
+    notes: m.notes,
+    url: m.url,
+    conference_url: m.conference_url,
+    conference_phone: m.conference_phone,
+    latitude: m.latitude ? parseFloat(m.latitude) : undefined,
+    longitude: m.longitude ? parseFloat(m.longitude) : undefined,
+  }));
+}
