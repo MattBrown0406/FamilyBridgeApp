@@ -605,29 +605,38 @@ const FamilyChat = () => {
     e.preventDefault();
     if (!newMessage.trim()) return;
 
+    // Check for inappropriate content before sending
+    const filterResult = filterContent(newMessage);
+    
+    if (!filterResult.isClean) {
+      let warningMessage = 'Your message contains content that is not allowed in this family space.';
+      
+      if (filterResult.wasAbusive) {
+        warningMessage = 'Your message contains abusive or harmful language. Please communicate respectfully with your family members.';
+      } else if (filterResult.flaggedWords.length > 0) {
+        warningMessage = 'Your message contains profanity. Please edit your message and try again.';
+      }
+      
+      toast({
+        title: 'Message not sent',
+        description: warningMessage,
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setIsSending(true);
     try {
-      const filterResult = filterContent(newMessage);
-
       const { error } = await supabase
         .from('messages')
         .insert({
           family_id: familyId,
           sender_id: user?.id,
-          content: filterResult.filteredContent,
-          original_content: filterResult.isClean ? null : filterResult.originalContent,
-          was_filtered: !filterResult.isClean,
+          content: newMessage.trim(),
+          was_filtered: false,
         });
 
       if (error) throw error;
-
-      if (!filterResult.isClean) {
-        toast({
-          title: 'Message filtered',
-          description: 'Some content was modified to maintain a supportive environment.',
-          variant: 'default',
-        });
-      }
 
       setNewMessage('');
     } catch (error) {
