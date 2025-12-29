@@ -2410,6 +2410,34 @@ const FamilyChat = () => {
                     </div>
                   )}
 
+                  {/* My Proposed Boundaries (for non-moderators to see their pending proposals) */}
+                  {currentUserRole !== 'moderator' && familyBoundaries.filter(b => b.status === 'pending' && b.created_by === user?.id).length > 0 && (
+                    <div className="space-y-3">
+                      <h3 className="font-medium text-foreground flex items-center gap-2">
+                        <Loader2 className="h-4 w-4 text-muted-foreground" />
+                        Your Proposed Boundaries (Pending Approval)
+                      </h3>
+                      <div className="grid gap-3">
+                        {familyBoundaries.filter(b => b.status === 'pending' && b.created_by === user?.id).map(boundary => (
+                          <div key={boundary.id} className="p-4 rounded-lg bg-muted/50 border border-border">
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="flex-1">
+                                <p className="text-sm font-medium mb-1">
+                                  {boundary.target_name ? `For ${boundary.target_name}` : 'For All Members'}
+                                </p>
+                                <p className="text-sm">{boundary.content}</p>
+                                <p className="text-xs text-muted-foreground mt-2">
+                                  Awaiting moderator approval...
+                                </p>
+                              </div>
+                              <Badge variant="outline" className="shrink-0">Pending</Badge>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   {/* Approved Boundaries */}
                   <div className="space-y-3">
                     <h3 className="font-medium text-foreground">Active Boundaries</h3>
@@ -2482,6 +2510,37 @@ const FamilyChat = () => {
                           </div>
                         ))
                       )}
+                    </div>
+                  </div>
+
+                  {/* Universal Boundaries */}
+                  <div className="space-y-3">
+                    <h3 className="font-medium text-foreground flex items-center gap-2">
+                      <Shield className="h-4 w-4 text-primary" />
+                      Universal Boundaries
+                    </h3>
+                    <div className="p-4 rounded-lg bg-primary/5 border border-primary/20">
+                      <p className="text-sm text-muted-foreground mb-3">
+                        These boundaries apply to all families using this platform:
+                      </p>
+                      <ul className="space-y-2 text-sm">
+                        <li className="flex items-start gap-2">
+                          <Check className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                          <span>No financial support will be provided for substances or activities that enable addiction.</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <Check className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                          <span>All family members commit to honest, respectful communication.</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <Check className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                          <span>Recovery progress must be demonstrated through regular meeting check-ins.</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <Check className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                          <span>Location check-in requests should be responded to promptly and honestly.</span>
+                        </li>
+                      </ul>
                     </div>
                   </div>
 
