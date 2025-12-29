@@ -2530,6 +2530,10 @@ const FamilyChat = () => {
                         </li>
                         <li className="flex items-start gap-2">
                           <Check className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                          <span>All financial support must go through the approval process on this app. No cash.</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <Check className="h-4 w-4 text-primary shrink-0 mt-0.5" />
                           <span>All family members commit to honest, respectful communication.</span>
                         </li>
                         <li className="flex items-start gap-2">
