@@ -92,138 +92,376 @@ const REGION_GROUPS: RegionGroup[] = [
     ],
   },
   {
-    label: 'California',
+    label: 'Alabama',
     regions: [
-      {
-        name: 'San Jose / Santa Clara County',
-        feedUrl: 'https://sheets.code4recovery.org/storage/12Ga8uwMG4WJ8pZ_SEU7vNETp_aQZ-2yNVsYDFqIwHyE.json',
-        type: 'sheets',
-      },
-      {
-        name: 'San Francisco & Marin',
-        feedUrl: 'https://aasfmarin.org/wp-admin/admin-ajax.php?action=meetings',
-        type: 'tsml',
-      },
-      {
-        name: 'San Diego',
-        feedUrl: 'https://aasandiego.org/wp-admin/admin-ajax.php?action=meetings',
-        type: 'tsml',
-      },
-      {
-        name: 'Los Angeles (Central Office)',
-        feedUrl: 'https://aala.org/wp-admin/admin-ajax.php?action=meetings',
-        type: 'tsml',
-      },
-      {
-        name: 'Central Coast (SLO)',
-        feedUrl: 'https://www.sloaa.org/wp-admin/admin-ajax.php?action=meetings',
-        type: 'tsml',
-      },
+      { name: 'Birmingham', feedUrl: 'https://birminghamaa.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'Mobile', feedUrl: 'https://mobileareaintergroupaa.com/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
     ],
   },
   {
-    label: 'Texas',
+    label: 'Alaska',
     regions: [
-      {
-        name: 'Houston',
-        feedUrl: 'https://aahouston.org/wp-admin/admin-ajax.php?action=meetings',
-        type: 'tsml',
-      },
-      {
-        name: 'San Antonio',
-        feedUrl: 'https://aasanantonio.org/wp-admin/admin-ajax.php?action=meetings',
-        type: 'tsml',
-      },
-      {
-        name: 'Austin',
-        feedUrl: 'https://austinaa.org/wp-admin/admin-ajax.php?action=meetings',
-        type: 'tsml',
-      },
-      {
-        name: 'Dallas',
-        feedUrl: 'https://aadallas.org/wp-admin/admin-ajax.php?action=meetings',
-        type: 'tsml',
-      },
+      { name: 'Anchorage', feedUrl: 'https://anchorageaa.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+    ],
+  },
+  {
+    label: 'Arizona',
+    regions: [
+      { name: 'Phoenix', feedUrl: 'https://www.aaphoenix.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'Tucson', feedUrl: 'https://www.aatucson.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'Scottsdale', feedUrl: 'https://eastvalleyaa.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+    ],
+  },
+  {
+    label: 'Arkansas',
+    regions: [
+      { name: 'Little Rock', feedUrl: 'https://arkansascentraloffice.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+    ],
+  },
+  {
+    label: 'California',
+    regions: [
+      { name: 'Los Angeles (Central Office)', feedUrl: 'https://aala.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'San Francisco & Marin', feedUrl: 'https://aasfmarin.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'San Diego', feedUrl: 'https://aasandiego.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'San Jose / Santa Clara County', feedUrl: 'https://sheets.code4recovery.org/storage/12Ga8uwMG4WJ8pZ_SEU7vNETp_aQZ-2yNVsYDFqIwHyE.json', type: 'sheets' },
+      { name: 'Central Coast (SLO)', feedUrl: 'https://www.sloaa.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'Orange County', feedUrl: 'https://oc-aa.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'Sacramento', feedUrl: 'https://www.aasacramento.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'Inland Empire', feedUrl: 'https://riversidecentraloffice.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'Santa Barbara', feedUrl: 'https://www.santabarbaraaa.com/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'Fresno', feedUrl: 'https://www.fresnoaa.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'East Bay', feedUrl: 'https://eastbayaa.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'South Bay', feedUrl: 'https://www.southbayaa.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'Monterey Bay', feedUrl: 'https://montereyaa.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+    ],
+  },
+  {
+    label: 'Colorado',
+    regions: [
+      { name: 'Denver', feedUrl: 'https://daccaa.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'Colorado Springs', feedUrl: 'https://coloradospringsaa.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'Boulder', feedUrl: 'https://www.bouldercountyaa.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+    ],
+  },
+  {
+    label: 'Connecticut',
+    regions: [
+      { name: 'Connecticut', feedUrl: 'https://www.ct-aa.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+    ],
+  },
+  {
+    label: 'Delaware',
+    regions: [
+      { name: 'Delaware', feedUrl: 'https://delawareaa.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
     ],
   },
   {
     label: 'Florida',
     regions: [
-      {
-        name: 'Central Florida (Orlando)',
-        feedUrl: 'https://cflintergroup.org/wp-admin/admin-ajax.php?action=meetings',
-        type: 'tsml',
-      },
-      {
-        name: 'Tallahassee',
-        feedUrl: 'https://intergroup5.org/wp-admin/admin-ajax.php?action=meetings',
-        type: 'tsml',
-      },
+      { name: 'Central Florida (Orlando)', feedUrl: 'https://cflintergroup.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'Tallahassee', feedUrl: 'https://intergroup5.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'Miami', feedUrl: 'https://aamiamidade.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'Tampa Bay', feedUrl: 'https://aatampabay.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'Jacksonville', feedUrl: 'https://neflaa.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'Fort Lauderdale / Broward', feedUrl: 'https://aabroward.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'Palm Beach', feedUrl: 'https://aapalmbeach.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'St. Lucie', feedUrl: 'https://aastlucieintergroup.com/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'Sarasota', feedUrl: 'https://aasrq.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
     ],
   },
   {
-    label: 'Northeast',
+    label: 'Georgia',
     regions: [
-      {
-        name: 'New York City',
-        feedUrl: 'https://www.nyintergroup.org/wp-admin/admin-ajax.php?action=meetings',
-        type: 'tsml',
-      },
-      {
-        name: 'Boston',
-        feedUrl: 'https://aaboston.org/wp-admin/admin-ajax.php?action=meetings',
-        type: 'tsml',
-      },
-      {
-        name: 'Philadelphia',
-        feedUrl: 'https://aasepia.org/wp-admin/admin-ajax.php?action=meetings',
-        type: 'tsml',
-      },
+      { name: 'Atlanta', feedUrl: 'https://atlantaaa.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'Savannah', feedUrl: 'https://www.savannahaa.com/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
     ],
   },
   {
-    label: 'Midwest',
+    label: 'Hawaii',
     regions: [
-      {
-        name: 'Chicago',
-        feedUrl: 'https://chicagoaa.org/wp-admin/admin-ajax.php?action=meetings',
-        type: 'tsml',
-      },
-      {
-        name: 'Detroit',
-        feedUrl: 'https://detroitaa.org/wp-admin/admin-ajax.php?action=meetings',
-        type: 'tsml',
-      },
+      { name: 'Hawaii (Oahu)', feedUrl: 'https://oahucentraloffice.com/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'Maui', feedUrl: 'https://www.aamaui.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
     ],
   },
   {
-    label: 'Pacific Northwest',
+    label: 'Idaho',
     regions: [
-      {
-        name: 'Seattle',
-        feedUrl: 'https://seattleaa.org/wp-admin/admin-ajax.php?action=meetings',
-        type: 'tsml',
-      },
-      {
-        name: 'Portland',
-        feedUrl: 'https://pdxaa.org/wp-admin/admin-ajax.php?action=meetings',
-        type: 'tsml',
-      },
+      { name: 'Boise', feedUrl: 'https://boiseaa.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
     ],
   },
   {
-    label: 'Mountain West',
+    label: 'Illinois',
     regions: [
-      {
-        name: 'Denver',
-        feedUrl: 'https://daccaa.org/wp-admin/admin-ajax.php?action=meetings',
-        type: 'tsml',
-      },
-      {
-        name: 'Phoenix',
-        feedUrl: 'https://www.aaphoenix.org/wp-admin/admin-ajax.php?action=meetings',
-        type: 'tsml',
-      },
+      { name: 'Chicago', feedUrl: 'https://chicagoaa.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'Springfield', feedUrl: 'https://aa-springfield-il.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+    ],
+  },
+  {
+    label: 'Indiana',
+    regions: [
+      { name: 'Indianapolis', feedUrl: 'https://indyaa.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+    ],
+  },
+  {
+    label: 'Iowa',
+    regions: [
+      { name: 'Des Moines', feedUrl: 'https://www.iowacityaa.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+    ],
+  },
+  {
+    label: 'Kansas',
+    regions: [
+      { name: 'Kansas City', feedUrl: 'https://www.kc-aa.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'Wichita', feedUrl: 'https://www.aawichita.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+    ],
+  },
+  {
+    label: 'Kentucky',
+    regions: [
+      { name: 'Louisville', feedUrl: 'https://louisvilleaa.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'Lexington', feedUrl: 'https://www.lexingtonaa.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+    ],
+  },
+  {
+    label: 'Louisiana',
+    regions: [
+      { name: 'New Orleans', feedUrl: 'https://neworleansaa.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'Baton Rouge', feedUrl: 'https://www.brintergroup.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+    ],
+  },
+  {
+    label: 'Maine',
+    regions: [
+      { name: 'Maine', feedUrl: 'https://csoaamaine.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+    ],
+  },
+  {
+    label: 'Maryland',
+    regions: [
+      { name: 'Baltimore', feedUrl: 'https://baltimoreaa.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+    ],
+  },
+  {
+    label: 'Massachusetts',
+    regions: [
+      { name: 'Boston', feedUrl: 'https://aaboston.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'Western MA', feedUrl: 'https://westernmassaa.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'Cape Cod', feedUrl: 'https://capecodaa.net/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+    ],
+  },
+  {
+    label: 'Michigan',
+    regions: [
+      { name: 'Detroit', feedUrl: 'https://detroitaa.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'Grand Rapids', feedUrl: 'https://www.grandrapidsaa.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'Ann Arbor', feedUrl: 'https://www.annarboraa.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+    ],
+  },
+  {
+    label: 'Minnesota',
+    regions: [
+      { name: 'Minneapolis / St. Paul', feedUrl: 'https://aaminneapolis.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+    ],
+  },
+  {
+    label: 'Mississippi',
+    regions: [
+      { name: 'Mississippi', feedUrl: 'https://msareaaa.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+    ],
+  },
+  {
+    label: 'Missouri',
+    regions: [
+      { name: 'St. Louis', feedUrl: 'https://aastl.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'Kansas City', feedUrl: 'https://www.kc-aa.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+    ],
+  },
+  {
+    label: 'Montana',
+    regions: [
+      { name: 'Montana', feedUrl: 'https://www.aamontana.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+    ],
+  },
+  {
+    label: 'Nebraska',
+    regions: [
+      { name: 'Omaha', feedUrl: 'https://omahacentraloffice.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+    ],
+  },
+  {
+    label: 'Nevada',
+    regions: [
+      { name: 'Las Vegas', feedUrl: 'https://lvcentraloffice.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'Reno', feedUrl: 'https://www.nnig.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+    ],
+  },
+  {
+    label: 'New Hampshire',
+    regions: [
+      { name: 'New Hampshire', feedUrl: 'https://nhaa.net/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+    ],
+  },
+  {
+    label: 'New Jersey',
+    regions: [
+      { name: 'New Jersey', feedUrl: 'https://nnjaa.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'Central Jersey', feedUrl: 'https://www.aacentralnj.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+    ],
+  },
+  {
+    label: 'New Mexico',
+    regions: [
+      { name: 'Albuquerque', feedUrl: 'https://albuquerqueaa.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'Santa Fe', feedUrl: 'https://santafeaa.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+    ],
+  },
+  {
+    label: 'New York',
+    regions: [
+      { name: 'New York City', feedUrl: 'https://www.nyintergroup.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'Long Island', feedUrl: 'https://www.nassauaa.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'Buffalo', feedUrl: 'https://buffaloaany.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'Rochester', feedUrl: 'https://rochester-ny-aa.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'Syracuse', feedUrl: 'https://aasyracuse.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'Westchester', feedUrl: 'https://aawestchester.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+    ],
+  },
+  {
+    label: 'North Carolina',
+    regions: [
+      { name: 'Charlotte', feedUrl: 'https://charlotteaa.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'Raleigh', feedUrl: 'https://www.raleighaa.com/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'Triangle (Durham/Chapel Hill)', feedUrl: 'https://www.triangleaa.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+    ],
+  },
+  {
+    label: 'North Dakota',
+    regions: [
+      { name: 'Fargo', feedUrl: 'https://fmaa.net/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+    ],
+  },
+  {
+    label: 'Ohio',
+    regions: [
+      { name: 'Cleveland', feedUrl: 'https://www.clevelandaa.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'Columbus', feedUrl: 'https://aacentralohio.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'Cincinnati', feedUrl: 'https://aacincinnati.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'Dayton', feedUrl: 'https://daytonaa.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+    ],
+  },
+  {
+    label: 'Oklahoma',
+    regions: [
+      { name: 'Oklahoma City', feedUrl: 'https://okcaa.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'Tulsa', feedUrl: 'https://tulsaaa.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+    ],
+  },
+  {
+    label: 'Oregon',
+    regions: [
+      { name: 'Portland', feedUrl: 'https://pdxaa.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'Central Oregon (Bend)', feedUrl: 'https://www.coigaa.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'Eugene/Springfield', feedUrl: 'https://www.eug-aa.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+    ],
+  },
+  {
+    label: 'Pennsylvania',
+    regions: [
+      { name: 'Philadelphia', feedUrl: 'https://aasepia.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'Pittsburgh', feedUrl: 'https://aapittsburgh.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'Allentown / Lehigh Valley', feedUrl: 'https://www.aalehighvalley.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+    ],
+  },
+  {
+    label: 'Rhode Island',
+    regions: [
+      { name: 'Rhode Island', feedUrl: 'https://aainri.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+    ],
+  },
+  {
+    label: 'South Carolina',
+    regions: [
+      { name: 'Charleston', feedUrl: 'https://www.charlestonaa.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'Columbia', feedUrl: 'https://midlandsintergroup.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+    ],
+  },
+  {
+    label: 'South Dakota',
+    regions: [
+      { name: 'Sioux Falls', feedUrl: 'https://www.siouxfallsaa.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+    ],
+  },
+  {
+    label: 'Tennessee',
+    regions: [
+      { name: 'Nashville', feedUrl: 'https://www.aanashville.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'Memphis', feedUrl: 'https://memphisaa.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'Knoxville', feedUrl: 'https://www.knoxvilleaa.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+    ],
+  },
+  {
+    label: 'Texas',
+    regions: [
+      { name: 'Houston', feedUrl: 'https://aahouston.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'Dallas', feedUrl: 'https://aadallas.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'Austin', feedUrl: 'https://austinaa.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'San Antonio', feedUrl: 'https://aasanantonio.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'Fort Worth', feedUrl: 'https://aa-tarrant.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'El Paso', feedUrl: 'https://www.aaelpaso.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+    ],
+  },
+  {
+    label: 'Utah',
+    regions: [
+      { name: 'Salt Lake City', feedUrl: 'https://slcentraloffice.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+    ],
+  },
+  {
+    label: 'Vermont',
+    regions: [
+      { name: 'Vermont', feedUrl: 'https://www.aavt.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+    ],
+  },
+  {
+    label: 'Virginia',
+    regions: [
+      { name: 'Northern Virginia', feedUrl: 'https://nvintergroup.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'Richmond', feedUrl: 'https://aarichmond.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'Virginia Beach', feedUrl: 'https://www.tidewaterintergroup.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+    ],
+  },
+  {
+    label: 'Washington',
+    regions: [
+      { name: 'Seattle', feedUrl: 'https://seattleaa.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'Spokane', feedUrl: 'https://aaspokane.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'Tacoma', feedUrl: 'https://www.piercecountyaa.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+    ],
+  },
+  {
+    label: 'Washington D.C.',
+    regions: [
+      { name: 'Washington D.C.', feedUrl: 'https://aa-dc.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+    ],
+  },
+  {
+    label: 'West Virginia',
+    regions: [
+      { name: 'Charleston', feedUrl: 'https://aawv.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+    ],
+  },
+  {
+    label: 'Wisconsin',
+    regions: [
+      { name: 'Milwaukee', feedUrl: 'https://aa-wi.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+      { name: 'Madison', feedUrl: 'https://aamadisonwi.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
+    ],
+  },
+  {
+    label: 'Wyoming',
+    regions: [
+      { name: 'Wyoming', feedUrl: 'https://wyomingaa.org/wp-admin/admin-ajax.php?action=meetings', type: 'tsml' },
     ],
   },
   {
