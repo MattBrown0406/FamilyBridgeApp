@@ -1,1 +1,7 @@
 project_id = "lljqptscpeamwfkzsezo"
+
+[functions.create-family]
+verify_jwt = false
+
+[functions.join-family]
+verify_jwt = false
