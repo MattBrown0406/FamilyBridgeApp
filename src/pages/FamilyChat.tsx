@@ -37,6 +37,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { NotificationBell } from '@/components/NotificationBell';
 import { MeetingCheckin } from '@/components/MeetingCheckin';
 import { CheckinHistory } from '@/components/CheckinHistory';
+import { LocationCheckinRequest } from '@/components/LocationCheckinRequest';
+import { LocationCheckinResponse } from '@/components/LocationCheckinResponse';
 
 const REQUEST_REASONS = [
   'Electric',
@@ -1206,6 +1208,18 @@ const FamilyChat = () => {
           {/* Check-in Tab */}
           <TabsContent value="checkin" className="flex-1 overflow-auto mt-0">
             <div className="space-y-4">
+              {/* Location Check-in Response (for recovering members) */}
+              <LocationCheckinResponse 
+                familyId={familyId!}
+                userRole={currentUserRole}
+              />
+              
+              {/* Location Check-in Request (for family members) */}
+              <LocationCheckinRequest 
+                familyId={familyId!}
+                userRole={currentUserRole}
+              />
+              
               <MeetingCheckin 
                 familyId={familyId!} 
                 onCheckinComplete={() => setCheckinRefreshKey(k => k + 1)} 

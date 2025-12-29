@@ -237,6 +237,62 @@ export type Database = {
           },
         ]
       }
+      location_checkin_requests: {
+        Row: {
+          created_at: string
+          family_id: string
+          id: string
+          latitude: number | null
+          location_address: string | null
+          longitude: number | null
+          requested_at: string
+          requester_id: string
+          requester_note: string | null
+          responded_at: string | null
+          response_note: string | null
+          status: string
+          target_user_id: string
+        }
+        Insert: {
+          created_at?: string
+          family_id: string
+          id?: string
+          latitude?: number | null
+          location_address?: string | null
+          longitude?: number | null
+          requested_at?: string
+          requester_id: string
+          requester_note?: string | null
+          responded_at?: string | null
+          response_note?: string | null
+          status?: string
+          target_user_id: string
+        }
+        Update: {
+          created_at?: string
+          family_id?: string
+          id?: string
+          latitude?: number | null
+          location_address?: string | null
+          longitude?: number | null
+          requested_at?: string
+          requester_id?: string
+          requester_note?: string | null
+          responded_at?: string | null
+          response_note?: string | null
+          status?: string
+          target_user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "location_checkin_requests_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       meeting_checkins: {
         Row: {
           checked_in_at: string
