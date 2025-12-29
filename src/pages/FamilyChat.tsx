@@ -15,7 +15,7 @@ import {
   Heart, ArrowLeft, Send, Loader2, Users, DollarSign, 
   MessageCircle, AlertTriangle, Check, X, Shield, MapPin,
   ExternalLink, CreditCard, CheckCircle2, Paperclip, Image, HandCoins, Trash2, Pencil,
-  Target, ShieldCheck
+  Target, ShieldCheck, Plus, CheckCircle
 } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { format } from 'date-fns';
@@ -118,6 +118,22 @@ interface Family {
   description: string | null;
 }
 
+interface FamilyGoal {
+  id: string;
+  family_id: string;
+  goal_type: string;
+  created_at: string;
+  created_by: string;
+  completed_at: string | null;
+}
+
+const GOAL_OPTIONS = [
+  { value: 'into_treatment', label: 'Get {name} into treatment' },
+  { value: 'complete_treatment', label: 'Help {name} complete treatment' },
+  { value: 'finish_aftercare', label: 'Help {name} finish aftercare plan' },
+  { value: 'one_year_sobriety', label: 'Help {name} get to one year of sobriety' },
+] as const;
+
 const FamilyChat = () => {
   const { familyId } = useParams();
   const { user, loading } = useAuth();
@@ -169,6 +185,11 @@ const FamilyChat = () => {
   const [cooldownEndTime, setCooldownEndTime] = useState<number | null>(null);
   const [cooldownRemaining, setCooldownRemaining] = useState(0);
   const [membersSheetOpen, setMembersSheetOpen] = useState(false);
+  
+  // Goals state
+  const [familyGoals, setFamilyGoals] = useState<FamilyGoal[]>([]);
+  const [selectedGoal, setSelectedGoal] = useState('');
+  const [isAddingGoal, setIsAddingGoal] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -466,6 +487,9 @@ const FamilyChat = () => {
 
       // Fetch financial requests
       await fetchFinancialRequests(formattedMembers);
+      
+      // Fetch family goals
+      await fetchFamilyGoals();
     } catch (error) {
       console.error('Error fetching family data:', error);
       toast({
@@ -477,6 +501,113 @@ const FamilyChat = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const fetchFamilyGoals = async () => {
+    const { data, error } = await supabase
+      .from('family_goals')
+      .select('*')
+      .eq('family_id', familyId)
+      .order('created_at', { ascending: true });
+
+    if (error) {
+      console.error('Error fetching goals:', error);
+      return;
+    }
+
+    setFamilyGoals(data || []);
+  };
+
+  const handleAddGoal = async () => {
+    if (!selectedGoal || !user || !familyId) return;
+
+    setIsAddingGoal(true);
+    try {
+      const { error } = await supabase
+        .from('family_goals')
+        .insert({
+          family_id: familyId,
+          goal_type: selectedGoal,
+          created_by: user.id,
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: 'Goal added',
+        description: 'Family goal has been added successfully.',
+      });
+
+      setSelectedGoal('');
+      await fetchFamilyGoals();
+    } catch (error) {
+      console.error('Error adding goal:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to add goal.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsAddingGoal(false);
+    }
+  };
+
+  const handleToggleGoalComplete = async (goalId: string, isCompleted: boolean) => {
+    try {
+      const { error } = await supabase
+        .from('family_goals')
+        .update({
+          completed_at: isCompleted ? null : new Date().toISOString(),
+        })
+        .eq('id', goalId);
+
+      if (error) throw error;
+
+      await fetchFamilyGoals();
+    } catch (error) {
+      console.error('Error updating goal:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to update goal.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleDeleteGoal = async (goalId: string) => {
+    try {
+      const { error } = await supabase
+        .from('family_goals')
+        .delete()
+        .eq('id', goalId);
+
+      if (error) throw error;
+
+      toast({
+        title: 'Goal removed',
+        description: 'Family goal has been removed.',
+      });
+
+      await fetchFamilyGoals();
+    } catch (error) {
+      console.error('Error deleting goal:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to remove goal.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const getRecoveringMemberName = () => {
+    const recoveringMember = members.find(m => m.role === 'recovering');
+    return recoveringMember?.full_name || 'your loved one';
+  };
+
+  const getGoalLabel = (goalType: string) => {
+    const option = GOAL_OPTIONS.find(o => o.value === goalType);
+    if (!option) return goalType;
+    return option.label.replace('{name}', getRecoveringMemberName());
   };
 
   const fetchFinancialRequests = async (membersList: Member[]) => {
@@ -1813,29 +1944,114 @@ const FamilyChat = () => {
                   </div>
 
                   <div className="space-y-3">
-                    <h3 className="font-medium text-foreground">Shared Goals</h3>
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-medium text-foreground">Shared Goals</h3>
+                    </div>
                     <p className="text-sm text-muted-foreground">
                       Track your family's collective recovery milestones.
                     </p>
+
+                    {/* Moderator goal selection */}
+                    {currentUserRole === 'moderator' && (
+                      <div className="flex gap-2">
+                        <Select value={selectedGoal} onValueChange={setSelectedGoal}>
+                          <SelectTrigger className="flex-1">
+                            <SelectValue placeholder="Select a goal to add..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {GOAL_OPTIONS.filter(
+                              option => !familyGoals.some(g => g.goal_type === option.value)
+                            ).map(option => (
+                              <SelectItem key={option.value} value={option.value}>
+                                {option.label.replace('{name}', getRecoveringMemberName())}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Button
+                          onClick={handleAddGoal}
+                          disabled={!selectedGoal || isAddingGoal}
+                          size="icon"
+                        >
+                          {isAddingGoal ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Plus className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </div>
+                    )}
+
+                    {/* Goals list */}
                     <div className="grid gap-3">
-                      <div className="p-4 rounded-lg bg-primary/5 border border-primary/20">
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="font-medium">Weekly Family Check-ins</span>
-                          <Badge variant="outline">In Progress</Badge>
+                      {familyGoals.length === 0 ? (
+                        <div className="p-4 rounded-lg bg-secondary/30 border border-border text-center">
+                          <p className="text-sm text-muted-foreground">
+                            No goals set yet. {currentUserRole === 'moderator' && 'Select a goal above to get started.'}
+                          </p>
                         </div>
-                        <p className="text-sm text-muted-foreground">
-                          Hold regular meetings to discuss progress and challenges.
-                        </p>
-                      </div>
-                      <div className="p-4 rounded-lg bg-primary/5 border border-primary/20">
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="font-medium">Attend Support Meetings</span>
-                          <Badge variant="outline">Ongoing</Badge>
-                        </div>
-                        <p className="text-sm text-muted-foreground">
-                          Recovering member attends at least 3 meetings per week.
-                        </p>
-                      </div>
+                      ) : (
+                        familyGoals.map((goal) => (
+                          <div
+                            key={goal.id}
+                            className={`p-4 rounded-lg border ${
+                              goal.completed_at
+                                ? 'bg-primary/10 border-primary/30'
+                                : 'bg-primary/5 border-primary/20'
+                            }`}
+                          >
+                            <div className="flex items-center justify-between gap-2">
+                              <div className="flex items-center gap-3 flex-1">
+                                {currentUserRole === 'moderator' ? (
+                                  <button
+                                    onClick={() => handleToggleGoalComplete(goal.id, !!goal.completed_at)}
+                                    className={`shrink-0 h-5 w-5 rounded-full border-2 flex items-center justify-center transition-colors ${
+                                      goal.completed_at
+                                        ? 'bg-primary border-primary text-primary-foreground'
+                                        : 'border-muted-foreground hover:border-primary'
+                                    }`}
+                                  >
+                                    {goal.completed_at && <Check className="h-3 w-3" />}
+                                  </button>
+                                ) : (
+                                  <div
+                                    className={`shrink-0 h-5 w-5 rounded-full border-2 flex items-center justify-center ${
+                                      goal.completed_at
+                                        ? 'bg-primary border-primary text-primary-foreground'
+                                        : 'border-muted-foreground'
+                                    }`}
+                                  >
+                                    {goal.completed_at && <Check className="h-3 w-3" />}
+                                  </div>
+                                )}
+                                <span className={`font-medium ${goal.completed_at ? 'line-through text-muted-foreground' : ''}`}>
+                                  {getGoalLabel(goal.goal_type)}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                {goal.completed_at ? (
+                                  <Badge variant="default" className="bg-primary/80">
+                                    <CheckCircle className="h-3 w-3 mr-1" />
+                                    Complete
+                                  </Badge>
+                                ) : (
+                                  <Badge variant="outline">In Progress</Badge>
+                                )}
+                                {currentUserRole === 'moderator' && (
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                                    onClick={() => handleDeleteGoal(goal.id)}
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        ))
+                      )}
                     </div>
                   </div>
                 </div>
