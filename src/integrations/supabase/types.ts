@@ -44,6 +44,32 @@ export type Database = {
         }
         Relationships: []
       }
+      family_invite_codes: {
+        Row: {
+          created_at: string
+          family_id: string
+          invite_code: string
+        }
+        Insert: {
+          created_at?: string
+          family_id: string
+          invite_code?: string
+        }
+        Update: {
+          created_at?: string
+          family_id?: string
+          invite_code?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "family_invite_codes_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: true
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       family_members: {
         Row: {
           family_id: string
