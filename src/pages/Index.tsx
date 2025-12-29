@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { Heart, Shield, Users, DollarSign, MessageCircle, Eye } from 'lucide-react';
+import { MeetingFinder } from '@/components/MeetingFinder';
 
 const Index = () => {
   const { user, loading } = useAuth();
@@ -118,6 +119,21 @@ const Index = () => {
               </p>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* Meeting Finder Section */}
+      <section className="container mx-auto px-4 py-20 bg-secondary/20">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl md:text-4xl font-display font-bold text-foreground mb-4">
+            Find a Recovery Meeting
+          </h2>
+          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+            Search for AA, NA, and other 12-step meetings near you. Connect with a supportive community.
+          </p>
+        </div>
+        <div className="max-w-4xl mx-auto">
+          <MeetingFinder />
         </div>
       </section>
 
