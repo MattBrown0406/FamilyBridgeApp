@@ -15,7 +15,7 @@ import {
   Heart, ArrowLeft, Send, Loader2, Users, DollarSign, 
   MessageCircle, AlertTriangle, Check, X, Shield, MapPin,
   ExternalLink, CreditCard, CheckCircle2, Paperclip, Image, HandCoins, Trash2, Pencil,
-  Target, ShieldCheck, Plus, CheckCircle
+  Target, ShieldCheck, Plus, CheckCircle, MessageSquare
 } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { format } from 'date-fns';
@@ -48,6 +48,7 @@ import { CheckinHistory } from '@/components/CheckinHistory';
 import { LocationCheckinRequest } from '@/components/LocationCheckinRequest';
 import { LocationCheckinResponse } from '@/components/LocationCheckinResponse';
 import { LocationCapture, LocationData } from '@/components/LocationCapture';
+import { PrivateMessaging } from '@/components/PrivateMessaging';
 
 const REQUEST_REASONS = [
   'Electric',
@@ -213,6 +214,9 @@ const FamilyChat = () => {
   const [newBoundaryTarget, setNewBoundaryTarget] = useState<string>('all');
   const [isAddingBoundary, setIsAddingBoundary] = useState(false);
   const [showBoundaryForm, setShowBoundaryForm] = useState(false);
+  
+  // Private messaging state
+  const [privateMessagingOpen, setPrivateMessagingOpen] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -1469,6 +1473,14 @@ const FamilyChat = () => {
               </div>
             </button>
             <div className="ml-auto flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setPrivateMessagingOpen(true)}
+                title="Private Messages"
+              >
+                <MessageSquare className="h-5 w-5" />
+              </Button>
               {currentUserRole === 'moderator' && (
                 <Badge variant="outline">
                   <Shield className="h-3 w-3 mr-1" />
@@ -2754,6 +2766,18 @@ const FamilyChat = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Private Messaging */}
+      {user && familyId && (
+        <PrivateMessaging
+          familyId={familyId}
+          currentUserId={user.id}
+          currentUserRole={currentUserRole}
+          members={members}
+          isOpen={privateMessagingOpen}
+          onClose={() => setPrivateMessagingOpen(false)}
+        />
+      )}
     </div>
   );
 };
