@@ -26,9 +26,31 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import { NotificationBell } from '@/components/NotificationBell';
 import { MeetingCheckin } from '@/components/MeetingCheckin';
 import { CheckinHistory } from '@/components/CheckinHistory';
+
+const REQUEST_REASONS = [
+  'Electric',
+  'Water',
+  'Garbage',
+  'Natural Gas',
+  'Internet',
+  'Phone',
+  'Gas',
+  'Food',
+  'Rent',
+  'Medical',
+  'Other',
+] as const;
 
 interface Message {
   id: string;
@@ -87,6 +109,7 @@ const FamilyChat = () => {
   const [newMessage, setNewMessage] = useState('');
   const [requestAmount, setRequestAmount] = useState('');
   const [requestReason, setRequestReason] = useState('');
+  const [requestOtherDescription, setRequestOtherDescription] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isSending, setIsSending] = useState(false);
   const [isRequesting, setIsRequesting] = useState(false);
@@ -417,10 +440,20 @@ const FamilyChat = () => {
   const handleCreateRequest = async (e: React.FormEvent) => {
     e.preventDefault();
     const amount = parseFloat(requestAmount);
-    if (isNaN(amount) || amount <= 0 || !requestReason.trim()) {
+    if (isNaN(amount) || amount <= 0 || !requestReason) {
       toast({
         title: 'Invalid request',
-        description: 'Please enter a valid amount and reason.',
+        description: 'Please enter a valid amount and select a reason.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Require description for "Other"
+    if (requestReason === 'Other' && !requestOtherDescription.trim()) {
+      toast({
+        title: 'Description required',
+        description: 'Please provide a description for your request.',
         variant: 'destructive',
       });
       return;
@@ -457,7 +490,9 @@ const FamilyChat = () => {
           family_id: familyId,
           requester_id: user?.id,
           amount,
-          reason: requestReason.trim(),
+          reason: requestReason === 'Other' 
+            ? `Other: ${requestOtherDescription.trim()}` 
+            : requestReason,
           attachment_url: attachmentUrl,
         });
 
@@ -470,6 +505,7 @@ const FamilyChat = () => {
 
       setRequestAmount('');
       setRequestReason('');
+      setRequestOtherDescription('');
       setBillAttachment(null);
       setBillPreview(null);
       if (fileInputRef.current) {
@@ -816,13 +852,35 @@ const FamilyChat = () => {
                       </div>
                       <div>
                         <Label className="text-xs text-muted-foreground mb-1 block">Reason</Label>
-                        <Input
-                          placeholder="e.g., Electric bill, Rent"
-                          value={requestReason}
-                          onChange={(e) => setRequestReason(e.target.value)}
-                        />
+                        <Select value={requestReason} onValueChange={setRequestReason}>
+                          <SelectTrigger className="bg-background">
+                            <SelectValue placeholder="Select a reason" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-background z-50">
+                            {REQUEST_REASONS.map((reason) => (
+                              <SelectItem key={reason} value={reason}>
+                                {reason}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
                     </div>
+
+                    {/* Other description field */}
+                    {requestReason === 'Other' && (
+                      <div>
+                        <Label className="text-xs text-muted-foreground mb-1 block">
+                          Description (required)
+                        </Label>
+                        <Textarea
+                          placeholder="Please describe what this request is for..."
+                          value={requestOtherDescription}
+                          onChange={(e) => setRequestOtherDescription(e.target.value)}
+                          className="min-h-[80px]"
+                        />
+                      </div>
+                    )}
                     
                     {/* Bill Attachment */}
                     <div>
