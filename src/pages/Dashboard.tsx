@@ -118,29 +118,20 @@ const Dashboard = () => {
 
     setIsCreating(true);
     try {
-      // Create family
-      const { data: family, error: familyError } = await supabase
-        .from('families')
-        .insert({
+      // Create family via backend function (bypasses RLS safely)
+      const { data, error } = await supabase.functions.invoke('create-family', {
+        body: {
           name: newFamilyName.trim(),
           description: newFamilyDescription.trim() || null,
-          created_by: user.id,
-        })
-        .select()
-        .single();
+        },
+      });
 
-      if (familyError) throw familyError;
+      if (error) throw error;
 
-      // Add creator as moderator
-      const { error: memberError } = await supabase
-        .from('family_members')
-        .insert({
-          family_id: family.id,
-          user_id: user.id,
-          role: 'moderator',
-        });
-
-      if (memberError) throw memberError;
+      const family = (data as any)?.family;
+      if (!family?.id) {
+        throw new Error('Failed to create family');
+      }
 
       toast({
         title: 'Family created!',
@@ -185,49 +176,38 @@ const Dashboard = () => {
 
     setIsJoining(true);
     try {
-      // Find family by invite code
-      const { data: family, error: familyError } = await supabase
-        .from('families')
-        .select('id, name')
-        .eq('invite_code', inviteCode.trim().toLowerCase())
-        .single();
+      // Join family via backend function (allows invite-code lookup)
+      const { data, error } = await supabase.functions.invoke('join-family', {
+        body: {
+          inviteCode: inviteCode.trim(),
+        },
+      });
 
-      if (familyError || !family) {
-        toast({
-          title: 'Invalid code',
-          description: 'No family group found with this invite code.',
-          variant: 'destructive',
-        });
-        return;
+      if (error) {
+        const msg = (error as any)?.message || 'Failed to join family group.';
+        if (msg.toLowerCase().includes('invalid invite code')) {
+          toast({
+            title: 'Invalid code',
+            description: 'No family group found with this invite code.',
+            variant: 'destructive',
+          });
+          return;
+        }
+        if (msg.toLowerCase().includes('already a member')) {
+          toast({
+            title: 'Already a member',
+            description: 'You are already a member of this family group.',
+            variant: 'destructive',
+          });
+          return;
+        }
+        throw error;
       }
 
-      // Check if already a member
-      const { data: existing } = await supabase
-        .from('family_members')
-        .select('id')
-        .eq('family_id', family.id)
-        .eq('user_id', user.id)
-        .maybeSingle();
-
-      if (existing) {
-        toast({
-          title: 'Already a member',
-          description: 'You are already a member of this family group.',
-          variant: 'destructive',
-        });
-        return;
+      const family = (data as any)?.family;
+      if (!family?.id) {
+        throw new Error('Failed to join family');
       }
-
-      // Join family
-      const { error: joinError } = await supabase
-        .from('family_members')
-        .insert({
-          family_id: family.id,
-          user_id: user.id,
-          role: 'member',
-        });
-
-      if (joinError) throw joinError;
 
       toast({
         title: 'Joined successfully!',
