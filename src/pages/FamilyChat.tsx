@@ -14,7 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import { 
   Heart, ArrowLeft, Send, Loader2, Users, DollarSign, 
   MessageCircle, AlertTriangle, Check, X, Shield, MapPin,
-  ExternalLink, CreditCard, CheckCircle2, Paperclip, Image, HandCoins, Trash2
+  ExternalLink, CreditCard, CheckCircle2, Paperclip, Image, HandCoins, Trash2, Pencil
 } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { format } from 'date-fns';
@@ -66,6 +66,9 @@ interface Member {
   user_id: string;
   role: string;
   full_name: string;
+  paypal_username?: string | null;
+  venmo_username?: string | null;
+  cashapp_username?: string | null;
 }
 
 interface FinancialPledge {
@@ -141,6 +144,14 @@ const FamilyChat = () => {
   const [pledgeAmounts, setPledgeAmounts] = useState<Record<string, string>>({});
   const [pledgeMethods, setPledgeMethods] = useState<Record<string, string>>({});
   const [isPledging, setIsPledging] = useState<string | null>(null);
+  
+  // Edit member profile state (for moderators)
+  const [editingMember, setEditingMember] = useState<Member | null>(null);
+  const [editFullName, setEditFullName] = useState('');
+  const [editPaypal, setEditPaypal] = useState('');
+  const [editVenmo, setEditVenmo] = useState('');
+  const [editCashapp, setEditCashapp] = useState('');
+  const [isSavingMember, setIsSavingMember] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -202,6 +213,71 @@ const FamilyChat = () => {
     }
   };
 
+  const openEditMember = (member: Member) => {
+    setEditingMember(member);
+    setEditFullName(member.full_name);
+    setEditPaypal(member.paypal_username || '');
+    setEditVenmo(member.venmo_username || '');
+    setEditCashapp(member.cashapp_username || '');
+  };
+
+  const handleSaveMemberProfile = async () => {
+    if (!editingMember) return;
+    if (!editFullName.trim()) {
+      toast({
+        title: 'Name required',
+        description: 'Please enter a full name.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsSavingMember(true);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          full_name: editFullName.trim(),
+          paypal_username: editPaypal.trim() || null,
+          venmo_username: editVenmo.trim() || null,
+          cashapp_username: editCashapp.trim() || null,
+        })
+        .eq('id', editingMember.user_id);
+
+      if (error) throw error;
+
+      toast({
+        title: 'Profile updated',
+        description: `${editFullName.trim()}'s profile has been updated.`,
+      });
+
+      // Refresh members list
+      setMembers((prev) =>
+        prev.map((m) =>
+          m.user_id === editingMember.user_id
+            ? {
+                ...m,
+                full_name: editFullName.trim(),
+                paypal_username: editPaypal.trim() || null,
+                venmo_username: editVenmo.trim() || null,
+                cashapp_username: editCashapp.trim() || null,
+              }
+            : m
+        )
+      );
+      setEditingMember(null);
+    } catch (error) {
+      console.error('Error updating member profile:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to update profile.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSavingMember(false);
+    }
+  };
+
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
@@ -246,27 +322,38 @@ const FamilyChat = () => {
       const memberRows = membersData || [];
       const memberUserIds = Array.from(new Set(memberRows.map((m) => m.user_id)));
 
-      const profilesById = new Map<string, string>();
+      const profilesById = new Map<string, { full_name: string; paypal_username?: string | null; venmo_username?: string | null; cashapp_username?: string | null }>();
 
       if (memberUserIds.length > 0) {
         const { data: profilesData, error: profilesError } = await supabase
           .from('profiles')
-          .select('id, full_name')
+          .select('id, full_name, paypal_username, venmo_username, cashapp_username')
           .in('id', memberUserIds);
 
         if (profilesError) throw profilesError;
 
         for (const p of profilesData || []) {
-          profilesById.set(p.id, p.full_name);
+          profilesById.set(p.id, {
+            full_name: p.full_name,
+            paypal_username: p.paypal_username,
+            venmo_username: p.venmo_username,
+            cashapp_username: p.cashapp_username,
+          });
         }
       }
 
-      const formattedMembers: Member[] = memberRows.map((m) => ({
-        id: m.id,
-        user_id: m.user_id,
-        role: m.role,
-        full_name: profilesById.get(m.user_id) || 'Unknown',
-      }));
+      const formattedMembers: Member[] = memberRows.map((m) => {
+        const profile = profilesById.get(m.user_id);
+        return {
+          id: m.id,
+          user_id: m.user_id,
+          role: m.role,
+          full_name: profile?.full_name || 'Unknown',
+          paypal_username: profile?.paypal_username,
+          venmo_username: profile?.venmo_username,
+          cashapp_username: profile?.cashapp_username,
+        };
+      });
 
       setMembers(formattedMembers);
 
@@ -1566,22 +1653,96 @@ const FamilyChat = () => {
                           </p>
                         </div>
                       </div>
-                      <Badge
-                        variant={
-                          member.role === 'moderator'
-                            ? 'default'
-                            : member.role === 'recovering'
-                            ? 'outline'
-                            : 'secondary'
-                        }
-                      >
-                        {member.role}
-                      </Badge>
+                      <div className="flex items-center gap-2">
+                        {currentUserRole === 'moderator' && member.user_id !== user?.id && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => openEditMember(member)}
+                            title="Edit profile"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                        )}
+                        <Badge
+                          variant={
+                            member.role === 'moderator'
+                              ? 'default'
+                              : member.role === 'recovering'
+                              ? 'outline'
+                              : 'secondary'
+                          }
+                        >
+                          {member.role}
+                        </Badge>
+                      </div>
                     </div>
                   ))}
                 </div>
               </CardContent>
             </Card>
+            {/* Edit Member Profile Dialog */}
+            <Dialog open={!!editingMember} onOpenChange={(open) => !open && setEditingMember(null)}>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle className="font-display">Edit Member Profile</DialogTitle>
+                  <DialogDescription>
+                    Update {editingMember?.full_name}'s profile information.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 pt-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="editFullName">Full Name</Label>
+                    <Input
+                      id="editFullName"
+                      value={editFullName}
+                      onChange={(e) => setEditFullName(e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="editPaypal">PayPal Username</Label>
+                    <Input
+                      id="editPaypal"
+                      placeholder="username"
+                      value={editPaypal}
+                      onChange={(e) => setEditPaypal(e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="editVenmo">Venmo Username</Label>
+                    <Input
+                      id="editVenmo"
+                      placeholder="username"
+                      value={editVenmo}
+                      onChange={(e) => setEditVenmo(e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="editCashapp">Cash App Username</Label>
+                    <Input
+                      id="editCashapp"
+                      placeholder="username"
+                      value={editCashapp}
+                      onChange={(e) => setEditCashapp(e.target.value)}
+                    />
+                  </div>
+                  <Button
+                    className="w-full"
+                    onClick={handleSaveMemberProfile}
+                    disabled={isSavingMember}
+                  >
+                    {isSavingMember ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                        Saving...
+                      </>
+                    ) : (
+                      'Save Profile'
+                    )}
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
           </TabsContent>
         </Tabs>
       </main>
