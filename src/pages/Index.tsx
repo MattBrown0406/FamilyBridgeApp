@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
@@ -7,12 +6,6 @@ import { Heart, Shield, Users, DollarSign, MessageCircle, Eye, MapPin, ArrowRigh
 const Index = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!loading && user) {
-      navigate('/dashboard');
-    }
-  }, [user, loading, navigate]);
 
   const features = [
     {
@@ -57,12 +50,20 @@ const Index = () => {
             <span className="text-lg font-display font-semibold text-foreground">FamilyBridge</span>
           </div>
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm" onClick={() => navigate('/auth')}>
-              Sign In
-            </Button>
-            <Button variant="hero" size="sm" onClick={() => navigate('/auth?mode=signup')}>
-              Get Started
-            </Button>
+            {user ? (
+              <Button variant="hero" size="sm" onClick={() => navigate('/dashboard')}>
+                Go to Dashboard
+              </Button>
+            ) : (
+              <>
+                <Button variant="ghost" size="sm" onClick={() => navigate('/auth')}>
+                  Sign In
+                </Button>
+                <Button variant="hero" size="sm" onClick={() => navigate('/auth?mode=signup')}>
+                  Get Started
+                </Button>
+              </>
+            )}
           </div>
         </nav>
       </header>
