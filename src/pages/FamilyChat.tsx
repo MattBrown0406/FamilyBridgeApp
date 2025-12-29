@@ -152,6 +152,11 @@ const FamilyChat = () => {
   const [editVenmo, setEditVenmo] = useState('');
   const [editCashapp, setEditCashapp] = useState('');
   const [isSavingMember, setIsSavingMember] = useState(false);
+  
+  // Content warning cooldown state
+  const [warningCount, setWarningCount] = useState(0);
+  const [cooldownEndTime, setCooldownEndTime] = useState<number | null>(null);
+  const [cooldownRemaining, setCooldownRemaining] = useState(0);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -601,14 +606,44 @@ const FamilyChat = () => {
     };
   };
 
+  // Cooldown timer effect
+  useEffect(() => {
+    if (!cooldownEndTime) return;
+    
+    const interval = setInterval(() => {
+      const remaining = Math.max(0, Math.ceil((cooldownEndTime - Date.now()) / 1000));
+      setCooldownRemaining(remaining);
+      
+      if (remaining <= 0) {
+        setCooldownEndTime(null);
+        setCooldownRemaining(0);
+      }
+    }, 1000);
+    
+    return () => clearInterval(interval);
+  }, [cooldownEndTime]);
+
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newMessage.trim()) return;
+    
+    // Check if user is in cooldown
+    if (cooldownEndTime && Date.now() < cooldownEndTime) {
+      toast({
+        title: 'Please wait',
+        description: `You can send a message in ${cooldownRemaining} seconds.`,
+        variant: 'destructive',
+      });
+      return;
+    }
 
     // Check for inappropriate content before sending
     const filterResult = filterContent(newMessage);
     
     if (!filterResult.isClean) {
+      const newWarningCount = warningCount + 1;
+      setWarningCount(newWarningCount);
+      
       let warningMessage = 'Your message contains content that is not allowed in this family space.';
       
       if (filterResult.wasAbusive) {
@@ -617,11 +652,25 @@ const FamilyChat = () => {
         warningMessage = 'Your message contains profanity. Please edit your message and try again.';
       }
       
-      toast({
-        title: 'Message not sent',
-        description: warningMessage,
-        variant: 'destructive',
-      });
+      // Apply 60-second cooldown on second warning
+      if (newWarningCount >= 2) {
+        const endTime = Date.now() + 60000;
+        setCooldownEndTime(endTime);
+        setCooldownRemaining(60);
+        setWarningCount(0); // Reset warning count after cooldown applied
+        
+        toast({
+          title: 'Cooldown activated',
+          description: 'You must wait 60 seconds before sending another message. Please take a moment to reflect.',
+          variant: 'destructive',
+        });
+      } else {
+        toast({
+          title: 'Message not sent (Warning 1 of 2)',
+          description: warningMessage,
+          variant: 'destructive',
+        });
+      }
       return;
     }
 
@@ -639,6 +688,7 @@ const FamilyChat = () => {
       if (error) throw error;
 
       setNewMessage('');
+      setWarningCount(0); // Reset warnings on successful send
     } catch (error) {
       console.error('Error sending message:', error);
       toast({
@@ -1120,16 +1170,27 @@ const FamilyChat = () => {
                 </div>
               </ScrollArea>
               <form onSubmit={handleSendMessage} className="p-4 border-t border-border shrink-0">
+                {cooldownRemaining > 0 && (
+                  <div className="mb-3 p-3 bg-destructive/10 border border-destructive/20 rounded-lg flex items-center gap-2">
+                    <AlertTriangle className="h-4 w-4 text-destructive" />
+                    <span className="text-sm text-destructive">
+                      Cooldown active: {cooldownRemaining} seconds remaining
+                    </span>
+                  </div>
+                )}
                 <div className="flex gap-2">
                   <Input
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
-                    placeholder="Type a supportive message..."
+                    placeholder={cooldownRemaining > 0 ? "Please wait..." : "Type a supportive message..."}
                     className="flex-1"
+                    disabled={cooldownRemaining > 0}
                   />
-                  <Button type="submit" disabled={isSending || !newMessage.trim()}>
+                  <Button type="submit" disabled={isSending || !newMessage.trim() || cooldownRemaining > 0}>
                     {isSending ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : cooldownRemaining > 0 ? (
+                      <span className="text-xs">{cooldownRemaining}s</span>
                     ) : (
                       <Send className="h-4 w-4" />
                     )}
