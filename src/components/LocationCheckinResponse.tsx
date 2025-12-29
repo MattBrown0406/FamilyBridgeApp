@@ -7,8 +7,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { MapPin, Loader2, Navigation, CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
+import { Loader2, Navigation, XCircle, AlertTriangle } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { useLocationCapture } from '@/components/LocationCapture';
 
 interface PendingRequest {
   id: string;
@@ -26,13 +27,12 @@ interface LocationCheckinResponseProps {
 export const LocationCheckinResponse = ({ familyId, userRole }: LocationCheckinResponseProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { getLocation, isGettingLocation, locationError } = useLocationCapture();
 
   const [pendingRequests, setPendingRequests] = useState<PendingRequest[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [respondingTo, setRespondingTo] = useState<string | null>(null);
-  const [isGettingLocation, setIsGettingLocation] = useState(false);
   const [responseNote, setResponseNote] = useState('');
-  const [locationError, setLocationError] = useState<string | null>(null);
 
   const isRecovering = userRole === 'recovering';
 
@@ -105,93 +105,42 @@ export const LocationCheckinResponse = ({ familyId, userRole }: LocationCheckinR
 
   const handleShareLocation = async (requestId: string) => {
     setRespondingTo(requestId);
-    setIsGettingLocation(true);
-    setLocationError(null);
 
-    if (!navigator.geolocation) {
-      setLocationError('Geolocation is not supported by your browser');
-      setIsGettingLocation(false);
+    try {
+      const location = await getLocation();
+
+      // Update the request with location
+      const { error } = await supabase
+        .from('location_checkin_requests')
+        .update({
+          status: 'completed',
+          responded_at: new Date().toISOString(),
+          latitude: location.latitude,
+          longitude: location.longitude,
+          location_address: location.address,
+          response_note: responseNote.trim() || null,
+        })
+        .eq('id', requestId);
+
+      if (error) throw error;
+
+      toast({
+        title: 'Location shared',
+        description: 'Your family member has been notified.',
+      });
+
+      setResponseNote('');
+      fetchPendingRequests();
+    } catch (error) {
+      console.error('Error sharing location:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to share location. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
       setRespondingTo(null);
-      return;
     }
-
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const lat = position.coords.latitude;
-        const lng = position.coords.longitude;
-
-        // Try to get address from coordinates
-        let address = null;
-        try {
-          const response = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`
-          );
-          const data = await response.json();
-          if (data.display_name) {
-            address = data.display_name;
-          }
-        } catch (error) {
-          console.log('Could not fetch address:', error);
-        }
-
-        // Update the request with location
-        try {
-          const { error } = await supabase
-            .from('location_checkin_requests')
-            .update({
-              status: 'completed',
-              responded_at: new Date().toISOString(),
-              latitude: lat,
-              longitude: lng,
-              location_address: address,
-              response_note: responseNote.trim() || null,
-            })
-            .eq('id', requestId);
-
-          if (error) throw error;
-
-          toast({
-            title: 'Location shared',
-            description: 'Your family member has been notified.',
-          });
-
-          setResponseNote('');
-          fetchPendingRequests();
-        } catch (error) {
-          console.error('Error sharing location:', error);
-          toast({
-            title: 'Error',
-            description: 'Failed to share location. Please try again.',
-            variant: 'destructive',
-          });
-        }
-
-        setIsGettingLocation(false);
-        setRespondingTo(null);
-      },
-      (error) => {
-        setIsGettingLocation(false);
-        setRespondingTo(null);
-        switch (error.code) {
-          case error.PERMISSION_DENIED:
-            setLocationError('Please allow location access to share your location');
-            break;
-          case error.POSITION_UNAVAILABLE:
-            setLocationError('Location information is unavailable');
-            break;
-          case error.TIMEOUT:
-            setLocationError('Location request timed out');
-            break;
-          default:
-            setLocationError('An unknown error occurred');
-        }
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 0,
-      }
-    );
   };
 
   const handleDecline = async (requestId: string) => {
