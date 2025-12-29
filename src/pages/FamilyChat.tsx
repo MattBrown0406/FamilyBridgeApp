@@ -14,7 +14,8 @@ import { useToast } from '@/hooks/use-toast';
 import { 
   Heart, ArrowLeft, Send, Loader2, Users, DollarSign, 
   MessageCircle, AlertTriangle, Check, X, Shield, MapPin,
-  ExternalLink, CreditCard, CheckCircle2, Paperclip, Image, HandCoins, Trash2, Pencil
+  ExternalLink, CreditCard, CheckCircle2, Paperclip, Image, HandCoins, Trash2, Pencil,
+  Target, ShieldCheck
 } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { format } from 'date-fns';
@@ -1105,7 +1106,7 @@ const FamilyChat = () => {
       {/* Main Content */}
       <main className="flex-1 container mx-auto px-4 py-4 overflow-hidden">
         <Tabs defaultValue="messages" className="h-full flex flex-col">
-          <TabsList className="grid w-full grid-cols-4 mb-4 shrink-0">
+          <TabsList className="grid w-full grid-cols-6 mb-4 shrink-0">
             <TabsTrigger value="messages" className="flex items-center gap-2">
               <MessageCircle className="h-4 w-4" />
               <span className="hidden sm:inline">Messages</span>
@@ -1117,6 +1118,14 @@ const FamilyChat = () => {
             <TabsTrigger value="financial" className="flex items-center gap-2">
               <DollarSign className="h-4 w-4" />
               <span className="hidden sm:inline">Financial</span>
+            </TabsTrigger>
+            <TabsTrigger value="values" className="flex items-center gap-2">
+              <Target className="h-4 w-4" />
+              <span className="hidden sm:inline">Values/Goals</span>
+            </TabsTrigger>
+            <TabsTrigger value="boundaries" className="flex items-center gap-2">
+              <ShieldCheck className="h-4 w-4" />
+              <span className="hidden sm:inline">Boundaries</span>
             </TabsTrigger>
             <TabsTrigger value="members" className="flex items-center gap-2">
               <Users className="h-4 w-4" />
@@ -1744,6 +1753,163 @@ const FamilyChat = () => {
                 </CardContent>
               </Card>
             </div>
+          </TabsContent>
+
+          {/* Values/Goals Tab */}
+          <TabsContent value="values" className="mt-0 space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg font-display flex items-center gap-2">
+                  <Target className="h-5 w-5 text-primary" />
+                  Family Values & Goals
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  <div className="space-y-3">
+                    <h3 className="font-medium text-foreground">Core Values</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Define the values that guide your family's recovery journey together.
+                    </p>
+                    <div className="grid gap-3">
+                      <div className="p-4 rounded-lg bg-secondary/50 border border-border">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Heart className="h-4 w-4 text-primary" />
+                          <span className="font-medium">Honesty & Transparency</span>
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          We commit to open communication and truthfulness with each other.
+                        </p>
+                      </div>
+                      <div className="p-4 rounded-lg bg-secondary/50 border border-border">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Users className="h-4 w-4 text-primary" />
+                          <span className="font-medium">Support Without Enabling</span>
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          We help each other while maintaining healthy accountability.
+                        </p>
+                      </div>
+                      <div className="p-4 rounded-lg bg-secondary/50 border border-border">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Shield className="h-4 w-4 text-primary" />
+                          <span className="font-medium">Respect & Dignity</span>
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          We treat each other with compassion, even in difficult moments.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <h3 className="font-medium text-foreground">Shared Goals</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Track your family's collective recovery milestones.
+                    </p>
+                    <div className="grid gap-3">
+                      <div className="p-4 rounded-lg bg-primary/5 border border-primary/20">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="font-medium">Weekly Family Check-ins</span>
+                          <Badge variant="outline">In Progress</Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          Hold regular meetings to discuss progress and challenges.
+                        </p>
+                      </div>
+                      <div className="p-4 rounded-lg bg-primary/5 border border-primary/20">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="font-medium">Attend Support Meetings</span>
+                          <Badge variant="outline">Ongoing</Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          Recovering member attends at least 3 meetings per week.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Boundaries Tab */}
+          <TabsContent value="boundaries" className="mt-0 space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg font-display flex items-center gap-2">
+                  <ShieldCheck className="h-5 w-5 text-primary" />
+                  Family Boundaries
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  <p className="text-sm text-muted-foreground">
+                    Clear boundaries help protect both the recovering person and family members. 
+                    These agreements create a framework for healthy relationships.
+                  </p>
+
+                  <div className="space-y-3">
+                    <h3 className="font-medium text-foreground">Financial Boundaries</h3>
+                    <div className="grid gap-3">
+                      <div className="p-4 rounded-lg bg-secondary/50 border border-border">
+                        <p className="text-sm">
+                          All financial requests must go through the app and be approved by family vote.
+                        </p>
+                      </div>
+                      <div className="p-4 rounded-lg bg-secondary/50 border border-border">
+                        <p className="text-sm">
+                          No cash will be given directly. Payments made only for approved bills.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <h3 className="font-medium text-foreground">Communication Boundaries</h3>
+                    <div className="grid gap-3">
+                      <div className="p-4 rounded-lg bg-secondary/50 border border-border">
+                        <p className="text-sm">
+                          Location check-ins may be requested and should be responded to within a reasonable time.
+                        </p>
+                      </div>
+                      <div className="p-4 rounded-lg bg-secondary/50 border border-border">
+                        <p className="text-sm">
+                          All family communication regarding recovery happens through this app to maintain transparency.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <h3 className="font-medium text-foreground">Recovery Commitments</h3>
+                    <div className="grid gap-3">
+                      <div className="p-4 rounded-lg bg-secondary/50 border border-border">
+                        <p className="text-sm">
+                          Attendance at recovery meetings is expected and will be tracked via check-ins.
+                        </p>
+                      </div>
+                      <div className="p-4 rounded-lg bg-secondary/50 border border-border">
+                        <p className="text-sm">
+                          Any relapse must be disclosed to the family within 24 hours.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-4 rounded-lg bg-destructive/10 border border-destructive/20">
+                    <h3 className="font-medium text-foreground mb-2 flex items-center gap-2">
+                      <AlertTriangle className="h-4 w-4 text-destructive" />
+                      Consequences
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      Violations of these boundaries may result in reduced financial support, 
+                      more frequent check-ins, or other consequences as agreed by the family.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           {/* Members Tab */}
