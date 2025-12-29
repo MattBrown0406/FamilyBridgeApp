@@ -2584,56 +2584,58 @@ const FamilyChat = () => {
           </SheetHeader>
 
           <div className="mt-6 space-y-6">
-            {/* Payment Handles Card */}
-            <div className="space-y-3">
-              <h3 className="font-medium text-foreground">Your Payment Handles</h3>
-              <p className="text-sm text-muted-foreground">
-                Add your payment usernames so family members can send you money when requests are approved.
-              </p>
+            {/* Payment Handles Card - Only for recovering members */}
+            {currentUserRole === 'recovering' && (
               <div className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium w-24 shrink-0">PayPal.me/</span>
-                  <Input
-                    placeholder="username"
-                    value={paypalUsername}
-                    onChange={(e) => setPaypalUsername(e.target.value)}
-                    className="flex-1"
-                  />
+                <h3 className="font-medium text-foreground">Your Payment Handles</h3>
+                <p className="text-sm text-muted-foreground">
+                  Add your payment usernames so family members can send you money when requests are approved.
+                </p>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium w-24 shrink-0">PayPal.me/</span>
+                    <Input
+                      placeholder="username"
+                      value={paypalUsername}
+                      onChange={(e) => setPaypalUsername(e.target.value)}
+                      className="flex-1"
+                    />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium w-24 shrink-0">Venmo @</span>
+                    <Input
+                      placeholder="username"
+                      value={venmoUsername}
+                      onChange={(e) => setVenmoUsername(e.target.value)}
+                      className="flex-1"
+                    />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium w-24 shrink-0">Cash App $</span>
+                    <Input
+                      placeholder="username"
+                      value={cashappUsername}
+                      onChange={(e) => setCashappUsername(e.target.value)}
+                      className="flex-1"
+                    />
+                  </div>
+                  <Button
+                    onClick={savePaymentHandles}
+                    disabled={isSavingPayment}
+                    className="w-full mt-2"
+                  >
+                    {isSavingPayment ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                        Saving...
+                      </>
+                    ) : (
+                      'Save Payment Handles'
+                    )}
+                  </Button>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium w-24 shrink-0">Venmo @</span>
-                  <Input
-                    placeholder="username"
-                    value={venmoUsername}
-                    onChange={(e) => setVenmoUsername(e.target.value)}
-                    className="flex-1"
-                  />
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium w-24 shrink-0">Cash App $</span>
-                  <Input
-                    placeholder="username"
-                    value={cashappUsername}
-                    onChange={(e) => setCashappUsername(e.target.value)}
-                    className="flex-1"
-                  />
-                </div>
-                <Button
-                  onClick={savePaymentHandles}
-                  disabled={isSavingPayment}
-                  className="w-full mt-2"
-                >
-                  {isSavingPayment ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                      Saving...
-                    </>
-                  ) : (
-                    'Save Payment Handles'
-                  )}
-                </Button>
               </div>
-            </div>
+            )}
 
             {/* Family Members List */}
             <div className="space-y-3">
