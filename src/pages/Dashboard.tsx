@@ -41,7 +41,7 @@ interface Family {
   id: string;
   name: string;
   description: string | null;
-  invite_code: string;
+  invite_code: string | null;
   role: string;
   member_count: number;
 }
@@ -84,8 +84,7 @@ const Dashboard = () => {
           families (
             id,
             name,
-            description,
-            invite_code
+            description
           )
         `)
         .eq('user_id', user.id);
@@ -99,11 +98,19 @@ const Dashboard = () => {
             .select('*', { count: 'exact', head: true })
             .eq('family_id', member.family_id);
 
+          // Only fetch invite code if user is a moderator
+          let inviteCode: string | null = null;
+          if (member.role === 'moderator') {
+            const { data: codeData } = await supabase
+              .rpc('get_family_invite_code', { _family_id: member.family_id });
+            inviteCode = codeData;
+          }
+
           return {
             id: (member.families as any).id,
             name: (member.families as any).name,
             description: (member.families as any).description,
-            invite_code: (member.families as any).invite_code,
+            invite_code: inviteCode,
             role: member.role,
             member_count: count || 0,
           };
@@ -489,16 +496,18 @@ const Dashboard = () => {
                           <Users className="h-4 w-4" />
                           {family.member_count} members
                         </span>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            copyInviteCode(family.invite_code);
-                          }}
-                          className="flex items-center gap-1 hover:text-primary transition-colors"
-                        >
-                          <Copy className="h-4 w-4" />
-                          {family.invite_code}
-                        </button>
+                        {family.invite_code && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              copyInviteCode(family.invite_code!);
+                            }}
+                            className="flex items-center gap-1 hover:text-primary transition-colors"
+                          >
+                            <Copy className="h-4 w-4" />
+                            {family.invite_code}
+                          </button>
+                        )}
                       </div>
                       <ArrowRight className="h-5 w-5 text-muted-foreground" />
                     </div>

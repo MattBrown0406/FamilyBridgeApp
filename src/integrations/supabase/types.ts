@@ -429,7 +429,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_family_invite_code: { Args: { _family_id: string }; Returns: string }
       is_family_member: {
+        Args: { _family_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_family_moderator: {
         Args: { _family_id: string; _user_id: string }
         Returns: boolean
       }

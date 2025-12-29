@@ -105,7 +105,6 @@ interface Family {
   id: string;
   name: string;
   description: string | null;
-  invite_code: string;
 }
 
 const FamilyChat = () => {
@@ -343,9 +342,10 @@ const FamilyChat = () => {
       }
 
       // Fetch family info (RLS-protected: only members can see it)
+      // Note: invite_code is not fetched here - only moderators can access it via get_family_invite_code()
       const { data: familyData, error: familyError } = await supabase
         .from('families')
-        .select('*')
+        .select('id, name, description')
         .eq('id', familyId)
         .maybeSingle();
 
