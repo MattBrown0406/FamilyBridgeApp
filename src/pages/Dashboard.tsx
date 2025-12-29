@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { Heart, Plus, Users, LogOut, Loader2, Copy, ArrowRight } from 'lucide-react';
+import { NotificationBell } from '@/components/NotificationBell';
 
 interface Family {
   id: string;
@@ -259,10 +260,11 @@ const Dashboard = () => {
               <Heart className="h-7 w-7 text-primary" />
               <span className="text-xl font-display font-semibold text-foreground">FamilyBridge</span>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4">
               <span className="text-sm text-muted-foreground hidden sm:block">
                 {user?.email}
               </span>
+              <NotificationBell />
               <Button variant="ghost" size="sm" onClick={handleSignOut}>
                 <LogOut className="h-4 w-4" />
                 <span className="hidden sm:inline ml-2">Sign Out</span>

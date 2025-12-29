@@ -16,6 +16,7 @@ import {
   MessageCircle, AlertTriangle, Check, X, Shield 
 } from 'lucide-react';
 import { format } from 'date-fns';
+import { NotificationBell } from '@/components/NotificationBell';
 
 interface Message {
   id: string;
@@ -394,12 +395,15 @@ const FamilyChat = () => {
                 <p className="text-xs text-muted-foreground">{members.length} members</p>
               </div>
             </div>
-            {currentUserRole === 'moderator' && (
-              <Badge variant="outline" className="ml-auto">
-                <Shield className="h-3 w-3 mr-1" />
-                Moderator
-              </Badge>
-            )}
+            <div className="ml-auto flex items-center gap-2">
+              {currentUserRole === 'moderator' && (
+                <Badge variant="outline">
+                  <Shield className="h-3 w-3 mr-1" />
+                  Moderator
+                </Badge>
+              )}
+              <NotificationBell />
+            </div>
           </div>
         </div>
       </header>
