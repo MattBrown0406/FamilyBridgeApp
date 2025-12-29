@@ -345,6 +345,8 @@ export const MeetingFinder = () => {
           m.name?.toLowerCase().includes(query) ||
           m.location?.toLowerCase().includes(query) ||
           m.city?.toLowerCase().includes(query) ||
+          m.state?.toLowerCase().includes(query) ||
+          m.postal_code?.toLowerCase().includes(query) ||
           m.address?.toLowerCase().includes(query)
       );
     }
@@ -437,6 +439,11 @@ export const MeetingFinder = () => {
             <Globe className="h-4 w-4" />
             Select Region
           </label>
+          <p className="text-xs text-muted-foreground mb-1">
+            {isOnlineRegion 
+              ? "Online meetings are worldwide - search by meeting name" 
+              : "Search by name, city, state, or zip code"}
+          </p>
           <Select value={selectedRegion} onValueChange={setSelectedRegion}>
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Choose a region" />
