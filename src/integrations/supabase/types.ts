@@ -76,6 +76,41 @@ export type Database = {
           },
         ]
       }
+      financial_pledges: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          payment_method: string | null
+          request_id: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          payment_method?: string | null
+          request_id: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          payment_method?: string | null
+          request_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "financial_pledges_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "financial_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       financial_requests: {
         Row: {
           amount: number
