@@ -13,10 +13,12 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import { 
   Heart, ArrowLeft, Send, Loader2, Users, DollarSign, 
-  MessageCircle, AlertTriangle, Check, X, Shield 
+  MessageCircle, AlertTriangle, Check, X, Shield, MapPin 
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { NotificationBell } from '@/components/NotificationBell';
+import { MeetingCheckin } from '@/components/MeetingCheckin';
+import { CheckinHistory } from '@/components/CheckinHistory';
 
 interface Message {
   id: string;
@@ -70,6 +72,7 @@ const FamilyChat = () => {
   const [isSending, setIsSending] = useState(false);
   const [isRequesting, setIsRequesting] = useState(false);
   const [currentUserRole, setCurrentUserRole] = useState<string>('member');
+  const [checkinRefreshKey, setCheckinRefreshKey] = useState(0);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -411,10 +414,14 @@ const FamilyChat = () => {
       {/* Main Content */}
       <main className="flex-1 container mx-auto px-4 py-4 overflow-hidden">
         <Tabs defaultValue="messages" className="h-full flex flex-col">
-          <TabsList className="grid w-full grid-cols-3 mb-4 shrink-0">
+          <TabsList className="grid w-full grid-cols-4 mb-4 shrink-0">
             <TabsTrigger value="messages" className="flex items-center gap-2">
               <MessageCircle className="h-4 w-4" />
               <span className="hidden sm:inline">Messages</span>
+            </TabsTrigger>
+            <TabsTrigger value="checkin" className="flex items-center gap-2">
+              <MapPin className="h-4 w-4" />
+              <span className="hidden sm:inline">Check-in</span>
             </TabsTrigger>
             <TabsTrigger value="financial" className="flex items-center gap-2">
               <DollarSign className="h-4 w-4" />
@@ -496,6 +503,21 @@ const FamilyChat = () => {
                 </p>
               </form>
             </Card>
+          </TabsContent>
+
+          {/* Check-in Tab */}
+          <TabsContent value="checkin" className="flex-1 overflow-auto mt-0">
+            <div className="space-y-4">
+              <MeetingCheckin 
+                familyId={familyId!} 
+                onCheckinComplete={() => setCheckinRefreshKey(k => k + 1)} 
+              />
+              <CheckinHistory 
+                familyId={familyId!} 
+                members={members.map(m => ({ user_id: m.user_id, full_name: m.full_name }))}
+                refreshKey={checkinRefreshKey}
+              />
+            </div>
           </TabsContent>
 
           {/* Financial Tab */}

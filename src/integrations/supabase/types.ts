@@ -149,6 +149,56 @@ export type Database = {
           },
         ]
       }
+      meeting_checkins: {
+        Row: {
+          checked_in_at: string
+          created_at: string
+          family_id: string
+          id: string
+          latitude: number
+          longitude: number
+          meeting_address: string | null
+          meeting_name: string | null
+          meeting_type: Database["public"]["Enums"]["meeting_type"]
+          notes: string | null
+          user_id: string
+        }
+        Insert: {
+          checked_in_at?: string
+          created_at?: string
+          family_id: string
+          id?: string
+          latitude: number
+          longitude: number
+          meeting_address?: string | null
+          meeting_name?: string | null
+          meeting_type: Database["public"]["Enums"]["meeting_type"]
+          notes?: string | null
+          user_id: string
+        }
+        Update: {
+          checked_in_at?: string
+          created_at?: string
+          family_id?: string
+          id?: string
+          latitude?: number
+          longitude?: number
+          meeting_address?: string | null
+          meeting_name?: string | null
+          meeting_type?: Database["public"]["Enums"]["meeting_type"]
+          notes?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meeting_checkins_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       messages: {
         Row: {
           content: string
@@ -291,6 +341,7 @@ export type Database = {
     }
     Enums: {
       family_role: "member" | "recovering" | "moderator"
+      meeting_type: "AA" | "Al-Anon" | "NA" | "Nar-Anon" | "Other"
       request_status: "pending" | "approved" | "denied"
     }
     CompositeTypes: {
@@ -420,6 +471,7 @@ export const Constants = {
   public: {
     Enums: {
       family_role: ["member", "recovering", "moderator"],
+      meeting_type: ["AA", "Al-Anon", "NA", "Nar-Anon", "Other"],
       request_status: ["pending", "approved", "denied"],
     },
   },
