@@ -44,6 +44,41 @@ export type Database = {
         }
         Relationships: []
       }
+      family_goals: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          created_by: string
+          family_id: string
+          goal_type: string
+          id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          created_by: string
+          family_id: string
+          goal_type: string
+          id?: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string
+          family_id?: string
+          goal_type?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "family_goals_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       family_invite_codes: {
         Row: {
           created_at: string
