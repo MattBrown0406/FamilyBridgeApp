@@ -345,7 +345,7 @@ export const MeetingFinder = () => {
   const [selectedDay, setSelectedDay] = useState<string>('');
   const [selectedType, setSelectedType] = useState<string>('');
   const [selectedFellowship, setSelectedFellowship] = useState<Fellowship>('All');
-  const [selectedRegion, setSelectedRegion] = useState<string>('OIAA Online Meetings');
+  const [selectedRegion, setSelectedRegion] = useState<string>('');
   const [showFilters, setShowFilters] = useState(false);
 
   // Filter region groups based on selected fellowship
@@ -353,12 +353,24 @@ export const MeetingFinder = () => {
     ? REGION_GROUPS 
     : REGION_GROUPS.filter(g => g.fellowship === selectedFellowship);
 
-  // Load meetings when region changes
+  // Clear region when fellowship changes (unless it's AA)
   useEffect(() => {
-    if (selectedRegion) {
-      fetchMeetings();
+    if (selectedFellowship !== 'AA' && selectedFellowship !== 'All') {
+      setSelectedRegion('');
+      setMeetings([]);
+      setFilteredMeetings([]);
     }
-  }, [selectedRegion]);
+  }, [selectedFellowship]);
+
+  // Load meetings when region changes - only for AA fellowship
+  useEffect(() => {
+    if (selectedRegion && (selectedFellowship === 'AA' || selectedFellowship === 'All')) {
+      const region = ALL_REGIONS.find(r => r.name === selectedRegion);
+      if (region && region.fellowship === 'AA') {
+        fetchMeetings();
+      }
+    }
+  }, [selectedRegion, selectedFellowship]);
 
   // Apply filters when any filter or meetings change
   useEffect(() => {
