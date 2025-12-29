@@ -7,9 +7,35 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { Heart, Plus, Users, LogOut, Loader2, Copy, ArrowRight } from 'lucide-react';
 import { NotificationBell } from '@/components/NotificationBell';
+
+type RelationshipType = 
+  | 'recovering'
+  | 'parent'
+  | 'spouse_partner'
+  | 'sibling'
+  | 'child'
+  | 'grandparent'
+  | 'aunt_uncle'
+  | 'cousin'
+  | 'friend'
+  | 'other';
+
+const RELATIONSHIP_OPTIONS: { value: RelationshipType; label: string }[] = [
+  { value: 'recovering', label: 'I am the person in recovery' },
+  { value: 'parent', label: 'Parent' },
+  { value: 'spouse_partner', label: 'Spouse/Partner' },
+  { value: 'sibling', label: 'Sibling' },
+  { value: 'child', label: 'Child' },
+  { value: 'grandparent', label: 'Grandparent' },
+  { value: 'aunt_uncle', label: 'Aunt/Uncle' },
+  { value: 'cousin', label: 'Cousin' },
+  { value: 'friend', label: 'Friend' },
+  { value: 'other', label: 'Other' },
+];
 
 interface Family {
   id: string;
@@ -32,6 +58,7 @@ const Dashboard = () => {
   const [newFamilyName, setNewFamilyName] = useState('');
   const [newFamilyDescription, setNewFamilyDescription] = useState('');
   const [inviteCode, setInviteCode] = useState('');
+  const [relationshipType, setRelationshipType] = useState<RelationshipType | ''>('');
   const [isCreating, setIsCreating] = useState(false);
   const [isJoining, setIsJoining] = useState(false);
 
@@ -174,12 +201,22 @@ const Dashboard = () => {
       return;
     }
 
+    if (!relationshipType) {
+      toast({
+        title: 'Relationship required',
+        description: 'Please select your relationship to the person in recovery.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setIsJoining(true);
     try {
       // Join family via backend function (allows invite-code lookup)
       const { data, error } = await supabase.functions.invoke('join-family', {
         body: {
           inviteCode: inviteCode.trim(),
+          relationshipType: relationshipType,
         },
       });
 
@@ -216,6 +253,7 @@ const Dashboard = () => {
 
       setShowJoinDialog(false);
       setInviteCode('');
+      setRelationshipType('');
       fetchFamilies();
     } catch (error: any) {
       console.error('Error joining family:', error);
@@ -363,6 +401,27 @@ const Dashboard = () => {
                       value={inviteCode}
                       onChange={(e) => setInviteCode(e.target.value)}
                     />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="relationship">Your Relationship</Label>
+                    <Select 
+                      value={relationshipType} 
+                      onValueChange={(val) => setRelationshipType(val as RelationshipType)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select your relationship..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {RELATIONSHIP_OPTIONS.map((opt) => (
+                          <SelectItem key={opt.value} value={opt.value}>
+                            {opt.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-muted-foreground">
+                      Select "I am the person in recovery" if you are the individual seeking support.
+                    </p>
                   </div>
                   <Button 
                     className="w-full" 
