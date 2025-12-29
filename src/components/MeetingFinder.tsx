@@ -67,7 +67,7 @@ const MEETING_TYPES: Record<string, string> = {
 };
 
 // Region/Feed configuration
-type Fellowship = 'AA' | 'Al-Anon' | 'ACA' | 'All';
+type Fellowship = 'AA' | 'Al-Anon' | 'ACA' | 'NA' | 'CoDA' | 'Refuge Recovery' | 'Families Anonymous' | 'All';
 
 interface RegionFeed {
   name: string;
@@ -86,7 +86,11 @@ const FELLOWSHIPS: { value: Fellowship; label: string }[] = [
   { value: 'All', label: 'All Fellowships' },
   { value: 'AA', label: 'Alcoholics Anonymous (AA)' },
   { value: 'Al-Anon', label: 'Al-Anon / Alateen' },
-  { value: 'ACA', label: 'Adult Children of Alcoholics & Dysfunctional Families (ACA)' },
+  { value: 'NA', label: 'Narcotics Anonymous (NA)' },
+  { value: 'ACA', label: 'Adult Children of Alcoholics (ACA)' },
+  { value: 'CoDA', label: 'Co-Dependents Anonymous (CoDA)' },
+  { value: 'Refuge Recovery', label: 'Refuge Recovery' },
+  { value: 'Families Anonymous', label: 'Families Anonymous' },
 ];
 
 const REGION_GROUPS: RegionGroup[] = [
@@ -627,6 +631,114 @@ export const MeetingFinder = () => {
                   >
                     <ExternalLink className="h-4 w-4" />
                     Find ACA Meetings
+                  </a>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* NA External Link */}
+        {selectedFellowship === 'NA' && (
+          <Card className="border-primary/30 bg-primary/5">
+            <CardContent className="py-4">
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex-1">
+                  <h4 className="font-medium text-foreground">NA Meeting Finder</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Narcotics Anonymous meetings are available through the official NA World Services website, including both in-person and virtual meetings.
+                  </p>
+                </div>
+                <Button asChild variant="outline" size="sm">
+                  <a
+                    href="https://na.org/meetingsearch/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2"
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                    Find NA Meetings
+                  </a>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* CoDA External Link */}
+        {selectedFellowship === 'CoDA' && (
+          <Card className="border-primary/30 bg-primary/5">
+            <CardContent className="py-4">
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex-1">
+                  <h4 className="font-medium text-foreground">CoDA Meeting Finder</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Co-Dependents Anonymous meetings are available through the official CoDA website, including in-person and online meetings.
+                  </p>
+                </div>
+                <Button asChild variant="outline" size="sm">
+                  <a
+                    href="https://coda.org/find-a-meeting/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2"
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                    Find CoDA Meetings
+                  </a>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Refuge Recovery External Link */}
+        {selectedFellowship === 'Refuge Recovery' && (
+          <Card className="border-primary/30 bg-primary/5">
+            <CardContent className="py-4">
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex-1">
+                  <h4 className="font-medium text-foreground">Refuge Recovery Meeting Finder</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Refuge Recovery offers Buddhist-inspired recovery meetings. Find meetings through the official Refuge Recovery website.
+                  </p>
+                </div>
+                <Button asChild variant="outline" size="sm">
+                  <a
+                    href="https://refugerecoverymeetings.org/meetings"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2"
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                    Find Refuge Meetings
+                  </a>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Families Anonymous External Link */}
+        {selectedFellowship === 'Families Anonymous' && (
+          <Card className="border-primary/30 bg-primary/5">
+            <CardContent className="py-4">
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex-1">
+                  <h4 className="font-medium text-foreground">Families Anonymous Meeting Finder</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Families Anonymous supports families affected by addiction. Find meetings through the official FA website.
+                  </p>
+                </div>
+                <Button asChild variant="outline" size="sm">
+                  <a
+                    href="https://familiesanonymous.org/meetings/meeting-directories/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2"
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                    Find FA Meetings
                   </a>
                 </Button>
               </div>
