@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { Heart, Plus, Users, LogOut, Loader2, Copy, ArrowRight, Crown } from 'lucide-react';
+import { Heart, Plus, Users, LogOut, Loader2, Copy, ArrowRight, Crown, Home } from 'lucide-react';
 import { NotificationBell } from '@/components/NotificationBell';
 
 type RelationshipType = 
@@ -301,9 +301,15 @@ const Dashboard = () => {
       <header className="border-b border-border bg-card">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Heart className="h-7 w-7 text-primary" />
-              <span className="text-xl font-display font-semibold text-foreground">FamilyBridge</span>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
+                <Heart className="h-7 w-7 text-primary" />
+                <span className="text-xl font-display font-semibold text-foreground">FamilyBridge</span>
+              </div>
+              <Button variant="ghost" size="sm" onClick={() => navigate('/')}>
+                <Home className="h-4 w-4" />
+                <span className="hidden sm:inline ml-2">Home</span>
+              </Button>
             </div>
             <div className="flex items-center gap-2 sm:gap-4">
               <span className="text-sm text-muted-foreground hidden sm:block">
