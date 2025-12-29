@@ -10,6 +10,7 @@ import Dashboard from "./pages/Dashboard";
 import FamilyChat from "./pages/FamilyChat";
 import Meetings from "./pages/Meetings";
 import EnablingExercise from "./pages/EnablingExercise";
+import Subscription from "./pages/Subscription";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +29,7 @@ const App = () => (
             <Route path="/family/:familyId" element={<FamilyChat />} />
             <Route path="/meetings" element={<Meetings />} />
             <Route path="/enabling-exercise" element={<EnablingExercise />} />
+            <Route path="/subscription" element={<Subscription />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
