@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { useBiometricAuth } from '@/hooks/useBiometricAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Heart, Loader2 } from 'lucide-react';
+import { Heart, Loader2, Fingerprint } from 'lucide-react';
 import { z } from 'zod';
 
 const authSchema = z.object({
@@ -27,6 +28,13 @@ const Auth = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const { signIn, signUp, user, loading } = useAuth();
+  const { 
+    isAvailable: biometricAvailable, 
+    hasStoredCredentials, 
+    saveCredentials, 
+    getCredentials,
+    getBiometryLabel 
+  } = useBiometricAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -35,6 +43,13 @@ const Auth = () => {
       navigate('/dashboard');
     }
   }, [user, loading, navigate]);
+
+  // Auto-trigger biometric login if available and has stored credentials
+  useEffect(() => {
+    if (!loading && !user && biometricAvailable && hasStoredCredentials && mode === 'signin') {
+      handleBiometricLogin();
+    }
+  }, [loading, user, biometricAvailable, hasStoredCredentials, mode]);
 
   const validateForm = () => {
     try {
@@ -56,6 +71,27 @@ const Auth = () => {
         setErrors(newErrors);
       }
       return false;
+    }
+  };
+
+  const handleBiometricLogin = async () => {
+    setIsLoading(true);
+    try {
+      const credentials = await getCredentials();
+      if (credentials) {
+        const { error } = await signIn(credentials.email, credentials.password);
+        if (error) {
+          toast({
+            title: 'Sign in failed',
+            description: 'Please sign in with your email and password.',
+            variant: 'destructive',
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Biometric login error:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -84,10 +120,19 @@ const Auth = () => {
             });
           }
         } else {
-          toast({
-            title: 'Welcome to FamilyBridge!',
-            description: 'Your account has been created successfully.',
-          });
+          // Save credentials for biometric login
+          if (biometricAvailable) {
+            await saveCredentials(email, password);
+            toast({
+              title: 'Welcome to FamilyBridge!',
+              description: `Account created. ${getBiometryLabel()} enabled for quick sign in.`,
+            });
+          } else {
+            toast({
+              title: 'Welcome to FamilyBridge!',
+              description: 'Your account has been created successfully.',
+            });
+          }
         }
       } else {
         const { error } = await signIn(email, password);
@@ -97,6 +142,15 @@ const Auth = () => {
             description: 'Invalid email or password. Please try again.',
             variant: 'destructive',
           });
+        } else {
+          // Save credentials for biometric login after successful sign in
+          if (biometricAvailable && !hasStoredCredentials) {
+            await saveCredentials(email, password);
+            toast({
+              title: 'Welcome back!',
+              description: `${getBiometryLabel()} enabled for quick sign in.`,
+            });
+          }
         }
       }
     } finally {
@@ -140,6 +194,31 @@ const Auth = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
+            {/* Biometric Login Button */}
+            {mode === 'signin' && biometricAvailable && hasStoredCredentials && (
+              <div className="mb-6">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full"
+                  size="lg"
+                  onClick={handleBiometricLogin}
+                  disabled={isLoading}
+                >
+                  <Fingerprint className="h-5 w-5 mr-2" />
+                  Sign in with {getBiometryLabel()}
+                </Button>
+                <div className="relative my-4">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t border-border" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-card px-2 text-muted-foreground">Or continue with email</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <form onSubmit={handleSubmit} className="space-y-4">
               {mode === 'signup' && (
                 <div className="space-y-2">
