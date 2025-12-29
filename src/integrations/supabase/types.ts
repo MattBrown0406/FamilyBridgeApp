@@ -82,6 +82,11 @@ export type Database = {
           created_at: string
           family_id: string
           id: string
+          paid_at: string | null
+          paid_by_user_id: string | null
+          payment_confirmed_at: string | null
+          payment_confirmed_by_user_id: string | null
+          payment_method: string | null
           reason: string
           requester_id: string
           resolved_at: string | null
@@ -92,6 +97,11 @@ export type Database = {
           created_at?: string
           family_id: string
           id?: string
+          paid_at?: string | null
+          paid_by_user_id?: string | null
+          payment_confirmed_at?: string | null
+          payment_confirmed_by_user_id?: string | null
+          payment_method?: string | null
           reason: string
           requester_id: string
           resolved_at?: string | null
@@ -102,6 +112,11 @@ export type Database = {
           created_at?: string
           family_id?: string
           id?: string
+          paid_at?: string | null
+          paid_by_user_id?: string | null
+          payment_confirmed_at?: string | null
+          payment_confirmed_by_user_id?: string | null
+          payment_method?: string | null
           reason?: string
           requester_id?: string
           resolved_at?: string | null
@@ -284,24 +299,33 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          cashapp_username: string | null
           created_at: string
           full_name: string
           id: string
+          paypal_username: string | null
           updated_at: string
+          venmo_username: string | null
         }
         Insert: {
           avatar_url?: string | null
+          cashapp_username?: string | null
           created_at?: string
           full_name: string
           id: string
+          paypal_username?: string | null
           updated_at?: string
+          venmo_username?: string | null
         }
         Update: {
           avatar_url?: string | null
+          cashapp_username?: string | null
           created_at?: string
           full_name?: string
           id?: string
+          paypal_username?: string | null
           updated_at?: string
+          venmo_username?: string | null
         }
         Relationships: []
       }
