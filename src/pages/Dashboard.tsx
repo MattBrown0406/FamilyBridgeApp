@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { Heart, Plus, Users, LogOut, Loader2, Copy, ArrowRight } from 'lucide-react';
+import { Heart, Plus, Users, LogOut, Loader2, Copy, ArrowRight, Crown } from 'lucide-react';
 import { NotificationBell } from '@/components/NotificationBell';
 
 type RelationshipType = 
@@ -309,6 +309,10 @@ const Dashboard = () => {
               <span className="text-sm text-muted-foreground hidden sm:block">
                 {user?.email}
               </span>
+              <Button variant="ghost" size="sm" onClick={() => navigate('/subscription')}>
+                <Crown className="h-4 w-4" />
+                <span className="hidden sm:inline ml-2">Premium</span>
+              </Button>
               <NotificationBell />
               <Button variant="ghost" size="sm" onClick={handleSignOut}>
                 <LogOut className="h-4 w-4" />
