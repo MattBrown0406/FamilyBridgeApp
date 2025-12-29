@@ -812,6 +812,31 @@ const FamilyChat = () => {
     }
   };
 
+  const handleRescindRequest = async (requestId: string) => {
+    try {
+      const { error } = await supabase
+        .from('financial_requests')
+        .delete()
+        .eq('id', requestId);
+
+      if (error) throw error;
+
+      toast({
+        title: 'Request rescinded',
+        description: 'Your financial request has been removed.',
+      });
+
+      fetchFinancialRequests(members);
+    } catch (error) {
+      console.error('Error rescinding request:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to rescind request.',
+        variant: 'destructive',
+      });
+    }
+  };
+
   if (loading || isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -1136,7 +1161,18 @@ const FamilyChat = () => {
                             </div>
                             <p className="text-sm mb-3">{req.reason}</p>
 
-                            {/* Bill Attachment */}
+                            {/* Rescind button for requester on pending requests */}
+                            {isRequester && req.status === 'pending' && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="mb-3 text-destructive border-destructive hover:bg-destructive hover:text-destructive-foreground"
+                                onClick={() => handleRescindRequest(req.id)}
+                              >
+                                <X className="h-4 w-4 mr-1" />
+                                Rescind Request
+                              </Button>
+                            )}
                             {req.attachment_url && (
                               <Dialog>
                                 <DialogTrigger asChild>
