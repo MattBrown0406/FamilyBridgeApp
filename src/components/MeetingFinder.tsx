@@ -59,9 +59,8 @@ const MEETING_TYPES: Record<string, string> = {
 };
 
 const PROGRAM_FEEDS: Record<string, string> = {
-  'All Programs': '',
-  'AA - Alcoholics Anonymous': 'https://sheets.code4recovery.org/storage/12Ga8uwMG4WJ8pZ_SEU7vNETp_aQZ-2yNVsYDFqIwHyE.json',
-  'Online Meetings': 'https://online.aa.org/wp-admin/admin-ajax.php?action=meetings',
+  'AA Online Meetings': 'https://sheets.code4recovery.org/storage/12Ga8uwMG4WJ8pZ_SEU7vNETp_aQZ-2yNVsYDFqIwHyE.json',
+  'NA Online Meetings': 'https://sheets.code4recovery.org/storage/1kOvlREHpvhYwWmKHbx8T7RVByRlPYaJ0X0loafxX4Ko.json',
 };
 
 export const MeetingFinder = () => {
@@ -76,7 +75,7 @@ export const MeetingFinder = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDay, setSelectedDay] = useState<string>('');
   const [selectedType, setSelectedType] = useState<string>('');
-  const [selectedProgram, setSelectedProgram] = useState<string>('Online Meetings');
+  const [selectedProgram, setSelectedProgram] = useState<string>('AA Online Meetings');
   const [showFilters, setShowFilters] = useState(false);
 
   // Load meetings when program changes
@@ -290,12 +289,12 @@ export const MeetingFinder = () => {
               </SelectContent>
             </Select>
 
-            <Select value={selectedDay} onValueChange={setSelectedDay}>
+            <Select value={selectedDay || "all"} onValueChange={(val) => setSelectedDay(val === "all" ? "" : val)}>
               <SelectTrigger>
                 <SelectValue placeholder="Any day" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Any day</SelectItem>
+                <SelectItem value="all">Any day</SelectItem>
                 {DAYS.map((day) => (
                   <SelectItem key={day} value={day}>
                     {day}
@@ -304,12 +303,12 @@ export const MeetingFinder = () => {
               </SelectContent>
             </Select>
 
-            <Select value={selectedType} onValueChange={setSelectedType}>
+            <Select value={selectedType || "all"} onValueChange={(val) => setSelectedType(val === "all" ? "" : val)}>
               <SelectTrigger>
                 <SelectValue placeholder="Any type" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Any type</SelectItem>
+                <SelectItem value="all">Any type</SelectItem>
                 {Object.entries(MEETING_TYPES).map(([code, label]) => (
                   <SelectItem key={code} value={code}>
                     {label}
