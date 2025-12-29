@@ -2542,7 +2542,7 @@ const FamilyChat = () => {
                         </li>
                         <li className="flex items-start gap-2">
                           <Check className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                          <span>Location check-in requests should be responded to promptly and honestly.</span>
+                          <span>Immediate response is required for all location check-in requests.</span>
                         </li>
                         <li className="flex items-start gap-2">
                           <Check className="h-4 w-4 text-primary shrink-0 mt-0.5" />
