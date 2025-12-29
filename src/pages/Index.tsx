@@ -137,7 +137,7 @@ const Index = () => {
                 Find a Recovery Meeting
               </h3>
               <p className="text-sm text-muted-foreground">
-                Search for AA, NA, Al-Anon, and other 12-step meetings near you
+                Search for AA, Al-Anon, and other 12-step meetings near you
               </p>
             </div>
           </div>
