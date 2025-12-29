@@ -412,6 +412,10 @@ export type Database = {
         Args: { _family_id: string; _user_id: string }
         Returns: boolean
       }
+      is_moderator_of_family_member: {
+        Args: { _member_id: string; _moderator_id: string }
+        Returns: boolean
+      }
       request_has_no_votes: { Args: { _request_id: string }; Returns: boolean }
     }
     Enums: {
