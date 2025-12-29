@@ -170,9 +170,9 @@ const FamilyChat = () => {
   const fetchPaymentHandles = async () => {
     if (!user) return;
     const { data } = await supabase
-      .from('profiles')
+      .from('payment_info')
       .select('paypal_username, venmo_username, cashapp_username')
-      .eq('id', user.id)
+      .eq('user_id', user.id)
       .maybeSingle();
     
     if (data) {
@@ -186,16 +186,36 @@ const FamilyChat = () => {
     if (!user) return;
     setIsSavingPayment(true);
     try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          paypal_username: paypalUsername.trim() || null,
-          venmo_username: venmoUsername.trim() || null,
-          cashapp_username: cashappUsername.trim() || null,
-        })
-        .eq('id', user.id);
+      // Check if payment_info exists for user
+      const { data: existing } = await supabase
+        .from('payment_info')
+        .select('id')
+        .eq('user_id', user.id)
+        .maybeSingle();
 
-      if (error) throw error;
+      if (existing) {
+        // Update existing
+        const { error } = await supabase
+          .from('payment_info')
+          .update({
+            paypal_username: paypalUsername.trim() || null,
+            venmo_username: venmoUsername.trim() || null,
+            cashapp_username: cashappUsername.trim() || null,
+          })
+          .eq('user_id', user.id);
+        if (error) throw error;
+      } else {
+        // Insert new
+        const { error } = await supabase
+          .from('payment_info')
+          .insert({
+            user_id: user.id,
+            paypal_username: paypalUsername.trim() || null,
+            venmo_username: venmoUsername.trim() || null,
+            cashapp_username: cashappUsername.trim() || null,
+          });
+        if (error) throw error;
+      }
 
       toast({
         title: 'Saved',
@@ -234,17 +254,42 @@ const FamilyChat = () => {
 
     setIsSavingMember(true);
     try {
-      const { error } = await supabase
+      // Update profile name
+      const { error: profileError } = await supabase
         .from('profiles')
-        .update({
-          full_name: editFullName.trim(),
-          paypal_username: editPaypal.trim() || null,
-          venmo_username: editVenmo.trim() || null,
-          cashapp_username: editCashapp.trim() || null,
-        })
+        .update({ full_name: editFullName.trim() })
         .eq('id', editingMember.user_id);
 
-      if (error) throw error;
+      if (profileError) throw profileError;
+
+      // Update payment info (upsert)
+      const { data: existingPayment } = await supabase
+        .from('payment_info')
+        .select('id')
+        .eq('user_id', editingMember.user_id)
+        .maybeSingle();
+
+      if (existingPayment) {
+        const { error: paymentError } = await supabase
+          .from('payment_info')
+          .update({
+            paypal_username: editPaypal.trim() || null,
+            venmo_username: editVenmo.trim() || null,
+            cashapp_username: editCashapp.trim() || null,
+          })
+          .eq('user_id', editingMember.user_id);
+        if (paymentError) throw paymentError;
+      } else if (editPaypal.trim() || editVenmo.trim() || editCashapp.trim()) {
+        const { error: paymentError } = await supabase
+          .from('payment_info')
+          .insert({
+            user_id: editingMember.user_id,
+            paypal_username: editPaypal.trim() || null,
+            venmo_username: editVenmo.trim() || null,
+            cashapp_username: editCashapp.trim() || null,
+          });
+        if (paymentError) throw paymentError;
+      }
 
       toast({
         title: 'Profile updated',
@@ -322,36 +367,48 @@ const FamilyChat = () => {
       const memberRows = membersData || [];
       const memberUserIds = Array.from(new Set(memberRows.map((m) => m.user_id)));
 
-      const profilesById = new Map<string, { full_name: string; paypal_username?: string | null; venmo_username?: string | null; cashapp_username?: string | null }>();
+      const profilesById = new Map<string, { full_name: string }>();
+      const paymentInfoById = new Map<string, { paypal_username?: string | null; venmo_username?: string | null; cashapp_username?: string | null }>();
 
       if (memberUserIds.length > 0) {
+        // Fetch profiles (names only)
         const { data: profilesData, error: profilesError } = await supabase
           .from('profiles')
-          .select('id, full_name, paypal_username, venmo_username, cashapp_username')
+          .select('id, full_name')
           .in('id', memberUserIds);
 
         if (profilesError) throw profilesError;
 
         for (const p of profilesData || []) {
-          profilesById.set(p.id, {
-            full_name: p.full_name,
-            paypal_username: p.paypal_username,
-            venmo_username: p.venmo_username,
-            cashapp_username: p.cashapp_username,
+          profilesById.set(p.id, { full_name: p.full_name });
+        }
+
+        // Fetch payment info separately (moderators only see their own unless they're managing)
+        const { data: paymentData } = await supabase
+          .from('payment_info')
+          .select('user_id, paypal_username, venmo_username, cashapp_username')
+          .in('user_id', memberUserIds);
+
+        for (const pi of paymentData || []) {
+          paymentInfoById.set(pi.user_id, {
+            paypal_username: pi.paypal_username,
+            venmo_username: pi.venmo_username,
+            cashapp_username: pi.cashapp_username,
           });
         }
       }
 
       const formattedMembers: Member[] = memberRows.map((m) => {
         const profile = profilesById.get(m.user_id);
+        const paymentInfo = paymentInfoById.get(m.user_id);
         return {
           id: m.id,
           user_id: m.user_id,
           role: m.role,
           full_name: profile?.full_name || 'Unknown',
-          paypal_username: profile?.paypal_username,
-          venmo_username: profile?.venmo_username,
-          cashapp_username: profile?.cashapp_username,
+          paypal_username: paymentInfo?.paypal_username,
+          venmo_username: paymentInfo?.venmo_username,
+          cashapp_username: paymentInfo?.cashapp_username,
         };
       });
 
@@ -449,13 +506,24 @@ const FamilyChat = () => {
     const requesterIds = Array.from(new Set((requestsData || []).map(r => r.requester_id)));
     const allUserIds = Array.from(new Set([...requesterIds, ...pledgeUserIds]));
     
+    // Fetch profiles (names only)
     const { data: profilesData } = await supabase
       .from('profiles')
-      .select('id, full_name, paypal_username, venmo_username, cashapp_username')
+      .select('id, full_name')
       .in('id', allUserIds.length > 0 ? allUserIds : ['00000000-0000-0000-0000-000000000000']);
 
-    const profilesById = new Map(
+    const profilesById = new Map<string, { id: string; full_name: string }>(
       (profilesData || []).map(p => [p.id, p] as const)
+    );
+
+    // Fetch payment info for requesters of approved requests (RLS will filter appropriately)
+    const { data: paymentInfoData } = await supabase
+      .from('payment_info')
+      .select('user_id, paypal_username, venmo_username, cashapp_username')
+      .in('user_id', requesterIds.length > 0 ? requesterIds : ['00000000-0000-0000-0000-000000000000']);
+
+    const paymentInfoById = new Map<string, { paypal_username?: string | null; venmo_username?: string | null; cashapp_username?: string | null }>(
+      (paymentInfoData || []).map(pi => [pi.user_id, pi] as const)
     );
 
     // Group pledges by request_id
@@ -481,6 +549,7 @@ const FamilyChat = () => {
     const requestsWithNames = (requestsData || []).map(req => {
       const requester = membersList.find(m => m.user_id === req.requester_id);
       const profile = profilesById.get(req.requester_id);
+      const paymentInfo = paymentInfoById.get(req.requester_id);
       return {
         id: req.id,
         amount: req.amount,
@@ -496,9 +565,9 @@ const FamilyChat = () => {
         payment_method: req.payment_method,
         payment_confirmed_at: req.payment_confirmed_at,
         payment_confirmed_by_user_id: req.payment_confirmed_by_user_id,
-        requester_paypal: profile?.paypal_username || null,
-        requester_venmo: profile?.venmo_username || null,
-        requester_cashapp: profile?.cashapp_username || null,
+        requester_paypal: paymentInfo?.paypal_username || null,
+        requester_venmo: paymentInfo?.venmo_username || null,
+        requester_cashapp: paymentInfo?.cashapp_username || null,
         attachment_url: req.attachment_url,
       };
     });

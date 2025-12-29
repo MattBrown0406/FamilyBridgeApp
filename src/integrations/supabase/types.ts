@@ -343,36 +343,57 @@ export type Database = {
           },
         ]
       }
-      profiles: {
+      payment_info: {
         Row: {
-          avatar_url: string | null
           cashapp_username: string | null
           created_at: string
-          full_name: string
           id: string
           paypal_username: string | null
           updated_at: string
+          user_id: string
           venmo_username: string | null
         }
         Insert: {
-          avatar_url?: string | null
           cashapp_username?: string | null
           created_at?: string
-          full_name: string
-          id: string
-          paypal_username?: string | null
-          updated_at?: string
-          venmo_username?: string | null
-        }
-        Update: {
-          avatar_url?: string | null
-          cashapp_username?: string | null
-          created_at?: string
-          full_name?: string
           id?: string
           paypal_username?: string | null
           updated_at?: string
+          user_id: string
           venmo_username?: string | null
+        }
+        Update: {
+          cashapp_username?: string | null
+          created_at?: string
+          id?: string
+          paypal_username?: string | null
+          updated_at?: string
+          user_id?: string
+          venmo_username?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          full_name: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name: string
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string
+          id?: string
+          updated_at?: string
         }
         Relationships: []
       }
