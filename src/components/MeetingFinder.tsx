@@ -67,7 +67,7 @@ const MEETING_TYPES: Record<string, string> = {
 };
 
 // Region/Feed configuration
-type Fellowship = 'AA' | 'Al-Anon' | 'All';
+type Fellowship = 'AA' | 'Al-Anon' | 'ACA' | 'All';
 
 interface RegionFeed {
   name: string;
@@ -86,6 +86,7 @@ const FELLOWSHIPS: { value: Fellowship; label: string }[] = [
   { value: 'All', label: 'All Fellowships' },
   { value: 'AA', label: 'Alcoholics Anonymous (AA)' },
   { value: 'Al-Anon', label: 'Al-Anon / Alateen' },
+  { value: 'ACA', label: 'Adult Children of Alcoholics (ACA)' },
 ];
 
 const REGION_GROUPS: RegionGroup[] = [
@@ -590,6 +591,33 @@ export const MeetingFinder = () => {
             </SelectContent>
           </Select>
         </div>
+
+        {/* ACA External Link */}
+        {selectedFellowship === 'ACA' && (
+          <Card className="border-primary/30 bg-primary/5">
+            <CardContent className="py-4">
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex-1">
+                  <h4 className="font-medium text-foreground">ACA Meeting Finder</h4>
+                  <p className="text-sm text-muted-foreground">
+                    ACA meetings are available through the official Adult Children of Alcoholics World Service Organization website.
+                  </p>
+                </div>
+                <Button asChild variant="outline" size="sm">
+                  <a
+                    href="https://adultchildren.org/meeting-search/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2"
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                    Find ACA Meetings
+                  </a>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Search and Location */}
         <div className="flex flex-col sm:flex-row gap-2">
