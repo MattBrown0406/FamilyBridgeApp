@@ -371,7 +371,18 @@ export type Database = {
     }
     Enums: {
       family_role: "member" | "recovering" | "moderator"
-      meeting_type: "AA" | "Al-Anon" | "NA" | "Nar-Anon" | "Other"
+      meeting_type:
+        | "AA"
+        | "Al-Anon"
+        | "NA"
+        | "Nar-Anon"
+        | "Other"
+        | "Refuge Recovery"
+        | "Smart Recovery"
+        | "ACA"
+        | "CoDA"
+        | "Families Anonymous"
+        | "Celebrate Recovery"
       request_status: "pending" | "approved" | "denied"
     }
     CompositeTypes: {
@@ -501,7 +512,19 @@ export const Constants = {
   public: {
     Enums: {
       family_role: ["member", "recovering", "moderator"],
-      meeting_type: ["AA", "Al-Anon", "NA", "Nar-Anon", "Other"],
+      meeting_type: [
+        "AA",
+        "Al-Anon",
+        "NA",
+        "Nar-Anon",
+        "Other",
+        "Refuge Recovery",
+        "Smart Recovery",
+        "ACA",
+        "CoDA",
+        "Families Anonymous",
+        "Celebrate Recovery",
+      ],
       request_status: ["pending", "approved", "denied"],
     },
   },

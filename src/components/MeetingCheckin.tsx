@@ -15,6 +15,12 @@ const MEETING_TYPES = [
   { value: 'Al-Anon', label: 'Al-Anon Family Groups' },
   { value: 'NA', label: 'Narcotics Anonymous (NA)' },
   { value: 'Nar-Anon', label: 'Nar-Anon Family Groups' },
+  { value: 'Refuge Recovery', label: 'Refuge Recovery' },
+  { value: 'Smart Recovery', label: 'Smart Recovery' },
+  { value: 'ACA', label: 'Adult Children of Alcoholics (ACA)' },
+  { value: 'CoDA', label: 'Co-Dependents Anonymous (CoDA)' },
+  { value: 'Families Anonymous', label: 'Families Anonymous' },
+  { value: 'Celebrate Recovery', label: 'Celebrate Recovery' },
   { value: 'Other', label: 'Other Recovery Meeting' },
 ];
 
@@ -124,7 +130,7 @@ export const MeetingCheckin = ({ familyId, onCheckinComplete }: MeetingCheckinPr
       const { error } = await supabase.from('meeting_checkins').insert({
         user_id: user?.id,
         family_id: familyId,
-        meeting_type: meetingType as 'AA' | 'Al-Anon' | 'NA' | 'Nar-Anon' | 'Other',
+        meeting_type: meetingType as 'AA' | 'Al-Anon' | 'NA' | 'Nar-Anon' | 'Refuge Recovery' | 'Smart Recovery' | 'ACA' | 'CoDA' | 'Families Anonymous' | 'Celebrate Recovery' | 'Other',
         meeting_name: meetingName.trim() || null,
         meeting_address: meetingAddress.trim() || null,
         latitude,
