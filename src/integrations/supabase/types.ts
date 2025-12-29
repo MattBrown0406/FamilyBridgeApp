@@ -14,6 +14,35 @@ export type Database = {
   }
   public: {
     Tables: {
+      boundary_acknowledgments: {
+        Row: {
+          acknowledged_at: string
+          boundary_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          acknowledged_at?: string
+          boundary_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          acknowledged_at?: string
+          boundary_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "boundary_acknowledgments_boundary_id_fkey"
+            columns: ["boundary_id"]
+            isOneToOne: false
+            referencedRelation: "family_boundaries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       families: {
         Row: {
           created_at: string
@@ -43,6 +72,56 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      family_boundaries: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          content: string
+          created_at: string
+          created_by: string
+          family_id: string
+          id: string
+          rejected_reason: string | null
+          status: string
+          target_user_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          content: string
+          created_at?: string
+          created_by: string
+          family_id: string
+          id?: string
+          rejected_reason?: string | null
+          status?: string
+          target_user_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          content?: string
+          created_at?: string
+          created_by?: string
+          family_id?: string
+          id?: string
+          rejected_reason?: string | null
+          status?: string
+          target_user_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "family_boundaries_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       family_goals: {
         Row: {
