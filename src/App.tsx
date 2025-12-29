@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import FamilyChat from "./pages/FamilyChat";
+import Meetings from "./pages/Meetings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,6 +25,7 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/family/:familyId" element={<FamilyChat />} />
+            <Route path="/meetings" element={<Meetings />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
