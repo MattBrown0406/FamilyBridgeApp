@@ -465,7 +465,18 @@ const REGION_GROUPS: RegionGroup[] = [
     ],
   },
   {
-    label: 'Other Programs',
+    label: 'Al-Anon / Alateen',
+    regions: [
+      {
+        name: 'Solution-Oriented Al-Anon (Online)',
+        feedUrl: 'https://sheets.code4recovery.org/storage/1KcNIvfd0vhC_CHsqjnO0lUw1mSSNuP4CDMuN3T_6_yg.json',
+        type: 'sheets',
+        description: 'Solution-focused Al-Anon meetings worldwide',
+      },
+    ],
+  },
+  {
+    label: 'Other 12-Step Programs',
     regions: [
       {
         name: 'NA Online Meetings',
