@@ -86,7 +86,7 @@ const FELLOWSHIPS: { value: Fellowship; label: string }[] = [
   { value: 'All', label: 'All Fellowships' },
   { value: 'AA', label: 'Alcoholics Anonymous (AA)' },
   { value: 'Al-Anon', label: 'Al-Anon / Alateen' },
-  { value: 'ACA', label: 'Adult Children of Alcoholics (ACA)' },
+  { value: 'ACA', label: 'Adult Children of Alcoholics & Dysfunctional Families (ACA)' },
 ];
 
 const REGION_GROUPS: RegionGroup[] = [
