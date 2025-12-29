@@ -14,7 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import { 
   Heart, ArrowLeft, Send, Loader2, Users, DollarSign, 
   MessageCircle, AlertTriangle, Check, X, Shield, MapPin,
-  ExternalLink, CreditCard, CheckCircle2, Paperclip, Image
+  ExternalLink, CreditCard, CheckCircle2, Paperclip, Image, HandCoins, Trash2
 } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { format } from 'date-fns';
@@ -68,6 +68,15 @@ interface Member {
   full_name: string;
 }
 
+interface FinancialPledge {
+  id: string;
+  user_id: string;
+  amount: number;
+  payment_method?: string | null;
+  created_at: string;
+  user_name?: string;
+}
+
 interface FinancialRequest {
   id: string;
   amount: number;
@@ -77,6 +86,7 @@ interface FinancialRequest {
   requester_name?: string;
   created_at: string;
   votes: { approved: boolean; voter_id: string }[];
+  pledges: FinancialPledge[];
   paid_at?: string | null;
   paid_by_user_id?: string | null;
   payment_method?: string | null;
@@ -126,6 +136,11 @@ const FamilyChat = () => {
   const [billAttachment, setBillAttachment] = useState<File | null>(null);
   const [billPreview, setBillPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // Pledge state
+  const [pledgeAmounts, setPledgeAmounts] = useState<Record<string, string>>({});
+  const [pledgeMethods, setPledgeMethods] = useState<Record<string, string>>({});
+  const [isPledging, setIsPledging] = useState<string | null>(null);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -331,17 +346,50 @@ const FamilyChat = () => {
       return;
     }
 
+    // Get request IDs to fetch pledges
+    const requestIds = (requestsData || []).map(r => r.id);
+    
+    // Fetch pledges for all requests
+    const { data: pledgesData } = await supabase
+      .from('financial_pledges')
+      .select('id, request_id, user_id, amount, payment_method, created_at')
+      .in('request_id', requestIds.length > 0 ? requestIds : ['00000000-0000-0000-0000-000000000000']);
+
+    // Get all user IDs from pledges to fetch names
+    const pledgeUserIds = Array.from(new Set((pledgesData || []).map(p => p.user_id)));
+    
     // Get requester user IDs to fetch their payment handles
     const requesterIds = Array.from(new Set((requestsData || []).map(r => r.requester_id)));
+    const allUserIds = Array.from(new Set([...requesterIds, ...pledgeUserIds]));
     
     const { data: profilesData } = await supabase
       .from('profiles')
       .select('id, full_name, paypal_username, venmo_username, cashapp_username')
-      .in('id', requesterIds);
+      .in('id', allUserIds.length > 0 ? allUserIds : ['00000000-0000-0000-0000-000000000000']);
 
     const profilesById = new Map(
       (profilesData || []).map(p => [p.id, p] as const)
     );
+
+    // Group pledges by request_id
+    const pledgesByRequestId = new Map<string, FinancialPledge[]>();
+    for (const pledge of pledgesData || []) {
+      const profile = profilesById.get(pledge.user_id);
+      const member = membersList.find(m => m.user_id === pledge.user_id);
+      const pledgeWithName: FinancialPledge = {
+        id: pledge.id,
+        user_id: pledge.user_id,
+        amount: pledge.amount,
+        payment_method: pledge.payment_method,
+        created_at: pledge.created_at,
+        user_name: member?.full_name || profile?.full_name || 'Unknown',
+      };
+      
+      if (!pledgesByRequestId.has(pledge.request_id)) {
+        pledgesByRequestId.set(pledge.request_id, []);
+      }
+      pledgesByRequestId.get(pledge.request_id)!.push(pledgeWithName);
+    }
 
     const requestsWithNames = (requestsData || []).map(req => {
       const requester = membersList.find(m => m.user_id === req.requester_id);
@@ -355,6 +403,7 @@ const FamilyChat = () => {
         requester_name: requester?.full_name || profile?.full_name || 'Unknown',
         created_at: req.created_at,
         votes: req.financial_votes || [],
+        pledges: pledgesByRequestId.get(req.id) || [],
         paid_at: req.paid_at,
         paid_by_user_id: req.paid_by_user_id,
         payment_method: req.payment_method,
@@ -677,6 +726,87 @@ const FamilyChat = () => {
       toast({
         title: 'Error',
         description: 'Failed to confirm payment.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleCreatePledge = async (requestId: string, totalAmount: number) => {
+    const pledgeAmount = parseFloat(pledgeAmounts[requestId] || '0');
+    const pledgeMethod = pledgeMethods[requestId] || '';
+    
+    if (isNaN(pledgeAmount) || pledgeAmount <= 0) {
+      toast({
+        title: 'Invalid amount',
+        description: 'Please enter a valid pledge amount.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (pledgeAmount > totalAmount) {
+      toast({
+        title: 'Amount too high',
+        description: 'Pledge amount cannot exceed the request amount.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsPledging(requestId);
+    try {
+      const { error } = await supabase
+        .from('financial_pledges')
+        .insert({
+          request_id: requestId,
+          user_id: user?.id,
+          amount: pledgeAmount,
+          payment_method: pledgeMethod || null,
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: 'Pledge created',
+        description: `You pledged $${pledgeAmount.toFixed(2)} to help with this request.`,
+      });
+
+      // Clear the inputs
+      setPledgeAmounts(prev => ({ ...prev, [requestId]: '' }));
+      setPledgeMethods(prev => ({ ...prev, [requestId]: '' }));
+      fetchFinancialRequests(members);
+    } catch (error) {
+      console.error('Error creating pledge:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to create pledge.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsPledging(null);
+    }
+  };
+
+  const handleDeletePledge = async (pledgeId: string) => {
+    try {
+      const { error } = await supabase
+        .from('financial_pledges')
+        .delete()
+        .eq('id', pledgeId);
+
+      if (error) throw error;
+
+      toast({
+        title: 'Pledge removed',
+        description: 'Your pledge has been removed.',
+      });
+
+      fetchFinancialRequests(members);
+    } catch (error) {
+      console.error('Error deleting pledge:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to remove pledge.',
         variant: 'destructive',
       });
     }
@@ -1071,6 +1201,91 @@ const FamilyChat = () => {
                             )}
                             {hasVoted && req.status === 'pending' && (
                               <p className="text-sm text-muted-foreground mb-3">You've voted</p>
+                            )}
+
+                            {/* Pledges section */}
+                            {req.status === 'pending' && (
+                              <div className="border-t border-border pt-3 mt-3">
+                                {/* Existing pledges */}
+                                {req.pledges.length > 0 && (
+                                  <div className="mb-3">
+                                    <p className="text-sm font-medium text-foreground mb-2 flex items-center gap-1">
+                                      <HandCoins className="h-4 w-4 text-primary" />
+                                      Pledges (${req.pledges.reduce((sum, p) => sum + Number(p.amount), 0).toFixed(2)} of ${req.amount.toFixed(2)})
+                                    </p>
+                                    <div className="space-y-1">
+                                      {req.pledges.map((pledge) => (
+                                        <div key={pledge.id} className="flex items-center justify-between text-sm bg-secondary/50 px-2 py-1 rounded">
+                                          <span>
+                                            {pledge.user_name}: ${Number(pledge.amount).toFixed(2)}
+                                            {pledge.payment_method && ` via ${pledge.payment_method}`}
+                                          </span>
+                                          {pledge.user_id === user?.id && (
+                                            <Button
+                                              size="sm"
+                                              variant="ghost"
+                                              className="h-6 w-6 p-0 text-destructive hover:text-destructive"
+                                              onClick={() => handleDeletePledge(pledge.id)}
+                                            >
+                                              <Trash2 className="h-3 w-3" />
+                                            </Button>
+                                          )}
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+
+                                {/* Add pledge form (for non-requesters) */}
+                                {!isRequester && (
+                                  <div className="space-y-2">
+                                    <p className="text-sm font-medium text-foreground">
+                                      Pledge to help with this request:
+                                    </p>
+                                    <div className="flex gap-2">
+                                      <Input
+                                        type="number"
+                                        placeholder="Amount ($)"
+                                        value={pledgeAmounts[req.id] || ''}
+                                        onChange={(e) => setPledgeAmounts(prev => ({ ...prev, [req.id]: e.target.value }))}
+                                        min="0"
+                                        step="0.01"
+                                        className="w-24"
+                                      />
+                                      <Select 
+                                        value={pledgeMethods[req.id] || ''} 
+                                        onValueChange={(value) => setPledgeMethods(prev => ({ ...prev, [req.id]: value }))}
+                                      >
+                                        <SelectTrigger className="w-32 bg-background">
+                                          <SelectValue placeholder="Method" />
+                                        </SelectTrigger>
+                                        <SelectContent className="bg-background z-50">
+                                          <SelectItem value="PayPal">PayPal</SelectItem>
+                                          <SelectItem value="Venmo">Venmo</SelectItem>
+                                          <SelectItem value="Cash App">Cash App</SelectItem>
+                                          <SelectItem value="Zelle">Zelle</SelectItem>
+                                          <SelectItem value="Cash">Cash</SelectItem>
+                                          <SelectItem value="Other">Other</SelectItem>
+                                        </SelectContent>
+                                      </Select>
+                                      <Button
+                                        size="sm"
+                                        onClick={() => handleCreatePledge(req.id, req.amount)}
+                                        disabled={isPledging === req.id}
+                                      >
+                                        {isPledging === req.id ? (
+                                          <Loader2 className="h-4 w-4 animate-spin" />
+                                        ) : (
+                                          <>
+                                            <HandCoins className="h-4 w-4 mr-1" />
+                                            Pledge
+                                          </>
+                                        )}
+                                      </Button>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
                             )}
 
                             {/* Payment section for approved requests */}
