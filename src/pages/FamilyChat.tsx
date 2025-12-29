@@ -127,6 +127,22 @@ interface FamilyGoal {
   completed_at: string | null;
 }
 
+interface FamilyBoundary {
+  id: string;
+  family_id: string;
+  created_by: string;
+  creator_name?: string;
+  target_user_id: string | null;
+  target_name?: string;
+  content: string;
+  status: string;
+  approved_by: string | null;
+  approved_at: string | null;
+  rejected_reason: string | null;
+  created_at: string;
+  acknowledgments: { user_id: string; user_name?: string; acknowledged_at: string }[];
+}
+
 const GOAL_OPTIONS = [
   { value: 'into_treatment', label: 'Get {name} into treatment' },
   { value: 'complete_treatment', label: 'Help {name} complete treatment' },
@@ -190,6 +206,13 @@ const FamilyChat = () => {
   const [familyGoals, setFamilyGoals] = useState<FamilyGoal[]>([]);
   const [selectedGoal, setSelectedGoal] = useState('');
   const [isAddingGoal, setIsAddingGoal] = useState(false);
+  
+  // Boundaries state
+  const [familyBoundaries, setFamilyBoundaries] = useState<FamilyBoundary[]>([]);
+  const [newBoundaryContent, setNewBoundaryContent] = useState('');
+  const [newBoundaryTarget, setNewBoundaryTarget] = useState<string>('all');
+  const [isAddingBoundary, setIsAddingBoundary] = useState(false);
+  const [showBoundaryForm, setShowBoundaryForm] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -490,6 +513,9 @@ const FamilyChat = () => {
       
       // Fetch family goals
       await fetchFamilyGoals();
+      
+      // Fetch family boundaries
+      await fetchFamilyBoundaries();
     } catch (error) {
       console.error('Error fetching family data:', error);
       toast({
@@ -608,6 +634,213 @@ const FamilyChat = () => {
     const option = GOAL_OPTIONS.find(o => o.value === goalType);
     if (!option) return goalType;
     return option.label.replace('{name}', getRecoveringMemberName());
+  };
+
+  const fetchFamilyBoundaries = async () => {
+    const { data: boundariesData, error } = await supabase
+      .from('family_boundaries')
+      .select('*')
+      .eq('family_id', familyId)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching boundaries:', error);
+      return;
+    }
+
+    // Fetch acknowledgments for each boundary
+    const boundaryIds = boundariesData?.map(b => b.id) || [];
+    let acknowledgmentsData: any[] = [];
+    
+    if (boundaryIds.length > 0) {
+      const { data: acks } = await supabase
+        .from('boundary_acknowledgments')
+        .select('*')
+        .in('boundary_id', boundaryIds);
+      acknowledgmentsData = acks || [];
+    }
+
+    // Build boundaries with acknowledgments and names
+    const profilesById = new Map<string, string>();
+    for (const m of members) {
+      profilesById.set(m.user_id, m.full_name);
+    }
+
+    const formattedBoundaries: FamilyBoundary[] = (boundariesData || []).map(b => ({
+      ...b,
+      creator_name: profilesById.get(b.created_by) || 'Unknown',
+      target_name: b.target_user_id ? profilesById.get(b.target_user_id) || 'Unknown' : null,
+      acknowledgments: acknowledgmentsData
+        .filter(a => a.boundary_id === b.id)
+        .map(a => ({
+          user_id: a.user_id,
+          user_name: profilesById.get(a.user_id) || 'Unknown',
+          acknowledged_at: a.acknowledged_at,
+        })),
+    }));
+
+    setFamilyBoundaries(formattedBoundaries);
+  };
+
+  const handleCreateBoundary = async () => {
+    if (!newBoundaryContent.trim() || !user || !familyId) return;
+
+    setIsAddingBoundary(true);
+    try {
+      const { error } = await supabase
+        .from('family_boundaries')
+        .insert({
+          family_id: familyId,
+          created_by: user.id,
+          target_user_id: newBoundaryTarget === 'all' ? null : newBoundaryTarget,
+          content: newBoundaryContent.trim(),
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: 'Boundary proposed',
+        description: 'Your boundary has been submitted for moderator approval.',
+      });
+
+      setNewBoundaryContent('');
+      setNewBoundaryTarget('all');
+      setShowBoundaryForm(false);
+      await fetchFamilyBoundaries();
+    } catch (error) {
+      console.error('Error creating boundary:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to create boundary.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsAddingBoundary(false);
+    }
+  };
+
+  const handleApproveBoundary = async (boundaryId: string) => {
+    if (!user) return;
+    try {
+      const { error } = await supabase
+        .from('family_boundaries')
+        .update({
+          status: 'approved',
+          approved_by: user.id,
+          approved_at: new Date().toISOString(),
+        })
+        .eq('id', boundaryId);
+
+      if (error) throw error;
+
+      toast({
+        title: 'Boundary approved',
+        description: 'The boundary has been approved and family members will be notified.',
+      });
+
+      await fetchFamilyBoundaries();
+    } catch (error) {
+      console.error('Error approving boundary:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to approve boundary.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleRejectBoundary = async (boundaryId: string) => {
+    if (!user) return;
+    try {
+      const { error } = await supabase
+        .from('family_boundaries')
+        .update({
+          status: 'rejected',
+        })
+        .eq('id', boundaryId);
+
+      if (error) throw error;
+
+      toast({
+        title: 'Boundary rejected',
+        description: 'The boundary request has been rejected.',
+      });
+
+      await fetchFamilyBoundaries();
+    } catch (error) {
+      console.error('Error rejecting boundary:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to reject boundary.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleAcknowledgeBoundary = async (boundaryId: string) => {
+    if (!user) return;
+    try {
+      const { error } = await supabase
+        .from('boundary_acknowledgments')
+        .insert({
+          boundary_id: boundaryId,
+          user_id: user.id,
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: 'Boundary acknowledged',
+        description: 'You have acknowledged this boundary.',
+      });
+
+      await fetchFamilyBoundaries();
+    } catch (error) {
+      console.error('Error acknowledging boundary:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to acknowledge boundary.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleDeleteBoundary = async (boundaryId: string) => {
+    try {
+      const { error } = await supabase
+        .from('family_boundaries')
+        .delete()
+        .eq('id', boundaryId);
+
+      if (error) throw error;
+
+      toast({
+        title: 'Boundary removed',
+        description: 'The boundary has been removed.',
+      });
+
+      await fetchFamilyBoundaries();
+    } catch (error) {
+      console.error('Error deleting boundary:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to remove boundary.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const hasUserAcknowledged = (boundary: FamilyBoundary) => {
+    return boundary.acknowledgments.some(a => a.user_id === user?.id);
+  };
+
+  const shouldUserAcknowledge = (boundary: FamilyBoundary) => {
+    if (boundary.status !== 'approved') return false;
+    if (hasUserAcknowledged(boundary)) return false;
+    // If target is null, all members should acknowledge
+    // If target is set, only that user should acknowledge
+    if (boundary.target_user_id === null) return true;
+    return boundary.target_user_id === user?.id || boundary.created_by === user?.id;
   };
 
   const fetchFinancialRequests = async (membersList: Member[]) => {
@@ -2060,66 +2293,195 @@ const FamilyChat = () => {
           </TabsContent>
 
           {/* Boundaries Tab */}
-          <TabsContent value="boundaries" className="mt-0 space-y-4">
+          <TabsContent value="boundaries" className="mt-0 space-y-4 overflow-auto">
             <Card>
-              <CardHeader>
+              <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle className="text-lg font-display flex items-center gap-2">
                   <ShieldCheck className="h-5 w-5 text-primary" />
                   Family Boundaries
                 </CardTitle>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowBoundaryForm(!showBoundaryForm)}
+                >
+                  <Plus className="h-4 w-4 mr-1" />
+                  Propose Boundary
+                </Button>
               </CardHeader>
               <CardContent>
                 <div className="space-y-6">
                   <p className="text-sm text-muted-foreground">
                     Clear boundaries help protect both the recovering person and family members. 
-                    These agreements create a framework for healthy relationships.
+                    Propose boundaries that will be reviewed by a moderator.
                   </p>
 
-                  <div className="space-y-3">
-                    <h3 className="font-medium text-foreground">Financial Boundaries</h3>
-                    <div className="grid gap-3">
-                      <div className="p-4 rounded-lg bg-secondary/50 border border-border">
-                        <p className="text-sm">
-                          All financial requests must go through the app and be approved by family vote.
-                        </p>
+                  {/* New Boundary Form */}
+                  {showBoundaryForm && (
+                    <div className="p-4 rounded-lg bg-secondary/30 border border-border space-y-4">
+                      <h3 className="font-medium text-foreground">Propose a New Boundary</h3>
+                      <div className="space-y-2">
+                        <Label htmlFor="boundaryTarget">Who does this boundary apply to?</Label>
+                        <Select value={newBoundaryTarget} onValueChange={setNewBoundaryTarget}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select member..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All Family Members</SelectItem>
+                            {members.filter(m => m.user_id !== user?.id).map(member => (
+                              <SelectItem key={member.user_id} value={member.user_id}>
+                                {member.full_name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
-                      <div className="p-4 rounded-lg bg-secondary/50 border border-border">
-                        <p className="text-sm">
-                          No cash will be given directly. Payments made only for approved bills.
-                        </p>
+                      <div className="space-y-2">
+                        <Label htmlFor="boundaryContent">Boundary Description</Label>
+                        <Textarea
+                          id="boundaryContent"
+                          placeholder="Describe the boundary clearly and specifically..."
+                          value={newBoundaryContent}
+                          onChange={(e) => setNewBoundaryContent(e.target.value)}
+                          rows={3}
+                        />
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          onClick={handleCreateBoundary}
+                          disabled={!newBoundaryContent.trim() || isAddingBoundary}
+                        >
+                          {isAddingBoundary ? (
+                            <>
+                              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                              Submitting...
+                            </>
+                          ) : (
+                            'Submit for Approval'
+                          )}
+                        </Button>
+                        <Button variant="ghost" onClick={() => setShowBoundaryForm(false)}>
+                          Cancel
+                        </Button>
                       </div>
                     </div>
-                  </div>
+                  )}
 
-                  <div className="space-y-3">
-                    <h3 className="font-medium text-foreground">Communication Boundaries</h3>
-                    <div className="grid gap-3">
-                      <div className="p-4 rounded-lg bg-secondary/50 border border-border">
-                        <p className="text-sm">
-                          Location check-ins may be requested and should be responded to within a reasonable time.
-                        </p>
-                      </div>
-                      <div className="p-4 rounded-lg bg-secondary/50 border border-border">
-                        <p className="text-sm">
-                          All family communication regarding recovery happens through this app to maintain transparency.
-                        </p>
+                  {/* Pending Boundaries (Moderator View) */}
+                  {currentUserRole === 'moderator' && familyBoundaries.filter(b => b.status === 'pending').length > 0 && (
+                    <div className="space-y-3">
+                      <h3 className="font-medium text-foreground flex items-center gap-2">
+                        <AlertTriangle className="h-4 w-4 text-warning" />
+                        Pending Approval
+                      </h3>
+                      <div className="grid gap-3">
+                        {familyBoundaries.filter(b => b.status === 'pending').map(boundary => (
+                          <div key={boundary.id} className="p-4 rounded-lg bg-warning/10 border border-warning/30">
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="flex-1">
+                                <p className="text-sm font-medium mb-1">
+                                  Proposed by {boundary.creator_name}
+                                  {boundary.target_name && ` for ${boundary.target_name}`}
+                                </p>
+                                <p className="text-sm">{boundary.content}</p>
+                              </div>
+                              <div className="flex gap-2 shrink-0">
+                                <Button
+                                  size="sm"
+                                  variant="default"
+                                  onClick={() => handleApproveBoundary(boundary.id)}
+                                >
+                                  <Check className="h-4 w-4 mr-1" />
+                                  Approve
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="destructive"
+                                  onClick={() => handleRejectBoundary(boundary.id)}
+                                >
+                                  <X className="h-4 w-4 mr-1" />
+                                  Reject
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     </div>
-                  </div>
+                  )}
 
+                  {/* Approved Boundaries */}
                   <div className="space-y-3">
-                    <h3 className="font-medium text-foreground">Recovery Commitments</h3>
+                    <h3 className="font-medium text-foreground">Active Boundaries</h3>
                     <div className="grid gap-3">
-                      <div className="p-4 rounded-lg bg-secondary/50 border border-border">
-                        <p className="text-sm">
-                          Attendance at recovery meetings is expected and will be tracked via check-ins.
-                        </p>
-                      </div>
-                      <div className="p-4 rounded-lg bg-secondary/50 border border-border">
-                        <p className="text-sm">
-                          Any relapse must be disclosed to the family within 24 hours.
-                        </p>
-                      </div>
+                      {familyBoundaries.filter(b => b.status === 'approved').length === 0 ? (
+                        <div className="p-4 rounded-lg bg-secondary/30 border border-border text-center">
+                          <p className="text-sm text-muted-foreground">
+                            No approved boundaries yet. Propose one above!
+                          </p>
+                        </div>
+                      ) : (
+                        familyBoundaries.filter(b => b.status === 'approved').map(boundary => (
+                          <div key={boundary.id} className="p-4 rounded-lg bg-secondary/50 border border-border">
+                            <div className="flex items-start justify-between gap-3 mb-3">
+                              <div className="flex-1">
+                                <p className="text-sm font-medium mb-1">
+                                  {boundary.target_name ? `For ${boundary.target_name}` : 'For All Members'}
+                                  <span className="text-muted-foreground ml-2 font-normal">
+                                    • Proposed by {boundary.creator_name}
+                                  </span>
+                                </p>
+                                <p className="text-sm">{boundary.content}</p>
+                              </div>
+                              {currentUserRole === 'moderator' && (
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8 text-muted-foreground hover:text-destructive shrink-0"
+                                  onClick={() => handleDeleteBoundary(boundary.id)}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              )}
+                            </div>
+                            
+                            {/* Acknowledgment section */}
+                            <div className="pt-3 border-t border-border">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span className="text-xs text-muted-foreground">Acknowledged by:</span>
+                                  {boundary.acknowledgments.length === 0 ? (
+                                    <span className="text-xs text-muted-foreground italic">No one yet</span>
+                                  ) : (
+                                    boundary.acknowledgments.map(ack => (
+                                      <Badge key={ack.user_id} variant="secondary" className="text-xs">
+                                        <CheckCircle className="h-3 w-3 mr-1" />
+                                        {ack.user_name}
+                                      </Badge>
+                                    ))
+                                  )}
+                                </div>
+                                {shouldUserAcknowledge(boundary) && (
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => handleAcknowledgeBoundary(boundary.id)}
+                                  >
+                                    <Check className="h-4 w-4 mr-1" />
+                                    Acknowledge
+                                  </Button>
+                                )}
+                                {hasUserAcknowledged(boundary) && (
+                                  <Badge variant="default" className="bg-primary/80">
+                                    <CheckCircle className="h-3 w-3 mr-1" />
+                                    You acknowledged
+                                  </Badge>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        ))
+                      )}
                     </div>
                   </div>
 
