@@ -403,6 +403,7 @@ export type Database = {
         Args: { _family_id: string; _user_id: string }
         Returns: boolean
       }
+      request_has_no_votes: { Args: { _request_id: string }; Returns: boolean }
     }
     Enums: {
       family_role: "member" | "recovering" | "moderator"

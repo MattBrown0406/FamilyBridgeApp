@@ -703,7 +703,16 @@ const FamilyChat = () => {
     }
   };
 
-  const handleConfirmReceipt = async (requestId: string) => {
+  const handleConfirmReceipt = async (requestId: string, hasAttachment: boolean) => {
+    if (!hasAttachment) {
+      toast({
+        title: 'Receipt required',
+        description: 'A bill or receipt must be attached before confirming payment.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     try {
       const { error } = await supabase
         .from('financial_requests')
@@ -1161,8 +1170,8 @@ const FamilyChat = () => {
                             </div>
                             <p className="text-sm mb-3">{req.reason}</p>
 
-                            {/* Rescind button for requester on pending requests */}
-                            {isRequester && req.status === 'pending' && (
+                            {/* Rescind button for requester on pending requests with no votes */}
+                            {isRequester && req.status === 'pending' && req.votes.length === 0 && (
                               <Button
                                 size="sm"
                                 variant="outline"
@@ -1172,6 +1181,11 @@ const FamilyChat = () => {
                                 <X className="h-4 w-4 mr-1" />
                                 Rescind Request
                               </Button>
+                            )}
+                            {isRequester && req.status === 'pending' && req.votes.length > 0 && (
+                              <p className="text-xs text-muted-foreground mb-3">
+                                Voting has begun — request cannot be rescinded
+                              </p>
                             )}
                             {req.attachment_url && (
                               <Dialog>
@@ -1426,14 +1440,20 @@ const FamilyChat = () => {
                                     <p className="text-sm text-muted-foreground">
                                       Payment sent via {req.payment_method}. Did you receive it?
                                     </p>
-                                    <Button
-                                      size="sm"
-                                      variant="success"
-                                      onClick={() => handleConfirmReceipt(req.id)}
-                                    >
-                                      <CheckCircle2 className="h-4 w-4 mr-1" />
-                                      Confirm Receipt
-                                    </Button>
+                                    {req.attachment_url ? (
+                                      <Button
+                                        size="sm"
+                                        variant="success"
+                                        onClick={() => handleConfirmReceipt(req.id, !!req.attachment_url)}
+                                      >
+                                        <CheckCircle2 className="h-4 w-4 mr-1" />
+                                        Confirm Receipt
+                                      </Button>
+                                    ) : (
+                                      <p className="text-sm text-destructive">
+                                        A bill/receipt must be attached before confirming payment.
+                                      </p>
+                                    )}
                                   </div>
                                 )}
 
