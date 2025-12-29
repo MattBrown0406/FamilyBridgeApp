@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.fetch-meetings]
 verify_jwt = false
+
+[functions.expire-location-request]
+verify_jwt = false

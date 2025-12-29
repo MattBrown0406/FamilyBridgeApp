@@ -148,18 +148,31 @@ export const LocationCheckinRequest = ({ familyId, userRole }: LocationCheckinRe
 
     setIsSending(true);
     try {
-      const { error } = await supabase.from('location_checkin_requests').insert({
+      const { data, error } = await supabase.from('location_checkin_requests').insert({
         family_id: familyId,
         requester_id: user?.id,
         target_user_id: selectedMember,
         requester_note: requestNote.trim() || null,
-      });
+      }).select('id').single();
 
       if (error) throw error;
 
+      // Schedule expiration check after 5 minutes
+      if (data?.id) {
+        setTimeout(async () => {
+          try {
+            await supabase.functions.invoke('expire-location-request', {
+              body: { request_id: data.id },
+            });
+          } catch (e) {
+            console.error('Error calling expire function:', e);
+          }
+        }, 5 * 60 * 1000); // 5 minutes
+      }
+
       toast({
         title: 'Request sent',
-        description: 'They will receive a notification to share their location.',
+        description: 'They will receive a notification to share their location. Request expires in 5 minutes.',
       });
 
       setSelectedMember('');
