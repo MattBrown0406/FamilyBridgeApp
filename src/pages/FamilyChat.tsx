@@ -15,7 +15,7 @@ import {
   Heart, ArrowLeft, Send, Loader2, Users, DollarSign, 
   MessageCircle, AlertTriangle, Check, X, Shield, MapPin,
   ExternalLink, CreditCard, CheckCircle2, Paperclip, Image, HandCoins, Trash2, Pencil,
-  Target, ShieldCheck, Plus, CheckCircle, MessageSquare
+  Target, ShieldCheck, Plus, CheckCircle, MessageSquare, FlaskConical
 } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { format } from 'date-fns';
@@ -1547,7 +1547,7 @@ const FamilyChat = () => {
       {/* Main Content */}
       <main className="flex-1 container mx-auto px-4 py-4 overflow-hidden">
         <Tabs defaultValue="messages" className="h-full flex flex-col">
-          <TabsList className="grid w-full grid-cols-5 mb-4 shrink-0">
+          <TabsList className="grid w-full grid-cols-6 mb-4 shrink-0">
             <TabsTrigger value="messages" className="flex items-center gap-2">
               <MessageCircle className="h-4 w-4" />
               <span className="hidden sm:inline">Messages</span>
@@ -1567,6 +1567,10 @@ const FamilyChat = () => {
             <TabsTrigger value="boundaries" className="flex items-center gap-2">
               <ShieldCheck className="h-4 w-4" />
               <span className="hidden sm:inline">Boundaries</span>
+            </TabsTrigger>
+            <TabsTrigger value="test-results" className="flex items-center gap-2">
+              <FlaskConical className="h-4 w-4" />
+              <span className="hidden sm:inline">Test Results</span>
             </TabsTrigger>
           </TabsList>
 
@@ -2625,6 +2629,29 @@ const FamilyChat = () => {
                       more frequent check-ins, or other consequences as agreed by the family.
                     </p>
                   </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Test Results Tab */}
+          <TabsContent value="test-results" className="mt-0 space-y-4 overflow-auto">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg font-display flex items-center gap-2">
+                  <FlaskConical className="h-5 w-5 text-primary" />
+                  Test Results
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-col items-center justify-center py-12 text-center">
+                  <FlaskConical className="h-16 w-16 text-muted-foreground/50 mb-4" />
+                  <h3 className="text-lg font-medium text-foreground mb-2">Coming Soon</h3>
+                  <p className="text-muted-foreground max-w-md">
+                    Breathalyzer and drug testing integration is coming soon. 
+                    This feature will allow family members to view and track test results 
+                    as part of the recovery accountability process.
+                  </p>
                 </div>
               </CardContent>
             </Card>
