@@ -35,7 +35,7 @@ const Meetings = () => {
               Find a Recovery Meeting
             </h1>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              Search for AA, NA, and other 12-step meetings. Connect with a supportive community.
+              Search for AA, Al-Anon, and other recovery meetings. Connect with a supportive community.
             </p>
           </div>
           <MeetingFinder />
