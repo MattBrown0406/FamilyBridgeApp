@@ -217,6 +217,7 @@ const FamilyChat = () => {
   
   // Private messaging state
   const [privateMessagingOpen, setPrivateMessagingOpen] = useState(false);
+  const [unreadPrivateMessages, setUnreadPrivateMessages] = useState(0);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -229,8 +230,49 @@ const FamilyChat = () => {
       fetchFamilyData();
       subscribeToMessages();
       fetchPaymentHandles();
+      fetchUnreadPrivateMessages();
+      subscribeToPrivateMessages();
     }
   }, [user, familyId]);
+
+  const fetchUnreadPrivateMessages = async () => {
+    if (!user || !familyId) return;
+    const { count, error } = await supabase
+      .from('private_messages')
+      .select('*', { count: 'exact', head: true })
+      .eq('family_id', familyId)
+      .eq('recipient_id', user.id)
+      .eq('is_read', false);
+
+    if (!error && count !== null) {
+      setUnreadPrivateMessages(count);
+    }
+  };
+
+  const subscribeToPrivateMessages = () => {
+    if (!user || !familyId) return;
+
+    const channel = supabase
+      .channel(`private-messages-unread-${familyId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'private_messages',
+          filter: `family_id=eq.${familyId}`,
+        },
+        () => {
+          // Refetch unread count on any change
+          fetchUnreadPrivateMessages();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  };
 
   const fetchPaymentHandles = async () => {
     if (!user) return;
@@ -1476,10 +1518,19 @@ const FamilyChat = () => {
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => setPrivateMessagingOpen(true)}
+                onClick={() => {
+                  setPrivateMessagingOpen(true);
+                  // Reset count when opening (will be updated by component)
+                }}
                 title="Private Messages"
+                className="relative"
               >
                 <MessageSquare className="h-5 w-5" />
+                {unreadPrivateMessages > 0 && (
+                  <span className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center rounded-full bg-destructive text-destructive-foreground text-xs font-medium">
+                    {unreadPrivateMessages > 9 ? '9+' : unreadPrivateMessages}
+                  </span>
+                )}
               </Button>
               {currentUserRole === 'moderator' && (
                 <Badge variant="outline">
