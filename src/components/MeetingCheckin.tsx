@@ -8,7 +8,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { MapPin, Loader2, CheckCircle, Navigation } from 'lucide-react';
+import { Loader2, CheckCircle } from 'lucide-react';
+import { LocationCapture, LocationData } from '@/components/LocationCapture';
 
 const MEETING_TYPES = [
   { value: 'AA', label: 'Alcoholics Anonymous (AA)' },
@@ -39,68 +40,14 @@ export const MeetingCheckin = ({ familyId, onCheckinComplete }: MeetingCheckinPr
   const [notes, setNotes] = useState('');
   const [latitude, setLatitude] = useState<number | null>(null);
   const [longitude, setLongitude] = useState<number | null>(null);
-  const [isGettingLocation, setIsGettingLocation] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [locationError, setLocationError] = useState<string | null>(null);
 
-  const getLocation = () => {
-    setIsGettingLocation(true);
-    setLocationError(null);
-
-    if (!navigator.geolocation) {
-      setLocationError('Geolocation is not supported by your browser');
-      setIsGettingLocation(false);
-      return;
+  const handleLocationCaptured = (location: LocationData) => {
+    setLatitude(location.latitude);
+    setLongitude(location.longitude);
+    if (location.address) {
+      setMeetingAddress(location.address);
     }
-
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const lat = position.coords.latitude;
-        const lng = position.coords.longitude;
-        setLatitude(lat);
-        setLongitude(lng);
-
-        // Try to get address from coordinates using reverse geocoding
-        try {
-          const response = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`
-          );
-          const data = await response.json();
-          if (data.display_name) {
-            setMeetingAddress(data.display_name);
-          }
-        } catch (error) {
-          console.log('Could not fetch address:', error);
-        }
-
-        setIsGettingLocation(false);
-        toast({
-          title: 'Location captured',
-          description: 'Your current location has been recorded.',
-        });
-      },
-      (error) => {
-        setIsGettingLocation(false);
-        switch (error.code) {
-          case error.PERMISSION_DENIED:
-            setLocationError('Please allow location access to check in');
-            break;
-          case error.POSITION_UNAVAILABLE:
-            setLocationError('Location information is unavailable');
-            break;
-          case error.TIMEOUT:
-            setLocationError('Location request timed out');
-            break;
-          default:
-            setLocationError('An unknown error occurred');
-        }
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 0,
-      }
-    );
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -183,48 +130,7 @@ export const MeetingCheckin = ({ familyId, onCheckinComplete }: MeetingCheckinPr
           {/* Location Button */}
           <div className="space-y-2">
             <Label>Your Location</Label>
-            {latitude && longitude ? (
-              <div className="flex items-center gap-2 p-3 bg-primary/10 rounded-lg">
-                <MapPin className="h-5 w-5 text-primary" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-primary">Location captured</p>
-                  <p className="text-xs text-muted-foreground truncate">
-                    {meetingAddress || `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`}
-                  </p>
-                </div>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={getLocation}
-                >
-                  Update
-                </Button>
-              </div>
-            ) : (
-              <Button
-                type="button"
-                variant="outline"
-                onClick={getLocation}
-                disabled={isGettingLocation}
-                className="w-full"
-              >
-                {isGettingLocation ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                    Getting location...
-                  </>
-                ) : (
-                  <>
-                    <Navigation className="h-4 w-4 mr-2" />
-                    Capture My Location
-                  </>
-                )}
-              </Button>
-            )}
-            {locationError && (
-              <p className="text-sm text-destructive">{locationError}</p>
-            )}
+            <LocationCapture onLocationCaptured={handleLocationCaptured} />
           </div>
 
           {/* Meeting Type */}
