@@ -89,6 +89,16 @@ serve(async (req) => {
       });
     }
 
+    // Create invite code in secure table
+    const { error: inviteCodeError } = await supabaseAdmin
+      .from("family_invite_codes")
+      .insert({ family_id: family.id });
+
+    if (inviteCodeError) {
+      console.log("family_invite_codes insert error", inviteCodeError);
+      // Non-critical - family still works, just no invite code
+    }
+
     return new Response(JSON.stringify({ family }), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
