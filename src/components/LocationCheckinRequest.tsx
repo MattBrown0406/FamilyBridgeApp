@@ -74,20 +74,35 @@ export const LocationCheckinRequest = ({ familyId, userRole }: LocationCheckinRe
   const fetchRecoveringMembers = async () => {
     setIsLoading(true);
     try {
-      const { data, error } = await supabase
+      // First get family members with recovering role
+      const { data: membersData, error: membersError } = await supabase
         .from('family_members')
-        .select(`
-          user_id,
-          profiles!inner (full_name)
-        `)
+        .select('user_id')
         .eq('family_id', familyId)
         .eq('role', 'recovering');
 
-      if (error) throw error;
+      if (membersError) throw membersError;
 
-      const members = (data || []).map((m: any) => ({
+      if (!membersData || membersData.length === 0) {
+        setRecoveringMembers([]);
+        setIsLoading(false);
+        return;
+      }
+
+      // Then fetch their profiles separately
+      const userIds = membersData.map(m => m.user_id);
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('id, full_name')
+        .in('id', userIds);
+
+      if (profilesError) throw profilesError;
+
+      const profileMap = new Map(profilesData?.map(p => [p.id, p.full_name]) || []);
+      
+      const members = membersData.map((m) => ({
         user_id: m.user_id,
-        full_name: m.profiles?.full_name || 'Unknown',
+        full_name: profileMap.get(m.user_id) || 'Unknown',
       }));
 
       setRecoveringMembers(members);
@@ -219,8 +234,30 @@ export const LocationCheckinRequest = ({ familyId, userRole }: LocationCheckinRe
     return null; // Recovering members don't see this component
   }
 
+  if (isLoading) {
+    return (
+      <Card>
+        <CardContent className="py-6 flex justify-center">
+          <Loader2 className="h-5 w-5 animate-spin text-primary" />
+        </CardContent>
+      </Card>
+    );
+  }
+
   if (recoveringMembers.length === 0) {
-    return null; // No recovering members to request from
+    return (
+      <Card className="border-dashed">
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 font-display text-lg">
+            <Navigation className="h-5 w-5 text-muted-foreground" />
+            Location Check-In Request
+          </CardTitle>
+          <CardDescription>
+            No recovering family members to request check-ins from. Invite a recovering member to your family group first.
+          </CardDescription>
+        </CardHeader>
+      </Card>
+    );
   }
 
   return (
