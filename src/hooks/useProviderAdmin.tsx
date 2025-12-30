@@ -113,23 +113,15 @@ export const useProviderAdmin = () => {
     heading_font?: string;
     body_font?: string;
   }) => {
-    // Get fresh user from Supabase session to ensure auth.uid() matches
-    const { data: { user: sessionUser } } = await supabase.auth.getUser();
-    if (!sessionUser) throw new Error('Must be logged in to create an organization');
-
-    const { data, error } = await supabase
-      .from('organizations')
-      .insert({
-        ...orgData,
-        created_by: sessionUser.id,
-      })
-      .select()
-      .single();
+    const { data, error } = await supabase.functions.invoke('create-organization', {
+      body: orgData,
+    });
 
     if (error) throw error;
-    
+    if (!data?.organization) throw new Error('Failed to create organization');
+
     await fetchOrganizations();
-    return data;
+    return data.organization as Organization;
   };
 
   const updateOrganization = async (orgId: string, updates: Partial<Organization>) => {
