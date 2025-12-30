@@ -85,26 +85,56 @@ serve(async (req) => {
 
     const userId = userData.user.id;
 
-    const { data: family, error: familyError } = await supabaseAdmin
+    // First try to find family by invite_code in families table
+    let family: { id: string; name: string } | null = null;
+    
+    const { data: familyDirect, error: familyDirectError } = await supabaseAdmin
       .from("families")
       .select("id, name")
       .eq("invite_code", inviteCode)
       .maybeSingle();
 
-    if (familyError) {
-      console.log("families lookup error", familyError);
-      return new Response(JSON.stringify({ error: familyError.message }), {
+    if (familyDirectError) {
+      console.log("families lookup error", familyDirectError);
+      return new Response(JSON.stringify({ error: familyDirectError.message }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
+    if (familyDirect) {
+      family = familyDirect;
+    } else {
+      // Try to find in family_invite_codes table
+      const { data: inviteCodeData, error: inviteCodeError } = await supabaseAdmin
+        .from("family_invite_codes")
+        .select("family_id, families!inner(id, name)")
+        .eq("invite_code", inviteCode)
+        .maybeSingle();
+
+      if (inviteCodeError) {
+        console.log("family_invite_codes lookup error", inviteCodeError);
+        return new Response(JSON.stringify({ error: inviteCodeError.message }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      if (inviteCodeData && inviteCodeData.families) {
+        const familyData = inviteCodeData.families as unknown as { id: string; name: string };
+        family = { id: familyData.id, name: familyData.name };
+      }
+    }
+
     if (!family) {
+      console.log("No family found for invite code:", inviteCode);
       return new Response(JSON.stringify({ error: "Invalid invite code" }), {
         status: 404,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+    
+    console.log("Found family:", family.name, "for invite code:", inviteCode);
 
     const { data: existing, error: existingError } = await supabaseAdmin
       .from("family_members")
