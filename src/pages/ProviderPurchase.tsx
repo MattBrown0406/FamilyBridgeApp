@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Building2, Check, CreditCard, Shield, Users } from "lucide-react";
+import { Building2, Check, CreditCard, Shield, Users, Tag, Loader2 } from "lucide-react";
 
 const ProviderPurchase = () => {
   const { user } = useAuth();
@@ -16,7 +16,10 @@ const ProviderPurchase = () => {
   const status = searchParams.get("status");
 
   const [email, setEmail] = useState(user?.email || "");
+  const [couponCode, setCouponCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
+  const [generatedCode, setGeneratedCode] = useState<string | null>(null);
 
   const handlePurchase = async () => {
     if (!email) {
@@ -48,12 +51,79 @@ const ProviderPurchase = () => {
     }
   };
 
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) {
+      toast.error("Please enter a coupon code");
+      return;
+    }
+
+    if (!email) {
+      toast.error("Please enter your email address first");
+      return;
+    }
+
+    setIsApplyingCoupon(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("apply-coupon", {
+        body: {
+          couponCode: couponCode.trim(),
+          email,
+        },
+      });
+
+      if (error) throw error;
+
+      if (data.valid && data.activationCode) {
+        setGeneratedCode(data.activationCode);
+        toast.success("Coupon applied! Your activation code has been generated.");
+      } else if (!data.valid) {
+        toast.error(data.error || "Invalid coupon code");
+      }
+    } catch (error) {
+      console.error("Coupon error:", error);
+      toast.error("Failed to apply coupon. Please try again.");
+    } finally {
+      setIsApplyingCoupon(false);
+    }
+  };
+
   const features = [
     { icon: Building2, text: "Create and manage your organization" },
     { icon: Users, text: "Onboard unlimited families" },
     { icon: Shield, text: "Custom branding for your organization" },
     { icon: Check, text: "Access to all provider tools" },
   ];
+
+  // Show generated activation code
+  if (generatedCode) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <Card className="max-w-md w-full">
+          <CardHeader className="text-center">
+            <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+              <Check className="w-8 h-8 text-green-600" />
+            </div>
+            <CardTitle className="text-2xl">Coupon Applied!</CardTitle>
+            <CardDescription>
+              Your activation code has been generated
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="bg-muted p-4 rounded-lg text-center">
+              <p className="text-xs text-muted-foreground mb-2">Your Activation Code</p>
+              <p className="text-2xl font-mono font-bold tracking-widest">{generatedCode}</p>
+            </div>
+            <p className="text-sm text-muted-foreground text-center">
+              Copy this code and use it to set up your provider account.
+            </p>
+            <Button onClick={() => navigate("/provider-admin")} className="w-full">
+              Go to Provider Setup
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   if (status === "success") {
     return (
@@ -145,6 +215,32 @@ const ProviderPurchase = () => {
                     <p className="text-xs text-muted-foreground">
                       Your activation code will be sent to this email
                     </p>
+                  </div>
+
+                  {/* Coupon Code Section */}
+                  <div className="space-y-2">
+                    <Label htmlFor="coupon">Coupon Code (Optional)</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        id="coupon"
+                        placeholder="Enter coupon code"
+                        value={couponCode}
+                        onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                        className="flex-1"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleApplyCoupon}
+                        disabled={isApplyingCoupon || !couponCode.trim() || !email}
+                      >
+                        {isApplyingCoupon ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Tag className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
                   </div>
 
                   <Button

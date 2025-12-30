@@ -26,3 +26,6 @@ verify_jwt = false
 
 [functions.validate-activation-code]
 verify_jwt = false
+
+[functions.apply-coupon]
+verify_jwt = false
