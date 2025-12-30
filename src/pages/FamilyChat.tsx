@@ -44,6 +44,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { NotificationBell } from '@/components/NotificationBell';
 import { MeetingCheckin } from '@/components/MeetingCheckin';
+import { MeetingCheckout } from '@/components/MeetingCheckout';
 import { CheckinHistory } from '@/components/CheckinHistory';
 import { LocationCheckinRequest } from '@/components/LocationCheckinRequest';
 import { LocationCheckinResponse } from '@/components/LocationCheckinResponse';
@@ -1698,6 +1699,15 @@ const FamilyChat = () => {
                 }}
                 capturedLocation={capturedLocation}
               />
+              
+              {/* Meeting Checkout - appears when user has pending checkout */}
+              <MeetingCheckout 
+                familyId={familyId!}
+                onCheckoutComplete={() => {
+                  setCheckinRefreshKey(k => k + 1);
+                }}
+              />
+              
               <CheckinHistory 
                 familyId={familyId!} 
                 members={members.map(m => ({ user_id: m.user_id, full_name: m.full_name }))}

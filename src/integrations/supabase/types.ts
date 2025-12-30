@@ -410,6 +410,11 @@ export type Database = {
       meeting_checkins: {
         Row: {
           checked_in_at: string
+          checked_out_at: string | null
+          checkout_address: string | null
+          checkout_due_at: string | null
+          checkout_latitude: number | null
+          checkout_longitude: number | null
           created_at: string
           family_id: string
           id: string
@@ -417,12 +422,18 @@ export type Database = {
           longitude: number
           meeting_address: string | null
           meeting_name: string | null
+          meeting_start_time: string | null
           meeting_type: Database["public"]["Enums"]["meeting_type"]
           notes: string | null
           user_id: string
         }
         Insert: {
           checked_in_at?: string
+          checked_out_at?: string | null
+          checkout_address?: string | null
+          checkout_due_at?: string | null
+          checkout_latitude?: number | null
+          checkout_longitude?: number | null
           created_at?: string
           family_id: string
           id?: string
@@ -430,12 +441,18 @@ export type Database = {
           longitude: number
           meeting_address?: string | null
           meeting_name?: string | null
+          meeting_start_time?: string | null
           meeting_type: Database["public"]["Enums"]["meeting_type"]
           notes?: string | null
           user_id: string
         }
         Update: {
           checked_in_at?: string
+          checked_out_at?: string | null
+          checkout_address?: string | null
+          checkout_due_at?: string | null
+          checkout_latitude?: number | null
+          checkout_longitude?: number | null
           created_at?: string
           family_id?: string
           id?: string
@@ -443,6 +460,7 @@ export type Database = {
           longitude?: number
           meeting_address?: string | null
           meeting_name?: string | null
+          meeting_start_time?: string | null
           meeting_type?: Database["public"]["Enums"]["meeting_type"]
           notes?: string | null
           user_id?: string
@@ -663,6 +681,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calculate_checkout_time: {
+        Args: { checkin_time: string }
+        Returns: string
+      }
       get_family_invite_code: { Args: { _family_id: string }; Returns: string }
       is_family_member: {
         Args: { _family_id: string; _user_id: string }

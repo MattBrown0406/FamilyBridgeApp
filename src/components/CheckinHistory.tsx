@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { MapPin, Clock, CalendarDays, ExternalLink, Loader2 } from 'lucide-react';
+import { MapPin, Clock, CalendarDays, ExternalLink, Loader2, LogOut, CheckCircle } from 'lucide-react';
 import { format, formatDistanceToNow } from 'date-fns';
 
 interface Checkin {
@@ -16,6 +16,11 @@ interface Checkin {
   longitude: number;
   notes: string | null;
   checked_in_at: string;
+  checkout_due_at: string | null;
+  checked_out_at: string | null;
+  checkout_latitude: number | null;
+  checkout_longitude: number | null;
+  checkout_address: string | null;
   user_name?: string;
 }
 
@@ -77,6 +82,21 @@ export const CheckinHistory = ({ familyId, members, refreshKey }: CheckinHistory
     window.open(`https://www.google.com/maps?q=${lat},${lng}`, '_blank');
   };
 
+  const getCheckoutStatus = (checkin: Checkin) => {
+    if (checkin.checked_out_at) {
+      return { status: 'completed', label: 'Checked Out', variant: 'default' as const };
+    }
+    if (checkin.checkout_due_at) {
+      const dueAt = new Date(checkin.checkout_due_at);
+      const now = new Date();
+      if (now < dueAt) {
+        return { status: 'pending', label: 'In Meeting', variant: 'secondary' as const };
+      }
+      return { status: 'overdue', label: 'Checkout Pending', variant: 'destructive' as const };
+    }
+    return null;
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-8">
@@ -110,70 +130,104 @@ export const CheckinHistory = ({ familyId, members, refreshKey }: CheckinHistory
       <CardContent className="p-0">
         <ScrollArea className="h-[400px]">
           <div className="divide-y">
-            {checkins.map((checkin) => (
-              <div key={checkin.id} className="p-4 hover:bg-muted/50 transition-colors">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap mb-1">
-                      <span className="font-medium text-foreground">
-                        {checkin.user_name}
-                      </span>
-                      <Badge 
-                        variant="secondary" 
-                        className={MEETING_TYPE_COLORS[checkin.meeting_type] || MEETING_TYPE_COLORS['Other']}
-                      >
-                        {checkin.meeting_type}
-                      </Badge>
+            {checkins.map((checkin) => {
+              const checkoutStatus = getCheckoutStatus(checkin);
+              
+              return (
+                <div key={checkin.id} className="p-4 hover:bg-muted/50 transition-colors">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap mb-1">
+                        <span className="font-medium text-foreground">
+                          {checkin.user_name}
+                        </span>
+                        <Badge 
+                          variant="secondary" 
+                          className={MEETING_TYPE_COLORS[checkin.meeting_type] || MEETING_TYPE_COLORS['Other']}
+                        >
+                          {checkin.meeting_type}
+                        </Badge>
+                        {checkoutStatus && (
+                          <Badge variant={checkoutStatus.variant} className="text-xs">
+                            {checkoutStatus.status === 'completed' && <CheckCircle className="h-3 w-3 mr-1" />}
+                            {checkoutStatus.status === 'pending' && <Clock className="h-3 w-3 mr-1" />}
+                            {checkoutStatus.status === 'overdue' && <LogOut className="h-3 w-3 mr-1" />}
+                            {checkoutStatus.label}
+                          </Badge>
+                        )}
+                      </div>
+                      
+                      {checkin.meeting_name && (
+                        <p className="text-sm text-foreground mb-1">
+                          {checkin.meeting_name}
+                        </p>
+                      )}
+
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground mb-2">
+                        <Clock className="h-3 w-3" />
+                        <span>
+                          Checked in {formatDistanceToNow(new Date(checkin.checked_in_at), { addSuffix: true })}
+                        </span>
+                        <span className="mx-1">•</span>
+                        <span>
+                          {format(new Date(checkin.checked_in_at), 'MMM d, yyyy h:mm a')}
+                        </span>
+                      </div>
+
+                      {/* Checkout info */}
+                      {checkin.checked_out_at && (
+                        <div className="flex items-center gap-1 text-xs text-green-600 dark:text-green-400 mb-2">
+                          <LogOut className="h-3 w-3" />
+                          <span>
+                            Checked out at {format(new Date(checkin.checked_out_at), 'h:mm a')}
+                          </span>
+                          {checkin.checkout_address && (
+                            <>
+                              <span className="mx-1">•</span>
+                              <button
+                                onClick={() => openInMaps(checkin.checkout_latitude!, checkin.checkout_longitude!)}
+                                className="flex items-center gap-1 hover:underline"
+                              >
+                                <MapPin className="h-3 w-3" />
+                                <span className="truncate max-w-[150px]">{checkin.checkout_address}</span>
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      )}
+
+                      {checkin.meeting_address && (
+                        <button
+                          onClick={() => openInMaps(checkin.latitude, checkin.longitude)}
+                          className="flex items-start gap-1 text-xs text-primary hover:underline group"
+                        >
+                          <MapPin className="h-3 w-3 mt-0.5 shrink-0" />
+                          <span className="text-left line-clamp-2">{checkin.meeting_address}</span>
+                          <ExternalLink className="h-3 w-3 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </button>
+                      )}
+
+                      {!checkin.meeting_address && (
+                        <button
+                          onClick={() => openInMaps(checkin.latitude, checkin.longitude)}
+                          className="flex items-center gap-1 text-xs text-primary hover:underline"
+                        >
+                          <MapPin className="h-3 w-3" />
+                          <span>View on map</span>
+                          <ExternalLink className="h-3 w-3" />
+                        </button>
+                      )}
+
+                      {checkin.notes && (
+                        <p className="text-sm text-muted-foreground mt-2 italic">
+                          "{checkin.notes}"
+                        </p>
+                      )}
                     </div>
-                    
-                    {checkin.meeting_name && (
-                      <p className="text-sm text-foreground mb-1">
-                        {checkin.meeting_name}
-                      </p>
-                    )}
-
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground mb-2">
-                      <Clock className="h-3 w-3" />
-                      <span>
-                        {formatDistanceToNow(new Date(checkin.checked_in_at), { addSuffix: true })}
-                      </span>
-                      <span className="mx-1">•</span>
-                      <span>
-                        {format(new Date(checkin.checked_in_at), 'MMM d, yyyy h:mm a')}
-                      </span>
-                    </div>
-
-                    {checkin.meeting_address && (
-                      <button
-                        onClick={() => openInMaps(checkin.latitude, checkin.longitude)}
-                        className="flex items-start gap-1 text-xs text-primary hover:underline group"
-                      >
-                        <MapPin className="h-3 w-3 mt-0.5 shrink-0" />
-                        <span className="text-left line-clamp-2">{checkin.meeting_address}</span>
-                        <ExternalLink className="h-3 w-3 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
-                      </button>
-                    )}
-
-                    {!checkin.meeting_address && (
-                      <button
-                        onClick={() => openInMaps(checkin.latitude, checkin.longitude)}
-                        className="flex items-center gap-1 text-xs text-primary hover:underline"
-                      >
-                        <MapPin className="h-3 w-3" />
-                        <span>View on map</span>
-                        <ExternalLink className="h-3 w-3" />
-                      </button>
-                    )}
-
-                    {checkin.notes && (
-                      <p className="text-sm text-muted-foreground mt-2 italic">
-                        "{checkin.notes}"
-                      </p>
-                    )}
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </ScrollArea>
       </CardContent>
