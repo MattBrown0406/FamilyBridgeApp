@@ -29,3 +29,6 @@ verify_jwt = false
 
 [functions.apply-coupon]
 verify_jwt = false
+
+[functions.create-organization]
+verify_jwt = false
