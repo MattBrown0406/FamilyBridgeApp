@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Building2, Check, CreditCard, Shield, Users, Tag, Loader2 } from "lucide-react";
+import { Building2, Check, CreditCard, Shield, Users, Tag, Loader2, Copy } from "lucide-react";
 
 const ProviderPurchase = () => {
   const { user } = useAuth();
@@ -94,6 +94,13 @@ const ProviderPurchase = () => {
     { icon: Check, text: "Access to all provider tools" },
   ];
 
+  const handleCopyCode = () => {
+    if (generatedCode) {
+      navigator.clipboard.writeText(generatedCode);
+      toast.success("Activation code copied to clipboard!");
+    }
+  };
+
   // Show generated activation code
   if (generatedCode) {
     return (
@@ -109,15 +116,32 @@ const ProviderPurchase = () => {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="bg-muted p-4 rounded-lg text-center">
-              <p className="text-xs text-muted-foreground mb-2">Your Activation Code</p>
-              <p className="text-2xl font-mono font-bold tracking-widest">{generatedCode}</p>
+            <div className="bg-muted p-4 rounded-lg">
+              <p className="text-xs text-muted-foreground mb-2 text-center">Your Activation Code</p>
+              <div className="flex items-center justify-center gap-2">
+                <p className="text-2xl font-mono font-bold tracking-widest">{generatedCode}</p>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleCopyCode}
+                  className="h-8 w-8"
+                >
+                  <Copy className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
-            <p className="text-sm text-muted-foreground text-center">
-              Copy this code and use it to set up your provider account.
-            </p>
-            <Button onClick={() => navigate("/provider-admin")} className="w-full">
-              Go to Provider Setup
+            <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 space-y-3">
+              <p className="text-sm text-center font-medium">
+                Next Steps:
+              </p>
+              <ol className="text-sm text-muted-foreground space-y-2 list-decimal list-inside">
+                <li>Copy your activation code above</li>
+                <li>Click the button below to go to Provider Admin</li>
+                <li>Enter your code to create your provider account</li>
+              </ol>
+            </div>
+            <Button onClick={() => navigate("/provider-admin")} className="w-full" size="lg">
+              Continue to Provider Setup
             </Button>
           </CardContent>
         </Card>
