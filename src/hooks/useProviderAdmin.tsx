@@ -113,13 +113,15 @@ export const useProviderAdmin = () => {
     heading_font?: string;
     body_font?: string;
   }) => {
-    if (!user) throw new Error('Must be logged in to create an organization');
+    // Get fresh user from Supabase session to ensure auth.uid() matches
+    const { data: { user: sessionUser } } = await supabase.auth.getUser();
+    if (!sessionUser) throw new Error('Must be logged in to create an organization');
 
     const { data, error } = await supabase
       .from('organizations')
       .insert({
         ...orgData,
-        created_by: user.id,
+        created_by: sessionUser.id,
       })
       .select()
       .single();
