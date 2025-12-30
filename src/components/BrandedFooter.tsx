@@ -24,22 +24,6 @@ export const BrandedFooter = () => {
             </span>
           </div>
           <div className="flex flex-col md:flex-row items-center gap-2 md:gap-4 text-sm text-muted-foreground">
-            {organization.support_email && (
-              <a 
-                href={`mailto:${organization.support_email}`} 
-                className="hover:text-foreground transition-colors"
-              >
-                {organization.support_email}
-              </a>
-            )}
-            {organization.phone && (
-              <a 
-                href={`tel:${organization.phone}`} 
-                className="hover:text-foreground transition-colors"
-              >
-                {organization.phone}
-              </a>
-            )}
             <span>© {currentYear} {organization.name}</span>
           </div>
         </div>

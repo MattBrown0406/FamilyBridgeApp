@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
-interface Organization {
+// Public theming data only - sensitive contact info not exposed
+interface OrganizationTheme {
   id: string;
   subdomain: string;
   name: string;
@@ -16,16 +17,10 @@ interface Organization {
   foreground_color: string;
   heading_font: string;
   body_font: string;
-  support_email: string | null;
-  website_url: string | null;
-  phone: string | null;
-  created_by: string | null;
-  created_at: string;
-  updated_at: string;
 }
 
 interface OrganizationContextType {
-  organization: Organization | null;
+  organization: OrganizationTheme | null;
   isLoading: boolean;
   isWhiteLabeled: boolean;
   refetch: () => Promise<void>;
@@ -71,7 +66,7 @@ const getSubdomain = (): string | null => {
 };
 
 // Apply organization theme to CSS variables
-const applyTheme = (org: Organization) => {
+const applyTheme = (org: OrganizationTheme) => {
   const root = document.documentElement;
   
   // Apply colors
@@ -137,7 +132,7 @@ const resetTheme = () => {
 };
 
 export const OrganizationProvider = ({ children }: { children: ReactNode }) => {
-  const [organization, setOrganization] = useState<Organization | null>(null);
+  const [organization, setOrganization] = useState<OrganizationTheme | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchOrganization = async () => {
@@ -151,18 +146,17 @@ export const OrganizationProvider = ({ children }: { children: ReactNode }) => {
     }
 
     try {
+      // Use the secure RPC function that only returns public theming data
       const { data, error } = await supabase
-        .from('organizations')
-        .select('*')
-        .eq('subdomain', subdomain)
-        .single();
+        .rpc('get_organization_public_theme', { _subdomain: subdomain });
 
-      if (error || !data) {
+      if (error || !data || data.length === 0) {
         setOrganization(null);
         resetTheme();
       } else {
-        setOrganization(data as Organization);
-        applyTheme(data as Organization);
+        const orgData = data[0] as OrganizationTheme;
+        setOrganization(orgData);
+        applyTheme(orgData);
       }
     } catch (err) {
       console.error('Error fetching organization:', err);
