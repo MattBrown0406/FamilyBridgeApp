@@ -24,6 +24,28 @@ serve(async (req) => {
       throw new Error('Email is required');
     }
 
+    // Fetch locations to get a valid location ID
+    const locationsResponse = await fetch('https://connect.squareup.com/v2/locations', {
+      method: 'GET',
+      headers: {
+        'Square-Version': '2024-01-18',
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    const locationsData = await locationsResponse.json();
+    console.log('Square locations:', locationsData);
+
+    if (locationsData.errors || !locationsData.locations?.length) {
+      throw new Error('No Square locations found. Please set up a location in your Square dashboard.');
+    }
+
+    // Use the first active location
+    const activeLocation = locationsData.locations.find((loc: any) => loc.status === 'ACTIVE') || locationsData.locations[0];
+    const locationId = activeLocation.id;
+    console.log('Using location:', locationId, activeLocation.name);
+
     // Create a checkout link using Square Checkout API
     const idempotencyKey = crypto.randomUUID();
     
@@ -42,7 +64,7 @@ serve(async (req) => {
             amount: 4999, // $49.99 in cents
             currency: 'USD',
           },
-          location_id: 'main', // You may need to update this with your actual location ID
+          location_id: locationId,
         },
         checkout_options: {
           redirect_url: redirectUrl || `${req.headers.get('origin')}/provider-purchase?status=success`,
