@@ -9,6 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from '@/components/ui/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 import { 
   Building2, 
   Palette, 
@@ -19,8 +20,38 @@ import {
   ArrowLeft,
   Plus,
   Eye,
-  Type
+  Type,
+  Loader2,
+  Globe,
+  Wand2
 } from 'lucide-react';
+
+// Helper to convert hex to HSL string
+const hexToHsl = (hex: string): string => {
+  if (!hex) return '';
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  if (!result) return '';
+  
+  let r = parseInt(result[1], 16) / 255;
+  let g = parseInt(result[2], 16) / 255;
+  let b = parseInt(result[3], 16) / 255;
+  
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  let h = 0, s = 0, l = (max + min) / 2;
+  
+  if (max !== min) {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    switch (max) {
+      case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+      case g: h = ((b - r) / d + 2) / 6; break;
+      case b: h = ((r - g) / d + 4) / 6; break;
+    }
+  }
+  
+  return `${Math.round(h * 360)} ${Math.round(s * 100)}% ${Math.round(l * 100)}%`;
+};
 
 const ProviderAdmin = () => {
   const navigate = useNavigate();
@@ -32,14 +63,17 @@ const ProviderAdmin = () => {
     createOrganization, 
     updateOrganization,
     uploadLogo,
-    uploadFavicon
+    uploadFavicon,
+    refetch
   } = useProviderAdmin();
   
   const [selectedOrg, setSelectedOrg] = useState<string | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isExtractingBranding, setIsExtractingBranding] = useState(false);
+  const [showManualBranding, setShowManualBranding] = useState(false);
   
-  // Create organization form
+  // Create organization form with branding
   const [newOrg, setNewOrg] = useState({
     name: '',
     subdomain: '',
@@ -48,6 +82,21 @@ const ProviderAdmin = () => {
     website_url: '',
     phone: '',
   });
+  
+  // Manual branding inputs (when no website)
+  const [manualBranding, setManualBranding] = useState({
+    primary_color: '',
+    logo_file: null as File | null,
+  });
+  
+  // Extracted branding preview
+  const [extractedBranding, setExtractedBranding] = useState<{
+    logo_url?: string;
+    primary_color?: string;
+    secondary_color?: string;
+    accent_color?: string;
+    fonts?: { primary?: string; heading?: string };
+  } | null>(null);
 
   // Edit form state
   const [editForm, setEditForm] = useState({
@@ -91,6 +140,44 @@ const ProviderAdmin = () => {
     }
   };
 
+  // Extract branding from website
+  const handleExtractBranding = async () => {
+    if (!newOrg.website_url) {
+      setShowManualBranding(true);
+      return;
+    }
+    
+    setIsExtractingBranding(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('extract-branding', {
+        body: { url: newOrg.website_url }
+      });
+      
+      if (error) throw error;
+      
+      if (data?.success && data?.branding) {
+        const branding = data.branding;
+        setExtractedBranding({
+          logo_url: branding.logo_url,
+          primary_color: branding.colors?.primary ? hexToHsl(branding.colors.primary) : undefined,
+          secondary_color: branding.colors?.secondary ? hexToHsl(branding.colors.secondary) : undefined,
+          accent_color: branding.colors?.accent ? hexToHsl(branding.colors.accent) : undefined,
+          fonts: branding.fonts,
+        });
+        toast({ title: 'Success', description: 'Branding extracted from your website!' });
+      } else {
+        setShowManualBranding(true);
+        toast({ title: 'Info', description: 'Could not extract branding. Please enter manually.' });
+      }
+    } catch (err: any) {
+      console.error('Branding extraction error:', err);
+      setShowManualBranding(true);
+      toast({ title: 'Info', description: 'Could not extract branding. Please enter manually.' });
+    } finally {
+      setIsExtractingBranding(false);
+    }
+  };
+
   const handleCreateOrg = async () => {
     if (!newOrg.name || !newOrg.subdomain) {
       toast({ title: 'Error', description: 'Name and subdomain are required', variant: 'destructive' });
@@ -105,10 +192,42 @@ const ProviderAdmin = () => {
 
     setIsSaving(true);
     try {
-      const org = await createOrganization(newOrg);
+      // Build organization data with branding
+      const orgData: any = { ...newOrg };
+      
+      // Apply extracted branding if available
+      if (extractedBranding) {
+        if (extractedBranding.primary_color) orgData.primary_color = extractedBranding.primary_color;
+        if (extractedBranding.secondary_color) orgData.secondary_color = extractedBranding.secondary_color;
+        if (extractedBranding.accent_color) orgData.accent_color = extractedBranding.accent_color;
+        if (extractedBranding.logo_url) orgData.logo_url = extractedBranding.logo_url;
+        if (extractedBranding.fonts?.heading) orgData.heading_font = extractedBranding.fonts.heading;
+        if (extractedBranding.fonts?.primary) orgData.body_font = extractedBranding.fonts.primary;
+      }
+      
+      // Apply manual branding if provided
+      if (manualBranding.primary_color) {
+        orgData.primary_color = manualBranding.primary_color;
+      }
+      
+      const org = await createOrganization(orgData);
+      
+      // Upload manual logo if provided
+      if (manualBranding.logo_file && org?.id) {
+        try {
+          await uploadLogo(org.id, manualBranding.logo_file);
+        } catch (logoErr) {
+          console.error('Logo upload error:', logoErr);
+        }
+      }
+      
       toast({ title: 'Success', description: 'Organization created!' });
       setIsCreating(false);
       setNewOrg({ name: '', subdomain: '', tagline: '', support_email: '', website_url: '', phone: '' });
+      setExtractedBranding(null);
+      setManualBranding({ primary_color: '', logo_file: null });
+      setShowManualBranding(false);
+      await refetch();
       handleSelectOrg(org.id);
     } catch (err: any) {
       toast({ title: 'Error', description: err.message || 'Failed to create organization', variant: 'destructive' });
@@ -272,16 +391,190 @@ const ProviderAdmin = () => {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="website">Website</Label>
-                <Input
-                  id="website"
-                  placeholder="https://example.com"
-                  value={newOrg.website_url}
-                  onChange={(e) => setNewOrg({ ...newOrg, website_url: e.target.value })}
-                />
+                <Label htmlFor="website">Website (optional)</Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="website"
+                    placeholder="https://example.com"
+                    value={newOrg.website_url}
+                    onChange={(e) => {
+                      setNewOrg({ ...newOrg, website_url: e.target.value });
+                      setExtractedBranding(null);
+                      setShowManualBranding(false);
+                    }}
+                  />
+                  {newOrg.website_url && !extractedBranding && !showManualBranding && (
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      onClick={handleExtractBranding}
+                      disabled={isExtractingBranding}
+                    >
+                      {isExtractingBranding ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Wand2 className="h-4 w-4" />
+                      )}
+                    </Button>
+                  )}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Enter your website to auto-extract logo and brand colors
+                </p>
               </div>
               
-              <Button onClick={handleCreateOrg} disabled={isSaving} className="w-full">
+              {/* Extracted Branding Preview */}
+              {extractedBranding && (
+                <Card className="bg-muted/50 border-primary/20">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Wand2 className="h-4 w-4 text-primary" />
+                      <span className="text-sm font-medium">Extracted Branding</span>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      {extractedBranding.logo_url && (
+                        <img 
+                          src={extractedBranding.logo_url} 
+                          alt="Logo" 
+                          className="h-12 w-12 object-contain rounded bg-background p-1"
+                        />
+                      )}
+                      <div className="flex gap-2">
+                        {extractedBranding.primary_color && (
+                          <div 
+                            className="h-8 w-8 rounded border"
+                            style={{ backgroundColor: `hsl(${extractedBranding.primary_color})` }}
+                            title="Primary Color"
+                          />
+                        )}
+                        {extractedBranding.secondary_color && (
+                          <div 
+                            className="h-8 w-8 rounded border"
+                            style={{ backgroundColor: `hsl(${extractedBranding.secondary_color})` }}
+                            title="Secondary Color"
+                          />
+                        )}
+                        {extractedBranding.accent_color && (
+                          <div 
+                            className="h-8 w-8 rounded border"
+                            style={{ backgroundColor: `hsl(${extractedBranding.accent_color})` }}
+                            title="Accent Color"
+                          />
+                        )}
+                      </div>
+                    </div>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="mt-2 text-xs"
+                      onClick={() => {
+                        setExtractedBranding(null);
+                        setShowManualBranding(true);
+                      }}
+                    >
+                      Enter manually instead
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
+              
+              {/* Manual Branding Input (no website or extraction failed) */}
+              {(showManualBranding || (!newOrg.website_url && !extractedBranding)) && (
+                <Card className="bg-muted/50">
+                  <CardContent className="p-4 space-y-4">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Palette className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm font-medium">Branding</span>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label>Logo</Label>
+                      <div className="border-2 border-dashed border-border rounded-lg p-4 text-center">
+                        {manualBranding.logo_file ? (
+                          <div className="flex items-center justify-center gap-2">
+                            <img 
+                              src={URL.createObjectURL(manualBranding.logo_file)} 
+                              alt="Logo preview" 
+                              className="h-10 object-contain"
+                            />
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              onClick={() => setManualBranding({ ...manualBranding, logo_file: null })}
+                            >
+                              Remove
+                            </Button>
+                          </div>
+                        ) : (
+                          <>
+                            <Upload className="h-6 w-6 text-muted-foreground mx-auto mb-1" />
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => {
+                                if (e.target.files?.[0]) {
+                                  setManualBranding({ ...manualBranding, logo_file: e.target.files[0] });
+                                }
+                              }}
+                              className="hidden"
+                              id="manual-logo-upload"
+                            />
+                            <Label htmlFor="manual-logo-upload" className="cursor-pointer text-primary hover:underline text-sm">
+                              Upload Logo
+                            </Label>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="manual-color">Primary Brand Color (HSL)</Label>
+                      <div className="flex gap-2">
+                        <Input
+                          id="manual-color"
+                          placeholder="150 25% 35%"
+                          value={manualBranding.primary_color}
+                          onChange={(e) => setManualBranding({ ...manualBranding, primary_color: e.target.value })}
+                        />
+                        {manualBranding.primary_color && (
+                          <div 
+                            className="h-10 w-10 rounded border shrink-0"
+                            style={{ backgroundColor: `hsl(${manualBranding.primary_color})` }}
+                          />
+                        )}
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Format: "Hue Saturation% Lightness%" (e.g., "220 70% 50%" for blue)
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+              
+              {/* Show extract button if website provided but not yet extracted */}
+              {newOrg.website_url && !extractedBranding && !showManualBranding && (
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={handleExtractBranding}
+                  disabled={isExtractingBranding}
+                  className="w-full"
+                >
+                  {isExtractingBranding ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Extracting branding...
+                    </>
+                  ) : (
+                    <>
+                      <Wand2 className="h-4 w-4 mr-2" />
+                      Extract Logo & Colors from Website
+                    </>
+                  )}
+                </Button>
+              )}
+              
+              <Button onClick={handleCreateOrg} disabled={isSaving || isExtractingBranding} className="w-full">
                 {isSaving ? 'Creating...' : 'Create Organization'}
               </Button>
             </CardContent>

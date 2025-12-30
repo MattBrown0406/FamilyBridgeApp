@@ -14,3 +14,6 @@ verify_jwt = false
 
 [functions.check-liquor-license]
 verify_jwt = false
+
+[functions.extract-branding]
+verify_jwt = false
