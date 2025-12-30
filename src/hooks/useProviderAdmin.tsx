@@ -106,6 +106,12 @@ export const useProviderAdmin = () => {
     support_email?: string;
     website_url?: string;
     phone?: string;
+    logo_url?: string;
+    primary_color?: string;
+    secondary_color?: string;
+    accent_color?: string;
+    heading_font?: string;
+    body_font?: string;
   }) => {
     if (!user) throw new Error('Must be logged in to create an organization');
 
