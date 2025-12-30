@@ -25,7 +25,11 @@ import {
   Globe,
   Wand2,
   Key,
-  CreditCard
+  CreditCard,
+  Shield,
+  Copy,
+  Check,
+  UsersRound
 } from 'lucide-react';
 
 // Helper to convert hex to HSL string
@@ -80,6 +84,14 @@ const ProviderAdmin = () => {
   const [isValidatingCode, setIsValidatingCode] = useState(false);
   const [isActivated, setIsActivated] = useState(false);
   
+  // Family group management state
+  const [orgFamilies, setOrgFamilies] = useState<any[]>([]);
+  const [isLoadingFamilies, setIsLoadingFamilies] = useState(false);
+  const [isCreatingFamily, setIsCreatingFamily] = useState(false);
+  const [newFamilyName, setNewFamilyName] = useState('');
+  const [newFamilyDescription, setNewFamilyDescription] = useState('');
+  const [copiedCode, setCopiedCode] = useState<string | null>(null);
+  
   // Create organization form with branding
   const [newOrg, setNewOrg] = useState({
     name: '',
@@ -125,7 +137,7 @@ const ProviderAdmin = () => {
   const currentOrg = organizations.find(o => o.id === selectedOrg);
 
   // Load edit form when org is selected
-  const handleSelectOrg = (orgId: string) => {
+  const handleSelectOrg = async (orgId: string) => {
     const org = organizations.find(o => o.id === orgId);
     if (org) {
       setSelectedOrg(orgId);
@@ -144,6 +156,84 @@ const ProviderAdmin = () => {
         heading_font: org.heading_font,
         body_font: org.body_font,
       });
+      // Load families for this org
+      await fetchOrgFamilies(orgId);
+    }
+  };
+
+  // Fetch families for the selected organization
+  const fetchOrgFamilies = async (orgId: string) => {
+    setIsLoadingFamilies(true);
+    try {
+      const { data, error } = await supabase
+        .from('families')
+        .select('*, family_invite_codes(invite_code)')
+        .eq('organization_id', orgId)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setOrgFamilies(data || []);
+    } catch (err) {
+      console.error('Error fetching families:', err);
+      toast({ title: 'Error', description: 'Failed to load families', variant: 'destructive' });
+    } finally {
+      setIsLoadingFamilies(false);
+    }
+  };
+
+  // Create a new family for the organization
+  const handleCreateFamily = async () => {
+    if (!newFamilyName.trim() || !selectedOrg) {
+      toast({ title: 'Error', description: 'Family name is required', variant: 'destructive' });
+      return;
+    }
+
+    setIsCreatingFamily(true);
+    try {
+      // Create the family with the organization_id
+      const { data: family, error: familyError } = await supabase
+        .from('families')
+        .insert({
+          name: newFamilyName.trim(),
+          description: newFamilyDescription.trim() || null,
+          organization_id: selectedOrg,
+          created_by: user?.id
+        })
+        .select('*')
+        .single();
+
+      if (familyError) throw familyError;
+
+      // Create invite code for the family
+      const { error: inviteError } = await supabase
+        .from('family_invite_codes')
+        .insert({ family_id: family.id });
+
+      if (inviteError) {
+        console.error('Error creating invite code:', inviteError);
+      }
+
+      toast({ title: 'Success', description: 'Family group created!' });
+      setNewFamilyName('');
+      setNewFamilyDescription('');
+      await fetchOrgFamilies(selectedOrg);
+    } catch (err: any) {
+      console.error('Error creating family:', err);
+      toast({ title: 'Error', description: err.message || 'Failed to create family', variant: 'destructive' });
+    } finally {
+      setIsCreatingFamily(false);
+    }
+  };
+
+  // Copy invite code to clipboard
+  const handleCopyCode = async (code: string) => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopiedCode(code);
+      toast({ title: 'Copied!', description: 'Invite code copied to clipboard' });
+      setTimeout(() => setCopiedCode(null), 2000);
+    } catch (err) {
+      toast({ title: 'Error', description: 'Failed to copy code', variant: 'destructive' });
     }
   };
 
@@ -727,7 +817,7 @@ const ProviderAdmin = () => {
           <div className="lg:col-span-3">
             {selectedOrg && currentOrg ? (
               <Tabs defaultValue="users" className="space-y-4">
-                <TabsList className="grid grid-cols-4 w-full max-w-lg">
+                <TabsList className="grid grid-cols-5 w-full max-w-2xl">
                   <TabsTrigger value="users" className="flex items-center gap-2">
                     <Users className="h-4 w-4" />
                     <span className="hidden sm:inline">Users</span>
@@ -739,6 +829,10 @@ const ProviderAdmin = () => {
                   <TabsTrigger value="analytics" className="flex items-center gap-2">
                     <BarChart3 className="h-4 w-4" />
                     <span className="hidden sm:inline">Analytics</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="admin" className="flex items-center gap-2">
+                    <Shield className="h-4 w-4" />
+                    <span className="hidden sm:inline">Admin</span>
                   </TabsTrigger>
                   <TabsTrigger value="branding" className="flex items-center gap-2">
                     <Palette className="h-4 w-4" />
@@ -1016,6 +1110,123 @@ const ProviderAdmin = () => {
                         Analytics dashboard coming soon. You'll see metrics like active families, 
                         meeting check-ins, messages sent, and more.
                       </p>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="admin" className="space-y-6">
+                  {/* Create Family Group */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <UsersRound className="h-5 w-5" />
+                        Create Family Group
+                      </CardTitle>
+                      <CardDescription>
+                        Create a new family group and generate an invite code for clients
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        <div className="space-y-2">
+                          <Label htmlFor="family-name">Family Name *</Label>
+                          <Input
+                            id="family-name"
+                            placeholder="e.g., The Johnson Family"
+                            value={newFamilyName}
+                            onChange={(e) => setNewFamilyName(e.target.value)}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="family-description">Description (optional)</Label>
+                          <Input
+                            id="family-description"
+                            placeholder="Brief description"
+                            value={newFamilyDescription}
+                            onChange={(e) => setNewFamilyDescription(e.target.value)}
+                          />
+                        </div>
+                      </div>
+                      <Button 
+                        onClick={handleCreateFamily} 
+                        disabled={isCreatingFamily || !newFamilyName.trim()}
+                      >
+                        {isCreatingFamily ? (
+                          <>
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            Creating...
+                          </>
+                        ) : (
+                          <>
+                            <Plus className="h-4 w-4 mr-2" />
+                            Create Family Group
+                          </>
+                        )}
+                      </Button>
+                    </CardContent>
+                  </Card>
+
+                  {/* Existing Family Groups */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Family Groups</CardTitle>
+                      <CardDescription>
+                        Manage family groups in your organization
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      {isLoadingFamilies ? (
+                        <div className="flex items-center justify-center py-8">
+                          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                        </div>
+                      ) : orgFamilies.length === 0 ? (
+                        <p className="text-muted-foreground text-center py-8">
+                          No family groups yet. Create one above to get started.
+                        </p>
+                      ) : (
+                        <div className="space-y-3">
+                          {orgFamilies.map((family) => {
+                            const inviteCode = family.family_invite_codes?.[0]?.invite_code || family.invite_code;
+                            return (
+                              <div 
+                                key={family.id} 
+                                className="flex items-center justify-between p-4 rounded-lg border bg-card"
+                              >
+                                <div>
+                                  <p className="font-medium">{family.name}</p>
+                                  {family.description && (
+                                    <p className="text-sm text-muted-foreground">{family.description}</p>
+                                  )}
+                                  <p className="text-xs text-muted-foreground mt-1">
+                                    Created {new Date(family.created_at).toLocaleDateString()}
+                                  </p>
+                                </div>
+                                {inviteCode && (
+                                  <div className="flex items-center gap-2">
+                                    <div className="text-right">
+                                      <p className="text-xs text-muted-foreground">Invite Code</p>
+                                      <code className="text-sm font-mono bg-muted px-2 py-1 rounded">
+                                        {inviteCode}
+                                      </code>
+                                    </div>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      onClick={() => handleCopyCode(inviteCode)}
+                                    >
+                                      {copiedCode === inviteCode ? (
+                                        <Check className="h-4 w-4 text-green-500" />
+                                      ) : (
+                                        <Copy className="h-4 w-4" />
+                                      )}
+                                    </Button>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
                 </TabsContent>
