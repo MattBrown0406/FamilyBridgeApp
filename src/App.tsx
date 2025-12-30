@@ -13,6 +13,7 @@ import Meetings from "./pages/Meetings";
 import EnablingExercise from "./pages/EnablingExercise";
 import Subscription from "./pages/Subscription";
 import ProviderAdmin from "./pages/ProviderAdmin";
+import ProviderPurchase from "./pages/ProviderPurchase";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -34,6 +35,7 @@ const App = () => (
               <Route path="/enabling-exercise" element={<EnablingExercise />} />
               <Route path="/subscription" element={<Subscription />} />
               <Route path="/provider-admin" element={<ProviderAdmin />} />
+              <Route path="/provider-purchase" element={<ProviderPurchase />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

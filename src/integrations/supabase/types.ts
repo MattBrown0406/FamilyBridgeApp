@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      activation_codes: {
+        Row: {
+          code: string
+          created_at: string
+          email: string | null
+          expires_at: string | null
+          id: string
+          is_used: boolean
+          square_customer_id: string | null
+          square_subscription_id: string | null
+          updated_at: string
+          used_at: string | null
+          used_by: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          email?: string | null
+          expires_at?: string | null
+          id?: string
+          is_used?: boolean
+          square_customer_id?: string | null
+          square_subscription_id?: string | null
+          updated_at?: string
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          email?: string | null
+          expires_at?: string | null
+          id?: string
+          is_used?: boolean
+          square_customer_id?: string | null
+          square_subscription_id?: string | null
+          updated_at?: string
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Relationships: []
+      }
       boundary_acknowledgments: {
         Row: {
           acknowledged_at: string
@@ -797,6 +839,7 @@ export type Database = {
         Args: { checkin_time: string }
         Returns: string
       }
+      generate_activation_code: { Args: never; Returns: string }
       get_family_invite_code: { Args: { _family_id: string }; Returns: string }
       get_organization_public_theme: {
         Args: { _subdomain: string }
