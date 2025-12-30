@@ -1,10 +1,14 @@
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
+import { useOrganization } from '@/hooks/useOrganization';
+import { BrandedHeader } from '@/components/BrandedHeader';
+import { BrandedFooter } from '@/components/BrandedFooter';
 import { Heart, Shield, Users, DollarSign, MessageCircle, Eye, MapPin, ArrowRight, HelpCircle } from 'lucide-react';
 
 const Index = () => {
   const { user, loading } = useAuth();
+  const { organization, isWhiteLabeled } = useOrganization();
   const navigate = useNavigate();
 
   const features = [
@@ -40,15 +44,17 @@ const Index = () => {
     },
   ];
 
+  const appName = isWhiteLabeled && organization ? organization.name : 'FamilyBridge';
+  const tagline = isWhiteLabeled && organization?.tagline 
+    ? organization.tagline 
+    : 'A safe space for families affected by addiction to communicate, set boundaries, and support their loved ones on the path to recovery.';
+
   return (
     <div className="min-h-screen gradient-hero">
       {/* Header */}
       <header className="container mx-auto px-4 py-4">
         <nav className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Heart className="h-7 w-7 text-primary" />
-            <span className="text-lg font-display font-semibold text-foreground">FamilyBridge</span>
-          </div>
+          <BrandedHeader />
           <div className="flex items-center gap-3">
             {user ? (
               <Button variant="hero" size="sm" onClick={() => navigate('/dashboard')}>
@@ -76,8 +82,7 @@ const Index = () => {
             <span className="text-primary">Connection</span>
           </h1>
           <p className="text-base md:text-lg text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed">
-            A safe space for families affected by addiction to communicate, 
-            set boundaries, and support their loved ones on the path to recovery.
+            {tagline}
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Button variant="hero" size="lg" onClick={() => navigate('/auth?mode=signup')}>
@@ -191,18 +196,7 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="container mx-auto px-4 py-8 border-t border-border">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <Heart className="h-5 w-5 text-primary" />
-            <span className="font-display font-semibold text-foreground">FamilyBridge</span>
-          </div>
-          <p className="text-muted-foreground text-sm">
-            © 2024 FamilyBridge. Supporting families on the path to recovery.
-          </p>
-        </div>
-      </footer>
+      <BrandedFooter />
     </div>
   );
 };

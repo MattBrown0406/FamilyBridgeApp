@@ -51,6 +51,7 @@ export type Database = {
           id: string
           invite_code: string | null
           name: string
+          organization_id: string | null
           updated_at: string
         }
         Insert: {
@@ -60,6 +61,7 @@ export type Database = {
           id?: string
           invite_code?: string | null
           name: string
+          organization_id?: string | null
           updated_at?: string
         }
         Update: {
@@ -69,9 +71,18 @@ export type Database = {
           id?: string
           invite_code?: string | null
           name?: string
+          organization_id?: string | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "families_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       family_boundaries: {
         Row: {
@@ -557,6 +568,107 @@ export type Database = {
           },
         ]
       }
+      organization_members: {
+        Row: {
+          id: string
+          joined_at: string
+          organization_id: string
+          role: Database["public"]["Enums"]["provider_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          joined_at?: string
+          organization_id: string
+          role?: Database["public"]["Enums"]["provider_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          joined_at?: string
+          organization_id?: string
+          role?: Database["public"]["Enums"]["provider_role"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_members_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organizations: {
+        Row: {
+          accent_color: string | null
+          background_color: string | null
+          body_font: string | null
+          created_at: string
+          created_by: string | null
+          favicon_url: string | null
+          foreground_color: string | null
+          heading_font: string | null
+          id: string
+          logo_url: string | null
+          name: string
+          phone: string | null
+          primary_color: string | null
+          primary_foreground_color: string | null
+          secondary_color: string | null
+          subdomain: string
+          support_email: string | null
+          tagline: string | null
+          updated_at: string
+          website_url: string | null
+        }
+        Insert: {
+          accent_color?: string | null
+          background_color?: string | null
+          body_font?: string | null
+          created_at?: string
+          created_by?: string | null
+          favicon_url?: string | null
+          foreground_color?: string | null
+          heading_font?: string | null
+          id?: string
+          logo_url?: string | null
+          name: string
+          phone?: string | null
+          primary_color?: string | null
+          primary_foreground_color?: string | null
+          secondary_color?: string | null
+          subdomain: string
+          support_email?: string | null
+          tagline?: string | null
+          updated_at?: string
+          website_url?: string | null
+        }
+        Update: {
+          accent_color?: string | null
+          background_color?: string | null
+          body_font?: string | null
+          created_at?: string
+          created_by?: string | null
+          favicon_url?: string | null
+          foreground_color?: string | null
+          heading_font?: string | null
+          id?: string
+          logo_url?: string | null
+          name?: string
+          phone?: string | null
+          primary_color?: string | null
+          primary_foreground_color?: string | null
+          secondary_color?: string | null
+          subdomain?: string
+          support_email?: string | null
+          tagline?: string | null
+          updated_at?: string
+          website_url?: string | null
+        }
+        Relationships: []
+      }
       payment_info: {
         Row: {
           cashapp_username: string | null
@@ -698,6 +810,14 @@ export type Database = {
         Args: { _member_id: string; _moderator_id: string }
         Returns: boolean
       }
+      is_org_admin: {
+        Args: { _org_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_org_member: {
+        Args: { _org_id: string; _user_id: string }
+        Returns: boolean
+      }
       request_has_no_votes: { Args: { _request_id: string }; Returns: boolean }
     }
     Enums: {
@@ -714,6 +834,7 @@ export type Database = {
         | "CoDA"
         | "Families Anonymous"
         | "Celebrate Recovery"
+      provider_role: "owner" | "admin" | "staff"
       relationship_type:
         | "recovering"
         | "parent"
@@ -867,6 +988,7 @@ export const Constants = {
         "Families Anonymous",
         "Celebrate Recovery",
       ],
+      provider_role: ["owner", "admin", "staff"],
       relationship_type: [
         "recovering",
         "parent",
