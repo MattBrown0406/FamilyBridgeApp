@@ -23,7 +23,9 @@ import {
   Type,
   Loader2,
   Globe,
-  Wand2
+  Wand2,
+  Key,
+  CreditCard
 } from 'lucide-react';
 
 // Helper to convert hex to HSL string
@@ -72,6 +74,11 @@ const ProviderAdmin = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [isExtractingBranding, setIsExtractingBranding] = useState(false);
   const [showManualBranding, setShowManualBranding] = useState(false);
+  
+  // Activation code state
+  const [activationCode, setActivationCode] = useState('');
+  const [isValidatingCode, setIsValidatingCode] = useState(false);
+  const [isActivated, setIsActivated] = useState(false);
   
   // Create organization form with branding
   const [newOrg, setNewOrg] = useState({
@@ -137,6 +144,36 @@ const ProviderAdmin = () => {
         heading_font: org.heading_font,
         body_font: org.body_font,
       });
+    }
+  };
+
+  // Validate activation code
+  const handleValidateCode = async () => {
+    if (!activationCode.trim()) {
+      toast({ title: 'Error', description: 'Please enter an activation code', variant: 'destructive' });
+      return;
+    }
+
+    setIsValidatingCode(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('validate-activation-code', {
+        body: { code: activationCode.trim() }
+      });
+
+      if (error) throw error;
+
+      if (data.valid) {
+        setIsActivated(true);
+        setIsCreating(true);
+        toast({ title: 'Success', description: 'Activation code validated! You can now create your organization.' });
+      } else {
+        toast({ title: 'Error', description: data.error || 'Invalid activation code', variant: 'destructive' });
+      }
+    } catch (err: any) {
+      console.error('Activation code validation error:', err);
+      toast({ title: 'Error', description: 'Failed to validate activation code', variant: 'destructive' });
+    } finally {
+      setIsValidatingCode(false);
     }
   };
 
@@ -304,10 +341,59 @@ const ProviderAdmin = () => {
               Create your own branded version of FamilyBridge for your clients. 
               Perfect for treatment centers, therapists, sober coaches, and interventionists.
             </p>
-            <Button onClick={() => setIsCreating(true)} size="lg">
-              <Plus className="h-5 w-5 mr-2" />
-              Create Your Organization
-            </Button>
+            
+            {/* Activation Code Input */}
+            <Card className="max-w-md mx-auto">
+              <CardHeader>
+                <CardTitle className="flex items-center justify-center gap-2">
+                  <Key className="h-5 w-5" />
+                  Enter Activation Code
+                </CardTitle>
+                <CardDescription>
+                  Enter your purchased activation code to get started
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Input
+                    placeholder="XXXX-XXXX-XXXX"
+                    value={activationCode}
+                    onChange={(e) => setActivationCode(e.target.value.toUpperCase())}
+                    className="text-center text-lg tracking-widest"
+                    maxLength={14}
+                  />
+                </div>
+                <Button 
+                  onClick={handleValidateCode} 
+                  disabled={isValidatingCode || !activationCode.trim()}
+                  className="w-full"
+                  size="lg"
+                >
+                  {isValidatingCode ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Validating...
+                    </>
+                  ) : (
+                    <>
+                      <Key className="h-4 w-4 mr-2" />
+                      Activate
+                    </>
+                  )}
+                </Button>
+              </CardContent>
+            </Card>
+            
+            {/* Purchase Link */}
+            <div className="mt-8">
+              <p className="text-muted-foreground mb-4">
+                Don't have an activation code?
+              </p>
+              <Button variant="outline" onClick={() => navigate('/provider-purchase')} size="lg">
+                <CreditCard className="h-5 w-5 mr-2" />
+                Purchase Activation Code
+              </Button>
+            </div>
           </div>
         </div>
       </div>

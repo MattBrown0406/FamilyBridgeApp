@@ -17,3 +17,12 @@ verify_jwt = false
 
 [functions.extract-branding]
 verify_jwt = false
+
+[functions.square-webhook]
+verify_jwt = false
+
+[functions.create-square-checkout]
+verify_jwt = false
+
+[functions.validate-activation-code]
+verify_jwt = false
