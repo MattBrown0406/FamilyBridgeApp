@@ -798,6 +798,25 @@ export type Database = {
         Returns: string
       }
       get_family_invite_code: { Args: { _family_id: string }; Returns: string }
+      get_organization_public_theme: {
+        Args: { _subdomain: string }
+        Returns: {
+          accent_color: string
+          background_color: string
+          body_font: string
+          favicon_url: string
+          foreground_color: string
+          heading_font: string
+          id: string
+          logo_url: string
+          name: string
+          primary_color: string
+          primary_foreground_color: string
+          secondary_color: string
+          subdomain: string
+          tagline: string
+        }[]
+      }
       is_family_member: {
         Args: { _family_id: string; _user_id: string }
         Returns: boolean
