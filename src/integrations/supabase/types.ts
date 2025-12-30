@@ -889,6 +889,10 @@ export type Database = {
         Returns: boolean
       }
       request_has_no_votes: { Args: { _request_id: string }; Returns: boolean }
+      shares_family_with: {
+        Args: { _other_user_id: string; _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       family_role: "member" | "recovering" | "moderator"
