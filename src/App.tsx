@@ -14,6 +14,8 @@ import EnablingExercise from "./pages/EnablingExercise";
 import Subscription from "./pages/Subscription";
 import ProviderAdmin from "./pages/ProviderAdmin";
 import ProviderPurchase from "./pages/ProviderPurchase";
+import FamilyPurchase from "./pages/FamilyPurchase";
+import FamilySetup from "./pages/FamilySetup";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,6 +38,8 @@ const App = () => (
               <Route path="/subscription" element={<Subscription />} />
               <Route path="/provider-admin" element={<ProviderAdmin />} />
               <Route path="/provider-purchase" element={<ProviderPurchase />} />
+              <Route path="/family-purchase" element={<FamilyPurchase />} />
+              <Route path="/family-setup" element={<FamilySetup />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
