@@ -32,3 +32,12 @@ verify_jwt = false
 
 [functions.create-organization]
 verify_jwt = false
+
+[functions.create-family-checkout]
+verify_jwt = false
+
+[functions.apply-family-coupon]
+verify_jwt = false
+
+[functions.create-family-group]
+verify_jwt = false

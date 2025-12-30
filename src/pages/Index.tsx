@@ -189,9 +189,9 @@ const Index = () => {
           <Button 
             size="lg" 
             className="bg-card text-primary hover:bg-card/90 shadow-elevated"
-            onClick={() => navigate('/auth?mode=signup')}
+            onClick={() => navigate('/family-purchase')}
           >
-            Create Your Family Group
+            Create Your Own Family Group
           </Button>
         </div>
       </section>
