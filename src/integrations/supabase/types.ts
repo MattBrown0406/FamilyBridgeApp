@@ -817,6 +817,14 @@ export type Database = {
           tagline: string
         }[]
       }
+      get_payment_links_for_request: {
+        Args: { _request_id: string }
+        Returns: {
+          cashapp_link: string
+          paypal_link: string
+          venmo_link: string
+        }[]
+      }
       is_family_member: {
         Args: { _family_id: string; _user_id: string }
         Returns: boolean

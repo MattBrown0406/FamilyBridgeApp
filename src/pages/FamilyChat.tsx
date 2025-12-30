@@ -108,10 +108,13 @@ interface FinancialRequest {
   payment_method?: string | null;
   payment_confirmed_at?: string | null;
   payment_confirmed_by_user_id?: string | null;
-  requester_paypal?: string | null;
-  requester_venmo?: string | null;
-  requester_cashapp?: string | null;
   attachment_url?: string | null;
+}
+
+interface PaymentLinks {
+  paypal_link: string | null;
+  venmo_link: string | null;
+  cashapp_link: string | null;
 }
 
 interface Family {
@@ -189,6 +192,9 @@ const FamilyChat = () => {
   const [pledgeAmounts, setPledgeAmounts] = useState<Record<string, string>>({});
   const [pledgeMethods, setPledgeMethods] = useState<Record<string, string>>({});
   const [isPledging, setIsPledging] = useState<string | null>(null);
+  
+  // Secure payment links (fetched via RPC, only available after marking as payer)
+  const [paymentLinksCache, setPaymentLinksCache] = useState<Record<string, PaymentLinks>>({});
   
   // Edit member profile state (for moderators)
   const [editingMember, setEditingMember] = useState<Member | null>(null);
@@ -945,15 +951,8 @@ const FamilyChat = () => {
       (profilesData || []).map(p => [p.id, p] as const)
     );
 
-    // Fetch payment info for requesters of approved requests (RLS will filter appropriately)
-    const { data: paymentInfoData } = await supabase
-      .from('payment_info')
-      .select('user_id, paypal_username, venmo_username, cashapp_username')
-      .in('user_id', requesterIds.length > 0 ? requesterIds : ['00000000-0000-0000-0000-000000000000']);
-
-    const paymentInfoById = new Map<string, { paypal_username?: string | null; venmo_username?: string | null; cashapp_username?: string | null }>(
-      (paymentInfoData || []).map(pi => [pi.user_id, pi] as const)
-    );
+    // Note: Payment info is no longer fetched directly here for security
+    // Payment links are fetched securely via RPC only when user clicks to pay
 
     // Group pledges by request_id
     const pledgesByRequestId = new Map<string, FinancialPledge[]>();
@@ -978,7 +977,6 @@ const FamilyChat = () => {
     const requestsWithNames = (requestsData || []).map(req => {
       const requester = membersList.find(m => m.user_id === req.requester_id);
       const profile = profilesById.get(req.requester_id);
-      const paymentInfo = paymentInfoById.get(req.requester_id);
       return {
         id: req.id,
         amount: req.amount,
@@ -994,9 +992,6 @@ const FamilyChat = () => {
         payment_method: req.payment_method,
         payment_confirmed_at: req.payment_confirmed_at,
         payment_confirmed_by_user_id: req.payment_confirmed_by_user_id,
-        requester_paypal: paymentInfo?.paypal_username || null,
-        requester_venmo: paymentInfo?.venmo_username || null,
-        requester_cashapp: paymentInfo?.cashapp_username || null,
         attachment_url: req.attachment_url,
       };
     });
@@ -1298,19 +1293,30 @@ const FamilyChat = () => {
       .slice(0, 2);
   };
 
-  // Payment link generators
-  const getPayPalLink = (username: string, amount: number) => {
-    return `https://paypal.me/${username}/${amount.toFixed(2)}`;
-  };
-
-  const getVenmoLink = (username: string, amount: number, note: string) => {
-    const encodedNote = encodeURIComponent(note);
-    return `https://venmo.com/${username}?txn=pay&amount=${amount.toFixed(2)}&note=${encodedNote}`;
-  };
-
-  const getCashAppLink = (username: string, amount: number, note: string) => {
-    const encodedNote = encodeURIComponent(note);
-    return `https://cash.app/$${username}/${amount.toFixed(2)}?note=${encodedNote}`;
+  // Fetch secure payment links via RPC (only after marking as payer)
+  const fetchPaymentLinks = async (requestId: string): Promise<PaymentLinks | null> => {
+    try {
+      const { data, error } = await supabase.rpc('get_payment_links_for_request', {
+        _request_id: requestId,
+      });
+      
+      if (error || !data || data.length === 0) {
+        return null;
+      }
+      
+      const links: PaymentLinks = {
+        paypal_link: data[0].paypal_link,
+        venmo_link: data[0].venmo_link,
+        cashapp_link: data[0].cashapp_link,
+      };
+      
+      // Cache the links
+      setPaymentLinksCache(prev => ({ ...prev, [requestId]: links }));
+      return links;
+    } catch (err) {
+      console.error('Error fetching payment links:', err);
+      return null;
+    }
   };
 
   const handleMarkAsPaid = async (requestId: string, method: string) => {
@@ -1850,7 +1856,8 @@ const FamilyChat = () => {
                         const isPaid = !!req.paid_at;
                         const isConfirmed = !!req.payment_confirmed_at;
                         const isRequester = req.requester_id === user?.id;
-                        const hasPaymentHandles = req.requester_paypal || req.requester_venmo || req.requester_cashapp;
+                        const isPayer = req.paid_by_user_id === user?.id;
+                        const cachedLinks = paymentLinksCache[req.id];
 
                         return (
                           <div
@@ -2065,74 +2072,15 @@ const FamilyChat = () => {
                             {/* Payment section for approved requests */}
                             {isApproved && !isConfirmed && (
                               <div className="border-t border-border pt-3 mt-3">
-                                {/* If not paid yet - show payment links to non-requesters */}
+                                {/* If not paid yet - show payment options to non-requesters */}
                                 {!isPaid && !isRequester && (
                                   <div className="space-y-2">
                                     <p className="text-sm font-medium text-foreground">Send Payment:</p>
-                                    {hasPaymentHandles ? (
-                                      <div className="flex flex-wrap gap-2">
-                                        {req.requester_paypal && (
-                                          <a
-                                            href={getPayPalLink(req.requester_paypal, req.amount)}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="inline-flex"
-                                          >
-                                            <Button
-                                              size="sm"
-                                              variant="outline"
-                                              onClick={() => handleMarkAsPaid(req.id, 'PayPal')}
-                                            >
-                                              <ExternalLink className="h-3 w-3 mr-1" />
-                                              PayPal
-                                            </Button>
-                                          </a>
-                                        )}
-                                        {req.requester_venmo && (
-                                          <a
-                                            href={getVenmoLink(req.requester_venmo, req.amount, `FamilyBridge: ${req.reason}`)}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="inline-flex"
-                                          >
-                                            <Button
-                                              size="sm"
-                                              variant="outline"
-                                              onClick={() => handleMarkAsPaid(req.id, 'Venmo')}
-                                            >
-                                              <ExternalLink className="h-3 w-3 mr-1" />
-                                              Venmo
-                                            </Button>
-                                          </a>
-                                        )}
-                                        {req.requester_cashapp && (
-                                          <a
-                                            href={getCashAppLink(req.requester_cashapp, req.amount, `FamilyBridge: ${req.reason}`)}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="inline-flex"
-                                          >
-                                            <Button
-                                              size="sm"
-                                              variant="outline"
-                                              onClick={() => handleMarkAsPaid(req.id, 'Cash App')}
-                                            >
-                                              <ExternalLink className="h-3 w-3 mr-1" />
-                                              Cash App
-                                            </Button>
-                                          </a>
-                                        )}
-                                      </div>
-                                    ) : (
-                                      <p className="text-sm text-muted-foreground">
-                                        Requester hasn't set up payment handles. Contact them directly.
-                                      </p>
-                                    )}
                                     <Dialog>
                                       <DialogTrigger asChild>
-                                        <Button size="sm" variant="secondary" className="mt-2">
+                                        <Button size="sm" variant="secondary">
                                           <CreditCard className="h-3 w-3 mr-1" />
-                                          I Paid Another Way
+                                          Mark as Paid
                                         </Button>
                                       </DialogTrigger>
                                       <DialogContent>
@@ -2155,6 +2103,76 @@ const FamilyChat = () => {
                                         </div>
                                       </DialogContent>
                                     </Dialog>
+                                    <p className="text-xs text-muted-foreground">
+                                      After marking as paid, payment links will be available to complete the transaction.
+                                    </p>
+                                  </div>
+                                )}
+
+                                {/* If paid by current user - show payment links fetched securely */}
+                                {isPaid && isPayer && !isConfirmed && (
+                                  <div className="space-y-2">
+                                    <p className="text-sm font-medium text-foreground">Complete Payment:</p>
+                                    {cachedLinks ? (
+                                      <div className="flex flex-wrap gap-2">
+                                        {cachedLinks.paypal_link && (
+                                          <a
+                                            href={cachedLinks.paypal_link}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="inline-flex"
+                                          >
+                                            <Button size="sm" variant="outline">
+                                              <ExternalLink className="h-3 w-3 mr-1" />
+                                              PayPal
+                                            </Button>
+                                          </a>
+                                        )}
+                                        {cachedLinks.venmo_link && (
+                                          <a
+                                            href={cachedLinks.venmo_link}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="inline-flex"
+                                          >
+                                            <Button size="sm" variant="outline">
+                                              <ExternalLink className="h-3 w-3 mr-1" />
+                                              Venmo
+                                            </Button>
+                                          </a>
+                                        )}
+                                        {cachedLinks.cashapp_link && (
+                                          <a
+                                            href={cachedLinks.cashapp_link}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="inline-flex"
+                                          >
+                                            <Button size="sm" variant="outline">
+                                              <ExternalLink className="h-3 w-3 mr-1" />
+                                              Cash App
+                                            </Button>
+                                          </a>
+                                        )}
+                                        {!cachedLinks.paypal_link && !cachedLinks.venmo_link && !cachedLinks.cashapp_link && (
+                                          <p className="text-sm text-muted-foreground">
+                                            Requester hasn't set up payment handles. Contact them directly.
+                                          </p>
+                                        )}
+                                      </div>
+                                    ) : (
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => fetchPaymentLinks(req.id)}
+                                      >
+                                        <ExternalLink className="h-3 w-3 mr-1" />
+                                        Show Payment Links
+                                      </Button>
+                                    )}
+                                    <p className="text-xs text-muted-foreground">
+                                      Waiting for {req.requester_name} to confirm receipt.
+                                    </p>
                                   </div>
                                 )}
 
