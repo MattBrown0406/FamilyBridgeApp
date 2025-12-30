@@ -726,23 +726,23 @@ const ProviderAdmin = () => {
           {/* Main content */}
           <div className="lg:col-span-3">
             {selectedOrg && currentOrg ? (
-              <Tabs defaultValue="branding" className="space-y-4">
+              <Tabs defaultValue="users" className="space-y-4">
                 <TabsList className="grid grid-cols-4 w-full max-w-lg">
-                  <TabsTrigger value="branding" className="flex items-center gap-2">
-                    <Palette className="h-4 w-4" />
-                    <span className="hidden sm:inline">Branding</span>
+                  <TabsTrigger value="users" className="flex items-center gap-2">
+                    <Users className="h-4 w-4" />
+                    <span className="hidden sm:inline">Users</span>
                   </TabsTrigger>
                   <TabsTrigger value="settings" className="flex items-center gap-2">
                     <Settings className="h-4 w-4" />
                     <span className="hidden sm:inline">Settings</span>
                   </TabsTrigger>
-                  <TabsTrigger value="users" className="flex items-center gap-2">
-                    <Users className="h-4 w-4" />
-                    <span className="hidden sm:inline">Users</span>
-                  </TabsTrigger>
                   <TabsTrigger value="analytics" className="flex items-center gap-2">
                     <BarChart3 className="h-4 w-4" />
                     <span className="hidden sm:inline">Analytics</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="branding" className="flex items-center gap-2">
+                    <Palette className="h-4 w-4" />
+                    <span className="hidden sm:inline">Branding</span>
                   </TabsTrigger>
                 </TabsList>
 
