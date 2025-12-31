@@ -375,7 +375,10 @@ const DemoFamily = () => {
                         <div>
                           <div className="flex items-center gap-2 mb-1">
                             <span className="font-medium">{request.requester}</span>
-                            <Badge variant={request.status === 'approved' ? 'default' : 'secondary'}>
+                            <Badge 
+                              variant={request.status === 'approved' ? 'default' : 'secondary'}
+                              style={request.status === 'approved' && branding ? { backgroundColor: branding.colors.primary } : undefined}
+                            >
                               {request.status}
                             </Badge>
                           </div>
@@ -481,7 +484,10 @@ const DemoFamily = () => {
                           <div>
                             <div className="flex items-center gap-2">
                               <span className="font-medium">{checkin.user}</span>
-                              <Badge variant={checkin.status === 'active' ? 'default' : 'outline'}>
+                              <Badge 
+                                variant={checkin.status === 'active' ? 'default' : 'outline'}
+                                style={checkin.status === 'active' && branding ? { backgroundColor: branding.colors.primary } : undefined}
+                              >
                                 {checkin.status === 'active' ? 'In Progress' : 'Completed'}
                               </Badge>
                             </div>
@@ -543,7 +549,10 @@ const DemoFamily = () => {
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex items-center gap-2">
                           <Shield className="h-5 w-5 text-primary" />
-                          <Badge variant={boundary.status === 'approved' ? 'default' : 'secondary'}>
+                          <Badge 
+                            variant={boundary.status === 'approved' ? 'default' : 'secondary'}
+                            style={boundary.status === 'approved' && branding ? { backgroundColor: branding.colors.primary } : undefined}
+                          >
                             {boundary.status}
                           </Badge>
                           {boundary.targetUser && (
@@ -611,11 +620,14 @@ const DemoFamily = () => {
                         {member.paymentInfo && (
                           <span className="text-xs text-primary">View Profile →</span>
                         )}
-                        <Badge variant={
-                          member.role === 'moderator' ? 'default' : 
-                          member.role === 'recovering' ? 'secondary' : 
-                          'outline'
-                        }>
+                        <Badge 
+                          variant={
+                            member.role === 'moderator' ? 'default' : 
+                            member.role === 'recovering' ? 'secondary' : 
+                            'outline'
+                          }
+                          style={member.role === 'moderator' && branding ? { backgroundColor: branding.colors.primary } : undefined}
+                        >
                           {member.role}
                         </Badge>
                       </div>
