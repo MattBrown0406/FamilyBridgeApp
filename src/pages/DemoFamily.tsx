@@ -79,6 +79,8 @@ const DEMO_FINANCIAL_REQUESTS = [
     status: 'approved',
     attachmentUrl: demoGasReceipt,
     attachmentCaption: 'Gas station receipt • Total: $50.00',
+    fundsReceived: true,
+    fundsReceivedAt: '2 days ago',
     votes: { approve: 4, deny: 0 },
     pledges: [
       { name: 'Emily Johnson', amount: 50 },
@@ -324,7 +326,7 @@ const DemoFamily = () => {
                       </div>
 
                       {request.pledges.length > 0 && (
-                        <div className="bg-muted/50 rounded-lg p-3">
+                        <div className="bg-muted/50 rounded-lg p-3 mb-3">
                           <p className="text-sm font-medium mb-2">Pledges</p>
                           <div className="space-y-1">
                             {request.pledges.map((pledge, i) => (
@@ -334,6 +336,18 @@ const DemoFamily = () => {
                               </div>
                             ))}
                           </div>
+                        </div>
+                      )}
+
+                      {request.fundsReceived && (
+                        <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                          <div className="flex items-center gap-2 text-green-700">
+                            <CheckCircle className="h-4 w-4" />
+                            <span className="text-sm font-medium">Funds Received</span>
+                          </div>
+                          <p className="text-xs text-green-600 mt-1">
+                            {request.requester} confirmed receipt • {request.fundsReceivedAt}
+                          </p>
                         </div>
                       )}
 
