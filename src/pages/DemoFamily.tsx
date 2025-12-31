@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -38,7 +38,8 @@ import demoGasReceipt from '@/assets/demo-gas-receipt.png';
 
 // Demo data
 const DEMO_MEMBERS = [
-  { id: '1', name: 'Sarah Johnson', role: 'moderator', relationship: 'Parent', initials: 'SJ' },
+  { id: '0', name: 'Matt Brown', role: 'moderator', relationship: 'Case Manager', initials: 'MB' },
+  { id: '1', name: 'Sarah Johnson', role: 'member', relationship: 'Parent', initials: 'SJ' },
   { 
     id: '2', 
     name: 'Michael Johnson', 
@@ -162,8 +163,20 @@ const DEMO_GOALS = [
   { id: '2', goal: 'Get to 90 days sobriety', status: 'in_progress' },
 ];
 
+interface DemoBranding {
+  colors: {
+    primary: string;
+    secondary: string;
+    accent: string;
+  };
+  logo: string | null;
+  name: string;
+}
+
 const DemoFamily = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const branding = (location.state as { branding?: DemoBranding })?.branding;
   const [activeTab, setActiveTab] = useState('chat');
   const [newMessage, setNewMessage] = useState('');
   const [messages, setMessages] = useState(DEMO_MESSAGES);
@@ -187,7 +200,10 @@ const DemoFamily = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
+      <header 
+        className="border-b backdrop-blur-sm sticky top-0 z-50"
+        style={branding ? { backgroundColor: `${branding.colors.primary}15` } : undefined}
+      >
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Button variant="ghost" size="sm" onClick={() => navigate('/demo')}>
@@ -196,24 +212,61 @@ const DemoFamily = () => {
             </Button>
             <div className="h-6 w-px bg-border" />
             <div className="flex items-center gap-2">
-              <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-                <Heart className="h-5 w-5 text-primary-foreground" />
-              </div>
+              {branding?.logo ? (
+                <img 
+                  src={branding.logo} 
+                  alt={branding.name} 
+                  className="h-8 w-8 rounded-lg object-contain bg-white/90 p-1"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = 'none';
+                  }}
+                />
+              ) : (
+                <div 
+                  className="h-8 w-8 rounded-lg flex items-center justify-center"
+                  style={branding ? { backgroundColor: branding.colors.primary } : undefined}
+                >
+                  <Heart className="h-5 w-5 text-primary-foreground" />
+                </div>
+              )}
               <span className="font-medium">The Johnson Family</span>
+              {branding && (
+                <Badge 
+                  variant="secondary" 
+                  style={{ 
+                    backgroundColor: `${branding.colors.secondary}20`,
+                    color: branding.colors.secondary 
+                  }}
+                >
+                  {branding.name}
+                </Badge>
+              )}
               <Badge variant="secondary">Demo Mode</Badge>
             </div>
           </div>
-          <Button onClick={() => navigate('/provider-purchase')}>
+          <Button 
+            onClick={() => navigate('/provider-purchase')}
+            style={branding ? { backgroundColor: branding.colors.primary } : undefined}
+          >
             Get Started
           </Button>
         </div>
       </header>
 
       {/* Demo Banner */}
-      <div className="bg-primary/10 border-b border-primary/20 py-2 px-4 text-center">
-        <p className="text-sm text-primary flex items-center justify-center gap-2">
+      <div 
+        className="border-b py-2 px-4 text-center"
+        style={branding ? { 
+          backgroundColor: `${branding.colors.primary}10`, 
+          borderColor: `${branding.colors.primary}20` 
+        } : { backgroundColor: 'hsl(var(--primary) / 0.1)', borderColor: 'hsl(var(--primary) / 0.2)' }}
+      >
+        <p 
+          className="text-sm flex items-center justify-center gap-2"
+          style={branding ? { color: branding.colors.primary } : undefined}
+        >
           <Sparkles className="h-4 w-4" />
-          You're viewing a demo family. All data is simulated.
+          {branding ? `You're viewing a demo family powered by ${branding.name}. All data is simulated.` : "You're viewing a demo family. All data is simulated."}
         </p>
       </div>
 

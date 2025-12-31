@@ -153,7 +153,8 @@ const Demo = () => {
   const demoFamily = {
     name: 'The Johnson Family',
     members: [
-      { name: 'Sarah Johnson', role: 'moderator', relationship: 'Parent' },
+      { name: 'Matt Brown', role: 'moderator', relationship: 'Case Manager' },
+      { name: 'Sarah Johnson', role: 'member', relationship: 'Parent' },
       { name: 'Michael Johnson', role: 'recovering', relationship: 'Recovering' },
       { name: 'David Johnson', role: 'member', relationship: 'Sibling' },
       { name: 'Emily Johnson', role: 'member', relationship: 'Spouse' },
@@ -387,7 +388,18 @@ const Demo = () => {
                       A sample family group demonstrating all features of the platform including 
                       group chat, financial requests, meeting check-ins, and boundary setting.
                     </p>
-                    <Button onClick={() => navigate('/demo/family')} className="w-full">
+                    <Button 
+                      onClick={() => navigate('/demo/family', { 
+                        state: { 
+                          branding: {
+                            colors: demoColors,
+                            logo: demoLogo,
+                            name: demoName
+                          }
+                        }
+                      })} 
+                      className="w-full"
+                    >
                       <Play className="h-4 w-4 mr-2" />
                       Enter Demo Family
                     </Button>
