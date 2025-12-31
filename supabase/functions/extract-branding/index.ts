@@ -144,9 +144,26 @@ serve(async (req) => {
       return false;
     };
 
-    // Detect if the logo is likely white/light (needs background)
-    // If the website has a dark background, the logo is likely light-colored
-    const logoNeedsBackground = isColorDark(branding.colors?.background);
+    // Detect if the logo is likely white/light (needs a colored background for visibility)
+    // Check multiple signals:
+    // 1. If website background is dark, logo is likely light
+    // 2. If the primary brand color is dark but website background is light, 
+    //    the logo might be designed for the dark brand color (so it's likely light)
+    const websiteBackgroundIsDark = isColorDark(branding.colors?.background);
+    const primaryBrandColorIsDark = isColorDark(branding.colors?.accent) || isColorDark(branding.colors?.textPrimary);
+    const websiteBackgroundIsLight = branding.colors?.background && !isColorDark(branding.colors?.background);
+    
+    // Logo needs background if:
+    // - Website has dark background (logo is likely light)
+    // - OR website has light background but primary brand color is dark (logo may be light, designed for dark brand areas)
+    const logoNeedsBackground = websiteBackgroundIsDark || (websiteBackgroundIsLight && primaryBrandColorIsDark);
+    
+    console.log('Logo background detection:', {
+      websiteBackground: branding.colors?.background,
+      websiteBackgroundIsDark,
+      primaryBrandColorIsDark,
+      logoNeedsBackground
+    });
     
     // Helper to calculate color saturation and determine if it's a "brand-worthy" color
     const getColorSaturation = (color: string | null): number => {
