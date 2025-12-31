@@ -356,6 +356,15 @@ const Demo = () => {
                         backgroundColor: demoColors.accent,
                         color: '#000'
                       }}
+                      onClick={() => navigate('/demo/family', { 
+                        state: { 
+                          branding: {
+                            colors: demoColors,
+                            logo: demoLogo,
+                            name: demoName
+                          }
+                        }
+                      })}
                     >
                       Get Started
                     </Button>
