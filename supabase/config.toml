@@ -41,3 +41,6 @@ verify_jwt = false
 
 [functions.create-family-group]
 verify_jwt = false
+
+[functions.check-overdue-checkouts]
+verify_jwt = false
