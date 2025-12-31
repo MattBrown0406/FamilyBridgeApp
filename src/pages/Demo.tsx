@@ -74,18 +74,23 @@ const Demo = () => {
           setDemoLogo(branding.logo_url);
         }
 
-        // Try to extract organization name from URL
-        try {
-          const urlObj = new URL(websiteUrl.startsWith('http') ? websiteUrl : `https://${websiteUrl}`);
-          const hostname = urlObj.hostname.replace('www.', '');
-          const nameParts = hostname.split('.')[0];
-          const formattedName = nameParts
-            .split(/[-_]/)
-            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-            .join(' ');
-          setDemoName(formattedName);
-        } catch {
-          // Keep default name
+        // Use extracted company name, or fall back to URL parsing
+        if (branding.company_name) {
+          setDemoName(branding.company_name);
+        } else {
+          // Fallback: derive name from URL
+          try {
+            const urlObj = new URL(websiteUrl.startsWith('http') ? websiteUrl : `https://${websiteUrl}`);
+            const hostname = urlObj.hostname.replace('www.', '');
+            const nameParts = hostname.split('.')[0];
+            const formattedName = nameParts
+              .split(/[-_]/)
+              .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+              .join(' ');
+            setDemoName(formattedName);
+          } catch {
+            // Keep default name
+          }
         }
 
         setBrandingStep(2);
