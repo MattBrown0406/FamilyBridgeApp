@@ -478,6 +478,7 @@ export type Database = {
           meeting_start_time: string | null
           meeting_type: Database["public"]["Enums"]["meeting_type"]
           notes: string | null
+          overdue_alert_sent: boolean | null
           user_id: string
         }
         Insert: {
@@ -497,6 +498,7 @@ export type Database = {
           meeting_start_time?: string | null
           meeting_type: Database["public"]["Enums"]["meeting_type"]
           notes?: string | null
+          overdue_alert_sent?: boolean | null
           user_id: string
         }
         Update: {
@@ -516,6 +518,7 @@ export type Database = {
           meeting_start_time?: string | null
           meeting_type?: Database["public"]["Enums"]["meeting_type"]
           notes?: string | null
+          overdue_alert_sent?: boolean | null
           user_id?: string
         }
         Relationships: [
@@ -839,6 +842,7 @@ export type Database = {
         Args: { checkin_time: string }
         Returns: string
       }
+      check_overdue_checkouts: { Args: never; Returns: undefined }
       generate_activation_code: { Args: never; Returns: string }
       get_family_invite_code: { Args: { _family_id: string }; Returns: string }
       get_organization_public_theme: {
