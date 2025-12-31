@@ -59,6 +59,31 @@ const Demo = () => {
 
       if (error) throw error;
 
+      // Handle blocked sites
+      if (data?.blocked) {
+        toast({
+          title: 'Website Blocked Access',
+          description: data.error || 'This website has blocked automated access. Please enter your branding information manually.',
+          variant: 'destructive',
+        });
+        // Still move to step 2 so they can enter manually
+        setBrandingStep(2);
+        // Try to at least get the name from URL
+        try {
+          const urlObj = new URL(websiteUrl.startsWith('http') ? websiteUrl : `https://${websiteUrl}`);
+          const hostname = urlObj.hostname.replace('www.', '');
+          const nameParts = hostname.split('.')[0];
+          const formattedName = nameParts
+            .split(/[-_]/)
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
+          setDemoName(formattedName);
+        } catch {
+          // Keep default name
+        }
+        return;
+      }
+
       if (data?.success && data?.branding) {
         const branding = data.branding;
         
