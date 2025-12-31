@@ -120,12 +120,41 @@ serve(async (req) => {
 
     console.log('Extracted company name:', companyName);
     
+    // Helper to check if a color is dark (for detecting if logo is likely white)
+    const isColorDark = (color: string | null): boolean => {
+      if (!color) return false;
+      // Handle hex colors
+      if (color.startsWith('#')) {
+        const hex = color.replace('#', '');
+        const r = parseInt(hex.substr(0, 2), 16);
+        const g = parseInt(hex.substr(2, 2), 16);
+        const b = parseInt(hex.substr(4, 2), 16);
+        const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+        return luminance < 0.5;
+      }
+      // Handle rgb colors
+      if (color.startsWith('rgb')) {
+        const match = color.match(/\d+/g);
+        if (match && match.length >= 3) {
+          const [r, g, b] = match.map(Number);
+          const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+          return luminance < 0.5;
+        }
+      }
+      return false;
+    };
+
+    // Detect if the logo is likely white/light (needs background)
+    // If the website has a dark background, the logo is likely light-colored
+    const logoNeedsBackground = isColorDark(branding.colors?.background);
+    
     // Convert colors to HSL format for our design system
     const result = {
       success: true,
       branding: {
         company_name: companyName,
         logo_url: branding.images?.logo || branding.logo || null,
+        logo_needs_background: logoNeedsBackground,
         favicon_url: branding.images?.favicon || null,
         colors: {
           primary: branding.colors?.primary || null,

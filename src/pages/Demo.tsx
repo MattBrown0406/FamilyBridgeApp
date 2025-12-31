@@ -31,13 +31,10 @@ const Demo = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [brandingStep, setBrandingStep] = useState(0);
-  const [demoColors, setDemoColors] = useState({
-    primary: '#6366f1',
-    secondary: '#8b5cf6',
-    accent: '#f472b6',
-  });
+  const [demoPrimaryColor, setDemoPrimaryColor] = useState('#6366f1');
   const [demoName, setDemoName] = useState('Recovery Partners');
   const [demoLogo, setDemoLogo] = useState<string | null>(null);
+  const [logoNeedsBackground, setLogoNeedsBackground] = useState(false);
   const [websiteUrl, setWebsiteUrl] = useState('');
   const [isExtracting, setIsExtracting] = useState(false);
 
@@ -87,16 +84,17 @@ const Demo = () => {
       if (data?.success && data?.branding) {
         const branding = data.branding;
         
-        // Update colors if extracted
-        const newColors = { ...demoColors };
-        if (branding.colors?.primary) newColors.primary = branding.colors.primary;
-        if (branding.colors?.secondary) newColors.secondary = branding.colors.secondary;
-        if (branding.colors?.accent) newColors.accent = branding.colors.accent;
-        setDemoColors(newColors);
+        // Pick a single primary color - prefer primary, then secondary, then accent
+        const primaryColor = branding.colors?.primary || branding.colors?.secondary || branding.colors?.accent || '#6366f1';
+        setDemoPrimaryColor(primaryColor);
 
         // Update logo if extracted
         if (branding.logo_url) {
           setDemoLogo(branding.logo_url);
+          // Use API's detection for whether logo needs background, or fallback to our own check
+          const needsBackground = branding.logo_needs_background || 
+            (branding.colors?.background && isColorDark(branding.colors.background));
+          setLogoNeedsBackground(needsBackground || false);
         }
 
         // Use extracted company name, or fall back to URL parsing
@@ -140,6 +138,30 @@ const Demo = () => {
     } finally {
       setIsExtracting(false);
     }
+  };
+
+  // Helper function to determine if a color is dark
+  const isColorDark = (color: string): boolean => {
+    // Handle hex colors
+    if (color.startsWith('#')) {
+      const hex = color.replace('#', '');
+      const r = parseInt(hex.substr(0, 2), 16);
+      const g = parseInt(hex.substr(2, 2), 16);
+      const b = parseInt(hex.substr(4, 2), 16);
+      // Calculate luminance
+      const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+      return luminance < 0.5;
+    }
+    // Handle rgb colors
+    if (color.startsWith('rgb')) {
+      const match = color.match(/\d+/g);
+      if (match && match.length >= 3) {
+        const [r, g, b] = match.map(Number);
+        const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+        return luminance < 0.5;
+      }
+    }
+    return false;
   };
 
   const features = [
@@ -294,41 +316,33 @@ const Demo = () => {
                     
                     <div className="grid md:grid-cols-2 gap-6">
                       <div className="space-y-4">
-                        <h4 className="font-medium">Extracted Colors</h4>
+                        <h4 className="font-medium">Brand Color</h4>
                         <div className="flex gap-3">
                           <div className="space-y-1">
                             <div 
                               className="w-12 h-12 rounded-lg shadow-md border" 
-                              style={{ backgroundColor: demoColors.primary }}
+                              style={{ backgroundColor: demoPrimaryColor }}
                             />
                             <span className="text-xs text-muted-foreground">Primary</span>
-                          </div>
-                          <div className="space-y-1">
-                            <div 
-                              className="w-12 h-12 rounded-lg shadow-md border" 
-                              style={{ backgroundColor: demoColors.secondary }}
-                            />
-                            <span className="text-xs text-muted-foreground">Secondary</span>
-                          </div>
-                          <div className="space-y-1">
-                            <div 
-                              className="w-12 h-12 rounded-lg shadow-md border" 
-                              style={{ backgroundColor: demoColors.accent }}
-                            />
-                            <span className="text-xs text-muted-foreground">Accent</span>
                           </div>
                         </div>
                         
                         {demoLogo && (
                           <div className="space-y-2">
                             <h4 className="font-medium">Extracted Logo</h4>
-                            <div className="bg-gradient-to-br from-muted to-muted/80 p-4 rounded-lg inline-block border shadow-sm">
+                            <div 
+                              className="p-4 rounded-lg inline-block border shadow-sm"
+                              style={{ 
+                                backgroundColor: logoNeedsBackground ? demoPrimaryColor : undefined,
+                                background: !logoNeedsBackground ? 'linear-gradient(to bottom right, hsl(var(--muted)), hsl(var(--muted) / 0.8))' : undefined
+                              }}
+                            >
                               <img 
                                 src={demoLogo} 
                                 alt="Extracted logo" 
-                                className="max-h-16 max-w-[200px] object-contain drop-shadow-[0_0_1px_rgba(0,0,0,0.3)]"
+                                className="max-h-16 max-w-[200px] object-contain"
                                 style={{ 
-                                  filter: 'drop-shadow(0 0 0.5px rgba(0,0,0,0.2)) drop-shadow(0 0 2px rgba(0,0,0,0.1))'
+                                  filter: logoNeedsBackground ? 'none' : 'drop-shadow(0 0 0.5px rgba(0,0,0,0.2)) drop-shadow(0 0 2px rgba(0,0,0,0.1))'
                                 }}
                                 onError={(e) => {
                                   (e.target as HTMLImageElement).style.display = 'none';
@@ -356,18 +370,20 @@ const Demo = () => {
                   <h4 className="font-medium mb-4">Live Preview</h4>
                   <div 
                     className="rounded-xl p-6 text-white transition-all duration-300"
-                    style={{ backgroundColor: demoColors.primary }}
+                    style={{ backgroundColor: demoPrimaryColor }}
                   >
                     <div className="flex items-center gap-3 mb-4">
                       {demoLogo ? (
-                        <div className="h-10 w-10 rounded-lg bg-white p-1 shadow-sm border border-black/10">
+                        <div 
+                          className="h-10 w-10 rounded-lg p-1 shadow-sm border border-white/20"
+                          style={{ 
+                            backgroundColor: logoNeedsBackground ? demoPrimaryColor : 'white'
+                          }}
+                        >
                           <img 
                             src={demoLogo} 
                             alt="Logo" 
                             className="h-full w-full object-contain"
-                            style={{ 
-                              filter: 'drop-shadow(0 0 0.5px rgba(0,0,0,0.15))'
-                            }}
                             onError={(e) => {
                               (e.target as HTMLImageElement).style.display = 'none';
                             }}
@@ -384,16 +400,13 @@ const Demo = () => {
                       Supporting families on the journey to recovery
                     </p>
                     <Button 
-                      className="mt-4"
-                      style={{ 
-                        backgroundColor: demoColors.accent,
-                        color: '#000'
-                      }}
+                      className="mt-4 bg-white/20 hover:bg-white/30 text-white border border-white/30"
                       onClick={() => navigate('/demo/family', { 
                         state: { 
                           branding: {
-                            colors: demoColors,
+                            primaryColor: demoPrimaryColor,
                             logo: demoLogo,
+                            logoNeedsBackground,
                             name: demoName
                           }
                         }
@@ -434,8 +447,9 @@ const Demo = () => {
                       onClick={() => navigate('/demo/family', { 
                         state: { 
                           branding: {
-                            colors: demoColors,
+                            primaryColor: demoPrimaryColor,
                             logo: demoLogo,
+                            logoNeedsBackground,
                             name: demoName
                           }
                         }
