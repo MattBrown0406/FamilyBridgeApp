@@ -1494,54 +1494,71 @@ const FamilyChat = () => {
 
   if (loading || isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-background to-secondary/20">
+        <div className="relative">
+          <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg animate-pulse-soft">
+            <Heart className="h-8 w-8 text-white" />
+          </div>
+          <div className="absolute -inset-2 bg-gradient-to-br from-primary/20 to-accent/20 rounded-3xl animate-ping opacity-50" />
+        </div>
+        <p className="mt-6 text-muted-foreground font-medium animate-fade-in">Loading your family...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      {/* Header */}
-      <header className="border-b border-border bg-card shrink-0">
+    <div className="min-h-screen bg-gradient-to-b from-background via-background to-secondary/20 flex flex-col">
+      {/* Header with glass effect */}
+      <header className="border-b border-border/50 bg-card/80 backdrop-blur-md shrink-0 sticky top-0 z-50 shadow-soft">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={() => navigate('/dashboard')}>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => navigate('/dashboard')}
+              className="hover:bg-primary/10 hover:text-primary transition-colors"
+            >
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <button 
-              className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+              className="flex items-center gap-3 hover:opacity-80 transition-all group"
               onClick={() => setMembersSheetOpen(true)}
             >
-              <Heart className="h-6 w-6 text-primary" />
+              <div className="relative">
+                <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
+                  <Heart className="h-5 w-5 text-white" />
+                </div>
+                <div className="absolute -bottom-1 -right-1 h-4 w-4 bg-success rounded-full border-2 border-card flex items-center justify-center">
+                  <span className="text-[8px] text-white font-bold">{members.length}</span>
+                </div>
+              </div>
               <div className="text-left">
-                <h1 className="font-display font-semibold text-foreground">{family?.name}</h1>
+                <h1 className="font-display font-semibold text-foreground text-lg group-hover:text-primary transition-colors">
+                  {family?.name}
+                </h1>
                 <p className="text-xs text-muted-foreground flex items-center gap-1">
                   <Users className="h-3 w-3" />
-                  {members.length} members
+                  {members.length} member{members.length !== 1 ? 's' : ''} • Active now
                 </p>
               </div>
             </button>
-            <div className="ml-auto flex items-center gap-2">
+            <div className="ml-auto flex items-center gap-3">
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => {
-                  setPrivateMessagingOpen(true);
-                  // Reset count when opening (will be updated by component)
-                }}
+                onClick={() => setPrivateMessagingOpen(true)}
                 title="Private Messages"
-                className="relative"
+                className="relative hover:bg-primary/10 hover:text-primary transition-colors"
               >
                 <MessageSquare className="h-5 w-5" />
                 {unreadPrivateMessages > 0 && (
-                  <span className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center rounded-full bg-destructive text-destructive-foreground text-xs font-medium">
+                  <span className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center rounded-full bg-destructive text-destructive-foreground text-xs font-medium notification-pulse">
                     {unreadPrivateMessages > 9 ? '9+' : unreadPrivateMessages}
                   </span>
                 )}
               </Button>
               {currentUserRole === 'moderator' && (
-                <Badge variant="outline">
+                <Badge className="bg-gradient-to-r from-primary to-accent text-white border-0 shadow-md">
                   <Shield className="h-3 w-3 mr-1" />
                   Moderator
                 </Badge>
@@ -1555,28 +1572,46 @@ const FamilyChat = () => {
       {/* Main Content */}
       <main className="flex-1 container mx-auto px-4 py-4 overflow-hidden">
         <Tabs defaultValue="messages" className="h-full flex flex-col">
-          <TabsList className="grid w-full grid-cols-6 mb-4 shrink-0">
-            <TabsTrigger value="messages" className="flex items-center gap-2">
+          <TabsList className="grid w-full grid-cols-6 mb-4 shrink-0 bg-card/50 backdrop-blur-sm border border-border/50 p-1.5 rounded-xl shadow-soft">
+            <TabsTrigger 
+              value="messages" 
+              className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg transition-all duration-200"
+            >
               <MessageCircle className="h-4 w-4" />
               <span className="hidden sm:inline">Messages</span>
             </TabsTrigger>
-            <TabsTrigger value="checkin" className="flex items-center gap-2">
+            <TabsTrigger 
+              value="checkin" 
+              className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg transition-all duration-200"
+            >
               <MapPin className="h-4 w-4" />
               <span className="hidden sm:inline">Check-in</span>
             </TabsTrigger>
-            <TabsTrigger value="financial" className="flex items-center gap-2">
+            <TabsTrigger 
+              value="financial" 
+              className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg transition-all duration-200"
+            >
               <DollarSign className="h-4 w-4" />
               <span className="hidden sm:inline">Financial</span>
             </TabsTrigger>
-            <TabsTrigger value="values" className="flex items-center gap-2">
+            <TabsTrigger 
+              value="values" 
+              className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg transition-all duration-200"
+            >
               <Target className="h-4 w-4" />
               <span className="hidden sm:inline">Values/Goals</span>
             </TabsTrigger>
-            <TabsTrigger value="boundaries" className="flex items-center gap-2">
+            <TabsTrigger 
+              value="boundaries" 
+              className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg transition-all duration-200"
+            >
               <ShieldCheck className="h-4 w-4" />
               <span className="hidden sm:inline">Boundaries</span>
             </TabsTrigger>
-            <TabsTrigger value="test-results" className="flex items-center gap-2">
+            <TabsTrigger 
+              value="test-results" 
+              className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg transition-all duration-200"
+            >
               <FlaskConical className="h-4 w-4" />
               <span className="hidden sm:inline">Test Results</span>
             </TabsTrigger>
@@ -1584,27 +1619,31 @@ const FamilyChat = () => {
 
           {/* Messages Tab */}
           <TabsContent value="messages" className="flex-1 flex flex-col overflow-hidden mt-0">
-            <Card className="flex-1 flex flex-col overflow-hidden">
+            <Card className="flex-1 flex flex-col overflow-hidden shadow-card border-border/50 card-enter">
               <ScrollArea className="flex-1 p-4">
                 <div className="space-y-4">
                   {messages.length === 0 ? (
-                    <div className="text-center py-8 text-muted-foreground">
-                      <MessageCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                      <p>No messages yet. Start the conversation!</p>
+                    <div className="text-center py-12 animate-fade-in">
+                      <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
+                        <MessageCircle className="h-8 w-8 text-primary animate-pulse-soft" />
+                      </div>
+                      <h3 className="font-display font-semibold text-foreground mb-1">No messages yet</h3>
+                      <p className="text-muted-foreground text-sm">Start the conversation with your family!</p>
                     </div>
                   ) : (
-                    messages.map((msg) => (
+                    messages.map((msg, index) => (
                       <div
                         key={msg.id}
-                        className={`flex gap-3 ${msg.sender_id === user?.id ? 'flex-row-reverse' : ''}`}
+                        className={`flex gap-3 message-bubble ${msg.sender_id === user?.id ? 'flex-row-reverse' : ''}`}
+                        style={{ animationDelay: `${Math.min(index * 0.05, 0.5)}s` }}
                       >
-                        <Avatar className="h-8 w-8 shrink-0">
-                          <AvatarFallback className="text-xs bg-primary/10 text-primary">
+                        <Avatar className="h-9 w-9 shrink-0 shadow-md ring-2 ring-background">
+                          <AvatarFallback className="text-xs bg-gradient-to-br from-primary/80 to-accent/80 text-white font-medium">
                             {getInitials(msg.sender_name || '')}
                           </AvatarFallback>
                         </Avatar>
                         <div className={`max-w-[70%] ${msg.sender_id === user?.id ? 'items-end' : ''}`}>
-                          <div className="flex items-center gap-2 mb-1">
+                          <div className={`flex items-center gap-2 mb-1 ${msg.sender_id === user?.id ? 'justify-end' : ''}`}>
                             <span className="text-xs font-medium text-foreground">
                               {msg.sender_name}
                             </span>
@@ -1616,13 +1655,13 @@ const FamilyChat = () => {
                             )}
                           </div>
                           <div
-                            className={`rounded-2xl px-4 py-2 ${
+                            className={`rounded-2xl px-4 py-2.5 shadow-sm ${
                               msg.sender_id === user?.id
-                                ? 'bg-primary text-primary-foreground rounded-tr-sm'
-                                : 'bg-secondary text-secondary-foreground rounded-tl-sm'
+                                ? 'bg-gradient-to-br from-primary to-primary/90 text-primary-foreground rounded-tr-sm'
+                                : 'bg-card border border-border/50 text-card-foreground rounded-tl-sm'
                             }`}
                           >
-                            {msg.content}
+                            <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
                           </div>
                         </div>
                       </div>
@@ -1631,9 +1670,9 @@ const FamilyChat = () => {
                   <div ref={messagesEndRef} />
                 </div>
               </ScrollArea>
-              <form onSubmit={handleSendMessage} className="p-4 border-t border-border shrink-0">
+              <form onSubmit={handleSendMessage} className="p-4 border-t border-border/50 shrink-0 bg-card/50 backdrop-blur-sm">
                 {cooldownRemaining > 0 && (
-                  <div className="mb-3 p-3 bg-destructive/10 border border-destructive/20 rounded-lg flex items-center gap-2">
+                  <div className="mb-3 p-3 bg-destructive/10 border border-destructive/20 rounded-xl flex items-center gap-2 animate-scale-in">
                     <AlertTriangle className="h-4 w-4 text-destructive" />
                     <span className="text-sm text-destructive">
                       Cooldown active: {cooldownRemaining} seconds remaining
@@ -1645,10 +1684,14 @@ const FamilyChat = () => {
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
                     placeholder={cooldownRemaining > 0 ? "Please wait..." : "Type a supportive message..."}
-                    className="flex-1"
+                    className="flex-1 bg-background/80 border-border/50 focus:border-primary/50 transition-colors"
                     disabled={cooldownRemaining > 0}
                   />
-                  <Button type="submit" disabled={isSending || !newMessage.trim() || cooldownRemaining > 0}>
+                  <Button 
+                    type="submit" 
+                    disabled={isSending || !newMessage.trim() || cooldownRemaining > 0}
+                    className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-md hover:shadow-lg transition-all duration-200"
+                  >
                     {isSending ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
                     ) : cooldownRemaining > 0 ? (
@@ -1658,13 +1701,14 @@ const FamilyChat = () => {
                     )}
                   </Button>
                 </div>
-                <div className="flex items-center justify-between mt-2">
+                <div className="flex items-center justify-between mt-3">
                   <ConversationStarters 
                     onSelect={(prompt) => setNewMessage(prompt)}
                     disabled={cooldownRemaining > 0}
                   />
-                  <p className="text-xs text-muted-foreground">
-                    Messages are filtered for harmful language.
+                  <p className="text-xs text-muted-foreground flex items-center gap-1">
+                    <Shield className="h-3 w-3" />
+                    Messages are filtered for safety
                   </p>
                 </div>
               </form>
@@ -1681,10 +1725,13 @@ const FamilyChat = () => {
               />
               
               {/* Shared Location Capture Card */}
-              <Card>
+              <Card className="card-interactive card-enter overflow-hidden">
+                <div className="h-1 bg-gradient-to-r from-primary via-accent to-primary" />
                 <CardHeader className="pb-3">
                   <CardTitle className="flex items-center gap-2 font-display text-lg">
-                    <MapPin className="h-5 w-5 text-primary" />
+                    <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
+                      <MapPin className="h-4 w-4 text-primary" />
+                    </div>
                     Capture My Location
                   </CardTitle>
                 </CardHeader>
@@ -1733,9 +1780,15 @@ const FamilyChat = () => {
           <TabsContent value="financial" className="flex-1 overflow-auto mt-0">
             <div className="space-y-4">
               {/* Create Request */}
-              <Card>
+              <Card className="card-interactive card-enter overflow-hidden">
+                <div className="h-1 bg-gradient-to-r from-success via-primary to-accent" />
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-lg font-display">Request Financial Support</CardTitle>
+                  <CardTitle className="flex items-center gap-2 text-lg font-display">
+                    <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-success/20 to-primary/20 flex items-center justify-center">
+                      <DollarSign className="h-4 w-4 text-success" />
+                    </div>
+                    Request Financial Support
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <form onSubmit={handleCreateRequest} className="space-y-4">
@@ -1749,12 +1802,13 @@ const FamilyChat = () => {
                           onChange={(e) => setRequestAmount(e.target.value)}
                           min="0"
                           step="0.01"
+                          className="bg-background/80"
                         />
                       </div>
                       <div>
                         <Label className="text-xs text-muted-foreground mb-1 block">Reason</Label>
                         <Select value={requestReason} onValueChange={setRequestReason}>
-                          <SelectTrigger className="bg-background">
+                          <SelectTrigger className="bg-background/80">
                             <SelectValue placeholder="Select a reason" />
                           </SelectTrigger>
                           <SelectContent className="bg-background z-50">
