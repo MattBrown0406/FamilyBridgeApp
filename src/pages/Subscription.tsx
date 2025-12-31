@@ -10,12 +10,10 @@ const Subscription = () => {
   const { user } = useAuth();
 
   const features = [
-    'Unlimited family groups',
     'Priority support',
     'Advanced financial tracking',
     'Extended message history',
     'Custom meeting reminders',
-    'Ad-free experience',
   ];
 
   return (
