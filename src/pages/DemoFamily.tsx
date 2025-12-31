@@ -168,12 +168,9 @@ const DEMO_GOALS = [
 ];
 
 interface DemoBranding {
-  colors: {
-    primary: string;
-    secondary: string;
-    accent: string;
-  };
+  primaryColor: string;
   logo: string | null;
+  logoNeedsBackground?: boolean;
   name: string;
 }
 
@@ -206,7 +203,7 @@ const DemoFamily = () => {
       {/* Header */}
       <header 
         className="border-b backdrop-blur-md bg-background/80 sticky top-0 z-50 shadow-sm"
-        style={branding ? { backgroundColor: `${branding.colors.primary}08` } : undefined}
+        style={branding ? { backgroundColor: `${branding.primaryColor}08` } : undefined}
       >
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -217,18 +214,25 @@ const DemoFamily = () => {
             <div className="h-6 w-px bg-border/50" />
             <div className="flex items-center gap-3">
               {branding?.logo ? (
-                <img 
-                  src={branding.logo} 
-                  alt={branding.name} 
-                  className="h-10 w-10 rounded-xl object-contain bg-white/90 p-1.5 shadow-md ring-2 ring-primary/20"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).style.display = 'none';
+                <div 
+                  className="h-10 w-10 rounded-xl p-1.5 shadow-md ring-2 ring-white/20"
+                  style={{ 
+                    backgroundColor: branding.logoNeedsBackground ? branding.primaryColor : 'white'
                   }}
-                />
+                >
+                  <img 
+                    src={branding.logo} 
+                    alt={branding.name} 
+                    className="h-full w-full object-contain"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).style.display = 'none';
+                    }}
+                  />
+                </div>
               ) : (
                 <div 
                   className="h-10 w-10 rounded-xl flex items-center justify-center bg-gradient-to-br from-primary to-primary/80 shadow-lg animate-pulse-soft"
-                  style={branding ? { background: `linear-gradient(135deg, ${branding.colors.primary}, ${branding.colors.secondary})` } : undefined}
+                  style={branding ? { background: `linear-gradient(135deg, ${branding.primaryColor}, ${branding.primaryColor}cc)` } : undefined}
                 >
                   <Heart className="h-5 w-5 text-primary-foreground" />
                 </div>
@@ -245,8 +249,8 @@ const DemoFamily = () => {
                   variant="secondary" 
                   className="ml-2 animate-fade-in"
                   style={{ 
-                    backgroundColor: `${branding.colors.secondary}20`,
-                    color: branding.colors.secondary 
+                    backgroundColor: `${branding.primaryColor}20`,
+                    color: branding.primaryColor 
                   }}
                 >
                   {branding.name}
@@ -261,7 +265,7 @@ const DemoFamily = () => {
           <Button 
             onClick={() => navigate('/provider-purchase')}
             className="hover-lift shadow-lg"
-            style={branding ? { backgroundColor: branding.colors.primary } : undefined}
+            style={branding ? { backgroundColor: branding.primaryColor } : undefined}
           >
             Get Started
           </Button>
@@ -272,13 +276,13 @@ const DemoFamily = () => {
       <div 
         className="border-b py-3 px-4 text-center bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5"
         style={branding ? { 
-          background: `linear-gradient(90deg, ${branding.colors.primary}08, ${branding.colors.primary}15, ${branding.colors.primary}08)`,
-          borderColor: `${branding.colors.primary}20` 
+          background: `linear-gradient(90deg, ${branding.primaryColor}08, ${branding.primaryColor}15, ${branding.primaryColor}08)`,
+          borderColor: `${branding.primaryColor}20` 
         } : undefined}
       >
         <p 
           className="text-sm flex items-center justify-center gap-2 animate-fade-in"
-          style={branding ? { color: branding.colors.primary } : undefined}
+          style={branding ? { color: branding.primaryColor } : undefined}
         >
           <Sparkles className="h-4 w-4 animate-pulse" />
           {branding ? `You're viewing a demo family powered by ${branding.name}. All data is simulated.` : "You're viewing a demo family. All data is simulated."}
@@ -400,7 +404,7 @@ const DemoFamily = () => {
                     <Button 
                       onClick={handleSendMessage}
                       className="shadow-md hover-lift bg-gradient-to-r from-primary to-primary/90"
-                      style={branding ? { background: `linear-gradient(135deg, ${branding.colors.primary}, ${branding.colors.secondary})` } : undefined}
+                      style={branding ? { background: `linear-gradient(135deg, ${branding.primaryColor}, ${branding.primaryColor}cc)` } : undefined}
                     >
                       <Send className="h-4 w-4" />
                     </Button>
@@ -460,7 +464,7 @@ const DemoFamily = () => {
                             <Badge 
                               variant={request.status === 'approved' ? 'default' : 'secondary'}
                               className={request.status === 'approved' ? 'bg-gradient-to-r from-green-500 to-emerald-500 border-0' : 'bg-amber-100 text-amber-700 border-amber-200'}
-                              style={request.status === 'approved' && branding ? { background: `linear-gradient(135deg, ${branding.colors.primary}, ${branding.colors.secondary})` } : undefined}
+                              style={request.status === 'approved' && branding ? { background: `linear-gradient(135deg, ${branding.primaryColor}, ${branding.primaryColor}cc)` } : undefined}
                             >
                               {request.status === 'approved' ? <CheckCircle className="h-3 w-3 mr-1" /> : <Clock className="h-3 w-3 mr-1" />}
                               {request.status}
@@ -558,7 +562,7 @@ const DemoFamily = () => {
                           <Button 
                             size="lg" 
                             className="flex-1 shadow-md hover-lift bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
-                            style={branding ? { background: `linear-gradient(135deg, ${branding.colors.primary}, ${branding.colors.secondary})` } : undefined}
+                            style={branding ? { background: `linear-gradient(135deg, ${branding.primaryColor}, ${branding.primaryColor}cc)` } : undefined}
                           >
                             <ThumbsUp className="h-4 w-4 mr-2" />
                             Approve
@@ -607,7 +611,7 @@ const DemoFamily = () => {
                                   ? 'bg-gradient-to-r from-blue-500 to-cyan-500 border-0 animate-pulse' 
                                   : 'bg-muted text-muted-foreground'
                                 }
-                                style={checkin.status === 'active' && branding ? { background: `linear-gradient(135deg, ${branding.colors.primary}, ${branding.colors.secondary})` } : undefined}
+                                style={checkin.status === 'active' && branding ? { background: `linear-gradient(135deg, ${branding.primaryColor}, ${branding.primaryColor}cc)` } : undefined}
                               >
                                 {checkin.status === 'active' ? (
                                   <><Activity className="h-3 w-3 mr-1" /> In Progress</>
@@ -708,7 +712,7 @@ const DemoFamily = () => {
                               ? 'bg-gradient-to-r from-green-500 to-emerald-500 border-0' 
                               : 'bg-amber-100 text-amber-700 border-amber-200'
                             }
-                            style={boundary.status === 'approved' && branding ? { background: `linear-gradient(135deg, ${branding.colors.primary}, ${branding.colors.secondary})` } : undefined}
+                            style={boundary.status === 'approved' && branding ? { background: `linear-gradient(135deg, ${branding.primaryColor}, ${branding.primaryColor}cc)` } : undefined}
                           >
                             {boundary.status === 'approved' ? <CheckCircle className="h-3 w-3 mr-1" /> : <Clock className="h-3 w-3 mr-1" />}
                             {boundary.status}
@@ -748,7 +752,7 @@ const DemoFamily = () => {
                         <div className="flex gap-3 mt-4">
                           <Button 
                             className="flex-1 shadow-md hover-lift bg-gradient-to-r from-green-500 to-emerald-500"
-                            style={branding ? { background: `linear-gradient(135deg, ${branding.colors.primary}, ${branding.colors.secondary})` } : undefined}
+                            style={branding ? { background: `linear-gradient(135deg, ${branding.primaryColor}, ${branding.primaryColor}cc)` } : undefined}
                           >
                             <Check className="h-4 w-4 mr-2" />
                             Approve
@@ -845,7 +849,7 @@ const DemoFamily = () => {
                             member.role === 'recovering' ? 'bg-primary/10 text-primary border-primary/20' :
                             ''
                           }
-                          style={member.role === 'moderator' && branding ? { background: `linear-gradient(135deg, ${branding.colors.primary}, ${branding.colors.secondary})` } : undefined}
+                          style={member.role === 'moderator' && branding ? { background: `linear-gradient(135deg, ${branding.primaryColor}, ${branding.primaryColor}cc)` } : undefined}
                         >
                           {member.role}
                         </Badge>
