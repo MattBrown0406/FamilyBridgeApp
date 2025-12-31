@@ -33,6 +33,8 @@ import {
 import { format } from 'date-fns';
 import demoElectricBill from '@/assets/demo-electric-bill.png';
 
+import demoGasReceipt from '@/assets/demo-gas-receipt.png';
+
 // Demo data
 const DEMO_MEMBERS = [
   { id: '1', name: 'Sarah Johnson', role: 'moderator', relationship: 'Parent', initials: 'SJ' },
@@ -60,6 +62,7 @@ const DEMO_FINANCIAL_REQUESTS = [
     reason: 'Electric bill - City Power & Light (Account #4521-7890-3336)', 
     status: 'pending',
     attachmentUrl: demoElectricBill,
+    attachmentCaption: 'Electric bill for Michael Johnson • Account #4521-7890-3336 • Amount: $147.23',
     votes: { approve: 3, deny: 0 },
     pledges: [
       { name: 'Sarah Johnson', amount: 75 },
@@ -67,12 +70,14 @@ const DEMO_FINANCIAL_REQUESTS = [
     ],
     createdAt: 'Yesterday at 2:30 PM'
   },
-  {
+  { 
     id: '2', 
     requester: 'Michael Johnson', 
     amount: 50, 
     reason: 'Gas for work commute', 
     status: 'approved',
+    attachmentUrl: demoGasReceipt,
+    attachmentCaption: 'Gas station receipt • Total: $50.00',
     votes: { approve: 4, deny: 0 },
     pledges: [
       { name: 'Emily Johnson', amount: 50 },
@@ -292,7 +297,7 @@ const DemoFamily = () => {
                           </a>
                           <div className="bg-muted/30 px-3 py-2 border-t">
                             <p className="text-xs text-muted-foreground">
-                              Electric bill for Michael Johnson • Account #4521-7890-3336 • Amount: $147.23
+                              {request.attachmentCaption}
                             </p>
                           </div>
                         </div>
