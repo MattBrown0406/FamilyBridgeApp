@@ -13,45 +13,45 @@ import {
 const CONVERSATION_STARTERS = [
   // Feelings-based
   { category: 'Sharing Feelings', prompts: [
-    "Today I'm feeling ____",
-    "Right now I'm struggling with ____",
-    "I'm grateful for ____",
-    "Something that's been on my mind is ____",
+    "Today I'm feeling",
+    "Right now I'm struggling with",
+    "I'm grateful for",
+    "Something that's been on my mind is",
   ]},
   // Goals and intentions
   { category: 'Goals & Intentions', prompts: [
-    "My goal for the day is ____",
-    "This week I want to focus on ____",
-    "One thing I'm working on is ____",
-    "I'm proud of myself for ____",
+    "My goal for the day is",
+    "This week I want to focus on",
+    "One thing I'm working on is",
+    "I'm proud of myself for",
   ]},
   // Needs and support
   { category: 'Needs & Support', prompts: [
-    "Today I need ____",
-    "I could use some help with ____",
-    "What would really support me right now is ____",
-    "I'm reaching out because ____",
+    "Today I need",
+    "I could use some help with",
+    "What would really support me right now is",
+    "I'm reaching out because",
   ]},
   // Commitments
   { category: 'Commitments', prompts: [
-    "Today I'm willing to ____",
-    "I commit to ____",
-    "I promise to ____",
-    "I'm going to try ____",
+    "Today I'm willing to",
+    "I commit to",
+    "I promise to",
+    "I'm going to try",
   ]},
   // Recovery-specific
   { category: 'Recovery Journey', prompts: [
-    "A win I had today was ____",
-    "A challenge I faced was ____",
-    "I'm ___ days sober and feeling ____",
-    "My recovery is going well because ____",
+    "A win I had today was",
+    "A challenge I faced was",
+    "I'm celebrating being sober and feeling",
+    "My recovery is going well because",
   ]},
   // Family support
   { category: 'For Family Members', prompts: [
-    "I want you to know that ____",
-    "I love you and ____",
-    "I'm here to support you by ____",
-    "Something I've learned in this journey is ____",
+    "I want you to know that",
+    "I love you and",
+    "I'm here to support you by",
+    "Something I've learned in this journey is",
   ]},
 ];
 
