@@ -13,6 +13,7 @@ import { LocationData } from '@/components/LocationCapture';
 const APPOINTMENT_TYPES = [
   { value: 'Therapy', label: 'Therapy / Counseling', icon: Heart, category: 'Healthcare' },
   { value: 'Medical', label: 'Medical Appointment', icon: Stethoscope, category: 'Healthcare' },
+  { value: 'Gym', label: 'Gym / Fitness', icon: Heart, category: 'Healthcare' },
   { value: 'Wellness', label: 'Wellness Activity', icon: Heart, category: 'Healthcare' },
   { value: 'Support Group', label: 'Support Group', icon: Heart, category: 'Healthcare' },
   { value: 'Work', label: 'Work / Job', icon: Briefcase, category: 'Professional' },

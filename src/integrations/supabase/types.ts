@@ -916,6 +916,7 @@ export type Database = {
         | "Probation"
         | "Support Group"
         | "Wellness"
+        | "Gym"
       provider_role: "owner" | "admin" | "staff"
       relationship_type:
         | "recovering"
@@ -1077,6 +1078,7 @@ export const Constants = {
         "Probation",
         "Support Group",
         "Wellness",
+        "Gym",
       ],
       provider_role: ["owner", "admin", "staff"],
       relationship_type: [
