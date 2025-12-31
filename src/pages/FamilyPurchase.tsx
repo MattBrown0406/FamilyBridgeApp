@@ -90,7 +90,7 @@ const FamilyPurchase = () => {
   const features = [
     { icon: Heart, text: "Create your family support group" },
     { icon: Users, text: "Invite unlimited family members" },
-    { icon: MessageCircle, text: "Secure, filtered, moderated communication" },
+    { icon: MessageCircle, text: "Secure, filtered, moderated communication", subtitle: "No profanity or abusive language is permitted in the discussion area" },
     { icon: Shield, text: "Privacy and content protection" },
   ];
 
@@ -199,11 +199,16 @@ const FamilyPurchase = () => {
               <CardContent>
                 <ul className="space-y-4">
                   {features.map((feature, index) => (
-                    <li key={index} className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                    <li key={index} className="flex items-start gap-3">
+                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                         <feature.icon className="w-5 h-5 text-primary" />
                       </div>
-                      <span>{feature.text}</span>
+                      <div className="flex flex-col">
+                        <span>{feature.text}</span>
+                        {feature.subtitle && (
+                          <span className="text-xs text-muted-foreground mt-0.5">{feature.subtitle}</span>
+                        )}
+                      </div>
                     </li>
                   ))}
                 </ul>
