@@ -90,7 +90,7 @@ const FamilyPurchase = () => {
   const features = [
     { icon: Heart, text: "Create your family support group" },
     { icon: Users, text: "Invite unlimited family members" },
-    { icon: MessageCircle, text: "Safe, moderated communication" },
+    { icon: MessageCircle, text: "Secure, filtered, moderated communication" },
     { icon: Shield, text: "Privacy and content protection" },
   ];
 
