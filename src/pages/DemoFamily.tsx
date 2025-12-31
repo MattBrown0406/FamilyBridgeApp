@@ -26,9 +26,12 @@ import {
   Calendar,
   Heart,
   AlertTriangle,
-  Sparkles
+  Sparkles,
+  Paperclip,
+  FileText
 } from 'lucide-react';
 import { format } from 'date-fns';
+import demoElectricBill from '@/assets/demo-electric-bill.png';
 
 // Demo data
 const DEMO_MEMBERS = [
@@ -53,17 +56,18 @@ const DEMO_FINANCIAL_REQUESTS = [
   { 
     id: '1', 
     requester: 'Michael Johnson', 
-    amount: 150, 
-    reason: 'Electric bill - due in 3 days', 
+    amount: 147.23, 
+    reason: 'Electric bill - City Power & Light (Account #4521-7890-3336)', 
     status: 'pending',
+    attachmentUrl: demoElectricBill,
     votes: { approve: 3, deny: 0 },
     pledges: [
       { name: 'Sarah Johnson', amount: 75 },
-      { name: 'Robert Johnson', amount: 50 },
+      { name: 'Robert Johnson', amount: 72.23 },
     ],
     createdAt: 'Yesterday at 2:30 PM'
   },
-  { 
+  {
     id: '2', 
     requester: 'Michael Johnson', 
     amount: 50, 
@@ -267,11 +271,32 @@ const DemoFamily = () => {
                               {request.status}
                             </Badge>
                           </div>
-                          <p className="text-2xl font-bold text-primary">${request.amount}</p>
+                          <p className="text-2xl font-bold text-primary">${request.amount.toFixed(2)}</p>
                           <p className="text-sm text-muted-foreground">{request.reason}</p>
                         </div>
                         <span className="text-xs text-muted-foreground">{request.createdAt}</span>
                       </div>
+
+                      {request.attachmentUrl && (
+                        <div className="mb-4 border rounded-lg overflow-hidden">
+                          <div className="bg-muted/50 px-3 py-2 border-b flex items-center gap-2">
+                            <FileText className="h-4 w-4 text-muted-foreground" />
+                            <span className="text-sm font-medium">Attached Document</span>
+                          </div>
+                          <a href={request.attachmentUrl} target="_blank" rel="noopener noreferrer" className="block">
+                            <img 
+                              src={request.attachmentUrl} 
+                              alt="Electric bill attachment" 
+                              className="w-full max-h-64 object-contain bg-white cursor-pointer hover:opacity-90 transition-opacity"
+                            />
+                          </a>
+                          <div className="bg-muted/30 px-3 py-2 border-t">
+                            <p className="text-xs text-muted-foreground">
+                              Electric bill for Michael Johnson • Account #4521-7890-3336 • Amount: $147.23
+                            </p>
+                          </div>
+                        </div>
+                      )}
 
                       <div className="flex items-center gap-4 mb-4">
                         <div className="flex items-center gap-1 text-green-600">
