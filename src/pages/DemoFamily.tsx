@@ -31,10 +31,12 @@ import {
   Paperclip,
   FileText,
   TrendingUp,
-  Activity
+  Activity,
+  Mail
 } from 'lucide-react';
 import { format } from 'date-fns';
 import demoElectricBill from '@/assets/demo-electric-bill.png';
+import { toast } from 'sonner';
 
 import demoGasReceipt from '@/assets/demo-gas-receipt.png';
 
@@ -804,10 +806,26 @@ const DemoFamily = () => {
                             {member.initials}
                           </AvatarFallback>
                         </Avatar>
-                        <div>
+                        <div className="flex items-center gap-2">
                           <p className="font-semibold text-foreground">{member.name}</p>
-                          <p className="text-sm text-muted-foreground">{member.relationship}</p>
+                          {/* Direct Message button - only show for non-recovering members */}
+                          {member.role !== 'recovering' && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 w-7 p-0 rounded-full bg-blue-100 hover:bg-blue-200 text-blue-600"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toast.success(`Opening DM with ${member.name}`, {
+                                  description: "Direct messaging feature - Demo only"
+                                });
+                              }}
+                            >
+                              <Mail className="h-3.5 w-3.5" />
+                            </Button>
+                          )}
                         </div>
+                        <p className="text-sm text-muted-foreground">{member.relationship}</p>
                       </div>
                       <div className="flex items-center gap-3">
                         {member.paymentInfo && (
