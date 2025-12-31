@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useToast } from '@/hooks/use-toast';
 import { 
   Building2, 
   Palette, 
@@ -21,11 +23,13 @@ import {
   Heart,
   Check,
   Play,
-  Sparkles
+  Sparkles,
+  Loader2
 } from 'lucide-react';
 
 const Demo = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [brandingStep, setBrandingStep] = useState(0);
   const [demoColors, setDemoColors] = useState({
     primary: '#6366f1',
@@ -33,21 +37,79 @@ const Demo = () => {
     accent: '#f472b6',
   });
   const [demoName, setDemoName] = useState('Recovery Partners');
+  const [demoLogo, setDemoLogo] = useState<string | null>(null);
   const [websiteUrl, setWebsiteUrl] = useState('');
   const [isExtracting, setIsExtracting] = useState(false);
 
-  const handleExtractBranding = () => {
-    setIsExtracting(true);
-    setTimeout(() => {
-      setIsExtracting(false);
-      setDemoColors({
-        primary: '#059669',
-        secondary: '#10b981',
-        accent: '#34d399',
+  const handleExtractBranding = async () => {
+    if (!websiteUrl.trim()) {
+      toast({
+        title: 'URL Required',
+        description: 'Please enter a website URL to extract branding from.',
+        variant: 'destructive',
       });
-      setDemoName('Serenity Treatment Center');
-      setBrandingStep(2);
-    }, 2000);
+      return;
+    }
+
+    setIsExtracting(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('extract-branding', {
+        body: { url: websiteUrl.trim() }
+      });
+
+      if (error) throw error;
+
+      if (data?.success && data?.branding) {
+        const branding = data.branding;
+        
+        // Update colors if extracted
+        const newColors = { ...demoColors };
+        if (branding.colors?.primary) newColors.primary = branding.colors.primary;
+        if (branding.colors?.secondary) newColors.secondary = branding.colors.secondary;
+        if (branding.colors?.accent) newColors.accent = branding.colors.accent;
+        setDemoColors(newColors);
+
+        // Update logo if extracted
+        if (branding.logo_url) {
+          setDemoLogo(branding.logo_url);
+        }
+
+        // Try to extract organization name from URL
+        try {
+          const urlObj = new URL(websiteUrl.startsWith('http') ? websiteUrl : `https://${websiteUrl}`);
+          const hostname = urlObj.hostname.replace('www.', '');
+          const nameParts = hostname.split('.')[0];
+          const formattedName = nameParts
+            .split(/[-_]/)
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
+          setDemoName(formattedName);
+        } catch {
+          // Keep default name
+        }
+
+        setBrandingStep(2);
+        toast({
+          title: 'Branding Extracted!',
+          description: 'We found your brand colors and logo.',
+        });
+      } else {
+        toast({
+          title: 'Partial Extraction',
+          description: 'Some branding elements could not be found. You can customize manually.',
+        });
+        setBrandingStep(2);
+      }
+    } catch (err: any) {
+      console.error('Branding extraction error:', err);
+      toast({
+        title: 'Extraction Failed',
+        description: 'Could not extract branding. Try a different URL or enter manually.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsExtracting(false);
+    }
   };
 
   const features = [
@@ -173,7 +235,10 @@ const Demo = () => {
                         />
                         <Button onClick={handleExtractBranding} disabled={isExtracting}>
                           {isExtracting ? (
-                            <>Extracting...</>
+                            <>
+                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                              Extracting...
+                            </>
                           ) : (
                             <>
                               <Wand2 className="h-4 w-4 mr-2" />
@@ -184,7 +249,7 @@ const Demo = () => {
                       </div>
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      Try it out! Enter any URL or click Extract to see a demo.
+                      Enter your website URL and we'll extract your brand colors and logo automatically.
                     </p>
                   </div>
                 )}
@@ -193,7 +258,7 @@ const Demo = () => {
                   <div className="space-y-6">
                     <div className="flex items-center gap-2 text-green-600">
                       <Check className="h-5 w-5" />
-                      <span className="font-medium">Branding extracted successfully!</span>
+                      <span className="font-medium">Branding extracted!</span>
                     </div>
                     
                     <div className="grid md:grid-cols-2 gap-6">
@@ -202,26 +267,42 @@ const Demo = () => {
                         <div className="flex gap-3">
                           <div className="space-y-1">
                             <div 
-                              className="w-12 h-12 rounded-lg shadow-md" 
+                              className="w-12 h-12 rounded-lg shadow-md border" 
                               style={{ backgroundColor: demoColors.primary }}
                             />
                             <span className="text-xs text-muted-foreground">Primary</span>
                           </div>
                           <div className="space-y-1">
                             <div 
-                              className="w-12 h-12 rounded-lg shadow-md" 
+                              className="w-12 h-12 rounded-lg shadow-md border" 
                               style={{ backgroundColor: demoColors.secondary }}
                             />
                             <span className="text-xs text-muted-foreground">Secondary</span>
                           </div>
                           <div className="space-y-1">
                             <div 
-                              className="w-12 h-12 rounded-lg shadow-md" 
+                              className="w-12 h-12 rounded-lg shadow-md border" 
                               style={{ backgroundColor: demoColors.accent }}
                             />
                             <span className="text-xs text-muted-foreground">Accent</span>
                           </div>
                         </div>
+                        
+                        {demoLogo && (
+                          <div className="space-y-2">
+                            <h4 className="font-medium">Extracted Logo</h4>
+                            <div className="bg-muted/50 p-4 rounded-lg inline-block">
+                              <img 
+                                src={demoLogo} 
+                                alt="Extracted logo" 
+                                className="max-h-16 max-w-[200px] object-contain"
+                                onError={(e) => {
+                                  (e.target as HTMLImageElement).style.display = 'none';
+                                }}
+                              />
+                            </div>
+                          </div>
+                        )}
                       </div>
                       
                       <div className="space-y-4">
@@ -230,7 +311,7 @@ const Demo = () => {
                       </div>
                     </div>
 
-                    <Button onClick={() => setBrandingStep(0)} variant="outline">
+                    <Button onClick={() => { setBrandingStep(0); setDemoLogo(null); }} variant="outline">
                       Try Another Website
                     </Button>
                   </div>
@@ -244,9 +325,20 @@ const Demo = () => {
                     style={{ backgroundColor: demoColors.primary }}
                   >
                     <div className="flex items-center gap-3 mb-4">
-                      <div className="h-10 w-10 rounded-lg bg-white/20 flex items-center justify-center">
-                        <Heart className="h-6 w-6" />
-                      </div>
+                      {demoLogo ? (
+                        <img 
+                          src={demoLogo} 
+                          alt="Logo" 
+                          className="h-10 w-10 rounded-lg object-contain bg-white/90 p-1"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = 'none';
+                          }}
+                        />
+                      ) : (
+                        <div className="h-10 w-10 rounded-lg bg-white/20 flex items-center justify-center">
+                          <Heart className="h-6 w-6" />
+                        </div>
+                      )}
                       <span className="font-bold text-xl">{demoName}</span>
                     </div>
                     <p className="opacity-90 text-sm">
