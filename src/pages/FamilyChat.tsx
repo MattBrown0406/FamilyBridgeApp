@@ -50,6 +50,7 @@ import { LocationCheckinRequest } from '@/components/LocationCheckinRequest';
 import { LocationCheckinResponse } from '@/components/LocationCheckinResponse';
 import { LocationCapture, LocationData } from '@/components/LocationCapture';
 import { PrivateMessaging } from '@/components/PrivateMessaging';
+import { ConversationStarters } from '@/components/ConversationStarters';
 
 const REQUEST_REASONS = [
   'Electric',
@@ -1657,9 +1658,15 @@ const FamilyChat = () => {
                     )}
                   </Button>
                 </div>
-                <p className="text-xs text-muted-foreground mt-2">
-                  Messages are filtered for harmful language to maintain a supportive environment.
-                </p>
+                <div className="flex items-center justify-between mt-2">
+                  <ConversationStarters 
+                    onSelect={(prompt) => setNewMessage(prompt)}
+                    disabled={cooldownRemaining > 0}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Messages are filtered for harmful language.
+                  </p>
+                </div>
               </form>
             </Card>
           </TabsContent>
