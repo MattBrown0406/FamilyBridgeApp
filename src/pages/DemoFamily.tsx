@@ -132,6 +132,14 @@ const DEMO_BOUNDARIES = [
     status: 'pending',
     acknowledgments: [],
   },
+  {
+    id: '4',
+    content: 'Mom will no longer track my location on her phone - she will use the app check-ins instead',
+    createdBy: 'Michael Johnson',
+    targetUser: 'Sarah Johnson',
+    status: 'pending',
+    acknowledgments: [],
+  },
 ];
 
 const DEMO_GOALS = [
