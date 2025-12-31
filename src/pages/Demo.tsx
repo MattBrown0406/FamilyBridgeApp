@@ -1,0 +1,412 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { 
+  Building2, 
+  Palette, 
+  Users, 
+  MessageCircle, 
+  DollarSign, 
+  MapPin, 
+  Shield, 
+  ArrowRight,
+  Eye,
+  Wand2,
+  Upload,
+  Heart,
+  Check,
+  Play,
+  Sparkles
+} from 'lucide-react';
+
+const Demo = () => {
+  const navigate = useNavigate();
+  const [brandingStep, setBrandingStep] = useState(0);
+  const [demoColors, setDemoColors] = useState({
+    primary: '#6366f1',
+    secondary: '#8b5cf6',
+    accent: '#f472b6',
+  });
+  const [demoName, setDemoName] = useState('Recovery Partners');
+  const [websiteUrl, setWebsiteUrl] = useState('');
+  const [isExtracting, setIsExtracting] = useState(false);
+
+  const handleExtractBranding = () => {
+    setIsExtracting(true);
+    setTimeout(() => {
+      setIsExtracting(false);
+      setDemoColors({
+        primary: '#059669',
+        secondary: '#10b981',
+        accent: '#34d399',
+      });
+      setDemoName('Serenity Treatment Center');
+      setBrandingStep(2);
+    }, 2000);
+  };
+
+  const features = [
+    {
+      icon: Palette,
+      title: 'Custom Branding',
+      description: 'Your logo, colors, and fonts throughout the app',
+    },
+    {
+      icon: Users,
+      title: 'Unlimited Families',
+      description: 'Create and manage family groups for your clients',
+    },
+    {
+      icon: MessageCircle,
+      title: 'Moderated Chat',
+      description: 'Safe, filtered communication for families',
+    },
+    {
+      icon: DollarSign,
+      title: 'Financial Transparency',
+      description: 'Group-approved financial requests',
+    },
+    {
+      icon: MapPin,
+      title: 'Check-in System',
+      description: 'Meeting and location verification',
+    },
+    {
+      icon: Shield,
+      title: 'Boundary Setting',
+      description: 'Structured boundary agreements',
+    },
+  ];
+
+  const demoFamily = {
+    name: 'The Johnson Family',
+    members: [
+      { name: 'Sarah Johnson', role: 'moderator', relationship: 'Parent' },
+      { name: 'Michael Johnson', role: 'recovering', relationship: 'Recovering' },
+      { name: 'David Johnson', role: 'member', relationship: 'Sibling' },
+      { name: 'Emily Johnson', role: 'member', relationship: 'Spouse' },
+      { name: 'Robert Johnson', role: 'member', relationship: 'Grandparent' },
+    ],
+  };
+
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="h-10 w-10 rounded-lg bg-primary flex items-center justify-center">
+              <Sparkles className="h-6 w-6 text-primary-foreground" />
+            </div>
+            <span className="font-display font-bold text-xl">FamilyBridge Demo</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <Button variant="outline" onClick={() => navigate('/')}>
+              Exit Demo
+            </Button>
+            <Button onClick={() => navigate('/provider-purchase')}>
+              Get Started
+            </Button>
+          </div>
+        </div>
+      </header>
+
+      {/* Hero */}
+      <section className="container mx-auto px-4 py-12 text-center">
+        <Badge className="mb-4" variant="secondary">
+          Interactive Demo
+        </Badge>
+        <h1 className="text-4xl md:text-5xl font-display font-bold text-foreground mb-4">
+          See FamilyBridge in Action
+        </h1>
+        <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
+          Experience how your treatment center, therapy practice, or sober living facility can offer 
+          a branded family communication platform to support recovery.
+        </p>
+      </section>
+
+      {/* Demo Sections */}
+      <Tabs defaultValue="branding" className="container mx-auto px-4 pb-12">
+        <TabsList className="grid w-full max-w-lg mx-auto grid-cols-3 mb-8">
+          <TabsTrigger value="branding">
+            <Palette className="h-4 w-4 mr-2" />
+            Branding
+          </TabsTrigger>
+          <TabsTrigger value="family">
+            <Users className="h-4 w-4 mr-2" />
+            Family Demo
+          </TabsTrigger>
+          <TabsTrigger value="features">
+            <Eye className="h-4 w-4 mr-2" />
+            Features
+          </TabsTrigger>
+        </TabsList>
+
+        {/* Branding Demo */}
+        <TabsContent value="branding" className="space-y-8">
+          <div className="max-w-4xl mx-auto">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Wand2 className="h-5 w-5" />
+                  Automatic Branding Extraction
+                </CardTitle>
+                <CardDescription>
+                  Enter your website URL and we'll automatically extract your brand colors, logo, and fonts
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {brandingStep === 0 && (
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label>Your Website URL</Label>
+                      <div className="flex gap-2">
+                        <Input
+                          placeholder="https://yourcompany.com"
+                          value={websiteUrl}
+                          onChange={(e) => setWebsiteUrl(e.target.value)}
+                        />
+                        <Button onClick={handleExtractBranding} disabled={isExtracting}>
+                          {isExtracting ? (
+                            <>Extracting...</>
+                          ) : (
+                            <>
+                              <Wand2 className="h-4 w-4 mr-2" />
+                              Extract
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      Try it out! Enter any URL or click Extract to see a demo.
+                    </p>
+                  </div>
+                )}
+
+                {brandingStep === 2 && (
+                  <div className="space-y-6">
+                    <div className="flex items-center gap-2 text-green-600">
+                      <Check className="h-5 w-5" />
+                      <span className="font-medium">Branding extracted successfully!</span>
+                    </div>
+                    
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <div className="space-y-4">
+                        <h4 className="font-medium">Extracted Colors</h4>
+                        <div className="flex gap-3">
+                          <div className="space-y-1">
+                            <div 
+                              className="w-12 h-12 rounded-lg shadow-md" 
+                              style={{ backgroundColor: demoColors.primary }}
+                            />
+                            <span className="text-xs text-muted-foreground">Primary</span>
+                          </div>
+                          <div className="space-y-1">
+                            <div 
+                              className="w-12 h-12 rounded-lg shadow-md" 
+                              style={{ backgroundColor: demoColors.secondary }}
+                            />
+                            <span className="text-xs text-muted-foreground">Secondary</span>
+                          </div>
+                          <div className="space-y-1">
+                            <div 
+                              className="w-12 h-12 rounded-lg shadow-md" 
+                              style={{ backgroundColor: demoColors.accent }}
+                            />
+                            <span className="text-xs text-muted-foreground">Accent</span>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-4">
+                        <h4 className="font-medium">Organization Name</h4>
+                        <Input value={demoName} onChange={(e) => setDemoName(e.target.value)} />
+                      </div>
+                    </div>
+
+                    <Button onClick={() => setBrandingStep(0)} variant="outline">
+                      Try Another Website
+                    </Button>
+                  </div>
+                )}
+
+                {/* Preview */}
+                <div className="border rounded-xl p-6 bg-card">
+                  <h4 className="font-medium mb-4">Live Preview</h4>
+                  <div 
+                    className="rounded-xl p-6 text-white transition-all duration-300"
+                    style={{ backgroundColor: demoColors.primary }}
+                  >
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="h-10 w-10 rounded-lg bg-white/20 flex items-center justify-center">
+                        <Heart className="h-6 w-6" />
+                      </div>
+                      <span className="font-bold text-xl">{demoName}</span>
+                    </div>
+                    <p className="opacity-90 text-sm">
+                      Supporting families on the journey to recovery
+                    </p>
+                    <Button 
+                      className="mt-4"
+                      style={{ 
+                        backgroundColor: demoColors.accent,
+                        color: '#000'
+                      }}
+                    >
+                      Get Started
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        {/* Family Demo */}
+        <TabsContent value="family" className="space-y-8">
+          <div className="max-w-4xl mx-auto">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Users className="h-5 w-5" />
+                  Demo Family Group
+                </CardTitle>
+                <CardDescription>
+                  Explore a pre-populated family group to see how the platform works
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid md:grid-cols-2 gap-6">
+                  {/* Family Info */}
+                  <div className="space-y-4">
+                    <h4 className="font-medium text-lg">{demoFamily.name}</h4>
+                    <p className="text-sm text-muted-foreground">
+                      A sample family group demonstrating all features of the platform including 
+                      group chat, financial requests, meeting check-ins, and boundary setting.
+                    </p>
+                    <Button onClick={() => navigate('/demo/family')} className="w-full">
+                      <Play className="h-4 w-4 mr-2" />
+                      Enter Demo Family
+                    </Button>
+                  </div>
+
+                  {/* Members */}
+                  <div className="space-y-3">
+                    <h4 className="font-medium">Family Members</h4>
+                    {demoFamily.members.map((member, index) => (
+                      <div 
+                        key={index}
+                        className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
+                            <span className="text-sm font-medium text-primary">
+                              {member.name.charAt(0)}
+                            </span>
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium">{member.name}</p>
+                            <p className="text-xs text-muted-foreground">{member.relationship}</p>
+                          </div>
+                        </div>
+                        <Badge variant={
+                          member.role === 'moderator' ? 'default' : 
+                          member.role === 'recovering' ? 'secondary' : 
+                          'outline'
+                        }>
+                          {member.role}
+                        </Badge>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Quick Actions */}
+            <div className="grid md:grid-cols-3 gap-4 mt-6">
+              <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/demo/family')}>
+                <CardContent className="pt-6">
+                  <MessageCircle className="h-8 w-8 text-primary mb-3" />
+                  <h4 className="font-medium">Group Chat</h4>
+                  <p className="text-sm text-muted-foreground">See moderated messaging in action</p>
+                </CardContent>
+              </Card>
+              <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/demo/family')}>
+                <CardContent className="pt-6">
+                  <DollarSign className="h-8 w-8 text-primary mb-3" />
+                  <h4 className="font-medium">Financial Requests</h4>
+                  <p className="text-sm text-muted-foreground">Group voting and pledges</p>
+                </CardContent>
+              </Card>
+              <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/demo/family')}>
+                <CardContent className="pt-6">
+                  <MapPin className="h-8 w-8 text-primary mb-3" />
+                  <h4 className="font-medium">Check-ins</h4>
+                  <p className="text-sm text-muted-foreground">Meeting and location tracking</p>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </TabsContent>
+
+        {/* Features */}
+        <TabsContent value="features" className="space-y-8">
+          <div className="max-w-4xl mx-auto">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {features.map((feature, index) => (
+                <Card key={index}>
+                  <CardContent className="pt-6">
+                    <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
+                      <feature.icon className="h-6 w-6 text-primary" />
+                    </div>
+                    <h4 className="font-medium mb-1">{feature.title}</h4>
+                    <p className="text-sm text-muted-foreground">{feature.description}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            {/* CTA */}
+            <Card className="mt-8 bg-primary text-primary-foreground">
+              <CardContent className="py-8 text-center">
+                <h3 className="text-2xl font-display font-bold mb-2">
+                  Ready to Get Started?
+                </h3>
+                <p className="opacity-90 mb-6 max-w-md mx-auto">
+                  Offer your clients a branded family communication platform to support their recovery journey.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                  <Button 
+                    variant="secondary" 
+                    size="lg"
+                    onClick={() => navigate('/provider-purchase')}
+                  >
+                    Purchase License
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="lg"
+                    className="border-primary-foreground/50 text-primary-foreground hover:bg-primary-foreground/10"
+                    onClick={() => navigate('/demo/family')}
+                  >
+                    Continue Demo
+                    <ArrowRight className="h-4 w-4 ml-2" />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+};
+
+export default Demo;
