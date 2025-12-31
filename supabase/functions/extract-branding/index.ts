@@ -37,7 +37,7 @@ serve(async (req) => {
 
     console.log('Extracting branding from:', formattedUrl);
 
-    // Use Firecrawl's branding extraction format
+    // Use Firecrawl's branding extraction format along with markdown for company name
     const response = await fetch('https://api.firecrawl.dev/v1/scrape', {
       method: 'POST',
       headers: {
@@ -46,7 +46,7 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         url: formattedUrl,
-        formats: ['branding'],
+        formats: ['branding', 'markdown'],
         onlyMainContent: false,
         waitFor: 3000,
       }),
@@ -62,15 +62,48 @@ serve(async (req) => {
       );
     }
 
-    console.log('Firecrawl response:', JSON.stringify(data, null, 2));
+    console.log('Firecrawl response keys:', Object.keys(data.data || data));
 
     // Extract branding data from response
     const branding = data.data?.branding || data.branding || {};
+    const metadata = data.data?.metadata || data.metadata || {};
+    const markdown = data.data?.markdown || data.markdown || '';
+    
+    // Extract company name from various sources
+    let companyName = null;
+    
+    // Priority 1: Page title from metadata (often contains company name)
+    if (metadata.title) {
+      // Clean up title - remove common suffixes like "| Home", "- Welcome", etc.
+      let title = metadata.title;
+      title = title.split(/\s*[|\-–—:]\s*(Home|Welcome|Official|Site|Website|Homepage).*$/i)[0];
+      title = title.split(/\s*[|\-–—:]\s*$/)[0]; // Remove trailing separators
+      title = title.trim();
+      if (title && title.length < 60) {
+        companyName = title;
+      }
+    }
+    
+    // Priority 2: Try to find company name in first H1 from markdown
+    if (!companyName && markdown) {
+      const h1Match = markdown.match(/^#\s+(.+)$/m);
+      if (h1Match && h1Match[1] && h1Match[1].length < 60) {
+        companyName = h1Match[1].trim();
+      }
+    }
+    
+    // Priority 3: OG site name
+    if (!companyName && metadata.ogSiteName) {
+      companyName = metadata.ogSiteName;
+    }
+
+    console.log('Extracted company name:', companyName);
     
     // Convert colors to HSL format for our design system
     const result = {
       success: true,
       branding: {
+        company_name: companyName,
         logo_url: branding.images?.logo || branding.logo || null,
         favicon_url: branding.images?.favicon || null,
         colors: {
