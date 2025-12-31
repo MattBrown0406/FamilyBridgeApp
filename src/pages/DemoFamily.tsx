@@ -331,7 +331,10 @@ const DemoFamily = () => {
                       onChange={(e) => setNewMessage(e.target.value)}
                       onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
                     />
-                    <Button onClick={handleSendMessage}>
+                    <Button 
+                      onClick={handleSendMessage}
+                      style={branding ? { backgroundColor: branding.colors.primary } : undefined}
+                    >
                       <Send className="h-4 w-4" />
                     </Button>
                   </div>
@@ -442,7 +445,11 @@ const DemoFamily = () => {
 
                       {request.status === 'pending' && (
                         <div className="flex gap-2 mt-4">
-                          <Button size="sm" className="flex-1">
+                          <Button 
+                            size="sm" 
+                            className="flex-1"
+                            style={branding ? { backgroundColor: branding.colors.primary } : undefined}
+                          >
                             <ThumbsUp className="h-4 w-4 mr-2" />
                             Approve
                           </Button>
@@ -561,7 +568,12 @@ const DemoFamily = () => {
 
                       {boundary.status === 'pending' && (
                         <div className="flex gap-2 mt-4">
-                          <Button size="sm">Approve</Button>
+                          <Button 
+                            size="sm"
+                            style={branding ? { backgroundColor: branding.colors.primary } : undefined}
+                          >
+                            Approve
+                          </Button>
                           <Button size="sm" variant="outline">Reject</Button>
                         </div>
                       )}
