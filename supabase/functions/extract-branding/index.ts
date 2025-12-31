@@ -37,8 +37,8 @@ serve(async (req) => {
 
     console.log('Extracting branding from:', formattedUrl);
 
-    // Use Firecrawl's branding extraction format along with markdown for company name
-    const response = await fetch('https://api.firecrawl.dev/v1/scrape', {
+    // Try with branding format first, with additional options to bypass blocks
+    let response = await fetch('https://api.firecrawl.dev/v1/scrape', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${apiKey}`,
@@ -48,11 +48,37 @@ serve(async (req) => {
         url: formattedUrl,
         formats: ['branding', 'markdown'],
         onlyMainContent: false,
-        waitFor: 3000,
+        waitFor: 5000,
+        timeout: 30000,
       }),
     });
 
-    const data = await response.json();
+    let data = await response.json();
+
+    // Check if we got a 403/blocked response - the branding data will have "403 Forbidden" as company name
+    const branding = data.data?.branding || data.branding || {};
+    const metadata = data.data?.metadata || data.metadata || {};
+    const markdown = data.data?.markdown || data.markdown || '';
+    
+    // Detect if the site blocked us (403 error in title or very low confidence)
+    const isBlocked = 
+      metadata.title?.includes('403') || 
+      metadata.title?.includes('Forbidden') ||
+      metadata.title?.includes('Access Denied') ||
+      metadata.title?.includes('Blocked') ||
+      (branding.confidence?.overall === 0 && !branding.images?.logo);
+    
+    if (isBlocked) {
+      console.log('Site appears to have blocked the request, returning helpful error');
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: 'This website has blocked automated access. Please enter your branding information manually.',
+          blocked: true
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     if (!response.ok) {
       console.error('Firecrawl API error:', data);
@@ -63,11 +89,6 @@ serve(async (req) => {
     }
 
     console.log('Firecrawl response keys:', Object.keys(data.data || data));
-
-    // Extract branding data from response
-    const branding = data.data?.branding || data.branding || {};
-    const metadata = data.data?.metadata || data.metadata || {};
-    const markdown = data.data?.markdown || data.markdown || '';
     
     // Extract company name from various sources
     let companyName = null;
