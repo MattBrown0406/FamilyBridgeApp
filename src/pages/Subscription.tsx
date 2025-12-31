@@ -10,7 +10,7 @@ const Subscription = () => {
   const { user } = useAuth();
 
   const features = [
-    'Priority support',
+    'Priority support (request a professional interventionist to moderate difficult situations)',
     'Advanced financial tracking',
     'Extended message history',
     'Custom meeting reminders',
