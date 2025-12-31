@@ -18,6 +18,10 @@ const APPOINTMENT_TYPES = [
   { value: 'Support Group', label: 'Support Group', icon: Heart, category: 'Healthcare' },
   { value: 'Work', label: 'Work / Job', icon: Briefcase, category: 'Professional' },
   { value: 'Job Interview', label: 'Job Interview', icon: Briefcase, category: 'Professional' },
+  { value: 'Date', label: 'Date', icon: Heart, category: 'Social' },
+  { value: 'Friendly Gathering', label: 'Friendly Get Together', icon: Heart, category: 'Social' },
+  { value: 'Group Event', label: 'Group Event', icon: Heart, category: 'Social' },
+  { value: 'Family Event', label: 'Family Event', icon: Heart, category: 'Social' },
   { value: 'Court', label: 'Court Appearance', icon: Scale, category: 'Legal' },
   { value: 'Probation', label: 'Probation Meeting', icon: Scale, category: 'Legal' },
 ];
