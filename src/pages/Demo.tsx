@@ -322,11 +322,14 @@ const Demo = () => {
                         {demoLogo && (
                           <div className="space-y-2">
                             <h4 className="font-medium">Extracted Logo</h4>
-                            <div className="bg-muted/50 p-4 rounded-lg inline-block">
+                            <div className="bg-gradient-to-br from-muted to-muted/80 p-4 rounded-lg inline-block border shadow-sm">
                               <img 
                                 src={demoLogo} 
                                 alt="Extracted logo" 
-                                className="max-h-16 max-w-[200px] object-contain"
+                                className="max-h-16 max-w-[200px] object-contain drop-shadow-[0_0_1px_rgba(0,0,0,0.3)]"
+                                style={{ 
+                                  filter: 'drop-shadow(0 0 0.5px rgba(0,0,0,0.2)) drop-shadow(0 0 2px rgba(0,0,0,0.1))'
+                                }}
                                 onError={(e) => {
                                   (e.target as HTMLImageElement).style.display = 'none';
                                 }}
@@ -357,14 +360,19 @@ const Demo = () => {
                   >
                     <div className="flex items-center gap-3 mb-4">
                       {demoLogo ? (
-                        <img 
-                          src={demoLogo} 
-                          alt="Logo" 
-                          className="h-10 w-10 rounded-lg object-contain bg-white/90 p-1"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).style.display = 'none';
-                          }}
-                        />
+                        <div className="h-10 w-10 rounded-lg bg-white p-1 shadow-sm border border-black/10">
+                          <img 
+                            src={demoLogo} 
+                            alt="Logo" 
+                            className="h-full w-full object-contain"
+                            style={{ 
+                              filter: 'drop-shadow(0 0 0.5px rgba(0,0,0,0.15))'
+                            }}
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).style.display = 'none';
+                            }}
+                          />
+                        </div>
                       ) : (
                         <div className="h-10 w-10 rounded-lg bg-white/20 flex items-center justify-center">
                           <Heart className="h-6 w-6" />
