@@ -57,54 +57,28 @@ const Subscription = () => {
             </div>
 
             {/* Pricing Options */}
-            <div className="space-y-4">
-              <Card className="cursor-pointer hover:border-primary/50 transition-all">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="font-display font-semibold">Monthly Plan</h3>
-                      <p className="text-sm text-muted-foreground">Billed monthly, cancel anytime</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-display font-bold text-lg">$4.99</p>
-                      <p className="text-xs text-muted-foreground">per month</p>
-                    </div>
+            <Card className="cursor-pointer hover:border-primary/50 transition-all">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-display font-semibold">Monthly Plan</h3>
+                    <p className="text-sm text-muted-foreground">Billed monthly, cancel anytime</p>
                   </div>
-                  <Button 
-                    variant="hero" 
-                    className="w-full mt-4"
-                    onClick={() => navigate('/family-purchase')}
-                  >
-                    <ExternalLink className="h-4 w-4 mr-2" />
-                    Subscribe via Square
-                  </Button>
-                </CardContent>
-              </Card>
-
-              <Card className="cursor-pointer hover:border-primary/50 transition-all border-primary">
-                <CardContent className="p-4">
-                  <Badge className="mb-2">Best Value</Badge>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="font-display font-semibold">Yearly Plan</h3>
-                      <p className="text-sm text-muted-foreground">Save 17% with annual billing</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-display font-bold text-lg">$49.99</p>
-                      <p className="text-xs text-muted-foreground">per year</p>
-                    </div>
+                  <div className="text-right">
+                    <p className="font-display font-bold text-lg">$19.99</p>
+                    <p className="text-xs text-muted-foreground">per month</p>
                   </div>
-                  <Button 
-                    variant="hero" 
-                    className="w-full mt-4"
-                    onClick={() => navigate('/family-purchase')}
-                  >
-                    <ExternalLink className="h-4 w-4 mr-2" />
-                    Subscribe via Square
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
+                </div>
+                <Button 
+                  variant="hero" 
+                  className="w-full mt-4"
+                  onClick={() => navigate('/family-purchase')}
+                >
+                  <ExternalLink className="h-4 w-4 mr-2" />
+                  Subscribe via Square
+                </Button>
+              </CardContent>
+            </Card>
 
             {/* Info */}
             <div className="text-center pt-4 border-t border-border">
