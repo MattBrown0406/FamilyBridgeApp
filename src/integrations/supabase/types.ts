@@ -908,6 +908,14 @@ export type Database = {
         | "CoDA"
         | "Families Anonymous"
         | "Celebrate Recovery"
+        | "Therapy"
+        | "Medical"
+        | "Work"
+        | "Job Interview"
+        | "Court"
+        | "Probation"
+        | "Support Group"
+        | "Wellness"
       provider_role: "owner" | "admin" | "staff"
       relationship_type:
         | "recovering"
@@ -1061,6 +1069,14 @@ export const Constants = {
         "CoDA",
         "Families Anonymous",
         "Celebrate Recovery",
+        "Therapy",
+        "Medical",
+        "Work",
+        "Job Interview",
+        "Court",
+        "Probation",
+        "Support Group",
+        "Wellness",
       ],
       provider_role: ["owner", "admin", "staff"],
       relationship_type: [

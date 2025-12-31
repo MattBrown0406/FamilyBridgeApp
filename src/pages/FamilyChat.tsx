@@ -43,7 +43,7 @@ import {
 } from '@/components/ui/sheet';
 import { Textarea } from '@/components/ui/textarea';
 import { NotificationBell } from '@/components/NotificationBell';
-import { MeetingCheckin } from '@/components/MeetingCheckin';
+import { TabbedCheckin } from '@/components/TabbedCheckin';
 import { MeetingCheckout } from '@/components/MeetingCheckout';
 import { CheckinHistory } from '@/components/CheckinHistory';
 import { LocationCheckinRequest } from '@/components/LocationCheckinRequest';
@@ -1704,7 +1704,7 @@ const FamilyChat = () => {
                 userRole={currentUserRole}
               />
               
-              <MeetingCheckin 
+              <TabbedCheckin 
                 familyId={familyId!} 
                 onCheckinComplete={() => {
                   setCheckinRefreshKey(k => k + 1);
