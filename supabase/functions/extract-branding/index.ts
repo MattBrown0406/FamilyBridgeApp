@@ -148,6 +148,50 @@ serve(async (req) => {
     // If the website has a dark background, the logo is likely light-colored
     const logoNeedsBackground = isColorDark(branding.colors?.background);
     
+    // Helper to calculate color saturation and determine if it's a "brand-worthy" color
+    const getColorSaturation = (color: string | null): number => {
+      if (!color) return 0;
+      if (color.startsWith('#')) {
+        const hex = color.replace('#', '');
+        const r = parseInt(hex.substr(0, 2), 16) / 255;
+        const g = parseInt(hex.substr(2, 2), 16) / 255;
+        const b = parseInt(hex.substr(4, 2), 16) / 255;
+        const max = Math.max(r, g, b);
+        const min = Math.min(r, g, b);
+        const l = (max + min) / 2;
+        if (max === min) return 0;
+        const d = max - min;
+        return d / (1 - Math.abs(2 * l - 1));
+      }
+      return 0;
+    };
+    
+    // Determine the best primary brand color
+    // Priority: accent (often the true brand color) > textPrimary (if dark/saturated) > primary
+    // We prefer darker, more saturated colors as they typically represent brand identity better
+    let bestPrimaryColor = branding.colors?.primary || null;
+    
+    const accentColor = branding.colors?.accent;
+    const textPrimaryColor = branding.colors?.textPrimary;
+    const firecrawlPrimary = branding.colors?.primary;
+    
+    // Check if accent is a good brand color (dark and saturated)
+    if (accentColor && isColorDark(accentColor)) {
+      bestPrimaryColor = accentColor;
+    }
+    // Or if textPrimary is dark and more saturated than the "primary"
+    else if (textPrimaryColor && isColorDark(textPrimaryColor) && 
+             getColorSaturation(textPrimaryColor) > getColorSaturation(firecrawlPrimary)) {
+      bestPrimaryColor = textPrimaryColor;
+    }
+    
+    console.log('Color analysis:', {
+      firecrawlPrimary,
+      accent: accentColor,
+      textPrimary: textPrimaryColor,
+      selectedPrimary: bestPrimaryColor
+    });
+    
     // Convert colors to HSL format for our design system
     const result = {
       success: true,
@@ -157,12 +201,13 @@ serve(async (req) => {
         logo_needs_background: logoNeedsBackground,
         favicon_url: branding.images?.favicon || null,
         colors: {
-          primary: branding.colors?.primary || null,
+          primary: bestPrimaryColor,
           secondary: branding.colors?.secondary || null,
           accent: branding.colors?.accent || null,
           background: branding.colors?.background || null,
           textPrimary: branding.colors?.textPrimary || null,
           textSecondary: branding.colors?.textSecondary || null,
+          originalPrimary: firecrawlPrimary, // Keep original for debugging
         },
         fonts: branding.typography?.fontFamilies || branding.fonts || null,
         raw: branding, // Include raw data for debugging
