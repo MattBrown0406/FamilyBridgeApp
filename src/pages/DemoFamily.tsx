@@ -123,7 +123,7 @@ const DEMO_BOUNDARIES = [
     createdBy: 'Sarah Johnson',
     targetUser: 'Michael Johnson',
     status: 'approved',
-    acknowledgments: ['Michael Johnson'],
+    acknowledgments: ['Sarah Johnson', 'Michael Johnson', 'David Johnson', 'Emily Johnson', 'Robert Johnson'],
   },
   {
     id: '3',
