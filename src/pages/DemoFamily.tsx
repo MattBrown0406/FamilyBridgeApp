@@ -288,6 +288,29 @@ const DemoFamily = () => {
 
             {/* Financial Tab */}
             <TabsContent value="financial">
+              {/* Financial Summary */}
+              <Card className="mb-4">
+                <CardContent className="pt-6">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="text-center p-4 bg-muted/50 rounded-lg">
+                      <p className="text-sm text-muted-foreground mb-1">Total Requested</p>
+                      <p className="text-2xl font-bold text-foreground">
+                        ${DEMO_FINANCIAL_REQUESTS.reduce((sum, r) => sum + r.amount, 0).toFixed(2)}
+                      </p>
+                    </div>
+                    <div className="text-center p-4 bg-green-50 rounded-lg border border-green-200">
+                      <p className="text-sm text-green-700 mb-1">Total Funds Given</p>
+                      <p className="text-2xl font-bold text-green-600">
+                        ${DEMO_FINANCIAL_REQUESTS
+                          .filter(r => r.fundsReceived || r.status === 'approved')
+                          .reduce((sum, r) => r.pledges.reduce((pSum, p) => pSum + p.amount, 0) + sum, 0)
+                          .toFixed(2)}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
               <div className="space-y-4">
                 {DEMO_FINANCIAL_REQUESTS.map((request) => (
                   <Card key={request.id}>

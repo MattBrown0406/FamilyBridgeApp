@@ -1842,6 +1842,29 @@ const FamilyChat = () => {
                 </CardContent>
               </Card>
 
+              {/* Financial Summary */}
+              <Card className="mb-4">
+                <CardContent className="pt-6">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="text-center p-4 bg-muted/50 rounded-lg">
+                      <p className="text-sm text-muted-foreground mb-1">Total Requested</p>
+                      <p className="text-2xl font-bold text-foreground">
+                        ${financialRequests.reduce((sum, r) => sum + r.amount, 0).toFixed(2)}
+                      </p>
+                    </div>
+                    <div className="text-center p-4 bg-green-50 rounded-lg border border-green-200">
+                      <p className="text-sm text-green-700 mb-1">Total Funds Given</p>
+                      <p className="text-2xl font-bold text-green-600">
+                        ${financialRequests
+                          .filter(r => r.payment_confirmed_at || r.status === 'approved')
+                          .reduce((sum, r) => r.pledges.reduce((pSum, p) => pSum + p.amount, 0) + sum, 0)
+                          .toFixed(2)}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
               {/* Requests List */}
               <Card>
                 <CardHeader className="pb-3">
