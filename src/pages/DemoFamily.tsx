@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Textarea } from '@/components/ui/textarea';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { 
   ArrowLeft, 
   Send, 
@@ -38,7 +39,18 @@ import demoGasReceipt from '@/assets/demo-gas-receipt.png';
 // Demo data
 const DEMO_MEMBERS = [
   { id: '1', name: 'Sarah Johnson', role: 'moderator', relationship: 'Parent', initials: 'SJ' },
-  { id: '2', name: 'Michael Johnson', role: 'recovering', relationship: 'Recovering', initials: 'MJ' },
+  { 
+    id: '2', 
+    name: 'Michael Johnson', 
+    role: 'recovering', 
+    relationship: 'Recovering', 
+    initials: 'MJ',
+    paymentInfo: {
+      paypal: 'michael.johnson@email.com',
+      venmo: '@MichaelJ-Recovery',
+      cashapp: '$MichaelJohnson47'
+    }
+  },
   { id: '3', name: 'David Johnson', role: 'member', relationship: 'Sibling', initials: 'DJ' },
   { id: '4', name: 'Emily Johnson', role: 'member', relationship: 'Spouse', initials: 'EJ' },
   { id: '5', name: 'Robert Johnson', role: 'member', relationship: 'Grandparent', initials: 'RJ' },
@@ -155,6 +167,7 @@ const DemoFamily = () => {
   const [activeTab, setActiveTab] = useState('chat');
   const [newMessage, setNewMessage] = useState('');
   const [messages, setMessages] = useState(DEMO_MESSAGES);
+  const [selectedMember, setSelectedMember] = useState<typeof DEMO_MEMBERS[0] | null>(null);
 
   const handleSendMessage = () => {
     if (!newMessage.trim()) return;
@@ -492,7 +505,10 @@ const DemoFamily = () => {
                   {DEMO_MEMBERS.map((member) => (
                     <div 
                       key={member.id}
-                      className="flex items-center justify-between p-4 bg-muted/50 rounded-lg"
+                      className={`flex items-center justify-between p-4 bg-muted/50 rounded-lg ${
+                        member.paymentInfo ? 'cursor-pointer hover:bg-muted transition-colors' : ''
+                      }`}
+                      onClick={() => member.paymentInfo && setSelectedMember(member)}
                     >
                       <div className="flex items-center gap-3">
                         <Avatar>
@@ -503,13 +519,18 @@ const DemoFamily = () => {
                           <p className="text-sm text-muted-foreground">{member.relationship}</p>
                         </div>
                       </div>
-                      <Badge variant={
-                        member.role === 'moderator' ? 'default' : 
-                        member.role === 'recovering' ? 'secondary' : 
-                        'outline'
-                      }>
-                        {member.role}
-                      </Badge>
+                      <div className="flex items-center gap-2">
+                        {member.paymentInfo && (
+                          <span className="text-xs text-primary">View Profile →</span>
+                        )}
+                        <Badge variant={
+                          member.role === 'moderator' ? 'default' : 
+                          member.role === 'recovering' ? 'secondary' : 
+                          'outline'
+                        }>
+                          {member.role}
+                        </Badge>
+                      </div>
                     </div>
                   ))}
                 </CardContent>
@@ -518,6 +539,92 @@ const DemoFamily = () => {
           </Tabs>
         </div>
       </div>
+
+      {/* Member Profile Dialog */}
+      <Dialog open={!!selectedMember} onOpenChange={() => setSelectedMember(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Member Profile</DialogTitle>
+          </DialogHeader>
+          {selectedMember && (
+            <div className="space-y-6">
+              <div className="flex items-center gap-4">
+                <Avatar className="h-16 w-16">
+                  <AvatarFallback className="text-xl">{selectedMember.initials}</AvatarFallback>
+                </Avatar>
+                <div>
+                  <h3 className="text-lg font-semibold">{selectedMember.name}</h3>
+                  <p className="text-sm text-muted-foreground">{selectedMember.relationship}</p>
+                  <Badge variant="secondary" className="mt-1">{selectedMember.role}</Badge>
+                </div>
+              </div>
+
+              {selectedMember.paymentInfo && (
+                <div className="space-y-4">
+                  <h4 className="font-medium text-sm text-muted-foreground">Payment Methods</h4>
+                  
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg border border-blue-200">
+                      <div className="flex items-center gap-3">
+                        <div className="h-8 w-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs font-bold">
+                          PP
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium">PayPal</p>
+                          <p className="text-xs text-muted-foreground">{selectedMember.paymentInfo.paypal}</p>
+                        </div>
+                      </div>
+                      <Button size="sm" variant="outline" asChild>
+                        <a href={`https://paypal.me/${selectedMember.paymentInfo.paypal}`} target="_blank" rel="noopener noreferrer">
+                          Send
+                        </a>
+                      </Button>
+                    </div>
+
+                    <div className="flex items-center justify-between p-3 bg-sky-50 rounded-lg border border-sky-200">
+                      <div className="flex items-center gap-3">
+                        <div className="h-8 w-8 rounded-full bg-sky-500 flex items-center justify-center text-white text-xs font-bold">
+                          V
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium">Venmo</p>
+                          <p className="text-xs text-muted-foreground">{selectedMember.paymentInfo.venmo}</p>
+                        </div>
+                      </div>
+                      <Button size="sm" variant="outline" asChild>
+                        <a href={`https://venmo.com/${selectedMember.paymentInfo.venmo.replace('@', '')}`} target="_blank" rel="noopener noreferrer">
+                          Send
+                        </a>
+                      </Button>
+                    </div>
+
+                    <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-200">
+                      <div className="flex items-center gap-3">
+                        <div className="h-8 w-8 rounded-full bg-green-600 flex items-center justify-center text-white text-xs font-bold">
+                          $
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium">Cash App</p>
+                          <p className="text-xs text-muted-foreground">{selectedMember.paymentInfo.cashapp}</p>
+                        </div>
+                      </div>
+                      <Button size="sm" variant="outline" asChild>
+                        <a href={`https://cash.app/${selectedMember.paymentInfo.cashapp}`} target="_blank" rel="noopener noreferrer">
+                          Send
+                        </a>
+                      </Button>
+                    </div>
+                  </div>
+
+                  <p className="text-xs text-muted-foreground text-center">
+                    Click "Send" to open the payment app and send funds directly
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
