@@ -29,7 +29,9 @@ import {
   Shield,
   Copy,
   Check,
-  UsersRound
+  UsersRound,
+  Pencil,
+  Trash2
 } from 'lucide-react';
 
 // Helper to convert hex to HSL string
@@ -91,6 +93,15 @@ const ProviderAdmin = () => {
   const [newFamilyName, setNewFamilyName] = useState('');
   const [newFamilyDescription, setNewFamilyDescription] = useState('');
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
+  
+  // Moderator management state
+  const [orgModerators, setOrgModerators] = useState<any[]>([]);
+  const [isLoadingModerators, setIsLoadingModerators] = useState(false);
+  const [isAddingModerator, setIsAddingModerator] = useState(false);
+  const [newModeratorEmail, setNewModeratorEmail] = useState('');
+  const [newModeratorRole, setNewModeratorRole] = useState<'admin' | 'staff'>('staff');
+  const [editingModerator, setEditingModerator] = useState<string | null>(null);
+  const [editModeratorRole, setEditModeratorRole] = useState<'admin' | 'staff'>('staff');
   
   // Create organization form with branding
   const [newOrg, setNewOrg] = useState({
@@ -156,8 +167,8 @@ const ProviderAdmin = () => {
         heading_font: org.heading_font,
         body_font: org.body_font,
       });
-      // Load families for this org
-      await fetchOrgFamilies(orgId);
+      // Load families and moderators for this org
+      await Promise.all([fetchOrgFamilies(orgId), fetchOrgModerators(orgId)]);
     }
   };
 
@@ -234,6 +245,96 @@ const ProviderAdmin = () => {
       setTimeout(() => setCopiedCode(null), 2000);
     } catch (err) {
       toast({ title: 'Error', description: 'Failed to copy code', variant: 'destructive' });
+    }
+  };
+
+  // Fetch moderators for the selected organization
+  const fetchOrgModerators = async (orgId: string) => {
+    setIsLoadingModerators(true);
+    try {
+      const { data, error } = await supabase
+        .from('organization_members')
+        .select('*, profiles(full_name, avatar_url)')
+        .eq('organization_id', orgId)
+        .order('joined_at', { ascending: false });
+
+      if (error) throw error;
+      setOrgModerators(data || []);
+    } catch (err) {
+      console.error('Error fetching moderators:', err);
+      toast({ title: 'Error', description: 'Failed to load moderators', variant: 'destructive' });
+    } finally {
+      setIsLoadingModerators(false);
+    }
+  };
+
+  // Add a new moderator
+  const handleAddModerator = async () => {
+    if (!newModeratorEmail.trim() || !selectedOrg) {
+      toast({ title: 'Error', description: 'Email is required', variant: 'destructive' });
+      return;
+    }
+
+    setIsAddingModerator(true);
+    try {
+      // First, find the user by email
+      const { data: userData, error: userError } = await supabase
+        .from('profiles')
+        .select('id')
+        .ilike('full_name', `%${newModeratorEmail}%`)
+        .limit(1);
+
+      // For now, we'll show an error since we can't look up users by email directly
+      // In production, you'd want an edge function for this
+      toast({ 
+        title: 'Info', 
+        description: 'Please ask the user to sign up first, then add them by their user ID. Email lookup coming soon.',
+        variant: 'default'
+      });
+    } catch (err: any) {
+      console.error('Error adding moderator:', err);
+      toast({ title: 'Error', description: err.message || 'Failed to add moderator', variant: 'destructive' });
+    } finally {
+      setIsAddingModerator(false);
+    }
+  };
+
+  // Update moderator role
+  const handleUpdateModeratorRole = async (memberId: string, newRole: 'admin' | 'staff') => {
+    try {
+      const { error } = await supabase
+        .from('organization_members')
+        .update({ role: newRole })
+        .eq('id', memberId);
+
+      if (error) throw error;
+      
+      toast({ title: 'Success', description: 'Role updated successfully' });
+      setEditingModerator(null);
+      if (selectedOrg) await fetchOrgModerators(selectedOrg);
+    } catch (err: any) {
+      console.error('Error updating moderator:', err);
+      toast({ title: 'Error', description: err.message || 'Failed to update role', variant: 'destructive' });
+    }
+  };
+
+  // Delete moderator
+  const handleDeleteModerator = async (memberId: string) => {
+    if (!confirm('Are you sure you want to remove this moderator?')) return;
+    
+    try {
+      const { error } = await supabase
+        .from('organization_members')
+        .delete()
+        .eq('id', memberId);
+
+      if (error) throw error;
+      
+      toast({ title: 'Success', description: 'Moderator removed successfully' });
+      if (selectedOrg) await fetchOrgModerators(selectedOrg);
+    } catch (err: any) {
+      console.error('Error deleting moderator:', err);
+      toast({ title: 'Error', description: err.message || 'Failed to remove moderator', variant: 'destructive' });
     }
   };
 
@@ -816,11 +917,15 @@ const ProviderAdmin = () => {
           {/* Main content */}
           <div className="lg:col-span-3">
             {selectedOrg && currentOrg ? (
-              <Tabs defaultValue="users" className="space-y-4">
+              <Tabs defaultValue="families" className="space-y-4">
                 <TabsList className="grid grid-cols-5 w-full max-w-2xl">
-                  <TabsTrigger value="users" className="flex items-center gap-2">
+                  <TabsTrigger value="families" className="flex items-center gap-2">
+                    <UsersRound className="h-4 w-4" />
+                    <span className="hidden sm:inline">Family Groups</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="moderators" className="flex items-center gap-2">
                     <Users className="h-4 w-4" />
-                    <span className="hidden sm:inline">Users</span>
+                    <span className="hidden sm:inline">Moderators</span>
                   </TabsTrigger>
                   <TabsTrigger value="settings" className="flex items-center gap-2">
                     <Settings className="h-4 w-4" />
@@ -829,10 +934,6 @@ const ProviderAdmin = () => {
                   <TabsTrigger value="analytics" className="flex items-center gap-2">
                     <BarChart3 className="h-4 w-4" />
                     <span className="hidden sm:inline">Analytics</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="admin" className="flex items-center gap-2">
-                    <Shield className="h-4 w-4" />
-                    <span className="hidden sm:inline">Admin</span>
                   </TabsTrigger>
                   <TabsTrigger value="branding" className="flex items-center gap-2">
                     <Palette className="h-4 w-4" />
@@ -1044,19 +1145,160 @@ const ProviderAdmin = () => {
                   </Card>
                 </TabsContent>
 
-                <TabsContent value="users">
+                <TabsContent value="moderators" className="space-y-6">
+                  {/* Add Moderator */}
                   <Card>
                     <CardHeader>
-                      <CardTitle>Family Management</CardTitle>
+                      <CardTitle className="flex items-center gap-2">
+                        <Users className="h-5 w-5" />
+                        Add Moderator
+                      </CardTitle>
                       <CardDescription>
-                        View and manage families using your branded platform
+                        Add staff members who can manage family groups
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        <div className="space-y-2">
+                          <Label htmlFor="moderator-email">Email Address *</Label>
+                          <Input
+                            id="moderator-email"
+                            type="email"
+                            placeholder="moderator@example.com"
+                            value={newModeratorEmail}
+                            onChange={(e) => setNewModeratorEmail(e.target.value)}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="moderator-role">Role</Label>
+                          <select
+                            id="moderator-role"
+                            value={newModeratorRole}
+                            onChange={(e) => setNewModeratorRole(e.target.value as 'admin' | 'staff')}
+                            className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
+                          >
+                            <option value="staff">Staff</option>
+                            <option value="admin">Admin</option>
+                          </select>
+                        </div>
+                      </div>
+                      <Button 
+                        onClick={handleAddModerator} 
+                        disabled={isAddingModerator || !newModeratorEmail.trim()}
+                      >
+                        {isAddingModerator ? (
+                          <>
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            Adding...
+                          </>
+                        ) : (
+                          <>
+                            <Plus className="h-4 w-4 mr-2" />
+                            Add Moderator
+                          </>
+                        )}
+                      </Button>
+                    </CardContent>
+                  </Card>
+
+                  {/* Existing Moderators */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Organization Members</CardTitle>
+                      <CardDescription>
+                        Manage moderators and staff in your organization
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-muted-foreground text-center py-8">
-                        Family management coming soon. You'll be able to view all families using your platform,
-                        see activity reports, and manage access.
-                      </p>
+                      {isLoadingModerators ? (
+                        <div className="flex items-center justify-center py-8">
+                          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                        </div>
+                      ) : orgModerators.length === 0 ? (
+                        <p className="text-muted-foreground text-center py-8">
+                          No moderators yet. Add one above to get started.
+                        </p>
+                      ) : (
+                        <div className="space-y-3">
+                          {orgModerators.map((member) => (
+                            <div 
+                              key={member.id} 
+                              className="flex items-center justify-between p-4 rounded-lg border bg-card"
+                            >
+                              <div className="flex items-center gap-3">
+                                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                                  <Users className="h-5 w-5 text-primary" />
+                                </div>
+                                <div>
+                                  <p className="font-medium">
+                                    {member.profiles?.full_name || 'Unknown User'}
+                                  </p>
+                                  <p className="text-sm text-muted-foreground capitalize">
+                                    {member.role}
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                {editingModerator === member.id ? (
+                                  <>
+                                    <select
+                                      value={editModeratorRole}
+                                      onChange={(e) => setEditModeratorRole(e.target.value as 'admin' | 'staff')}
+                                      className="h-8 px-2 rounded-md border border-input bg-background text-sm"
+                                    >
+                                      <option value="staff">Staff</option>
+                                      <option value="admin">Admin</option>
+                                    </select>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => handleUpdateModeratorRole(member.id, editModeratorRole)}
+                                    >
+                                      <Check className="h-4 w-4 text-green-500" />
+                                    </Button>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => setEditingModerator(null)}
+                                    >
+                                      Cancel
+                                    </Button>
+                                  </>
+                                ) : (
+                                  <>
+                                    {member.role !== 'owner' && (
+                                      <>
+                                        <Button
+                                          variant="ghost"
+                                          size="icon"
+                                          onClick={() => {
+                                            setEditingModerator(member.id);
+                                            setEditModeratorRole(member.role);
+                                          }}
+                                        >
+                                          <Pencil className="h-4 w-4" />
+                                        </Button>
+                                        <Button
+                                          variant="ghost"
+                                          size="icon"
+                                          onClick={() => handleDeleteModerator(member.id)}
+                                        >
+                                          <Trash2 className="h-4 w-4 text-destructive" />
+                                        </Button>
+                                      </>
+                                    )}
+                                    {member.role === 'owner' && (
+                                      <span className="text-xs text-muted-foreground px-2 py-1 bg-muted rounded">
+                                        Owner
+                                      </span>
+                                    )}
+                                  </>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
                 </TabsContent>
@@ -1078,7 +1320,7 @@ const ProviderAdmin = () => {
                   </Card>
                 </TabsContent>
 
-                <TabsContent value="admin" className="space-y-6">
+                <TabsContent value="families" className="space-y-6">
                   {/* Create Family Group */}
                   <Card>
                     <CardHeader>
