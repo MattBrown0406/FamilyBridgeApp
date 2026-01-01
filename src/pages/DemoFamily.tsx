@@ -360,8 +360,19 @@ const DemoFamily = () => {
                             className="flex gap-3 animate-fade-in"
                             style={{ animationDelay: `${index * 50}ms` }}
                           >
-                            <Avatar className={`h-9 w-9 ring-2 ring-offset-2 ${isRecovering ? 'ring-primary' : 'ring-muted'}`}>
-                              <AvatarFallback className={`text-xs font-medium ${isRecovering ? 'bg-gradient-to-br from-primary to-primary/80 text-primary-foreground' : 'bg-muted'}`}>
+                            <Avatar 
+                              className={`h-9 w-9 ring-2 ring-offset-2 ${isRecovering ? '' : 'ring-muted'}`}
+                              style={isRecovering && branding ? { '--tw-ring-color': branding.primaryColor } as React.CSSProperties : isRecovering ? { '--tw-ring-color': 'hsl(var(--primary))' } as React.CSSProperties : undefined}
+                            >
+                              <AvatarFallback 
+                                className={`text-xs font-medium ${isRecovering ? 'text-white' : 'bg-muted'}`}
+                                style={isRecovering && branding 
+                                  ? { background: `linear-gradient(135deg, ${branding.primaryColor}, ${branding.primaryColor}cc)` }
+                                  : isRecovering 
+                                    ? { background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary) / 0.8))' }
+                                    : undefined
+                                }
+                              >
                                 {msg.sender.split(' ').map(n => n[0]).join('')}
                               </AvatarFallback>
                             </Avatar>
