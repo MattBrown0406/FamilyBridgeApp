@@ -75,7 +75,7 @@ const Index = () => {
                 <Button variant="ghost" size="sm" onClick={() => navigate('/auth')}>
                   Sign In
                 </Button>
-                <Button variant="hero" size="sm" onClick={() => navigate('/auth?mode=signup')}>
+                <Button variant="hero" size="sm" onClick={() => navigate('/family-purchase')}>
                   Get Started
                 </Button>
               </>
@@ -95,7 +95,7 @@ const Index = () => {
             {tagline}
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Button variant="hero" size="lg" onClick={() => navigate('/auth?mode=signup')}>
+            <Button variant="hero" size="lg" onClick={() => navigate('/family-purchase')}>
               Start Your Journey
             </Button>
             <Button variant="outline" size="lg" onClick={() => navigate('/auth')}>
