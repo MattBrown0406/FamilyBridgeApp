@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Heart, Check, CreditCard, Shield, Users, Tag, Loader2, Copy, MessageCircle, UserPlus } from "lucide-react";
+import { Heart, Check, CreditCard, Shield, Users, Tag, Loader2, Copy, MessageCircle, UserPlus, DollarSign } from "lucide-react";
 
 const FamilyPurchase = () => {
   const { user } = useAuth();
@@ -140,6 +140,7 @@ const FamilyPurchase = () => {
     { icon: Heart, text: "Create your family support group" },
     { icon: Users, text: "Invite unlimited family members" },
     { icon: MessageCircle, text: "Secure, filtered, moderated communication", subtitle: "No profanity or abusive language is permitted in the discussion area" },
+    { icon: DollarSign, text: "Financial tracking & accountability", subtitle: "Request funds transparently with family voting and payment confirmation" },
     { icon: Shield, text: "Privacy and content protection" },
   ];
 
