@@ -47,3 +47,6 @@ verify_jwt = false
 
 [functions.create-moderator]
 verify_jwt = false
+
+[functions.request-temp-moderator]
+verify_jwt = false

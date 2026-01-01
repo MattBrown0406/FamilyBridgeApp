@@ -52,6 +52,7 @@ import { LocationCheckinResponse } from '@/components/LocationCheckinResponse';
 import { LocationCapture, LocationData } from '@/components/LocationCapture';
 import { PrivateMessaging } from '@/components/PrivateMessaging';
 import { ConversationStarters } from '@/components/ConversationStarters';
+import { TemporaryModeratorRequest } from '@/components/TemporaryModeratorRequest';
 
 const REQUEST_REASONS = [
   'Electric',
@@ -123,6 +124,7 @@ interface Family {
   id: string;
   name: string;
   description: string | null;
+  organization_id: string | null;
 }
 
 interface FamilyGoal {
@@ -458,7 +460,7 @@ const FamilyChat = () => {
       // Note: invite_code is not fetched here - only moderators can access it via get_family_invite_code()
       const { data: familyData, error: familyError } = await supabase
         .from('families')
-        .select('id, name, description')
+        .select('id, name, description, organization_id')
         .eq('id', familyId)
         .maybeSingle();
 
@@ -1544,7 +1546,13 @@ const FamilyChat = () => {
                 </p>
               </div>
             </button>
-            <div className="ml-auto flex items-center gap-3">
+            <div className="ml-auto flex items-center gap-2 sm:gap-3">
+              {familyId && (
+                <TemporaryModeratorRequest 
+                  familyId={familyId} 
+                  hasOrganization={!!family?.organization_id} 
+                />
+              )}
               <Button
                 variant="ghost"
                 size="icon"
