@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Heart, Check, CreditCard, Shield, Users, Tag, Loader2, Copy, MessageCircle } from "lucide-react";
+import { Heart, Check, CreditCard, Shield, Users, Tag, Loader2, Copy, MessageCircle, UserPlus } from "lucide-react";
 
 const FamilyPurchase = () => {
   const { user } = useAuth();
@@ -17,8 +17,10 @@ const FamilyPurchase = () => {
 
   const [email, setEmail] = useState(user?.email || "");
   const [couponCode, setCouponCode] = useState("");
+  const [familyInviteCode, setFamilyInviteCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
+  const [isValidatingInvite, setIsValidatingInvite] = useState(false);
   const [generatedCode, setGeneratedCode] = useState<string | null>(null);
 
   const handlePurchase = async () => {
@@ -84,6 +86,53 @@ const FamilyPurchase = () => {
       toast.error("Failed to apply coupon. Please try again.");
     } finally {
       setIsApplyingCoupon(false);
+    }
+  };
+
+  const handleValidateInviteCode = async () => {
+    if (!familyInviteCode.trim()) {
+      toast.error("Please enter an invite code");
+      return;
+    }
+
+    setIsValidatingInvite(true);
+    try {
+      // Check if the invite code exists in family_invite_codes table
+      const { data: inviteData, error: inviteError } = await supabase
+        .from("family_invite_codes")
+        .select("family_id")
+        .eq("invite_code", familyInviteCode.trim().toLowerCase())
+        .maybeSingle();
+
+      if (inviteError) throw inviteError;
+
+      // Also check families table for legacy invite codes
+      let familyId = inviteData?.family_id;
+      
+      if (!familyId) {
+        const { data: familyData, error: familyError } = await supabase
+          .from("families")
+          .select("id")
+          .eq("invite_code", familyInviteCode.trim().toLowerCase())
+          .maybeSingle();
+
+        if (familyError) throw familyError;
+        familyId = familyData?.id;
+      }
+
+      if (!familyId) {
+        toast.error("Invalid invite code. Please check and try again.");
+        return;
+      }
+
+      // Valid invite code - redirect to auth with the invite code
+      toast.success("Valid invite code! Create your account to join the family.");
+      navigate(`/auth?mode=signup&familyInvite=${encodeURIComponent(familyInviteCode.trim())}`);
+    } catch (error) {
+      console.error("Invite code validation error:", error);
+      toast.error("Failed to validate invite code. Please try again.");
+    } finally {
+      setIsValidatingInvite(false);
     }
   };
 
@@ -274,6 +323,36 @@ const FamilyPurchase = () => {
                     </div>
                   </div>
 
+                  {/* Family Invite Code Section */}
+                  <div className="space-y-2 pt-2 border-t">
+                    <Label htmlFor="familyInvite">Do you have an invite code?</Label>
+                    <p className="text-xs text-muted-foreground">
+                      If someone invited you to their family group, enter the code here
+                    </p>
+                    <div className="flex gap-2">
+                      <Input
+                        id="familyInvite"
+                        placeholder="Enter family invite code"
+                        value={familyInviteCode}
+                        onChange={(e) => setFamilyInviteCode(e.target.value)}
+                        className="flex-1"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleValidateInviteCode}
+                        disabled={isValidatingInvite || !familyInviteCode.trim()}
+                      >
+                        {isValidatingInvite ? (
+                          <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                        ) : (
+                          <UserPlus className="h-4 w-4 mr-2" />
+                        )}
+                        Join
+                      </Button>
+                    </div>
+                  </div>
+
                   <Button
                     onClick={handlePurchase}
                     disabled={isLoading || !email}
@@ -294,7 +373,7 @@ const FamilyPurchase = () => {
           {/* Already have a code */}
           <div className="mt-8 text-center">
             <p className="text-muted-foreground">
-              Already have an invite code?{" "}
+              Already purchased and have an invite code from email?{" "}
               <Button variant="link" onClick={() => navigate("/family-setup")} className="p-0">
                 Go to Family Setup
               </Button>
