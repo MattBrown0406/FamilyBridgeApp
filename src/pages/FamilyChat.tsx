@@ -1640,7 +1640,14 @@ const FamilyChat = () => {
                         style={{ animationDelay: `${Math.min(index * 0.05, 0.5)}s` }}
                       >
                         <Avatar className="h-9 w-9 shrink-0 shadow-md ring-2 ring-background">
-                          <AvatarFallback className="text-xs bg-gradient-to-br from-primary/80 to-accent/80 text-white font-medium">
+                          <AvatarFallback 
+                            className="text-xs text-white font-medium"
+                            style={
+                              organization?.primary_color
+                                ? { background: `linear-gradient(135deg, ${organization.primary_color}, ${organization.primary_color}cc)` }
+                                : { background: 'linear-gradient(135deg, hsl(var(--primary) / 0.8), hsl(var(--accent) / 0.8))' }
+                            }
+                          >
                             {getInitials(msg.sender_name || '')}
                           </AvatarFallback>
                         </Avatar>
