@@ -929,18 +929,6 @@ const ProviderAdmin = () => {
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label>Secondary Color</Label>
-                          <Input
-                            value={editForm.secondary_color}
-                            onChange={(e) => setEditForm({ ...editForm, secondary_color: e.target.value })}
-                            placeholder="35 30% 92%"
-                          />
-                          <div 
-                            className="h-8 rounded border" 
-                            style={{ backgroundColor: `hsl(${editForm.secondary_color})` }}
-                          />
-                        </div>
-                        <div className="space-y-2">
                           <Label>Accent Color</Label>
                           <Input
                             value={editForm.accent_color}
@@ -962,18 +950,6 @@ const ProviderAdmin = () => {
                           <div 
                             className="h-8 rounded border" 
                             style={{ backgroundColor: `hsl(${editForm.background_color})` }}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label>Foreground</Label>
-                          <Input
-                            value={editForm.foreground_color}
-                            onChange={(e) => setEditForm({ ...editForm, foreground_color: e.target.value })}
-                            placeholder="220 20% 20%"
-                          />
-                          <div 
-                            className="h-8 rounded border" 
-                            style={{ backgroundColor: `hsl(${editForm.foreground_color})` }}
                           />
                         </div>
                       </div>
