@@ -377,13 +377,29 @@ const DemoFamily = () => {
                                 )}
                                 <span className="text-xs text-muted-foreground">{msg.time}</span>
                               </div>
-                              <div className={`mt-1.5 rounded-2xl rounded-tl-sm px-4 py-2.5 inline-block max-w-[90%] ${
-                                isSystemMessage 
-                                  ? 'bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20' 
-                                  : isRecovering 
-                                    ? 'bg-gradient-to-r from-primary to-primary/90 text-primary-foreground shadow-md'
-                                    : 'bg-muted/70'
-                              }`}>
+                              <div 
+                                className={`mt-1.5 rounded-2xl rounded-tl-sm px-4 py-2.5 inline-block max-w-[90%] ${
+                                  isSystemMessage 
+                                    ? 'border shadow-sm' 
+                                    : isRecovering 
+                                      ? 'text-white shadow-md'
+                                      : 'bg-muted/70'
+                                }`}
+                                style={
+                                  isSystemMessage && branding
+                                    ? { 
+                                        backgroundColor: `${branding.primaryColor}10`,
+                                        borderColor: `${branding.primaryColor}30`
+                                      }
+                                    : isRecovering && branding
+                                      ? { background: `linear-gradient(135deg, ${branding.primaryColor}, ${branding.primaryColor}dd)` }
+                                      : isSystemMessage
+                                        ? { backgroundColor: 'hsl(var(--primary) / 0.1)', borderColor: 'hsl(var(--primary) / 0.2)' }
+                                        : isRecovering
+                                          ? { background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary) / 0.9))' }
+                                          : undefined
+                                }
+                              >
                                 <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
                               </div>
                             </div>
