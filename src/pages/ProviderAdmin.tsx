@@ -92,10 +92,12 @@ const ProviderAdmin = () => {
   const [isCreatingFamily, setIsCreatingFamily] = useState(false);
   const [newFamilyName, setNewFamilyName] = useState('');
   const [newFamilyDescription, setNewFamilyDescription] = useState('');
+  const [selectedModeratorForFamily, setSelectedModeratorForFamily] = useState<string>('');
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   
   // Moderator management state
   const [orgModerators, setOrgModerators] = useState<any[]>([]);
+  const [moderatorFamilyCounts, setModeratorFamilyCounts] = useState<Record<string, number>>({});
   const [isLoadingModerators, setIsLoadingModerators] = useState(false);
   const [isAddingModerator, setIsAddingModerator] = useState(false);
   const [newModeratorEmail, setNewModeratorEmail] = useState('');
@@ -199,6 +201,17 @@ const ProviderAdmin = () => {
       return;
     }
 
+    // Determine which moderator to assign
+    let moderatorUserId = selectedModeratorForFamily;
+    if (!moderatorUserId && orgModerators.length === 1) {
+      moderatorUserId = orgModerators[0].user_id;
+    }
+
+    if (!moderatorUserId) {
+      toast({ title: 'Error', description: 'Please select a moderator for this family group', variant: 'destructive' });
+      return;
+    }
+
     setIsCreatingFamily(true);
     try {
       // Create the family with the organization_id
@@ -208,12 +221,25 @@ const ProviderAdmin = () => {
           name: newFamilyName.trim(),
           description: newFamilyDescription.trim() || null,
           organization_id: selectedOrg,
-          created_by: user?.id
+          created_by: moderatorUserId
         })
         .select('*')
         .single();
 
       if (familyError) throw familyError;
+
+      // Add the moderator as a family member with 'moderator' role
+      const { error: memberError } = await supabase
+        .from('family_members')
+        .insert({
+          family_id: family.id,
+          user_id: moderatorUserId,
+          role: 'moderator'
+        });
+
+      if (memberError) {
+        console.error('Error adding moderator to family:', memberError);
+      }
 
       // Create invite code for the family
       const { error: inviteError } = await supabase
@@ -227,7 +253,8 @@ const ProviderAdmin = () => {
       toast({ title: 'Success', description: 'Family group created!' });
       setNewFamilyName('');
       setNewFamilyDescription('');
-      await fetchOrgFamilies(selectedOrg);
+      setSelectedModeratorForFamily('');
+      await Promise.all([fetchOrgFamilies(selectedOrg), fetchOrgModerators(selectedOrg)]);
     } catch (err: any) {
       console.error('Error creating family:', err);
       toast({ title: 'Error', description: err.message || 'Failed to create family', variant: 'destructive' });
@@ -260,6 +287,36 @@ const ProviderAdmin = () => {
 
       if (error) throw error;
       setOrgModerators(data || []);
+
+      // Fetch family counts for each moderator
+      // Get families for this org, then count family_members with role='moderator' for each user
+      const { data: families } = await supabase
+        .from('families')
+        .select('id')
+        .eq('organization_id', orgId);
+
+      if (families && families.length > 0) {
+        const familyIds = families.map(f => f.id);
+        const { data: familyMembers } = await supabase
+          .from('family_members')
+          .select('user_id, family_id')
+          .in('family_id', familyIds)
+          .eq('role', 'moderator');
+
+        // Count families per user
+        const counts: Record<string, number> = {};
+        (familyMembers || []).forEach(fm => {
+          counts[fm.user_id] = (counts[fm.user_id] || 0) + 1;
+        });
+        setModeratorFamilyCounts(counts);
+      } else {
+        setModeratorFamilyCounts({});
+      }
+
+      // Auto-select if only one moderator
+      if (data && data.length === 1) {
+        setSelectedModeratorForFamily(data[0].user_id);
+      }
     } catch (err) {
       console.error('Error fetching moderators:', err);
       toast({ title: 'Error', description: 'Failed to load moderators', variant: 'destructive' });
@@ -1233,8 +1290,10 @@ const ProviderAdmin = () => {
                                   <p className="font-medium">
                                     {member.profiles?.full_name || 'Unknown User'}
                                   </p>
-                                  <p className="text-sm text-muted-foreground capitalize">
-                                    {member.role}
+                                  <p className="text-sm text-muted-foreground">
+                                    <span className="capitalize">{member.role}</span>
+                                    <span className="mx-1">•</span>
+                                    <span>{moderatorFamilyCounts[member.user_id] || 0} families</span>
                                   </p>
                                 </div>
                               </div>
@@ -1353,6 +1412,29 @@ const ProviderAdmin = () => {
                           />
                         </div>
                       </div>
+                      {orgModerators.length > 1 && (
+                        <div className="space-y-2">
+                          <Label htmlFor="family-moderator">Assign Moderator *</Label>
+                          <select
+                            id="family-moderator"
+                            value={selectedModeratorForFamily}
+                            onChange={(e) => setSelectedModeratorForFamily(e.target.value)}
+                            className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
+                          >
+                            <option value="">Select a moderator...</option>
+                            {orgModerators.map((mod) => (
+                              <option key={mod.id} value={mod.user_id}>
+                                {mod.profiles?.full_name || 'Unknown'} ({mod.role}) - {moderatorFamilyCounts[mod.user_id] || 0} families
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      )}
+                      {orgModerators.length === 1 && (
+                        <p className="text-sm text-muted-foreground">
+                          Moderator: <span className="font-medium">{orgModerators[0]?.profiles?.full_name || 'Unknown'}</span> (auto-assigned)
+                        </p>
+                      )}
                       <Button 
                         onClick={handleCreateFamily} 
                         disabled={isCreatingFamily || !newFamilyName.trim()}
