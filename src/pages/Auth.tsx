@@ -20,6 +20,7 @@ const authSchema = z.object({
 const Auth = () => {
   const [searchParams] = useSearchParams();
   const initialMode = searchParams.get('mode') === 'signup' ? 'signup' : 'signin';
+  const familyInviteCode = searchParams.get('familyInvite');
   
   const [mode, setMode] = useState<'signin' | 'signup'>(initialMode);
   const [email, setEmail] = useState('');
@@ -27,6 +28,7 @@ const Auth = () => {
   const [fullName, setFullName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isJoiningFamily, setIsJoiningFamily] = useState(false);
 
   const { signIn, signUp, user, loading } = useAuth();
   const { 
@@ -39,8 +41,51 @@ const Auth = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // Join family after signup if invite code was provided
+  const joinFamilyWithInviteCode = async (userId: string, inviteCode: string) => {
+    setIsJoiningFamily(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('join-family', {
+        body: {
+          inviteCode: inviteCode.trim(),
+          relationshipType: 'other', // Default, can be updated later
+        },
+      });
+
+      if (error) throw error;
+
+      if (data?.family) {
+        toast({
+          title: 'Welcome to the family!',
+          description: `You've joined ${data.family.name}. Redirecting to your family group...`,
+        });
+        // Navigate to the family chat
+        navigate('/family-chat');
+        return true;
+      } else {
+        throw new Error(data?.error || 'Failed to join family');
+      }
+    } catch (error) {
+      console.error('Error joining family:', error);
+      toast({
+        title: 'Could not join family',
+        description: 'The invite code may be invalid. You can try again from the dashboard.',
+        variant: 'destructive',
+      });
+      return false;
+    } finally {
+      setIsJoiningFamily(false);
+    }
+  };
+
   // Check if user is an organization member (moderator) and redirect accordingly
   const checkUserRoleAndRedirect = async (userId: string) => {
+    // If we have a family invite code, try to join the family first
+    if (familyInviteCode) {
+      const joined = await joinFamilyWithInviteCode(userId, familyInviteCode);
+      if (joined) return; // Already navigated to family chat
+    }
+
     try {
       // Check if user is an organization member
       const { data: orgMemberships } = await supabase
@@ -201,8 +246,13 @@ const Auth = () => {
             <span className="text-2xl font-display font-bold text-foreground">FamilyBridge</span>
           </div>
           <p className="text-muted-foreground">
-            {mode === 'signin' ? 'Welcome back' : 'Start your recovery journey'}
+            {mode === 'signin' ? 'Welcome back' : familyInviteCode ? 'Create your account to join the family' : 'Start your recovery journey'}
           </p>
+          {familyInviteCode && mode === 'signup' && (
+            <p className="text-sm text-primary mt-2">
+              You're joining with invite code: <span className="font-mono font-semibold">{familyInviteCode}</span>
+            </p>
+          )}
         </div>
 
         <Card className="shadow-elevated border-0">
@@ -290,14 +340,19 @@ const Auth = () => {
                 )}
               </div>
 
-              <Button type="submit" className="w-full" size="lg" disabled={isLoading}>
+              <Button type="submit" className="w-full" size="lg" disabled={isLoading || isJoiningFamily}>
                 {isLoading ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
                     {mode === 'signin' ? 'Signing in...' : 'Creating account...'}
                   </>
+                ) : isJoiningFamily ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Joining family...
+                  </>
                 ) : (
-                  mode === 'signin' ? 'Sign In' : 'Create Account'
+                  mode === 'signin' ? 'Sign In' : familyInviteCode ? 'Create Account & Join Family' : 'Create Account'
                 )}
               </Button>
             </form>
