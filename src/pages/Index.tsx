@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { useOrganization } from '@/hooks/useOrganization';
+import { useProviderAdmin } from '@/hooks/useProviderAdmin';
 import { BrandedHeader } from '@/components/BrandedHeader';
 import { BrandedFooter } from '@/components/BrandedFooter';
 import { Heart, Shield, Users, DollarSign, MessageCircle, Eye, MapPin, ArrowRight, HelpCircle } from 'lucide-react';
@@ -9,7 +10,16 @@ import { Heart, Shield, Users, DollarSign, MessageCircle, Eye, MapPin, ArrowRigh
 const Index = () => {
   const { user, loading } = useAuth();
   const { organization, isWhiteLabeled } = useOrganization();
+  const { isProvider } = useProviderAdmin();
   const navigate = useNavigate();
+
+  const handleDashboardClick = () => {
+    if (isProvider) {
+      navigate('/provider-admin');
+    } else {
+      navigate('/dashboard');
+    }
+  };
 
   const features = [
     {
@@ -57,7 +67,7 @@ const Index = () => {
           <BrandedHeader />
           <div className="flex items-center gap-3">
             {user ? (
-              <Button variant="hero" size="sm" onClick={() => navigate('/dashboard')}>
+              <Button variant="hero" size="sm" onClick={handleDashboardClick}>
                 Go to Dashboard
               </Button>
             ) : (
