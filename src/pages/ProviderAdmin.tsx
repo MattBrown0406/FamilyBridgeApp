@@ -917,18 +917,6 @@ const ProviderAdmin = () => {
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label>Primary Foreground</Label>
-                          <Input
-                            value={editForm.primary_foreground_color}
-                            onChange={(e) => setEditForm({ ...editForm, primary_foreground_color: e.target.value })}
-                            placeholder="0 0% 100%"
-                          />
-                          <div 
-                            className="h-8 rounded border" 
-                            style={{ backgroundColor: `hsl(${editForm.primary_foreground_color})` }}
-                          />
-                        </div>
-                        <div className="space-y-2">
                           <Label>Accent Color</Label>
                           <Input
                             value={editForm.accent_color}
