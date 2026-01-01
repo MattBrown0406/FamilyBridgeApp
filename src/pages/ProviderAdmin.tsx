@@ -100,6 +100,7 @@ const ProviderAdmin = () => {
   const [moderatorFamilyCounts, setModeratorFamilyCounts] = useState<Record<string, number>>({});
   const [isLoadingModerators, setIsLoadingModerators] = useState(false);
   const [isAddingModerator, setIsAddingModerator] = useState(false);
+  const [newModeratorName, setNewModeratorName] = useState('');
   const [newModeratorEmail, setNewModeratorEmail] = useState('');
   const [newModeratorRole, setNewModeratorRole] = useState<'admin' | 'staff'>('staff');
   const [editingModerator, setEditingModerator] = useState<string | null>(null);
@@ -1217,6 +1218,16 @@ const ProviderAdmin = () => {
                     <CardContent className="space-y-4">
                       <div className="grid gap-4 sm:grid-cols-2">
                         <div className="space-y-2">
+                          <Label htmlFor="moderator-name">Full Name *</Label>
+                          <Input
+                            id="moderator-name"
+                            type="text"
+                            placeholder="John Doe"
+                            value={newModeratorName}
+                            onChange={(e) => setNewModeratorName(e.target.value)}
+                          />
+                        </div>
+                        <div className="space-y-2">
                           <Label htmlFor="moderator-email">Email Address *</Label>
                           <Input
                             id="moderator-email"
@@ -1226,22 +1237,22 @@ const ProviderAdmin = () => {
                             onChange={(e) => setNewModeratorEmail(e.target.value)}
                           />
                         </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="moderator-role">Role</Label>
-                          <select
-                            id="moderator-role"
-                            value={newModeratorRole}
-                            onChange={(e) => setNewModeratorRole(e.target.value as 'admin' | 'staff')}
-                            className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
-                          >
-                            <option value="staff">Staff</option>
-                            <option value="admin">Admin</option>
-                          </select>
-                        </div>
+                      </div>
+                      <div className="space-y-2 max-w-xs">
+                        <Label htmlFor="moderator-role">Role</Label>
+                        <select
+                          id="moderator-role"
+                          value={newModeratorRole}
+                          onChange={(e) => setNewModeratorRole(e.target.value as 'admin' | 'staff')}
+                          className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
+                        >
+                          <option value="staff">Staff</option>
+                          <option value="admin">Admin</option>
+                        </select>
                       </div>
                       <Button 
                         onClick={handleAddModerator} 
-                        disabled={isAddingModerator || !newModeratorEmail.trim()}
+                        disabled={isAddingModerator || !newModeratorEmail.trim() || !newModeratorName.trim()}
                       >
                         {isAddingModerator ? (
                           <>
