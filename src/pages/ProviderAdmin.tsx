@@ -92,6 +92,8 @@ const ProviderAdmin = () => {
   const [isCreatingFamily, setIsCreatingFamily] = useState(false);
   const [newFamilyName, setNewFamilyName] = useState('');
   const [newFamilyDescription, setNewFamilyDescription] = useState('');
+  const [leadMemberName, setLeadMemberName] = useState('');
+  const [leadMemberEmail, setLeadMemberEmail] = useState('');
   const [selectedModeratorForFamily, setSelectedModeratorForFamily] = useState<string>('');
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   
@@ -203,6 +205,17 @@ const ProviderAdmin = () => {
       return;
     }
 
+    if (!leadMemberName.trim() || !leadMemberEmail.trim()) {
+      toast({ title: 'Error', description: 'Lead family member name and email are required', variant: 'destructive' });
+      return;
+    }
+
+    // Basic email validation
+    if (!leadMemberEmail.includes('@')) {
+      toast({ title: 'Error', description: 'Please enter a valid email address', variant: 'destructive' });
+      return;
+    }
+
     // Determine which moderator to assign
     let moderatorUserId = selectedModeratorForFamily;
     if (!moderatorUserId && orgModerators.length === 1) {
@@ -244,17 +257,41 @@ const ProviderAdmin = () => {
       }
 
       // Create invite code for the family
-      const { error: inviteError } = await supabase
+      const { data: inviteCodeData, error: inviteError } = await supabase
         .from('family_invite_codes')
-        .insert({ family_id: family.id });
+        .insert({ family_id: family.id })
+        .select('invite_code')
+        .single();
 
       if (inviteError) {
         console.error('Error creating invite code:', inviteError);
       }
 
-      toast({ title: 'Success', description: 'Family group created!' });
+      // Send email to lead family member with the invite code
+      if (inviteCodeData?.invite_code) {
+        try {
+          await supabase.functions.invoke('send-family-invite', {
+            body: {
+              recipientEmail: leadMemberEmail.trim(),
+              recipientName: leadMemberName.trim(),
+              familyName: newFamilyName.trim(),
+              inviteCode: inviteCodeData.invite_code,
+              organizationName: currentOrg?.name || 'FamilyBridge'
+            }
+          });
+          toast({ title: 'Success', description: 'Family group created and invite email sent!' });
+        } catch (emailErr) {
+          console.error('Error sending invite email:', emailErr);
+          toast({ title: 'Success', description: 'Family group created! (Email could not be sent - please share the invite code manually)' });
+        }
+      } else {
+        toast({ title: 'Success', description: 'Family group created!' });
+      }
+
       setNewFamilyName('');
       setNewFamilyDescription('');
+      setLeadMemberName('');
+      setLeadMemberEmail('');
       setSelectedModeratorForFamily('');
       await Promise.all([fetchOrgFamilies(selectedOrg), fetchOrgModerators(selectedOrg)]);
     } catch (err: any) {
@@ -1456,6 +1493,36 @@ const ProviderAdmin = () => {
                           />
                         </div>
                       </div>
+                      
+                      {/* Lead Family Member */}
+                      <div className="border-t pt-4 mt-4">
+                        <p className="text-sm font-medium mb-3">Lead Family Member</p>
+                        <div className="grid gap-4 sm:grid-cols-2">
+                          <div className="space-y-2">
+                            <Label htmlFor="lead-member-name">Name *</Label>
+                            <Input
+                              id="lead-member-name"
+                              placeholder="Lead family member's name"
+                              value={leadMemberName}
+                              onChange={(e) => setLeadMemberName(e.target.value)}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="lead-member-email">Email *</Label>
+                            <Input
+                              id="lead-member-email"
+                              type="email"
+                              placeholder="lead@example.com"
+                              value={leadMemberEmail}
+                              onChange={(e) => setLeadMemberEmail(e.target.value)}
+                            />
+                            <p className="text-xs text-muted-foreground">
+                              An invite code will be sent to this email
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
                       {orgModerators.length > 1 && (
                         <div className="space-y-2">
                           <Label htmlFor="family-moderator">Assign Moderator *</Label>
@@ -1481,7 +1548,7 @@ const ProviderAdmin = () => {
                       )}
                       <Button 
                         onClick={handleCreateFamily} 
-                        disabled={isCreatingFamily || !newFamilyName.trim()}
+                        disabled={isCreatingFamily || !newFamilyName.trim() || !leadMemberName.trim() || !leadMemberEmail.trim()}
                       >
                         {isCreatingFamily ? (
                           <>
