@@ -5,7 +5,7 @@ import { useOrganization } from '@/hooks/useOrganization';
 import { useProviderAdmin } from '@/hooks/useProviderAdmin';
 import { BrandedHeader } from '@/components/BrandedHeader';
 import { BrandedFooter } from '@/components/BrandedFooter';
-import { Heart, Shield, Users, DollarSign, MessageCircle, Eye, MapPin, ArrowRight, HelpCircle } from 'lucide-react';
+import { Heart, Shield, Users, DollarSign, MessageCircle, Eye, MapPin, ArrowRight, HelpCircle, Building2, Check } from 'lucide-react';
 
 const Index = () => {
   const { user, loading } = useAuth();
@@ -184,6 +184,47 @@ const Index = () => {
             Take Exercise
             <ArrowRight className="h-4 w-4 ml-1" />
           </Button>
+        </div>
+      </section>
+
+      {/* Provider Subscription Section */}
+      <section className="container mx-auto px-4 py-10">
+        <div className="max-w-3xl mx-auto bg-card border border-border rounded-2xl p-6 md:p-8 shadow-card">
+          <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
+            <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <Building2 className="h-7 w-7 text-primary" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-xl font-display font-bold text-foreground mb-2">
+                Are You a Recovery Provider?
+              </h3>
+              <p className="text-muted-foreground mb-4">
+                Help families in your care with professional tools for communication and accountability.
+              </p>
+              <ul className="grid sm:grid-cols-2 gap-2 mb-4">
+                <li className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Check className="h-4 w-4 text-primary flex-shrink-0" />
+                  <span>Create and manage your organization</span>
+                </li>
+                <li className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Check className="h-4 w-4 text-primary flex-shrink-0" />
+                  <span>Onboard unlimited families</span>
+                </li>
+                <li className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Check className="h-4 w-4 text-primary flex-shrink-0" />
+                  <span>Custom branding for your organization</span>
+                </li>
+                <li className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Check className="h-4 w-4 text-primary flex-shrink-0" />
+                  <span>Access to all provider tools</span>
+                </li>
+              </ul>
+              <Button variant="outline" onClick={() => navigate('/provider-purchase')}>
+                Learn More
+                <ArrowRight className="h-4 w-4 ml-1" />
+              </Button>
+            </div>
+          </div>
         </div>
       </section>
 
