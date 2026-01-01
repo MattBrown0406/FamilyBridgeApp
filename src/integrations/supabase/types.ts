@@ -833,6 +833,47 @@ export type Database = {
         }
         Relationships: []
       }
+      temporary_moderator_requests: {
+        Row: {
+          assigned_moderator_id: string
+          completed_at: string | null
+          created_at: string
+          expires_at: string
+          family_id: string
+          id: string
+          requested_by: string
+          status: string
+        }
+        Insert: {
+          assigned_moderator_id: string
+          completed_at?: string | null
+          created_at?: string
+          expires_at: string
+          family_id: string
+          id?: string
+          requested_by: string
+          status?: string
+        }
+        Update: {
+          assigned_moderator_id?: string
+          completed_at?: string | null
+          created_at?: string
+          expires_at?: string
+          family_id?: string
+          id?: string
+          requested_by?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "temporary_moderator_requests_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
