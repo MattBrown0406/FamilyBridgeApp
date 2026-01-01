@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useBiometricAuth } from '@/hooks/useBiometricAuth';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -38,11 +39,33 @@ const Auth = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  useEffect(() => {
-    if (!loading && user) {
+  // Check if user is an organization member (moderator) and redirect accordingly
+  const checkUserRoleAndRedirect = async (userId: string) => {
+    try {
+      // Check if user is an organization member
+      const { data: orgMemberships } = await supabase
+        .from('organization_members')
+        .select('id, role')
+        .eq('user_id', userId);
+
+      if (orgMemberships && orgMemberships.length > 0) {
+        // User is an organization member - redirect to moderator dashboard
+        navigate('/moderator-dashboard');
+      } else {
+        // Regular user - redirect to normal dashboard
+        navigate('/dashboard');
+      }
+    } catch (error) {
+      console.error('Error checking user role:', error);
       navigate('/dashboard');
     }
-  }, [user, loading, navigate]);
+  };
+
+  useEffect(() => {
+    if (!loading && user) {
+      checkUserRoleAndRedirect(user.id);
+    }
+  }, [user, loading]);
 
   // Auto-trigger biometric login if available and has stored credentials
   useEffect(() => {

@@ -44,3 +44,6 @@ verify_jwt = false
 
 [functions.check-overdue-checkouts]
 verify_jwt = false
+
+[functions.create-moderator]
+verify_jwt = false

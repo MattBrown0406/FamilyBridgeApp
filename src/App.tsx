@@ -8,6 +8,7 @@ import { OrganizationProvider } from "@/hooks/useOrganization";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
+import ModeratorDashboard from "./pages/ModeratorDashboard";
 import FamilyChat from "./pages/FamilyChat";
 import Meetings from "./pages/Meetings";
 import EnablingExercise from "./pages/EnablingExercise";
@@ -34,6 +35,7 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/moderator-dashboard" element={<ModeratorDashboard />} />
               <Route path="/family/:familyId" element={<FamilyChat />} />
               <Route path="/meetings" element={<Meetings />} />
               <Route path="/enabling-exercise" element={<EnablingExercise />} />

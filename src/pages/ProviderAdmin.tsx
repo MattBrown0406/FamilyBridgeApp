@@ -102,6 +102,7 @@ const ProviderAdmin = () => {
   const [isAddingModerator, setIsAddingModerator] = useState(false);
   const [newModeratorName, setNewModeratorName] = useState('');
   const [newModeratorEmail, setNewModeratorEmail] = useState('');
+  const [newModeratorPassword, setNewModeratorPassword] = useState('');
   const [newModeratorRole, setNewModeratorRole] = useState<'admin' | 'staff'>('staff');
   const [editingModerator, setEditingModerator] = useState<string | null>(null);
   const [editModeratorRole, setEditModeratorRole] = useState<'admin' | 'staff'>('staff');
@@ -328,27 +329,44 @@ const ProviderAdmin = () => {
 
   // Add a new moderator
   const handleAddModerator = async () => {
-    if (!newModeratorEmail.trim() || !selectedOrg) {
-      toast({ title: 'Error', description: 'Email is required', variant: 'destructive' });
+    if (!newModeratorEmail.trim() || !newModeratorName.trim() || !newModeratorPassword.trim() || !selectedOrg) {
+      toast({ title: 'Error', description: 'Name, email, and password are required', variant: 'destructive' });
+      return;
+    }
+
+    if (newModeratorPassword.length < 6) {
+      toast({ title: 'Error', description: 'Password must be at least 6 characters', variant: 'destructive' });
       return;
     }
 
     setIsAddingModerator(true);
     try {
-      // First, find the user by email
-      const { data: userData, error: userError } = await supabase
-        .from('profiles')
-        .select('id')
-        .ilike('full_name', `%${newModeratorEmail}%`)
-        .limit(1);
-
-      // For now, we'll show an error since we can't look up users by email directly
-      // In production, you'd want an edge function for this
-      toast({ 
-        title: 'Info', 
-        description: 'Please ask the user to sign up first, then add them by their user ID. Email lookup coming soon.',
-        variant: 'default'
+      const { data, error } = await supabase.functions.invoke('create-moderator', {
+        body: {
+          organizationId: selectedOrg,
+          email: newModeratorEmail.trim(),
+          password: newModeratorPassword,
+          fullName: newModeratorName.trim(),
+          role: newModeratorRole,
+        },
       });
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      toast({ 
+        title: 'Success', 
+        description: data?.message || 'Moderator account created successfully! They can now log in with their email and password.',
+      });
+
+      // Clear form
+      setNewModeratorName('');
+      setNewModeratorEmail('');
+      setNewModeratorPassword('');
+      setNewModeratorRole('staff');
+      
+      // Refresh moderators list
+      await fetchOrgModerators(selectedOrg);
     } catch (err: any) {
       console.error('Error adding moderator:', err);
       toast({ title: 'Error', description: err.message || 'Failed to add moderator', variant: 'destructive' });
@@ -1238,21 +1256,36 @@ const ProviderAdmin = () => {
                           />
                         </div>
                       </div>
-                      <div className="space-y-2 max-w-xs">
-                        <Label htmlFor="moderator-role">Role</Label>
-                        <select
-                          id="moderator-role"
-                          value={newModeratorRole}
-                          onChange={(e) => setNewModeratorRole(e.target.value as 'admin' | 'staff')}
-                          className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
-                        >
-                          <option value="staff">Staff</option>
-                          <option value="admin">Admin</option>
-                        </select>
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        <div className="space-y-2">
+                          <Label htmlFor="moderator-password">Password *</Label>
+                          <Input
+                            id="moderator-password"
+                            type="password"
+                            placeholder="Min. 6 characters"
+                            value={newModeratorPassword}
+                            onChange={(e) => setNewModeratorPassword(e.target.value)}
+                          />
+                          <p className="text-xs text-muted-foreground">
+                            An account will be created with this password
+                          </p>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="moderator-role">Role</Label>
+                          <select
+                            id="moderator-role"
+                            value={newModeratorRole}
+                            onChange={(e) => setNewModeratorRole(e.target.value as 'admin' | 'staff')}
+                            className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
+                          >
+                            <option value="staff">Staff</option>
+                            <option value="admin">Admin</option>
+                          </select>
+                        </div>
                       </div>
                       <Button 
                         onClick={handleAddModerator} 
-                        disabled={isAddingModerator || !newModeratorEmail.trim() || !newModeratorName.trim()}
+                        disabled={isAddingModerator || !newModeratorEmail.trim() || !newModeratorName.trim() || newModeratorPassword.length < 6}
                       >
                         {isAddingModerator ? (
                           <>
