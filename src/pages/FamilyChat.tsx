@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { useOrganization } from '@/hooks/useOrganization';
 import { supabase } from '@/integrations/supabase/client';
 import { filterContent } from '@/lib/contentFilter';
 import { Button } from '@/components/ui/button';
@@ -159,6 +160,7 @@ const GOAL_OPTIONS = [
 const FamilyChat = () => {
   const { familyId } = useParams();
   const { user, loading } = useAuth();
+  const { organization } = useOrganization();
   const navigate = useNavigate();
   const { toast } = useToast();
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -1657,9 +1659,16 @@ const FamilyChat = () => {
                           <div
                             className={`rounded-2xl px-4 py-2.5 shadow-sm ${
                               msg.sender_id === user?.id
-                                ? 'bg-gradient-to-br from-primary to-primary/90 text-primary-foreground rounded-tr-sm'
+                                ? 'text-white rounded-tr-sm'
                                 : 'bg-card border border-border/50 text-card-foreground rounded-tl-sm'
                             }`}
+                            style={
+                              msg.sender_id === user?.id
+                                ? organization?.primary_color
+                                  ? { background: `linear-gradient(135deg, ${organization.primary_color}, ${organization.primary_color}dd)` }
+                                  : { background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary) / 0.9))' }
+                                : undefined
+                            }
                           >
                             <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
                           </div>
