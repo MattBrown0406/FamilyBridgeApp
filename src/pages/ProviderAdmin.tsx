@@ -318,17 +318,39 @@ const ProviderAdmin = () => {
   const fetchOrgModerators = async (orgId: string) => {
     setIsLoadingModerators(true);
     try {
-      const { data, error } = await supabase
+      // First fetch organization members
+      const { data: members, error: membersError } = await supabase
         .from('organization_members')
-        .select('*, profiles(full_name, avatar_url)')
+        .select('*')
         .eq('organization_id', orgId)
         .order('joined_at', { ascending: false });
 
-      if (error) throw error;
-      setOrgModerators(data || []);
+      if (membersError) throw membersError;
+
+      // Then fetch profiles for those members
+      if (members && members.length > 0) {
+        const userIds = members.map(m => m.user_id);
+        const { data: profiles, error: profilesError } = await supabase
+          .from('profiles')
+          .select('id, full_name, avatar_url')
+          .in('id', userIds);
+
+        if (profilesError) {
+          console.error('Error fetching profiles:', profilesError);
+        }
+
+        // Combine members with their profiles
+        const membersWithProfiles = members.map(member => ({
+          ...member,
+          profiles: profiles?.find(p => p.id === member.user_id) || null
+        }));
+
+        setOrgModerators(membersWithProfiles);
+      } else {
+        setOrgModerators([]);
+      }
 
       // Fetch family counts for each moderator
-      // Get families for this org, then count family_members with role='moderator' for each user
       const { data: families } = await supabase
         .from('families')
         .select('id')
@@ -353,8 +375,8 @@ const ProviderAdmin = () => {
       }
 
       // Auto-select if only one moderator
-      if (data && data.length === 1) {
-        setSelectedModeratorForFamily(data[0].user_id);
+      if (members && members.length === 1) {
+        setSelectedModeratorForFamily(members[0].user_id);
       }
     } catch (err) {
       console.error('Error fetching moderators:', err);
