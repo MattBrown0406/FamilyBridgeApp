@@ -248,10 +248,18 @@ const DemoFamily = () => {
                 </div>
               )}
               <div className="flex flex-col">
-                <span className="font-semibold text-foreground">The Johnson Family</span>
+                <div className="flex items-center gap-2">
+                  <span className="font-semibold text-foreground">The Johnson Family</span>
+                  <div className="relative">
+                    <Heart className="h-6 w-6 text-primary fill-primary" />
+                    <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-primary-foreground">
+                      {DEMO_MEMBERS.length}
+                    </span>
+                  </div>
+                </div>
                 <div className="flex items-center gap-1.5">
                   <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-                  <span className="text-xs text-muted-foreground">6 members active</span>
+                  <span className="text-xs text-muted-foreground">{DEMO_MEMBERS.length} members active</span>
                 </div>
               </div>
               {branding && (
@@ -303,7 +311,7 @@ const DemoFamily = () => {
       <div className="container mx-auto px-4 py-6">
         <div className="max-w-5xl mx-auto">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-6 mb-6 bg-muted/50 backdrop-blur-sm p-1.5 rounded-xl border border-border/50 shadow-sm">
+            <TabsList className="grid w-full grid-cols-5 mb-6 bg-muted/50 backdrop-blur-sm p-1.5 rounded-xl border border-border/50 shadow-sm">
               <TabsTrigger 
                 value="chat" 
                 className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg transition-all duration-300"
@@ -338,13 +346,6 @@ const DemoFamily = () => {
               >
                 <Shield className="h-4 w-4 mr-2" />
                 Boundaries
-              </TabsTrigger>
-              <TabsTrigger 
-                value="members"
-                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-amber-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-300"
-              >
-                <Users className="h-4 w-4 mr-2" />
-                Members
               </TabsTrigger>
             </TabsList>
 
@@ -927,96 +928,6 @@ const DemoFamily = () => {
               </div>
             </TabsContent>
 
-            {/* Members Tab */}
-            <TabsContent value="members" className="animate-fade-in">
-              <Card className="border-0 shadow-lg overflow-hidden">
-                <div className="h-1 bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500" />
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center shadow-md">
-                      <Users className="h-5 w-5 text-white" />
-                    </div>
-                    Family Members
-                    <Badge variant="secondary" className="ml-auto bg-orange-100 text-orange-700 border-orange-200">
-                      {DEMO_MEMBERS.length} Members
-                    </Badge>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {DEMO_MEMBERS.map((member, index) => (
-                    <div 
-                      key={member.id}
-                      className={`flex items-center justify-between p-4 rounded-xl border border-border/50 transition-all duration-300 animate-fade-in ${
-                        member.paymentInfo 
-                          ? 'cursor-pointer hover:shadow-md hover:border-primary/30 hover:bg-gradient-to-r hover:from-primary/5 hover:to-transparent hover-lift' 
-                          : 'bg-muted/30'
-                      }`}
-                      style={{ animationDelay: `${index * 50}ms` }}
-                      onClick={() => member.paymentInfo && setSelectedMember(member)}
-                    >
-                      <div className="flex items-center gap-4">
-                        <Avatar className={`h-12 w-12 ring-2 ring-offset-2 ${
-                          member.role === 'recovering' ? 'ring-primary' : 
-                          member.role === 'moderator' ? 'ring-orange-500' : 
-                          'ring-muted'
-                        }`}>
-                          <AvatarFallback className={`text-sm font-medium ${
-                            member.role === 'recovering' ? 'bg-gradient-to-br from-primary to-primary/80 text-primary-foreground' :
-                            member.role === 'moderator' ? 'bg-gradient-to-br from-orange-500 to-amber-500 text-white' :
-                            'bg-muted'
-                          }`}>
-                            {member.initials}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex items-center gap-2">
-                          <p className="font-semibold text-foreground">{member.name}</p>
-                          {/* Direct Message button - only show for non-recovering members */}
-                          {member.role !== 'recovering' && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-7 w-7 p-0 rounded-full bg-blue-100 hover:bg-blue-200 text-blue-600"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                toast.success(`Opening DM with ${member.name}`, {
-                                  description: "Direct messaging feature - Demo only"
-                                });
-                              }}
-                            >
-                              <Mail className="h-3.5 w-3.5" />
-                            </Button>
-                          )}
-                        </div>
-                        <p className="text-sm text-muted-foreground">{member.relationship}</p>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        {member.paymentInfo && (
-                          <span className="text-xs text-primary font-medium flex items-center gap-1 bg-primary/10 px-2 py-1 rounded-full">
-                            View Profile
-                            <ArrowLeft className="h-3 w-3 rotate-180" />
-                          </span>
-                        )}
-                        <Badge 
-                          variant={
-                            member.role === 'moderator' ? 'default' : 
-                            member.role === 'recovering' ? 'secondary' : 
-                            'outline'
-                          }
-                          className={
-                            member.role === 'moderator' ? 'bg-gradient-to-r from-orange-500 to-amber-500 border-0' :
-                            member.role === 'recovering' ? 'bg-primary/10 text-primary border-primary/20' :
-                            ''
-                          }
-                          style={member.role === 'moderator' && branding ? { background: `linear-gradient(135deg, ${branding.primaryColor}, ${branding.primaryColor}cc)` } : undefined}
-                        >
-                          {member.role}
-                        </Badge>
-                      </div>
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
-            </TabsContent>
           </Tabs>
         </div>
       </div>
