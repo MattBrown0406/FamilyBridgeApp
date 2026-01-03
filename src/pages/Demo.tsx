@@ -446,6 +446,9 @@ const Demo = () => {
                     <Heart className="h-4 w-4" />
                     Early Adopter Lifetime Price: Just $19.99/month forever!
                   </p>
+                  <p className="text-xs text-green-700 dark:text-green-300 mt-1 ml-6">
+                    For individual families not using a provider invite code
+                  </p>
                 </div>
               </CardHeader>
               <CardContent className="space-y-6">
