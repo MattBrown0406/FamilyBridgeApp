@@ -3230,6 +3230,10 @@ const FamilyChat = () => {
                           <Check className="h-4 w-4 text-primary shrink-0 mt-0.5" />
                           <span>Any relapse must be disclosed to the family within 24 hours.</span>
                         </li>
+                        <li className="flex items-start gap-2">
+                          <Check className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                          <span>Support system members must be involved in their own recovery process and document their involvement in recovery meetings, support groups, therapy appointments or other activities that support family recovery.</span>
+                        </li>
                       </ul>
                     </div>
                   </div>
