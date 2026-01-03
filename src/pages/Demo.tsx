@@ -178,7 +178,7 @@ const Demo = () => {
     {
       icon: MessageCircle,
       title: 'Moderated Chat',
-      description: 'Safe, filtered communication for families',
+      description: 'Safe, filtered communication for families. No profane or abusive messages will be permitted into the chat.',
     },
     {
       icon: DollarSign,
