@@ -760,7 +760,7 @@ const DemoFamily = () => {
                       <h3 className="font-medium text-foreground">Guiding Values</h3>
                       <div className="p-4 rounded-lg bg-pink-50/50 border border-pink-100">
                         <p className="text-sm text-muted-foreground mb-3">
-                          Your family's guiding values are the foundation for every goal you set and every boundary you create.
+                          Select the values that matter most to your family. These guide your decisions, shape your boundaries, and keep everyone aligned on what truly matters.
                         </p>
                         <div className="flex flex-wrap gap-2">
                           {DEMO_VALUES.map((value, index) => (
@@ -781,7 +781,7 @@ const DemoFamily = () => {
                     <div className="space-y-3">
                       <h3 className="font-medium text-foreground">Common Goals</h3>
                       <p className="text-sm text-muted-foreground">
-                        Goals your family is working toward together. Mark them complete as you achieve them.
+                        Choose goals that reflect your family's priorities. These shared objectives help guide decisions about financial support, boundaries, and what recovery success looks like for your family.
                       </p>
                       <div className="grid gap-2">
                         {DEMO_COMMON_GOALS.map((goal, index) => (
