@@ -2974,7 +2974,7 @@ const FamilyChat = () => {
                 <div className="space-y-6">
                   <p className="text-sm text-muted-foreground">
                     Clear boundaries help protect both the recovering person and family members. 
-                    Propose boundaries that will be reviewed by a moderator.
+                    Propose boundaries that will be reviewed by a moderator or family admin.
                   </p>
 
                   {/* New Boundary Form */}
@@ -3088,7 +3088,7 @@ const FamilyChat = () => {
                                 </p>
                                 <p className="text-sm">{boundary.content}</p>
                                 <p className="text-xs text-muted-foreground mt-2">
-                                  Awaiting moderator approval...
+                                  Awaiting approval from a moderator or family admin...
                                 </p>
                               </div>
                               <Badge variant="outline" className="shrink-0">Pending</Badge>
