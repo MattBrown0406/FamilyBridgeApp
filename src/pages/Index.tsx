@@ -5,7 +5,7 @@ import { useOrganization } from '@/hooks/useOrganization';
 import { useProviderAdmin } from '@/hooks/useProviderAdmin';
 import { BrandedHeader } from '@/components/BrandedHeader';
 import { BrandedFooter } from '@/components/BrandedFooter';
-import { Heart, Shield, Users, DollarSign, MessageCircle, Eye, MapPin, ArrowRight, HelpCircle, Building2, Check } from 'lucide-react';
+import { Heart, Shield, Users, DollarSign, MessageCircle, Eye, MapPin, ArrowRight, HelpCircle, Building2, Check, Play } from 'lucide-react';
 
 const Index = () => {
   const { user, loading } = useAuth();
@@ -182,6 +182,30 @@ const Index = () => {
           </div>
           <Button variant="outline" size="sm">
             Take Exercise
+            <ArrowRight className="h-4 w-4 ml-1" />
+          </Button>
+        </div>
+
+        {/* Demo Family Link */}
+        <div 
+          className="max-w-3xl mx-auto bg-secondary/30 rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4 cursor-pointer hover:bg-secondary/50 transition-colors"
+          onClick={() => navigate('/demo/family')}
+        >
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+              <Play className="h-6 w-6 text-primary" />
+            </div>
+            <div>
+              <h3 className="text-lg font-display font-semibold text-foreground">
+                Try the Demo
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                Explore a sample family group to see how FamilyBridge works
+              </p>
+            </div>
+          </div>
+          <Button variant="outline" size="sm">
+            View Demo
             <ArrowRight className="h-4 w-4 ml-1" />
           </Button>
         </div>
