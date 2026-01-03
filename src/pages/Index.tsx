@@ -189,7 +189,7 @@ const Index = () => {
         {/* Demo Family Link */}
         <div 
           className="max-w-3xl mx-auto bg-secondary/30 rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4 cursor-pointer hover:bg-secondary/50 transition-colors"
-          onClick={() => navigate('/demo/family')}
+          onClick={() => navigate('/demo')}
         >
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
