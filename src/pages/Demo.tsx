@@ -572,7 +572,7 @@ const Demo = () => {
                   <Button 
                     variant="outline" 
                     size="lg"
-                    className="border-primary-foreground/50 text-primary-foreground hover:bg-primary-foreground/10"
+                    className="border-white bg-white/20 text-white font-semibold hover:bg-white hover:text-primary"
                     onClick={() => navigate('/demo/family')}
                   >
                     Continue Demo
