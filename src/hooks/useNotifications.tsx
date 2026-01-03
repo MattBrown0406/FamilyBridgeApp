@@ -1,12 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { useWebPushNotifications } from './useWebPushNotifications';
 
 export interface Notification {
   id: string;
   user_id: string;
   family_id: string | null;
-  type: 'message' | 'financial_request' | 'vote' | 'member_joined';
+  type: 'message' | 'financial_request' | 'vote' | 'member_joined' | string;
   title: string;
   body: string;
   is_read: boolean;
@@ -19,6 +20,18 @@ export const useNotifications = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const { showAlertNotification, isEnabled: pushEnabled } = useWebPushNotifications();
+  const isDocumentVisible = useRef(true);
+
+  // Track document visibility to only show push notifications when tab is not focused
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      isDocumentVisible.current = document.visibilityState === 'visible';
+    };
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, []);
 
   const fetchNotifications = async () => {
     if (!user) return;
@@ -132,6 +145,18 @@ export const useNotifications = () => {
           
           setNotifications(prev => [newNotification, ...prev]);
           setUnreadCount(prev => prev + 1);
+
+          // Show browser push notification if tab is not focused (desktop only)
+          if (pushEnabled && !isDocumentVisible.current) {
+            const url = newNotification.family_id 
+              ? `/family/${newNotification.family_id}` 
+              : '/dashboard';
+            showAlertNotification(
+              newNotification.title,
+              newNotification.body,
+              url
+            );
+          }
         }
       )
       .subscribe();
@@ -139,7 +164,7 @@ export const useNotifications = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user]);
+  }, [user, pushEnabled, showAlertNotification]);
 
   return {
     notifications,

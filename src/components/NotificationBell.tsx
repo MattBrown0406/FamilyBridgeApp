@@ -1,5 +1,6 @@
-import { Bell, Check, CheckCheck, MessageSquare, DollarSign, Users, Trash2, X } from 'lucide-react';
+import { Bell, Check, CheckCheck, MessageSquare, DollarSign, Users, Trash2, X, BellRing } from 'lucide-react';
 import { useNotifications, Notification } from '@/hooks/useNotifications';
+import { useWebPushNotifications } from '@/hooks/useWebPushNotifications';
 import { Button } from '@/components/ui/button';
 import {
   Popover,
@@ -10,6 +11,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { formatDistanceToNow } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import { toast } from 'sonner';
 
 const getNotificationIcon = (type: Notification['type']) => {
   switch (type) {
@@ -38,6 +40,17 @@ export const NotificationBell = () => {
     deleteNotification,
     clearAll
   } = useNotifications();
+
+  const { isSupported, permission, requestPermission } = useWebPushNotifications();
+
+  const handleEnableNotifications = async () => {
+    const granted = await requestPermission();
+    if (granted) {
+      toast.success('Desktop notifications enabled! You\'ll be notified of new messages when the tab is not focused.');
+    } else {
+      toast.error('Notification permission was denied. You can enable it in your browser settings.');
+    }
+  };
 
   const handleNotificationClick = async (notification: Notification) => {
     if (!notification.is_read) {
@@ -89,6 +102,22 @@ export const NotificationBell = () => {
             )}
           </div>
         </div>
+
+        {/* Desktop notification enable prompt */}
+        {isSupported && permission === 'default' && (
+          <div className="p-3 bg-primary/5 border-b">
+            <div className="flex items-center gap-2">
+              <BellRing className="h-4 w-4 text-primary" />
+              <div className="flex-1">
+                <p className="text-sm font-medium">Enable desktop notifications?</p>
+                <p className="text-xs text-muted-foreground">Get notified when you're away</p>
+              </div>
+              <Button size="sm" onClick={handleEnableNotifications} className="h-7 text-xs">
+                Enable
+              </Button>
+            </div>
+          </div>
+        )}
         
         <ScrollArea className="h-[300px]">
           {loading ? (
