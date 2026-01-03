@@ -3071,118 +3071,104 @@ const FamilyChat = () => {
                         </div>
                       ) : null
                     )}
-                  </div>
 
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-medium text-foreground">Shared Goals</h3>
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                      Track your family's collective recovery milestones.
-                    </p>
+                    {/* Recovery Milestones (formerly Shared Goals) - shown below common goals */}
+                    {(familyGoals.length > 0 || currentUserRole === 'moderator') && (
+                      <div className="pt-3 border-t border-border space-y-2">
+                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Recovery Milestones</p>
+                        
+                        {/* Moderator goal selection */}
+                        {currentUserRole === 'moderator' && (
+                          <div className="flex gap-2">
+                            <Select value={selectedGoal} onValueChange={setSelectedGoal}>
+                              <SelectTrigger className="flex-1 h-8 text-sm">
+                                <SelectValue placeholder="Add milestone..." />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {GOAL_OPTIONS.filter(
+                                  option => !familyGoals.some(g => g.goal_type === option.value)
+                                ).map(option => (
+                                  <SelectItem key={option.value} value={option.value}>
+                                    {option.label.replace('{name}', getRecoveringMemberName())}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <Button
+                              onClick={handleAddGoal}
+                              disabled={!selectedGoal || isAddingGoal}
+                              size="icon"
+                              className="h-8 w-8"
+                            >
+                              {isAddingGoal ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <Plus className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </div>
+                        )}
 
-                    {/* Moderator goal selection */}
-                    {currentUserRole === 'moderator' && (
-                      <div className="flex gap-2">
-                        <Select value={selectedGoal} onValueChange={setSelectedGoal}>
-                          <SelectTrigger className="flex-1">
-                            <SelectValue placeholder="Select a goal to add..." />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {GOAL_OPTIONS.filter(
-                              option => !familyGoals.some(g => g.goal_type === option.value)
-                            ).map(option => (
-                              <SelectItem key={option.value} value={option.value}>
-                                {option.label.replace('{name}', getRecoveringMemberName())}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <Button
-                          onClick={handleAddGoal}
-                          disabled={!selectedGoal || isAddingGoal}
-                          size="icon"
-                        >
-                          {isAddingGoal ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                          ) : (
-                            <Plus className="h-4 w-4" />
-                          )}
-                        </Button>
-                      </div>
-                    )}
-
-                    {/* Goals list */}
-                    <div className="grid gap-3">
-                      {familyGoals.length === 0 ? (
-                        <div className="p-4 rounded-lg bg-secondary/30 border border-border text-center">
-                          <p className="text-sm text-muted-foreground">
-                            No goals set yet. {currentUserRole === 'moderator' && 'Select a goal above to get started.'}
-                          </p>
-                        </div>
-                      ) : (
-                        familyGoals.map((goal) => (
-                          <div
-                            key={goal.id}
-                            className={`p-4 rounded-lg border ${
-                              goal.completed_at
-                                ? 'bg-primary/10 border-primary/30'
-                                : 'bg-primary/5 border-primary/20'
-                            }`}
-                          >
-                            <div className="flex items-center justify-between gap-2">
-                              <div className="flex items-center gap-3 flex-1">
+                        {/* Milestones list */}
+                        <div className="grid gap-2">
+                          {familyGoals.map((goal) => (
+                            <div
+                              key={goal.id}
+                              className={`px-3 py-2 rounded-lg border flex items-center justify-between gap-2 ${
+                                goal.completed_at
+                                  ? 'bg-primary/10 border-primary/30'
+                                  : 'bg-secondary/50 border-border'
+                              }`}
+                            >
+                              <div className="flex items-center gap-2 flex-1 min-w-0">
                                 {currentUserRole === 'moderator' ? (
                                   <button
                                     onClick={() => handleToggleGoalComplete(goal.id, !!goal.completed_at)}
-                                    className={`shrink-0 h-5 w-5 rounded-full border-2 flex items-center justify-center transition-colors ${
+                                    className={`shrink-0 h-4 w-4 rounded-full border-2 flex items-center justify-center transition-colors ${
                                       goal.completed_at
                                         ? 'bg-primary border-primary text-primary-foreground'
                                         : 'border-muted-foreground hover:border-primary'
                                     }`}
                                   >
-                                    {goal.completed_at && <Check className="h-3 w-3" />}
+                                    {goal.completed_at && <Check className="h-2.5 w-2.5" />}
                                   </button>
                                 ) : (
                                   <div
-                                    className={`shrink-0 h-5 w-5 rounded-full border-2 flex items-center justify-center ${
+                                    className={`shrink-0 h-4 w-4 rounded-full border-2 flex items-center justify-center ${
                                       goal.completed_at
                                         ? 'bg-primary border-primary text-primary-foreground'
                                         : 'border-muted-foreground'
                                     }`}
                                   >
-                                    {goal.completed_at && <Check className="h-3 w-3" />}
+                                    {goal.completed_at && <Check className="h-2.5 w-2.5" />}
                                   </div>
                                 )}
-                                <span className={`font-medium ${goal.completed_at ? 'line-through text-muted-foreground' : ''}`}>
+                                <span className={`text-sm font-medium truncate ${goal.completed_at ? 'line-through text-muted-foreground' : ''}`}>
                                   {getGoalLabel(goal.goal_type)}
                                 </span>
                               </div>
-                              <div className="flex items-center gap-2">
-                                {goal.completed_at ? (
-                                  <Badge variant="default" className="bg-primary/80">
-                                    <CheckCircle className="h-3 w-3 mr-1" />
+                              <div className="flex items-center gap-1 shrink-0">
+                                {goal.completed_at && (
+                                  <Badge variant="default" className="bg-primary/80 text-xs">
                                     Complete
                                   </Badge>
-                                ) : (
-                                  <Badge variant="outline">In Progress</Badge>
                                 )}
                                 {currentUserRole === 'moderator' && (
                                   <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                                    className="h-6 w-6 text-muted-foreground hover:text-destructive"
                                     onClick={() => handleDeleteGoal(goal.id)}
                                   >
-                                    <Trash2 className="h-4 w-4" />
+                                    <Trash2 className="h-3 w-3" />
                                   </Button>
                                 )}
                               </div>
                             </div>
-                          </div>
-                        ))
-                      )}
-                    </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </CardContent>
