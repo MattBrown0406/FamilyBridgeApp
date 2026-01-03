@@ -192,6 +192,7 @@ const DemoFamily = () => {
   const [newMessage, setNewMessage] = useState('');
   const [messages, setMessages] = useState(DEMO_MESSAGES);
   const [selectedMember, setSelectedMember] = useState<typeof DEMO_MEMBERS[0] | null>(null);
+  const [showMembersList, setShowMembersList] = useState(false);
 
   const handleSendMessage = () => {
     if (!newMessage.trim()) return;
@@ -223,40 +224,23 @@ const DemoFamily = () => {
             </Button>
             <div className="h-6 w-px bg-border/50" />
             <div className="flex items-center gap-3">
-              {branding?.logo ? (
-                <div 
-                  className="h-10 w-10 rounded-xl p-1.5 shadow-md ring-2 ring-white/20"
-                  style={{ 
-                    backgroundColor: branding.logoNeedsBackground ? branding.primaryColor : 'white'
-                  }}
-                >
-                  <img 
-                    src={branding.logo} 
-                    alt={branding.name} 
-                    className="h-full w-full object-contain"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).style.display = 'none';
-                    }}
-                  />
-                </div>
-              ) : (
-                <div 
-                  className="h-10 w-10 rounded-xl flex items-center justify-center bg-gradient-to-br from-primary to-primary/80 shadow-lg animate-pulse-soft"
-                  style={branding ? { background: `linear-gradient(135deg, ${branding.primaryColor}, ${branding.primaryColor}cc)` } : undefined}
-                >
-                  <Heart className="h-5 w-5 text-primary-foreground" />
-                </div>
-              )}
+              <button 
+                onClick={() => setShowMembersList(true)}
+                className="h-10 w-10 rounded-xl flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 relative"
+                style={{ 
+                  background: branding 
+                    ? `linear-gradient(135deg, ${branding.primaryColor}, ${branding.primaryColor}cc)` 
+                    : 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary) / 0.8))'
+                }}
+                title="View family members"
+              >
+                <Heart className="h-5 w-5 text-white" />
+                <span className="absolute -bottom-1 -right-1 h-5 w-5 rounded-full bg-white shadow-md flex items-center justify-center text-[10px] font-bold text-primary border border-primary/20">
+                  {DEMO_MEMBERS.length}
+                </span>
+              </button>
               <div className="flex flex-col">
-                <div className="flex items-center gap-2">
-                  <span className="font-semibold text-foreground">The Johnson Family</span>
-                  <div className="relative">
-                    <Heart className="h-6 w-6 text-primary fill-primary" />
-                    <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-primary-foreground">
-                      {DEMO_MEMBERS.length}
-                    </span>
-                  </div>
-                </div>
+                <span className="font-semibold text-foreground">The Johnson Family</span>
                 <div className="flex items-center gap-1.5">
                   <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
                   <span className="text-xs text-muted-foreground">{DEMO_MEMBERS.length} members active</span>
@@ -1030,6 +1014,75 @@ const DemoFamily = () => {
               )}
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Members List Dialog */}
+      <Dialog open={showMembersList} onOpenChange={setShowMembersList}>
+        <DialogContent className="sm:max-w-md border-0 shadow-2xl max-h-[80vh] overflow-auto">
+          <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary via-primary/80 to-primary/60 rounded-t-lg" />
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Heart className="h-5 w-5 text-primary fill-primary" />
+              Family Members
+              <Badge variant="secondary" className="ml-auto bg-primary/10 text-primary">
+                {DEMO_MEMBERS.length} Members
+              </Badge>
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 mt-4">
+            {DEMO_MEMBERS.map((member, index) => (
+              <div 
+                key={member.id}
+                className={`flex items-center justify-between p-3 rounded-xl border border-border/50 transition-all duration-300 animate-fade-in ${
+                  member.paymentInfo 
+                    ? 'cursor-pointer hover:shadow-md hover:border-primary/30 hover:bg-primary/5' 
+                    : 'bg-muted/30'
+                }`}
+                style={{ animationDelay: `${index * 50}ms` }}
+                onClick={() => {
+                  if (member.paymentInfo) {
+                    setShowMembersList(false);
+                    setSelectedMember(member);
+                  }
+                }}
+              >
+                <div className="flex items-center gap-3">
+                  <Avatar className={`h-10 w-10 ring-2 ring-offset-1 ${
+                    member.role === 'recovering' ? 'ring-primary' : 
+                    member.role === 'moderator' ? 'ring-orange-500' : 
+                    'ring-muted'
+                  }`}>
+                    <AvatarFallback className={`text-xs font-medium ${
+                      member.role === 'recovering' ? 'bg-gradient-to-br from-primary to-primary/80 text-primary-foreground' :
+                      member.role === 'moderator' ? 'bg-gradient-to-br from-orange-500 to-amber-500 text-white' :
+                      'bg-muted'
+                    }`}>
+                      {member.initials}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="font-medium text-sm text-foreground">{member.name}</p>
+                    <p className="text-xs text-muted-foreground">{member.relationship}</p>
+                  </div>
+                </div>
+                <Badge 
+                  variant={
+                    member.role === 'moderator' ? 'default' : 
+                    member.role === 'recovering' ? 'secondary' : 
+                    'outline'
+                  }
+                  className={`text-xs ${
+                    member.role === 'moderator' ? 'bg-gradient-to-r from-orange-500 to-amber-500 border-0' :
+                    member.role === 'recovering' ? 'bg-primary/10 text-primary border-primary/20' :
+                    ''
+                  }`}
+                >
+                  {member.role}
+                </Badge>
+              </div>
+            ))}
+          </div>
         </DialogContent>
       </Dialog>
     </div>
