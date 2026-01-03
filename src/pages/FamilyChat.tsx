@@ -3244,8 +3244,7 @@ const FamilyChat = () => {
                       Consequences
                     </h3>
                     <p className="text-sm text-muted-foreground">
-                      Violations of these boundaries may result in reduced financial support, 
-                      more frequent check-ins, or other consequences as agreed by the family.
+                      Violation of the boundaries listed on this page could result in the reduction or elimination of financial support, access to transportation or phone service or other consequences agreed upon by the family group. Consequences apply to family group members who continue to enable the addiction or ignore their own recovery process.
                     </p>
                   </div>
                 </div>
