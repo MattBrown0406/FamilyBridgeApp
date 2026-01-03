@@ -182,8 +182,8 @@ const Demo = () => {
     },
     {
       icon: DollarSign,
-      title: 'Financial Transparency',
-      description: 'Group-approved financial requests',
+      title: 'Financial Transparency and Accountability',
+      description: 'Group-approved financial requests and accountability for the proper use of funds',
     },
     {
       icon: MapPin,
