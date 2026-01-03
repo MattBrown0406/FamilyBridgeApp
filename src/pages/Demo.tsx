@@ -173,7 +173,7 @@ const Demo = () => {
     {
       icon: Users,
       title: 'Unlimited Families',
-      description: 'Create and manage family groups for your clients',
+      description: 'Create and manage family groups for your clients. Assign moderator profiles from your team.',
     },
     {
       icon: MessageCircle,
