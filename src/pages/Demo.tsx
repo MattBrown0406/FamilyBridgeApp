@@ -247,17 +247,17 @@ const Demo = () => {
 
       {/* Demo Sections */}
       <Tabs defaultValue="branding" className="container mx-auto px-4 pb-12">
-        <TabsList className="grid w-full max-w-lg mx-auto grid-cols-3 mb-8">
-          <TabsTrigger value="branding">
-            <Palette className="h-4 w-4 mr-2" />
+        <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-3 mb-8 h-14 p-1.5 bg-primary/10 border border-primary/20 rounded-xl shadow-md">
+          <TabsTrigger value="branding" className="h-full text-base font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg rounded-lg transition-all">
+            <Palette className="h-5 w-5 mr-2" />
             Branding
           </TabsTrigger>
-          <TabsTrigger value="family">
-            <Users className="h-4 w-4 mr-2" />
+          <TabsTrigger value="family" className="h-full text-base font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg rounded-lg transition-all">
+            <Users className="h-5 w-5 mr-2" />
             Family Demo
           </TabsTrigger>
-          <TabsTrigger value="features">
-            <Eye className="h-4 w-4 mr-2" />
+          <TabsTrigger value="features" className="h-full text-base font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg rounded-lg transition-all">
+            <Eye className="h-5 w-5 mr-2" />
             Features
           </TabsTrigger>
         </TabsList>
