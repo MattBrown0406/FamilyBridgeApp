@@ -301,6 +301,8 @@ const FamilyChat = () => {
   const [isSending, setIsSending] = useState(false);
   const [isRequesting, setIsRequesting] = useState(false);
   const [currentUserRole, setCurrentUserRole] = useState<string>('member');
+  const [isAdminOrModerator, setIsAdminOrModerator] = useState(false);
+  const [isFamilyCreator, setIsFamilyCreator] = useState(false);
   const [checkinRefreshKey, setCheckinRefreshKey] = useState(0);
   const [capturedLocation, setCapturedLocation] = useState<LocationData | null>(null);
   
@@ -329,6 +331,7 @@ const FamilyChat = () => {
   const [editPaypal, setEditPaypal] = useState('');
   const [editVenmo, setEditVenmo] = useState('');
   const [editCashapp, setEditCashapp] = useState('');
+  const [editRole, setEditRole] = useState<string>('');
   const [isSavingMember, setIsSavingMember] = useState(false);
   
   // Content warning cooldown state
@@ -489,6 +492,7 @@ const FamilyChat = () => {
     setEditPaypal(member.paypal_username || '');
     setEditVenmo(member.venmo_username || '');
     setEditCashapp(member.cashapp_username || '');
+    setEditRole(member.role);
   };
 
   const handleSaveMemberProfile = async () => {
@@ -541,6 +545,16 @@ const FamilyChat = () => {
         if (paymentError) throw paymentError;
       }
 
+      // Update role if changed and user is the family creator
+      if (editRole !== editingMember.role && isFamilyCreator) {
+        // Only family creator can assign/change admin role
+        const { error: roleError } = await supabase
+          .from('family_members')
+          .update({ role: editRole as 'member' | 'recovering' | 'moderator' | 'admin' })
+          .eq('id', editingMember.id);
+        if (roleError) throw roleError;
+      }
+
       toast({
         title: 'Profile updated',
         description: `${editFullName.trim()}'s profile has been updated.`,
@@ -556,6 +570,7 @@ const FamilyChat = () => {
                 paypal_username: editPaypal.trim() || null,
                 venmo_username: editVenmo.trim() || null,
                 cashapp_username: editCashapp.trim() || null,
+                role: isFamilyCreator ? editRole : m.role,
               }
             : m
         )
@@ -651,7 +666,7 @@ const FamilyChat = () => {
       // Note: invite_code is not fetched here - only moderators can access it via get_family_invite_code()
       const { data: familyData, error: familyError } = await supabase
         .from('families')
-        .select('id, name, description, organization_id')
+        .select('id, name, description, organization_id, created_by')
         .eq('id', familyId)
         .maybeSingle();
 
@@ -726,10 +741,16 @@ const FamilyChat = () => {
 
       setMembers(formattedMembers);
 
-      // Set current user role
+      // Set current user role and admin status
       const currentMember = formattedMembers.find((m) => m.user_id === user?.id);
       if (currentMember) {
         setCurrentUserRole(currentMember.role);
+        setIsAdminOrModerator(currentMember.role === 'admin' || currentMember.role === 'moderator');
+      }
+      
+      // Check if user is the family creator
+      if (familyData.created_by === user?.id) {
+        setIsFamilyCreator(true);
       }
 
       // Fetch messages
@@ -1864,10 +1885,10 @@ const FamilyChat = () => {
                   </span>
                 )}
               </Button>
-              {currentUserRole === 'moderator' && (
+              {isAdminOrModerator && (
                 <Badge className="bg-gradient-to-r from-primary to-accent text-white border-0 shadow-md">
                   <Shield className="h-3 w-3 mr-1" />
-                  Moderator
+                  {currentUserRole === 'moderator' ? 'Moderator' : 'Admin'}
                 </Badge>
               )}
               <NotificationBell />
@@ -2641,7 +2662,7 @@ const FamilyChat = () => {
                             )}
 
                             {/* Mark as Completed button for moderators on confirmed requests */}
-                            {isApproved && isConfirmed && !isCompleted && currentUserRole === 'moderator' && (
+                            {isApproved && isConfirmed && !isCompleted && isAdminOrModerator && (
                               <div className="border-t border-border pt-3 mt-3">
                                 <Button
                                   size="sm"
@@ -2682,7 +2703,7 @@ const FamilyChat = () => {
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <h3 className="font-medium text-foreground">Guiding Values</h3>
-                      {currentUserRole === 'moderator' && familyValues.length > 0 && !isEditingValues && (
+                      {isAdminOrModerator && familyValues.length > 0 && !isEditingValues && (
                         <Button
                           variant="outline"
                           size="sm"
@@ -2722,15 +2743,15 @@ const FamilyChat = () => {
                       </div>
                     ) : (
                       /* Selection mode */
-                      currentUserRole === 'moderator' || isEditingValues || familyValues.length === 0 ? (
+                      isAdminOrModerator || isEditingValues || familyValues.length === 0 ? (
                         <div className="space-y-3">
                           <p className="text-sm text-muted-foreground">
-                            {currentUserRole === 'moderator' 
+                            {isAdminOrModerator 
                               ? `Select 2 values (${selectedValues.length}/2 selected):`
-                              : 'A family moderator will select the guiding values for your family.'}
+                              : 'A family admin or moderator will select the guiding values for your family.'}
                           </p>
                           
-                          {currentUserRole === 'moderator' && (
+                          {isAdminOrModerator && (
                             <>
                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                 {FAMILY_VALUES_OPTIONS.map(option => {
@@ -2802,7 +2823,7 @@ const FamilyChat = () => {
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <h3 className="font-medium text-foreground">Common Goals</h3>
-                      {currentUserRole === 'moderator' && familyCommonGoals.length > 0 && !isEditingCommonGoals && (
+                      {isAdminOrModerator && familyCommonGoals.length > 0 && !isEditingCommonGoals && (
                         <Button
                           variant="outline"
                           size="sm"
@@ -2834,7 +2855,7 @@ const FamilyChat = () => {
                               }`}
                             >
                               <div className="flex items-center gap-2 flex-1 min-w-0">
-                                {currentUserRole === 'moderator' ? (
+                                {isAdminOrModerator ? (
                                   <button
                                     onClick={() => handleToggleCommonGoalComplete(fg.id, !!fg.completed_at)}
                                     className={`shrink-0 h-4 w-4 rounded-full border-2 flex items-center justify-center transition-colors ${
@@ -2871,9 +2892,9 @@ const FamilyChat = () => {
                       </div>
                     ) : (
                       /* Selection mode */
-                      currentUserRole === 'moderator' || isEditingCommonGoals || familyCommonGoals.length === 0 ? (
+                      isAdminOrModerator || isEditingCommonGoals || familyCommonGoals.length === 0 ? (
                         <div className="space-y-3">
-                          {currentUserRole === 'moderator' ? (
+                          {isAdminOrModerator ? (
                             <>
                               <p className="text-sm text-muted-foreground">
                                 Select 2 goals ({selectedCommonGoals.length}/2 selected):
@@ -3029,7 +3050,7 @@ const FamilyChat = () => {
                   )}
 
                   {/* Pending Boundaries (Moderator View) */}
-                  {currentUserRole === 'moderator' && familyBoundaries.filter(b => b.status === 'pending').length > 0 && (
+                  {isAdminOrModerator && familyBoundaries.filter(b => b.status === 'pending').length > 0 && (
                     <div className="space-y-3">
                       <h3 className="font-medium text-foreground flex items-center gap-2">
                         <AlertTriangle className="h-4 w-4 text-warning" />
@@ -3072,7 +3093,7 @@ const FamilyChat = () => {
                   )}
 
                   {/* My Proposed Boundaries (for non-moderators to see their pending proposals) */}
-                  {currentUserRole !== 'moderator' && familyBoundaries.filter(b => b.status === 'pending' && b.created_by === user?.id).length > 0 && (
+                  {!isAdminOrModerator && familyBoundaries.filter(b => b.status === 'pending' && b.created_by === user?.id).length > 0 && (
                     <div className="space-y-3">
                       <h3 className="font-medium text-foreground flex items-center gap-2">
                         <Loader2 className="h-4 w-4 text-muted-foreground" />
@@ -3122,7 +3143,7 @@ const FamilyChat = () => {
                                 </p>
                                 <p className="text-sm">{boundary.content}</p>
                               </div>
-                              {currentUserRole === 'moderator' && (
+                              {isAdminOrModerator && (
                                 <Button
                                   variant="ghost"
                                   size="icon"
@@ -3347,7 +3368,7 @@ const FamilyChat = () => {
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        {currentUserRole === 'moderator' && member.user_id !== user?.id && (
+                        {isAdminOrModerator && member.user_id !== user?.id && (
                           <Button
                             variant="ghost"
                             size="icon"
@@ -3359,19 +3380,19 @@ const FamilyChat = () => {
                         )}
                         <Badge
                           variant={
-                            member.role === 'moderator'
+                            member.role === 'moderator' || member.role === 'admin'
                               ? 'default'
                               : member.role === 'recovering'
                               ? 'outline'
                               : 'secondary'
                           }
                         >
-                          {member.role}
+                          {member.role === 'admin' ? 'Admin' : member.role}
                         </Badge>
                       </div>
                     </div>
                     {/* Private messaging toggle for recovering members - only shown to moderators */}
-                    {currentUserRole === 'moderator' && 
+                    {isAdminOrModerator && 
                      member.role === 'recovering' && 
                      member.user_id !== user?.id && (
                       <div className="flex items-center justify-between pl-12 pt-1 border-t border-border/50 mt-1">
@@ -3438,6 +3459,26 @@ const FamilyChat = () => {
                 onChange={(e) => setEditCashapp(e.target.value)}
               />
             </div>
+            
+            {/* Role selector - only for family creator */}
+            {isFamilyCreator && editingMember && editingMember.role !== 'moderator' && (
+              <div className="space-y-2">
+                <Label htmlFor="editRole">Member Role</Label>
+                <Select value={editRole} onValueChange={setEditRole}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select role..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="member">Member</SelectItem>
+                    <SelectItem value="recovering">Recovering</SelectItem>
+                    <SelectItem value="admin">Admin</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  Admins can approve boundaries, manage values & goals, and help moderate the family.
+                </p>
+              </div>
+            )}
             <Button
               className="w-full"
               onClick={handleSaveMemberProfile}

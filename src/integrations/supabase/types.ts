@@ -1018,6 +1018,14 @@ export type Database = {
         Args: { checkin_time: string }
         Returns: string
       }
+      can_approve_in_family: {
+        Args: { _family_id: string; _user_id: string }
+        Returns: boolean
+      }
+      can_manage_family_admins: {
+        Args: { _family_id: string; _user_id: string }
+        Returns: boolean
+      }
       check_overdue_checkouts: { Args: never; Returns: undefined }
       generate_activation_code: { Args: never; Returns: string }
       get_family_invite_code: { Args: { _family_id: string }; Returns: string }
@@ -1047,6 +1055,14 @@ export type Database = {
           paypal_link: string
           venmo_link: string
         }[]
+      }
+      is_family_admin_or_moderator: {
+        Args: { _family_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_family_creator: {
+        Args: { _family_id: string; _user_id: string }
+        Returns: boolean
       }
       is_family_member: {
         Args: { _family_id: string; _user_id: string }
@@ -1079,7 +1095,7 @@ export type Database = {
       }
     }
     Enums: {
-      family_role: "member" | "recovering" | "moderator"
+      family_role: "member" | "recovering" | "moderator" | "admin"
       meeting_type:
         | "AA"
         | "Al-Anon"
@@ -1245,7 +1261,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      family_role: ["member", "recovering", "moderator"],
+      family_role: ["member", "recovering", "moderator", "admin"],
       meeting_type: [
         "AA",
         "Al-Anon",
