@@ -400,7 +400,8 @@ const Demo = () => {
                       Supporting families on the journey to recovery
                     </p>
                     <Button 
-                      className="mt-4 bg-white/20 hover:bg-white/30 text-white border border-white/30"
+                      size="lg"
+                      className="mt-4 bg-white text-primary hover:bg-white/90 font-semibold shadow-lg"
                       onClick={() => navigate('/demo/family', { 
                         state: { 
                           branding: {
@@ -413,6 +414,7 @@ const Demo = () => {
                       })}
                     >
                       Get Started
+                      <ArrowRight className="h-4 w-4 ml-2" />
                     </Button>
                   </div>
                 </div>
