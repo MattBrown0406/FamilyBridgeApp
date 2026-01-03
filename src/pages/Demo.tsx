@@ -274,6 +274,12 @@ const Demo = () => {
                 <CardDescription>
                   Enter your website URL and we'll automatically extract your brand colors, logo, and fonts
                 </CardDescription>
+                <div className="mt-3 p-3 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 border border-amber-200 dark:border-amber-800 rounded-lg">
+                  <p className="text-sm font-medium text-amber-800 dark:text-amber-200 flex items-center gap-2">
+                    <Sparkles className="h-4 w-4" />
+                    Early Adopter Special: $49.99/month for all of 2026!
+                  </p>
+                </div>
               </CardHeader>
               <CardContent className="space-y-6">
                 {brandingStep === 0 && (
@@ -435,6 +441,12 @@ const Demo = () => {
                 <CardDescription>
                   Explore a pre-populated family group to see how the platform works
                 </CardDescription>
+                <div className="mt-3 p-3 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 border border-green-200 dark:border-green-800 rounded-lg">
+                  <p className="text-sm font-medium text-green-800 dark:text-green-200 flex items-center gap-2">
+                    <Heart className="h-4 w-4" />
+                    Early Adopter Lifetime Price: Just $19.99/month forever!
+                  </p>
+                </div>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="grid md:grid-cols-2 gap-6">
