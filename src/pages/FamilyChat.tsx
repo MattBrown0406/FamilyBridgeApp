@@ -17,8 +17,9 @@ import {
   Heart, ArrowLeft, Send, Loader2, Users, DollarSign, 
   MessageCircle, AlertTriangle, Check, X, Shield, MapPin,
   ExternalLink, CreditCard, CheckCircle2, Paperclip, Image, HandCoins, Trash2, Pencil,
-  Target, ShieldCheck, Plus, CheckCircle, MessageSquare, FlaskConical
+  Target, ShieldCheck, Plus, CheckCircle, MessageSquare, FlaskConical, ChevronDown
 } from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Label } from '@/components/ui/label';
 import { format } from 'date-fns';
 import {
@@ -324,6 +325,9 @@ const FamilyChat = () => {
   
   // Secure payment links (fetched via RPC, only available after marking as payer)
   const [paymentLinksCache, setPaymentLinksCache] = useState<Record<string, PaymentLinks>>({});
+  
+  // Track which completed requests are expanded
+  const [expandedRequests, setExpandedRequests] = useState<Set<string>>(new Set());
   
   // Edit member profile state (for moderators)
   const [editingMember, setEditingMember] = useState<Member | null>(null);
@@ -2286,7 +2290,7 @@ const FamilyChat = () => {
                       <p>No financial requests yet.</p>
                     </div>
                   ) : (
-                    <div className="space-y-4">
+                    <div className="space-y-2">
                       {financialRequests.map((req) => {
                         const hasVoted = req.votes.some(v => v.voter_id === user?.id);
                         const approvalCount = req.votes.filter(v => v.approved).length;
@@ -2298,77 +2302,82 @@ const FamilyChat = () => {
                         const isRequester = req.requester_id === user?.id;
                         const isPayer = req.paid_by_user_id === user?.id;
                         const cachedLinks = paymentLinksCache[req.id];
+                        const isClosed = isCompleted || req.status === 'denied';
+                        const isExpanded = expandedRequests.has(req.id);
 
-                        return (
-                          <div
-                            key={req.id}
-                            className="p-4 rounded-lg border border-border bg-card"
-                          >
-                            <div className="flex items-start justify-between mb-3">
-                              <div>
-                                <p className="font-semibold text-foreground">
-                                  ${req.amount.toFixed(2)}
-                                </p>
-                                <p className="text-sm text-muted-foreground">
-                                  Requested by {req.requester_name}
-                                </p>
-                              </div>
-                              <div className="flex flex-col items-end gap-1">
-                                <Badge
-                                  variant={
-                                    req.status === 'approved'
-                                      ? 'default'
-                                      : req.status === 'denied'
-                                      ? 'destructive'
-                                      : 'secondary'
-                                  }
-                                >
-                                  {req.status}
-                                </Badge>
-                                {isCompleted && (
-                                  <Badge variant="outline" className="text-primary border-primary bg-primary/10">
-                                    <CheckCircle className="h-3 w-3 mr-1" />
-                                    Completed
-                                  </Badge>
-                                )}
-                                {isConfirmed && !isCompleted && (
-                                  <Badge variant="outline" className="text-green-600 border-green-600">
-                                    <CheckCircle2 className="h-3 w-3 mr-1" />
-                                    Payment Complete
-                                  </Badge>
-                                )}
-                                {isPaid && !isConfirmed && (
-                                  <Badge variant="outline" className="text-yellow-600 border-yellow-600">
-                                    <CreditCard className="h-3 w-3 mr-1" />
-                                    Awaiting Confirmation
-                                  </Badge>
-                                )}
-                              </div>
+                        const toggleExpanded = () => {
+                          setExpandedRequests(prev => {
+                            const next = new Set(prev);
+                            if (next.has(req.id)) {
+                              next.delete(req.id);
+                            } else {
+                              next.add(req.id);
+                            }
+                            return next;
+                          });
+                        };
+
+                        const statusColor = isCompleted 
+                          ? 'bg-gradient-to-r from-blue-500 to-indigo-500' 
+                          : req.status === 'approved' 
+                            ? 'bg-gradient-to-r from-green-500 to-emerald-500' 
+                            : req.status === 'denied'
+                              ? 'bg-gradient-to-r from-red-500 to-rose-500'
+                              : 'bg-gradient-to-r from-amber-500 to-orange-500';
+
+                        const CompactHeader = () => (
+                          <div className="flex items-center justify-between w-full py-2">
+                            <div className="flex items-center gap-2 min-w-0 flex-1">
+                              <Avatar className="h-6 w-6 shrink-0">
+                                <AvatarFallback className="text-[10px] bg-primary/10">
+                                  {req.requester_name?.split(' ').map(n => n[0]).join('').slice(0,2) || '??'}
+                                </AvatarFallback>
+                              </Avatar>
+                              <span className="text-sm font-medium truncate">{req.requester_name}</span>
+                              <span className="font-bold text-primary text-sm shrink-0">${req.amount.toFixed(2)}</span>
+                              <Badge
+                                variant={req.status === 'approved' ? 'default' : req.status === 'denied' ? 'destructive' : 'secondary'}
+                                className="text-[10px] px-1.5 py-0 shrink-0"
+                              >
+                                {isCompleted ? 'completed' : req.status}
+                              </Badge>
                             </div>
-                            <p className="text-sm mb-3">{req.reason}</p>
+                            <div className="flex items-center gap-2 shrink-0">
+                              <span className="text-[10px] text-muted-foreground hidden sm:flex items-center gap-1">
+                                <Check className="h-3 w-3 text-success" />{approvalCount}
+                                <X className="h-3 w-3 text-destructive ml-1" />{denialCount}
+                              </span>
+                              {isClosed && (
+                                <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} />
+                              )}
+                            </div>
+                          </div>
+                        );
 
+                        const FullContent = () => (
+                          <div className="space-y-2">
                             {/* Rescind button for requester on pending requests with no votes */}
                             {isRequester && req.status === 'pending' && req.votes.length === 0 && (
                               <Button
                                 size="sm"
                                 variant="outline"
-                                className="mb-3 text-destructive border-destructive hover:bg-destructive hover:text-destructive-foreground"
+                                className="text-destructive border-destructive hover:bg-destructive hover:text-destructive-foreground"
                                 onClick={() => handleRescindRequest(req.id)}
                               >
-                                <X className="h-4 w-4 mr-1" />
-                                Rescind Request
+                                <X className="h-3 w-3 mr-1" />
+                                Rescind
                               </Button>
                             )}
                             {isRequester && req.status === 'pending' && req.votes.length > 0 && (
-                              <p className="text-xs text-muted-foreground mb-3">
-                                Voting has begun — request cannot be rescinded
+                              <p className="text-[10px] text-muted-foreground">
+                                Voting begun — cannot rescind
                               </p>
                             )}
                             {req.attachment_url && (
                               <Dialog>
                                 <DialogTrigger asChild>
-                                  <button className="mb-3 flex items-center gap-2 text-sm text-primary hover:underline">
-                                    <Image className="h-4 w-4" />
+                                  <button className="flex items-center gap-1 text-xs text-primary hover:underline">
+                                    <Image className="h-3 w-3" />
                                     View Bill/Receipt
                                   </button>
                                 </DialogTrigger>
@@ -2388,73 +2397,76 @@ const FamilyChat = () => {
                               </Dialog>
                             )}
                             
-                            {/* Vote counts */}
-                            <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
-                              <span className="flex items-center gap-1">
-                                <Check className="h-4 w-4 text-success" />
-                                {approvalCount}
-                              </span>
-                              <span className="flex items-center gap-1">
-                                <X className="h-4 w-4 text-destructive" />
-                                {denialCount}
-                              </span>
+                            {/* Status badges */}
+                            <div className="flex flex-wrap gap-1">
+                              {isConfirmed && !isCompleted && (
+                                <Badge variant="outline" className="text-[10px] px-1.5 py-0 text-green-600 border-green-600">
+                                  <CheckCircle2 className="h-2.5 w-2.5 mr-0.5" />
+                                  Paid
+                                </Badge>
+                              )}
+                              {isPaid && !isConfirmed && (
+                                <Badge variant="outline" className="text-[10px] px-1.5 py-0 text-yellow-600 border-yellow-600">
+                                  <CreditCard className="h-2.5 w-2.5 mr-0.5" />
+                                  Awaiting Confirm
+                                </Badge>
+                              )}
                               {req.payment_method && (
-                                <span className="text-xs">
-                                  Paid via {req.payment_method}
-                                </span>
+                                <span className="text-[10px] text-muted-foreground">via {req.payment_method}</span>
                               )}
                             </div>
 
                             {/* Voting buttons for pending requests */}
                             {req.status === 'pending' && !isRequester && !hasVoted && (
-                              <div className="flex gap-2 mb-3">
+                              <div className="flex gap-2">
                                 <Button
                                   size="sm"
                                   variant="success"
+                                  className="h-7 text-xs"
                                   onClick={() => handleVote(req.id, true)}
                                 >
-                                  <Check className="h-4 w-4" />
+                                  <Check className="h-3 w-3 mr-1" />
                                   Approve
                                 </Button>
                                 <Button
                                   size="sm"
                                   variant="destructive"
+                                  className="h-7 text-xs"
                                   onClick={() => handleVote(req.id, false)}
                                 >
-                                  <X className="h-4 w-4" />
+                                  <X className="h-3 w-3 mr-1" />
                                   Deny
                                 </Button>
                               </div>
                             )}
                             {hasVoted && req.status === 'pending' && (
-                              <p className="text-sm text-muted-foreground mb-3">You've voted</p>
+                              <p className="text-[10px] text-muted-foreground">You've voted</p>
                             )}
 
                             {/* Pledges section */}
                             {req.status === 'pending' && (
-                              <div className="border-t border-border pt-3 mt-3">
+                              <div className="border-t border-border pt-2 mt-2">
                                 {/* Existing pledges */}
                                 {req.pledges.length > 0 && (
-                                  <div className="mb-3">
-                                    <p className="text-sm font-medium text-foreground mb-2 flex items-center gap-1">
-                                      <HandCoins className="h-4 w-4 text-primary" />
-                                      Pledges (${req.pledges.reduce((sum, p) => sum + Number(p.amount), 0).toFixed(2)} of ${req.amount.toFixed(2)})
+                                  <div className="mb-2">
+                                    <p className="text-xs font-medium text-foreground mb-1 flex items-center gap-1">
+                                      <HandCoins className="h-3 w-3 text-primary" />
+                                      Pledges (${req.pledges.reduce((sum, p) => sum + Number(p.amount), 0).toFixed(2)})
                                     </p>
-                                    <div className="space-y-1">
+                                    <div className="space-y-0.5">
                                       {req.pledges.map((pledge) => (
-                                        <div key={pledge.id} className="flex items-center justify-between text-sm bg-secondary/50 px-2 py-1 rounded">
-                                          <span>
+                                        <div key={pledge.id} className="flex items-center justify-between text-xs bg-secondary/50 px-2 py-0.5 rounded">
+                                          <span className="truncate">
                                             {pledge.user_name}: ${Number(pledge.amount).toFixed(2)}
-                                            {pledge.payment_method && ` via ${pledge.payment_method}`}
                                           </span>
                                           {pledge.user_id === user?.id && (
                                             <Button
                                               size="sm"
                                               variant="ghost"
-                                              className="h-6 w-6 p-0 text-destructive hover:text-destructive"
+                                              className="h-5 w-5 p-0 text-destructive hover:text-destructive"
                                               onClick={() => handleDeletePledge(pledge.id)}
                                             >
-                                              <Trash2 className="h-3 w-3" />
+                                              <Trash2 className="h-2.5 w-2.5" />
                                             </Button>
                                           )}
                                         </div>
@@ -2465,48 +2477,42 @@ const FamilyChat = () => {
 
                                 {/* Add pledge form (for non-requesters) */}
                                 {!isRequester && (
-                                  <div className="space-y-2">
-                                    <p className="text-sm font-medium text-foreground">
-                                      Pledge to help with this request:
-                                    </p>
-                                    <div className="flex gap-2">
+                                  <div className="space-y-1">
+                                    <p className="text-xs font-medium text-foreground">Pledge:</p>
+                                    <div className="flex gap-1">
                                       <Input
                                         type="number"
-                                        placeholder="Amount ($)"
+                                        placeholder="$"
                                         value={pledgeAmounts[req.id] || ''}
                                         onChange={(e) => setPledgeAmounts(prev => ({ ...prev, [req.id]: e.target.value }))}
                                         min="0"
                                         step="0.01"
-                                        className="w-24"
+                                        className="w-16 h-7 text-xs"
                                       />
                                       <Select 
                                         value={pledgeMethods[req.id] || ''} 
                                         onValueChange={(value) => setPledgeMethods(prev => ({ ...prev, [req.id]: value }))}
                                       >
-                                        <SelectTrigger className="w-32 bg-background">
+                                        <SelectTrigger className="w-24 h-7 text-xs bg-background">
                                           <SelectValue placeholder="Method" />
                                         </SelectTrigger>
                                         <SelectContent className="bg-background z-50">
                                           <SelectItem value="PayPal">PayPal</SelectItem>
                                           <SelectItem value="Venmo">Venmo</SelectItem>
                                           <SelectItem value="Cash App">Cash App</SelectItem>
-                                          <SelectItem value="Zelle">Zelle</SelectItem>
                                           <SelectItem value="Cash">Cash</SelectItem>
-                                          <SelectItem value="Other">Other</SelectItem>
                                         </SelectContent>
                                       </Select>
                                       <Button
                                         size="sm"
+                                        className="h-7 text-xs"
                                         onClick={() => handleCreatePledge(req.id, req.amount)}
                                         disabled={isPledging === req.id}
                                       >
                                         {isPledging === req.id ? (
-                                          <Loader2 className="h-4 w-4 animate-spin" />
+                                          <Loader2 className="h-3 w-3 animate-spin" />
                                         ) : (
-                                          <>
-                                            <HandCoins className="h-4 w-4 mr-1" />
-                                            Pledge
-                                          </>
+                                          'Add'
                                         )}
                                       </Button>
                                     </div>
@@ -2517,14 +2523,13 @@ const FamilyChat = () => {
 
                             {/* Payment section for approved requests */}
                             {isApproved && !isConfirmed && (
-                              <div className="border-t border-border pt-3 mt-3">
+                              <div className="border-t border-border pt-2 mt-2">
                                 {/* If not paid yet - show payment options to non-requesters */}
                                 {!isPaid && !isRequester && (
-                                  <div className="space-y-2">
-                                    <p className="text-sm font-medium text-foreground">Send Payment:</p>
+                                  <div className="space-y-1">
                                     <Dialog>
                                       <DialogTrigger asChild>
-                                        <Button size="sm" variant="secondary">
+                                        <Button size="sm" variant="secondary" className="h-7 text-xs">
                                           <CreditCard className="h-3 w-3 mr-1" />
                                           Mark as Paid
                                         </Button>
@@ -2549,113 +2554,78 @@ const FamilyChat = () => {
                                         </div>
                                       </DialogContent>
                                     </Dialog>
-                                    <p className="text-xs text-muted-foreground">
-                                      After marking as paid, payment links will be available to complete the transaction.
-                                    </p>
                                   </div>
                                 )}
 
                                 {/* If paid by current user - show payment links fetched securely */}
                                 {isPaid && isPayer && !isConfirmed && (
-                                  <div className="space-y-2">
-                                    <p className="text-sm font-medium text-foreground">Complete Payment:</p>
+                                  <div className="space-y-1">
+                                    <p className="text-xs font-medium">Complete Payment:</p>
                                     {cachedLinks ? (
-                                      <div className="flex flex-wrap gap-2">
+                                      <div className="flex flex-wrap gap-1">
                                         {cachedLinks.paypal_link && (
-                                          <a
-                                            href={cachedLinks.paypal_link}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="inline-flex"
-                                          >
-                                            <Button size="sm" variant="outline">
-                                              <ExternalLink className="h-3 w-3 mr-1" />
-                                              PayPal
+                                          <a href={cachedLinks.paypal_link} target="_blank" rel="noopener noreferrer">
+                                            <Button size="sm" variant="outline" className="h-6 text-[10px]">
+                                              <ExternalLink className="h-2.5 w-2.5 mr-0.5" />PayPal
                                             </Button>
                                           </a>
                                         )}
                                         {cachedLinks.venmo_link && (
-                                          <a
-                                            href={cachedLinks.venmo_link}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="inline-flex"
-                                          >
-                                            <Button size="sm" variant="outline">
-                                              <ExternalLink className="h-3 w-3 mr-1" />
-                                              Venmo
+                                          <a href={cachedLinks.venmo_link} target="_blank" rel="noopener noreferrer">
+                                            <Button size="sm" variant="outline" className="h-6 text-[10px]">
+                                              <ExternalLink className="h-2.5 w-2.5 mr-0.5" />Venmo
                                             </Button>
                                           </a>
                                         )}
                                         {cachedLinks.cashapp_link && (
-                                          <a
-                                            href={cachedLinks.cashapp_link}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="inline-flex"
-                                          >
-                                            <Button size="sm" variant="outline">
-                                              <ExternalLink className="h-3 w-3 mr-1" />
-                                              Cash App
+                                          <a href={cachedLinks.cashapp_link} target="_blank" rel="noopener noreferrer">
+                                            <Button size="sm" variant="outline" className="h-6 text-[10px]">
+                                              <ExternalLink className="h-2.5 w-2.5 mr-0.5" />CashApp
                                             </Button>
                                           </a>
                                         )}
-                                        {!cachedLinks.paypal_link && !cachedLinks.venmo_link && !cachedLinks.cashapp_link && (
-                                          <p className="text-sm text-muted-foreground">
-                                            Requester hasn't set up payment handles. Contact them directly.
-                                          </p>
-                                        )}
                                       </div>
                                     ) : (
-                                      <Button
-                                        size="sm"
-                                        variant="outline"
-                                        onClick={() => fetchPaymentLinks(req.id)}
-                                      >
-                                        <ExternalLink className="h-3 w-3 mr-1" />
-                                        Show Payment Links
+                                      <Button size="sm" variant="outline" className="h-6 text-[10px]" onClick={() => fetchPaymentLinks(req.id)}>
+                                        <ExternalLink className="h-2.5 w-2.5 mr-0.5" />Show Links
                                       </Button>
                                     )}
-                                    <p className="text-xs text-muted-foreground">
-                                      Waiting for {req.requester_name} to confirm receipt.
-                                    </p>
                                   </div>
                                 )}
 
                                 {/* If paid - show confirm button to requester */}
                                 {isPaid && isRequester && (
-                                  <div className="space-y-2">
-                                    <p className="text-sm text-muted-foreground">
-                                      Payment sent via {req.payment_method}. Did you receive it?
+                                  <div className="space-y-1">
+                                    <p className="text-xs text-muted-foreground">
+                                      Payment via {req.payment_method}. Received?
                                     </p>
                                     {req.attachment_url ? (
                                       <Button
                                         size="sm"
                                         variant="success"
+                                        className="h-7 text-xs"
                                         onClick={() => handleConfirmReceipt(req.id, !!req.attachment_url)}
                                       >
-                                        <CheckCircle2 className="h-4 w-4 mr-1" />
+                                        <CheckCircle2 className="h-3 w-3 mr-1" />
                                         Confirm Receipt
                                       </Button>
                                     ) : (
-                                      <p className="text-sm text-destructive">
-                                        A bill/receipt must be attached before confirming payment.
+                                      <p className="text-[10px] text-destructive">
+                                        Attach bill first
                                       </p>
                                     )}
                                   </div>
                                 )}
 
-                                {/* Waiting message for non-requester after paying */}
-                                {isPaid && !isRequester && (
-                                  <p className="text-sm text-muted-foreground">
-                                    Waiting for {req.requester_name} to confirm receipt.
+                                {/* Waiting messages */}
+                                {isPaid && !isRequester && !isPayer && (
+                                  <p className="text-[10px] text-muted-foreground">
+                                    Awaiting confirmation
                                   </p>
                                 )}
-
-                                {/* Waiting message for requester before payment */}
                                 {!isPaid && isRequester && (
-                                  <p className="text-sm text-muted-foreground">
-                                    Waiting for a family member to send payment.
+                                  <p className="text-[10px] text-muted-foreground">
+                                    Awaiting payment
                                   </p>
                                 )}
                               </div>
@@ -2663,21 +2633,49 @@ const FamilyChat = () => {
 
                             {/* Mark as Completed button for moderators on confirmed requests */}
                             {isApproved && isConfirmed && !isCompleted && isAdminOrModerator && (
-                              <div className="border-t border-border pt-3 mt-3">
+                              <div className="border-t border-border pt-2 mt-2">
                                 <Button
                                   size="sm"
                                   variant="default"
+                                  className="w-full h-7 text-xs"
                                   onClick={() => handleMarkAsCompleted(req.id)}
-                                  className="w-full"
                                 >
-                                  <CheckCircle className="h-4 w-4 mr-2" />
-                                  Mark as Completed
+                                  <CheckCircle className="h-3 w-3 mr-1" />
+                                  Mark Completed
                                 </Button>
-                                <p className="text-xs text-muted-foreground mt-2">
-                                  Marking as completed will allow new financial requests to be submitted.
-                                </p>
                               </div>
                             )}
+                          </div>
+                        );
+
+                        if (isClosed) {
+                          return (
+                            <Collapsible key={req.id} open={isExpanded} onOpenChange={toggleExpanded}>
+                              <div className={`rounded-lg border border-border bg-card overflow-hidden ${statusColor.replace('bg-gradient-to-r', '')}`}>
+                                <div className={`h-0.5 ${statusColor}`} />
+                                <CollapsibleTrigger className="w-full px-3 hover:bg-muted/30 transition-colors">
+                                  <CompactHeader />
+                                </CollapsibleTrigger>
+                                <CollapsibleContent>
+                                  <div className="px-3 pb-3">
+                                    <FullContent />
+                                  </div>
+                                </CollapsibleContent>
+                              </div>
+                            </Collapsible>
+                          );
+                        }
+
+                        return (
+                          <div
+                            key={req.id}
+                            className="rounded-lg border border-border bg-card overflow-hidden"
+                          >
+                            <div className={`h-1 ${statusColor}`} />
+                            <div className="px-3 pb-3">
+                              <CompactHeader />
+                              <FullContent />
+                            </div>
                           </div>
                         );
                       })}
