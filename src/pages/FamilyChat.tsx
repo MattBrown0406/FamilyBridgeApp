@@ -130,14 +130,6 @@ interface Family {
   organization_id: string | null;
 }
 
-interface FamilyGoal {
-  id: string;
-  family_id: string;
-  goal_type: string;
-  created_at: string;
-  created_by: string;
-  completed_at: string | null;
-}
 
 interface FamilyBoundary {
   id: string;
@@ -225,12 +217,6 @@ const COMMON_GOALS_OPTIONS = [
   },
 ] as const;
 
-const GOAL_OPTIONS = [
-  { value: 'into_treatment', label: 'Get {name} into treatment' },
-  { value: 'complete_treatment', label: 'Help {name} complete treatment' },
-  { value: 'finish_aftercare', label: 'Help {name} finish aftercare plan' },
-  { value: 'one_year_sobriety', label: 'Help {name} get to one year of sobriety' },
-] as const;
 
 const FAMILY_VALUES_OPTIONS = [
   { 
@@ -351,10 +337,6 @@ const FamilyChat = () => {
   const [cooldownRemaining, setCooldownRemaining] = useState(0);
   const [membersSheetOpen, setMembersSheetOpen] = useState(false);
   
-  // Goals state
-  const [familyGoals, setFamilyGoals] = useState<FamilyGoal[]>([]);
-  const [selectedGoal, setSelectedGoal] = useState('');
-  const [isAddingGoal, setIsAddingGoal] = useState(false);
   
   // Family Values state
   const [familyValues, setFamilyValues] = useState<FamilyValue[]>([]);
@@ -779,8 +761,6 @@ const FamilyChat = () => {
       // Fetch financial requests
       await fetchFinancialRequests(formattedMembers);
       
-      // Fetch family goals
-      await fetchFamilyGoals();
       
       // Fetch family values
       await fetchFamilyValues();
@@ -803,20 +783,6 @@ const FamilyChat = () => {
     }
   };
 
-  const fetchFamilyGoals = async () => {
-    const { data, error } = await supabase
-      .from('family_goals')
-      .select('*')
-      .eq('family_id', familyId)
-      .order('created_at', { ascending: true });
-
-    if (error) {
-      console.error('Error fetching goals:', error);
-      return;
-    }
-
-    setFamilyGoals(data || []);
-  };
 
   const fetchFamilyValues = async () => {
     const { data, error } = await supabase
@@ -984,97 +950,6 @@ const FamilyChat = () => {
     }
   };
 
-  const handleAddGoal = async () => {
-    if (!selectedGoal || !user || !familyId) return;
-
-    setIsAddingGoal(true);
-    try {
-      const { error } = await supabase
-        .from('family_goals')
-        .insert({
-          family_id: familyId,
-          goal_type: selectedGoal,
-          created_by: user.id,
-        });
-
-      if (error) throw error;
-
-      toast({
-        title: 'Goal added',
-        description: 'Family goal has been added successfully.',
-      });
-
-      setSelectedGoal('');
-      await fetchFamilyGoals();
-    } catch (error) {
-      console.error('Error adding goal:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to add goal.',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsAddingGoal(false);
-    }
-  };
-
-  const handleToggleGoalComplete = async (goalId: string, isCompleted: boolean) => {
-    try {
-      const { error } = await supabase
-        .from('family_goals')
-        .update({
-          completed_at: isCompleted ? null : new Date().toISOString(),
-        })
-        .eq('id', goalId);
-
-      if (error) throw error;
-
-      await fetchFamilyGoals();
-    } catch (error) {
-      console.error('Error updating goal:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to update goal.',
-        variant: 'destructive',
-      });
-    }
-  };
-
-  const handleDeleteGoal = async (goalId: string) => {
-    try {
-      const { error } = await supabase
-        .from('family_goals')
-        .delete()
-        .eq('id', goalId);
-
-      if (error) throw error;
-
-      toast({
-        title: 'Goal removed',
-        description: 'Family goal has been removed.',
-      });
-
-      await fetchFamilyGoals();
-    } catch (error) {
-      console.error('Error deleting goal:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to remove goal.',
-        variant: 'destructive',
-      });
-    }
-  };
-
-  const getRecoveringMemberName = () => {
-    const recoveringMember = members.find(m => m.role === 'recovering');
-    return recoveringMember?.full_name || 'your loved one';
-  };
-
-  const getGoalLabel = (goalType: string) => {
-    const option = GOAL_OPTIONS.find(o => o.value === goalType);
-    if (!option) return goalType;
-    return option.label.replace('{name}', getRecoveringMemberName());
-  };
 
   const fetchFamilyBoundaries = async () => {
     const { data: boundariesData, error } = await supabase
@@ -3072,103 +2947,6 @@ const FamilyChat = () => {
                       ) : null
                     )}
 
-                    {/* Recovery Milestones (formerly Shared Goals) - shown below common goals */}
-                    {(familyGoals.length > 0 || currentUserRole === 'moderator') && (
-                      <div className="pt-3 border-t border-border space-y-2">
-                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Recovery Milestones</p>
-                        
-                        {/* Moderator goal selection */}
-                        {currentUserRole === 'moderator' && (
-                          <div className="flex gap-2">
-                            <Select value={selectedGoal} onValueChange={setSelectedGoal}>
-                              <SelectTrigger className="flex-1 h-8 text-sm">
-                                <SelectValue placeholder="Add milestone..." />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {GOAL_OPTIONS.filter(
-                                  option => !familyGoals.some(g => g.goal_type === option.value)
-                                ).map(option => (
-                                  <SelectItem key={option.value} value={option.value}>
-                                    {option.label.replace('{name}', getRecoveringMemberName())}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <Button
-                              onClick={handleAddGoal}
-                              disabled={!selectedGoal || isAddingGoal}
-                              size="icon"
-                              className="h-8 w-8"
-                            >
-                              {isAddingGoal ? (
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                              ) : (
-                                <Plus className="h-4 w-4" />
-                              )}
-                            </Button>
-                          </div>
-                        )}
-
-                        {/* Milestones list */}
-                        <div className="grid gap-2">
-                          {familyGoals.map((goal) => (
-                            <div
-                              key={goal.id}
-                              className={`px-3 py-2 rounded-lg border flex items-center justify-between gap-2 ${
-                                goal.completed_at
-                                  ? 'bg-primary/10 border-primary/30'
-                                  : 'bg-secondary/50 border-border'
-                              }`}
-                            >
-                              <div className="flex items-center gap-2 flex-1 min-w-0">
-                                {currentUserRole === 'moderator' ? (
-                                  <button
-                                    onClick={() => handleToggleGoalComplete(goal.id, !!goal.completed_at)}
-                                    className={`shrink-0 h-4 w-4 rounded-full border-2 flex items-center justify-center transition-colors ${
-                                      goal.completed_at
-                                        ? 'bg-primary border-primary text-primary-foreground'
-                                        : 'border-muted-foreground hover:border-primary'
-                                    }`}
-                                  >
-                                    {goal.completed_at && <Check className="h-2.5 w-2.5" />}
-                                  </button>
-                                ) : (
-                                  <div
-                                    className={`shrink-0 h-4 w-4 rounded-full border-2 flex items-center justify-center ${
-                                      goal.completed_at
-                                        ? 'bg-primary border-primary text-primary-foreground'
-                                        : 'border-muted-foreground'
-                                    }`}
-                                  >
-                                    {goal.completed_at && <Check className="h-2.5 w-2.5" />}
-                                  </div>
-                                )}
-                                <span className={`text-sm font-medium truncate ${goal.completed_at ? 'line-through text-muted-foreground' : ''}`}>
-                                  {getGoalLabel(goal.goal_type)}
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-1 shrink-0">
-                                {goal.completed_at && (
-                                  <Badge variant="default" className="bg-primary/80 text-xs">
-                                    Complete
-                                  </Badge>
-                                )}
-                                {currentUserRole === 'moderator' && (
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-6 w-6 text-muted-foreground hover:text-destructive"
-                                    onClick={() => handleDeleteGoal(goal.id)}
-                                  >
-                                    <Trash2 className="h-3 w-3" />
-                                  </Button>
-                                )}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
                   </div>
                 </div>
               </CardContent>
