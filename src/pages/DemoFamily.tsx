@@ -167,6 +167,16 @@ const DEMO_GOALS = [
   { id: '2', goal: 'Get to 90 days sobriety', status: 'in_progress' },
 ];
 
+const DEMO_VALUES = [
+  { key: 'honesty', name: 'Honesty & Transparency' },
+  { key: 'accountability', name: 'Accountability and Repair Without Shame' },
+];
+
+const DEMO_COMMON_GOALS = [
+  { key: 'weekly_meetings', name: 'Attend Weekly Family Meetings', completed: false },
+  { key: 'attend_support', name: 'Attend Support Groups (Al-Anon, etc.)', completed: false },
+];
+
 interface DemoBranding {
   primaryColor: string;
   logo: string | null;
@@ -293,7 +303,7 @@ const DemoFamily = () => {
       <div className="container mx-auto px-4 py-6">
         <div className="max-w-5xl mx-auto">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-5 mb-6 bg-muted/50 backdrop-blur-sm p-1.5 rounded-xl border border-border/50 shadow-sm">
+            <TabsList className="grid w-full grid-cols-6 mb-6 bg-muted/50 backdrop-blur-sm p-1.5 rounded-xl border border-border/50 shadow-sm">
               <TabsTrigger 
                 value="chat" 
                 className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg transition-all duration-300"
@@ -314,6 +324,13 @@ const DemoFamily = () => {
               >
                 <MapPin className="h-4 w-4 mr-2" />
                 Check-ins
+              </TabsTrigger>
+              <TabsTrigger 
+                value="values"
+                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500 data-[state=active]:to-rose-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-300"
+              >
+                <Heart className="h-4 w-4 mr-2" />
+                Values
               </TabsTrigger>
               <TabsTrigger 
                 value="boundaries"
@@ -683,116 +700,230 @@ const DemoFamily = () => {
               </div>
             </TabsContent>
 
+            {/* Values & Goals Tab */}
+            <TabsContent value="values" className="animate-fade-in">
+              <div className="space-y-4">
+                <Card className="border-0 shadow-lg overflow-hidden">
+                  <div className="h-1 bg-gradient-to-r from-pink-500 via-rose-500 to-red-500" />
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center shadow-md">
+                        <Heart className="h-5 w-5 text-white" />
+                      </div>
+                      Family Values & Goals
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    {/* Guiding Values Section */}
+                    <div className="space-y-3">
+                      <h3 className="font-medium text-foreground">Guiding Values</h3>
+                      <div className="p-4 rounded-lg bg-pink-50/50 border border-pink-100">
+                        <p className="text-sm text-muted-foreground mb-3">
+                          Your family's guiding values are the foundation for every goal you set and every boundary you create.
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          {DEMO_VALUES.map((value, index) => (
+                            <div
+                              key={value.key}
+                              className="px-3 py-2 rounded-lg bg-pink-100 border border-pink-200 flex items-center gap-2 animate-fade-in"
+                              style={{ animationDelay: `${index * 100}ms` }}
+                            >
+                              <Heart className="h-4 w-4 text-pink-600 shrink-0" />
+                              <span className="font-medium text-sm text-foreground">{value.name}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Common Goals Section */}
+                    <div className="space-y-3">
+                      <h3 className="font-medium text-foreground">Common Goals</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Goals your family is working toward together. Mark them complete as you achieve them.
+                      </p>
+                      <div className="grid gap-2">
+                        {DEMO_COMMON_GOALS.map((goal, index) => (
+                          <div
+                            key={goal.key}
+                            className="px-3 py-2 rounded-lg bg-secondary/50 border border-border flex items-center justify-between gap-2 animate-fade-in"
+                            style={{ animationDelay: `${index * 100}ms` }}
+                          >
+                            <div className="flex items-center gap-2 flex-1 min-w-0">
+                              <div className="shrink-0 h-4 w-4 rounded-full border-2 border-muted-foreground flex items-center justify-center" />
+                              <span className="text-sm font-medium truncate">{goal.name}</span>
+                            </div>
+                            <Badge variant="secondary" className="bg-blue-100 text-blue-700 border-blue-200 shrink-0 text-xs">
+                              In Progress
+                            </Badge>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Family-Specific Goals */}
+                    <div className="space-y-3">
+                      <h3 className="font-medium text-foreground">Family-Specific Goals</h3>
+                      {DEMO_GOALS.map((goal, index) => (
+                        <div 
+                          key={goal.id} 
+                          className="flex items-center gap-4 p-4 bg-gradient-to-r from-purple-50/80 to-violet-50/50 rounded-xl border border-purple-100 hover-lift transition-all duration-300 animate-fade-in"
+                          style={{ animationDelay: `${index * 100}ms` }}
+                        >
+                          <div className="h-10 w-10 rounded-full bg-gradient-to-br from-purple-500 to-violet-500 flex items-center justify-center shadow-md">
+                            <Target className="h-5 w-5 text-white" />
+                          </div>
+                          <span className="text-sm font-medium flex-1">{goal.goal}</span>
+                          <Badge className="bg-purple-100 text-purple-700 border-purple-200">In Progress</Badge>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+
             {/* Boundaries Tab */}
             <TabsContent value="boundaries" className="animate-fade-in">
               <div className="space-y-4">
+                {/* Universal Boundaries */}
                 <Card className="border-0 shadow-lg overflow-hidden">
                   <div className="h-1 bg-gradient-to-r from-purple-500 via-violet-500 to-indigo-500" />
                   <CardHeader>
                     <CardTitle className="flex items-center gap-3">
                       <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-purple-500 to-violet-500 flex items-center justify-center shadow-md">
-                        <Target className="h-5 w-5 text-white" />
+                        <Shield className="h-5 w-5 text-white" />
                       </div>
-                      Family Goals
-                      <Badge variant="secondary" className="ml-auto bg-purple-100 text-purple-700 border-purple-200">
-                        {DEMO_GOALS.length} Active
-                      </Badge>
+                      Universal Boundaries
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-3">
-                    {DEMO_GOALS.map((goal, index) => (
+                  <CardContent>
+                    <div className="p-4 rounded-lg bg-purple-50/50 border border-purple-100">
+                      <p className="text-sm text-muted-foreground mb-3">
+                        These boundaries apply to all families using this platform:
+                      </p>
+                      <ul className="space-y-2 text-sm">
+                        <li className="flex items-start gap-2">
+                          <Check className="h-4 w-4 text-purple-600 shrink-0 mt-0.5" />
+                          <span>No financial support will be provided for substances or activities that enable addiction.</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <Check className="h-4 w-4 text-purple-600 shrink-0 mt-0.5" />
+                          <span>All financial support must go through the approval process on this app. No cash.</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <Check className="h-4 w-4 text-purple-600 shrink-0 mt-0.5" />
+                          <span>All family members commit to honest, respectful communication.</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <Check className="h-4 w-4 text-purple-600 shrink-0 mt-0.5" />
+                          <span>Recovery progress must be demonstrated through treatment completion, aftercare compliance, meeting and therapy attendance, medication compliance where needed.</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <Check className="h-4 w-4 text-purple-600 shrink-0 mt-0.5" />
+                          <span>Immediate response is required for all location check-in requests. Failure to respond may result in the loss of cell phone service, vehicle privileges, financial support or other natural consequences.</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <Check className="h-4 w-4 text-purple-600 shrink-0 mt-0.5" />
+                          <span>Any relapse must be disclosed to the family within 24 hours.</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <Check className="h-4 w-4 text-purple-600 shrink-0 mt-0.5" />
+                          <span>Support system members must be involved in their own recovery process and document their involvement in recovery meetings, support groups, therapy appointments or other activities that support family recovery.</span>
+                        </li>
+                      </ul>
+                    </div>
+
+                    {/* Consequences Section */}
+                    <div className="p-4 rounded-lg bg-red-50 border border-red-200 mt-4">
+                      <h3 className="font-medium text-foreground mb-2 flex items-center gap-2">
+                        <AlertTriangle className="h-4 w-4 text-red-500" />
+                        Consequences
+                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                        Violation of the boundaries listed on this page could result in the reduction or elimination of financial support, access to transportation or phone service or other consequences agreed upon by the family group. Consequences apply to family group members who continue to enable the addiction or ignore their own recovery process.
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Family-Specific Boundaries */}
+                <Card className="border-0 shadow-lg overflow-hidden">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-3 text-lg">
+                      <Shield className="h-5 w-5 text-purple-600" />
+                      Family-Specific Boundaries
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {DEMO_BOUNDARIES.map((boundary, index) => (
                       <div 
-                        key={goal.id} 
-                        className="flex items-center gap-4 p-4 bg-gradient-to-r from-purple-50/80 to-violet-50/50 rounded-xl border border-purple-100 hover-lift transition-all duration-300 animate-fade-in"
+                        key={boundary.id} 
+                        className={`p-4 rounded-xl border animate-fade-in ${
+                          boundary.status === 'approved' 
+                            ? 'bg-green-50/50 border-green-200' 
+                            : 'bg-amber-50/50 border-amber-200'
+                        }`}
                         style={{ animationDelay: `${index * 100}ms` }}
                       >
-                        <div className="h-10 w-10 rounded-full bg-gradient-to-br from-purple-500 to-violet-500 flex items-center justify-center shadow-md">
-                          <Check className="h-5 w-5 text-white" />
+                        <div className="flex items-start justify-between mb-3">
+                          <div className="flex items-center gap-2">
+                            <Badge 
+                              variant={boundary.status === 'approved' ? 'default' : 'secondary'}
+                              className={boundary.status === 'approved' 
+                                ? 'bg-green-500 border-0' 
+                                : 'bg-amber-100 text-amber-700 border-amber-200'
+                              }
+                            >
+                              {boundary.status === 'approved' ? <CheckCircle className="h-3 w-3 mr-1" /> : <Clock className="h-3 w-3 mr-1" />}
+                              {boundary.status}
+                            </Badge>
+                            {boundary.targetUser && (
+                              <Badge variant="outline" className="border-primary/30 text-primary">
+                                <Users className="h-3 w-3 mr-1" />
+                                For: {boundary.targetUser}
+                              </Badge>
+                            )}
+                          </div>
+                          <span className="text-xs text-muted-foreground">by {boundary.createdBy}</span>
                         </div>
-                        <span className="text-sm font-medium flex-1">{goal.goal}</span>
-                        <Badge className="bg-purple-100 text-purple-700 border-purple-200">In Progress</Badge>
+                        
+                        <p className="text-sm mb-3">{boundary.content}</p>
+                        
+                        {boundary.acknowledgments.length > 0 && (
+                          <div className="mb-3">
+                            <p className="text-xs text-muted-foreground mb-2 font-medium">Acknowledged by:</p>
+                            <div className="flex flex-wrap gap-1">
+                              {boundary.acknowledgments.map((name, i) => (
+                                <Badge 
+                                  key={i} 
+                                  variant="outline" 
+                                  className="text-xs bg-green-50 border-green-200 text-green-700"
+                                >
+                                  <CheckCircle className="h-3 w-3 mr-1" />
+                                  {name}
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {boundary.status === 'pending' && (
+                          <div className="flex gap-2 mt-3">
+                            <Button size="sm" className="flex-1 bg-green-500 hover:bg-green-600">
+                              <Check className="h-4 w-4 mr-1" />
+                              Approve
+                            </Button>
+                            <Button size="sm" variant="outline" className="flex-1 border-red-200 text-red-600 hover:bg-red-50">
+                              <X className="h-4 w-4 mr-1" />
+                              Reject
+                            </Button>
+                          </div>
+                        )}
                       </div>
                     ))}
                   </CardContent>
                 </Card>
-
-                {DEMO_BOUNDARIES.map((boundary, index) => (
-                  <Card 
-                    key={boundary.id} 
-                    className="card-interactive border-0 shadow-lg overflow-hidden animate-fade-in"
-                    style={{ animationDelay: `${(index + 2) * 100}ms` }}
-                  >
-                    <div className={`h-1 ${boundary.status === 'approved' ? 'bg-gradient-to-r from-green-500 to-emerald-500' : 'bg-gradient-to-r from-amber-500 to-orange-500'}`} />
-                    <CardContent className="pt-6">
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex items-center gap-3">
-                          <div className={`h-10 w-10 rounded-xl flex items-center justify-center shadow-md ${
-                            boundary.status === 'approved' 
-                              ? 'bg-gradient-to-br from-green-500 to-emerald-500' 
-                              : 'bg-gradient-to-br from-amber-500 to-orange-500'
-                          }`}>
-                            <Shield className="h-5 w-5 text-white" />
-                          </div>
-                          <Badge 
-                            variant={boundary.status === 'approved' ? 'default' : 'secondary'}
-                            className={boundary.status === 'approved' 
-                              ? 'bg-gradient-to-r from-green-500 to-emerald-500 border-0' 
-                              : 'bg-amber-100 text-amber-700 border-amber-200'
-                            }
-                            style={boundary.status === 'approved' && branding ? { background: `linear-gradient(135deg, ${branding.primaryColor}, ${branding.primaryColor}cc)` } : undefined}
-                          >
-                            {boundary.status === 'approved' ? <CheckCircle className="h-3 w-3 mr-1" /> : <Clock className="h-3 w-3 mr-1" />}
-                            {boundary.status}
-                          </Badge>
-                          {boundary.targetUser && (
-                            <Badge variant="outline" className="border-primary/30 text-primary">
-                              <Users className="h-3 w-3 mr-1" />
-                              For: {boundary.targetUser}
-                            </Badge>
-                          )}
-                        </div>
-                        <span className="text-xs text-muted-foreground bg-muted/50 px-2 py-1 rounded-full">by {boundary.createdBy}</span>
-                      </div>
-                      
-                      <p className="text-sm mb-4 p-4 bg-muted/30 rounded-xl border border-border/50">{boundary.content}</p>
-                      
-                      {boundary.acknowledgments.length > 0 && (
-                        <div className="mb-4">
-                          <p className="text-xs text-muted-foreground mb-2 font-medium">Acknowledged by:</p>
-                          <div className="flex flex-wrap gap-2">
-                            {boundary.acknowledgments.map((name, i) => (
-                              <Badge 
-                                key={i} 
-                                variant="outline" 
-                                className="text-xs bg-green-50 border-green-200 text-green-700 animate-fade-in"
-                                style={{ animationDelay: `${i * 50}ms` }}
-                              >
-                                <CheckCircle className="h-3 w-3 mr-1" />
-                                {name}
-                              </Badge>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {boundary.status === 'pending' && (
-                        <div className="flex gap-3 mt-4">
-                          <Button 
-                            className="flex-1 shadow-md hover-lift bg-gradient-to-r from-green-500 to-emerald-500"
-                            style={branding ? { background: `linear-gradient(135deg, ${branding.primaryColor}, ${branding.primaryColor}cc)` } : undefined}
-                          >
-                            <Check className="h-4 w-4 mr-2" />
-                            Approve
-                          </Button>
-                          <Button variant="outline" className="flex-1 hover-lift border-red-200 text-red-600 hover:bg-red-50">
-                            <X className="h-4 w-4 mr-2" />
-                            Reject
-                          </Button>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                ))}
               </div>
             </TabsContent>
 
