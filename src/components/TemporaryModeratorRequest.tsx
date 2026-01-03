@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
@@ -14,7 +15,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { LifeBuoy, Loader2, Clock, AlertTriangle } from 'lucide-react';
+import { LifeBuoy, Loader2, Clock, AlertTriangle, Plus } from 'lucide-react';
 
 interface TemporaryModeratorRequestProps {
   familyId: string;
@@ -27,6 +28,7 @@ export const TemporaryModeratorRequest = ({
 }: TemporaryModeratorRequestProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [hasRecentRequest, setHasRecentRequest] = useState(false);
@@ -117,10 +119,21 @@ export const TemporaryModeratorRequest = ({
     const hoursRemaining = Math.max(0, Math.ceil((expiresAt.getTime() - Date.now()) / (1000 * 60 * 60)));
     
     return (
-      <div className="flex items-center gap-2 px-3 py-1.5 bg-success/10 text-success rounded-full text-sm">
-        <Clock className="h-4 w-4" />
-        <span className="hidden sm:inline">Crisis Support Active</span>
-        <span className="font-medium">{hoursRemaining}h left</span>
+      <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 px-3 py-1.5 bg-success/10 text-success rounded-full text-sm">
+          <Clock className="h-4 w-4" />
+          <span className="hidden sm:inline">Crisis Support Active</span>
+          <span className="font-medium">{hoursRemaining}h left</span>
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => navigate(`/moderator-purchase?familyId=${familyId}`)}
+          className="gap-1"
+        >
+          <Plus className="h-3 w-3" />
+          <span className="hidden sm:inline">Add Hours</span>
+        </Button>
       </div>
     );
   }
@@ -167,8 +180,16 @@ export const TemporaryModeratorRequest = ({
                 </p>
                 {hasRecentRequest && (
                   <p className="text-sm text-destructive mt-2 font-medium">
-                    ⚠️ You've already used your free session this month. 
-                    Additional days cost $100 each.
+                    ⚠️ You've already used your free session this month.{' '}
+                    <button 
+                      onClick={() => {
+                        setDialogOpen(false);
+                        navigate(`/moderator-purchase?familyId=${familyId}`);
+                      }}
+                      className="underline hover:no-underline"
+                    >
+                      Purchase additional hours ($200/day)
+                    </button>
                   </p>
                 )}
               </div>

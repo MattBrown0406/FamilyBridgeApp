@@ -17,6 +17,7 @@ import ProviderAdmin from "./pages/ProviderAdmin";
 import ProviderPurchase from "./pages/ProviderPurchase";
 import FamilyPurchase from "./pages/FamilyPurchase";
 import FamilySetup from "./pages/FamilySetup";
+import ModeratorPurchase from "./pages/ModeratorPurchase";
 import Demo from "./pages/Demo";
 import DemoFamily from "./pages/DemoFamily";
 import NotFound from "./pages/NotFound";
@@ -44,6 +45,7 @@ const App = () => (
               <Route path="/provider-purchase" element={<ProviderPurchase />} />
               <Route path="/family-purchase" element={<FamilyPurchase />} />
               <Route path="/family-setup" element={<FamilySetup />} />
+              <Route path="/moderator-purchase" element={<ModeratorPurchase />} />
               <Route path="/demo" element={<Demo />} />
               <Route path="/demo/family" element={<DemoFamily />} />
               <Route path="*" element={<NotFound />} />
