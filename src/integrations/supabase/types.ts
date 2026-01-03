@@ -714,6 +714,65 @@ export type Database = {
         }
         Relationships: []
       }
+      paid_moderator_requests: {
+        Row: {
+          activated_at: string | null
+          amount_paid: number
+          assigned_moderator_id: string | null
+          completed_at: string | null
+          created_at: string
+          expires_at: string | null
+          family_id: string
+          hours_purchased: number
+          id: string
+          payment_completed_at: string | null
+          requested_by: string
+          square_order_id: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          activated_at?: string | null
+          amount_paid?: number
+          assigned_moderator_id?: string | null
+          completed_at?: string | null
+          created_at?: string
+          expires_at?: string | null
+          family_id: string
+          hours_purchased?: number
+          id?: string
+          payment_completed_at?: string | null
+          requested_by: string
+          square_order_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          activated_at?: string | null
+          amount_paid?: number
+          assigned_moderator_id?: string | null
+          completed_at?: string | null
+          created_at?: string
+          expires_at?: string | null
+          family_id?: string
+          hours_purchased?: number
+          id?: string
+          payment_completed_at?: string | null
+          requested_by?: string
+          square_order_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "paid_moderator_requests_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payment_info: {
         Row: {
           cashapp_username: string | null
