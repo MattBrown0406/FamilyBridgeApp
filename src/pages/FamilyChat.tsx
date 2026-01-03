@@ -155,11 +155,82 @@ interface FamilyBoundary {
   acknowledgments: { user_id: string; user_name?: string; acknowledged_at: string }[];
 }
 
+interface FamilyValue {
+  id: string;
+  family_id: string;
+  value_key: string;
+  created_at: string;
+  selected_by: string;
+}
+
 const GOAL_OPTIONS = [
   { value: 'into_treatment', label: 'Get {name} into treatment' },
   { value: 'complete_treatment', label: 'Help {name} complete treatment' },
   { value: 'finish_aftercare', label: 'Help {name} finish aftercare plan' },
   { value: 'one_year_sobriety', label: 'Help {name} get to one year of sobriety' },
+] as const;
+
+const FAMILY_VALUES_OPTIONS = [
+  { 
+    key: 'honesty', 
+    name: 'Honesty & Transparency', 
+    description: 'We commit to open, truthful communication—even when it\'s difficult.',
+    icon: 'Heart'
+  },
+  { 
+    key: 'accountability', 
+    name: 'Accountability Without Shame', 
+    description: 'We hold each other responsible with love, not judgment.',
+    icon: 'Target'
+  },
+  { 
+    key: 'boundaries', 
+    name: 'Healthy Boundaries', 
+    description: 'We respect each other\'s limits while maintaining connection.',
+    icon: 'Shield'
+  },
+  { 
+    key: 'support_not_enabling', 
+    name: 'Support Without Enabling', 
+    description: 'We help each other grow without removing natural consequences.',
+    icon: 'Users'
+  },
+  { 
+    key: 'patience', 
+    name: 'Patience & Progress', 
+    description: 'We focus on progress, not perfection, and allow time for healing.',
+    icon: 'Heart'
+  },
+  { 
+    key: 'forgiveness', 
+    name: 'Forgiveness & Moving Forward', 
+    description: 'We release resentment and focus on building a better future together.',
+    icon: 'Heart'
+  },
+  { 
+    key: 'self_care', 
+    name: 'Self-Care for Everyone', 
+    description: 'We prioritize each person\'s wellbeing—recovery affects the whole family.',
+    icon: 'Heart'
+  },
+  { 
+    key: 'consistency', 
+    name: 'Consistency & Follow-Through', 
+    description: 'We do what we say we\'ll do and maintain reliable expectations.',
+    icon: 'Target'
+  },
+  { 
+    key: 'communication', 
+    name: 'Compassionate Communication', 
+    description: 'We speak with kindness and listen to understand, not to react.',
+    icon: 'MessageCircle'
+  },
+  { 
+    key: 'hope', 
+    name: 'Hope & Faith in Recovery', 
+    description: 'We believe that lasting recovery is possible and work toward it together.',
+    icon: 'Heart'
+  },
 ] as const;
 
 const FamilyChat = () => {
@@ -222,6 +293,12 @@ const FamilyChat = () => {
   const [familyGoals, setFamilyGoals] = useState<FamilyGoal[]>([]);
   const [selectedGoal, setSelectedGoal] = useState('');
   const [isAddingGoal, setIsAddingGoal] = useState(false);
+  
+  // Family Values state
+  const [familyValues, setFamilyValues] = useState<FamilyValue[]>([]);
+  const [selectedValues, setSelectedValues] = useState<string[]>([]);
+  const [isSavingValues, setIsSavingValues] = useState(false);
+  const [isEditingValues, setIsEditingValues] = useState(false);
   
   // Boundaries state
   const [familyBoundaries, setFamilyBoundaries] = useState<FamilyBoundary[]>([]);
@@ -637,6 +714,9 @@ const FamilyChat = () => {
       // Fetch family goals
       await fetchFamilyGoals();
       
+      // Fetch family values
+      await fetchFamilyValues();
+      
       // Fetch family boundaries
       await fetchFamilyBoundaries();
     } catch (error) {
@@ -665,6 +745,81 @@ const FamilyChat = () => {
     }
 
     setFamilyGoals(data || []);
+  };
+
+  const fetchFamilyValues = async () => {
+    const { data, error } = await supabase
+      .from('family_values')
+      .select('*')
+      .eq('family_id', familyId)
+      .order('created_at', { ascending: true });
+
+    if (error) {
+      console.error('Error fetching family values:', error);
+      return;
+    }
+
+    const values = data || [];
+    setFamilyValues(values);
+    setSelectedValues(values.map(v => v.value_key));
+  };
+
+  const handleToggleValue = (valueKey: string) => {
+    setSelectedValues(prev => {
+      if (prev.includes(valueKey)) {
+        return prev.filter(v => v !== valueKey);
+      } else if (prev.length < 2) {
+        return [...prev, valueKey];
+      } else {
+        // Replace the first selected with the new one
+        return [prev[1], valueKey];
+      }
+    });
+  };
+
+  const handleSaveValues = async () => {
+    if (!user || !familyId) return;
+
+    setIsSavingValues(true);
+    try {
+      // Delete existing values
+      await supabase
+        .from('family_values')
+        .delete()
+        .eq('family_id', familyId);
+
+      // Insert new values
+      if (selectedValues.length > 0) {
+        const { error } = await supabase
+          .from('family_values')
+          .insert(
+            selectedValues.map(valueKey => ({
+              family_id: familyId,
+              value_key: valueKey,
+              selected_by: user.id,
+            }))
+          );
+
+        if (error) throw error;
+      }
+
+      toast({
+        title: 'Values saved',
+        description: 'Your family\'s guiding values have been updated.',
+      });
+
+      setIsEditingValues(false);
+      await fetchFamilyValues();
+    } catch (error) {
+      console.error('Error saving values:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to save family values.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSavingValues(false);
+    }
   };
 
   const handleAddGoal = async () => {
@@ -2486,40 +2641,131 @@ const FamilyChat = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-6">
+                  {/* Guiding Values Section */}
                   <div className="space-y-3">
-                    <h3 className="font-medium text-foreground">Core Values</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Define the values that guide your family's recovery journey together.
-                    </p>
-                    <div className="grid gap-3">
-                      <div className="p-4 rounded-lg bg-secondary/50 border border-border">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Heart className="h-4 w-4 text-primary" />
-                          <span className="font-medium">Honesty & Transparency</span>
-                        </div>
-                        <p className="text-sm text-muted-foreground">
-                          We commit to open communication and truthfulness with each other.
-                        </p>
-                      </div>
-                      <div className="p-4 rounded-lg bg-secondary/50 border border-border">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Users className="h-4 w-4 text-primary" />
-                          <span className="font-medium">Support Without Enabling</span>
-                        </div>
-                        <p className="text-sm text-muted-foreground">
-                          We help each other while maintaining healthy accountability.
-                        </p>
-                      </div>
-                      <div className="p-4 rounded-lg bg-secondary/50 border border-border">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Shield className="h-4 w-4 text-primary" />
-                          <span className="font-medium">Respect & Dignity</span>
-                        </div>
-                        <p className="text-sm text-muted-foreground">
-                          We treat each other with compassion, even in difficult moments.
-                        </p>
-                      </div>
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-medium text-foreground">Guiding Values</h3>
+                      {currentUserRole === 'moderator' && familyValues.length > 0 && !isEditingValues && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setIsEditingValues(true)}
+                        >
+                          <Pencil className="h-4 w-4 mr-1" />
+                          Update Values
+                        </Button>
+                      )}
                     </div>
+                    
+                    {/* Intro message */}
+                    <div className="p-4 rounded-lg bg-primary/5 border border-primary/20">
+                      <p className="text-sm text-foreground">
+                        <strong>Your family's guiding values</strong> are the foundation for every goal you set and every boundary you create. 
+                        Choose <strong>two values</strong> that best represent where your family should focus right now. 
+                        These can be revisited and updated as your family's needs evolve.
+                      </p>
+                    </div>
+
+                    {/* Show current values if set and not editing */}
+                    {familyValues.length > 0 && !isEditingValues ? (
+                      <div className="grid gap-3">
+                        {familyValues.map(fv => {
+                          const valueOption = FAMILY_VALUES_OPTIONS.find(v => v.key === fv.value_key);
+                          if (!valueOption) return null;
+                          return (
+                            <div
+                              key={fv.id}
+                              className="p-4 rounded-lg bg-primary/10 border-2 border-primary"
+                            >
+                              <div className="flex items-center gap-2 mb-2">
+                                <Heart className="h-4 w-4 text-primary" />
+                                <span className="font-medium text-foreground">{valueOption.name}</span>
+                                <Badge variant="default" className="ml-auto">Selected</Badge>
+                              </div>
+                              <p className="text-sm text-muted-foreground">
+                                {valueOption.description}
+                              </p>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      /* Selection mode */
+                      currentUserRole === 'moderator' || isEditingValues || familyValues.length === 0 ? (
+                        <div className="space-y-4">
+                          <p className="text-sm text-muted-foreground">
+                            {currentUserRole === 'moderator' 
+                              ? `Select 2 values that will guide your family's recovery journey (${selectedValues.length}/2 selected):`
+                              : 'A family moderator will select the guiding values for your family.'}
+                          </p>
+                          
+                          {currentUserRole === 'moderator' && (
+                            <>
+                              <div className="grid gap-2">
+                                {FAMILY_VALUES_OPTIONS.map(option => {
+                                  const isSelected = selectedValues.includes(option.key);
+                                  return (
+                                    <button
+                                      key={option.key}
+                                      onClick={() => handleToggleValue(option.key)}
+                                      className={`p-4 rounded-lg border-2 text-left transition-all ${
+                                        isSelected 
+                                          ? 'bg-primary/10 border-primary' 
+                                          : 'bg-secondary/50 border-border hover:border-primary/50'
+                                      }`}
+                                    >
+                                      <div className="flex items-center gap-2 mb-1">
+                                        <Heart className={`h-4 w-4 ${isSelected ? 'text-primary' : 'text-muted-foreground'}`} />
+                                        <span className={`font-medium ${isSelected ? 'text-foreground' : 'text-foreground/80'}`}>
+                                          {option.name}
+                                        </span>
+                                        {isSelected && (
+                                          <CheckCircle className="h-4 w-4 text-primary ml-auto" />
+                                        )}
+                                      </div>
+                                      <p className="text-sm text-muted-foreground pl-6">
+                                        {option.description}
+                                      </p>
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                              
+                              <div className="flex gap-2">
+                                <Button
+                                  onClick={handleSaveValues}
+                                  disabled={selectedValues.length !== 2 || isSavingValues}
+                                  className="flex-1"
+                                >
+                                  {isSavingValues ? (
+                                    <>
+                                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                                      Saving...
+                                    </>
+                                  ) : (
+                                    <>
+                                      <CheckCircle className="h-4 w-4 mr-2" />
+                                      Save Guiding Values
+                                    </>
+                                  )}
+                                </Button>
+                                {isEditingValues && (
+                                  <Button
+                                    variant="outline"
+                                    onClick={() => {
+                                      setIsEditingValues(false);
+                                      setSelectedValues(familyValues.map(v => v.value_key));
+                                    }}
+                                  >
+                                    Cancel
+                                  </Button>
+                                )}
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      ) : null
+                    )}
                   </div>
 
                   <div className="space-y-3">
