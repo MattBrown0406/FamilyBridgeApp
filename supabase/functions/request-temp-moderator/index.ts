@@ -90,16 +90,42 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error("You have already used your free 24-hour supervision this month. Additional days cost $100 each.");
     }
 
-    // Get the default moderator (Matt's user ID)
-    const defaultModeratorEmail = "matt@freedominterventions.com";
+    // Get a moderator from Freedom Interventions organization
+    const { data: freedomOrg, error: orgError } = await supabase
+      .from("organizations")
+      .select("id")
+      .eq("name", "Freedom Interventions")
+      .maybeSingle();
+
+    if (orgError || !freedomOrg) {
+      console.error("Freedom Interventions org not found:", orgError);
+      throw new Error("No moderator service available");
+    }
+
+    // Get available moderators from Freedom Interventions
+    const { data: orgMembers, error: membersError } = await supabase
+      .from("organization_members")
+      .select("user_id, role")
+      .eq("organization_id", freedomOrg.id)
+      .order("role", { ascending: true }); // owners first, then admins, then staff
+
+    if (membersError || !orgMembers || orgMembers.length === 0) {
+      console.error("No moderators found in Freedom Interventions:", membersError);
+      throw new Error("No moderator available");
+    }
+
+    // Select the first available moderator (prioritizing owners/admins)
+    const moderatorUserId = orgMembers[0].user_id;
     
-    // Lookup user by email directly using admin API
+    // Get moderator email for notification
     const { data: authUsers } = await supabase.auth.admin.listUsers();
-    const moderator = authUsers.users.find(u => u.email === defaultModeratorEmail);
+    const moderator = authUsers.users.find(u => u.id === moderatorUserId);
     
     if (!moderator) {
       throw new Error("No moderator available");
     }
+
+    const moderatorEmail = moderator.email;
 
     // Get requester's profile for the email
     const { data: requesterProfile } = await supabase
@@ -143,12 +169,12 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     // Send notification email if Resend is configured
-    if (resendApiKey) {
+    if (resendApiKey && moderatorEmail) {
       try {
         const resend = new Resend(resendApiKey);
         const emailResponse = await resend.emails.send({
           from: "FamilyBridge <onboarding@resend.dev>",
-          to: [defaultModeratorEmail],
+          to: [moderatorEmail],
           subject: "🚨 Temporary Moderator Assignment - Crisis Support Requested",
           html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
