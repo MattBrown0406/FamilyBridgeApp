@@ -225,7 +225,7 @@ const Demo = () => {
               Exit Demo
             </Button>
             <Button onClick={() => navigate('/provider-purchase')}>
-              Get Started
+              Subscribe
             </Button>
           </div>
         </div>
