@@ -192,8 +192,8 @@ const Demo = () => {
     },
     {
       icon: Shield,
-      title: 'Boundary Setting',
-      description: 'Structured boundary agreements',
+      title: 'Goals, Values & Boundary Setting',
+      description: 'Learn how to chart a course for success based on guiding principles for your family',
     },
   ];
 
