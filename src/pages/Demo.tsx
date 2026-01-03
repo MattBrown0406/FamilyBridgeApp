@@ -188,7 +188,7 @@ const Demo = () => {
     {
       icon: MapPin,
       title: 'Check-in System',
-      description: 'Meeting and location verification',
+      description: 'Meeting and location verification through the use of the phone\'s GPS function',
     },
     {
       icon: Shield,
