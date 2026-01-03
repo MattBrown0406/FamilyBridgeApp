@@ -509,77 +509,235 @@ const DemoFamily = () => {
             {/* Check-ins Tab */}
             <TabsContent value="checkins" className="animate-fade-in">
               <div className="space-y-4">
-                {DEMO_CHECKINS.map((checkin, index) => (
-                  <Card 
-                    key={checkin.id} 
-                    className="card-interactive border-0 shadow-lg overflow-hidden animate-fade-in"
-                    style={{ animationDelay: `${index * 100}ms` }}
-                  >
-                    <div className={`h-1 ${checkin.status === 'active' ? 'bg-gradient-to-r from-blue-500 via-cyan-500 to-teal-500' : 'bg-gradient-to-r from-gray-300 to-gray-400'}`} />
-                    <CardContent className="pt-6">
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-start gap-4">
-                          <div className={`w-14 h-14 rounded-xl flex items-center justify-center shadow-md ${
-                            checkin.status === 'active' 
-                              ? 'bg-gradient-to-br from-blue-500 to-cyan-500 text-white animate-pulse-soft' 
-                              : 'bg-gradient-to-br from-gray-100 to-gray-200 text-muted-foreground'
-                          }`}>
-                            <MapPin className="h-7 w-7" />
-                          </div>
-                          <div>
-                            <div className="flex items-center gap-2 mb-1">
-                              <Avatar className="h-7 w-7 ring-2 ring-primary/20">
-                                <AvatarFallback className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground text-[10px]">MJ</AvatarFallback>
-                              </Avatar>
-                              <span className="font-semibold">{checkin.user}</span>
-                              <Badge 
-                                variant={checkin.status === 'active' ? 'default' : 'outline'}
-                                className={checkin.status === 'active' 
-                                  ? 'bg-gradient-to-r from-blue-500 to-cyan-500 border-0 animate-pulse' 
-                                  : 'bg-muted text-muted-foreground'
-                                }
-                                style={checkin.status === 'active' && branding ? { background: `linear-gradient(135deg, ${branding.primaryColor}, ${branding.primaryColor}cc)` } : undefined}
-                              >
-                                {checkin.status === 'active' ? (
-                                  <><Activity className="h-3 w-3 mr-1" /> In Progress</>
-                                ) : (
-                                  <><CheckCircle className="h-3 w-3 mr-1" /> Completed</>
-                                )}
-                              </Badge>
-                            </div>
-                            <p className="text-lg font-semibold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent mt-2">
-                              {checkin.type} - {checkin.name}
-                            </p>
-                            <p className="text-sm text-muted-foreground flex items-center gap-1.5 mt-1">
-                              <MapPin className="h-3.5 w-3.5" />
-                              {checkin.location}
-                            </p>
-                            <div className="flex items-center gap-4 mt-3 text-sm">
-                              <span className="flex items-center gap-1.5 bg-muted/50 px-3 py-1.5 rounded-full">
-                                <Clock className="h-4 w-4 text-blue-500" />
-                                <span className="text-muted-foreground">In:</span>
-                                <span className="font-medium">{checkin.checkinTime}</span>
-                              </span>
-                              {checkin.status === 'active' ? (
-                                <span className="flex items-center gap-1.5 bg-orange-100 text-orange-700 px-3 py-1.5 rounded-full animate-pulse">
-                                  <AlertTriangle className="h-4 w-4" />
-                                  <span>Due:</span>
-                                  <span className="font-medium">{checkin.checkoutDue}</span>
-                                </span>
-                              ) : (
-                                <span className="flex items-center gap-1.5 bg-green-100 text-green-700 px-3 py-1.5 rounded-full">
-                                  <CheckCircle className="h-4 w-4" />
-                                  <span>Out:</span>
-                                  <span className="font-medium">{checkin.checkoutTime}</span>
-                                </span>
-                              )}
-                            </div>
+                {/* Location Capture Card */}
+                <Card className="card-interactive overflow-hidden">
+                  <div className="h-1 bg-gradient-to-r from-primary via-accent to-primary" />
+                  <CardHeader className="pb-3">
+                    <CardTitle className="flex items-center gap-2 font-display text-lg">
+                      <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
+                        <MapPin className="h-4 w-4 text-primary" />
+                      </div>
+                      Capture My Location
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      Capture your current location to use for meeting check-ins or location requests.
+                    </p>
+                    <Button 
+                      className="w-full"
+                      style={branding ? { background: `linear-gradient(135deg, ${branding.primaryColor}, ${branding.primaryColor}cc)` } : undefined}
+                    >
+                      <MapPin className="h-4 w-4 mr-2" />
+                      Capture Location
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                {/* Check-In Form Card */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 font-display">
+                      <CheckCircle className="h-5 w-5 text-primary" />
+                      Check-In
+                    </CardTitle>
+                    <p className="text-sm text-muted-foreground">
+                      Check in at your meeting or appointment to let your family know where you are.
+                    </p>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {/* Tabbed Content */}
+                    <Tabs defaultValue="recovery" className="w-full">
+                      <TabsList className="grid w-full grid-cols-2">
+                        <TabsTrigger value="recovery" className="flex items-center gap-2">
+                          <Heart className="h-4 w-4" />
+                          <span className="hidden sm:inline">Recovery Meetings</span>
+                          <span className="sm:hidden">Recovery</span>
+                        </TabsTrigger>
+                        <TabsTrigger value="life" className="flex items-center gap-2">
+                          <Calendar className="h-4 w-4" />
+                          <span className="hidden sm:inline">Life Appointments</span>
+                          <span className="sm:hidden">Appointments</span>
+                        </TabsTrigger>
+                      </TabsList>
+                      
+                      <TabsContent value="recovery" className="mt-4 space-y-4">
+                        <div className="p-3 bg-muted/50 rounded-lg text-sm text-muted-foreground">
+                          Capture your location above before checking in.
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Meeting Type *</label>
+                          <div className="p-3 border rounded-lg text-muted-foreground text-sm">
+                            Select meeting type
                           </div>
                         </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Meeting Name (optional)</label>
+                          <Input placeholder="e.g., Tuesday Night Group" disabled className="opacity-60" />
+                        </div>
+                        <Button className="w-full" disabled>
+                          <CheckCircle className="h-4 w-4 mr-2" />
+                          Check In to Meeting
+                        </Button>
+                      </TabsContent>
+                      
+                      <TabsContent value="life" className="mt-4 space-y-4">
+                        <div className="p-3 bg-muted/50 rounded-lg text-sm text-muted-foreground">
+                          Capture your location above before checking in.
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Appointment Type *</label>
+                          <div className="p-3 border rounded-lg text-muted-foreground text-sm">
+                            Select appointment type
+                          </div>
+                        </div>
+                        <Button className="w-full" disabled>
+                          <CheckCircle className="h-4 w-4 mr-2" />
+                          Check In to Appointment
+                        </Button>
+                      </TabsContent>
+                    </Tabs>
+                  </CardContent>
+                </Card>
+
+                {/* Meeting Checkout Card (Demo - showing active checkout) */}
+                <Card className="border-primary/50 bg-primary/5">
+                  <CardHeader>
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <CardTitle className="flex items-center gap-2 font-display">
+                          <Activity className="h-5 w-5 text-primary" />
+                          Meeting Checkout Required
+                        </CardTitle>
+                        <p className="text-sm text-muted-foreground">
+                          Complete your meeting checkout to confirm attendance.
+                        </p>
                       </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                      <Badge variant="default">Ready</Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {/* Meeting Info */}
+                    <div className="p-3 bg-muted/50 rounded-lg space-y-2">
+                      <div className="flex items-center gap-2 text-sm">
+                        <span className="font-medium">AA</span>
+                        <span className="text-muted-foreground">• Evening Serenity Group</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <MapPin className="h-3 w-3" />
+                        St. Mark's Church, 123 Main St
+                      </div>
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <Clock className="h-3 w-3" />
+                        <span>Checked in: 6:45 PM</span>
+                        <span>•</span>
+                        <span>Checkout due: 8:00 PM</span>
+                      </div>
+                    </div>
+
+                    {/* Demo location capture */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Capture Your Checkout Location</label>
+                      <Button variant="outline" className="w-full">
+                        <MapPin className="h-4 w-4 mr-2" />
+                        Capture Checkout Location
+                      </Button>
+                    </div>
+
+                    {/* Notes */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Notes (optional)</label>
+                      <Textarea placeholder="How was the meeting?" rows={2} />
+                    </div>
+
+                    {/* Checkout Button */}
+                    <Button 
+                      className="w-full"
+                      style={branding ? { background: `linear-gradient(135deg, ${branding.primaryColor}, ${branding.primaryColor}cc)` } : undefined}
+                    >
+                      <Activity className="h-4 w-4 mr-2" />
+                      Complete Checkout
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                {/* Recent Check-ins History Card */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="font-display">Recent Check-ins</CardTitle>
+                    <p className="text-sm text-muted-foreground">
+                      Meeting attendance from family members
+                    </p>
+                  </CardHeader>
+                  <CardContent className="p-0">
+                    <ScrollArea className="h-[300px]">
+                      <div className="divide-y">
+                        {DEMO_CHECKINS.map((checkin, index) => (
+                          <div key={checkin.id} className="p-4 hover:bg-muted/50 transition-colors animate-fade-in" style={{ animationDelay: `${index * 100}ms` }}>
+                            <div className="flex items-start justify-between gap-4">
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 flex-wrap mb-1">
+                                  <Avatar className="h-6 w-6">
+                                    <AvatarFallback className="text-[10px] bg-primary/10">MJ</AvatarFallback>
+                                  </Avatar>
+                                  <span className="font-medium text-foreground">{checkin.user}</span>
+                                  <Badge 
+                                    variant="secondary" 
+                                    className={checkin.type === 'AA' 
+                                      ? 'bg-blue-100 text-blue-800' 
+                                      : 'bg-green-100 text-green-800'
+                                    }
+                                  >
+                                    {checkin.type}
+                                  </Badge>
+                                  <Badge 
+                                    variant={checkin.status === 'active' ? 'default' : 'secondary'}
+                                    className={checkin.status === 'active' 
+                                      ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white border-0' 
+                                      : ''
+                                    }
+                                  >
+                                    {checkin.status === 'active' ? (
+                                      <><Clock className="h-3 w-3 mr-1" /> In Meeting</>
+                                    ) : (
+                                      <><CheckCircle className="h-3 w-3 mr-1" /> Checked Out</>
+                                    )}
+                                  </Badge>
+                                </div>
+                                
+                                {checkin.name && (
+                                  <p className="text-sm text-foreground mb-1">{checkin.name}</p>
+                                )}
+
+                                <div className="flex items-center gap-1 text-xs text-muted-foreground mb-2">
+                                  <Clock className="h-3 w-3" />
+                                  <span>Checked in at {checkin.checkinTime}</span>
+                                  {checkin.checkoutTime && (
+                                    <>
+                                      <span className="mx-1">•</span>
+                                      <span className="text-green-600">Out: {checkin.checkoutTime}</span>
+                                    </>
+                                  )}
+                                  {checkin.checkoutDue && checkin.status === 'active' && (
+                                    <>
+                                      <span className="mx-1">•</span>
+                                      <span className="text-orange-600">Due: {checkin.checkoutDue}</span>
+                                    </>
+                                  )}
+                                </div>
+
+                                <button className="flex items-start gap-1 text-xs text-primary hover:underline">
+                                  <MapPin className="h-3 w-3 mt-0.5 shrink-0" />
+                                  <span className="text-left">{checkin.location}</span>
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </ScrollArea>
+                  </CardContent>
+                </Card>
               </div>
             </TabsContent>
 
