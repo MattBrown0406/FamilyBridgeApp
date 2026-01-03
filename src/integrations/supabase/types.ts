@@ -242,6 +242,7 @@ export type Database = {
           family_id: string
           id: string
           joined_at: string
+          private_messaging_enabled: boolean
           relationship_type:
             | Database["public"]["Enums"]["relationship_type"]
             | null
@@ -252,6 +253,7 @@ export type Database = {
           family_id: string
           id?: string
           joined_at?: string
+          private_messaging_enabled?: boolean
           relationship_type?:
             | Database["public"]["Enums"]["relationship_type"]
             | null
@@ -262,6 +264,7 @@ export type Database = {
           family_id?: string
           id?: string
           joined_at?: string
+          private_messaging_enabled?: boolean
           relationship_type?:
             | Database["public"]["Enums"]["relationship_type"]
             | null
@@ -990,6 +993,10 @@ export type Database = {
       }
       is_org_member: {
         Args: { _org_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_professional_moderator: {
+        Args: { _family_id: string; _user_id: string }
         Returns: boolean
       }
       request_has_no_votes: { Args: { _request_id: string }; Returns: boolean }

@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { 
   Heart, ArrowLeft, Send, Loader2, Users, DollarSign, 
@@ -85,6 +86,7 @@ interface Member {
   paypal_username?: string | null;
   venmo_username?: string | null;
   cashapp_username?: string | null;
+  private_messaging_enabled?: boolean;
 }
 
 interface FinancialPledge {
@@ -230,6 +232,7 @@ const FamilyChat = () => {
   // Private messaging state
   const [privateMessagingOpen, setPrivateMessagingOpen] = useState(false);
   const [unreadPrivateMessages, setUnreadPrivateMessages] = useState(0);
+  const [hasProfessionalModerator, setHasProfessionalModerator] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -442,6 +445,66 @@ const FamilyChat = () => {
     }
   };
 
+  const togglePrivateMessaging = async (memberId: string, userId: string, enabled: boolean) => {
+    try {
+      const { error } = await supabase
+        .from('family_members')
+        .update({ private_messaging_enabled: enabled })
+        .eq('id', memberId);
+
+      if (error) throw error;
+
+      setMembers(prev => 
+        prev.map(m => 
+          m.id === memberId 
+            ? { ...m, private_messaging_enabled: enabled }
+            : m
+        )
+      );
+
+      toast({
+        title: enabled ? 'Private messaging enabled' : 'Private messaging disabled',
+        description: `Updated private messaging permissions.`,
+      });
+    } catch (error) {
+      console.error('Error toggling private messaging:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to update private messaging permissions.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const checkProfessionalModerator = async () => {
+    if (!familyId) return;
+    
+    // Check temporary moderator requests
+    const { data: tempMod } = await supabase
+      .from('temporary_moderator_requests')
+      .select('id')
+      .eq('family_id', familyId)
+      .eq('status', 'active')
+      .gt('expires_at', new Date().toISOString())
+      .limit(1);
+
+    // Check paid moderator requests
+    const { data: paidMod } = await supabase
+      .from('paid_moderator_requests')
+      .select('id')
+      .eq('family_id', familyId)
+      .eq('status', 'active')
+      .limit(1);
+
+    setHasProfessionalModerator((tempMod && tempMod.length > 0) || (paidMod && paidMod.length > 0));
+  };
+
+  useEffect(() => {
+    if (familyId) {
+      checkProfessionalModerator();
+    }
+  }, [familyId]);
+
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
@@ -479,7 +542,7 @@ const FamilyChat = () => {
       // Fetch members (cannot embed profiles here because there is no FK relationship)
       const { data: membersData, error: membersError } = await supabase
         .from('family_members')
-        .select('id, user_id, role')
+        .select('id, user_id, role, private_messaging_enabled')
         .eq('family_id', familyId);
 
       if (membersError) throw membersError;
@@ -529,6 +592,7 @@ const FamilyChat = () => {
           paypal_username: paymentInfo?.paypal_username,
           venmo_username: paymentInfo?.venmo_username,
           cashapp_username: paymentInfo?.cashapp_username,
+          private_messaging_enabled: m.private_messaging_enabled,
         };
       });
 
@@ -2870,46 +2934,63 @@ const FamilyChat = () => {
                 {members.map((member) => (
                   <div
                     key={member.id}
-                    className="flex items-center justify-between p-3 rounded-lg bg-secondary/50"
+                    className="flex flex-col p-3 rounded-lg bg-secondary/50 gap-2"
                   >
-                    <div className="flex items-center gap-3">
-                      <Avatar>
-                        <AvatarFallback className="bg-primary/10 text-primary">
-                          {getInitials(member.full_name)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="font-medium text-foreground">
-                          {member.full_name}
-                          {member.user_id === user?.id && (
-                            <span className="text-muted-foreground ml-2">(You)</span>
-                          )}
-                        </p>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <Avatar>
+                          <AvatarFallback className="bg-primary/10 text-primary">
+                            {getInitials(member.full_name)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <p className="font-medium text-foreground">
+                            {member.full_name}
+                            {member.user_id === user?.id && (
+                              <span className="text-muted-foreground ml-2">(You)</span>
+                            )}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {currentUserRole === 'moderator' && member.user_id !== user?.id && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => openEditMember(member)}
+                            title="Edit profile"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                        )}
+                        <Badge
+                          variant={
+                            member.role === 'moderator'
+                              ? 'default'
+                              : member.role === 'recovering'
+                              ? 'outline'
+                              : 'secondary'
+                          }
+                        >
+                          {member.role}
+                        </Badge>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      {currentUserRole === 'moderator' && member.user_id !== user?.id && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => openEditMember(member)}
-                          title="Edit profile"
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                      )}
-                      <Badge
-                        variant={
-                          member.role === 'moderator'
-                            ? 'default'
-                            : member.role === 'recovering'
-                            ? 'outline'
-                            : 'secondary'
-                        }
-                      >
-                        {member.role}
-                      </Badge>
-                    </div>
+                    {/* Private messaging toggle for recovering members - only shown to moderators */}
+                    {currentUserRole === 'moderator' && 
+                     member.role === 'recovering' && 
+                     member.user_id !== user?.id && (
+                      <div className="flex items-center justify-between pl-12 pt-1 border-t border-border/50 mt-1">
+                        <div className="flex items-center gap-2">
+                          <MessageSquare className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-sm text-muted-foreground">Private messaging</span>
+                        </div>
+                        <Switch
+                          checked={member.private_messaging_enabled ?? false}
+                          onCheckedChange={(checked) => togglePrivateMessaging(member.id, member.user_id, checked)}
+                        />
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -2987,6 +3068,8 @@ const FamilyChat = () => {
           familyId={familyId}
           currentUserId={user.id}
           currentUserRole={currentUserRole}
+          currentUserMessagingEnabled={members.find(m => m.user_id === user.id)?.private_messaging_enabled ?? false}
+          hasProfessionalModerator={hasProfessionalModerator}
           members={members}
           isOpen={privateMessagingOpen}
           onClose={() => setPrivateMessagingOpen(false)}

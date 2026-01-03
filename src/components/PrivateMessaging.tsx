@@ -30,12 +30,15 @@ interface Member {
   user_id: string;
   role: string;
   full_name: string;
+  private_messaging_enabled?: boolean;
 }
 
 interface PrivateMessagingProps {
   familyId: string;
   currentUserId: string;
   currentUserRole: string;
+  currentUserMessagingEnabled: boolean;
+  hasProfessionalModerator: boolean;
   members: Member[];
   isOpen: boolean;
   onClose: () => void;
@@ -45,6 +48,8 @@ export const PrivateMessaging = ({
   familyId,
   currentUserId,
   currentUserRole,
+  currentUserMessagingEnabled,
+  hasProfessionalModerator,
   members,
   isOpen,
   onClose,
@@ -68,13 +73,33 @@ export const PrivateMessaging = ({
       .slice(0, 2);
   };
 
-  // Get eligible chat partners (moderators for members, all members for moderators)
+  // Get eligible chat partners based on role and permissions
   const getChatPartners = () => {
     if (currentUserRole === 'moderator') {
+      // Moderators can message anyone
       return members.filter(m => m.user_id !== currentUserId);
+    } else if (currentUserRole === 'recovering') {
+      // Recovering users: can message professional moderators always, 
+      // or regular moderators if private messaging is enabled
+      return members.filter(m => {
+        if (m.user_id === currentUserId) return false;
+        if (m.role !== 'moderator') return false;
+        // If there's a professional moderator assigned, always show moderators
+        if (hasProfessionalModerator) return true;
+        // Otherwise, only show if private messaging is enabled
+        return currentUserMessagingEnabled;
+      });
     } else {
-      return members.filter(m => m.role === 'moderator');
+      // Regular members can only message moderators if enabled
+      return members.filter(m => m.role === 'moderator' && currentUserMessagingEnabled);
     }
+  };
+
+  // Check if messaging is available for this user
+  const canSendMessages = () => {
+    if (currentUserRole === 'moderator') return true;
+    if (hasProfessionalModerator) return true;
+    return currentUserMessagingEnabled;
   };
 
   const fetchUnreadCounts = async () => {
@@ -262,11 +287,15 @@ export const PrivateMessaging = ({
           <ScrollArea className="flex-1 p-4">
             <div className="space-y-2">
               {chatPartners.length === 0 ? (
-                <p className="text-sm text-muted-foreground text-center py-4">
-                  {currentUserRole === 'moderator'
-                    ? 'No family members to message.'
-                    : 'No moderators available to message.'}
-                </p>
+                <div className="text-center py-8">
+                  <p className="text-sm text-muted-foreground">
+                    {currentUserRole === 'moderator'
+                      ? 'No family members to message.'
+                      : !canSendMessages()
+                      ? 'Private messaging is not enabled for you. Ask your family moderator to enable it.'
+                      : 'No moderators available to message.'}
+                  </p>
+                </div>
               ) : (
                 chatPartners.map((member) => (
                   <button
