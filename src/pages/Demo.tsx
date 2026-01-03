@@ -240,8 +240,8 @@ const Demo = () => {
           See FamilyBridge in Action
         </h1>
         <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
-          Experience how your treatment center, therapy practice, or sober living facility can offer 
-          a branded family communication platform to support recovery.
+          Experience how your family or recovery support organization can benefit from structured support, 
+          communication and accountability through each stage of the recovery process.
         </p>
       </section>
 
