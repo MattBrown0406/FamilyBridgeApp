@@ -1,5 +1,5 @@
-import { Heart } from 'lucide-react';
 import { useOrganization } from '@/hooks/useOrganization';
+import familyBridgeLogo from '@/assets/familybridge-logo.png';
 
 interface BrandedHeaderProps {
   className?: string;
@@ -18,7 +18,11 @@ export const BrandedHeader = ({ className = '' }: BrandedHeaderProps) => {
             className="h-8 w-auto object-contain"
           />
         ) : (
-          <Heart className="h-7 w-7 text-primary" />
+          <img 
+            src={familyBridgeLogo} 
+            alt="FamilyBridge" 
+            className="h-8 w-auto object-contain"
+          />
         )}
         <span className="text-lg font-display font-semibold text-foreground">
           {organization.name}
@@ -29,7 +33,11 @@ export const BrandedHeader = ({ className = '' }: BrandedHeaderProps) => {
 
   return (
     <div className={`flex items-center gap-2 ${className}`}>
-      <Heart className="h-7 w-7 text-primary" />
+      <img 
+        src={familyBridgeLogo} 
+        alt="FamilyBridge" 
+        className="h-8 w-auto object-contain"
+      />
       <span className="text-lg font-display font-semibold text-foreground">
         FamilyBridge
       </span>
