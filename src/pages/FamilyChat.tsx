@@ -179,7 +179,7 @@ const FAMILY_VALUES_OPTIONS = [
   },
   { 
     key: 'accountability', 
-    name: 'Accountability Without Shame', 
+    name: 'Accountability and Repair Without Shame', 
     description: 'We hold each other responsible with love, not judgment.',
     icon: 'Target'
   },
