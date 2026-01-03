@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { FinancialRequestCard } from '@/components/FinancialRequestCard';
 import { 
   ArrowLeft, 
   Send, 
@@ -476,157 +477,31 @@ const DemoFamily = () => {
                 </CardContent>
               </Card>
 
-              <div className="space-y-4">
+              <div className="space-y-2">
                 {DEMO_FINANCIAL_REQUESTS.map((request, index) => (
-                  <Card 
+                  <div 
                     key={request.id} 
-                    className="card-interactive border-0 shadow-lg overflow-hidden animate-fade-in"
-                    style={{ animationDelay: `${index * 100}ms` }}
+                    className="animate-fade-in"
+                    style={{ animationDelay: `${index * 50}ms` }}
                   >
-                    <div className={`h-1 ${request.status === 'completed' ? 'bg-gradient-to-r from-blue-500 to-indigo-500' : request.status === 'approved' ? 'bg-gradient-to-r from-green-500 to-emerald-500' : 'bg-gradient-to-r from-amber-500 to-orange-500'}`} />
-                    <CardContent className="pt-6">
-                      <div className="flex items-start justify-between mb-4">
-                        <div>
-                          <div className="flex items-center gap-2 mb-2">
-                            <Avatar className="h-8 w-8 ring-2 ring-primary/20">
-                              <AvatarFallback className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground text-xs">MJ</AvatarFallback>
-                            </Avatar>
-                            <span className="font-semibold">{request.requester}</span>
-                            <Badge 
-                              variant={request.status === 'completed' || request.status === 'approved' ? 'default' : 'secondary'}
-                              className={
-                                request.status === 'completed' 
-                                  ? 'bg-gradient-to-r from-blue-500 to-indigo-500 border-0' 
-                                  : request.status === 'approved' 
-                                    ? 'bg-gradient-to-r from-green-500 to-emerald-500 border-0' 
-                                    : 'bg-amber-100 text-amber-700 border-amber-200'
-                              }
-                            >
-                              {request.status === 'completed' ? <CheckCircle className="h-3 w-3 mr-1" /> : request.status === 'approved' ? <CheckCircle className="h-3 w-3 mr-1" /> : <Clock className="h-3 w-3 mr-1" />}
-                              {request.status}
-                            </Badge>
-                          </div>
-                          <p className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">${request.amount.toFixed(2)}</p>
-                          <p className="text-sm text-muted-foreground mt-1">{request.reason}</p>
-                        </div>
-                        <span className="text-xs text-muted-foreground bg-muted/50 px-2 py-1 rounded-full">{request.createdAt}</span>
-                      </div>
-
-                      {request.attachmentUrl && (
-                        <div className="mb-4 border border-border/50 rounded-xl overflow-hidden shadow-sm hover-lift transition-all duration-300">
-                          <div className="bg-gradient-to-r from-muted/50 to-muted/30 px-4 py-2.5 border-b flex items-center gap-2">
-                            <FileText className="h-4 w-4 text-primary" />
-                            <span className="text-sm font-medium">Attached Document</span>
-                            <Paperclip className="h-3 w-3 text-muted-foreground ml-auto" />
-                          </div>
-                          <a href={request.attachmentUrl} target="_blank" rel="noopener noreferrer" className="block">
-                            <img 
-                              src={request.attachmentUrl} 
-                              alt="Electric bill attachment" 
-                              className="w-full max-h-64 object-contain bg-white cursor-pointer hover:scale-[1.02] transition-transform duration-300"
-                            />
-                          </a>
-                          <div className="bg-muted/20 px-4 py-2 border-t">
-                            <p className="text-xs text-muted-foreground">
-                              {request.attachmentCaption}
-                            </p>
-                          </div>
-                        </div>
-                      )}
-
-                      <div className="flex items-center gap-6 mb-4 p-3 bg-muted/30 rounded-lg">
-                        <div className="flex items-center gap-2 text-green-600">
-                          <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center">
-                            <ThumbsUp className="h-4 w-4" />
-                          </div>
-                          <div>
-                            <span className="text-lg font-bold">{request.votes.approve}</span>
-                            <span className="text-sm ml-1">approve</span>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2 text-red-500">
-                          <div className="h-8 w-8 rounded-full bg-red-100 flex items-center justify-center">
-                            <ThumbsDown className="h-4 w-4" />
-                          </div>
-                          <div>
-                            <span className="text-lg font-bold">{request.votes.deny}</span>
-                            <span className="text-sm ml-1">deny</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {request.pledges.length > 0 && (
-                        <div className="bg-gradient-to-br from-primary/5 to-primary/10 rounded-xl p-4 mb-4 border border-primary/10">
-                          <p className="text-sm font-semibold mb-3 flex items-center gap-2">
-                            <Heart className="h-4 w-4 text-primary" />
-                            Pledges ({request.pledges.length})
-                          </p>
-                          <div className="space-y-2">
-                            {request.pledges.map((pledge, i) => (
-                              <div key={i} className="flex justify-between items-center text-sm bg-background/60 rounded-lg px-3 py-2">
-                                <div className="flex items-center gap-2">
-                                  <Avatar className="h-6 w-6">
-                                    <AvatarFallback className="text-[10px] bg-muted">{pledge.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                                  </Avatar>
-                                  <span>{pledge.name}</span>
-                                </div>
-                                <span className="font-bold text-primary">${pledge.amount}</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {request.fundsReceived && (
-                        <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-4 mb-3 animate-fade-in">
-                          <div className="flex items-center gap-3 text-green-700">
-                            <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
-                              <CheckCircle className="h-5 w-5" />
-                            </div>
-                            <div>
-                              <span className="font-semibold">Funds Received</span>
-                              <p className="text-xs text-green-600">
-                                {request.requester} confirmed receipt • {request.fundsReceivedAt}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
-                      {request.status === 'completed' && (
-                        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4 animate-fade-in">
-                          <div className="flex items-center gap-3 text-blue-700">
-                            <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                              <CheckCircle className="h-5 w-5" />
-                            </div>
-                            <div>
-                              <span className="font-semibold">Request Completed</span>
-                              <p className="text-xs text-blue-600">
-                                This request has been fully processed and closed
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
-                      {request.status === 'pending' && (
-                        <div className="flex gap-3 mt-4">
-                          <Button 
-                            size="lg" 
-                            className="flex-1 shadow-md hover-lift bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
-                            style={branding ? { background: `linear-gradient(135deg, ${branding.primaryColor}, ${branding.primaryColor}cc)` } : undefined}
-                          >
-                            <ThumbsUp className="h-4 w-4 mr-2" />
-                            Approve
-                          </Button>
-                          <Button size="lg" variant="outline" className="flex-1 hover-lift border-red-200 text-red-600 hover:bg-red-50">
-                            <ThumbsDown className="h-4 w-4 mr-2" />
-                            Deny
-                          </Button>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
+                    <FinancialRequestCard
+                      id={request.id}
+                      requester={request.requester}
+                      requesterInitials="MJ"
+                      amount={request.amount}
+                      reason={request.reason}
+                      status={request.status as 'pending' | 'approved' | 'denied' | 'completed'}
+                      createdAt={request.createdAt}
+                      votes={request.votes}
+                      pledges={request.pledges}
+                      attachmentUrl={request.attachmentUrl}
+                      attachmentCaption={request.attachmentCaption}
+                      fundsReceived={request.fundsReceived}
+                      fundsReceivedAt={request.fundsReceivedAt}
+                      branding={branding ? { primaryColor: branding.primaryColor } : undefined}
+                      isDemo={true}
+                    />
+                  </div>
                 ))}
               </div>
             </TabsContent>
