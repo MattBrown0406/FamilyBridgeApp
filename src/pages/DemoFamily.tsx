@@ -323,13 +323,6 @@ const DemoFamily = () => {
                 Check-ins
               </TabsTrigger>
               <TabsTrigger 
-                value="testing"
-                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-500 data-[state=active]:to-orange-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-300"
-              >
-                <FlaskConical className="h-4 w-4 mr-2" />
-                Testing
-              </TabsTrigger>
-              <TabsTrigger 
                 value="values"
                 className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500 data-[state=active]:to-rose-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-300"
               >
@@ -342,6 +335,13 @@ const DemoFamily = () => {
               >
                 <Shield className="h-4 w-4 mr-2" />
                 Boundaries
+              </TabsTrigger>
+              <TabsTrigger 
+                value="testing"
+                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-500 data-[state=active]:to-orange-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-300"
+              >
+                <FlaskConical className="h-4 w-4 mr-2" />
+                Testing
               </TabsTrigger>
             </TabsList>
 
