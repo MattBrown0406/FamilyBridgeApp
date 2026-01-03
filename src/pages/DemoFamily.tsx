@@ -43,7 +43,7 @@ import demoGasReceipt from '@/assets/demo-gas-receipt.png';
 // Demo data
 const DEMO_MEMBERS = [
   { id: '0', name: 'Matt Brown', role: 'moderator', relationship: 'Case Manager', initials: 'MB' },
-  { id: '1', name: 'Sarah Johnson', role: 'member', relationship: 'Parent', initials: 'SJ' },
+  { id: '1', name: 'Sarah Johnson', role: 'admin', relationship: 'Parent', initials: 'SJ' },
   { 
     id: '2', 
     name: 'Michael Johnson', 
