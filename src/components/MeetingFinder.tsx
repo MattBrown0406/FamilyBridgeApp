@@ -67,7 +67,7 @@ const MEETING_TYPES: Record<string, string> = {
 };
 
 // Region/Feed configuration
-type Fellowship = 'AA' | 'Al-Anon' | 'ACA' | 'NA' | 'CoDA' | 'Refuge Recovery' | 'Families Anonymous' | 'All';
+type Fellowship = 'AA' | 'Al-Anon' | 'ACA' | 'NA' | 'CoDA' | 'Refuge Recovery' | 'Families Anonymous' | 'EDA' | 'All';
 
 interface RegionFeed {
   name: string;
@@ -91,6 +91,7 @@ const FELLOWSHIPS: { value: Fellowship; label: string }[] = [
   { value: 'CoDA', label: 'Co-Dependents Anonymous (CoDA)' },
   { value: 'Refuge Recovery', label: 'Refuge Recovery' },
   { value: 'Families Anonymous', label: 'Families Anonymous' },
+  { value: 'EDA', label: 'Eating Disorders Anonymous (EDA)' },
 ];
 
 const REGION_GROUPS: RegionGroup[] = [
@@ -751,6 +752,33 @@ export const MeetingFinder = () => {
                   >
                     <ExternalLink className="h-4 w-4" />
                     Find FA Meetings
+                  </a>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Eating Disorders Anonymous External Link */}
+        {selectedFellowship === 'EDA' && (
+          <Card className="border-primary/30 bg-primary/5">
+            <CardContent className="py-4">
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex-1">
+                  <h4 className="font-medium text-foreground">Eating Disorders Anonymous Meeting Finder</h4>
+                  <p className="text-sm text-muted-foreground">
+                    EDA is a fellowship of individuals who share their experience, strength and hope with each other to recover from eating disorders. Find meetings through the official EDA website.
+                  </p>
+                </div>
+                <Button asChild variant="outline" size="sm">
+                  <a
+                    href="https://eatingdisordersanonymous.org/meetings/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2"
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                    Find EDA Meetings
                   </a>
                 </Button>
               </div>
