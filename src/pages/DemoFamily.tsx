@@ -338,7 +338,7 @@ const DemoFamily = () => {
                 className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500 data-[state=active]:to-rose-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-300"
               >
                 <Heart className="h-4 w-4 mr-2" />
-                Values
+                Values & Goals
               </TabsTrigger>
               <TabsTrigger 
                 value="boundaries"
