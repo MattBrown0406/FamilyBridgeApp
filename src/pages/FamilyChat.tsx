@@ -114,6 +114,7 @@ interface FinancialRequest {
   payment_confirmed_at?: string | null;
   payment_confirmed_by_user_id?: string | null;
   attachment_url?: string | null;
+  resolved_at?: string | null;
 }
 
 interface PaymentLinks {
@@ -981,6 +982,7 @@ const FamilyChat = () => {
         payment_confirmed_at,
         payment_confirmed_by_user_id,
         attachment_url,
+        resolved_at,
         financial_votes (
           approved,
           voter_id
@@ -1062,6 +1064,7 @@ const FamilyChat = () => {
         payment_confirmed_at: req.payment_confirmed_at,
         payment_confirmed_by_user_id: req.payment_confirmed_by_user_id,
         attachment_url: req.attachment_url,
+        resolved_at: req.resolved_at,
       };
     });
     setFinancialRequests(requestsWithNames);
@@ -1206,6 +1209,19 @@ const FamilyChat = () => {
       toast({
         title: 'Description required',
         description: 'Please provide a description for your request.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Check if there's an approved but not completed request
+    const pendingApproved = financialRequests.find(
+      r => r.status === 'approved' && !r.resolved_at
+    );
+    if (pendingApproved) {
+      toast({
+        title: 'Outstanding request',
+        description: 'You have an approved request that hasn\'t been marked as completed yet. Please wait for a moderator to complete it before submitting a new request.',
         variant: 'destructive',
       });
       return;
@@ -1560,6 +1576,31 @@ const FamilyChat = () => {
     }
   };
 
+  const handleMarkAsCompleted = async (requestId: string) => {
+    try {
+      const { error } = await supabase
+        .from('financial_requests')
+        .update({ resolved_at: new Date().toISOString() })
+        .eq('id', requestId);
+
+      if (error) throw error;
+
+      toast({
+        title: 'Request completed',
+        description: 'The financial request has been marked as completed.',
+      });
+
+      fetchFinancialRequests(members);
+    } catch (error) {
+      console.error('Error completing request:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to mark request as completed.',
+        variant: 'destructive',
+      });
+    }
+  };
+
   if (loading || isLoading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-background to-secondary/20">
@@ -1879,6 +1920,19 @@ const FamilyChat = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
+                  {/* Warning for outstanding approved request */}
+                  {financialRequests.some(r => r.status === 'approved' && !r.resolved_at) && (
+                    <div className="mb-4 p-3 rounded-lg bg-yellow-50 border border-yellow-200 text-yellow-800 flex items-start gap-2">
+                      <AlertTriangle className="h-5 w-5 shrink-0 mt-0.5" />
+                      <div className="text-sm">
+                        <p className="font-medium">Outstanding request pending</p>
+                        <p className="text-yellow-700">
+                          There is an approved request that hasn't been marked as completed yet. 
+                          New requests cannot be submitted until a moderator completes the outstanding request.
+                        </p>
+                      </div>
+                    </div>
+                  )}
                   <form onSubmit={handleCreateRequest} className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
@@ -2027,6 +2081,7 @@ const FamilyChat = () => {
                         const isApproved = req.status === 'approved';
                         const isPaid = !!req.paid_at;
                         const isConfirmed = !!req.payment_confirmed_at;
+                        const isCompleted = !!req.resolved_at;
                         const isRequester = req.requester_id === user?.id;
                         const isPayer = req.paid_by_user_id === user?.id;
                         const cachedLinks = paymentLinksCache[req.id];
@@ -2057,7 +2112,13 @@ const FamilyChat = () => {
                                 >
                                   {req.status}
                                 </Badge>
-                                {isConfirmed && (
+                                {isCompleted && (
+                                  <Badge variant="outline" className="text-primary border-primary bg-primary/10">
+                                    <CheckCircle className="h-3 w-3 mr-1" />
+                                    Completed
+                                  </Badge>
+                                )}
+                                {isConfirmed && !isCompleted && (
                                   <Badge variant="outline" className="text-green-600 border-green-600">
                                     <CheckCircle2 className="h-3 w-3 mr-1" />
                                     Payment Complete
@@ -2384,6 +2445,24 @@ const FamilyChat = () => {
                                     Waiting for a family member to send payment.
                                   </p>
                                 )}
+                              </div>
+                            )}
+
+                            {/* Mark as Completed button for moderators on confirmed requests */}
+                            {isApproved && isConfirmed && !isCompleted && currentUserRole === 'moderator' && (
+                              <div className="border-t border-border pt-3 mt-3">
+                                <Button
+                                  size="sm"
+                                  variant="default"
+                                  onClick={() => handleMarkAsCompleted(req.id)}
+                                  className="w-full"
+                                >
+                                  <CheckCircle className="h-4 w-4 mr-2" />
+                                  Mark as Completed
+                                </Button>
+                                <p className="text-xs text-muted-foreground mt-2">
+                                  Marking as completed will allow new financial requests to be submitted.
+                                </p>
                               </div>
                             )}
                           </div>
