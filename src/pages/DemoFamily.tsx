@@ -93,11 +93,13 @@ const DEMO_FINANCIAL_REQUESTS = [
     requester: 'Michael Johnson', 
     amount: 50, 
     reason: 'Gas for work commute', 
-    status: 'approved',
+    status: 'completed',
     attachmentUrl: demoGasReceipt,
     attachmentCaption: 'Gas station receipt • Total: $50.00',
     fundsReceived: true,
     fundsReceivedAt: '2 days ago',
+    paymentConfirmed: true,
+    paymentConfirmedAt: '2 days ago',
     votes: { approve: 4, deny: 0 },
     pledges: [
       { name: 'Emily Johnson', amount: 50 },
@@ -481,7 +483,7 @@ const DemoFamily = () => {
                     className="card-interactive border-0 shadow-lg overflow-hidden animate-fade-in"
                     style={{ animationDelay: `${index * 100}ms` }}
                   >
-                    <div className={`h-1 ${request.status === 'approved' ? 'bg-gradient-to-r from-green-500 to-emerald-500' : 'bg-gradient-to-r from-amber-500 to-orange-500'}`} />
+                    <div className={`h-1 ${request.status === 'completed' ? 'bg-gradient-to-r from-blue-500 to-indigo-500' : request.status === 'approved' ? 'bg-gradient-to-r from-green-500 to-emerald-500' : 'bg-gradient-to-r from-amber-500 to-orange-500'}`} />
                     <CardContent className="pt-6">
                       <div className="flex items-start justify-between mb-4">
                         <div>
@@ -491,11 +493,16 @@ const DemoFamily = () => {
                             </Avatar>
                             <span className="font-semibold">{request.requester}</span>
                             <Badge 
-                              variant={request.status === 'approved' ? 'default' : 'secondary'}
-                              className={request.status === 'approved' ? 'bg-gradient-to-r from-green-500 to-emerald-500 border-0' : 'bg-amber-100 text-amber-700 border-amber-200'}
-                              style={request.status === 'approved' && branding ? { background: `linear-gradient(135deg, ${branding.primaryColor}, ${branding.primaryColor}cc)` } : undefined}
+                              variant={request.status === 'completed' || request.status === 'approved' ? 'default' : 'secondary'}
+                              className={
+                                request.status === 'completed' 
+                                  ? 'bg-gradient-to-r from-blue-500 to-indigo-500 border-0' 
+                                  : request.status === 'approved' 
+                                    ? 'bg-gradient-to-r from-green-500 to-emerald-500 border-0' 
+                                    : 'bg-amber-100 text-amber-700 border-amber-200'
+                              }
                             >
-                              {request.status === 'approved' ? <CheckCircle className="h-3 w-3 mr-1" /> : <Clock className="h-3 w-3 mr-1" />}
+                              {request.status === 'completed' ? <CheckCircle className="h-3 w-3 mr-1" /> : request.status === 'approved' ? <CheckCircle className="h-3 w-3 mr-1" /> : <Clock className="h-3 w-3 mr-1" />}
                               {request.status}
                             </Badge>
                           </div>
@@ -571,7 +578,7 @@ const DemoFamily = () => {
                       )}
 
                       {request.fundsReceived && (
-                        <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-4 animate-fade-in">
+                        <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-4 mb-3 animate-fade-in">
                           <div className="flex items-center gap-3 text-green-700">
                             <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
                               <CheckCircle className="h-5 w-5" />
@@ -580,6 +587,22 @@ const DemoFamily = () => {
                               <span className="font-semibold">Funds Received</span>
                               <p className="text-xs text-green-600">
                                 {request.requester} confirmed receipt • {request.fundsReceivedAt}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {request.status === 'completed' && (
+                        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4 animate-fade-in">
+                          <div className="flex items-center gap-3 text-blue-700">
+                            <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                              <CheckCircle className="h-5 w-5" />
+                            </div>
+                            <div>
+                              <span className="font-semibold">Request Completed</span>
+                              <p className="text-xs text-blue-600">
+                                This request has been fully processed and closed
                               </p>
                             </div>
                           </div>
