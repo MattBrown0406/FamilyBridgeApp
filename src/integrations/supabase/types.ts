@@ -176,6 +176,44 @@ export type Database = {
           },
         ]
       }
+      family_common_goals: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          family_id: string
+          goal_key: string
+          id: string
+          selected_by: string
+          updated_at: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          family_id: string
+          goal_key: string
+          id?: string
+          selected_by: string
+          updated_at?: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          family_id?: string
+          goal_key?: string
+          id?: string
+          selected_by?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "family_common_goals_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       family_goals: {
         Row: {
           completed_at: string | null

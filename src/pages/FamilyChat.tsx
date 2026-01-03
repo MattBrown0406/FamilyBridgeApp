@@ -163,6 +163,68 @@ interface FamilyValue {
   selected_by: string;
 }
 
+interface FamilyCommonGoal {
+  id: string;
+  family_id: string;
+  goal_key: string;
+  completed_at: string | null;
+  created_at: string;
+  selected_by: string;
+}
+
+const COMMON_GOALS_OPTIONS = [
+  { 
+    key: 'weekly_meetings', 
+    name: 'Attend Weekly Family Meetings', 
+    description: 'Meet regularly as a family to check in and support each other.'
+  },
+  { 
+    key: 'open_communication', 
+    name: 'Practice Open Communication Daily', 
+    description: 'Share feelings and concerns honestly each day.'
+  },
+  { 
+    key: 'no_enabling', 
+    name: 'Eliminate Enabling Behaviors', 
+    description: 'Stop actions that protect loved ones from consequences of their choices.'
+  },
+  { 
+    key: 'self_care', 
+    name: 'Prioritize Individual Self-Care', 
+    description: 'Each member commits to their own mental and physical health.'
+  },
+  { 
+    key: 'celebrate_wins', 
+    name: 'Celebrate Small Wins Together', 
+    description: 'Acknowledge and celebrate progress, no matter how small.'
+  },
+  { 
+    key: 'attend_support', 
+    name: 'Attend Support Groups (Al-Anon, etc.)', 
+    description: 'Family members participate in their own recovery support.'
+  },
+  { 
+    key: 'rebuild_trust', 
+    name: 'Work on Rebuilding Trust', 
+    description: 'Take intentional steps to repair and strengthen relationships.'
+  },
+  { 
+    key: 'healthy_boundaries', 
+    name: 'Establish Healthy Boundaries', 
+    description: 'Create and maintain clear, loving boundaries.'
+  },
+  { 
+    key: 'financial_health', 
+    name: 'Restore Financial Stability', 
+    description: 'Work together on budget, debts, and financial recovery.'
+  },
+  { 
+    key: 'quality_time', 
+    name: 'Schedule Sober Quality Time', 
+    description: 'Plan regular activities that bring joy without substances.'
+  },
+] as const;
+
 const GOAL_OPTIONS = [
   { value: 'into_treatment', label: 'Get {name} into treatment' },
   { value: 'complete_treatment', label: 'Help {name} complete treatment' },
@@ -299,6 +361,12 @@ const FamilyChat = () => {
   const [selectedValues, setSelectedValues] = useState<string[]>([]);
   const [isSavingValues, setIsSavingValues] = useState(false);
   const [isEditingValues, setIsEditingValues] = useState(false);
+  
+  // Common Goals state
+  const [familyCommonGoals, setFamilyCommonGoals] = useState<FamilyCommonGoal[]>([]);
+  const [selectedCommonGoals, setSelectedCommonGoals] = useState<string[]>([]);
+  const [isSavingCommonGoals, setIsSavingCommonGoals] = useState(false);
+  const [isEditingCommonGoals, setIsEditingCommonGoals] = useState(false);
   
   // Boundaries state
   const [familyBoundaries, setFamilyBoundaries] = useState<FamilyBoundary[]>([]);
@@ -717,6 +785,9 @@ const FamilyChat = () => {
       // Fetch family values
       await fetchFamilyValues();
       
+      // Fetch common goals
+      await fetchFamilyCommonGoals();
+      
       // Fetch family boundaries
       await fetchFamilyBoundaries();
     } catch (error) {
@@ -764,6 +835,23 @@ const FamilyChat = () => {
     setSelectedValues(values.map(v => v.value_key));
   };
 
+  const fetchFamilyCommonGoals = async () => {
+    const { data, error } = await supabase
+      .from('family_common_goals')
+      .select('*')
+      .eq('family_id', familyId)
+      .order('created_at', { ascending: true });
+
+    if (error) {
+      console.error('Error fetching common goals:', error);
+      return;
+    }
+
+    const goals = (data || []) as FamilyCommonGoal[];
+    setFamilyCommonGoals(goals);
+    setSelectedCommonGoals(goals.map(g => g.goal_key));
+  };
+
   const handleToggleValue = (valueKey: string) => {
     setSelectedValues(prev => {
       if (prev.includes(valueKey)) {
@@ -771,8 +859,19 @@ const FamilyChat = () => {
       } else if (prev.length < 2) {
         return [...prev, valueKey];
       } else {
-        // Replace the first selected with the new one
         return [prev[1], valueKey];
+      }
+    });
+  };
+
+  const handleToggleCommonGoal = (goalKey: string) => {
+    setSelectedCommonGoals(prev => {
+      if (prev.includes(goalKey)) {
+        return prev.filter(g => g !== goalKey);
+      } else if (prev.length < 2) {
+        return [...prev, goalKey];
+      } else {
+        return [prev[1], goalKey];
       }
     });
   };
@@ -782,13 +881,11 @@ const FamilyChat = () => {
 
     setIsSavingValues(true);
     try {
-      // Delete existing values
       await supabase
         .from('family_values')
         .delete()
         .eq('family_id', familyId);
 
-      // Insert new values
       if (selectedValues.length > 0) {
         const { error } = await supabase
           .from('family_values')
@@ -805,7 +902,7 @@ const FamilyChat = () => {
 
       toast({
         title: 'Values saved',
-        description: 'Your family\'s guiding values have been updated.',
+        description: "Your family's guiding values have been updated.",
       });
 
       setIsEditingValues(false);
@@ -819,6 +916,71 @@ const FamilyChat = () => {
       });
     } finally {
       setIsSavingValues(false);
+    }
+  };
+
+  const handleSaveCommonGoals = async () => {
+    if (!user || !familyId) return;
+
+    setIsSavingCommonGoals(true);
+    try {
+      await supabase
+        .from('family_common_goals')
+        .delete()
+        .eq('family_id', familyId);
+
+      if (selectedCommonGoals.length > 0) {
+        const { error } = await supabase
+          .from('family_common_goals')
+          .insert(
+            selectedCommonGoals.map(goalKey => ({
+              family_id: familyId,
+              goal_key: goalKey,
+              selected_by: user.id,
+            }))
+          );
+
+        if (error) throw error;
+      }
+
+      toast({
+        title: 'Goals saved',
+        description: "Your family's common goals have been updated.",
+      });
+
+      setIsEditingCommonGoals(false);
+      await fetchFamilyCommonGoals();
+    } catch (error) {
+      console.error('Error saving common goals:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to save common goals.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSavingCommonGoals(false);
+    }
+  };
+
+  const handleToggleCommonGoalComplete = async (goalId: string, isCompleted: boolean) => {
+    try {
+      const { error } = await supabase
+        .from('family_common_goals')
+        .update({
+          completed_at: isCompleted ? null : new Date().toISOString(),
+        })
+        .eq('id', goalId);
+
+      if (error) throw error;
+
+      await fetchFamilyCommonGoals();
+    } catch (error) {
+      console.error('Error updating common goal:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to update goal.',
+        variant: 'destructive',
+      });
     }
   };
 
@@ -2668,23 +2830,17 @@ const FamilyChat = () => {
 
                     {/* Show current values if set and not editing */}
                     {familyValues.length > 0 && !isEditingValues ? (
-                      <div className="grid gap-3">
+                      <div className="flex flex-wrap gap-2">
                         {familyValues.map(fv => {
                           const valueOption = FAMILY_VALUES_OPTIONS.find(v => v.key === fv.value_key);
                           if (!valueOption) return null;
                           return (
                             <div
                               key={fv.id}
-                              className="p-4 rounded-lg bg-primary/10 border-2 border-primary"
+                              className="px-3 py-2 rounded-lg bg-primary/10 border border-primary flex items-center gap-2"
                             >
-                              <div className="flex items-center gap-2 mb-2">
-                                <Heart className="h-4 w-4 text-primary" />
-                                <span className="font-medium text-foreground">{valueOption.name}</span>
-                                <Badge variant="default" className="ml-auto">Selected</Badge>
-                              </div>
-                              <p className="text-sm text-muted-foreground">
-                                {valueOption.description}
-                              </p>
+                              <Heart className="h-4 w-4 text-primary shrink-0" />
+                              <span className="font-medium text-sm text-foreground">{valueOption.name}</span>
                             </div>
                           );
                         })}
@@ -2692,40 +2848,37 @@ const FamilyChat = () => {
                     ) : (
                       /* Selection mode */
                       currentUserRole === 'moderator' || isEditingValues || familyValues.length === 0 ? (
-                        <div className="space-y-4">
+                        <div className="space-y-3">
                           <p className="text-sm text-muted-foreground">
                             {currentUserRole === 'moderator' 
-                              ? `Select 2 values that will guide your family's recovery journey (${selectedValues.length}/2 selected):`
+                              ? `Select 2 values (${selectedValues.length}/2 selected):`
                               : 'A family moderator will select the guiding values for your family.'}
                           </p>
                           
                           {currentUserRole === 'moderator' && (
                             <>
-                              <div className="grid gap-2">
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                 {FAMILY_VALUES_OPTIONS.map(option => {
                                   const isSelected = selectedValues.includes(option.key);
                                   return (
                                     <button
                                       key={option.key}
                                       onClick={() => handleToggleValue(option.key)}
-                                      className={`p-4 rounded-lg border-2 text-left transition-all ${
+                                      className={`px-3 py-2 rounded-lg border text-left transition-all text-sm ${
                                         isSelected 
                                           ? 'bg-primary/10 border-primary' 
                                           : 'bg-secondary/50 border-border hover:border-primary/50'
                                       }`}
                                     >
-                                      <div className="flex items-center gap-2 mb-1">
-                                        <Heart className={`h-4 w-4 ${isSelected ? 'text-primary' : 'text-muted-foreground'}`} />
+                                      <div className="flex items-center gap-2">
+                                        <Heart className={`h-3 w-3 shrink-0 ${isSelected ? 'text-primary' : 'text-muted-foreground'}`} />
                                         <span className={`font-medium ${isSelected ? 'text-foreground' : 'text-foreground/80'}`}>
                                           {option.name}
                                         </span>
                                         {isSelected && (
-                                          <CheckCircle className="h-4 w-4 text-primary ml-auto" />
+                                          <CheckCircle className="h-3 w-3 text-primary ml-auto shrink-0" />
                                         )}
                                       </div>
-                                      <p className="text-sm text-muted-foreground pl-6">
-                                        {option.description}
-                                      </p>
                                     </button>
                                   );
                                 })}
@@ -2735,6 +2888,7 @@ const FamilyChat = () => {
                                 <Button
                                   onClick={handleSaveValues}
                                   disabled={selectedValues.length !== 2 || isSavingValues}
+                                  size="sm"
                                   className="flex-1"
                                 >
                                   {isSavingValues ? (
@@ -2745,13 +2899,14 @@ const FamilyChat = () => {
                                   ) : (
                                     <>
                                       <CheckCircle className="h-4 w-4 mr-2" />
-                                      Save Guiding Values
+                                      Save Values
                                     </>
                                   )}
                                 </Button>
                                 {isEditingValues && (
                                   <Button
                                     variant="outline"
+                                    size="sm"
                                     onClick={() => {
                                       setIsEditingValues(false);
                                       setSelectedValues(familyValues.map(v => v.value_key));
@@ -2762,6 +2917,156 @@ const FamilyChat = () => {
                                 )}
                               </div>
                             </>
+                          )}
+                        </div>
+                      ) : null
+                    )}
+                  </div>
+
+                  {/* Common Goals Section */}
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-medium text-foreground">Common Goals</h3>
+                      {currentUserRole === 'moderator' && familyCommonGoals.length > 0 && !isEditingCommonGoals && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setIsEditingCommonGoals(true)}
+                        >
+                          <Pencil className="h-4 w-4 mr-1" />
+                          Update Goals
+                        </Button>
+                      )}
+                    </div>
+                    
+                    <p className="text-sm text-muted-foreground">
+                      Choose <strong>two common goals</strong> your family will work toward together. Mark them complete as you achieve them.
+                    </p>
+
+                    {/* Show current common goals if set and not editing */}
+                    {familyCommonGoals.length > 0 && !isEditingCommonGoals ? (
+                      <div className="grid gap-2">
+                        {familyCommonGoals.map(fg => {
+                          const goalOption = COMMON_GOALS_OPTIONS.find(g => g.key === fg.goal_key);
+                          if (!goalOption) return null;
+                          return (
+                            <div
+                              key={fg.id}
+                              className={`px-3 py-2 rounded-lg border flex items-center justify-between gap-2 ${
+                                fg.completed_at 
+                                  ? 'bg-primary/10 border-primary/30' 
+                                  : 'bg-secondary/50 border-border'
+                              }`}
+                            >
+                              <div className="flex items-center gap-2 flex-1 min-w-0">
+                                {currentUserRole === 'moderator' ? (
+                                  <button
+                                    onClick={() => handleToggleCommonGoalComplete(fg.id, !!fg.completed_at)}
+                                    className={`shrink-0 h-4 w-4 rounded-full border-2 flex items-center justify-center transition-colors ${
+                                      fg.completed_at
+                                        ? 'bg-primary border-primary text-primary-foreground'
+                                        : 'border-muted-foreground hover:border-primary'
+                                    }`}
+                                  >
+                                    {fg.completed_at && <Check className="h-2.5 w-2.5" />}
+                                  </button>
+                                ) : (
+                                  <div
+                                    className={`shrink-0 h-4 w-4 rounded-full border-2 flex items-center justify-center ${
+                                      fg.completed_at
+                                        ? 'bg-primary border-primary text-primary-foreground'
+                                        : 'border-muted-foreground'
+                                    }`}
+                                  >
+                                    {fg.completed_at && <Check className="h-2.5 w-2.5" />}
+                                  </div>
+                                )}
+                                <span className={`text-sm font-medium truncate ${fg.completed_at ? 'line-through text-muted-foreground' : ''}`}>
+                                  {goalOption.name}
+                                </span>
+                              </div>
+                              {fg.completed_at && (
+                                <Badge variant="default" className="bg-primary/80 shrink-0 text-xs">
+                                  Complete
+                                </Badge>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      /* Selection mode */
+                      currentUserRole === 'moderator' || isEditingCommonGoals || familyCommonGoals.length === 0 ? (
+                        <div className="space-y-3">
+                          {currentUserRole === 'moderator' ? (
+                            <>
+                              <p className="text-sm text-muted-foreground">
+                                Select 2 goals ({selectedCommonGoals.length}/2 selected):
+                              </p>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                {COMMON_GOALS_OPTIONS.map(option => {
+                                  const isSelected = selectedCommonGoals.includes(option.key);
+                                  return (
+                                    <button
+                                      key={option.key}
+                                      onClick={() => handleToggleCommonGoal(option.key)}
+                                      className={`px-3 py-2 rounded-lg border text-left transition-all text-sm ${
+                                        isSelected 
+                                          ? 'bg-primary/10 border-primary' 
+                                          : 'bg-secondary/50 border-border hover:border-primary/50'
+                                      }`}
+                                    >
+                                      <div className="flex items-center gap-2">
+                                        <Target className={`h-3 w-3 shrink-0 ${isSelected ? 'text-primary' : 'text-muted-foreground'}`} />
+                                        <span className={`font-medium ${isSelected ? 'text-foreground' : 'text-foreground/80'}`}>
+                                          {option.name}
+                                        </span>
+                                        {isSelected && (
+                                          <CheckCircle className="h-3 w-3 text-primary ml-auto shrink-0" />
+                                        )}
+                                      </div>
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                              
+                              <div className="flex gap-2">
+                                <Button
+                                  onClick={handleSaveCommonGoals}
+                                  disabled={selectedCommonGoals.length !== 2 || isSavingCommonGoals}
+                                  size="sm"
+                                  className="flex-1"
+                                >
+                                  {isSavingCommonGoals ? (
+                                    <>
+                                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                                      Saving...
+                                    </>
+                                  ) : (
+                                    <>
+                                      <CheckCircle className="h-4 w-4 mr-2" />
+                                      Save Goals
+                                    </>
+                                  )}
+                                </Button>
+                                {isEditingCommonGoals && (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => {
+                                      setIsEditingCommonGoals(false);
+                                      setSelectedCommonGoals(familyCommonGoals.map(g => g.goal_key));
+                                    }}
+                                  >
+                                    Cancel
+                                  </Button>
+                                )}
+                              </div>
+                            </>
+                          ) : (
+                            <p className="text-sm text-muted-foreground">
+                              A family moderator will select the common goals for your family.
+                            </p>
                           )}
                         </div>
                       ) : null
