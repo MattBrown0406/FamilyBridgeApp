@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   CheckCircle, 
   Clock, 
@@ -16,6 +17,12 @@ import {
   DollarSign
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+
+const DENIAL_REASONS = [
+  { value: 'boundary', label: 'Violates a current boundary' },
+  { value: 'values', label: "Doesn't align with family values or goals" },
+  { value: 'info', label: 'Need more information or clarity' },
+];
 
 interface Pledge {
   name: string;
@@ -40,6 +47,86 @@ interface FinancialRequestCardProps {
   isDemo?: boolean;
   children?: React.ReactNode;
 }
+
+const DemoPendingActions: React.FC<{ branding?: { primaryColor?: string } }> = ({ branding }) => {
+  const [showDenyReason, setShowDenyReason] = useState(false);
+  const [denyReason, setDenyReason] = useState<string>('');
+
+  const handleDenyClick = () => {
+    setShowDenyReason(true);
+  };
+
+  const handleConfirmDeny = () => {
+    if (denyReason) {
+      setShowDenyReason(false);
+      setDenyReason('');
+    }
+  };
+
+  if (showDenyReason) {
+    return (
+      <div className="space-y-2 p-3 bg-red-50 rounded-lg border border-red-100">
+        <p className="text-sm font-medium text-red-700">Select a reason for denial:</p>
+        <Select value={denyReason} onValueChange={setDenyReason}>
+          <SelectTrigger className="w-full bg-white border-red-200">
+            <SelectValue placeholder="Choose a reason..." />
+          </SelectTrigger>
+          <SelectContent className="bg-white z-50">
+            {DENIAL_REASONS.map((reason) => (
+              <SelectItem key={reason.value} value={reason.value}>
+                {reason.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <div className="flex gap-2 pt-1">
+          <Button 
+            size="sm" 
+            variant="outline" 
+            className="flex-1"
+            onClick={() => {
+              setShowDenyReason(false);
+              setDenyReason('');
+            }}
+          >
+            Cancel
+          </Button>
+          <Button 
+            size="sm" 
+            className="flex-1 bg-red-500 hover:bg-red-600 text-white"
+            disabled={!denyReason}
+            onClick={handleConfirmDeny}
+          >
+            <ThumbsDown className="h-3 w-3 mr-1" />
+            Confirm Denial
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex gap-2">
+      <Button 
+        size="sm" 
+        className="flex-1 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
+        style={branding?.primaryColor ? { background: `linear-gradient(135deg, ${branding.primaryColor}, ${branding.primaryColor}cc)` } : undefined}
+      >
+        <ThumbsUp className="h-3 w-3 mr-1" />
+        Approve
+      </Button>
+      <Button 
+        size="sm" 
+        variant="outline" 
+        className="flex-1 border-red-200 text-red-600 hover:bg-red-50"
+        onClick={handleDenyClick}
+      >
+        <ThumbsDown className="h-3 w-3 mr-1" />
+        Deny
+      </Button>
+    </div>
+  );
+};
 
 export const FinancialRequestCard: React.FC<FinancialRequestCardProps> = ({
   requester,
@@ -203,20 +290,7 @@ export const FinancialRequestCard: React.FC<FinancialRequestCardProps> = ({
       )}
 
       {isDemo && status === 'pending' && (
-        <div className="flex gap-2">
-          <Button 
-            size="sm" 
-            className="flex-1 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
-            style={branding?.primaryColor ? { background: `linear-gradient(135deg, ${branding.primaryColor}, ${branding.primaryColor}cc)` } : undefined}
-          >
-            <ThumbsUp className="h-3 w-3 mr-1" />
-            Approve
-          </Button>
-          <Button size="sm" variant="outline" className="flex-1 border-red-200 text-red-600 hover:bg-red-50">
-            <ThumbsDown className="h-3 w-3 mr-1" />
-            Deny
-          </Button>
-        </div>
+        <DemoPendingActions branding={branding} />
       )}
 
       {children}
