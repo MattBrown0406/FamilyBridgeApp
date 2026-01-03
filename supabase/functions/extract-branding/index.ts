@@ -5,6 +5,132 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Extract domain name as fallback company name
+function extractDomainName(url: string): string | null {
+  try {
+    const hostname = new URL(url).hostname;
+    // Remove www. and common TLDs
+    let domain = hostname.replace(/^www\./, '');
+    // Get the main part before TLD
+    const parts = domain.split('.');
+    if (parts.length >= 2) {
+      // Take the first part (e.g., "freedominterventions" from "freedominterventions.com")
+      domain = parts[0];
+    }
+    // Convert to title case and handle common patterns
+    return domain
+      .replace(/[-_]/g, ' ')
+      .replace(/\b\w/g, c => c.toUpperCase());
+  } catch {
+    return null;
+  }
+}
+
+// Parse JSON-LD structured data for organization info
+function parseJsonLd(markdown: string): { name?: string; logo?: string } {
+  const result: { name?: string; logo?: string } = {};
+  
+  // Look for JSON-LD script content in markdown (might be in code blocks)
+  const jsonLdMatches = markdown.match(/\{[^{}]*"@type"\s*:\s*"Organization"[^{}]*\}/gi);
+  if (jsonLdMatches) {
+    for (const match of jsonLdMatches) {
+      try {
+        const data = JSON.parse(match);
+        if (data.name) result.name = data.name;
+        if (data.logo) {
+          result.logo = typeof data.logo === 'string' ? data.logo : data.logo?.url;
+        }
+      } catch {
+        // Try regex extraction as backup
+        const nameMatch = match.match(/"name"\s*:\s*"([^"]+)"/);
+        if (nameMatch) result.name = nameMatch[1];
+        const logoMatch = match.match(/"logo"\s*:\s*"([^"]+)"/);
+        if (logoMatch) result.logo = logoMatch[1];
+      }
+    }
+  }
+  
+  return result;
+}
+
+// Use AI to extract company name from content
+async function extractWithAI(markdown: string, url: string): Promise<{ name?: string; description?: string }> {
+  const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
+  if (!lovableApiKey) {
+    console.log('LOVABLE_API_KEY not available for AI extraction');
+    return {};
+  }
+
+  try {
+    console.log('Using AI to extract company name...');
+    
+    // Take first 2000 chars of markdown to keep context manageable
+    const contentSample = markdown.slice(0, 2000);
+    
+    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${lovableApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'google/gemini-2.5-flash',
+        messages: [
+          {
+            role: 'system',
+            content: `You are an expert at identifying company/organization names from website content. 
+Extract the official company or organization name from the provided content.
+Return ONLY a JSON object with "name" (the company name) and "description" (a brief tagline if found).
+If you cannot determine the name with confidence, return {"name": null}.
+Do not include "Inc", "LLC", etc. unless it's clearly part of the brand name.`
+          },
+          {
+            role: 'user',
+            content: `URL: ${url}\n\nWebsite content:\n${contentSample}`
+          }
+        ],
+        tools: [
+          {
+            type: "function",
+            function: {
+              name: "extract_company_info",
+              description: "Extract company name and description from website content",
+              parameters: {
+                type: "object",
+                properties: {
+                  name: { type: "string", description: "The company or organization name" },
+                  description: { type: "string", description: "A brief tagline or description" }
+                },
+                required: ["name"]
+              }
+            }
+          }
+        ],
+        tool_choice: { type: "function", function: { name: "extract_company_info" } }
+      }),
+    });
+
+    if (!response.ok) {
+      console.error('AI extraction failed:', response.status);
+      return {};
+    }
+
+    const data = await response.json();
+    const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
+    
+    if (toolCall?.function?.arguments) {
+      const result = JSON.parse(toolCall.function.arguments);
+      console.log('AI extracted:', result);
+      return result;
+    }
+    
+    return {};
+  } catch (error) {
+    console.error('AI extraction error:', error);
+    return {};
+  }
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -38,7 +164,7 @@ serve(async (req) => {
     console.log('Extracting branding from:', formattedUrl);
 
     // Try with branding format first, with additional options to bypass blocks
-    let response = await fetch('https://api.firecrawl.dev/v1/scrape', {
+    const response = await fetch('https://api.firecrawl.dev/v1/scrape', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${apiKey}`,
@@ -46,21 +172,22 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         url: formattedUrl,
-        formats: ['branding', 'markdown'],
+        formats: ['branding', 'markdown', 'html'],
         onlyMainContent: false,
         waitFor: 5000,
         timeout: 30000,
       }),
     });
 
-    let data = await response.json();
+    const data = await response.json();
 
-    // Check if we got a 403/blocked response - the branding data will have "403 Forbidden" as company name
+    // Check if we got a 403/blocked response
     const branding = data.data?.branding || data.branding || {};
     const metadata = data.data?.metadata || data.metadata || {};
     const markdown = data.data?.markdown || data.markdown || '';
+    const html = data.data?.html || data.html || '';
     
-    // Detect if the site blocked us (403 error in title or very low confidence)
+    // Detect if the site blocked us
     const isBlocked = 
       metadata.title?.includes('403') || 
       metadata.title?.includes('Forbidden') ||
@@ -90,40 +217,133 @@ serve(async (req) => {
 
     console.log('Firecrawl response keys:', Object.keys(data.data || data));
     
-    // Extract company name from various sources
-    let companyName = null;
+    // Try JSON-LD extraction
+    const jsonLdData = parseJsonLd(markdown + html);
+    console.log('JSON-LD data:', jsonLdData);
     
-    // Priority 1: Page title from metadata (often contains company name)
-    if (metadata.title) {
-      // Clean up title - remove common suffixes like "| Home", "- Welcome", etc.
-      let title = metadata.title;
-      title = title.split(/\s*[|\-–—:]\s*(Home|Welcome|Official|Site|Website|Homepage).*$/i)[0];
-      title = title.split(/\s*[|\-–—:]\s*$/)[0]; // Remove trailing separators
-      title = title.trim();
-      if (title && title.length < 60) {
-        companyName = title;
+    // Extract company name from various sources with priority
+    let companyName: string | null = null;
+    let nameSource = '';
+    
+    // Priority 1: JSON-LD Organization name (most reliable)
+    if (jsonLdData.name && jsonLdData.name.length < 60) {
+      companyName = jsonLdData.name;
+      nameSource = 'json-ld';
+    }
+    
+    // Priority 2: OG site name (often the clean brand name)
+    if (!companyName && metadata.ogSiteName && metadata.ogSiteName.length < 60) {
+      companyName = metadata.ogSiteName;
+      nameSource = 'og:site_name';
+    }
+    
+    // Priority 3: Twitter site handle (clean up @)
+    if (!companyName && metadata.twitterSite) {
+      const twitterName = metadata.twitterSite.replace(/^@/, '');
+      if (twitterName.length < 40) {
+        // Convert handle to title case as potential name
+        companyName = twitterName
+          .replace(/[-_]/g, ' ')
+          .replace(/\b\w/g, (c: string) => c.toUpperCase());
+        nameSource = 'twitter:site';
       }
     }
     
-    // Priority 2: Try to find company name in first H1 from markdown
+    // Priority 4: Page title from metadata (clean up common suffixes)
+    if (!companyName && metadata.title) {
+      let title = metadata.title;
+      // Remove common suffixes
+      title = title.split(/\s*[|\-–—:]\s*(Home|Welcome|Official|Site|Website|Homepage|Main|Landing).*$/i)[0];
+      title = title.split(/\s*[|\-–—:]\s*$/)[0];
+      title = title.trim();
+      if (title && title.length > 2 && title.length < 60) {
+        companyName = title;
+        nameSource = 'title';
+      }
+    }
+    
+    // Priority 5: OG title
+    if (!companyName && metadata.ogTitle) {
+      let ogTitle = metadata.ogTitle;
+      ogTitle = ogTitle.split(/\s*[|\-–—:]\s*(Home|Welcome|Official).*$/i)[0];
+      ogTitle = ogTitle.trim();
+      if (ogTitle && ogTitle.length > 2 && ogTitle.length < 60) {
+        companyName = ogTitle;
+        nameSource = 'og:title';
+      }
+    }
+    
+    // Priority 6: First H1 from markdown
     if (!companyName && markdown) {
       const h1Match = markdown.match(/^#\s+(.+)$/m);
-      if (h1Match && h1Match[1] && h1Match[1].length < 60) {
-        companyName = h1Match[1].trim();
+      if (h1Match && h1Match[1] && h1Match[1].length > 2 && h1Match[1].length < 60) {
+        // Skip if it looks like a page title (e.g., "Welcome to...")
+        if (!h1Match[1].match(/^(Welcome|Home|About|Contact)/i)) {
+          companyName = h1Match[1].trim();
+          nameSource = 'h1';
+        }
       }
     }
     
-    // Priority 3: OG site name
-    if (!companyName && metadata.ogSiteName) {
-      companyName = metadata.ogSiteName;
+    // Priority 7: Domain name as fallback
+    if (!companyName) {
+      companyName = extractDomainName(formattedUrl);
+      nameSource = 'domain';
+    }
+    
+    // Priority 8: AI extraction if still no good name or name seems poor quality
+    const nameNeedsAI = !companyName || 
+      nameSource === 'domain' || 
+      (companyName && (companyName.length < 3 || companyName.match(/^\d+$/) || companyName.toLowerCase() === 'home'));
+    
+    if (nameNeedsAI && markdown) {
+      const aiResult = await extractWithAI(markdown, formattedUrl);
+      if (aiResult.name && aiResult.name.length >= 2 && aiResult.name.length < 60) {
+        companyName = aiResult.name;
+        nameSource = 'ai';
+        console.log('AI provided company name:', companyName);
+      }
     }
 
-    console.log('Extracted company name:', companyName);
+    console.log('Extracted company name:', companyName, 'from:', nameSource);
     
-    // Helper to check if a color is dark (for detecting if logo is likely white)
+    // --- Logo extraction with multiple fallbacks ---
+    let logoUrl = branding.images?.logo || branding.logo || null;
+    let logoSource = logoUrl ? 'branding' : '';
+    
+    // Try JSON-LD logo
+    if (!logoUrl && jsonLdData.logo) {
+      logoUrl = jsonLdData.logo;
+      logoSource = 'json-ld';
+    }
+    
+    // Try apple-touch-icon (often high-quality logo)
+    if (!logoUrl && html) {
+      const appleTouchMatch = html.match(/<link[^>]*rel=["']apple-touch-icon["'][^>]*href=["']([^"']+)["']/i);
+      if (appleTouchMatch) {
+        logoUrl = appleTouchMatch[1];
+        // Make absolute if relative
+        if (logoUrl.startsWith('/')) {
+          try {
+            const baseUrl = new URL(formattedUrl);
+            logoUrl = `${baseUrl.origin}${logoUrl}`;
+          } catch {}
+        }
+        logoSource = 'apple-touch-icon';
+      }
+    }
+    
+    // Try og:image as logo fallback (may be a banner, but better than nothing)
+    if (!logoUrl && (metadata.ogImage || metadata.image)) {
+      logoUrl = metadata.ogImage || metadata.image;
+      logoSource = 'og:image';
+    }
+    
+    console.log('Logo URL:', logoUrl, 'from:', logoSource);
+    
+    // Helper to check if a color is dark
     const isColorDark = (color: string | null): boolean => {
       if (!color) return false;
-      // Handle hex colors
       if (color.startsWith('#')) {
         const hex = color.replace('#', '');
         const r = parseInt(hex.substr(0, 2), 16);
@@ -132,7 +352,6 @@ serve(async (req) => {
         const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
         return luminance < 0.5;
       }
-      // Handle rgb colors
       if (color.startsWith('rgb')) {
         const match = color.match(/\d+/g);
         if (match && match.length >= 3) {
@@ -144,18 +363,10 @@ serve(async (req) => {
       return false;
     };
 
-    // Detect if the logo is likely white/light (needs a colored background for visibility)
-    // Check multiple signals:
-    // 1. If website background is dark, logo is likely light
-    // 2. If the primary brand color is dark but website background is light, 
-    //    the logo might be designed for the dark brand color (so it's likely light)
+    // Detect if the logo needs a colored background
     const websiteBackgroundIsDark = isColorDark(branding.colors?.background);
     const primaryBrandColorIsDark = isColorDark(branding.colors?.accent) || isColorDark(branding.colors?.textPrimary);
     const websiteBackgroundIsLight = branding.colors?.background && !isColorDark(branding.colors?.background);
-    
-    // Logo needs background if:
-    // - Website has dark background (logo is likely light)
-    // - OR website has light background but primary brand color is dark (logo may be light, designed for dark brand areas)
     const logoNeedsBackground = websiteBackgroundIsDark || (websiteBackgroundIsLight && primaryBrandColorIsDark);
     
     console.log('Logo background detection:', {
@@ -165,7 +376,7 @@ serve(async (req) => {
       logoNeedsBackground
     });
     
-    // Helper to calculate color saturation and determine if it's a "brand-worthy" color
+    // Helper to calculate color saturation
     const getColorSaturation = (color: string | null): number => {
       if (!color) return 0;
       if (color.startsWith('#')) {
@@ -184,21 +395,16 @@ serve(async (req) => {
     };
     
     // Determine the best primary brand color
-    // Priority: accent (often the true brand color) > textPrimary (if dark/saturated) > primary
-    // We prefer darker, more saturated colors as they typically represent brand identity better
     let bestPrimaryColor = branding.colors?.primary || null;
     
     const accentColor = branding.colors?.accent;
     const textPrimaryColor = branding.colors?.textPrimary;
     const firecrawlPrimary = branding.colors?.primary;
     
-    // Check if accent is a good brand color (dark and saturated)
     if (accentColor && isColorDark(accentColor)) {
       bestPrimaryColor = accentColor;
-    }
-    // Or if textPrimary is dark and more saturated than the "primary"
-    else if (textPrimaryColor && isColorDark(textPrimaryColor) && 
-             getColorSaturation(textPrimaryColor) > getColorSaturation(firecrawlPrimary)) {
+    } else if (textPrimaryColor && isColorDark(textPrimaryColor) && 
+               getColorSaturation(textPrimaryColor) > getColorSaturation(firecrawlPrimary)) {
       bestPrimaryColor = textPrimaryColor;
     }
     
@@ -209,14 +415,25 @@ serve(async (req) => {
       selectedPrimary: bestPrimaryColor
     });
     
-    // Convert colors to HSL format for our design system
+    // Get favicon with fallbacks
+    let faviconUrl = branding.images?.favicon || metadata.favicon || null;
+    if (!faviconUrl) {
+      // Try to construct default favicon path
+      try {
+        const baseUrl = new URL(formattedUrl);
+        faviconUrl = `${baseUrl.origin}/favicon.ico`;
+      } catch {}
+    }
+    
     const result = {
       success: true,
       branding: {
         company_name: companyName,
-        logo_url: branding.images?.logo || branding.logo || null,
+        company_name_source: nameSource,
+        logo_url: logoUrl,
+        logo_source: logoSource,
         logo_needs_background: logoNeedsBackground,
-        favicon_url: branding.images?.favicon || null,
+        favicon_url: faviconUrl,
         colors: {
           primary: bestPrimaryColor,
           secondary: branding.colors?.secondary || null,
@@ -224,10 +441,10 @@ serve(async (req) => {
           background: branding.colors?.background || null,
           textPrimary: branding.colors?.textPrimary || null,
           textSecondary: branding.colors?.textSecondary || null,
-          originalPrimary: firecrawlPrimary, // Keep original for debugging
+          originalPrimary: firecrawlPrimary,
         },
         fonts: branding.typography?.fontFamilies || branding.fonts || null,
-        raw: branding, // Include raw data for debugging
+        raw: branding,
       },
     };
 
