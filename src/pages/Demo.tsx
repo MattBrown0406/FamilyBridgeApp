@@ -267,9 +267,9 @@ const Demo = () => {
           <div className="max-w-4xl mx-auto">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2">
                   <Wand2 className="h-5 w-5" />
-                  Automatic Branding Extraction
+                  Automatic Branding Extraction <span className="text-muted-foreground font-normal text-base">(for professional recovery organizations)</span>
                 </CardTitle>
                 <CardDescription>
                   Enter your website URL and we'll automatically extract your brand colors, logo, and fonts
