@@ -281,6 +281,41 @@ export type Database = {
           },
         ]
       }
+      family_values: {
+        Row: {
+          created_at: string
+          family_id: string
+          id: string
+          selected_by: string
+          updated_at: string
+          value_key: string
+        }
+        Insert: {
+          created_at?: string
+          family_id: string
+          id?: string
+          selected_by: string
+          updated_at?: string
+          value_key: string
+        }
+        Update: {
+          created_at?: string
+          family_id?: string
+          id?: string
+          selected_by?: string
+          updated_at?: string
+          value_key?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "family_values_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       financial_pledges: {
         Row: {
           amount: number
