@@ -1613,7 +1613,7 @@ const ProviderAdmin = () => {
                                 key={family.id} 
                                 className="flex items-center justify-between p-4 rounded-lg border bg-card"
                               >
-                                <div>
+                                <div className="flex-1">
                                   <p className="font-medium">{family.name}</p>
                                   {family.description && (
                                     <p className="text-sm text-muted-foreground">{family.description}</p>
@@ -1622,27 +1622,38 @@ const ProviderAdmin = () => {
                                     Created {new Date(family.created_at).toLocaleDateString()}
                                   </p>
                                 </div>
-                                {inviteCode && (
-                                  <div className="flex items-center gap-2">
-                                    <div className="text-right">
-                                      <p className="text-xs text-muted-foreground">Invite Code</p>
-                                      <code className="text-sm font-mono bg-muted px-2 py-1 rounded">
-                                        {inviteCode}
-                                      </code>
+                                <div className="flex items-center gap-3">
+                                  {inviteCode && (
+                                    <div className="flex items-center gap-2">
+                                      <div className="text-right">
+                                        <p className="text-xs text-muted-foreground">Invite Code</p>
+                                        <code className="text-sm font-mono bg-muted px-2 py-1 rounded">
+                                          {inviteCode}
+                                        </code>
+                                      </div>
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={() => handleCopyCode(inviteCode)}
+                                      >
+                                        {copiedCode === inviteCode ? (
+                                          <Check className="h-4 w-4 text-green-500" />
+                                        ) : (
+                                          <Copy className="h-4 w-4" />
+                                        )}
+                                      </Button>
                                     </div>
-                                    <Button
-                                      variant="ghost"
-                                      size="icon"
-                                      onClick={() => handleCopyCode(inviteCode)}
-                                    >
-                                      {copiedCode === inviteCode ? (
-                                        <Check className="h-4 w-4 text-green-500" />
-                                      ) : (
-                                        <Copy className="h-4 w-4" />
-                                      )}
-                                    </Button>
-                                  </div>
-                                )}
+                                  )}
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => navigate(`/family/${family.id}`)}
+                                    className="gap-1"
+                                  >
+                                    <Eye className="h-4 w-4" />
+                                    Open
+                                  </Button>
+                                </div>
                               </div>
                             );
                           })}
