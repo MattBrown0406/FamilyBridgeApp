@@ -3224,7 +3224,7 @@ const FamilyChat = () => {
                         </li>
                         <li className="flex items-start gap-2">
                           <Check className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                          <span>Immediate response is required for all location check-in requests. Failure to respond may result in loss of cell phone service.</span>
+                          <span>Immediate response is required for all location check-in requests. Failure to respond may result in the loss of cell phone service, vehicle privileges, financial support or other natural consequences.</span>
                         </li>
                         <li className="flex items-start gap-2">
                           <Check className="h-4 w-4 text-primary shrink-0 mt-0.5" />
