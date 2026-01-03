@@ -3220,7 +3220,7 @@ const FamilyChat = () => {
                         </li>
                         <li className="flex items-start gap-2">
                           <Check className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                          <span>Recovery progress must be demonstrated through regular meeting check-ins.</span>
+                          <span>Recovery progress must be demonstrated through treatment completion, aftercare compliance, meeting and therapy attendance, medication compliance where needed.</span>
                         </li>
                         <li className="flex items-start gap-2">
                           <Check className="h-4 w-4 text-primary shrink-0 mt-0.5" />
