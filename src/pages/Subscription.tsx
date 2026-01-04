@@ -59,6 +59,15 @@ const Subscription = () => {
           throw error;
         }
       } else {
+        // Add to Mailchimp in background
+        supabase.functions.invoke('add-to-mailchimp', {
+          body: { email: trimmedEmail }
+        }).then(({ error: mailchimpError }) => {
+          if (mailchimpError) {
+            console.error('Mailchimp sync error:', mailchimpError);
+          }
+        });
+        
         toast.success("You're on the list! We'll notify you when Premium launches.");
         setIsSubscribed(true);
       }

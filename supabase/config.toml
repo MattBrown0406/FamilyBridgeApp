@@ -62,3 +62,6 @@ verify_jwt = false
 
 [functions.get-admin-stats]
 verify_jwt = false
+
+[functions.add-to-mailchimp]
+verify_jwt = false
