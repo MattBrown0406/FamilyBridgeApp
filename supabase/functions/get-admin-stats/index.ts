@@ -7,7 +7,7 @@ const corsHeaders = {
 
 // Same list as verify-super-admin - must match
 const SUPER_ADMIN_EMAILS = [
-  "dan@freedominterventions.com",
+  "matt@freedominterventions.com",
 ];
 
 Deno.serve(async (req) => {

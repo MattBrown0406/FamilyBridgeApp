@@ -7,7 +7,7 @@ const corsHeaders = {
 
 // Hardcoded list of super admin emails - ONLY these users can access the admin page
 const SUPER_ADMIN_EMAILS = [
-  "dan@freedominterventions.com",
+  "matt@freedominterventions.com",
   // Add more admin emails here as needed
 ];
 
