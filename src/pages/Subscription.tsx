@@ -11,10 +11,14 @@ const Subscription = () => {
   const { user } = useAuth();
 
   const features = [
-    'Priority support (request a professional interventionist to moderate difficult situations for 24 hours)',
-    'Advanced financial tracking',
-    'Extended message history',
-    'Custom meeting reminders',
+    'Multiple days of professional interventionist-moderated family support included',
+    'Drug and alcohol testing coordination and tracking (coming soon)',
+    'Family support phone & video consultations with your assigned moderator',
+    'Priority crisis response and 24/7 escalation support',
+    'Advanced financial tracking and accountability tools',
+    'Extended message history and family communication archives',
+    'Custom meeting reminders and recovery milestone tracking',
+    'Access to exclusive family recovery resources and educational content',
   ];
 
   return (
@@ -64,17 +68,16 @@ const Subscription = () => {
                     <p className="text-sm text-muted-foreground">Billed monthly, cancel anytime</p>
                   </div>
                   <div className="text-right">
-                    <p className="font-display font-bold text-lg">$19.99</p>
+                    <p className="font-display font-bold text-lg">$499</p>
                     <p className="text-xs text-muted-foreground">per month</p>
                   </div>
                 </div>
                 <Button 
                   variant="hero" 
                   className="w-full mt-4"
-                  onClick={() => navigate('/family-purchase')}
+                  disabled
                 >
-                  <ExternalLink className="h-4 w-4 mr-2" />
-                  Subscribe via Square
+                  Coming Soon
                 </Button>
               </CardContent>
             </Card>
