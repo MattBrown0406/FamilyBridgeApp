@@ -66,7 +66,7 @@ const Index = () => {
       {/* Header */}
       <header className="container mx-auto px-3 sm:px-4 py-3 sm:py-4">
         <nav className="flex items-center justify-between">
-          <BrandedHeader />
+          <BrandedHeader showHomeButton={false} />
           <div className="flex items-center gap-1.5 sm:gap-3">
             <Button variant="ghost" size="sm" className="px-2 sm:px-3" onClick={() => navigate('/demo')}>
               Demo
