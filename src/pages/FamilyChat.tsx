@@ -3264,9 +3264,8 @@ const FamilyChat = () => {
                   <FlaskConical className="h-16 w-16 text-muted-foreground/50 mb-4" />
                   <h3 className="text-lg font-medium text-foreground mb-2">Coming Soon</h3>
                   <p className="text-muted-foreground max-w-md">
-                    Breathalyzer and drug testing integration is coming soon. 
-                    This feature will allow family members to view and track test results 
-                    as part of the recovery accountability process.
+                    Drug and alcohol testing features are currently in development. 
+                    When ready, they will be offered as part of a premium upgrade.
                   </p>
                 </div>
               </CardContent>

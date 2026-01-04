@@ -778,7 +778,7 @@ const DemoFamily = () => {
                         <div>
                           <h3 className="text-xl font-bold text-foreground mb-2">Coming Soon</h3>
                           <p className="text-muted-foreground max-w-md mx-auto">
-                            Drug and alcohol testing integration is currently in development and will be available as a premium service in the future.
+                            Drug and alcohol testing features are currently in development. When ready, they will be offered as part of a premium upgrade.
                           </p>
                         </div>
                         <Badge variant="secondary" className="bg-amber-100 text-amber-700 border-amber-200">
