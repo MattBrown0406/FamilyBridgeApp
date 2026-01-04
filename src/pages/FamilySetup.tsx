@@ -235,7 +235,7 @@ const FamilySetup = () => {
 
                 <div className="space-y-4">
                   {members.map((member, index) => (
-                    <div key={member.id} className="border rounded-lg p-4 space-y-3">
+                    <div key={member.id} className="border rounded-lg p-3 sm:p-4 space-y-3">
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium">Member {index + 1}</span>
                         {members.length > 1 && (
@@ -250,7 +250,7 @@ const FamilySetup = () => {
                         )}
                       </div>
                       
-                      <div className="grid gap-3 sm:grid-cols-3">
+                      <div className="grid gap-2 sm:gap-3 grid-cols-1 sm:grid-cols-3">
                         <div className="space-y-1">
                           <Label className="text-xs">Name</Label>
                           <Input

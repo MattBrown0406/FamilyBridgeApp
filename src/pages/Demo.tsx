@@ -213,18 +213,18 @@ const Demo = () => {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="h-10 w-10 rounded-lg bg-primary flex items-center justify-center">
-              <Sparkles className="h-6 w-6 text-primary-foreground" />
+            <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg bg-primary flex items-center justify-center">
+              <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 text-primary-foreground" />
             </div>
-            <span className="font-display font-bold text-xl">FamilyBridge Demo</span>
+            <span className="font-display font-bold text-lg sm:text-xl">FamilyBridge</span>
           </div>
-          <div className="flex items-center gap-3">
-            <Button variant="outline" onClick={() => navigate('/')}>
-              Exit Demo
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Button variant="outline" size="sm" onClick={() => navigate('/')}>
+              Exit
             </Button>
-            <Button onClick={() => navigate('/provider-purchase')}>
+            <Button size="sm" onClick={() => navigate('/provider-purchase')}>
               Subscribe
             </Button>
           </div>
@@ -232,33 +232,36 @@ const Demo = () => {
       </header>
 
       {/* Hero */}
-      <section className="container mx-auto px-4 py-12 text-center">
-        <Badge className="mb-4" variant="secondary">
+      <section className="container mx-auto px-4 py-8 sm:py-12 text-center">
+        <Badge className="mb-3 sm:mb-4" variant="secondary">
           Interactive Demo
         </Badge>
-        <h1 className="text-4xl md:text-5xl font-display font-bold text-foreground mb-4">
+        <h1 className="text-2xl sm:text-4xl md:text-5xl font-display font-bold text-foreground mb-3 sm:mb-4">
           See FamilyBridge in Action
         </h1>
-        <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
+        <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto mb-6 sm:mb-8 px-2">
           Experience how your family or recovery support organization can benefit from structured support, 
           communication and accountability through each stage of the recovery process.
         </p>
       </section>
 
       {/* Demo Sections */}
-      <Tabs defaultValue="branding" className="container mx-auto px-4 pb-12">
-        <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-3 mb-8 h-14 p-1.5 bg-primary/10 border border-primary/20 rounded-xl shadow-md">
-          <TabsTrigger value="branding" className="h-full text-base font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg rounded-lg transition-all">
-            <Palette className="h-5 w-5 mr-2" />
-            Recovery Providers
+      <Tabs defaultValue="branding" className="container mx-auto px-3 sm:px-4 pb-8 sm:pb-12">
+        <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-3 mb-6 sm:mb-8 h-12 sm:h-14 p-1 sm:p-1.5 bg-primary/10 border border-primary/20 rounded-xl shadow-md">
+          <TabsTrigger value="branding" className="h-full text-xs sm:text-base font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg rounded-lg transition-all flex flex-col sm:flex-row items-center gap-0.5 sm:gap-2 px-1 sm:px-3">
+            <Palette className="h-4 w-4 sm:h-5 sm:w-5" />
+            <span className="hidden sm:inline">Recovery Providers</span>
+            <span className="sm:hidden text-[10px] leading-tight text-center">Providers</span>
           </TabsTrigger>
-          <TabsTrigger value="family" className="h-full text-base font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg rounded-lg transition-all">
-            <Users className="h-5 w-5 mr-2" />
-            Family Demo
+          <TabsTrigger value="family" className="h-full text-xs sm:text-base font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg rounded-lg transition-all flex flex-col sm:flex-row items-center gap-0.5 sm:gap-2 px-1 sm:px-3">
+            <Users className="h-4 w-4 sm:h-5 sm:w-5" />
+            <span className="hidden sm:inline">Family Demo</span>
+            <span className="sm:hidden text-[10px] leading-tight text-center">Family</span>
           </TabsTrigger>
-          <TabsTrigger value="features" className="h-full text-base font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg rounded-lg transition-all">
-            <Eye className="h-5 w-5 mr-2" />
-            Features
+          <TabsTrigger value="features" className="h-full text-xs sm:text-base font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg rounded-lg transition-all flex flex-col sm:flex-row items-center gap-0.5 sm:gap-2 px-1 sm:px-3">
+            <Eye className="h-4 w-4 sm:h-5 sm:w-5" />
+            <span className="hidden sm:inline">Features</span>
+            <span className="sm:hidden text-[10px] leading-tight text-center">Features</span>
           </TabsTrigger>
         </TabsList>
 
