@@ -56,3 +56,9 @@ verify_jwt = false
 
 [functions.create-moderator-checkout]
 verify_jwt = false
+
+[functions.verify-super-admin]
+verify_jwt = false
+
+[functions.get-admin-stats]
+verify_jwt = false
