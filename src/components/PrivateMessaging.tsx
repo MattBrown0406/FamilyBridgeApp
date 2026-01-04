@@ -75,23 +75,24 @@ export const PrivateMessaging = ({
 
   // Get eligible chat partners based on role and permissions
   const getChatPartners = () => {
-    if (currentUserRole === 'moderator') {
-      // Moderators can message anyone
+    if (currentUserRole === 'moderator' || currentUserRole === 'admin') {
+      // Moderators and Admins can message anyone in the family
       return members.filter(m => m.user_id !== currentUserId);
     } else if (currentUserRole === 'recovering') {
-      // Recovering users: can message professional moderators always, 
-      // or regular moderators if private messaging is enabled
+      // Recovering users can message moderators and admins
       return members.filter(m => {
         if (m.user_id === currentUserId) return false;
-        if (m.role !== 'moderator') return false;
-        // If there's a professional moderator assigned, always show moderators
+        if (m.role !== 'moderator' && m.role !== 'admin') return false;
+        // If there's a professional moderator assigned, always allow
         if (hasProfessionalModerator) return true;
         // Otherwise, only show if private messaging is enabled
         return currentUserMessagingEnabled;
       });
     } else {
-      // Regular members can only message moderators if enabled
-      return members.filter(m => m.role === 'moderator' && currentUserMessagingEnabled);
+      // Regular members can only message moderators/admins if enabled
+      return members.filter(m => 
+        (m.role === 'moderator' || m.role === 'admin') && currentUserMessagingEnabled
+      );
     }
   };
 
