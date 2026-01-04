@@ -2,7 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { LifeAppointmentCheckin } from '@/components/LifeAppointmentCheckin';
 import { LocationData } from '@/components/LocationCapture';
-import { CheckCircle, Calendar, Heart } from 'lucide-react';
+import { CheckCircle, Calendar, Sparkles } from 'lucide-react';
 import { useState } from 'react';
 
 interface TabbedCheckinProps {
@@ -30,7 +30,7 @@ export const TabbedCheckin = ({ familyId, onCheckinComplete, capturedLocation }:
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="recovery" className="flex items-center gap-2">
-              <Heart className="h-4 w-4" />
+              <Sparkles className="h-4 w-4" />
               <span className="hidden sm:inline">Recovery Meetings</span>
               <span className="sm:hidden">Recovery</span>
             </TabsTrigger>

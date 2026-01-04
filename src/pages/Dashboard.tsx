@@ -9,7 +9,8 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { Heart, Plus, Users, LogOut, Loader2, Copy, ArrowRight, Crown, Home } from 'lucide-react';
+import { Plus, Users, LogOut, Loader2, Copy, ArrowRight, Crown, Home } from 'lucide-react';
+import familyBridgeLogo from '@/assets/familybridge-logo.png';
 import { NotificationBell } from '@/components/NotificationBell';
 
 type RelationshipType = 
@@ -303,7 +304,7 @@ const Dashboard = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
-                <Heart className="h-7 w-7 text-primary" />
+                <img src={familyBridgeLogo} alt="FamilyBridge" className="h-7 w-auto object-contain" />
                 <span className="text-xl font-display font-semibold text-foreground">FamilyBridge</span>
               </div>
               <Button variant="ghost" size="sm" onClick={() => navigate('/')}>

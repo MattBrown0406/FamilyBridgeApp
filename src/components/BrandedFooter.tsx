@@ -1,5 +1,5 @@
-import { Heart } from 'lucide-react';
 import { useOrganization } from '@/hooks/useOrganization';
+import familyBridgeLogo from '@/assets/familybridge-logo.png';
 
 export const BrandedFooter = () => {
   const { organization, isWhiteLabeled } = useOrganization();
@@ -17,7 +17,7 @@ export const BrandedFooter = () => {
                 className="h-5 w-auto object-contain"
               />
             ) : (
-              <Heart className="h-5 w-5 text-primary" />
+              <img src={familyBridgeLogo} alt="FamilyBridge" className="h-5 w-auto object-contain" />
             )}
             <span className="font-display font-semibold text-foreground">
               {organization.name}
@@ -40,7 +40,7 @@ export const BrandedFooter = () => {
     <footer className="container mx-auto px-4 py-8 border-t border-border">
       <div className="flex flex-col md:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-2">
-          <Heart className="h-5 w-5 text-primary" />
+          <img src={familyBridgeLogo} alt="FamilyBridge" className="h-5 w-auto object-contain" />
           <span className="font-display font-semibold text-foreground">FamilyBridge</span>
         </div>
         <p className="text-muted-foreground text-sm">

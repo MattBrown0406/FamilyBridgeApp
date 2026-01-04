@@ -20,12 +20,12 @@ import {
   Eye,
   Wand2,
   Upload,
-  Heart,
   Check,
   Play,
   Sparkles,
   Loader2
 } from 'lucide-react';
+import familyBridgeLogo from '@/assets/familybridge-logo.png';
 
 const Demo = () => {
   const navigate = useNavigate();
@@ -402,8 +402,8 @@ const Demo = () => {
                           />
                         </div>
                       ) : (
-                        <div className="h-10 w-10 rounded-lg bg-white/20 flex items-center justify-center">
-                          <Heart className="h-6 w-6" />
+                        <div className="h-10 w-10 rounded-lg bg-white/20 flex items-center justify-center overflow-hidden">
+                          <img src={familyBridgeLogo} alt="FamilyBridge" className="h-8 w-8 object-contain" />
                         </div>
                       )}
                       <span className="font-bold text-xl">{demoName}</span>
@@ -449,7 +449,7 @@ const Demo = () => {
                 </CardDescription>
                 <div className="mt-3 p-3 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 border border-green-200 dark:border-green-800 rounded-lg">
                   <p className="text-sm font-medium text-green-800 dark:text-green-200 flex items-center gap-2">
-                    <Heart className="h-4 w-4" />
+                    <Sparkles className="h-4 w-4" />
                     Early Adopter Lifetime Price: Just $19.99/month forever!
                   </p>
                   <p className="text-xs text-green-700 dark:text-green-300 mt-1 ml-6">
