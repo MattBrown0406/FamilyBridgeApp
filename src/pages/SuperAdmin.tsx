@@ -43,6 +43,7 @@ interface FamilyDetails {
   family: {
     id: string;
     name: string;
+    account_number: string;
     description: string | null;
     created_at: string;
     created_by: string | null;
@@ -752,10 +753,17 @@ const SuperAdmin = () => {
         <DialogContent className="max-w-2xl max-h-[80vh]">
           <DialogHeader>
             <DialogTitle className="flex items-center justify-between">
-              <span className="flex items-center gap-2">
-                <Users className="h-5 w-5" />
-                {familyDetails?.family.name || 'Family Details'}
-              </span>
+              <div className="flex flex-col">
+                <span className="flex items-center gap-2">
+                  <Users className="h-5 w-5" />
+                  {familyDetails?.family.name || 'Family Details'}
+                </span>
+                {familyDetails?.family.account_number && (
+                  <Badge variant="outline" className="font-mono text-xs w-fit mt-1">
+                    {familyDetails.family.account_number}
+                  </Badge>
+                )}
+              </div>
               {familyDetails && !isEditing && (
                 <div className="flex gap-2">
                   <Button size="sm" variant="outline" onClick={() => setIsEditing(true)}>
