@@ -194,9 +194,22 @@ const SuperAdmin = () => {
   const [isDeleting, setIsDeleting] = useState(false);
 
   const getAuthHeaders = async () => {
-    const session = await supabase.auth.getSession();
+    // Refresh session to ensure we have valid tokens
+    const { data: { session }, error } = await supabase.auth.getSession();
+    if (error || !session?.access_token) {
+      // Try to refresh the session
+      const { data: refreshData } = await supabase.auth.refreshSession();
+      if (!refreshData.session?.access_token) {
+        throw new Error('No valid session');
+      }
+      return {
+        'Authorization': `Bearer ${refreshData.session.access_token}`,
+        'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+        'Content-Type': 'application/json',
+      };
+    }
     return {
-      'Authorization': `Bearer ${session.data.session?.access_token}`,
+      'Authorization': `Bearer ${session.access_token}`,
       'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
       'Content-Type': 'application/json',
     };
