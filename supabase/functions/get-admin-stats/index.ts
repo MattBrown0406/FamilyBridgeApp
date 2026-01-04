@@ -53,6 +53,59 @@ Deno.serve(async (req) => {
     // Use service role key for admin queries
     const adminClient = createClient(supabaseUrl, serviceRoleKey);
 
+    // Check if this is a detail request
+    const url = new URL(req.url);
+    const familyId = url.searchParams.get("family_id");
+    const orgId = url.searchParams.get("org_id");
+
+    // Return family details
+    if (familyId) {
+      const [familyResult, membersResult, messagesResult, checkinsResult, requestsResult] = await Promise.all([
+        adminClient.from("families").select("*").eq("id", familyId).single(),
+        adminClient.from("family_members").select("*, profiles(id, full_name, avatar_url)").eq("family_id", familyId),
+        adminClient.from("messages").select("id, created_at, sender_id, content").eq("family_id", familyId).order("created_at", { ascending: false }).limit(20),
+        adminClient.from("meeting_checkins").select("*").eq("family_id", familyId).order("checked_in_at", { ascending: false }).limit(20),
+        adminClient.from("financial_requests").select("*").eq("family_id", familyId).order("created_at", { ascending: false }).limit(10),
+      ]);
+
+      // Get org name if applicable
+      let organizationName = null;
+      if (familyResult.data?.organization_id) {
+        const { data: orgData } = await adminClient.from("organizations").select("name").eq("id", familyResult.data.organization_id).single();
+        organizationName = orgData?.name;
+      }
+
+      return new Response(
+        JSON.stringify({
+          family: familyResult.data,
+          organization_name: organizationName,
+          members: membersResult.data || [],
+          recent_messages: messagesResult.data || [],
+          recent_checkins: checkinsResult.data || [],
+          recent_requests: requestsResult.data || [],
+        }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Return organization details
+    if (orgId) {
+      const [orgResult, membersResult, familiesResult] = await Promise.all([
+        adminClient.from("organizations").select("*").eq("id", orgId).single(),
+        adminClient.from("organization_members").select("*, profiles(id, full_name, avatar_url)").eq("organization_id", orgId),
+        adminClient.from("families").select("id, name, created_at").eq("organization_id", orgId).order("created_at", { ascending: false }),
+      ]);
+
+      return new Response(
+        JSON.stringify({
+          organization: orgResult.data,
+          members: membersResult.data || [],
+          families: familiesResult.data || [],
+        }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     // Get date ranges
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
