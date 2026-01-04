@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { useSuperAdmin } from '@/hooks/useSuperAdmin';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Users, LogOut, Loader2, ArrowRight, Home, Building2 } from 'lucide-react';
+import { Users, LogOut, Loader2, ArrowRight, Home, Building2, Shield } from 'lucide-react';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 import { NotificationBell } from '@/components/NotificationBell';
 
@@ -25,6 +26,7 @@ interface OrganizationInfo {
 
 const ModeratorDashboard = () => {
   const { user, signOut, loading } = useAuth();
+  const { isAdmin: isSuperAdmin } = useSuperAdmin();
   const navigate = useNavigate();
   const { toast } = useToast();
   
@@ -256,6 +258,12 @@ const ModeratorDashboard = () => {
             {organizations.some(o => o.role === 'owner' || o.role === 'admin') && (
               <Button variant="outline" onClick={() => navigate('/provider-admin')}>
                 Provider Admin Panel
+              </Button>
+            )}
+            {isSuperAdmin && (
+              <Button variant="outline" onClick={() => navigate('/super-admin')}>
+                <Shield className="h-4 w-4 mr-2" />
+                Super Admin
               </Button>
             )}
           </div>
