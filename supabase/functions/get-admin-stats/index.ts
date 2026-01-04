@@ -53,10 +53,176 @@ Deno.serve(async (req) => {
     // Use service role key for admin queries
     const adminClient = createClient(supabaseUrl, serviceRoleKey);
 
-    // Check if this is a detail request
+    // Check if this is a detail or action request
     const url = new URL(req.url);
     const familyId = url.searchParams.get("family_id");
     const orgId = url.searchParams.get("org_id");
+    const userId = url.searchParams.get("user_id");
+    const action = url.searchParams.get("action");
+
+    // Handle DELETE actions
+    if (req.method === "DELETE" || action === "delete") {
+      if (familyId) {
+        // Delete family and related data
+        await adminClient.from("messages").delete().eq("family_id", familyId);
+        await adminClient.from("meeting_checkins").delete().eq("family_id", familyId);
+        await adminClient.from("financial_requests").delete().eq("family_id", familyId);
+        await adminClient.from("family_members").delete().eq("family_id", familyId);
+        await adminClient.from("family_boundaries").delete().eq("family_id", familyId);
+        await adminClient.from("family_values").delete().eq("family_id", familyId);
+        await adminClient.from("family_goals").delete().eq("family_id", familyId);
+        await adminClient.from("family_common_goals").delete().eq("family_id", familyId);
+        await adminClient.from("family_invite_codes").delete().eq("family_id", familyId);
+        await adminClient.from("notifications").delete().eq("family_id", familyId);
+        await adminClient.from("location_checkin_requests").delete().eq("family_id", familyId);
+        await adminClient.from("private_messages").delete().eq("family_id", familyId);
+        await adminClient.from("temporary_moderator_requests").delete().eq("family_id", familyId);
+        await adminClient.from("paid_moderator_requests").delete().eq("family_id", familyId);
+        const { error } = await adminClient.from("families").delete().eq("id", familyId);
+        
+        if (error) {
+          console.error("Error deleting family:", error);
+          return new Response(
+            JSON.stringify({ error: error.message }),
+            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+        
+        return new Response(
+          JSON.stringify({ success: true }),
+          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      if (orgId) {
+        // Delete organization and related data
+        await adminClient.from("organization_members").delete().eq("organization_id", orgId);
+        // Unlink families from org
+        await adminClient.from("families").update({ organization_id: null }).eq("organization_id", orgId);
+        const { error } = await adminClient.from("organizations").delete().eq("id", orgId);
+        
+        if (error) {
+          console.error("Error deleting organization:", error);
+          return new Response(
+            JSON.stringify({ error: error.message }),
+            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+        
+        return new Response(
+          JSON.stringify({ success: true }),
+          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      if (userId) {
+        // Delete user - this will cascade delete profile and related data
+        const { error } = await adminClient.auth.admin.deleteUser(userId);
+        
+        if (error) {
+          console.error("Error deleting user:", error);
+          return new Response(
+            JSON.stringify({ error: error.message }),
+            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+        
+        return new Response(
+          JSON.stringify({ success: true }),
+          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    }
+
+    // Handle UPDATE actions
+    if (req.method === "PUT" || req.method === "PATCH") {
+      const body = await req.json();
+
+      if (familyId) {
+        const { error } = await adminClient.from("families")
+          .update({ name: body.name, description: body.description })
+          .eq("id", familyId);
+        
+        if (error) {
+          return new Response(
+            JSON.stringify({ error: error.message }),
+            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+        
+        return new Response(
+          JSON.stringify({ success: true }),
+          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      if (orgId) {
+        const { error } = await adminClient.from("organizations")
+          .update({ 
+            name: body.name, 
+            subdomain: body.subdomain,
+            tagline: body.tagline,
+            support_email: body.support_email,
+            phone: body.phone,
+            website_url: body.website_url
+          })
+          .eq("id", orgId);
+        
+        if (error) {
+          return new Response(
+            JSON.stringify({ error: error.message }),
+            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+        
+        return new Response(
+          JSON.stringify({ success: true }),
+          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      if (userId) {
+        const { error } = await adminClient.from("profiles")
+          .update({ full_name: body.full_name })
+          .eq("id", userId);
+        
+        if (error) {
+          return new Response(
+            JSON.stringify({ error: error.message }),
+            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+        
+        return new Response(
+          JSON.stringify({ success: true }),
+          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    }
+
+    // Return user details
+    if (userId) {
+      const [profileResult, familyMembersResult, orgMembersResult] = await Promise.all([
+        adminClient.from("profiles").select("*").eq("id", userId).single(),
+        adminClient.from("family_members").select("*, families(id, name)").eq("user_id", userId),
+        adminClient.from("organization_members").select("*, organizations(id, name)").eq("user_id", userId),
+      ]);
+
+      // Get user auth data
+      const { data: authData } = await adminClient.auth.admin.getUserById(userId);
+
+      return new Response(
+        JSON.stringify({
+          profile: profileResult.data,
+          email: authData?.user?.email,
+          last_sign_in: authData?.user?.last_sign_in_at,
+          created_at: authData?.user?.created_at,
+          family_memberships: familyMembersResult.data || [],
+          organization_memberships: orgMembersResult.data || [],
+        }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
     // Return family details
     if (familyId) {
@@ -124,6 +290,7 @@ Deno.serve(async (req) => {
       checkinsWeekResult,
       financialRequestsResult,
       financialRequestsMonthResult,
+      usersListResult,
     ] = await Promise.all([
       // Total families
       adminClient.from("families").select("id", { count: "exact", head: true }),
@@ -149,6 +316,8 @@ Deno.serve(async (req) => {
       // Financial requests this month
       adminClient.from("financial_requests").select("id", { count: "exact", head: true })
         .gte("created_at", monthAgo.toISOString()),
+      // Users list
+      adminClient.from("profiles").select("id, full_name, avatar_url, created_at").order("created_at", { ascending: false }),
     ]);
 
     // Get activity by family (last 30 days)
@@ -231,6 +400,24 @@ Deno.serve(async (req) => {
       family_count: familiesPerOrg[o.id] || 0,
     }));
 
+    // Get family memberships count per user
+    const { data: familyMemberships } = await adminClient
+      .from("family_members")
+      .select("user_id");
+
+    const userFamilyCounts: Record<string, number> = {};
+    (familyMemberships || []).forEach(m => {
+      userFamilyCounts[m.user_id] = (userFamilyCounts[m.user_id] || 0) + 1;
+    });
+
+    const usersWithStats = (usersListResult.data || []).map(u => ({
+      id: u.id,
+      full_name: u.full_name,
+      avatar_url: u.avatar_url,
+      created_at: u.created_at,
+      family_count: userFamilyCounts[u.id] || 0,
+    }));
+
     return new Response(
       JSON.stringify({
         overview: {
@@ -247,6 +434,7 @@ Deno.serve(async (req) => {
         },
         families: familiesWithActivity,
         organizations: organizationsWithStats,
+        users: usersWithStats,
       }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
