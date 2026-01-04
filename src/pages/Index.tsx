@@ -5,7 +5,8 @@ import { useOrganization } from '@/hooks/useOrganization';
 import { useProviderAdmin } from '@/hooks/useProviderAdmin';
 import { BrandedHeader } from '@/components/BrandedHeader';
 import { BrandedFooter } from '@/components/BrandedFooter';
-import { Shield, Users, DollarSign, MessageCircle, Eye, MapPin, ArrowRight, HelpCircle, Building2, Check, Play, Triangle } from 'lucide-react';
+import { Shield, Users, DollarSign, MessageCircle, Eye, MapPin, ArrowRight, HelpCircle, Building2, Check, Play } from 'lucide-react';
+import { RecoveryIcon } from '@/components/icons/RecoveryIcon';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 
 const Index = () => {
@@ -49,7 +50,7 @@ const Index = () => {
       description: 'Collaboratively define what matters most to your family. Set clear boundaries together and hold each other accountable with love, not judgment.',
     },
     {
-      icon: Triangle,
+      icon: RecoveryIcon,
       title: 'Recovery-Focused Design',
       description: 'Built by families who understand addiction. Every feature supports the delicate balance between supporting recovery and preventing enabling behaviors.',
     },
