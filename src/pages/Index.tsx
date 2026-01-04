@@ -5,7 +5,8 @@ import { useOrganization } from '@/hooks/useOrganization';
 import { useProviderAdmin } from '@/hooks/useProviderAdmin';
 import { BrandedHeader } from '@/components/BrandedHeader';
 import { BrandedFooter } from '@/components/BrandedFooter';
-import { Heart, Shield, Users, DollarSign, MessageCircle, Eye, MapPin, ArrowRight, HelpCircle, Building2, Check, Play } from 'lucide-react';
+import { Shield, Users, DollarSign, MessageCircle, Eye, MapPin, ArrowRight, HelpCircle, Building2, Check, Play, Sparkles } from 'lucide-react';
+import familyBridgeLogo from '@/assets/familybridge-logo.png';
 
 const Index = () => {
   const { user, loading } = useAuth();
@@ -48,7 +49,7 @@ const Index = () => {
       description: 'Group-approved financial requests.',
     },
     {
-      icon: Heart,
+      icon: Sparkles,
       title: 'Recovery Support',
       description: 'Built to help families navigate recovery together.',
     },

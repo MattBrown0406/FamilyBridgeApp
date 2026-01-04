@@ -10,11 +10,11 @@ import {
   Clock, 
   ThumbsUp, 
   ThumbsDown, 
-  Heart, 
   ChevronDown,
   FileText,
   Paperclip,
-  DollarSign
+  DollarSign,
+  Sparkles
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -238,7 +238,7 @@ export const FinancialRequestCard: React.FC<FinancialRequestCardProps> = ({
       {pledges.length > 0 && (
         <div className="bg-gradient-to-br from-primary/5 to-primary/10 rounded-lg p-3 border border-primary/10">
           <p className="text-xs font-semibold mb-2 flex items-center gap-1.5">
-            <Heart className="h-3 w-3 text-primary" />
+            <Sparkles className="h-3 w-3 text-primary" />
             Pledges ({pledges.length})
           </p>
           <div className="space-y-1">

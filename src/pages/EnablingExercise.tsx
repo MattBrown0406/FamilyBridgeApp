@@ -5,7 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
-import { Heart, ArrowLeft, ArrowRight, AlertTriangle, HelpCircle, CheckCircle, XCircle, RotateCcw } from 'lucide-react';
+import { ArrowLeft, ArrowRight, AlertTriangle, HelpCircle, CheckCircle, XCircle, RotateCcw } from 'lucide-react';
+import familyBridgeLogo from '@/assets/familybridge-logo.png';
 
 interface Question {
   id: number;
@@ -304,7 +305,7 @@ const EnablingExercise = () => {
         <header className="container mx-auto px-4 py-4 border-b border-border">
           <nav className="flex items-center justify-between">
             <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
-              <Heart className="h-7 w-7 text-primary" />
+              <img src={familyBridgeLogo} alt="FamilyBridge" className="h-7 w-auto object-contain" />
               <span className="text-lg font-display font-semibold text-foreground">FamilyBridge</span>
             </div>
           </nav>
@@ -380,7 +381,7 @@ const EnablingExercise = () => {
       <header className="container mx-auto px-4 py-4 border-b border-border">
         <nav className="flex items-center justify-between">
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
-            <Heart className="h-7 w-7 text-primary" />
+            <img src={familyBridgeLogo} alt="FamilyBridge" className="h-7 w-auto object-contain" />
             <span className="text-lg font-display font-semibold text-foreground">FamilyBridge</span>
           </div>
           <Button variant="ghost" size="sm" onClick={() => navigate('/')}>

@@ -3,7 +3,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Heart, ArrowLeft, Check, Crown, ExternalLink } from 'lucide-react';
+import { ArrowLeft, Check, Crown, ExternalLink } from 'lucide-react';
+import familyBridgeLogo from '@/assets/familybridge-logo.png';
 
 const Subscription = () => {
   const navigate = useNavigate();
@@ -21,7 +22,7 @@ const Subscription = () => {
       <header className="container mx-auto px-4 py-4 border-b border-border">
         <nav className="flex items-center justify-between">
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate(-1)}>
-            <Heart className="h-7 w-7 text-primary" />
+            <img src={familyBridgeLogo} alt="FamilyBridge" className="h-7 w-auto object-contain" />
             <span className="text-lg font-display font-semibold text-foreground">FamilyBridge</span>
           </div>
           <Button variant="ghost" size="sm" onClick={() => navigate(-1)}>

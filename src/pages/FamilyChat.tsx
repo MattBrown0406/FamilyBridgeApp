@@ -14,11 +14,12 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { 
-  Heart, ArrowLeft, Send, Loader2, Users, DollarSign, 
+  ArrowLeft, Send, Loader2, Users, DollarSign, 
   MessageCircle, AlertTriangle, Check, X, Shield, MapPin,
   ExternalLink, CreditCard, CheckCircle2, Paperclip, Image, HandCoins, Trash2, Pencil,
-  Target, ShieldCheck, Plus, CheckCircle, MessageSquare, FlaskConical, ChevronDown
+  Target, ShieldCheck, Plus, CheckCircle, MessageSquare, FlaskConical, ChevronDown, Sparkles
 } from 'lucide-react';
+import familyBridgeLogo from '@/assets/familybridge-logo.png';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Label } from '@/components/ui/label';
 import { format } from 'date-fns';
@@ -224,7 +225,7 @@ const FAMILY_VALUES_OPTIONS = [
     key: 'honesty', 
     name: 'Honesty & Transparency', 
     description: 'We commit to open, truthful communication—even when it\'s difficult.',
-    icon: 'Heart'
+    icon: 'Sparkles'
   },
   { 
     key: 'accountability', 
@@ -248,19 +249,19 @@ const FAMILY_VALUES_OPTIONS = [
     key: 'patience', 
     name: 'Patience & Progress', 
     description: 'We focus on progress, not perfection, and allow time for healing.',
-    icon: 'Heart'
+    icon: 'Sparkles'
   },
   { 
     key: 'forgiveness', 
     name: 'Forgiveness & Moving Forward', 
     description: 'We release resentment and focus on building a better future together.',
-    icon: 'Heart'
+    icon: 'Sparkles'
   },
   { 
     key: 'self_care', 
     name: 'Self-Care for Everyone', 
     description: 'We prioritize each person\'s wellbeing—recovery affects the whole family.',
-    icon: 'Heart'
+    icon: 'Sparkles'
   },
   { 
     key: 'consistency', 
@@ -278,7 +279,7 @@ const FAMILY_VALUES_OPTIONS = [
     key: 'hope', 
     name: 'Hope & Faith in Recovery', 
     description: 'We believe that lasting recovery is possible and work toward it together.',
-    icon: 'Heart'
+    icon: 'Sparkles'
   },
 ] as const;
 
@@ -1822,8 +1823,8 @@ const FamilyChat = () => {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-background to-secondary/20">
         <div className="relative">
-          <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg animate-pulse-soft">
-            <Heart className="h-8 w-8 text-white" />
+          <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg animate-pulse-soft overflow-hidden">
+            <img src={familyBridgeLogo} alt="FamilyBridge" className="h-10 w-10 object-contain" />
           </div>
           <div className="absolute -inset-2 bg-gradient-to-br from-primary/20 to-accent/20 rounded-3xl animate-ping opacity-50" />
         </div>
@@ -1851,8 +1852,8 @@ const FamilyChat = () => {
               onClick={() => setMembersSheetOpen(true)}
             >
               <div className="relative">
-                <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
-                  <Heart className="h-5 w-5 text-white" />
+                <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow overflow-hidden">
+                  <img src={familyBridgeLogo} alt="FamilyBridge" className="h-7 w-7 object-contain" />
                 </div>
                 <div className="absolute -bottom-1 -right-1 h-4 w-4 bg-success rounded-full border-2 border-card flex items-center justify-center">
                   <span className="text-[8px] text-white font-bold">{members.length}</span>
@@ -2733,7 +2734,7 @@ const FamilyChat = () => {
                               key={fv.id}
                               className="px-3 py-2 rounded-lg bg-primary/10 border border-primary flex items-center gap-2"
                             >
-                              <Heart className="h-4 w-4 text-primary shrink-0" />
+                              <Sparkles className="h-4 w-4 text-primary shrink-0" />
                               <span className="font-medium text-sm text-foreground">{valueOption.name}</span>
                             </div>
                           );
@@ -2765,7 +2766,7 @@ const FamilyChat = () => {
                                       }`}
                                     >
                                       <div className="flex items-center gap-2">
-                                        <Heart className={`h-3 w-3 shrink-0 ${isSelected ? 'text-primary' : 'text-muted-foreground'}`} />
+                                        <Sparkles className={`h-3 w-3 shrink-0 ${isSelected ? 'text-primary' : 'text-muted-foreground'}`} />
                                         <span className={`font-medium ${isSelected ? 'text-foreground' : 'text-foreground/80'}`}>
                                           {option.name}
                                         </span>

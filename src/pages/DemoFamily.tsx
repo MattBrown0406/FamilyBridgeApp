@@ -26,7 +26,6 @@ import {
   CheckCircle,
   Target,
   Calendar,
-  Heart,
   AlertTriangle,
   Sparkles,
   Paperclip,
@@ -37,6 +36,7 @@ import {
   FlaskConical,
   Crown
 } from 'lucide-react';
+import familyBridgeLogo from '@/assets/familybridge-logo.png';
 import { format } from 'date-fns';
 import demoElectricBill from '@/assets/demo-electric-bill.png';
 import { toast } from 'sonner';
@@ -239,7 +239,7 @@ const DemoFamily = () => {
                 }}
                 title="View family members"
               >
-                <Heart className="h-5 w-5 text-white" />
+                <img src={familyBridgeLogo} alt="FamilyBridge" className="h-5 w-5 object-contain" />
                 <span className="absolute -bottom-1 -right-1 h-5 w-5 rounded-full bg-white shadow-md flex items-center justify-center text-[10px] font-bold text-primary border border-primary/20">
                   {DEMO_MEMBERS.length}
                 </span>
@@ -326,7 +326,7 @@ const DemoFamily = () => {
                 value="values"
                 className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500 data-[state=active]:to-rose-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-300"
               >
-                <Heart className="h-4 w-4 mr-2" />
+                <Sparkles className="h-4 w-4 mr-2" />
                 Values & Goals
               </TabsTrigger>
               <TabsTrigger 
@@ -559,7 +559,7 @@ const DemoFamily = () => {
                     <Tabs defaultValue="recovery" className="w-full">
                       <TabsList className="grid w-full grid-cols-2">
                         <TabsTrigger value="recovery" className="flex items-center gap-2">
-                          <Heart className="h-4 w-4" />
+                          <Sparkles className="h-4 w-4" />
                           <span className="hidden sm:inline">Recovery Meetings</span>
                           <span className="sm:hidden">Recovery</span>
                         </TabsTrigger>
@@ -852,8 +852,8 @@ const DemoFamily = () => {
                   <div className="h-1 bg-gradient-to-r from-pink-500 via-rose-500 to-red-500" />
                   <CardHeader>
                     <CardTitle className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center shadow-md">
-                        <Heart className="h-5 w-5 text-white" />
+                      <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center shadow-md overflow-hidden">
+                        <img src={familyBridgeLogo} alt="FamilyBridge" className="h-7 w-7 object-contain" />
                       </div>
                       Family Values & Goals
                     </CardTitle>
@@ -873,7 +873,7 @@ const DemoFamily = () => {
                               className="px-3 py-2 rounded-lg bg-pink-100 border border-pink-200 flex items-center gap-2 animate-fade-in"
                               style={{ animationDelay: `${index * 100}ms` }}
                             >
-                              <Heart className="h-4 w-4 text-pink-600 shrink-0" />
+                              <Sparkles className="h-4 w-4 text-pink-600 shrink-0" />
                               <span className="font-medium text-sm text-foreground">{value.name}</span>
                             </div>
                           ))}
@@ -1167,7 +1167,7 @@ const DemoFamily = () => {
                   </div>
 
                   <p className="text-xs text-muted-foreground text-center bg-muted/30 p-3 rounded-lg">
-                    <Heart className="h-3 w-3 inline mr-1" />
+                    <Sparkles className="h-3 w-3 inline mr-1" />
                     Click "Send" to open the payment app and send funds directly
                   </p>
                 </div>
@@ -1183,7 +1183,7 @@ const DemoFamily = () => {
           <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary via-primary/80 to-primary/60 rounded-t-lg" />
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Heart className="h-5 w-5 text-primary fill-primary" />
+              <img src={familyBridgeLogo} alt="FamilyBridge" className="h-5 w-5 object-contain" />
               Family Members
               <Badge variant="secondary" className="ml-auto bg-primary/10 text-primary">
                 {DEMO_MEMBERS.length} Members

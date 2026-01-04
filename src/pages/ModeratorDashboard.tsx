@@ -5,7 +5,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Heart, Users, LogOut, Loader2, ArrowRight, Home, Building2 } from 'lucide-react';
+import { Users, LogOut, Loader2, ArrowRight, Home, Building2 } from 'lucide-react';
+import familyBridgeLogo from '@/assets/familybridge-logo.png';
 import { NotificationBell } from '@/components/NotificationBell';
 
 interface AssignedFamily {
@@ -132,7 +133,7 @@ const ModeratorDashboard = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
-                <Heart className="h-7 w-7 text-primary" />
+                <img src={familyBridgeLogo} alt="FamilyBridge" className="h-7 w-auto object-contain" />
                 <span className="text-xl font-display font-semibold text-foreground">FamilyBridge</span>
               </div>
               <Button variant="ghost" size="sm" onClick={() => navigate('/')}>

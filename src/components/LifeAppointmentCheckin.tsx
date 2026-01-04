@@ -7,21 +7,21 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, CheckCircle, MapPin, Briefcase, Heart, Stethoscope, Scale, Calendar } from 'lucide-react';
+import { Loader2, CheckCircle, MapPin, Briefcase, Stethoscope, Scale, Calendar, Sparkles, Users, PartyPopper } from 'lucide-react';
 import { LocationData } from '@/components/LocationCapture';
 
 const APPOINTMENT_TYPES = [
-  { value: 'Therapy', label: 'Therapy / Counseling', icon: Heart, category: 'Healthcare' },
+  { value: 'Therapy', label: 'Therapy / Counseling', icon: Sparkles, category: 'Healthcare' },
   { value: 'Medical', label: 'Medical Appointment', icon: Stethoscope, category: 'Healthcare' },
-  { value: 'Gym', label: 'Gym / Fitness', icon: Heart, category: 'Healthcare' },
-  { value: 'Wellness', label: 'Wellness Activity', icon: Heart, category: 'Healthcare' },
-  { value: 'Support Group', label: 'Support Group', icon: Heart, category: 'Healthcare' },
+  { value: 'Gym', label: 'Gym / Fitness', icon: Sparkles, category: 'Healthcare' },
+  { value: 'Wellness', label: 'Wellness Activity', icon: Sparkles, category: 'Healthcare' },
+  { value: 'Support Group', label: 'Support Group', icon: Users, category: 'Healthcare' },
   { value: 'Work', label: 'Work / Job', icon: Briefcase, category: 'Professional' },
   { value: 'Job Interview', label: 'Job Interview', icon: Briefcase, category: 'Professional' },
-  { value: 'Date', label: 'Date', icon: Heart, category: 'Social' },
-  { value: 'Friendly Gathering', label: 'Friendly Get Together', icon: Heart, category: 'Social' },
-  { value: 'Group Event', label: 'Group Event', icon: Heart, category: 'Social' },
-  { value: 'Family Event', label: 'Family Event', icon: Heart, category: 'Social' },
+  { value: 'Date', label: 'Date', icon: Sparkles, category: 'Social' },
+  { value: 'Friendly Gathering', label: 'Friendly Get Together', icon: PartyPopper, category: 'Social' },
+  { value: 'Group Event', label: 'Group Event', icon: Users, category: 'Social' },
+  { value: 'Family Event', label: 'Family Event', icon: Users, category: 'Social' },
   { value: 'Court', label: 'Court Appearance', icon: Scale, category: 'Legal' },
   { value: 'Probation', label: 'Probation Meeting', icon: Scale, category: 'Legal' },
 ];

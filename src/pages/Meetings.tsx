@@ -1,7 +1,8 @@
 import { Button } from '@/components/ui/button';
-import { Heart, ArrowLeft } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { MeetingFinder } from '@/components/MeetingFinder';
+import familyBridgeLogo from '@/assets/familybridge-logo.png';
 
 const Meetings = () => {
   const navigate = useNavigate();
@@ -17,7 +18,7 @@ const Meetings = () => {
               Back
             </Button>
             <div className="flex items-center gap-2">
-              <Heart className="h-6 w-6 text-primary" />
+              <img src={familyBridgeLogo} alt="FamilyBridge" className="h-6 w-auto object-contain" />
               <span className="text-lg font-display font-semibold text-foreground">FamilyBridge</span>
             </div>
           </div>

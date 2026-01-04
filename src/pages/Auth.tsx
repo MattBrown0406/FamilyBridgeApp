@@ -8,7 +8,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Heart, Loader2, Fingerprint } from 'lucide-react';
+import { Loader2, Fingerprint } from 'lucide-react';
+import familyBridgeLogo from '@/assets/familybridge-logo.png';
 import { z } from 'zod';
 
 const authSchema = z.object({
@@ -242,7 +243,7 @@ const Auth = () => {
             className="flex items-center justify-center gap-2 cursor-pointer mb-4"
             onClick={() => navigate('/')}
           >
-            <Heart className="h-10 w-10 text-primary" />
+            <img src={familyBridgeLogo} alt="FamilyBridge" className="h-10 w-auto object-contain" />
             <span className="text-2xl font-display font-bold text-foreground">FamilyBridge</span>
           </div>
           <p className="text-muted-foreground">
