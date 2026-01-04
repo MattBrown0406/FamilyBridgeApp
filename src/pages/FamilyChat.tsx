@@ -1917,48 +1917,48 @@ const FamilyChat = () => {
       {/* Main Content */}
       <main className="flex-1 container mx-auto px-4 py-4 overflow-hidden">
         <Tabs defaultValue="messages" className="h-full flex flex-col">
-          <TabsList className="grid w-full grid-cols-6 mb-4 shrink-0 bg-card/50 backdrop-blur-sm border border-border/50 p-1.5 rounded-xl shadow-soft">
+          <TabsList className="flex flex-wrap h-auto gap-1 w-full mb-4 shrink-0 bg-card/50 backdrop-blur-sm border border-border/50 p-1.5 rounded-xl shadow-soft">
             <TabsTrigger 
               value="messages" 
-              className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg transition-all duration-200"
+              className="flex-1 min-w-[50px] flex items-center justify-center gap-1 px-2 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg transition-all duration-200"
             >
               <MessageCircle className="h-4 w-4" />
-              <span className="hidden sm:inline">Messages</span>
+              <span className="hidden sm:inline text-xs">Messages</span>
             </TabsTrigger>
             <TabsTrigger 
               value="checkin" 
-              className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg transition-all duration-200"
+              className="flex-1 min-w-[50px] flex items-center justify-center gap-1 px-2 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg transition-all duration-200"
             >
               <MapPin className="h-4 w-4" />
-              <span className="hidden sm:inline">Check-in</span>
+              <span className="hidden sm:inline text-xs">Check-in</span>
             </TabsTrigger>
             <TabsTrigger 
               value="financial" 
-              className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg transition-all duration-200"
+              className="flex-1 min-w-[50px] flex items-center justify-center gap-1 px-2 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg transition-all duration-200"
             >
               <DollarSign className="h-4 w-4" />
-              <span className="hidden sm:inline">Financial</span>
+              <span className="hidden sm:inline text-xs">Financial</span>
             </TabsTrigger>
             <TabsTrigger 
               value="values" 
-              className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg transition-all duration-200"
+              className="flex-1 min-w-[50px] flex items-center justify-center gap-1 px-2 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg transition-all duration-200"
             >
               <Target className="h-4 w-4" />
-              <span className="hidden sm:inline">Values/Goals</span>
+              <span className="hidden sm:inline text-xs">Goals</span>
             </TabsTrigger>
             <TabsTrigger 
               value="boundaries" 
-              className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg transition-all duration-200"
+              className="flex-1 min-w-[50px] flex items-center justify-center gap-1 px-2 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg transition-all duration-200"
             >
               <ShieldCheck className="h-4 w-4" />
-              <span className="hidden sm:inline">Boundaries</span>
+              <span className="hidden sm:inline text-xs">Boundaries</span>
             </TabsTrigger>
             <TabsTrigger 
               value="test-results" 
-              className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg transition-all duration-200"
+              className="flex-1 min-w-[50px] flex items-center justify-center gap-1 px-2 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg transition-all duration-200"
             >
               <FlaskConical className="h-4 w-4" />
-              <span className="hidden sm:inline">Test Results</span>
+              <span className="hidden sm:inline text-xs">Tests</span>
             </TabsTrigger>
           </TabsList>
 
