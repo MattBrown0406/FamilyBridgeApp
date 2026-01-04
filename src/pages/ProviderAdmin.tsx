@@ -781,7 +781,7 @@ const ProviderAdmin = () => {
                 />
               </div>
               
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="email">Support Email</Label>
                   <Input
@@ -1054,26 +1054,26 @@ const ProviderAdmin = () => {
           <div className="lg:col-span-3">
             {selectedOrg && currentOrg ? (
               <Tabs defaultValue="families" className="space-y-4">
-                <TabsList className="grid grid-cols-5 w-full max-w-2xl">
-                  <TabsTrigger value="families" className="flex items-center gap-2">
+                <TabsList className="flex flex-wrap h-auto gap-1 w-full">
+                  <TabsTrigger value="families" className="flex-1 min-w-[60px] flex items-center justify-center gap-1 px-2 py-2">
                     <UsersRound className="h-4 w-4" />
-                    <span className="hidden sm:inline">Family Groups</span>
+                    <span className="hidden sm:inline text-xs">Families</span>
                   </TabsTrigger>
-                  <TabsTrigger value="moderators" className="flex items-center gap-2">
+                  <TabsTrigger value="moderators" className="flex-1 min-w-[60px] flex items-center justify-center gap-1 px-2 py-2">
                     <Users className="h-4 w-4" />
-                    <span className="hidden sm:inline">Moderators</span>
+                    <span className="hidden sm:inline text-xs">Moderators</span>
                   </TabsTrigger>
-                  <TabsTrigger value="settings" className="flex items-center gap-2">
+                  <TabsTrigger value="settings" className="flex-1 min-w-[60px] flex items-center justify-center gap-1 px-2 py-2">
                     <Settings className="h-4 w-4" />
-                    <span className="hidden sm:inline">Settings</span>
+                    <span className="hidden sm:inline text-xs">Settings</span>
                   </TabsTrigger>
-                  <TabsTrigger value="analytics" className="flex items-center gap-2">
+                  <TabsTrigger value="analytics" className="flex-1 min-w-[60px] flex items-center justify-center gap-1 px-2 py-2">
                     <BarChart3 className="h-4 w-4" />
-                    <span className="hidden sm:inline">Analytics</span>
+                    <span className="hidden sm:inline text-xs">Analytics</span>
                   </TabsTrigger>
-                  <TabsTrigger value="branding" className="flex items-center gap-2">
+                  <TabsTrigger value="branding" className="flex-1 min-w-[60px] flex items-center justify-center gap-1 px-2 py-2">
                     <Palette className="h-4 w-4" />
-                    <span className="hidden sm:inline">Branding</span>
+                    <span className="hidden sm:inline text-xs">Branding</span>
                   </TabsTrigger>
                 </TabsList>
 
@@ -1612,9 +1612,9 @@ const ProviderAdmin = () => {
                             return (
                               <div 
                                 key={family.id} 
-                                className="flex items-center justify-between p-4 rounded-lg border bg-card"
+                                className="p-4 rounded-lg border bg-card space-y-3"
                               >
-                                <div className="flex-1">
+                                <div>
                                   <p className="font-medium">{family.name}</p>
                                   {family.description && (
                                     <p className="text-sm text-muted-foreground">{family.description}</p>
@@ -1623,12 +1623,12 @@ const ProviderAdmin = () => {
                                     Created {new Date(family.created_at).toLocaleDateString()}
                                   </p>
                                 </div>
-                                <div className="flex items-center gap-3">
+                                <div className="flex flex-wrap items-center gap-2">
                                   {inviteCode && (
-                                    <div className="flex items-center gap-2">
-                                      <div className="text-right">
+                                    <div className="flex items-center gap-2 flex-wrap">
+                                      <div>
                                         <p className="text-xs text-muted-foreground">Invite Code</p>
-                                        <code className="text-sm font-mono bg-muted px-2 py-1 rounded">
+                                        <code className="text-sm font-mono bg-muted px-2 py-1 rounded inline-block">
                                           {inviteCode}
                                         </code>
                                       </div>

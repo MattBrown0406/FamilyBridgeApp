@@ -300,48 +300,48 @@ const DemoFamily = () => {
       <div className="container mx-auto px-4 py-6">
         <div className="max-w-5xl mx-auto">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-6 mb-6 bg-muted/50 backdrop-blur-sm p-1.5 rounded-xl border border-border/50 shadow-sm">
+            <TabsList className="flex flex-wrap h-auto gap-1 w-full mb-6 bg-muted/50 backdrop-blur-sm p-1.5 rounded-xl border border-border/50 shadow-sm">
               <TabsTrigger 
                 value="chat" 
-                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg transition-all duration-300 flex items-center justify-center gap-1 sm:gap-2 px-1 sm:px-3"
+                className="flex-1 min-w-[50px] data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg transition-all duration-300 flex items-center justify-center gap-1 px-2 py-2"
               >
                 <MessageCircle className="h-4 w-4 shrink-0" />
-                <span className="hidden sm:inline">Chat</span>
+                <span className="hidden sm:inline text-xs">Chat</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="financial"
-                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-300 flex items-center justify-center gap-1 sm:gap-2 px-1 sm:px-3"
+                className="flex-1 min-w-[50px] data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-300 flex items-center justify-center gap-1 px-2 py-2"
               >
                 <DollarSign className="h-4 w-4 shrink-0" />
-                <span className="hidden sm:inline">Financial</span>
+                <span className="hidden sm:inline text-xs">Financial</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="checkins"
-                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-300 flex items-center justify-center gap-1 sm:gap-2 px-1 sm:px-3"
+                className="flex-1 min-w-[50px] data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-300 flex items-center justify-center gap-1 px-2 py-2"
               >
                 <MapPin className="h-4 w-4 shrink-0" />
-                <span className="hidden sm:inline">Check-ins</span>
+                <span className="hidden sm:inline text-xs">Check-ins</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="values"
-                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500 data-[state=active]:to-rose-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-300 flex items-center justify-center gap-1 sm:gap-2 px-1 sm:px-3"
+                className="flex-1 min-w-[50px] data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500 data-[state=active]:to-rose-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-300 flex items-center justify-center gap-1 px-2 py-2"
               >
                 <Sparkles className="h-4 w-4 shrink-0" />
-                <span className="hidden sm:inline">Values</span>
+                <span className="hidden sm:inline text-xs">Values</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="boundaries"
-                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-violet-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-300 flex items-center justify-center gap-1 sm:gap-2 px-1 sm:px-3"
+                className="flex-1 min-w-[50px] data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-violet-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-300 flex items-center justify-center gap-1 px-2 py-2"
               >
                 <Shield className="h-4 w-4 shrink-0" />
-                <span className="hidden sm:inline">Boundaries</span>
+                <span className="hidden sm:inline text-xs">Boundaries</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="testing"
-                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-500 data-[state=active]:to-orange-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-300 flex items-center justify-center gap-1 sm:gap-2 px-1 sm:px-3"
+                className="flex-1 min-w-[50px] data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-500 data-[state=active]:to-orange-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-300 flex items-center justify-center gap-1 px-2 py-2"
               >
                 <FlaskConical className="h-4 w-4 shrink-0" />
-                <span className="hidden sm:inline">Testing</span>
+                <span className="hidden sm:inline text-xs">Testing</span>
               </TabsTrigger>
             </TabsList>
 
