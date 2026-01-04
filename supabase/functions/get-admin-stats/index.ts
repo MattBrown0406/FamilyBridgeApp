@@ -116,13 +116,53 @@ Deno.serve(async (req) => {
       }
 
       if (userId) {
-        // Delete user - this will cascade delete profile and related data
-        const { error } = await adminClient.auth.admin.deleteUser(userId);
-        
-        if (error) {
-          console.error("Error deleting user:", error);
+        // Delete user's related data first to avoid foreign key constraint violations
+        try {
+          // Delete from tables that reference user_id
+          await adminClient.from("family_members").delete().eq("user_id", userId);
+          await adminClient.from("organization_members").delete().eq("user_id", userId);
+          await adminClient.from("messages").delete().eq("sender_id", userId);
+          await adminClient.from("meeting_checkins").delete().eq("user_id", userId);
+          await adminClient.from("financial_requests").delete().eq("requester_id", userId);
+          await adminClient.from("financial_votes").delete().eq("voter_id", userId);
+          await adminClient.from("financial_pledges").delete().eq("user_id", userId);
+          await adminClient.from("location_checkin_requests").delete().eq("requester_id", userId);
+          await adminClient.from("location_checkin_requests").delete().eq("target_user_id", userId);
+          await adminClient.from("notifications").delete().eq("user_id", userId);
+          await adminClient.from("private_messages").delete().eq("sender_id", userId);
+          await adminClient.from("private_messages").delete().eq("recipient_id", userId);
+          await adminClient.from("boundary_acknowledgments").delete().eq("user_id", userId);
+          await adminClient.from("family_boundaries").delete().eq("created_by", userId);
+          await adminClient.from("family_values").delete().eq("selected_by", userId);
+          await adminClient.from("family_common_goals").delete().eq("selected_by", userId);
+          await adminClient.from("family_goals").delete().eq("created_by", userId);
+          await adminClient.from("push_subscriptions").delete().eq("user_id", userId);
+          await adminClient.from("payment_info").delete().eq("user_id", userId);
+          await adminClient.from("temporary_moderator_requests").delete().eq("requested_by", userId);
+          await adminClient.from("temporary_moderator_requests").delete().eq("assigned_moderator_id", userId);
+          await adminClient.from("paid_moderator_requests").delete().eq("requested_by", userId);
+          await adminClient.from("paid_moderator_requests").delete().eq("assigned_moderator_id", userId);
+          
+          // Update families where this user is the creator
+          await adminClient.from("families").update({ created_by: null }).eq("created_by", userId);
+          
+          // Delete profile (should cascade from auth.users but let's be safe)
+          await adminClient.from("profiles").delete().eq("id", userId);
+          
+          // Finally delete the auth user
+          const { error } = await adminClient.auth.admin.deleteUser(userId);
+          
+          if (error) {
+            console.error("Error deleting user from auth:", error);
+            return new Response(
+              JSON.stringify({ error: error.message }),
+              { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+            );
+          }
+        } catch (err) {
+          console.error("Error during user deletion:", err);
           return new Response(
-            JSON.stringify({ error: error.message }),
+            JSON.stringify({ error: "Failed to delete user and related data" }),
             { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
           );
         }
