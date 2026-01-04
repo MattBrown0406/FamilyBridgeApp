@@ -14,6 +14,44 @@ export type Database = {
   }
   public: {
     Tables: {
+      activation_code_audit_log: {
+        Row: {
+          action: string
+          activation_code_id: string | null
+          details: Json | null
+          id: string
+          ip_address: string | null
+          performed_at: string | null
+          performed_by: string | null
+        }
+        Insert: {
+          action: string
+          activation_code_id?: string | null
+          details?: Json | null
+          id?: string
+          ip_address?: string | null
+          performed_at?: string | null
+          performed_by?: string | null
+        }
+        Update: {
+          action?: string
+          activation_code_id?: string | null
+          details?: Json | null
+          id?: string
+          ip_address?: string | null
+          performed_at?: string | null
+          performed_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activation_code_audit_log_activation_code_id_fkey"
+            columns: ["activation_code_id"]
+            isOneToOne: false
+            referencedRelation: "activation_codes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       activation_codes: {
         Row: {
           code: string
@@ -1027,6 +1065,8 @@ export type Database = {
         Returns: boolean
       }
       check_overdue_checkouts: { Args: never; Returns: undefined }
+      decrypt_sensitive: { Args: { encrypted_text: string }; Returns: string }
+      encrypt_sensitive: { Args: { plain_text: string }; Returns: string }
       generate_activation_code: { Args: never; Returns: string }
       get_family_invite_code: { Args: { _family_id: string }; Returns: string }
       get_organization_public_theme: {
