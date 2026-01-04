@@ -25,33 +25,33 @@ const Index = () => {
   const features = [
     {
       icon: MessageCircle,
-      title: 'Safe Communication',
-      description: 'Moderated messaging that filters harmful language.',
+      title: 'Moderated Family Chat',
+      description: 'A private space where family members communicate without fear. Our AI filters harmful language in real-time, keeping conversations constructive and healing-focused.',
     },
     {
-      icon: Shield,
-      title: 'Content Protection',
-      description: 'Automatic profanity and abuse filtering.',
-    },
-    {
-      icon: Eye,
-      title: 'Professional Oversight',
-      description: 'Designated moderators can monitor conversations.',
-    },
-    {
-      icon: Users,
-      title: 'Family Unity',
-      description: 'Private family groups for connection and accountability.',
+      icon: MapPin,
+      title: 'Meeting Check-Ins',
+      description: 'Your loved one can check in at recovery meetings with verified location sharing. Build trust through accountability while respecting their journey.',
     },
     {
       icon: DollarSign,
-      title: 'Financial Transparency',
-      description: 'Group-approved financial requests.',
+      title: 'Transparent Financial Requests',
+      description: 'No more money arguments. Requests are visible to all family members, with voting and payment confirmation—eliminating hidden transactions and building financial trust.',
+    },
+    {
+      icon: Shield,
+      title: 'Professional Moderation',
+      description: 'Licensed counselors or case managers can oversee your family group, providing guidance during difficult conversations and intervening when needed.',
+    },
+    {
+      icon: Users,
+      title: 'Shared Values & Boundaries',
+      description: 'Collaboratively define what matters most to your family. Set clear boundaries together and hold each other accountable with love, not judgment.',
     },
     {
       icon: Sparkles,
-      title: 'Recovery Support',
-      description: 'Built to help families navigate recovery together.',
+      title: 'Recovery-Focused Design',
+      description: 'Built by families who understand addiction. Every feature supports the delicate balance between supporting recovery and preventing enabling behaviors.',
     },
   ];
 
