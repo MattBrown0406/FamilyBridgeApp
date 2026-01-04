@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Check, CreditCard, Shield, Users, Tag, Loader2, Copy, MessageCircle, UserPlus, DollarSign, Target, Sparkles } from "lucide-react";
-
+import { BrandedHeader } from "@/components/BrandedHeader";
 const FamilyPurchase = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -229,6 +229,7 @@ const FamilyPurchase = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <BrandedHeader />
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">

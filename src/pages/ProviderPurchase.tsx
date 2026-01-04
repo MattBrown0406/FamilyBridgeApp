@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Building2, Check, CreditCard, Shield, Users, Tag, Loader2, Copy } from "lucide-react";
+import { BrandedHeader } from "@/components/BrandedHeader";
 
 const ProviderPurchase = () => {
   const { user } = useAuth();
@@ -177,6 +178,7 @@ const ProviderPurchase = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <BrandedHeader />
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">

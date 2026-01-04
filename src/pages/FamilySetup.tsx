@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Plus, Trash2, Users, Loader2, Check } from "lucide-react";
+import { BrandedHeader } from "@/components/BrandedHeader";
 
 type RelationshipType = 
   | 'recovering'
@@ -166,6 +167,7 @@ const FamilySetup = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <BrandedHeader />
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-8">
