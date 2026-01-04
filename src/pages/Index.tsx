@@ -62,24 +62,25 @@ const Index = () => {
   return (
     <div className="min-h-screen gradient-hero">
       {/* Header */}
-      <header className="container mx-auto px-4 py-4">
+      <header className="container mx-auto px-3 sm:px-4 py-3 sm:py-4">
         <nav className="flex items-center justify-between">
           <BrandedHeader />
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm" onClick={() => navigate('/demo')}>
+          <div className="flex items-center gap-1.5 sm:gap-3">
+            <Button variant="ghost" size="sm" className="px-2 sm:px-3" onClick={() => navigate('/demo')}>
               Demo
             </Button>
             {user ? (
               <Button variant="hero" size="sm" onClick={handleDashboardClick}>
-                Go to Dashboard
+                Dashboard
               </Button>
             ) : (
               <>
-                <Button variant="ghost" size="sm" onClick={() => navigate('/auth')}>
+                <Button variant="ghost" size="sm" className="px-2 sm:px-3" onClick={() => navigate('/auth')}>
                   Sign In
                 </Button>
-                <Button variant="hero" size="sm" onClick={() => navigate('/family-purchase')}>
-                  Get Started
+                <Button variant="hero" size="sm" className="px-2 sm:px-3" onClick={() => navigate('/family-purchase')}>
+                  <span className="hidden sm:inline">Get Started</span>
+                  <span className="sm:hidden">Start</span>
                 </Button>
               </>
             )}
