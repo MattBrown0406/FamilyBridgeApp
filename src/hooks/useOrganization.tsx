@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 // Public theming data only - sensitive contact info not exposed
@@ -24,6 +24,8 @@ interface OrganizationContextType {
   isLoading: boolean;
   isWhiteLabeled: boolean;
   refetch: () => Promise<void>;
+  setOrganizationById: (organizationId: string | null) => Promise<void>;
+  clearFamilyOrganization: () => void;
 }
 
 const OrganizationContext = createContext<OrganizationContextType>({
@@ -31,6 +33,8 @@ const OrganizationContext = createContext<OrganizationContextType>({
   isLoading: true,
   isWhiteLabeled: false,
   refetch: async () => {},
+  setOrganizationById: async () => {},
+  clearFamilyOrganization: () => {},
 });
 
 export const useOrganization = () => useContext(OrganizationContext);
@@ -133,49 +137,133 @@ const resetTheme = () => {
 
 export const OrganizationProvider = ({ children }: { children: ReactNode }) => {
   const [organization, setOrganization] = useState<OrganizationTheme | null>(null);
+  const [familyOrgId, setFamilyOrgId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchOrganization = async () => {
+  const fetchOrganizationBySubdomain = async () => {
     const subdomain = getSubdomain();
     
     if (!subdomain) {
-      setOrganization(null);
-      setIsLoading(false);
-      resetTheme();
-      return;
+      return null;
     }
 
     try {
-      // Use the secure RPC function that only returns public theming data
       const { data, error } = await supabase
         .rpc('get_organization_public_theme', { _subdomain: subdomain });
 
       if (error || !data || data.length === 0) {
-        setOrganization(null);
-        resetTheme();
-      } else {
-        const orgData = data[0] as OrganizationTheme;
-        setOrganization(orgData);
-        applyTheme(orgData);
+        return null;
       }
+      return data[0] as OrganizationTheme;
     } catch (err) {
-      console.error('Error fetching organization:', err);
-      setOrganization(null);
-      resetTheme();
-    } finally {
-      setIsLoading(false);
+      console.error('Error fetching organization by subdomain:', err);
+      return null;
     }
   };
+
+  const fetchOrganizationById = async (orgId: string): Promise<OrganizationTheme | null> => {
+    try {
+      const { data, error } = await supabase
+        .from('organizations')
+        .select('id, subdomain, name, tagline, logo_url, favicon_url, primary_color, primary_foreground_color, secondary_color, accent_color, background_color, foreground_color, heading_font, body_font')
+        .eq('id', orgId)
+        .maybeSingle();
+
+      if (error || !data) {
+        return null;
+      }
+      return data as OrganizationTheme;
+    } catch (err) {
+      console.error('Error fetching organization by ID:', err);
+      return null;
+    }
+  };
+
+  const fetchOrganization = useCallback(async () => {
+    setIsLoading(true);
+    
+    // Priority: subdomain > family organization
+    const subdomainOrg = await fetchOrganizationBySubdomain();
+    
+    if (subdomainOrg) {
+      setOrganization(subdomainOrg);
+      applyTheme(subdomainOrg);
+    } else if (familyOrgId) {
+      const familyOrg = await fetchOrganizationById(familyOrgId);
+      if (familyOrg) {
+        setOrganization(familyOrg);
+        applyTheme(familyOrg);
+      } else {
+        setOrganization(null);
+        resetTheme();
+      }
+    } else {
+      setOrganization(null);
+      resetTheme();
+    }
+    
+    setIsLoading(false);
+  }, [familyOrgId]);
+
+  // Set organization based on a family's organization_id
+  const setOrganizationById = useCallback(async (organizationId: string | null) => {
+    if (!organizationId) {
+      setFamilyOrgId(null);
+      // Check if we have a subdomain org, otherwise reset
+      const subdomainOrg = await fetchOrganizationBySubdomain();
+      if (subdomainOrg) {
+        setOrganization(subdomainOrg);
+        applyTheme(subdomainOrg);
+      } else {
+        setOrganization(null);
+        resetTheme();
+      }
+      return;
+    }
+
+    setFamilyOrgId(organizationId);
+    
+    // Subdomain still takes priority
+    const subdomainOrg = await fetchOrganizationBySubdomain();
+    if (subdomainOrg) {
+      setOrganization(subdomainOrg);
+      applyTheme(subdomainOrg);
+      return;
+    }
+    
+    // Apply family's organization theme
+    const familyOrg = await fetchOrganizationById(organizationId);
+    if (familyOrg) {
+      setOrganization(familyOrg);
+      applyTheme(familyOrg);
+    }
+  }, []);
+
+  // Clear family-based organization (used when leaving a family page)
+  const clearFamilyOrganization = useCallback(() => {
+    setFamilyOrgId(null);
+    // Re-check subdomain or reset
+    fetchOrganization();
+  }, [fetchOrganization]);
 
   useEffect(() => {
     fetchOrganization();
   }, []);
+
+  // Re-fetch when familyOrgId changes
+  useEffect(() => {
+    if (familyOrgId !== null) {
+      fetchOrganization();
+    }
+  }, [familyOrgId, fetchOrganization]);
 
   const value = {
     organization,
     isLoading,
     isWhiteLabeled: !!organization,
     refetch: fetchOrganization,
+    setOrganizationById,
+    clearFamilyOrganization,
   };
 
   return (
