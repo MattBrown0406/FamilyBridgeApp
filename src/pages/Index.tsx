@@ -5,15 +5,19 @@ import { useOrganization } from '@/hooks/useOrganization';
 import { useProviderAdmin } from '@/hooks/useProviderAdmin';
 import { BrandedHeader } from '@/components/BrandedHeader';
 import { BrandedFooter } from '@/components/BrandedFooter';
-import { Shield, Users, DollarSign, MessageCircle, Eye, MapPin, ArrowRight, HelpCircle, Building2, Check, Play } from 'lucide-react';
+import { Shield, Users, DollarSign, MessageCircle, Eye, MapPin, ArrowRight, HelpCircle, Building2, Check, Play, LogOut } from 'lucide-react';
 import { RecoveryIcon } from '@/components/icons/RecoveryIcon';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 
 const Index = () => {
-  const { user, loading } = useAuth();
+  const { user, loading, signOut } = useAuth();
   const { organization, isWhiteLabeled } = useOrganization();
   const { isProvider } = useProviderAdmin();
   const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    await signOut();
+  };
 
   const handleDashboardClick = () => {
     if (isProvider) {
@@ -72,9 +76,15 @@ const Index = () => {
               Demo
             </Button>
             {user ? (
-              <Button variant="hero" size="sm" onClick={handleDashboardClick}>
-                Dashboard
-              </Button>
+              <>
+                <Button variant="hero" size="sm" onClick={handleDashboardClick}>
+                  Dashboard
+                </Button>
+                <Button variant="ghost" size="sm" className="px-2 sm:px-3" onClick={handleSignOut}>
+                  <LogOut className="h-4 w-4" />
+                  <span className="hidden sm:inline ml-1">Sign Out</span>
+                </Button>
+              </>
             ) : (
               <>
                 <Button variant="ghost" size="sm" className="px-2 sm:px-3" onClick={() => navigate('/auth')}>
