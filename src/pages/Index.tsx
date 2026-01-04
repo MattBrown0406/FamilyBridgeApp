@@ -20,11 +20,7 @@ const Index = () => {
   };
 
   const handleDashboardClick = () => {
-    if (isProvider) {
-      navigate('/provider-admin');
-    } else {
-      navigate('/dashboard');
-    }
+    navigate('/moderator-dashboard');
   };
 
   const features = [
