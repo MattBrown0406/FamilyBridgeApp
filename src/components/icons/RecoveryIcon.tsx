@@ -19,10 +19,16 @@ export const RecoveryIcon = ({ size = 24, className, ...props }: RecoveryIconPro
       className={className}
       {...props}
     >
-      {/* Circle */}
-      <circle cx="12" cy="12" r="10" />
-      {/* Triangle inscribed in circle - points touch the circle */}
-      <path d="M12 2.5 L21.2 17.5 L2.8 17.5 Z" />
+      {/* Bridge arch */}
+      <path d="M3 18 C3 12, 12 6, 12 6 C12 6, 21 12, 21 18" />
+      {/* Bridge deck */}
+      <line x1="2" y1="18" x2="22" y2="18" />
+      {/* Left pillar */}
+      <line x1="6" y1="18" x2="6" y2="21" />
+      {/* Right pillar */}
+      <line x1="18" y1="18" x2="18" y2="21" />
+      {/* Center support */}
+      <line x1="12" y1="6" x2="12" y2="18" />
     </svg>
   );
 };
