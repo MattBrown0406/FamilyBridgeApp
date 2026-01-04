@@ -326,6 +326,7 @@ Deno.serve(async (req) => {
       .select(`
         id,
         name,
+        account_number,
         organization_id,
         created_at
       `)
@@ -369,6 +370,7 @@ Deno.serve(async (req) => {
     const familiesWithActivity = (familyActivity || []).map(f => ({
       id: f.id,
       name: f.name,
+      account_number: f.account_number,
       organization_name: f.organization_id ? orgMap[f.organization_id] || null : null,
       created_at: f.created_at,
       messages_last_30_days: familyMessageCounts[f.id] || 0,

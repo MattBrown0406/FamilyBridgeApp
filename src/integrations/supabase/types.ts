@@ -125,6 +125,7 @@ export type Database = {
       }
       families: {
         Row: {
+          account_number: string
           created_at: string
           created_by: string | null
           description: string | null
@@ -135,6 +136,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          account_number: string
           created_at?: string
           created_by?: string | null
           description?: string | null
@@ -145,6 +147,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          account_number?: string
           created_at?: string
           created_by?: string | null
           description?: string | null
