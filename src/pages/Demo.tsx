@@ -26,6 +26,7 @@ import {
   Loader2
 } from 'lucide-react';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
+import { RecoveryIcon } from '@/components/icons/RecoveryIcon';
 
 const Demo = () => {
   const navigate = useNavigate();
@@ -216,7 +217,7 @@ const Demo = () => {
         <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg bg-primary flex items-center justify-center">
-              <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 text-primary-foreground" />
+              <RecoveryIcon className="h-5 w-5 sm:h-6 sm:w-6 text-primary-foreground" />
             </div>
             <span className="font-display font-bold text-lg sm:text-xl">FamilyBridge</span>
           </div>
