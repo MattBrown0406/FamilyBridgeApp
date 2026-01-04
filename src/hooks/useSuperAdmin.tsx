@@ -49,6 +49,15 @@ export const useSuperAdmin = () => {
     }
 
     try {
+      // Get fresh session to ensure valid JWT
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (!sessionData.session) {
+        console.error('No active session');
+        setIsAdmin(false);
+        setIsVerifying(false);
+        return;
+      }
+
       const { data, error } = await supabase.functions.invoke('verify-super-admin');
       
       if (error) {
