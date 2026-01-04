@@ -286,7 +286,7 @@ const FAMILY_VALUES_OPTIONS = [
 const FamilyChat = () => {
   const { familyId } = useParams();
   const { user, loading } = useAuth();
-  const { organization } = useOrganization();
+  const { organization, setOrganizationById, clearFamilyOrganization } = useOrganization();
   const navigate = useNavigate();
   const { toast } = useToast();
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -385,6 +385,13 @@ const FamilyChat = () => {
       subscribeToPrivateMessages();
     }
   }, [user, familyId]);
+
+  // Clear organization branding when leaving the family page
+  useEffect(() => {
+    return () => {
+      clearFamilyOrganization();
+    };
+  }, [clearFamilyOrganization]);
 
   const fetchUnreadPrivateMessages = async () => {
     if (!user || !familyId) return;
@@ -686,6 +693,11 @@ const FamilyChat = () => {
         return;
       }
       setFamily(familyData);
+      
+      // Apply organization branding if family belongs to an organization
+      if (familyData.organization_id) {
+        setOrganizationById(familyData.organization_id);
+      }
 
       // Fetch members (cannot embed profiles here because there is no FK relationship)
       const { data: membersData, error: membersError } = await supabase
