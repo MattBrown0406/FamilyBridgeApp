@@ -1860,25 +1860,30 @@ const FamilyChat = () => {
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <button 
-              className="flex items-center gap-3 hover:opacity-80 transition-all group"
+              className="flex items-center gap-3 hover:opacity-80 transition-all group min-w-0 flex-1"
               onClick={() => setMembersSheetOpen(true)}
             >
-              <div className="relative">
+              <div className="relative shrink-0">
                 <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow overflow-hidden">
-                  <img src={familyBridgeLogo} alt="FamilyBridge" className="h-7 w-7 object-contain" />
+                  {organization?.logo_url ? (
+                    <img src={organization.logo_url} alt={organization.name || 'Organization'} className="h-full w-full object-cover" />
+                  ) : (
+                    <img src={familyBridgeLogo} alt="FamilyBridge" className="h-7 w-7 object-contain" />
+                  )}
                 </div>
                 <div className="absolute -bottom-1 -right-1 h-4 w-4 bg-success rounded-full border-2 border-card flex items-center justify-center">
                   <span className="text-[8px] text-white font-bold">{members.length}</span>
                 </div>
               </div>
-              <div className="text-left">
-                <h1 className="font-display font-semibold text-foreground text-lg group-hover:text-primary transition-colors">
+              <div className="text-left min-w-0">
+                <h1 className="font-display font-semibold text-foreground text-sm sm:text-lg group-hover:text-primary transition-colors truncate">
                   {family?.name}
                 </h1>
-                <p className="text-xs text-muted-foreground flex items-center gap-1">
-                  <Users className="h-3 w-3" />
-                  {members.length} member{members.length !== 1 ? 's' : ''} • Active now
-                </p>
+                {organization && family?.organization_id ? (
+                  <p className="text-xs text-muted-foreground truncate">
+                    {organization.name}
+                  </p>
+                ) : null}
               </div>
             </button>
             <div className="ml-auto flex items-center gap-2 sm:gap-3">
