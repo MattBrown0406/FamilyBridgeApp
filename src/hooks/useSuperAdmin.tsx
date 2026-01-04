@@ -31,6 +31,13 @@ interface AdminStats {
     created_at: string;
     family_count: number;
   }>;
+  users: Array<{
+    id: string;
+    full_name: string;
+    avatar_url: string | null;
+    created_at: string;
+    family_count: number;
+  }>;
 }
 
 export const useSuperAdmin = () => {
