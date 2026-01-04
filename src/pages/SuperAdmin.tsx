@@ -142,6 +142,7 @@ interface AdminStats {
   families: Array<{
     id: string;
     name: string;
+    account_number: string;
     organization_name: string | null;
     created_at: string;
     messages_last_30_days: number;
@@ -384,6 +385,7 @@ const SuperAdmin = () => {
 
   const filteredFamilies = stats?.families?.filter(f => 
     f.name.toLowerCase().includes(familySearch.toLowerCase()) ||
+    f.account_number.toLowerCase().includes(familySearch.toLowerCase()) ||
     (f.organization_name && f.organization_name.toLowerCase().includes(familySearch.toLowerCase()))
   ) || [];
 
@@ -577,7 +579,7 @@ const SuperAdmin = () => {
                 <div className="flex items-center gap-2">
                   <Search className="h-4 w-4 text-muted-foreground" />
                   <Input
-                    placeholder="Search families..."
+                    placeholder="Search by name or account number..."
                     value={familySearch}
                     onChange={(e) => setFamilySearch(e.target.value)}
                     className="max-w-sm"
@@ -603,6 +605,7 @@ const SuperAdmin = () => {
                             <div className="flex-1">
                               <div className="flex items-center gap-2">
                                 <h3 className="font-medium">{family.name}</h3>
+                                <Badge variant="outline" className="font-mono text-xs">{family.account_number}</Badge>
                                 {getActivityBadge(family.total_activity)}
                               </div>
                               <div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
