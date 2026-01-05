@@ -21,6 +21,7 @@ import ModeratorPurchase from "./pages/ModeratorPurchase";
 import SuperAdmin from "./pages/SuperAdmin";
 import Demo from "./pages/Demo";
 import DemoFamily from "./pages/DemoFamily";
+import Support from "./pages/Support";
 import NotFound from "./pages/NotFound";
 import ScrollToTop from "./components/ScrollToTop";
 
@@ -52,6 +53,7 @@ const App = () => (
               <Route path="/super-admin" element={<SuperAdmin />} />
               <Route path="/demo" element={<Demo />} />
               <Route path="/demo/family" element={<DemoFamily />} />
+              <Route path="/support" element={<Support />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
