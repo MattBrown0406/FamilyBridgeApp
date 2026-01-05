@@ -893,30 +893,39 @@ export type Database = {
       payment_info: {
         Row: {
           cashapp_username: string | null
+          cashapp_username_encrypted: string | null
           created_at: string
           id: string
           paypal_username: string | null
+          paypal_username_encrypted: string | null
           updated_at: string
           user_id: string
           venmo_username: string | null
+          venmo_username_encrypted: string | null
         }
         Insert: {
           cashapp_username?: string | null
+          cashapp_username_encrypted?: string | null
           created_at?: string
           id?: string
           paypal_username?: string | null
+          paypal_username_encrypted?: string | null
           updated_at?: string
           user_id: string
           venmo_username?: string | null
+          venmo_username_encrypted?: string | null
         }
         Update: {
           cashapp_username?: string | null
+          cashapp_username_encrypted?: string | null
           created_at?: string
           id?: string
           paypal_username?: string | null
+          paypal_username_encrypted?: string | null
           updated_at?: string
           user_id?: string
           venmo_username?: string | null
+          venmo_username_encrypted?: string | null
         }
         Relationships: []
       }
@@ -1086,7 +1095,12 @@ export type Database = {
         Returns: boolean
       }
       check_overdue_checkouts: { Args: never; Returns: undefined }
+      decrypt_payment_field: {
+        Args: { encrypted_text: string }
+        Returns: string
+      }
       decrypt_sensitive: { Args: { encrypted_text: string }; Returns: string }
+      encrypt_payment_field: { Args: { plain_text: string }; Returns: string }
       encrypt_sensitive: { Args: { plain_text: string }; Returns: string }
       generate_activation_code: { Args: never; Returns: string }
       get_family_invite_code: { Args: { _family_id: string }; Returns: string }
@@ -1111,6 +1125,14 @@ export type Database = {
       }
       get_payment_links_for_request: {
         Args: { _request_id: string }
+        Returns: {
+          cashapp_link: string
+          paypal_link: string
+          venmo_link: string
+        }[]
+      }
+      get_payment_links_for_user: {
+        Args: { target_user_id: string }
         Returns: {
           cashapp_link: string
           paypal_link: string
