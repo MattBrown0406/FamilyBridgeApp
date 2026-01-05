@@ -382,6 +382,13 @@ const FamilyPurchase = () => {
               </Button>
             </p>
           </div>
+
+          {/* Disclaimer */}
+          <div className="mt-8 text-center">
+            <p className="text-xs text-muted-foreground max-w-md mx-auto">
+              FamilyBridge provides educational and support-focused content only. It does not offer medical, mental health, or crisis services.
+            </p>
+          </div>
         </div>
       </div>
     </div>
