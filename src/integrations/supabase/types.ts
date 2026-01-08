@@ -929,6 +929,33 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_info_access_log: {
+        Row: {
+          access_type: string
+          accessed_at: string
+          accessed_by: string
+          financial_request_id: string | null
+          id: string
+          payment_info_user_id: string
+        }
+        Insert: {
+          access_type?: string
+          accessed_at?: string
+          accessed_by: string
+          financial_request_id?: string | null
+          id?: string
+          payment_info_user_id: string
+        }
+        Update: {
+          access_type?: string
+          accessed_at?: string
+          accessed_by?: string
+          financial_request_id?: string | null
+          id?: string
+          payment_info_user_id?: string
+        }
+        Relationships: []
+      }
       premium_waitlist: {
         Row: {
           created_at: string
