@@ -43,9 +43,10 @@ serve(async (req) => {
     console.log('Validating activation code:', formattedCode);
 
     // Check if code exists and is valid
+    // SECURITY: Only select necessary fields - never fetch email, square_customer_id, or square_subscription_id
     const { data: activationCode, error: fetchError } = await supabase
       .from('activation_codes')
-      .select('*')
+      .select('id, code, is_used, expires_at')
       .eq('code', formattedCode)
       .single();
 
