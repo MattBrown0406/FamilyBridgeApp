@@ -254,18 +254,18 @@ const ProviderPurchase = () => {
                 <div className="text-center py-4">
                   {billingPeriod === "monthly" ? (
                     <>
-                      <span className="text-4xl font-bold">$249</span>
+                      <span className="text-4xl font-bold">$250</span>
                       <span className="text-muted-foreground">/month</span>
                     </>
                   ) : (
                     <div className="space-y-2">
                       <div>
-                        <span className="text-4xl font-bold">$2,499</span>
+                        <span className="text-4xl font-bold">$2,500</span>
                         <span className="text-muted-foreground">/year</span>
                       </div>
                       <div className="inline-flex items-center gap-2 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-3 py-1 rounded-full text-sm font-medium">
                         <Check className="w-4 h-4" />
-                        Save $489/year (16% off)
+                        Save $500/year (2 months free!)
                       </div>
                       <p className="text-sm text-muted-foreground">
                         Equivalent to $208/month
