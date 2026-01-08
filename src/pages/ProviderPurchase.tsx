@@ -224,7 +224,7 @@ const ProviderPurchase = () => {
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="text-center py-4">
-                  <span className="text-4xl font-bold">$49.99</span>
+                  <span className="text-4xl font-bold">$249</span>
                   <span className="text-muted-foreground">/month</span>
                 </div>
 
