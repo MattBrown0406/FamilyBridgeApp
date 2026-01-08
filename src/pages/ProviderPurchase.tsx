@@ -21,6 +21,7 @@ const ProviderPurchase = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
   const [generatedCode, setGeneratedCode] = useState<string | null>(null);
+  const [billingPeriod, setBillingPeriod] = useState<"monthly" | "annual">("annual");
 
   const handlePurchase = async () => {
     if (!email) {
@@ -216,16 +217,61 @@ const ProviderPurchase = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <CreditCard className="w-5 h-5" />
-                  Monthly Subscription
+                  Provider Subscription
                 </CardTitle>
                 <CardDescription>
                   Start your provider journey today
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
+                {/* Billing Toggle */}
+                <div className="flex justify-center">
+                  <div className="inline-flex items-center bg-muted rounded-lg p-1">
+                    <button
+                      onClick={() => setBillingPeriod("monthly")}
+                      className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                        billingPeriod === "monthly"
+                          ? "bg-background shadow-sm text-foreground"
+                          : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      Monthly
+                    </button>
+                    <button
+                      onClick={() => setBillingPeriod("annual")}
+                      className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                        billingPeriod === "annual"
+                          ? "bg-background shadow-sm text-foreground"
+                          : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      Annual
+                    </button>
+                  </div>
+                </div>
+
+                {/* Pricing Display */}
                 <div className="text-center py-4">
-                  <span className="text-4xl font-bold">$249</span>
-                  <span className="text-muted-foreground">/month</span>
+                  {billingPeriod === "monthly" ? (
+                    <>
+                      <span className="text-4xl font-bold">$249</span>
+                      <span className="text-muted-foreground">/month</span>
+                    </>
+                  ) : (
+                    <div className="space-y-2">
+                      <div>
+                        <span className="text-4xl font-bold">$2,499</span>
+                        <span className="text-muted-foreground">/year</span>
+                      </div>
+                      <div className="inline-flex items-center gap-2 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-3 py-1 rounded-full text-sm font-medium">
+                        <Check className="w-4 h-4" />
+                        Save $489/year (16% off)
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Equivalent to $208/month
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 <div className="space-y-4">
