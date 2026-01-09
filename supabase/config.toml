@@ -65,3 +65,6 @@ verify_jwt = false
 
 [functions.add-to-mailchimp]
 verify_jwt = false
+
+[functions.verify-app-store-purchase]
+verify_jwt = false

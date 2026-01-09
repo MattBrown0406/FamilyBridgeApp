@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { usePlatform } from "@/hooks/usePlatform";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,11 +10,15 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Check, CreditCard, Shield, Users, Tag, Loader2, Copy, MessageCircle, UserPlus, DollarSign, Target, Sparkles } from "lucide-react";
 import { BrandedHeader } from "@/components/BrandedHeader";
+import { AppStorePurchaseButton } from "@/components/AppStorePurchaseButton";
+import { AppleLogo, GooglePlayLogo } from "@/components/icons/StoreLogos";
+
 const FamilyPurchase = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const status = searchParams.get("status");
+  const { isNative, isIOS, isAndroid, paymentMethod } = usePlatform();
 
   const [email, setEmail] = useState(user?.email || "");
   const [couponCode, setCouponCode] = useState("");
@@ -23,7 +28,7 @@ const FamilyPurchase = () => {
   const [isValidatingInvite, setIsValidatingInvite] = useState(false);
   const [generatedCode, setGeneratedCode] = useState<string | null>(null);
 
-  const handlePurchase = async () => {
+  const handleSquarePurchase = async () => {
     if (!email) {
       toast.error("Please enter your email address");
       return;
@@ -51,6 +56,11 @@ const FamilyPurchase = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleAppStorePurchaseSuccess = (transactionId: string, inviteCode: string) => {
+    setGeneratedCode(inviteCode);
+    toast.success("Purchase complete! Your invite code has been generated.");
   };
 
   const handleApplyCoupon = async () => {
@@ -151,6 +161,31 @@ const FamilyPurchase = () => {
       toast.success("Invite code copied to clipboard!");
     }
   };
+
+  // Get payment method display info
+  const getPaymentInfo = () => {
+    if (isIOS) {
+      return {
+        icon: AppleLogo,
+        label: "Apple App Store",
+        description: "Payment processed through Apple",
+      };
+    }
+    if (isAndroid) {
+      return {
+        icon: GooglePlayLogo,
+        label: "Google Play Store",
+        description: "Payment processed through Google Play",
+      };
+    }
+    return {
+      icon: CreditCard,
+      label: "Secure Checkout",
+      description: "Secure payment powered by Square. Cancel anytime.",
+    };
+  };
+
+  const paymentInfo = getPaymentInfo();
 
   // Show generated invite code
   if (generatedCode) {
@@ -271,7 +306,7 @@ const FamilyPurchase = () => {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <CreditCard className="w-5 h-5" />
+                  <paymentInfo.icon className="w-5 h-5" />
                   Family Subscription
                 </CardTitle>
                 <CardDescription>
@@ -283,6 +318,19 @@ const FamilyPurchase = () => {
                   <span className="text-4xl font-bold">$19.99</span>
                   <span className="text-muted-foreground">/month</span>
                 </div>
+
+                {/* Platform-specific payment notice */}
+                {isNative && (
+                  <div className="bg-muted/50 border rounded-lg p-3 text-center">
+                    <div className="flex items-center justify-center gap-2 text-sm font-medium">
+                      <paymentInfo.icon className="w-4 h-4" />
+                      <span>{paymentInfo.label}</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {paymentInfo.description}
+                    </p>
+                  </div>
+                )}
 
                 <div className="space-y-4">
                   <div className="space-y-2">
@@ -299,32 +347,34 @@ const FamilyPurchase = () => {
                     </p>
                   </div>
 
-                  {/* Coupon Code Section */}
-                  <div className="space-y-2">
-                    <Label htmlFor="coupon">Coupon Code (Optional)</Label>
-                    <div className="flex gap-2">
-                      <Input
-                        id="coupon"
-                        placeholder="Enter coupon code"
-                        value={couponCode}
-                        onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                        className="flex-1"
-                      />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={handleApplyCoupon}
-                        disabled={isApplyingCoupon || !couponCode.trim() || !email}
-                      >
-                        {isApplyingCoupon ? (
-                          <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                        ) : (
-                          <Tag className="h-4 w-4 mr-2" />
-                        )}
-                        Apply
-                      </Button>
+                  {/* Coupon Code Section - only show on web */}
+                  {!isNative && (
+                    <div className="space-y-2">
+                      <Label htmlFor="coupon">Coupon Code (Optional)</Label>
+                      <div className="flex gap-2">
+                        <Input
+                          id="coupon"
+                          placeholder="Enter coupon code"
+                          value={couponCode}
+                          onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                          className="flex-1"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={handleApplyCoupon}
+                          disabled={isApplyingCoupon || !couponCode.trim() || !email}
+                        >
+                          {isApplyingCoupon ? (
+                            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                          ) : (
+                            <Tag className="h-4 w-4 mr-2" />
+                          )}
+                          Apply
+                        </Button>
+                      </div>
                     </div>
-                  </div>
+                  )}
 
                   {/* Family Invite Code Section */}
                   <div className="space-y-2 pt-2 border-t">
@@ -356,17 +406,31 @@ const FamilyPurchase = () => {
                     </div>
                   </div>
 
-                  <Button
-                    onClick={handlePurchase}
-                    disabled={isLoading || !email}
-                    className="w-full"
-                    size="lg"
-                  >
-                    {isLoading ? "Processing..." : "Subscribe Now"}
-                  </Button>
+                  {/* Platform-specific purchase button */}
+                  {isNative ? (
+                    <AppStorePurchaseButton
+                      platform={paymentMethod as "apple" | "google"}
+                      productId="family_monthly_1999"
+                      email={email}
+                      onSuccess={handleAppStorePurchaseSuccess}
+                      disabled={!email}
+                      className="w-full"
+                    >
+                      Subscribe Now
+                    </AppStorePurchaseButton>
+                  ) : (
+                    <Button
+                      onClick={handleSquarePurchase}
+                      disabled={isLoading || !email}
+                      className="w-full"
+                      size="lg"
+                    >
+                      {isLoading ? "Processing..." : "Subscribe Now"}
+                    </Button>
+                  )}
 
                   <p className="text-xs text-muted-foreground text-center">
-                    Secure payment powered by Square. Cancel anytime.
+                    {paymentInfo.description}
                   </p>
                 </div>
               </CardContent>

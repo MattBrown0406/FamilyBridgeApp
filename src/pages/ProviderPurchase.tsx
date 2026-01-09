@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { usePlatform } from "@/hooks/usePlatform";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,12 +10,15 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Building2, Check, CreditCard, Shield, Users, Tag, Loader2, Copy } from "lucide-react";
 import { BrandedHeader } from "@/components/BrandedHeader";
+import { AppStorePurchaseButton } from "@/components/AppStorePurchaseButton";
+import { AppleLogo, GooglePlayLogo } from "@/components/icons/StoreLogos";
 
 const ProviderPurchase = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const status = searchParams.get("status");
+  const { isNative, isIOS, isAndroid, paymentMethod } = usePlatform();
 
   const [email, setEmail] = useState(user?.email || "");
   const [couponCode, setCouponCode] = useState("");
@@ -23,7 +27,7 @@ const ProviderPurchase = () => {
   const [generatedCode, setGeneratedCode] = useState<string | null>(null);
   const [billingPeriod, setBillingPeriod] = useState<"monthly" | "annual">("annual");
 
-  const handlePurchase = async () => {
+  const handleSquarePurchase = async () => {
     if (!email) {
       toast.error("Please enter your email address");
       return;
@@ -35,6 +39,7 @@ const ProviderPurchase = () => {
         body: {
           email,
           redirectUrl: `${window.location.origin}/provider-purchase?status=success`,
+          billingPeriod,
         },
       });
 
@@ -51,6 +56,11 @@ const ProviderPurchase = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleAppStorePurchaseSuccess = (transactionId: string, activationCode: string) => {
+    setGeneratedCode(activationCode);
+    toast.success("Purchase complete! Your activation code has been generated.");
   };
 
   const handleApplyCoupon = async () => {
@@ -101,6 +111,39 @@ const ProviderPurchase = () => {
       navigator.clipboard.writeText(generatedCode);
       toast.success("Activation code copied to clipboard!");
     }
+  };
+
+  // Get payment method display info
+  const getPaymentInfo = () => {
+    if (isIOS) {
+      return {
+        icon: AppleLogo,
+        label: "Apple App Store",
+        description: "Payment processed through Apple",
+      };
+    }
+    if (isAndroid) {
+      return {
+        icon: GooglePlayLogo,
+        label: "Google Play Store",
+        description: "Payment processed through Google Play",
+      };
+    }
+    return {
+      icon: CreditCard,
+      label: "Secure Checkout",
+      description: "Secure payment powered by Square. Cancel anytime.",
+    };
+  };
+
+  const paymentInfo = getPaymentInfo();
+
+  // Get the appropriate product ID based on billing period
+  const getProductId = () => {
+    if (billingPeriod === "annual") {
+      return "provider_annual_2500";
+    }
+    return "provider_monthly_250";
   };
 
   // Show generated activation code
@@ -216,7 +259,7 @@ const ProviderPurchase = () => {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <CreditCard className="w-5 h-5" />
+                  <paymentInfo.icon className="w-5 h-5" />
                   Provider Subscription
                 </CardTitle>
                 <CardDescription>
@@ -224,35 +267,61 @@ const ProviderPurchase = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                {/* Billing Toggle */}
-                <div className="flex justify-center">
-                  <div className="inline-flex items-center bg-muted rounded-lg p-1">
-                    <button
-                      onClick={() => setBillingPeriod("monthly")}
-                      className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                        billingPeriod === "monthly"
-                          ? "bg-background shadow-sm text-foreground"
-                          : "text-muted-foreground hover:text-foreground"
-                      }`}
-                    >
-                      Monthly
-                    </button>
-                    <button
-                      onClick={() => setBillingPeriod("annual")}
-                      className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                        billingPeriod === "annual"
-                          ? "bg-background shadow-sm text-foreground"
-                          : "text-muted-foreground hover:text-foreground"
-                      }`}
-                    >
-                      Annual
-                    </button>
+                {/* Platform-specific payment notice */}
+                {isNative && (
+                  <div className="bg-muted/50 border rounded-lg p-3 text-center">
+                    <div className="flex items-center justify-center gap-2 text-sm font-medium">
+                      <paymentInfo.icon className="w-4 h-4" />
+                      <span>{paymentInfo.label}</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {paymentInfo.description}
+                    </p>
                   </div>
-                </div>
+                )}
+
+                {/* Billing Toggle - only show on web or if both options available */}
+                {!isNative && (
+                  <div className="flex justify-center">
+                    <div className="inline-flex items-center bg-muted rounded-lg p-1">
+                      <button
+                        onClick={() => setBillingPeriod("monthly")}
+                        className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                          billingPeriod === "monthly"
+                            ? "bg-background shadow-sm text-foreground"
+                            : "text-muted-foreground hover:text-foreground"
+                        }`}
+                      >
+                        Monthly
+                      </button>
+                      <button
+                        onClick={() => setBillingPeriod("annual")}
+                        className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                          billingPeriod === "annual"
+                            ? "bg-background shadow-sm text-foreground"
+                            : "text-muted-foreground hover:text-foreground"
+                        }`}
+                      >
+                        Annual
+                      </button>
+                    </div>
+                  </div>
+                )}
 
                 {/* Pricing Display */}
                 <div className="text-center py-4">
-                  {billingPeriod === "monthly" ? (
+                  {isNative ? (
+                    // Native app pricing (show both options as available products)
+                    <div className="space-y-2">
+                      <div>
+                        <span className="text-4xl font-bold">$250</span>
+                        <span className="text-muted-foreground">/month</span>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        or $2,500/year (save $500!)
+                      </p>
+                    </div>
+                  ) : billingPeriod === "monthly" ? (
                     <>
                       <span className="text-4xl font-bold">$250</span>
                       <span className="text-muted-foreground">/month</span>
@@ -289,44 +358,60 @@ const ProviderPurchase = () => {
                     </p>
                   </div>
 
-                  {/* Coupon Code Section */}
-                  <div className="space-y-2">
-                    <Label htmlFor="coupon">Coupon Code (Optional)</Label>
-                    <div className="flex gap-2">
-                      <Input
-                        id="coupon"
-                        placeholder="Enter coupon code"
-                        value={couponCode}
-                        onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                        className="flex-1"
-                      />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={handleApplyCoupon}
-                        disabled={isApplyingCoupon || !couponCode.trim() || !email}
-                      >
-                        {isApplyingCoupon ? (
-                          <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                        ) : (
-                          <Tag className="h-4 w-4 mr-2" />
-                        )}
-                        Apply
-                      </Button>
+                  {/* Coupon Code Section - only show on web */}
+                  {!isNative && (
+                    <div className="space-y-2">
+                      <Label htmlFor="coupon">Coupon Code (Optional)</Label>
+                      <div className="flex gap-2">
+                        <Input
+                          id="coupon"
+                          placeholder="Enter coupon code"
+                          value={couponCode}
+                          onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                          className="flex-1"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={handleApplyCoupon}
+                          disabled={isApplyingCoupon || !couponCode.trim() || !email}
+                        >
+                          {isApplyingCoupon ? (
+                            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                          ) : (
+                            <Tag className="h-4 w-4 mr-2" />
+                          )}
+                          Apply
+                        </Button>
+                      </div>
                     </div>
-                  </div>
+                  )}
 
-                  <Button
-                    onClick={handlePurchase}
-                    disabled={isLoading || !email}
-                    className="w-full"
-                    size="lg"
-                  >
-                    {isLoading ? "Processing..." : "Subscribe Now"}
-                  </Button>
+                  {/* Platform-specific purchase button */}
+                  {isNative ? (
+                    <AppStorePurchaseButton
+                      platform={paymentMethod as "apple" | "google"}
+                      productId={getProductId()}
+                      email={email}
+                      onSuccess={handleAppStorePurchaseSuccess}
+                      disabled={!email}
+                      className="w-full"
+                    >
+                      Subscribe Now
+                    </AppStorePurchaseButton>
+                  ) : (
+                    <Button
+                      onClick={handleSquarePurchase}
+                      disabled={isLoading || !email}
+                      className="w-full"
+                      size="lg"
+                    >
+                      {isLoading ? "Processing..." : "Subscribe Now"}
+                    </Button>
+                  )}
 
                   <p className="text-xs text-muted-foreground text-center">
-                    Secure payment powered by Square. Cancel anytime.
+                    {paymentInfo.description}
                   </p>
                 </div>
               </CardContent>
