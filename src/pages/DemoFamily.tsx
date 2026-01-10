@@ -972,39 +972,26 @@ const DemoFamily = () => {
                         ${currentFamily.financialRequests.reduce((sum, r) => sum + r.amount, 0).toFixed(2)}
                       </p>
                     </div>
-                    <div className={`text-center p-4 rounded-xl border ${
-                      selectedFamily === 'davis' 
-                        ? 'bg-gradient-to-br from-red-50 to-orange-50/50 border-red-200' 
-                        : 'bg-gradient-to-br from-green-50 to-emerald-50/50 border-green-200'
-                    }`}>
-                      <p className={`text-sm mb-1 ${selectedFamily === 'davis' ? 'text-red-700' : 'text-green-700'}`}>
-                        {selectedFamily === 'davis' ? 'Denied Requests' : 'Total Funded'}
-                      </p>
-                      <p className={`text-2xl font-bold ${selectedFamily === 'davis' ? 'text-red-600' : 'text-green-600'}`}>
-                        {selectedFamily === 'davis' 
-                          ? currentFamily.financialRequests.filter(r => r.status === 'denied').length
-                          : `$${currentFamily.financialRequests.filter(r => r.status === 'approved' || r.status === 'completed').reduce((sum, r) => sum + r.amount, 0).toFixed(2)}`
-                        }
+                    <div className="text-center p-4 bg-gradient-to-br from-green-50 to-emerald-50/50 rounded-xl border border-green-200">
+                      <p className="text-sm text-green-700 mb-1">Total Funded</p>
+                      <p className="text-2xl font-bold text-green-600">
+                        ${currentFamily.financialRequests.filter(r => r.status === 'approved' || r.status === 'completed').reduce((sum, r) => sum + r.amount, 0).toFixed(2)}
                       </p>
                     </div>
-                    {selectedFamily === 'davis' && (
-                      <>
-                        <div className="text-center p-4 bg-gradient-to-br from-amber-50 to-yellow-50/50 rounded-xl border border-amber-200">
-                          <p className="text-sm text-amber-700 mb-1">Dad Approved</p>
-                          <p className="text-2xl font-bold text-amber-600">
-                            100%
-                          </p>
-                          <p className="text-xs text-amber-600">5 of 5 requests</p>
-                        </div>
-                        <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-cyan-50/50 rounded-xl border border-blue-200">
-                          <p className="text-sm text-blue-700 mb-1">Others Approved</p>
-                          <p className="text-2xl font-bold text-blue-600">
-                            0%
-                          </p>
-                          <p className="text-xs text-blue-600">Aligned on boundaries</p>
-                        </div>
-                      </>
-                    )}
+                    <div className="text-center p-4 bg-gradient-to-br from-amber-50 to-yellow-50/50 rounded-xl border border-amber-200">
+                      <p className="text-sm text-amber-700 mb-1">Pending</p>
+                      <p className="text-2xl font-bold text-amber-600">
+                        {currentFamily.financialRequests.filter(r => r.status === 'pending').length}
+                      </p>
+                      <p className="text-xs text-amber-600">requests</p>
+                    </div>
+                    <div className="text-center p-4 bg-gradient-to-br from-red-50 to-orange-50/50 rounded-xl border border-red-200">
+                      <p className="text-sm text-red-700 mb-1">Denied</p>
+                      <p className="text-2xl font-bold text-red-600">
+                        {currentFamily.financialRequests.filter(r => r.status === 'denied').length}
+                      </p>
+                      <p className="text-xs text-red-600">requests</p>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
