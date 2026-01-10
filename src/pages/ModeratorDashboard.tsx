@@ -5,8 +5,11 @@ import { useSuperAdmin } from '@/hooks/useSuperAdmin';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Users, LogOut, Loader2, ArrowRight, Home, Building2, Shield } from 'lucide-react';
+import { Users, LogOut, Loader2, ArrowRight, Home, Building2, Shield, Plus } from 'lucide-react';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 import { NotificationBell } from '@/components/NotificationBell';
 
@@ -33,6 +36,10 @@ const ModeratorDashboard = () => {
   const [assignedFamilies, setAssignedFamilies] = useState<AssignedFamily[]>([]);
   const [organizations, setOrganizations] = useState<OrganizationInfo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [newFamilyName, setNewFamilyName] = useState('');
+  const [newFamilyDescription, setNewFamilyDescription] = useState('');
+  const [isCreating, setIsCreating] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -114,6 +121,63 @@ const ModeratorDashboard = () => {
     }
   };
 
+  const handleCreateFamily = async () => {
+    if (!user) {
+      toast({
+        title: 'Not signed in',
+        description: 'Please sign in again to create a family group.',
+        variant: 'destructive',
+      });
+      navigate('/auth');
+      return;
+    }
+
+    if (!newFamilyName.trim()) {
+      toast({
+        title: 'Name required',
+        description: 'Please enter a name for your family group.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsCreating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('create-family', {
+        body: {
+          name: newFamilyName.trim(),
+          description: newFamilyDescription.trim() || null,
+        },
+      });
+
+      if (error) throw error;
+
+      const family = (data as any)?.family;
+      if (!family?.id) {
+        throw new Error('Failed to create family');
+      }
+
+      toast({
+        title: 'Family created!',
+        description: `${newFamilyName} has been created successfully.`,
+      });
+
+      setShowCreateDialog(false);
+      setNewFamilyName('');
+      setNewFamilyDescription('');
+      fetchModeratorData();
+    } catch (error: any) {
+      console.error('Error creating family:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to create family group. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
   const handleSignOut = async () => {
     await signOut();
     navigate('/');
@@ -187,6 +251,60 @@ const ModeratorDashboard = () => {
               </div>
             </div>
           )}
+
+          {/* Create Family Group Button */}
+          <div className="mb-6">
+            <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+              <DialogTrigger asChild>
+                <Button variant="hero" size="lg">
+                  <Plus className="h-5 w-5" />
+                  Create Family Group
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle className="font-display">Create Family Group</DialogTitle>
+                  <DialogDescription>
+                    Start a new family group and invite members to join.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 pt-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="familyName">Family Name</Label>
+                    <Input
+                      id="familyName"
+                      placeholder="e.g., The Smith Family"
+                      value={newFamilyName}
+                      onChange={(e) => setNewFamilyName(e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="familyDescription">Description (optional)</Label>
+                    <Input
+                      id="familyDescription"
+                      placeholder="A brief description of your group"
+                      value={newFamilyDescription}
+                      onChange={(e) => setNewFamilyDescription(e.target.value)}
+                    />
+                  </div>
+                  <Button 
+                    className="w-full" 
+                    onClick={handleCreateFamily}
+                    disabled={isCreating}
+                  >
+                    {isCreating ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Creating...
+                      </>
+                    ) : (
+                      'Create Group'
+                    )}
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
 
           {/* Assigned Family Groups */}
           <Card className="mb-6">
