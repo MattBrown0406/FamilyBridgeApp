@@ -58,6 +58,7 @@ import { PrivateMessaging } from '@/components/PrivateMessaging';
 import { ConversationStarters } from '@/components/ConversationStarters';
 import { TemporaryModeratorRequest } from '@/components/TemporaryModeratorRequest';
 import { FIISTab } from '@/components/FIISTab';
+import { useFIISNotifications } from '@/hooks/useFIISNotifications';
 
 const REQUEST_REASONS = [
   'Electric',
@@ -371,6 +372,9 @@ const FamilyChat = () => {
   const [privateMessagingOpen, setPrivateMessagingOpen] = useState(false);
   const [unreadPrivateMessages, setUnreadPrivateMessages] = useState(0);
   const [hasProfessionalModerator, setHasProfessionalModerator] = useState(false);
+  
+  // FIIS notifications
+  const { hasNewAnalysis, markAsViewed: markFIISViewed } = useFIISNotifications({ familyId });
 
   useEffect(() => {
     if (!loading && !user) {
@@ -1970,10 +1974,13 @@ const FamilyChat = () => {
             {currentUserRole !== 'recovering' && (
               <TabsTrigger 
                 value="fiis" 
-                className="flex-1 min-w-[50px] flex items-center justify-center gap-1 px-2 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg transition-all duration-200"
+                className="relative flex-1 min-w-[50px] flex items-center justify-center gap-1 px-2 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg transition-all duration-200"
               >
                 <Brain className="h-4 w-4" />
                 <span className="hidden sm:inline text-xs">FIIS</span>
+                {hasNewAnalysis && (
+                  <span className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full animate-pulse border-2 border-card" />
+                )}
               </TabsTrigger>
             )}
           </TabsList>
@@ -3372,10 +3379,15 @@ const FamilyChat = () => {
 
           {/* FIIS Tab - Hidden from recovering individuals */}
           {currentUserRole !== 'recovering' && (
-            <TabsContent value="fiis" className="mt-0 space-y-4 overflow-auto">
+            <TabsContent 
+              value="fiis" 
+              className="mt-0 space-y-4 overflow-auto"
+              onFocus={() => markFIISViewed()}
+            >
               <FIISTab 
                 familyId={familyId!} 
                 members={members.map(m => ({ user_id: m.user_id, full_name: m.full_name }))}
+                onView={markFIISViewed}
               />
             </TabsContent>
           )}
