@@ -3609,7 +3609,7 @@ const FamilyChat = () => {
                     </div>
                     
                     <p className="text-sm text-muted-foreground">
-                      Choose <strong>two common goals</strong> your family will work toward together. Mark them complete as you achieve them.
+                      Select two of the goals from the list below or create custom goals for your family. Make sure the goals you create are measurable and have a path to achievement. If you need help, consult your moderator.
                     </p>
 
                     {/* Show current common goals if set and not editing */}
