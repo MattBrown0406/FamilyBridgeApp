@@ -18,7 +18,7 @@ import {
   MessageCircle, AlertTriangle, Check, X, Shield, MapPin,
   ExternalLink, CreditCard, CheckCircle2, Paperclip, Image, HandCoins, Trash2, Pencil,
   Target, ShieldCheck, Plus, CheckCircle, MessageSquare, FlaskConical, ChevronDown, Sparkles,
-  Brain
+  Brain, Search
 } from 'lucide-react';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -58,6 +58,7 @@ import { PrivateMessaging } from '@/components/PrivateMessaging';
 import { ConversationStarters } from '@/components/ConversationStarters';
 import { TemporaryModeratorRequest } from '@/components/TemporaryModeratorRequest';
 import { FIISTab } from '@/components/FIISTab';
+import { MeetingFinder } from '@/components/MeetingFinder';
 import { useFIISNotifications } from '@/hooks/useFIISNotifications';
 
 const REQUEST_REASONS = [
@@ -2155,13 +2156,32 @@ const FamilyChat = () => {
                 </CardContent>
               </Card>
               
+              {/* Meeting Finder */}
+              <Card className="card-interactive card-enter overflow-hidden">
+                <div className="h-1 bg-gradient-to-r from-blue-500 via-cyan-500 to-blue-500" />
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center gap-2 font-display text-lg">
+                    <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-blue-500/20 to-cyan-500/20 flex items-center justify-center">
+                      <Search className="h-4 w-4 text-blue-500" />
+                    </div>
+                    Find a Meeting
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Search for AA, Al-Anon, and other recovery meetings near you.
+                  </p>
+                  <MeetingFinder />
+                </CardContent>
+              </Card>
+              
               {/* Location Check-in Request (for family members) */}
               <LocationCheckinRequest 
                 familyId={familyId!}
                 userRole={currentUserRole}
               />
               
-              <TabbedCheckin 
+              <TabbedCheckin
                 familyId={familyId!} 
                 onCheckinComplete={() => {
                   setCheckinRefreshKey(k => k + 1);
