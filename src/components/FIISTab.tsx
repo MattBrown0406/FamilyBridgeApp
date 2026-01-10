@@ -38,6 +38,7 @@ interface FIISTabProps {
   familyId: string;
   members: Array<{ user_id: string; full_name: string }>;
   onView?: () => void;
+  isModerator?: boolean;
 }
 
 interface Observation {
@@ -103,7 +104,7 @@ const SIGNAL_COLORS: Record<string, string> = {
   regression: "bg-red-500/20 text-red-700 border-red-500/30",
 };
 
-export function FIISTab({ familyId, members, onView }: FIISTabProps) {
+export function FIISTab({ familyId, members, onView, isModerator = false }: FIISTabProps) {
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -239,8 +240,8 @@ export function FIISTab({ familyId, members, onView }: FIISTabProps) {
       if (error) throw error;
 
       toast({
-        title: "Observation logged",
-        description: "Your observation has been recorded.",
+        title: "Observation Received",
+        description: "Thank you. Your anonymous observation has been securely recorded and will be included in the analysis.",
       });
 
       setNewType("");
@@ -536,89 +537,95 @@ export function FIISTab({ familyId, members, onView }: FIISTabProps) {
         </Card>
       )}
 
-      {/* Timeline */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base font-medium flex items-center gap-2">
-            <Clock className="h-4 w-4 text-muted-foreground" />
-            Activity Timeline
-            <Badge variant="secondary" className="ml-2">
-              {timeline.length} events
-            </Badge>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {timeline.length === 0 ? (
-            <div className="text-center py-8">
-              <FileText className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
-              <p className="text-muted-foreground">No observations or events recorded yet.</p>
-              <p className="text-sm text-muted-foreground mt-1">
-                Start logging observations to build a picture over time.
+      {/* Timeline - Only visible to moderators */}
+      {isModerator ? (
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base font-medium flex items-center gap-2">
+              <Clock className="h-4 w-4 text-muted-foreground" />
+              Activity Timeline
+              <Badge variant="secondary" className="ml-2">
+                {timeline.length} events
+              </Badge>
+              <Badge variant="outline" className="ml-1 text-xs">
+                Moderator Only
+              </Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {timeline.length === 0 ? (
+              <div className="text-center py-8">
+                <FileText className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
+                <p className="text-muted-foreground">No observations or events recorded yet.</p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Start logging observations to build a picture over time.
+                </p>
+              </div>
+            ) : (
+              <ScrollArea className="h-[400px] pr-4">
+                <div className="space-y-3">
+                  {timeline.map((item) => {
+                    const isManual = item._type === "observation";
+                    const obs = isManual ? (item as Observation) : null;
+                    const event = !isManual ? (item as AutoEvent) : null;
+
+                    return (
+                      <div
+                        key={item.id}
+                        className={`p-3 rounded-lg border ${
+                          isManual
+                            ? "bg-violet-50/50 dark:bg-violet-950/20 border-violet-200 dark:border-violet-800"
+                            : "bg-muted/50 border-border"
+                        }`}
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              {isManual ? (
+                                <Badge variant="outline" className="text-violet-600 border-violet-300 text-xs">
+                                  {OBSERVATION_TYPES.find((t) => t.value === obs?.observation_type)?.label || obs?.observation_type}
+                                </Badge>
+                              ) : (
+                                <Badge variant="secondary" className="text-xs">
+                                  {event?.event_type.replace(/_/g, " ")}
+                                </Badge>
+                              )}
+                              <span className="text-xs text-muted-foreground">
+                                {formatDistanceToNow(new Date(item.occurred_at), { addSuffix: true })}
+                              </span>
+                            </div>
+                            <p className="text-sm">
+                              {isManual
+                                ? obs?.content
+                                : formatEventDescription(event?.event_type || "", (event?.event_data as Record<string, unknown>) || {})}
+                            </p>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              {isManual ? "Anonymous observation" : event?.user_name}
+                              {" · "}
+                              {format(new Date(item.occurred_at), "MMM d, yyyy h:mm a")}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </ScrollArea>
+            )}
+          </CardContent>
+        </Card>
+      ) : (
+        <Card>
+          <CardContent className="py-6">
+            <div className="text-center">
+              <FileText className="h-10 w-10 mx-auto mb-3 text-muted-foreground/50" />
+              <p className="text-sm text-muted-foreground">
+                Your observations are recorded anonymously and securely. Only your family's moderator can view the activity timeline to help guide your family's recovery journey.
               </p>
             </div>
-          ) : (
-            <ScrollArea className="h-[400px] pr-4">
-              <div className="space-y-3">
-                {timeline.map((item) => {
-                  const isManual = item._type === "observation";
-                  const obs = isManual ? (item as Observation) : null;
-                  const event = !isManual ? (item as AutoEvent) : null;
-
-                  return (
-                    <div
-                      key={item.id}
-                      className={`p-3 rounded-lg border ${
-                        isManual
-                          ? "bg-violet-50/50 dark:bg-violet-950/20 border-violet-200 dark:border-violet-800"
-                          : "bg-muted/50 border-border"
-                      }`}
-                    >
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            {isManual ? (
-                              <Badge variant="outline" className="text-violet-600 border-violet-300 text-xs">
-                                {OBSERVATION_TYPES.find((t) => t.value === obs?.observation_type)?.label || obs?.observation_type}
-                              </Badge>
-                            ) : (
-                              <Badge variant="secondary" className="text-xs">
-                                {event?.event_type.replace(/_/g, " ")}
-                              </Badge>
-                            )}
-                            <span className="text-xs text-muted-foreground">
-                              {formatDistanceToNow(new Date(item.occurred_at), { addSuffix: true })}
-                            </span>
-                          </div>
-                          <p className="text-sm">
-                            {isManual
-                              ? obs?.content
-                              : formatEventDescription(event?.event_type || "", (event?.event_data as Record<string, unknown>) || {})}
-                          </p>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            {isManual ? `Noted by ${obs?.user_name}` : event?.user_name}
-                            {" · "}
-                            {format(new Date(item.occurred_at), "MMM d, yyyy h:mm a")}
-                          </p>
-                        </div>
-                        {isManual && obs?.user_id === user?.id && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-destructive hover:text-destructive"
-                            onClick={() => deleteObservation(obs.id)}
-                          >
-                            ×
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </ScrollArea>
-          )}
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

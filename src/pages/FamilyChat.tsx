@@ -4217,6 +4217,7 @@ const FamilyChat = () => {
                 familyId={familyId!} 
                 members={members.map(m => ({ user_id: m.user_id, full_name: m.full_name }))}
                 onView={markFIISViewed}
+                isModerator={isAdminOrModerator}
               />
             </TabsContent>
           )}
