@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useProviderAdmin } from '@/hooks/useProviderAdmin';
 import { useAuth } from '@/hooks/useAuth';
@@ -152,6 +152,13 @@ const ProviderAdmin = () => {
   });
 
   const currentOrg = organizations.find(o => o.id === selectedOrg);
+
+  // Auto-select the first organization when organizations are loaded
+  useEffect(() => {
+    if (organizations.length > 0 && !selectedOrg) {
+      handleSelectOrg(organizations[0].id);
+    }
+  }, [organizations, selectedOrg]);
 
   // Load edit form when org is selected
   const handleSelectOrg = async (orgId: string) => {
@@ -1011,10 +1018,6 @@ const ProviderAdmin = () => {
               Provider Admin
             </h1>
           </div>
-          <Button size="sm" onClick={() => setIsCreating(true)} className="w-full sm:w-auto">
-            <Plus className="h-4 w-4 mr-2" />
-            New Organization
-          </Button>
         </div>
 
         <div className="grid lg:grid-cols-4 gap-4 sm:gap-6">
