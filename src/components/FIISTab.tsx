@@ -37,6 +37,7 @@ import { format, formatDistanceToNow } from "date-fns";
 interface FIISTabProps {
   familyId: string;
   members: Array<{ user_id: string; full_name: string }>;
+  onView?: () => void;
 }
 
 interface Observation {
@@ -101,7 +102,7 @@ const SIGNAL_COLORS: Record<string, string> = {
   regression: "bg-red-500/20 text-red-700 border-red-500/30",
 };
 
-export function FIISTab({ familyId, members }: FIISTabProps) {
+export function FIISTab({ familyId, members, onView }: FIISTabProps) {
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -123,6 +124,13 @@ export function FIISTab({ familyId, members }: FIISTabProps) {
       subscribeToChanges();
     }
   }, [familyId]);
+
+  // Mark as viewed when component mounts
+  useEffect(() => {
+    if (onView) {
+      onView();
+    }
+  }, [onView]);
 
   const fetchData = async () => {
     setIsLoading(true);
