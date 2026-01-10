@@ -13,6 +13,7 @@ interface BillReceiptCaptureProps {
   onImageCapture: (file: File, preview: string) => void;
   onClear: () => void;
   preview: string | null;
+  requestCategory?: string; // The category of the financial request (e.g., "Gas", "Utilities", "Food")
 }
 
 interface ClarityResult {
@@ -20,12 +21,19 @@ interface ClarityResult {
   score: number;
   issues: string[];
   suggestions: string[];
+  categoryMatch?: {
+    matches: boolean;
+    detectedType: string;
+    expectedType: string;
+    confidence: number;
+  };
 }
 
 export const BillReceiptCapture = ({ 
   onImageCapture, 
   onClear, 
-  preview 
+  preview,
+  requestCategory 
 }: BillReceiptCaptureProps) => {
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -44,7 +52,10 @@ export const BillReceiptCapture = ({
   const analyzeImageClarity = async (imageBase64: string): Promise<ClarityResult> => {
     try {
       const { data, error } = await supabase.functions.invoke('analyze-image-clarity', {
-        body: { image: imageBase64 }
+        body: { 
+          image: imageBase64,
+          expectedCategory: requestCategory 
+        }
       });
 
       if (error) throw error;
@@ -399,7 +410,7 @@ export const BillReceiptCapture = ({
                 <Loader2 className="h-8 w-8 animate-spin mx-auto mb-2" />
                 <p className="text-sm flex items-center gap-1">
                   <Sparkles className="h-4 w-4" />
-                  AI analyzing image quality...
+                  AI analyzing image quality{requestCategory ? ` & verifying ${requestCategory} receipt` : ''}...
                 </p>
               </div>
             </div>
@@ -426,6 +437,37 @@ export const BillReceiptCapture = ({
                 Quality Score: {clarityResult.score}%
               </span>
             </div>
+
+            {/* Category Match Result */}
+            {clarityResult.categoryMatch && (
+              <div className={`mb-2 p-2 rounded ${
+                clarityResult.categoryMatch.matches 
+                  ? 'bg-green-100 dark:bg-green-900/30' 
+                  : 'bg-red-100 dark:bg-red-900/30'
+              }`}>
+                <div className="flex items-center gap-2 text-sm">
+                  {clarityResult.categoryMatch.matches ? (
+                    <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
+                  ) : (
+                    <AlertTriangle className="h-4 w-4 text-red-600 dark:text-red-400" />
+                  )}
+                  <span className={clarityResult.categoryMatch.matches 
+                    ? 'text-green-700 dark:text-green-300' 
+                    : 'text-red-700 dark:text-red-300'
+                  }>
+                    {clarityResult.categoryMatch.matches 
+                      ? `✓ Receipt matches ${clarityResult.categoryMatch.expectedType} request`
+                      : `⚠ Expected ${clarityResult.categoryMatch.expectedType} receipt, detected: ${clarityResult.categoryMatch.detectedType}`
+                    }
+                  </span>
+                </div>
+                {clarityResult.categoryMatch.confidence > 0 && (
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Confidence: {Math.round(clarityResult.categoryMatch.confidence)}%
+                  </p>
+                )}
+              </div>
+            )}
             
             {clarityResult.issues.length > 0 && (
               <ul className="text-sm text-muted-foreground space-y-1 mb-2">
@@ -528,7 +570,7 @@ export const BillReceiptCapture = ({
       
       <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
         <Sparkles className="h-3 w-3" />
-        AI will check image clarity before upload
+        AI will check image clarity{requestCategory ? ` & verify it matches your ${requestCategory} request` : ''} before upload
       </p>
       <p className="text-xs text-muted-foreground mt-1">
         Include a photo showing the account name, number, and amount due.

@@ -2470,6 +2470,7 @@ const FamilyChat = () => {
                       }}
                       onClear={clearAttachment}
                       preview={billPreview}
+                      requestCategory={requestReason || undefined}
                     />
 
                     <Button type="submit" disabled={isRequesting} className="w-full">
