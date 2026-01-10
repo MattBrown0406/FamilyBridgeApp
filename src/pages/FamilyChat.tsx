@@ -1967,13 +1967,15 @@ const FamilyChat = () => {
               <FlaskConical className="h-4 w-4" />
               <span className="hidden sm:inline text-xs">Tests</span>
             </TabsTrigger>
-            <TabsTrigger 
-              value="fiis" 
-              className="flex-1 min-w-[50px] flex items-center justify-center gap-1 px-2 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg transition-all duration-200"
-            >
-              <Brain className="h-4 w-4" />
-              <span className="hidden sm:inline text-xs">FIIS</span>
-            </TabsTrigger>
+            {currentUserRole !== 'recovering' && (
+              <TabsTrigger 
+                value="fiis" 
+                className="flex-1 min-w-[50px] flex items-center justify-center gap-1 px-2 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg transition-all duration-200"
+              >
+                <Brain className="h-4 w-4" />
+                <span className="hidden sm:inline text-xs">FIIS</span>
+              </TabsTrigger>
+            )}
           </TabsList>
 
           {/* Messages Tab */}
@@ -3368,13 +3370,15 @@ const FamilyChat = () => {
             </Card>
           </TabsContent>
 
-          {/* FIIS Tab */}
-          <TabsContent value="fiis" className="mt-0 space-y-4 overflow-auto">
-            <FIISTab 
-              familyId={familyId!} 
-              members={members.map(m => ({ user_id: m.user_id, full_name: m.full_name }))}
-            />
-          </TabsContent>
+          {/* FIIS Tab - Hidden from recovering individuals */}
+          {currentUserRole !== 'recovering' && (
+            <TabsContent value="fiis" className="mt-0 space-y-4 overflow-auto">
+              <FIISTab 
+                familyId={familyId!} 
+                members={members.map(m => ({ user_id: m.user_id, full_name: m.full_name }))}
+              />
+            </TabsContent>
+          )}
 
         </Tabs>
       </main>
