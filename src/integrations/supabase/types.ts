@@ -1025,6 +1025,50 @@ export type Database = {
           },
         ]
       }
+      payment_access_tokens: {
+        Row: {
+          created_at: string
+          expires_at: string
+          financial_request_id: string
+          id: string
+          is_used: boolean
+          payer_user_id: string
+          requester_user_id: string
+          token: string
+          used_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string
+          financial_request_id: string
+          id?: string
+          is_used?: boolean
+          payer_user_id: string
+          requester_user_id: string
+          token?: string
+          used_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          financial_request_id?: string
+          id?: string
+          is_used?: boolean
+          payer_user_id?: string
+          requester_user_id?: string
+          token?: string
+          used_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_access_tokens_financial_request_id_fkey"
+            columns: ["financial_request_id"]
+            isOneToOne: false
+            referencedRelation: "financial_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payment_info: {
         Row: {
           cashapp_username: string | null
@@ -1295,6 +1339,10 @@ export type Database = {
       encrypt_payment_field: { Args: { plain_text: string }; Returns: string }
       encrypt_sensitive: { Args: { plain_text: string }; Returns: string }
       generate_activation_code: { Args: never; Returns: string }
+      generate_payment_access_token: {
+        Args: { _request_id: string }
+        Returns: string
+      }
       get_family_invite_code: { Args: { _family_id: string }; Returns: string }
       get_organization_public_theme: {
         Args: { _subdomain: string }
@@ -1325,6 +1373,14 @@ export type Database = {
       }
       get_payment_links_for_user: {
         Args: { target_user_id: string }
+        Returns: {
+          cashapp_link: string
+          paypal_link: string
+          venmo_link: string
+        }[]
+      }
+      get_payment_links_with_token: {
+        Args: { _token: string }
         Returns: {
           cashapp_link: string
           paypal_link: string
