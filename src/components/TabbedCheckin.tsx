@@ -9,10 +9,48 @@ interface TabbedCheckinProps {
   familyId: string;
   onCheckinComplete?: () => void;
   capturedLocation?: LocationData | null;
+  hideCard?: boolean;
 }
 
-export const TabbedCheckin = ({ familyId, onCheckinComplete, capturedLocation }: TabbedCheckinProps) => {
+export const TabbedCheckin = ({ familyId, onCheckinComplete, capturedLocation, hideCard }: TabbedCheckinProps) => {
   const [activeTab, setActiveTab] = useState('recovery');
+
+  const content = (
+    <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+      <TabsList className="grid w-full grid-cols-2">
+        <TabsTrigger value="recovery" className="flex items-center gap-2">
+          <Sparkles className="h-4 w-4" />
+          <span className="hidden sm:inline">Recovery Meetings</span>
+          <span className="sm:hidden">Recovery</span>
+        </TabsTrigger>
+        <TabsTrigger value="life" className="flex items-center gap-2">
+          <Calendar className="h-4 w-4" />
+          <span className="hidden sm:inline">Life Appointments</span>
+          <span className="sm:hidden">Appointments</span>
+        </TabsTrigger>
+      </TabsList>
+      
+      <TabsContent value="recovery" className="mt-4">
+        <MeetingCheckinForm 
+          familyId={familyId} 
+          capturedLocation={capturedLocation}
+          onCheckinComplete={onCheckinComplete}
+        />
+      </TabsContent>
+      
+      <TabsContent value="life" className="mt-4">
+        <LifeAppointmentCheckin 
+          familyId={familyId} 
+          capturedLocation={capturedLocation}
+          onCheckinComplete={onCheckinComplete}
+        />
+      </TabsContent>
+    </Tabs>
+  );
+
+  if (hideCard) {
+    return content;
+  }
 
   return (
     <Card>
@@ -26,37 +64,7 @@ export const TabbedCheckin = ({ familyId, onCheckinComplete, capturedLocation }:
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Tabbed Content */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="recovery" className="flex items-center gap-2">
-              <Sparkles className="h-4 w-4" />
-              <span className="hidden sm:inline">Recovery Meetings</span>
-              <span className="sm:hidden">Recovery</span>
-            </TabsTrigger>
-            <TabsTrigger value="life" className="flex items-center gap-2">
-              <Calendar className="h-4 w-4" />
-              <span className="hidden sm:inline">Life Appointments</span>
-              <span className="sm:hidden">Appointments</span>
-            </TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="recovery" className="mt-4">
-            <MeetingCheckinForm 
-              familyId={familyId} 
-              capturedLocation={capturedLocation}
-              onCheckinComplete={onCheckinComplete}
-            />
-          </TabsContent>
-          
-          <TabsContent value="life" className="mt-4">
-            <LifeAppointmentCheckin 
-              familyId={familyId} 
-              capturedLocation={capturedLocation}
-              onCheckinComplete={onCheckinComplete}
-            />
-          </TabsContent>
-        </Tabs>
+        {content}
       </CardContent>
     </Card>
   );

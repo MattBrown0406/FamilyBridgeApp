@@ -2190,14 +2190,41 @@ const FamilyChat = () => {
                 userRole={currentUserRole}
               />
               
-              <TabbedCheckin
-                familyId={familyId!} 
-                onCheckinComplete={() => {
-                  setCheckinRefreshKey(k => k + 1);
-                  setCapturedLocation(null);
-                }}
-                capturedLocation={capturedLocation}
-              />
+              {/* Check-In - Collapsible */}
+              <Collapsible defaultOpen>
+                <Card className="card-interactive card-enter overflow-hidden">
+                  <div className="h-1 bg-gradient-to-r from-primary via-accent to-primary" />
+                  <CollapsibleTrigger asChild>
+                    <CardHeader className="pb-3 cursor-pointer hover:bg-muted/50 transition-colors">
+                      <CardTitle className="flex items-center justify-between font-display text-lg">
+                        <div className="flex items-center gap-2">
+                          <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
+                            <CheckCircle className="h-4 w-4 text-primary" />
+                          </div>
+                          Check-In
+                        </div>
+                        <ChevronDown className="h-5 w-5 text-muted-foreground transition-transform duration-200 [[data-state=open]>&]:rotate-180" />
+                      </CardTitle>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Check in at your meeting or appointment to let your family know where you are.
+                      </p>
+                    </CardHeader>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <CardContent className="pt-0">
+                      <TabbedCheckin 
+                        familyId={familyId!} 
+                        onCheckinComplete={() => {
+                          setCheckinRefreshKey(k => k + 1);
+                          setCapturedLocation(null);
+                        }}
+                        capturedLocation={capturedLocation}
+                        hideCard
+                      />
+                    </CardContent>
+                  </CollapsibleContent>
+                </Card>
+              </Collapsible>
               
               {/* Meeting Checkout - appears when user has pending checkout */}
               <MeetingCheckout 
