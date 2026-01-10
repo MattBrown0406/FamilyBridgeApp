@@ -404,6 +404,132 @@ export type Database = {
           },
         ]
       }
+      fiis_auto_events: {
+        Row: {
+          created_at: string
+          event_data: Json | null
+          event_type: string
+          family_id: string
+          id: string
+          occurred_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_data?: Json | null
+          event_type: string
+          family_id: string
+          id?: string
+          occurred_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_data?: Json | null
+          event_type?: string
+          family_id?: string
+          id?: string
+          occurred_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fiis_auto_events_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fiis_observations: {
+        Row: {
+          content: string
+          created_at: string
+          family_id: string
+          id: string
+          observation_type: string
+          occurred_at: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          family_id: string
+          id?: string
+          observation_type: string
+          occurred_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          family_id?: string
+          id?: string
+          observation_type?: string
+          occurred_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fiis_observations_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fiis_pattern_analyses: {
+        Row: {
+          analysis_type: string
+          clarifying_questions: Json | null
+          contextual_framing: string | null
+          created_at: string
+          family_id: string
+          id: string
+          input_summary: Json
+          pattern_signals: Json
+          requested_by: string
+          what_seeing: string | null
+          what_to_watch: Json | null
+        }
+        Insert: {
+          analysis_type?: string
+          clarifying_questions?: Json | null
+          contextual_framing?: string | null
+          created_at?: string
+          family_id: string
+          id?: string
+          input_summary?: Json
+          pattern_signals?: Json
+          requested_by: string
+          what_seeing?: string | null
+          what_to_watch?: Json | null
+        }
+        Update: {
+          analysis_type?: string
+          clarifying_questions?: Json | null
+          contextual_framing?: string | null
+          created_at?: string
+          family_id?: string
+          id?: string
+          input_summary?: Json
+          pattern_signals?: Json
+          requested_by?: string
+          what_seeing?: string | null
+          what_to_watch?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fiis_pattern_analyses_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       financial_pledges: {
         Row: {
           amount: number
