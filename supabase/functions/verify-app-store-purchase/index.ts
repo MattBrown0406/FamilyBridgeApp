@@ -15,6 +15,11 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Valid coupon codes with trial periods
+const VALID_TRIAL_COUPONS: Record<string, { trialDays: number; description: string }> = {
+  'FREEDOM': { trialDays: 7, description: '7-day free trial' },
+};
+
 // Generate a random invite code
 function generateInviteCode(): string {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -42,13 +47,26 @@ serve(async (req) => {
       productId,
       email,
       receiptData, // For Apple: base64 encoded receipt, For Google: purchase token
-      subscriptionType // 'family' or 'provider'
+      subscriptionType, // 'family' or 'provider'
+      couponCode // Optional coupon code for trials
     } = await req.json();
 
-    console.log('Verifying app store purchase:', { platform, productId, email, subscriptionType });
+    console.log('Verifying app store purchase:', { platform, productId, email, subscriptionType, couponCode });
 
     if (!platform || !transactionId || !email || !subscriptionType) {
       throw new Error('Missing required fields: platform, transactionId, email, subscriptionType');
+    }
+
+    // Check for valid trial coupon
+    let trialInfo: { trialDays: number; description: string } | null = null;
+    if (couponCode) {
+      const normalizedCode = couponCode.trim().toUpperCase();
+      if (VALID_TRIAL_COUPONS[normalizedCode]) {
+        trialInfo = VALID_TRIAL_COUPONS[normalizedCode];
+        console.log('Valid trial coupon applied:', normalizedCode, trialInfo);
+      } else {
+        console.log('Invalid coupon code provided:', normalizedCode);
+      }
     }
 
     // Verify the purchase with the respective app store
@@ -187,7 +205,7 @@ serve(async (req) => {
       throw new Error('Failed to generate activation code');
     }
 
-    console.log('Successfully verified purchase and generated code for:', email);
+    console.log('Successfully verified purchase and generated code for:', email, trialInfo ? `with ${trialInfo.trialDays}-day trial` : '');
 
     return new Response(JSON.stringify({
       success: true,
@@ -195,6 +213,11 @@ serve(async (req) => {
       platform,
       subscriptionType,
       verificationDetails,
+      trialApplied: trialInfo ? {
+        trialDays: trialInfo.trialDays,
+        description: trialInfo.description,
+        trialEndDate: new Date(Date.now() + trialInfo.trialDays * 24 * 60 * 60 * 1000).toISOString(),
+      } : null,
     }), {
       status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
