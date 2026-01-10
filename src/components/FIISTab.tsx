@@ -78,7 +78,7 @@ const OBSERVATION_TYPES = [
   { value: "conversation", label: "Conversation", icon: MessageSquare },
   { value: "decision", label: "Decision Made", icon: CheckCircle },
   { value: "boundary", label: "Boundary Stated/Enforced", icon: AlertTriangle },
-  { value: "consequence", label: "Consequence (or lack of)", icon: Activity },
+  { value: "consequence", label: "Event or Consequence (or lack thereof)", icon: Activity },
   { value: "emotional_climate", label: "Emotional Climate Change", icon: TrendingUp },
   { value: "calm_period", label: "Period of Calm", icon: CheckCircle },
   { value: "concern", label: "Moment of Concern", icon: AlertTriangle },
