@@ -2744,7 +2744,7 @@ const FamilyChat = () => {
               </Card>
 
               {/* Financial Summary - Dynamic Stats */}
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 gap-3">
                 {/* Total Requested */}
                 <Card className="relative overflow-hidden border-0 shadow-md group hover:shadow-lg transition-all duration-300">
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -2780,44 +2780,6 @@ const FamilyChat = () => {
                             .filter(r => r.payment_confirmed_at || r.status === 'approved')
                             .reduce((sum, r) => r.pledges.reduce((pSum, p) => pSum + p.amount, 0) + sum, 0)
                             .toFixed(0)}
-                        </p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Pending */}
-                <Card className="relative overflow-hidden border-0 shadow-md group hover:shadow-lg transition-all duration-300">
-                  <div className="absolute inset-0 bg-gradient-to-br from-warning/5 via-transparent to-warning/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  <div className="absolute top-0 right-0 w-20 h-20 bg-warning/5 rounded-full -translate-y-1/2 translate-x-1/2" />
-                  <CardContent className="pt-4 pb-4">
-                    <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-warning/20 to-orange-200 flex items-center justify-center shrink-0">
-                        <Clock className="h-5 w-5 text-warning" />
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground font-medium">Pending</p>
-                        <p className="text-xl font-bold text-warning">
-                          {financialRequests.filter(r => r.status === 'pending').length}
-                        </p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Approved */}
-                <Card className="relative overflow-hidden border-0 shadow-md group hover:shadow-lg transition-all duration-300">
-                  <div className="absolute inset-0 bg-gradient-to-br from-accent/5 via-transparent to-accent/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  <div className="absolute top-0 right-0 w-20 h-20 bg-accent/5 rounded-full -translate-y-1/2 translate-x-1/2" />
-                  <CardContent className="pt-4 pb-4">
-                    <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-accent/20 to-accent/30 flex items-center justify-center shrink-0">
-                        <CheckCircle2 className="h-5 w-5 text-accent" />
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground font-medium">Approved</p>
-                        <p className="text-xl font-bold text-accent">
-                          {financialRequests.filter(r => r.status === 'approved' || r.resolved_at).length}
                         </p>
                       </div>
                     </div>
