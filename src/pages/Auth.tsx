@@ -105,12 +105,12 @@ const Auth = () => {
         // User is an organization member - redirect to moderator dashboard
         navigate('/moderator-dashboard');
       } else {
-        // Regular user - redirect to normal dashboard
-        navigate('/dashboard');
+        // Regular user - redirect to family chat
+        navigate('/family-chat');
       }
     } catch (error) {
       console.error('Error checking user role:', error);
-      navigate('/dashboard');
+      navigate('/family-chat');
     }
   };
 
