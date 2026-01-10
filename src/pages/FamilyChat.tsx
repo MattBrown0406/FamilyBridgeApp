@@ -63,6 +63,7 @@ import { FIISTab } from '@/components/FIISTab';
 import { MeetingFinder } from '@/components/MeetingFinder';
 import { BillReceiptCapture } from '@/components/BillReceiptCapture';
 import { useFIISNotifications } from '@/hooks/useFIISNotifications';
+import { FamilyHealthBadge } from '@/components/FamilyHealthBadge';
 
 const REQUEST_REASONS = [
   'Electric',
@@ -2245,9 +2246,12 @@ const FamilyChat = () => {
                 </div>
               </div>
               <div className="text-left min-w-0">
-                <h1 className="font-display font-semibold text-foreground text-sm sm:text-lg group-hover:text-primary transition-colors truncate">
-                  {family?.name}
-                </h1>
+                <div className="flex items-center gap-2">
+                  <h1 className="font-display font-semibold text-foreground text-sm sm:text-lg group-hover:text-primary transition-colors truncate">
+                    {family?.name}
+                  </h1>
+                  {familyId && <FamilyHealthBadge familyId={familyId} />}
+                </div>
                 {organization && family?.organization_id ? (
                   <p className="text-xs text-muted-foreground truncate">
                     {organization.name}

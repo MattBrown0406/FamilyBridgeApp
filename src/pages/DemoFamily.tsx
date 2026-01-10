@@ -11,6 +11,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { FinancialRequestCard } from '@/components/FinancialRequestCard';
+import { DemoFamilyHealthBadge } from '@/components/FamilyHealthBadge';
 import { 
   ArrowLeft, 
   Send, 
@@ -858,12 +859,13 @@ const DemoFamily = () => {
                       <MessageCircle className="h-4 w-4 text-primary-foreground" />
                     </div>
                     Family Chat
-                    {selectedFamily === 'davis' && (
-                      <Badge variant="destructive" className="ml-2">
-                        <AlertTriangle className="h-3 w-3 mr-1" />
-                        Tension Detected
-                      </Badge>
-                    )}
+                    <DemoFamilyHealthBadge 
+                      status={selectedFamily === 'davis' ? 'tension' : 'improving'}
+                      reason={selectedFamily === 'davis' 
+                        ? 'Voting disagreements, communication friction detected'
+                        : 'High check-in rate, goals progressing, family engagement strong'
+                      }
+                    />
                     <Badge variant="secondary" className="ml-auto bg-green-100 text-green-700 border-green-200">
                       <Activity className="h-3 w-3 mr-1" />
                       Live

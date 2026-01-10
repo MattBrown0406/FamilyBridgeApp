@@ -299,6 +299,47 @@ export type Database = {
           },
         ]
       }
+      family_health_status: {
+        Row: {
+          calculated_at: string
+          created_at: string
+          family_id: string
+          id: string
+          metrics: Json | null
+          status: string
+          status_reason: string | null
+          updated_at: string
+        }
+        Insert: {
+          calculated_at?: string
+          created_at?: string
+          family_id: string
+          id?: string
+          metrics?: Json | null
+          status?: string
+          status_reason?: string | null
+          updated_at?: string
+        }
+        Update: {
+          calculated_at?: string
+          created_at?: string
+          family_id?: string
+          id?: string
+          metrics?: Json | null
+          status?: string
+          status_reason?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "family_health_status_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: true
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       family_invite_codes: {
         Row: {
           created_at: string
