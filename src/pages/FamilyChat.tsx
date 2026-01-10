@@ -2156,24 +2156,33 @@ const FamilyChat = () => {
                 </CardContent>
               </Card>
               
-              {/* Meeting Finder */}
-              <Card className="card-interactive card-enter overflow-hidden">
-                <div className="h-1 bg-gradient-to-r from-blue-500 via-cyan-500 to-blue-500" />
-                <CardHeader className="pb-3">
-                  <CardTitle className="flex items-center gap-2 font-display text-lg">
-                    <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-blue-500/20 to-cyan-500/20 flex items-center justify-center">
-                      <Search className="h-4 w-4 text-blue-500" />
-                    </div>
-                    Find a Meeting
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-3">
-                    Search for AA, Al-Anon, and other recovery meetings near you.
-                  </p>
-                  <MeetingFinder />
-                </CardContent>
-              </Card>
+              {/* Meeting Finder - Collapsible */}
+              <Collapsible>
+                <Card className="card-interactive card-enter overflow-hidden">
+                  <div className="h-1 bg-gradient-to-r from-blue-500 via-cyan-500 to-blue-500" />
+                  <CollapsibleTrigger asChild>
+                    <CardHeader className="pb-3 cursor-pointer hover:bg-muted/50 transition-colors">
+                      <CardTitle className="flex items-center justify-between font-display text-lg">
+                        <div className="flex items-center gap-2">
+                          <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-blue-500/20 to-cyan-500/20 flex items-center justify-center">
+                            <Search className="h-4 w-4 text-blue-500" />
+                          </div>
+                          Find a Meeting
+                        </div>
+                        <ChevronDown className="h-5 w-5 text-muted-foreground transition-transform duration-200 [[data-state=open]>&]:rotate-180" />
+                      </CardTitle>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Search for AA, Al-Anon, and other recovery meetings near you.
+                      </p>
+                    </CardHeader>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <CardContent className="pt-0">
+                      <MeetingFinder />
+                    </CardContent>
+                  </CollapsibleContent>
+                </Card>
+              </Collapsible>
               
               {/* Location Check-in Request (for family members) */}
               <LocationCheckinRequest 
