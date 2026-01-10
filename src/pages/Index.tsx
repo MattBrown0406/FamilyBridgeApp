@@ -138,7 +138,7 @@ const Index = () => {
       </header>
 
       {/* Hero Section */}
-      <section className="container mx-auto px-4 pt-16 pb-20 text-center relative">
+      <section className="container mx-auto px-4 pt-8 sm:pt-12 pb-12 sm:pb-16 text-center relative">
         {/* Decorative elements */}
         <div className="absolute top-10 left-10 w-20 h-20 border-2 border-primary/20 rounded-full animate-pulse-soft hidden lg:block" />
         <div className="absolute top-40 right-20 w-12 h-12 bg-accent/20 rounded-lg rotate-45 animate-float hidden lg:block" style={{ animationDelay: '-2s' }} />
@@ -146,12 +146,12 @@ const Index = () => {
         
         <div className="max-w-4xl mx-auto relative z-10">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-primary/10 to-accent/10 backdrop-blur-sm border border-primary/20 text-primary px-5 py-2 rounded-full text-sm font-medium mb-8 animate-fade-in shadow-soft">
+          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-primary/10 to-accent/10 backdrop-blur-sm border border-primary/20 text-primary px-5 py-2 rounded-full text-sm font-medium mb-4 sm:mb-6 animate-fade-in shadow-soft">
             <Heart className="h-4 w-4 animate-pulse-soft" />
             Supporting families through recovery
           </div>
           
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-display font-bold text-foreground mb-6 leading-tight animate-slide-up">
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-display font-bold text-foreground mb-4 leading-tight animate-slide-up">
             Healing Starts with{' '}
             <span className="relative">
               <span className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent bg-[length:200%_auto] animate-shimmer">
@@ -163,7 +163,7 @@ const Index = () => {
             </span>
           </h1>
           
-          <p className="text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed animate-fade-in" style={{ animationDelay: '0.2s' }}>
+          <p className="text-lg md:text-xl text-muted-foreground mb-6 sm:mb-8 max-w-2xl mx-auto leading-relaxed animate-fade-in" style={{ animationDelay: '0.2s' }}>
             {tagline}
           </p>
           
@@ -187,7 +187,7 @@ const Index = () => {
           </div>
 
           {/* Stats Row */}
-          <div className="flex flex-wrap justify-center gap-8 md:gap-16 mt-16 animate-fade-in" style={{ animationDelay: '0.6s' }}>
+          <div className="flex flex-wrap justify-center gap-6 md:gap-12 mt-8 sm:mt-10 animate-fade-in" style={{ animationDelay: '0.6s' }}>
             {stats.map((stat, index) => (
               <div key={stat.label} className="text-center">
                 <div className="text-2xl md:text-3xl font-display font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
@@ -206,13 +206,13 @@ const Index = () => {
       </section>
 
       {/* Features Grid */}
-      <section className="container mx-auto px-4 py-20 relative">
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-violet-500/10 to-purple-500/10 backdrop-blur-sm border border-violet-500/20 text-violet-600 dark:text-violet-400 px-5 py-2 rounded-full text-sm font-medium mb-6">
+      <section className="container mx-auto px-4 py-10 sm:py-14 relative">
+        <div className="text-center mb-8 sm:mb-10">
+          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-violet-500/10 to-purple-500/10 backdrop-blur-sm border border-violet-500/20 text-violet-600 dark:text-violet-400 px-5 py-2 rounded-full text-sm font-medium mb-3 sm:mb-4">
             <Brain className="h-4 w-4" />
             Powered by Advanced AI
           </div>
-          <h2 className="text-3xl md:text-5xl font-display font-bold text-foreground mb-4">
+          <h2 className="text-3xl md:text-5xl font-display font-bold text-foreground mb-3">
             Intelligent Tools for{' '}
             <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Recovery</span>
           </h2>
@@ -257,7 +257,7 @@ const Index = () => {
       </section>
 
       {/* Quick Links Section */}
-      <section className="container mx-auto px-4 py-16">
+      <section className="container mx-auto px-4 py-8 sm:py-10">
         <div className="max-w-4xl mx-auto space-y-4">
           {/* Demo */}
           <div 
@@ -290,7 +290,7 @@ const Index = () => {
       </section>
 
       {/* Provider Section */}
-      <section className="container mx-auto px-4 py-16">
+      <section className="container mx-auto px-4 py-8 sm:py-12">
         <div className="max-w-4xl mx-auto relative">
           <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 rounded-3xl blur-xl" />
           <div className="relative bg-card/90 backdrop-blur-sm border border-border/50 rounded-3xl p-8 md:p-12 shadow-elevated overflow-hidden">
@@ -338,7 +338,7 @@ const Index = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="container mx-auto px-4 py-20">
+      <section className="container mx-auto px-4 py-10 sm:py-14">
         <div className="max-w-4xl mx-auto text-center relative">
           {/* Animated background */}
           <div className="absolute inset-0 bg-gradient-to-r from-primary via-accent to-primary bg-[length:200%_auto] animate-shimmer rounded-3xl" />
