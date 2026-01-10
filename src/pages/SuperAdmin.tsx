@@ -161,6 +161,12 @@ interface AdminStats {
     subdomain: string;
     created_at: string;
     family_count: number;
+    logo_url?: string | null;
+    primary_color?: string | null;
+    secondary_color?: string | null;
+    accent_color?: string | null;
+    background_color?: string | null;
+    foreground_color?: string | null;
   }>;
   users: Array<{
     id: string;
@@ -704,30 +710,87 @@ const SuperAdmin = () => {
                           <p>No providers found</p>
                         </div>
                       ) : (
-                        filteredOrgs.map((org, i) => (
-                          <div
-                            key={org.id}
-                            className="flex items-center gap-4 px-4 py-3 hover:bg-muted/50 cursor-pointer transition-colors group"
-                            onClick={() => fetchOrgDetails(org.id)}
-                            style={{ animationDelay: `${i * 20}ms` }}
-                          >
-                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-secondary to-secondary/50 flex items-center justify-center flex-shrink-0">
-                              <Building2 className="h-4 w-4 text-secondary-foreground" />
+                        filteredOrgs.map((org, i) => {
+                          const hasBranding = org.logo_url || org.primary_color;
+                          return (
+                            <div
+                              key={org.id}
+                              className="flex items-center gap-4 px-4 py-3 hover:bg-muted/50 cursor-pointer transition-colors group relative overflow-hidden"
+                              onClick={() => fetchOrgDetails(org.id)}
+                              style={{ animationDelay: `${i * 20}ms` }}
+                            >
+                              {/* Brand color accent bar */}
+                              {org.primary_color && (
+                                <div 
+                                  className="absolute left-0 top-0 bottom-0 w-1"
+                                  style={{ backgroundColor: `hsl(${org.primary_color})` }}
+                                />
+                              )}
+                              
+                              {/* Logo or fallback icon */}
+                              <div 
+                                className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden border"
+                                style={{ 
+                                  backgroundColor: org.background_color ? `hsl(${org.background_color})` : undefined,
+                                  borderColor: org.primary_color ? `hsl(${org.primary_color})` : undefined
+                                }}
+                              >
+                                {org.logo_url ? (
+                                  <img 
+                                    src={org.logo_url} 
+                                    alt={`${org.name} logo`}
+                                    className="w-full h-full object-contain"
+                                  />
+                                ) : (
+                                  <Building2 
+                                    className="h-4 w-4" 
+                                    style={{ color: org.primary_color ? `hsl(${org.primary_color})` : undefined }}
+                                  />
+                                )}
+                              </div>
+                              
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2">
+                                  <p className="font-medium truncate">{org.name}</p>
+                                  {hasBranding && (
+                                    <div className="flex items-center gap-0.5">
+                                      {org.primary_color && (
+                                        <div 
+                                          className="w-3 h-3 rounded-full border border-white/50 shadow-sm" 
+                                          style={{ backgroundColor: `hsl(${org.primary_color})` }}
+                                          title="Primary color"
+                                        />
+                                      )}
+                                      {org.secondary_color && (
+                                        <div 
+                                          className="w-3 h-3 rounded-full border border-white/50 shadow-sm -ml-1" 
+                                          style={{ backgroundColor: `hsl(${org.secondary_color})` }}
+                                          title="Secondary color"
+                                        />
+                                      )}
+                                      {org.accent_color && (
+                                        <div 
+                                          className="w-3 h-3 rounded-full border border-white/50 shadow-sm -ml-1" 
+                                          style={{ backgroundColor: `hsl(${org.accent_color})` }}
+                                          title="Accent color"
+                                        />
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+                                <p className="text-xs text-muted-foreground">{org.subdomain}.familybridge.app</p>
+                              </div>
+                              <div className="hidden sm:block text-xs text-center">
+                                <p className="font-semibold text-sm">{org.family_count}</p>
+                                <p className="text-muted-foreground">families</p>
+                              </div>
+                              <div className="hidden sm:block text-xs text-muted-foreground">
+                                {format(new Date(org.created_at), 'MMM yyyy')}
+                              </div>
+                              <ChevronRight className="h-4 w-4 text-muted-foreground/50 group-hover:text-muted-foreground transition-colors" />
                             </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="font-medium truncate">{org.name}</p>
-                              <p className="text-xs text-muted-foreground">{org.subdomain}.familybridge.app</p>
-                            </div>
-                            <div className="hidden sm:block text-xs text-center">
-                              <p className="font-semibold text-sm">{org.family_count}</p>
-                              <p className="text-muted-foreground">families</p>
-                            </div>
-                            <div className="hidden sm:block text-xs text-muted-foreground">
-                              {format(new Date(org.created_at), 'MMM yyyy')}
-                            </div>
-                            <ChevronRight className="h-4 w-4 text-muted-foreground/50 group-hover:text-muted-foreground transition-colors" />
-                          </div>
-                        ))
+                          );
+                        })
                       )}
                     </div>
                   </ScrollArea>
