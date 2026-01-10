@@ -77,3 +77,9 @@ verify_jwt = false
 
 [functions.get-vapid-public-key]
 verify_jwt = false
+
+[functions.calculate-family-health]
+verify_jwt = false
+
+[functions.analyze-image-clarity]
+verify_jwt = false
