@@ -88,6 +88,25 @@ const FamilyPurchase = () => {
       if (data.valid && data.inviteCode) {
         setGeneratedCode(data.inviteCode);
         toast.success("Coupon applied! Your invite code has been generated and emailed to you.");
+      } else if (data.valid && data.trialDays) {
+        // Trial coupon - redirect to checkout with trial
+        toast.success(`${data.trialDays}-day free trial applied! Redirecting to checkout...`);
+        const { data: checkoutData, error: checkoutError } = await supabase.functions.invoke("create-family-checkout", {
+          body: {
+            email,
+            redirectUrl: `${window.location.origin}/family-purchase?status=success`,
+            trialDays: data.trialDays,
+            couponCode: couponCode.trim().toUpperCase(),
+          },
+        });
+
+        if (checkoutError) throw checkoutError;
+
+        if (checkoutData.checkoutUrl) {
+          window.location.href = checkoutData.checkoutUrl;
+        } else {
+          throw new Error("Failed to create checkout session");
+        }
       } else if (!data.valid) {
         toast.error(data.error || "Invalid coupon code");
       }
