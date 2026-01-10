@@ -3854,10 +3854,22 @@ const FamilyChat = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-6">
-                  <div className="p-4 rounded-xl bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950/30 dark:to-purple-950/30 border border-indigo-200/50 dark:border-indigo-800/50">
+                  <div className="p-4 rounded-xl bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950/30 dark:to-purple-950/30 border border-indigo-200/50 dark:border-indigo-800/50 space-y-3">
                     <p className="text-sm text-foreground">
-                      <strong>Clear boundaries</strong> help protect both the recovering person and family members. 
-                      Propose boundaries that will be reviewed by a moderator or family admin.
+                      <strong>Boundaries are essential</strong> to the health and stability of your family system. They should be rooted in the values that your family and each individual holds dear—never created out of anger.
+                    </p>
+                    <p className="text-sm text-foreground">
+                      When considering a boundary, ask yourself two fundamental questions:
+                    </p>
+                    <ol className="text-sm text-foreground list-decimal list-inside space-y-1 pl-2">
+                      <li><strong>Have I enabled my loved one's addiction in any way?</strong> (Financially, Emotionally, or Silently)</li>
+                      <li><strong>Has my loved one's addiction caused me harm in any way?</strong></li>
+                    </ol>
+                    <p className="text-sm text-foreground">
+                      If the answer to either (or both) of these questions is yes, consider what changes <em>you</em> need to make in YOUR behavior to avoid enabling going forward and to eliminate the harm you've experienced because of the addiction.
+                    </p>
+                    <p className="text-sm text-muted-foreground italic">
+                      All boundaries will be reviewed by the moderator or family admin before they need to be acknowledged by the group.
                     </p>
                   </div>
 
