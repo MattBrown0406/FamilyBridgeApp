@@ -71,3 +71,9 @@ verify_jwt = false
 
 [functions.fiis-analyze]
 verify_jwt = false
+
+[functions.send-push-notification]
+verify_jwt = false
+
+[functions.get-vapid-public-key]
+verify_jwt = false
