@@ -386,6 +386,9 @@ const FamilyChat = () => {
   const [unreadPrivateMessages, setUnreadPrivateMessages] = useState(0);
   const [hasProfessionalModerator, setHasProfessionalModerator] = useState(false);
   
+  // Online presence state
+  const [onlineMembers, setOnlineMembers] = useState<string[]>([]);
+  
   // FIIS notifications
   const { hasNewAnalysis, markAsViewed: markFIISViewed } = useFIISNotifications({ familyId });
 
@@ -403,6 +406,41 @@ const FamilyChat = () => {
       fetchUnreadPrivateMessages();
       subscribeToPrivateMessages();
     }
+  }, [user, familyId]);
+
+  // Online presence tracking
+  useEffect(() => {
+    if (!user || !familyId) return;
+
+    const presenceChannel = supabase.channel(`family-presence-${familyId}`)
+      .on('presence', { event: 'sync' }, () => {
+        const state = presenceChannel.presenceState();
+        const onlineUserIds = Object.values(state)
+          .flat()
+          .map((p: any) => p.user_id)
+          .filter((id): id is string => !!id);
+        setOnlineMembers([...new Set(onlineUserIds)]);
+      })
+      .on('presence', { event: 'join' }, ({ newPresences }) => {
+        const newIds = newPresences.map((p: any) => p.user_id).filter(Boolean);
+        setOnlineMembers(prev => [...new Set([...prev, ...newIds])]);
+      })
+      .on('presence', { event: 'leave' }, ({ leftPresences }) => {
+        const leftIds = leftPresences.map((p: any) => p.user_id);
+        setOnlineMembers(prev => prev.filter(id => !leftIds.includes(id)));
+      })
+      .subscribe(async (status) => {
+        if (status === 'SUBSCRIBED') {
+          await presenceChannel.track({
+            user_id: user.id,
+            online_at: new Date().toISOString(),
+          });
+        }
+      });
+
+    return () => {
+      supabase.removeChannel(presenceChannel);
+    };
   }, [user, familyId]);
 
   // Clear organization branding when leaving the family page
@@ -2116,16 +2154,17 @@ const FamilyChat = () => {
             {/* Stats Cards for Messages */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4 shrink-0">
               <Card className="relative overflow-hidden border-0 shadow-md group hover:shadow-lg transition-all duration-300">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                <div className="absolute top-0 right-0 w-20 h-20 bg-primary/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+                <div className="absolute inset-0 bg-gradient-to-br from-success/5 via-transparent to-success/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="absolute top-0 right-0 w-20 h-20 bg-success/5 rounded-full -translate-y-1/2 translate-x-1/2" />
                 <CardContent className="pt-4 pb-4">
                   <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center shrink-0">
-                      <MessageCircle className="h-5 w-5 text-primary" />
+                    <div className="relative h-10 w-10 rounded-xl bg-gradient-to-br from-success/20 to-emerald-300/30 flex items-center justify-center shrink-0">
+                      <Users className="h-5 w-5 text-success" />
+                      <span className="absolute -top-1 -right-1 h-3 w-3 bg-success rounded-full animate-pulse border-2 border-card" />
                     </div>
                     <div>
-                      <p className="text-xs text-muted-foreground font-medium">This Week</p>
-                      <p className="text-xl font-bold text-foreground">{messages.length}</p>
+                      <p className="text-xs text-muted-foreground font-medium">Online Now</p>
+                      <p className="text-xl font-bold text-success">{onlineMembers.length}</p>
                     </div>
                   </div>
                 </CardContent>
