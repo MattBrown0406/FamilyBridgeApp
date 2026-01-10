@@ -2334,21 +2334,6 @@ const FamilyChat = () => {
                 </CardContent>
               </Card>
 
-              <Card className="relative overflow-hidden border-0 shadow-md group hover:shadow-lg transition-all duration-300">
-                <div className="absolute inset-0 bg-gradient-to-br from-warning/5 via-transparent to-warning/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                <div className="absolute top-0 right-0 w-20 h-20 bg-warning/5 rounded-full -translate-y-1/2 translate-x-1/2" />
-                <CardContent className="pt-4 pb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-warning/20 to-orange-200 flex items-center justify-center shrink-0">
-                      <Archive className="h-5 w-5 text-warning" />
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground font-medium">All Time</p>
-                      <p className="text-xl font-bold text-warning">{allMessages.length}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
 
               <Card className="relative overflow-hidden border-0 shadow-md group hover:shadow-lg transition-all duration-300">
                 <div className="absolute inset-0 bg-gradient-to-br from-accent/5 via-transparent to-accent/10 opacity-0 group-hover:opacity-100 transition-opacity" />
