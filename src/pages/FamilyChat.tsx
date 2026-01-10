@@ -2113,7 +2113,75 @@ const FamilyChat = () => {
 
           {/* Messages Tab */}
           <TabsContent value="messages" className="flex-1 flex flex-col overflow-hidden mt-0">
-            <Card className="flex-1 flex flex-col overflow-hidden shadow-card border-border/50 card-enter">
+            {/* Stats Cards for Messages */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4 shrink-0">
+              <Card className="relative overflow-hidden border-0 shadow-md group hover:shadow-lg transition-all duration-300">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="absolute top-0 right-0 w-20 h-20 bg-primary/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+                <CardContent className="pt-4 pb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center shrink-0">
+                      <MessageCircle className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground font-medium">This Week</p>
+                      <p className="text-xl font-bold text-foreground">{messages.length}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="relative overflow-hidden border-0 shadow-md group hover:shadow-lg transition-all duration-300">
+                <div className="absolute inset-0 bg-gradient-to-br from-success/5 via-transparent to-success/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="absolute top-0 right-0 w-20 h-20 bg-success/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+                <CardContent className="pt-4 pb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-success/20 to-success/30 flex items-center justify-center shrink-0">
+                      <Users className="h-5 w-5 text-success" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground font-medium">Members</p>
+                      <p className="text-xl font-bold text-success">{members.length}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="relative overflow-hidden border-0 shadow-md group hover:shadow-lg transition-all duration-300">
+                <div className="absolute inset-0 bg-gradient-to-br from-warning/5 via-transparent to-warning/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="absolute top-0 right-0 w-20 h-20 bg-warning/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+                <CardContent className="pt-4 pb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-warning/20 to-orange-200 flex items-center justify-center shrink-0">
+                      <Archive className="h-5 w-5 text-warning" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground font-medium">All Time</p>
+                      <p className="text-xl font-bold text-warning">{allMessages.length}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="relative overflow-hidden border-0 shadow-md group hover:shadow-lg transition-all duration-300">
+                <div className="absolute inset-0 bg-gradient-to-br from-accent/5 via-transparent to-accent/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="absolute top-0 right-0 w-20 h-20 bg-accent/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+                <CardContent className="pt-4 pb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-accent/20 to-accent/30 flex items-center justify-center shrink-0">
+                      <MessageSquare className="h-5 w-5 text-accent" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground font-medium">Private</p>
+                      <p className="text-xl font-bold text-accent">{unreadPrivateMessages}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            <Card className="flex-1 flex flex-col overflow-hidden border-0 shadow-lg card-enter">
+              <div className="h-1 bg-gradient-to-r from-blue-500 via-cyan-500 to-teal-500" />
               {/* Week Navigation Bar */}
               <div className="flex items-center justify-between px-4 py-2 border-b border-border/50 bg-muted/30">
                 <Button 
@@ -2301,6 +2369,73 @@ const FamilyChat = () => {
           {/* Check-in Tab */}
           <TabsContent value="checkin" className="flex-1 overflow-auto mt-0">
             <div className="space-y-4">
+              {/* Stats Cards for Check-ins */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                <Card className="relative overflow-hidden border-0 shadow-md group hover:shadow-lg transition-all duration-300">
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <div className="absolute top-0 right-0 w-20 h-20 bg-primary/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+                  <CardContent className="pt-4 pb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center shrink-0">
+                        <MapPin className="h-5 w-5 text-primary" />
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground font-medium">Location</p>
+                        <p className="text-sm font-bold text-foreground">{capturedLocation ? 'Captured' : 'Not Set'}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="relative overflow-hidden border-0 shadow-md group hover:shadow-lg transition-all duration-300">
+                  <div className="absolute inset-0 bg-gradient-to-br from-success/5 via-transparent to-success/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <div className="absolute top-0 right-0 w-20 h-20 bg-success/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+                  <CardContent className="pt-4 pb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-success/20 to-success/30 flex items-center justify-center shrink-0">
+                        <CheckCircle2 className="h-5 w-5 text-success" />
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground font-medium">Check-ins</p>
+                        <p className="text-sm font-bold text-success">Active</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="relative overflow-hidden border-0 shadow-md group hover:shadow-lg transition-all duration-300">
+                  <div className="absolute inset-0 bg-gradient-to-br from-warning/5 via-transparent to-warning/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <div className="absolute top-0 right-0 w-20 h-20 bg-warning/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+                  <CardContent className="pt-4 pb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-warning/20 to-orange-200 flex items-center justify-center shrink-0">
+                        <Calendar className="h-5 w-5 text-warning" />
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground font-medium">Meetings</p>
+                        <p className="text-sm font-bold text-warning">Find Nearby</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="relative overflow-hidden border-0 shadow-md group hover:shadow-lg transition-all duration-300">
+                  <div className="absolute inset-0 bg-gradient-to-br from-accent/5 via-transparent to-accent/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <div className="absolute top-0 right-0 w-20 h-20 bg-accent/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+                  <CardContent className="pt-4 pb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-accent/20 to-accent/30 flex items-center justify-center shrink-0">
+                        <Search className="h-5 w-5 text-accent" />
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground font-medium">History</p>
+                        <p className="text-sm font-bold text-accent">View All</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
               {/* Location Check-in Response (for recovering members) */}
               <LocationCheckinResponse 
                 familyId={familyId!}
@@ -2308,12 +2443,12 @@ const FamilyChat = () => {
               />
               
               {/* Shared Location Capture Card */}
-              <Card className="card-interactive card-enter overflow-hidden">
-                <div className="h-1 bg-gradient-to-r from-primary via-accent to-primary" />
-                <CardHeader className="pb-3">
+              <Card className="border-0 shadow-lg overflow-hidden group hover:shadow-xl transition-all duration-300">
+                <div className="h-1 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500" />
+                <CardHeader className="pb-3 bg-gradient-to-b from-muted/30 to-transparent">
                   <CardTitle className="flex items-center gap-2 font-display text-lg">
-                    <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
-                      <MapPin className="h-4 w-4 text-primary" />
+                    <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-emerald-500/20 to-teal-500/20 flex items-center justify-center">
+                      <MapPin className="h-4 w-4 text-emerald-600" />
                     </div>
                     Capture My Location
                   </CardTitle>
@@ -2330,8 +2465,8 @@ const FamilyChat = () => {
               
               {/* Meeting Finder - Collapsible */}
               <Collapsible>
-                <Card className="card-interactive card-enter overflow-hidden">
-                  <div className="h-1 bg-gradient-to-r from-blue-500 via-cyan-500 to-blue-500" />
+                <Card className="border-0 shadow-lg overflow-hidden group hover:shadow-xl transition-all duration-300">
+                  <div className="h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500" />
                   <CollapsibleTrigger asChild>
                     <CardHeader className="pb-3 cursor-pointer hover:bg-muted/50 transition-colors">
                       <CardTitle className="flex items-center justify-between font-display text-lg">
@@ -2364,14 +2499,14 @@ const FamilyChat = () => {
               
               {/* Check-In - Collapsible */}
               <Collapsible defaultOpen>
-                <Card className="card-interactive card-enter overflow-hidden">
-                  <div className="h-1 bg-gradient-to-r from-primary via-accent to-primary" />
+                <Card className="border-0 shadow-lg overflow-hidden group hover:shadow-xl transition-all duration-300">
+                  <div className="h-1 bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500" />
                   <CollapsibleTrigger asChild>
-                    <CardHeader className="pb-3 cursor-pointer hover:bg-muted/50 transition-colors">
+                    <CardHeader className="pb-3 cursor-pointer hover:bg-muted/50 transition-colors bg-gradient-to-b from-muted/30 to-transparent">
                       <CardTitle className="flex items-center justify-between font-display text-lg">
                         <div className="flex items-center gap-2">
-                          <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
-                            <CheckCircle className="h-4 w-4 text-primary" />
+                          <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-violet-500/20 to-purple-500/20 flex items-center justify-center">
+                            <CheckCircle className="h-4 w-4 text-violet-600" />
                           </div>
                           Check-In
                         </div>
@@ -3083,12 +3218,87 @@ const FamilyChat = () => {
           </TabsContent>
 
           {/* Values/Goals Tab */}
-          <TabsContent value="values" className="mt-0 space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg font-display flex items-center gap-2">
-                  <Target className="h-5 w-5 text-primary" />
-                  Family Values & Goals
+          <TabsContent value="values" className="mt-0 space-y-4 overflow-auto">
+            {/* Stats Cards */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+              <Card className="relative overflow-hidden border-0 shadow-md group hover:shadow-lg transition-all duration-300">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="absolute top-0 right-0 w-20 h-20 bg-primary/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+                <CardContent className="pt-4 pb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center shrink-0">
+                      <Sparkles className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground font-medium">Values Set</p>
+                      <p className="text-xl font-bold text-foreground">{familyValues.length}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="relative overflow-hidden border-0 shadow-md group hover:shadow-lg transition-all duration-300">
+                <div className="absolute inset-0 bg-gradient-to-br from-success/5 via-transparent to-success/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="absolute top-0 right-0 w-20 h-20 bg-success/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+                <CardContent className="pt-4 pb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-success/20 to-success/30 flex items-center justify-center shrink-0">
+                      <Target className="h-5 w-5 text-success" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground font-medium">Goals Active</p>
+                      <p className="text-xl font-bold text-success">{familyCommonGoals.length}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="relative overflow-hidden border-0 shadow-md group hover:shadow-lg transition-all duration-300">
+                <div className="absolute inset-0 bg-gradient-to-br from-warning/5 via-transparent to-warning/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="absolute top-0 right-0 w-20 h-20 bg-warning/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+                <CardContent className="pt-4 pb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-warning/20 to-orange-200 flex items-center justify-center shrink-0">
+                      <Clock className="h-5 w-5 text-warning" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground font-medium">In Progress</p>
+                      <p className="text-xl font-bold text-warning">{familyCommonGoals.filter(g => !g.completed_at).length}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="relative overflow-hidden border-0 shadow-md group hover:shadow-lg transition-all duration-300">
+                <div className="absolute inset-0 bg-gradient-to-br from-accent/5 via-transparent to-accent/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="absolute top-0 right-0 w-20 h-20 bg-accent/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+                <CardContent className="pt-4 pb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-accent/20 to-accent/30 flex items-center justify-center shrink-0">
+                      <CheckCircle2 className="h-5 w-5 text-accent" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground font-medium">Completed</p>
+                      <p className="text-xl font-bold text-accent">{familyCommonGoals.filter(g => g.completed_at).length}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            <Card className="border-0 shadow-lg overflow-hidden">
+              <div className="h-1 bg-gradient-to-r from-primary via-accent to-success" />
+              <CardHeader className="pb-3 bg-gradient-to-b from-muted/30 to-transparent">
+                <CardTitle className="flex items-center justify-between text-lg font-display">
+                  <div className="flex items-center gap-2">
+                    <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
+                      <Target className="h-4 w-4 text-primary" />
+                    </div>
+                    Family Values & Goals
+                  </div>
+                  <Badge variant="secondary" className="text-xs font-normal">
+                    {familyValues.length + familyCommonGoals.length} items
+                  </Badge>
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -3470,16 +3680,89 @@ const FamilyChat = () => {
 
           {/* Boundaries Tab */}
           <TabsContent value="boundaries" className="mt-0 space-y-4 overflow-auto">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle className="text-lg font-display flex items-center gap-2">
-                  <ShieldCheck className="h-5 w-5 text-primary" />
+            {/* Stats Cards */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+              <Card className="relative overflow-hidden border-0 shadow-md group hover:shadow-lg transition-all duration-300">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="absolute top-0 right-0 w-20 h-20 bg-primary/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+                <CardContent className="pt-4 pb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center shrink-0">
+                      <ShieldCheck className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground font-medium">Total Boundaries</p>
+                      <p className="text-xl font-bold text-foreground">{familyBoundaries.length}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="relative overflow-hidden border-0 shadow-md group hover:shadow-lg transition-all duration-300">
+                <div className="absolute inset-0 bg-gradient-to-br from-success/5 via-transparent to-success/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="absolute top-0 right-0 w-20 h-20 bg-success/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+                <CardContent className="pt-4 pb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-success/20 to-success/30 flex items-center justify-center shrink-0">
+                      <CheckCircle2 className="h-5 w-5 text-success" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground font-medium">Active</p>
+                      <p className="text-xl font-bold text-success">{familyBoundaries.filter(b => b.status === 'approved').length}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="relative overflow-hidden border-0 shadow-md group hover:shadow-lg transition-all duration-300">
+                <div className="absolute inset-0 bg-gradient-to-br from-warning/5 via-transparent to-warning/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="absolute top-0 right-0 w-20 h-20 bg-warning/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+                <CardContent className="pt-4 pb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-warning/20 to-orange-200 flex items-center justify-center shrink-0">
+                      <Clock className="h-5 w-5 text-warning" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground font-medium">Pending</p>
+                      <p className="text-xl font-bold text-warning">{familyBoundaries.filter(b => b.status === 'pending').length}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="relative overflow-hidden border-0 shadow-md group hover:shadow-lg transition-all duration-300">
+                <div className="absolute inset-0 bg-gradient-to-br from-accent/5 via-transparent to-accent/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="absolute top-0 right-0 w-20 h-20 bg-accent/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+                <CardContent className="pt-4 pb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-accent/20 to-accent/30 flex items-center justify-center shrink-0">
+                      <Users className="h-5 w-5 text-accent" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground font-medium">Acknowledged</p>
+                      <p className="text-xl font-bold text-accent">
+                        {familyBoundaries.filter(b => b.status === 'approved').reduce((sum, b) => sum + b.acknowledgments.length, 0)}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            <Card className="border-0 shadow-lg overflow-hidden">
+              <div className="h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500" />
+              <CardHeader className="flex flex-row items-center justify-between pb-3 bg-gradient-to-b from-muted/30 to-transparent">
+                <CardTitle className="flex items-center gap-2 text-lg font-display">
+                  <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-indigo-500/20 to-purple-500/20 flex items-center justify-center">
+                    <ShieldCheck className="h-4 w-4 text-indigo-600" />
+                  </div>
                   Family Boundaries
                 </CardTitle>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => setShowBoundaryForm(!showBoundaryForm)}
+                  className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white border-0 hover:opacity-90"
                 >
                   <Plus className="h-4 w-4 mr-1" />
                   Propose Boundary
@@ -3487,10 +3770,12 @@ const FamilyChat = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-6">
-                  <p className="text-sm text-muted-foreground">
-                    Clear boundaries help protect both the recovering person and family members. 
-                    Propose boundaries that will be reviewed by a moderator or family admin.
-                  </p>
+                  <div className="p-4 rounded-xl bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950/30 dark:to-purple-950/30 border border-indigo-200/50 dark:border-indigo-800/50">
+                    <p className="text-sm text-foreground">
+                      <strong>Clear boundaries</strong> help protect both the recovering person and family members. 
+                      Propose boundaries that will be reviewed by a moderator or family admin.
+                    </p>
+                  </div>
 
                   {/* New Boundary Form */}
                   {showBoundaryForm && (
