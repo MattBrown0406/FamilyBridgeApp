@@ -697,6 +697,41 @@ export type Database = {
           },
         ]
       }
+      hipaa_access_audit: {
+        Row: {
+          access_type: string
+          accessed_at: string
+          accessed_by: string
+          hipaa_release_id: string
+          id: string
+          ip_address: string | null
+        }
+        Insert: {
+          access_type?: string
+          accessed_at?: string
+          accessed_by: string
+          hipaa_release_id: string
+          id?: string
+          ip_address?: string | null
+        }
+        Update: {
+          access_type?: string
+          accessed_at?: string
+          accessed_by?: string
+          hipaa_release_id?: string
+          id?: string
+          ip_address?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hipaa_access_audit_hipaa_release_id_fkey"
+            columns: ["hipaa_release_id"]
+            isOneToOne: false
+            referencedRelation: "hipaa_releases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       hipaa_releases: {
         Row: {
           created_at: string
