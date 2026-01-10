@@ -10,6 +10,7 @@ interface AppStorePurchaseButtonProps {
   productId: string;
   email: string;
   subscriptionType?: "family" | "provider";
+  couponCode?: string;
   onSuccess?: (transactionId: string, inviteCode: string) => void;
   disabled?: boolean;
   className?: string;
@@ -21,6 +22,7 @@ export function AppStorePurchaseButton({
   productId,
   email,
   subscriptionType = "family",
+  couponCode,
   onSuccess,
   disabled,
   className,
@@ -75,6 +77,7 @@ export function AppStorePurchaseButton({
             productId,
             email,
             subscriptionType,
+            couponCode: couponCode?.trim().toUpperCase() || null,
             receiptData: null, // Would be actual receipt in production
           },
         });
@@ -111,6 +114,7 @@ export function AppStorePurchaseButton({
             productId,
             email,
             subscriptionType,
+            couponCode: couponCode?.trim().toUpperCase() || null,
             receiptData: null,
           },
         });
