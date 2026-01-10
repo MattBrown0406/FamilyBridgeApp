@@ -259,62 +259,6 @@ const Index = () => {
       {/* Quick Links Section */}
       <section className="container mx-auto px-4 py-16">
         <div className="max-w-4xl mx-auto space-y-4">
-          {/* Meeting Finder */}
-          <div 
-            className="group relative bg-card/80 backdrop-blur-sm rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4 cursor-pointer border border-border/50 shadow-card hover:shadow-elevated transition-all duration-300 hover:-translate-y-1 overflow-hidden"
-            onClick={() => navigate('/meetings')}
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-cyan-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            <div className="flex items-center gap-5 relative z-10">
-              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
-                <MapPin className="h-7 w-7 text-white" />
-              </div>
-              <div>
-                <h3 className="text-xl font-display font-semibold text-foreground mb-1">
-                  Find a Recovery Meeting
-                </h3>
-                <p className="text-muted-foreground">
-                  Search for AA, Al-Anon, and other 12-step meetings near you
-                </p>
-              </div>
-            </div>
-            <Button 
-              size="sm" 
-              className="relative z-10 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 transition-all duration-300 border-0"
-            >
-              Find Meetings
-              <ArrowRight className="h-4 w-4 ml-1 group-hover:translate-x-1 transition-transform" />
-            </Button>
-          </div>
-
-          {/* Enabling Exercise */}
-          <div 
-            className="group relative bg-card/80 backdrop-blur-sm rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4 cursor-pointer border border-border/50 shadow-card hover:shadow-elevated transition-all duration-300 hover:-translate-y-1 overflow-hidden"
-            onClick={() => navigate('/enabling-exercise')}
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-amber-500/5 to-orange-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            <div className="flex items-center gap-5 relative z-10">
-              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
-                <HelpCircle className="h-7 w-7 text-white" />
-              </div>
-              <div>
-                <h3 className="text-xl font-display font-semibold text-foreground mb-1">
-                  Am I Enabling?
-                </h3>
-                <p className="text-muted-foreground">
-                  Learn to identify crisis vs. chaos and understand healthy boundaries
-                </p>
-              </div>
-            </div>
-            <Button 
-              size="sm" 
-              className="relative z-10 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white shadow-lg shadow-amber-500/25 hover:shadow-xl hover:shadow-amber-500/30 transition-all duration-300 border-0"
-            >
-              Take Exercise
-              <ArrowRight className="h-4 w-4 ml-1 group-hover:translate-x-1 transition-transform" />
-            </Button>
-          </div>
-
           {/* Demo */}
           <div 
             className="group relative bg-card/80 backdrop-blur-sm rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4 cursor-pointer border border-border/50 shadow-card hover:shadow-elevated transition-all duration-300 hover:-translate-y-1 overflow-hidden"
