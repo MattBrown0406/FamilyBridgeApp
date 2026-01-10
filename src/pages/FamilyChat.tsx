@@ -128,6 +128,7 @@ interface PaymentLinks {
   paypal_link: string | null;
   venmo_link: string | null;
   cashapp_link: string | null;
+  token_used?: boolean; // Track if this was fetched via one-time token
 }
 
 interface Family {
@@ -1714,14 +1715,20 @@ const FamilyChat = () => {
       .slice(0, 2);
   };
 
-  // Fetch secure payment links via RPC (only after marking as payer)
-  const fetchPaymentLinks = async (requestId: string): Promise<PaymentLinks | null> => {
+  // Fetch secure payment links via one-time token (only available once per payment action)
+  const fetchPaymentLinksWithToken = async (requestId: string, token: string): Promise<PaymentLinks | null> => {
     try {
-      const { data, error } = await supabase.rpc('get_payment_links_for_request', {
-        _request_id: requestId,
+      const { data, error } = await supabase.rpc('get_payment_links_with_token', {
+        _token: token,
       });
       
       if (error || !data || data.length === 0) {
+        console.error('Error fetching payment links:', error);
+        toast({
+          title: 'Unable to retrieve payment links',
+          description: 'The one-time access token may have expired. Please try marking as paid again.',
+          variant: 'destructive',
+        });
         return null;
       }
       
@@ -1729,9 +1736,10 @@ const FamilyChat = () => {
         paypal_link: data[0].paypal_link,
         venmo_link: data[0].venmo_link,
         cashapp_link: data[0].cashapp_link,
+        token_used: true,
       };
       
-      // Cache the links
+      // Cache the links (they're single-use, but we can display them from cache)
       setPaymentLinksCache(prev => ({ ...prev, [requestId]: links }));
       return links;
     } catch (err) {
@@ -1742,6 +1750,19 @@ const FamilyChat = () => {
 
   const handleMarkAsPaid = async (requestId: string, method: string) => {
     try {
+      // First, generate a one-time access token for payment links
+      const { data: tokenData, error: tokenError } = await supabase.rpc('generate_payment_access_token', {
+        _request_id: requestId,
+      });
+
+      if (tokenError) {
+        console.error('Error generating payment token:', tokenError);
+        throw tokenError;
+      }
+
+      const accessToken = tokenData as string;
+
+      // Mark the request as paid
       const { error } = await supabase
         .from('financial_requests')
         .update({
@@ -1753,9 +1774,14 @@ const FamilyChat = () => {
 
       if (error) throw error;
 
+      // Immediately fetch payment links using the one-time token
+      if (accessToken) {
+        await fetchPaymentLinksWithToken(requestId, accessToken);
+      }
+
       toast({
         title: 'Marked as paid',
-        description: 'The requester will need to confirm receipt.',
+        description: 'Payment links shown below. The requester will need to confirm receipt.',
       });
 
       fetchFinancialRequests(members);
@@ -2818,9 +2844,9 @@ const FamilyChat = () => {
                                         )}
                                       </div>
                                     ) : (
-                                      <Button size="sm" variant="outline" className="h-6 text-[10px]" onClick={() => fetchPaymentLinks(req.id)}>
-                                        <ExternalLink className="h-2.5 w-2.5 mr-0.5" />Show Links
-                                      </Button>
+                                      <p className="text-[10px] text-muted-foreground italic">
+                                        Payment links shown once when marked as paid
+                                      </p>
                                     )}
                                   </div>
                                 )}
