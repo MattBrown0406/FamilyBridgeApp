@@ -377,7 +377,7 @@ export function FIISTab({ familyId, members, onView }: FIISTabProps) {
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">
-            Log observations—both positive moments and reasons for concern. All of this data contributes to a comprehensive analysis of your family's situation. Use plain, conversational language to describe what you observe, and our AI will analyze it and provide recommendations. The system automatically tracks check-ins, financial requests, and other family activities to help identify patterns and early warning signs.
+            FIIS is a unique and proprietary function of the FamilyBridge app. Log observations—both positive moments and reasons for concern. All of this data contributes to a comprehensive analysis of your family's situation. Use plain, conversational language to describe what you observe, and our AI will analyze it and provide recommendations. The system automatically tracks check-ins, financial requests, and other family activities to help identify patterns and early warning signs.
           </p>
         </CardContent>
       </Card>
