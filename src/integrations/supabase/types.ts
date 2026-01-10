@@ -656,6 +656,53 @@ export type Database = {
           },
         ]
       }
+      hipaa_releases: {
+        Row: {
+          created_at: string
+          family_id: string
+          full_name: string
+          id: string
+          ip_address: string | null
+          release_version: string
+          signature_data: string
+          signed_at: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          family_id: string
+          full_name: string
+          id?: string
+          ip_address?: string | null
+          release_version?: string
+          signature_data: string
+          signed_at?: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          family_id?: string
+          full_name?: string
+          id?: string
+          ip_address?: string | null
+          release_version?: string
+          signature_data?: string
+          signed_at?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hipaa_releases_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       location_checkin_requests: {
         Row: {
           created_at: string
@@ -816,6 +863,41 @@ export type Database = {
             foreignKeyName: "messages_family_id_fkey"
             columns: ["family_id"]
             isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      moderator_disclaimers: {
+        Row: {
+          created_at: string
+          disclaimer_type: string
+          family_id: string
+          id: string
+          moderator_id: string
+          shown_at: string
+        }
+        Insert: {
+          created_at?: string
+          disclaimer_type?: string
+          family_id: string
+          id?: string
+          moderator_id: string
+          shown_at?: string
+        }
+        Update: {
+          created_at?: string
+          disclaimer_type?: string
+          family_id?: string
+          id?: string
+          moderator_id?: string
+          shown_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "moderator_disclaimers_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: true
             referencedRelation: "families"
             referencedColumns: ["id"]
           },

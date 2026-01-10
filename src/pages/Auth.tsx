@@ -56,6 +56,13 @@ const Auth = () => {
       if (error) throw error;
 
       if (data?.family) {
+        // Check if HIPAA release is required (provider-created family)
+        if (data.requiresHipaaRelease) {
+          // Navigate to HIPAA signing page
+          navigate(`/sign-hipaa?familyId=${data.family.id}&familyName=${encodeURIComponent(data.family.name)}`);
+          return true;
+        }
+        
         toast({
           title: 'Welcome to the family!',
           description: `You've joined ${data.family.name}. Redirecting to your family group...`,
