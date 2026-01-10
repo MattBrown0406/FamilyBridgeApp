@@ -354,12 +354,16 @@ const FamilyChat = () => {
   const [selectedValues, setSelectedValues] = useState<string[]>([]);
   const [isSavingValues, setIsSavingValues] = useState(false);
   const [isEditingValues, setIsEditingValues] = useState(false);
+  const [customValueInput, setCustomValueInput] = useState('');
+  const [isAddingCustomValue, setIsAddingCustomValue] = useState(false);
   
   // Common Goals state
   const [familyCommonGoals, setFamilyCommonGoals] = useState<FamilyCommonGoal[]>([]);
   const [selectedCommonGoals, setSelectedCommonGoals] = useState<string[]>([]);
   const [isSavingCommonGoals, setIsSavingCommonGoals] = useState(false);
   const [isEditingCommonGoals, setIsEditingCommonGoals] = useState(false);
+  const [customGoalInput, setCustomGoalInput] = useState('');
+  const [isAddingCustomGoal, setIsAddingCustomGoal] = useState(false);
   
   // Boundaries state
   const [familyBoundaries, setFamilyBoundaries] = useState<FamilyBoundary[]>([]);
@@ -874,6 +878,18 @@ const FamilyChat = () => {
     });
   };
 
+  const handleAddCustomValue = () => {
+    if (!customValueInput.trim()) return;
+    const customKey = `custom_${customValueInput.trim().toLowerCase().replace(/\s+/g, '_')}`;
+    if (selectedValues.length < 2 && !selectedValues.includes(customKey)) {
+      setSelectedValues(prev => [...prev, customKey]);
+    } else if (selectedValues.length >= 2) {
+      setSelectedValues(prev => [prev[1], customKey]);
+    }
+    setCustomValueInput('');
+    setIsAddingCustomValue(false);
+  };
+
   const handleToggleCommonGoal = (goalKey: string) => {
     setSelectedCommonGoals(prev => {
       if (prev.includes(goalKey)) {
@@ -884,6 +900,18 @@ const FamilyChat = () => {
         return [prev[1], goalKey];
       }
     });
+  };
+
+  const handleAddCustomGoal = () => {
+    if (!customGoalInput.trim()) return;
+    const customKey = `custom_${customGoalInput.trim().toLowerCase().replace(/\s+/g, '_')}`;
+    if (selectedCommonGoals.length < 2 && !selectedCommonGoals.includes(customKey)) {
+      setSelectedCommonGoals(prev => [...prev, customKey]);
+    } else if (selectedCommonGoals.length >= 2) {
+      setSelectedCommonGoals(prev => [prev[1], customKey]);
+    }
+    setCustomGoalInput('');
+    setIsAddingCustomGoal(false);
   };
 
   const handleSaveValues = async () => {
@@ -2763,14 +2791,18 @@ const FamilyChat = () => {
                       <div className="flex flex-wrap gap-2">
                         {familyValues.map(fv => {
                           const valueOption = FAMILY_VALUES_OPTIONS.find(v => v.key === fv.value_key);
-                          if (!valueOption) return null;
+                          const isCustom = fv.value_key.startsWith('custom_');
+                          const displayName = valueOption ? valueOption.name : (isCustom ? fv.value_key.replace('custom_', '').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : fv.value_key);
                           return (
                             <div
                               key={fv.id}
                               className="px-3 py-2 rounded-lg bg-primary/10 border border-primary flex items-center gap-2"
                             >
                               <Sparkles className="h-4 w-4 text-primary shrink-0" />
-                              <span className="font-medium text-sm text-foreground">{valueOption.name}</span>
+                              <span className="font-medium text-sm text-foreground">{displayName}</span>
+                              {isCustom && (
+                                <Badge variant="outline" className="text-[10px] px-1.5 py-0">Custom</Badge>
+                              )}
                             </div>
                           );
                         })}
@@ -2812,7 +2844,53 @@ const FamilyChat = () => {
                                     </button>
                                   );
                                 })}
+                                {/* Show selected custom values */}
+                                {selectedValues.filter(v => v.startsWith('custom_')).map(customKey => (
+                                  <button
+                                    key={customKey}
+                                    onClick={() => handleToggleValue(customKey)}
+                                    className="px-3 py-2 rounded-lg border text-left transition-all text-sm bg-primary/10 border-primary"
+                                  >
+                                    <div className="flex items-center gap-2">
+                                      <Sparkles className="h-3 w-3 shrink-0 text-primary" />
+                                      <span className="font-medium text-foreground">
+                                        {customKey.replace('custom_', '').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
+                                      </span>
+                                      <Badge variant="outline" className="text-[10px] px-1">Custom</Badge>
+                                      <CheckCircle className="h-3 w-3 text-primary ml-auto shrink-0" />
+                                    </div>
+                                  </button>
+                                ))}
                               </div>
+                              
+                              {/* Custom Value Input */}
+                              {isAddingCustomValue ? (
+                                <div className="flex gap-2 items-center p-3 rounded-lg border border-dashed border-primary/50 bg-primary/5">
+                                  <Input
+                                    value={customValueInput}
+                                    onChange={(e) => setCustomValueInput(e.target.value)}
+                                    placeholder="Enter your custom value..."
+                                    className="flex-1"
+                                    onKeyDown={(e) => e.key === 'Enter' && handleAddCustomValue()}
+                                  />
+                                  <Button size="sm" onClick={handleAddCustomValue} disabled={!customValueInput.trim()}>
+                                    <Plus className="h-4 w-4" />
+                                  </Button>
+                                  <Button size="sm" variant="ghost" onClick={() => { setIsAddingCustomValue(false); setCustomValueInput(''); }}>
+                                    <X className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              ) : (
+                                <Button 
+                                  variant="outline" 
+                                  size="sm" 
+                                  onClick={() => setIsAddingCustomValue(true)}
+                                  className="w-full border-dashed"
+                                >
+                                  <Plus className="h-4 w-4 mr-1" />
+                                  Add Custom Value
+                                </Button>
+                              )}
                               
                               <div className="flex gap-2">
                                 <Button
@@ -2878,7 +2956,8 @@ const FamilyChat = () => {
                       <div className="grid gap-2">
                         {familyCommonGoals.map(fg => {
                           const goalOption = COMMON_GOALS_OPTIONS.find(g => g.key === fg.goal_key);
-                          if (!goalOption) return null;
+                          const isCustom = fg.goal_key.startsWith('custom_');
+                          const displayName = goalOption ? goalOption.name : (isCustom ? fg.goal_key.replace('custom_', '').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : fg.goal_key);
                           return (
                             <div
                               key={fg.id}
@@ -2912,8 +2991,11 @@ const FamilyChat = () => {
                                   </div>
                                 )}
                                 <span className={`text-sm font-medium truncate ${fg.completed_at ? 'line-through text-muted-foreground' : ''}`}>
-                                  {goalOption.name}
+                                  {displayName}
                                 </span>
+                                {isCustom && (
+                                  <Badge variant="outline" className="text-[10px] px-1.5 py-0">Custom</Badge>
+                                )}
                               </div>
                               {fg.completed_at && (
                                 <Badge variant="default" className="bg-primary/80 shrink-0 text-xs">
@@ -2958,7 +3040,53 @@ const FamilyChat = () => {
                                     </button>
                                   );
                                 })}
+                                {/* Show selected custom goals */}
+                                {selectedCommonGoals.filter(g => g.startsWith('custom_')).map(customKey => (
+                                  <button
+                                    key={customKey}
+                                    onClick={() => handleToggleCommonGoal(customKey)}
+                                    className="px-3 py-2 rounded-lg border text-left transition-all text-sm bg-primary/10 border-primary"
+                                  >
+                                    <div className="flex items-center gap-2">
+                                      <Target className="h-3 w-3 shrink-0 text-primary" />
+                                      <span className="font-medium text-foreground">
+                                        {customKey.replace('custom_', '').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
+                                      </span>
+                                      <Badge variant="outline" className="text-[10px] px-1">Custom</Badge>
+                                      <CheckCircle className="h-3 w-3 text-primary ml-auto shrink-0" />
+                                    </div>
+                                  </button>
+                                ))}
                               </div>
+                              
+                              {/* Custom Goal Input */}
+                              {isAddingCustomGoal ? (
+                                <div className="flex gap-2 items-center p-3 rounded-lg border border-dashed border-primary/50 bg-primary/5">
+                                  <Input
+                                    value={customGoalInput}
+                                    onChange={(e) => setCustomGoalInput(e.target.value)}
+                                    placeholder="Enter your custom goal..."
+                                    className="flex-1"
+                                    onKeyDown={(e) => e.key === 'Enter' && handleAddCustomGoal()}
+                                  />
+                                  <Button size="sm" onClick={handleAddCustomGoal} disabled={!customGoalInput.trim()}>
+                                    <Plus className="h-4 w-4" />
+                                  </Button>
+                                  <Button size="sm" variant="ghost" onClick={() => { setIsAddingCustomGoal(false); setCustomGoalInput(''); }}>
+                                    <X className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              ) : (
+                                <Button 
+                                  variant="outline" 
+                                  size="sm" 
+                                  onClick={() => setIsAddingCustomGoal(true)}
+                                  className="w-full border-dashed"
+                                >
+                                  <Plus className="h-4 w-4 mr-1" />
+                                  Add Custom Goal
+                                </Button>
+                              )}
                               
                               <div className="flex gap-2">
                                 <Button
