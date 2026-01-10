@@ -4,39 +4,11 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Users, LogOut, Loader2, Copy, ArrowRight, Crown, Home } from 'lucide-react';
+import { Users, LogOut, Loader2, Copy, ArrowRight, Crown, Home } from 'lucide-react';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 import { NotificationBell } from '@/components/NotificationBell';
 
-type RelationshipType = 
-  | 'recovering'
-  | 'parent'
-  | 'spouse_partner'
-  | 'sibling'
-  | 'child'
-  | 'grandparent'
-  | 'aunt_uncle'
-  | 'cousin'
-  | 'friend'
-  | 'other';
-
-const RELATIONSHIP_OPTIONS: { value: RelationshipType; label: string }[] = [
-  { value: 'recovering', label: 'I am the person in recovery' },
-  { value: 'parent', label: 'Parent' },
-  { value: 'spouse_partner', label: 'Spouse/Partner' },
-  { value: 'sibling', label: 'Sibling' },
-  { value: 'child', label: 'Child' },
-  { value: 'grandparent', label: 'Grandparent' },
-  { value: 'aunt_uncle', label: 'Aunt/Uncle' },
-  { value: 'cousin', label: 'Cousin' },
-  { value: 'friend', label: 'Friend' },
-  { value: 'other', label: 'Other' },
-];
 
 interface Family {
   id: string;
@@ -54,14 +26,6 @@ const Dashboard = () => {
   
   const [families, setFamilies] = useState<Family[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [showCreateDialog, setShowCreateDialog] = useState(false);
-  const [showJoinDialog, setShowJoinDialog] = useState(false);
-  const [newFamilyName, setNewFamilyName] = useState('');
-  const [newFamilyDescription, setNewFamilyDescription] = useState('');
-  const [inviteCode, setInviteCode] = useState('');
-  const [relationshipType, setRelationshipType] = useState<RelationshipType | ''>('');
-  const [isCreating, setIsCreating] = useState(false);
-  const [isJoining, setIsJoining] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -128,150 +92,6 @@ const Dashboard = () => {
       });
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const handleCreateFamily = async () => {
-    if (!user) {
-      toast({
-        title: 'Not signed in',
-        description: 'Please sign in again to create a family group.',
-        variant: 'destructive',
-      });
-      navigate('/auth');
-      return;
-    }
-
-    if (!newFamilyName.trim()) {
-      toast({
-        title: 'Name required',
-        description: 'Please enter a name for your family group.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    setIsCreating(true);
-    try {
-      // Create family via backend function (bypasses RLS safely)
-      const { data, error } = await supabase.functions.invoke('create-family', {
-        body: {
-          name: newFamilyName.trim(),
-          description: newFamilyDescription.trim() || null,
-        },
-      });
-
-      if (error) throw error;
-
-      const family = (data as any)?.family;
-      if (!family?.id) {
-        throw new Error('Failed to create family');
-      }
-
-      toast({
-        title: 'Family created!',
-        description: `${newFamilyName} has been created successfully.`,
-      });
-
-      setShowCreateDialog(false);
-      setNewFamilyName('');
-      setNewFamilyDescription('');
-      fetchFamilies();
-    } catch (error: any) {
-      console.error('Error creating family:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to create family group. Please try again.',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsCreating(false);
-    }
-  };
-
-  const handleJoinFamily = async () => {
-    if (!user) {
-      toast({
-        title: 'Not signed in',
-        description: 'Please sign in again to join a family group.',
-        variant: 'destructive',
-      });
-      navigate('/auth');
-      return;
-    }
-
-    if (!inviteCode.trim()) {
-      toast({
-        title: 'Code required',
-        description: 'Please enter an invite code.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    if (!relationshipType) {
-      toast({
-        title: 'Relationship required',
-        description: 'Please select your relationship to the person in recovery.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    setIsJoining(true);
-    try {
-      // Join family via backend function (allows invite-code lookup)
-      const { data, error } = await supabase.functions.invoke('join-family', {
-        body: {
-          inviteCode: inviteCode.trim(),
-          relationshipType: relationshipType,
-        },
-      });
-
-      if (error) {
-        const msg = (error as any)?.message || 'Failed to join family group.';
-        if (msg.toLowerCase().includes('invalid invite code')) {
-          toast({
-            title: 'Invalid code',
-            description: 'No family group found with this invite code.',
-            variant: 'destructive',
-          });
-          return;
-        }
-        if (msg.toLowerCase().includes('already a member')) {
-          toast({
-            title: 'Already a member',
-            description: 'You are already a member of this family group.',
-            variant: 'destructive',
-          });
-          return;
-        }
-        throw error;
-      }
-
-      const family = (data as any)?.family;
-      if (!family?.id) {
-        throw new Error('Failed to join family');
-      }
-
-      toast({
-        title: 'Joined successfully!',
-        description: `You are now a member of ${family.name}.`,
-      });
-
-      setShowJoinDialog(false);
-      setInviteCode('');
-      setRelationshipType('');
-      fetchFamilies();
-    } catch (error: any) {
-      console.error('Error joining family:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to join family group. Please try again.',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsJoining(false);
     }
   };
 
@@ -343,123 +163,6 @@ const Dashboard = () => {
             </p>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 mb-8">
-            <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-              <DialogTrigger asChild>
-                <Button variant="hero" size="lg">
-                  <Plus className="h-5 w-5" />
-                  Create Family Group
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle className="font-display">Create Family Group</DialogTitle>
-                  <DialogDescription>
-                    Start a new family group and invite members to join.
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="space-y-4 pt-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="familyName">Family Name</Label>
-                    <Input
-                      id="familyName"
-                      placeholder="e.g., The Smith Family"
-                      value={newFamilyName}
-                      onChange={(e) => setNewFamilyName(e.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="familyDescription">Description (optional)</Label>
-                    <Input
-                      id="familyDescription"
-                      placeholder="A brief description of your group"
-                      value={newFamilyDescription}
-                      onChange={(e) => setNewFamilyDescription(e.target.value)}
-                    />
-                  </div>
-                  <Button 
-                    className="w-full" 
-                    onClick={handleCreateFamily}
-                    disabled={isCreating}
-                  >
-                    {isCreating ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        Creating...
-                      </>
-                    ) : (
-                      'Create Group'
-                    )}
-                  </Button>
-                </div>
-              </DialogContent>
-            </Dialog>
-
-            <Dialog open={showJoinDialog} onOpenChange={setShowJoinDialog}>
-              <DialogTrigger asChild>
-                <Button variant="outline" size="lg">
-                  <Users className="h-5 w-5" />
-                  Join with Code
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle className="font-display">Join Family Group</DialogTitle>
-                  <DialogDescription>
-                    Enter the invite code shared by a family member.
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="space-y-4 pt-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="inviteCode">Invite Code</Label>
-                    <Input
-                      id="inviteCode"
-                      placeholder="e.g., abc12345"
-                      value={inviteCode}
-                      onChange={(e) => setInviteCode(e.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="relationship">Your Relationship</Label>
-                    <Select 
-                      value={relationshipType} 
-                      onValueChange={(val) => setRelationshipType(val as RelationshipType)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select your relationship..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {RELATIONSHIP_OPTIONS.map((opt) => (
-                          <SelectItem key={opt.value} value={opt.value}>
-                            {opt.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <p className="text-xs text-muted-foreground">
-                      Select "I am the person in recovery" if you are the individual seeking support.
-                    </p>
-                  </div>
-                  <Button 
-                    className="w-full" 
-                    onClick={handleJoinFamily}
-                    disabled={isJoining}
-                  >
-                    {isJoining ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        Joining...
-                      </>
-                    ) : (
-                      'Join Group'
-                    )}
-                  </Button>
-                </div>
-              </DialogContent>
-            </Dialog>
-          </div>
-
           {/* Family Groups List */}
           {families.length === 0 ? (
             <Card className="text-center py-12">
@@ -469,7 +172,7 @@ const Dashboard = () => {
                   No Family Groups Yet
                 </h3>
                 <p className="text-muted-foreground mb-6">
-                  Create a new family group or join one with an invite code.
+                  You haven't been added to a family group yet. Ask a family member to share an invite link with you.
                 </p>
               </CardContent>
             </Card>
