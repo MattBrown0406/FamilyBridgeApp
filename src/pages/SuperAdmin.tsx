@@ -179,6 +179,9 @@ interface AdminStats {
     family_roles?: string[];
     org_roles?: string[];
     is_super_admin?: boolean;
+    org_logo_url?: string | null;
+    org_name?: string | null;
+    org_primary_color?: string | null;
   }>;
 }
 
@@ -862,12 +865,29 @@ const SuperAdmin = () => {
                               onClick={() => fetchUserDetails(u.id)}
                               style={{ animationDelay: `${i * 20}ms` }}
                             >
-                              <Avatar className="h-10 w-10">
-                                <AvatarImage src={u.avatar_url || undefined} />
-                                <AvatarFallback className="bg-muted">
-                                  <User className="h-4 w-4 text-muted-foreground" />
-                                </AvatarFallback>
-                              </Avatar>
+                              {/* Show provider logo for moderators/owners, otherwise avatar */}
+                              {(u.org_roles?.includes('owner') || u.org_roles?.includes('admin') || u.family_roles?.includes('moderator')) && u.org_logo_url ? (
+                                <div 
+                                  className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden border"
+                                  style={{ 
+                                    borderColor: u.org_primary_color ? `hsl(${u.org_primary_color})` : 'hsl(var(--border))'
+                                  }}
+                                  title={u.org_name || undefined}
+                                >
+                                  <img 
+                                    src={u.org_logo_url} 
+                                    alt={`${u.org_name} logo`}
+                                    className="w-full h-full object-contain bg-white p-0.5 rounded"
+                                  />
+                                </div>
+                              ) : (
+                                <Avatar className="h-10 w-10">
+                                  <AvatarImage src={u.avatar_url || undefined} />
+                                  <AvatarFallback className="bg-muted">
+                                    <User className="h-4 w-4 text-muted-foreground" />
+                                  </AvatarFallback>
+                                </Avatar>
+                              )}
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-2 flex-wrap">
                                   <p className="font-medium truncate">{u.full_name}</p>

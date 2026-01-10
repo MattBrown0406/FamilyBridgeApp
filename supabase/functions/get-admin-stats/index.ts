@@ -456,10 +456,16 @@ Deno.serve(async (req) => {
       .from("family_members")
       .select("user_id, role");
 
-    // Get organization memberships with roles per user
+    // Get organization memberships with roles per user, including org details
     const { data: orgMemberships } = await adminClient
       .from("organization_members")
-      .select("user_id, role");
+      .select("user_id, role, organization_id");
+
+    // Get all org data for logo lookup
+    const orgLogoMap: Record<string, { logo_url: string | null; name: string; primary_color: string | null }> = {};
+    (orgs || []).forEach(o => {
+      orgLogoMap[o.id] = { logo_url: o.logo_url, name: o.name, primary_color: o.primary_color };
+    });
 
     const userFamilyCounts: Record<string, number> = {};
     const userFamilyRoles: Record<string, Set<string>> = {};
@@ -472,11 +478,16 @@ Deno.serve(async (req) => {
     });
 
     const userOrgRoles: Record<string, Set<string>> = {};
+    const userOrgInfo: Record<string, { logo_url: string | null; name: string; primary_color: string | null }> = {};
     (orgMemberships || []).forEach(m => {
       if (!userOrgRoles[m.user_id]) {
         userOrgRoles[m.user_id] = new Set();
       }
       userOrgRoles[m.user_id].add(m.role);
+      // Store org info for users with owner/admin roles
+      if ((m.role === 'owner' || m.role === 'admin') && orgLogoMap[m.organization_id]) {
+        userOrgInfo[m.user_id] = orgLogoMap[m.organization_id];
+      }
     });
 
     // Get user emails to check for super admin
@@ -496,6 +507,7 @@ Deno.serve(async (req) => {
       const familyRoles = userFamilyRoles[u.id] ? Array.from(userFamilyRoles[u.id]) : [];
       const orgRoles = userOrgRoles[u.id] ? Array.from(userOrgRoles[u.id]) : [];
       const isSuperAdmin = SUPER_ADMIN_EMAILS.includes(userEmails[u.id] || "");
+      const orgInfo = userOrgInfo[u.id] || null;
       
       return {
         id: u.id,
@@ -506,6 +518,9 @@ Deno.serve(async (req) => {
         family_roles: familyRoles,
         org_roles: orgRoles,
         is_super_admin: isSuperAdmin,
+        org_logo_url: orgInfo?.logo_url || null,
+        org_name: orgInfo?.name || null,
+        org_primary_color: orgInfo?.primary_color || null,
       };
     });
 
