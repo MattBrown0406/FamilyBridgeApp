@@ -23,7 +23,7 @@ import {
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Label } from '@/components/ui/label';
-import { format, startOfWeek, endOfWeek, subWeeks, isWithinInterval, isSameWeek } from 'date-fns';
+import { format, startOfWeek, endOfWeek, subWeeks, isWithinInterval, isSameWeek, formatDistanceToNow } from 'date-fns';
 import {
   Dialog,
   DialogContent,
@@ -389,6 +389,9 @@ const FamilyChat = () => {
   // Online presence state
   const [onlineMembers, setOnlineMembers] = useState<string[]>([]);
   
+  // Member activity tracking
+  const [memberLastActivity, setMemberLastActivity] = useState<Record<string, { date: string; type: string }>>({});
+  
   // FIIS notifications
   const { hasNewAnalysis, markAsViewed: markFIISViewed } = useFIISNotifications({ familyId });
 
@@ -449,6 +452,107 @@ const FamilyChat = () => {
       clearFamilyOrganization();
     };
   }, [clearFamilyOrganization]);
+
+  // Fetch member last activity when sheet opens
+  const fetchMemberActivity = async () => {
+    if (!familyId || members.length === 0) return;
+    
+    const activityMap: Record<string, { date: string; type: string }> = {};
+    
+    for (const member of members) {
+      const userId = member.user_id;
+      let latestActivity: { date: string; type: string } | null = null;
+      
+      // Check messages
+      const { data: messageData } = await supabase
+        .from('messages')
+        .select('created_at')
+        .eq('family_id', familyId)
+        .eq('sender_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(1);
+      
+      if (messageData?.[0]) {
+        latestActivity = { date: messageData[0].created_at, type: 'message' };
+      }
+      
+      // Check meeting checkins
+      const { data: checkinData } = await supabase
+        .from('meeting_checkins')
+        .select('checked_in_at')
+        .eq('family_id', familyId)
+        .eq('user_id', userId)
+        .order('checked_in_at', { ascending: false })
+        .limit(1);
+      
+      if (checkinData?.[0]) {
+        const checkinDate = checkinData[0].checked_in_at;
+        if (!latestActivity || new Date(checkinDate) > new Date(latestActivity.date)) {
+          latestActivity = { date: checkinDate, type: 'check-in' };
+        }
+      }
+      
+      // Check financial requests
+      const { data: requestData } = await supabase
+        .from('financial_requests')
+        .select('created_at')
+        .eq('family_id', familyId)
+        .eq('requester_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(1);
+      
+      if (requestData?.[0]) {
+        const requestDate = requestData[0].created_at;
+        if (!latestActivity || new Date(requestDate) > new Date(latestActivity.date)) {
+          latestActivity = { date: requestDate, type: 'financial request' };
+        }
+      }
+      
+      // Check financial votes
+      const { data: voteData } = await supabase
+        .from('financial_votes')
+        .select('created_at, request_id')
+        .eq('voter_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(1);
+      
+      if (voteData?.[0]) {
+        const voteDate = voteData[0].created_at;
+        if (!latestActivity || new Date(voteDate) > new Date(latestActivity.date)) {
+          latestActivity = { date: voteDate, type: 'vote' };
+        }
+      }
+      
+      // Check FIIS observations
+      const { data: observationData } = await supabase
+        .from('fiis_observations')
+        .select('created_at')
+        .eq('family_id', familyId)
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(1);
+      
+      if (observationData?.[0]) {
+        const obsDate = observationData[0].created_at;
+        if (!latestActivity || new Date(obsDate) > new Date(latestActivity.date)) {
+          latestActivity = { date: obsDate, type: 'observation' };
+        }
+      }
+      
+      if (latestActivity) {
+        activityMap[userId] = latestActivity;
+      }
+    }
+    
+    setMemberLastActivity(activityMap);
+  };
+
+  // Fetch activity when members sheet opens
+  useEffect(() => {
+    if (membersSheetOpen && members.length > 0) {
+      fetchMemberActivity();
+    }
+  }, [membersSheetOpen, members.length]);
 
   const fetchUnreadPrivateMessages = async () => {
     if (!user || !familyId) return;
@@ -4187,8 +4291,14 @@ const FamilyChat = () => {
               <Users className="h-5 w-5 text-primary" />
               {family?.name}
             </SheetTitle>
-            <SheetDescription>
-              {members.length} family members
+            <SheetDescription className="flex flex-col gap-1">
+              <span>{members.length} family members • sorted by activity</span>
+              <span className="flex items-center gap-2 text-xs">
+                <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-success" /> Active</span>
+                <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-primary" /> This week</span>
+                <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-warning" /> This month</span>
+                <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-destructive" /> Inactive</span>
+              </span>
             </SheetDescription>
           </SheetHeader>
 
@@ -4250,68 +4360,113 @@ const FamilyChat = () => {
             <div className="space-y-3">
               <h3 className="font-medium text-foreground">Family Members</h3>
               <div className="space-y-3">
-                {members.map((member) => (
-                  <div
-                    key={member.id}
-                    className="flex flex-col p-3 rounded-lg bg-secondary/50 gap-2"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <Avatar>
-                          <AvatarFallback className="bg-primary/10 text-primary">
-                            {getInitials(member.full_name)}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="font-medium text-foreground">
-                            {member.full_name}
-                            {member.user_id === user?.id && (
-                              <span className="text-muted-foreground ml-2">(You)</span>
+                {members
+                  .map((member) => ({
+                    ...member,
+                    lastActivity: memberLastActivity[member.user_id],
+                  }))
+                  .sort((a, b) => {
+                    // Sort by last activity date (most recent first), members without activity at the end
+                    if (!a.lastActivity && !b.lastActivity) return 0;
+                    if (!a.lastActivity) return 1;
+                    if (!b.lastActivity) return -1;
+                    return new Date(b.lastActivity.date).getTime() - new Date(a.lastActivity.date).getTime();
+                  })
+                  .map((member) => {
+                    const activity = member.lastActivity;
+                    const isOnline = onlineMembers.includes(member.user_id);
+                    const daysSinceActivity = activity 
+                      ? Math.floor((Date.now() - new Date(activity.date).getTime()) / (1000 * 60 * 60 * 24))
+                      : null;
+                    const activityColor = daysSinceActivity === null 
+                      ? 'text-muted-foreground' 
+                      : daysSinceActivity <= 1 
+                        ? 'text-success' 
+                        : daysSinceActivity <= 7 
+                          ? 'text-primary' 
+                          : daysSinceActivity <= 30 
+                            ? 'text-warning' 
+                            : 'text-destructive';
+                    
+                    return (
+                      <div
+                        key={member.id}
+                        className="flex flex-col p-3 rounded-lg bg-secondary/50 gap-2 hover:bg-secondary/70 transition-colors"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="relative">
+                              <Avatar>
+                                <AvatarFallback className="bg-primary/10 text-primary">
+                                  {getInitials(member.full_name)}
+                                </AvatarFallback>
+                              </Avatar>
+                              {isOnline && (
+                                <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 bg-success rounded-full border-2 border-card animate-pulse" />
+                              )}
+                            </div>
+                            <div>
+                              <p className="font-medium text-foreground">
+                                {member.full_name}
+                                {member.user_id === user?.id && (
+                                  <span className="text-muted-foreground ml-2">(You)</span>
+                                )}
+                              </p>
+                              {/* Last Activity Display */}
+                              <div className={`flex items-center gap-1 text-xs ${activityColor}`}>
+                                <Clock className="h-3 w-3" />
+                                {activity ? (
+                                  <span>
+                                    {formatDistanceToNow(new Date(activity.date), { addSuffix: true })} • {activity.type}
+                                  </span>
+                                ) : (
+                                  <span>No activity yet</span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            {isAdminOrModerator && member.user_id !== user?.id && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => openEditMember(member)}
+                                title="Edit profile"
+                              >
+                                <Pencil className="h-4 w-4" />
+                              </Button>
                             )}
-                          </p>
+                            <Badge
+                              variant={
+                                member.role === 'moderator' || member.role === 'admin'
+                                  ? 'default'
+                                  : member.role === 'recovering'
+                                  ? 'outline'
+                                  : 'secondary'
+                              }
+                            >
+                              {member.role === 'admin' ? 'Admin' : member.role}
+                            </Badge>
+                          </div>
                         </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {isAdminOrModerator && member.user_id !== user?.id && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => openEditMember(member)}
-                            title="Edit profile"
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
+                        {/* Private messaging toggle for recovering members - only shown to moderators */}
+                        {isAdminOrModerator && 
+                         member.role === 'recovering' && 
+                         member.user_id !== user?.id && (
+                          <div className="flex items-center justify-between pl-12 pt-1 border-t border-border/50 mt-1">
+                            <div className="flex items-center gap-2">
+                              <MessageSquare className="h-4 w-4 text-muted-foreground" />
+                              <span className="text-sm text-muted-foreground">Private messaging</span>
+                            </div>
+                            <Switch
+                              checked={member.private_messaging_enabled ?? false}
+                              onCheckedChange={(checked) => togglePrivateMessaging(member.id, member.user_id, checked)}
+                            />
+                          </div>
                         )}
-                        <Badge
-                          variant={
-                            member.role === 'moderator' || member.role === 'admin'
-                              ? 'default'
-                              : member.role === 'recovering'
-                              ? 'outline'
-                              : 'secondary'
-                          }
-                        >
-                          {member.role === 'admin' ? 'Admin' : member.role}
-                        </Badge>
                       </div>
-                    </div>
-                    {/* Private messaging toggle for recovering members - only shown to moderators */}
-                    {isAdminOrModerator && 
-                     member.role === 'recovering' && 
-                     member.user_id !== user?.id && (
-                      <div className="flex items-center justify-between pl-12 pt-1 border-t border-border/50 mt-1">
-                        <div className="flex items-center gap-2">
-                          <MessageSquare className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-sm text-muted-foreground">Private messaging</span>
-                        </div>
-                        <Switch
-                          checked={member.private_messaging_enabled ?? false}
-                          onCheckedChange={(checked) => togglePrivateMessaging(member.id, member.user_id, checked)}
-                        />
-                      </div>
-                    )}
-                  </div>
-                ))}
+                    );
+                  })}
               </div>
             </div>
           </div>
