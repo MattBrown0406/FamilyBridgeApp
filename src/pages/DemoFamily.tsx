@@ -44,7 +44,8 @@ import {
   Minus,
   AlertCircle,
   XCircle,
-  ChevronDown
+  ChevronDown,
+  Search
 } from 'lucide-react';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 import { format } from 'date-fns';
@@ -68,6 +69,13 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 // Demo Family 1: The Johnson Family - Positive Recovery Journey (with Professional Moderator)
 const JOHNSON_MEMBERS = [
@@ -1237,10 +1245,201 @@ const DemoFamily = () => {
                     </CardContent>
                   </Card>
                 )}
+
+                {/* Location Capture Card */}
+                <Card className="border-0 shadow-lg overflow-hidden group hover:shadow-xl transition-all duration-300">
+                  <div className="h-1 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500" />
+                  <CardHeader className="pb-3 bg-gradient-to-b from-muted/30 to-transparent">
+                    <CardTitle className="flex items-center gap-2 font-display text-lg">
+                      <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-emerald-500/20 to-teal-500/20 flex items-center justify-center">
+                        <MapPin className="h-4 w-4 text-emerald-600" />
+                      </div>
+                      Capture My Location
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      Capture your current location to use for meeting check-ins or location requests.
+                    </p>
+                    <Button variant="outline" className="w-full" disabled>
+                      <MapPin className="h-4 w-4 mr-2" />
+                      Get Current Location
+                    </Button>
+                    <p className="text-xs text-muted-foreground text-center mt-2">
+                      (Demo mode - location capture disabled)
+                    </p>
+                  </CardContent>
+                </Card>
+
+                {/* Meeting Finder - Collapsible */}
+                <Collapsible>
+                  <Card className="border-0 shadow-lg overflow-hidden group hover:shadow-xl transition-all duration-300">
+                    <div className="h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500" />
+                    <CollapsibleTrigger asChild>
+                      <CardHeader className="pb-3 cursor-pointer hover:bg-muted/50 transition-colors">
+                        <CardTitle className="flex items-center justify-between font-display text-lg">
+                          <div className="flex items-center gap-2">
+                            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-blue-500/20 to-cyan-500/20 flex items-center justify-center">
+                              <Search className="h-4 w-4 text-blue-500" />
+                            </div>
+                            Find a Meeting
+                          </div>
+                          <ChevronDown className="h-5 w-5 text-muted-foreground transition-transform duration-200 [[data-state=open]>&]:rotate-180" />
+                        </CardTitle>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          Search for AA, Al-Anon, and other recovery meetings near you.
+                        </p>
+                      </CardHeader>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent>
+                      <CardContent className="pt-0">
+                        <div className="space-y-3">
+                          <Input placeholder="Enter your zip code or city" disabled />
+                          <div className="flex gap-2">
+                            <Button variant="outline" size="sm" disabled>AA</Button>
+                            <Button variant="outline" size="sm" disabled>Al-Anon</Button>
+                            <Button variant="outline" size="sm" disabled>NA</Button>
+                            <Button variant="outline" size="sm" disabled>Other</Button>
+                          </div>
+                          <p className="text-xs text-muted-foreground text-center">
+                            (Demo mode - meeting search disabled)
+                          </p>
+                        </div>
+                      </CardContent>
+                    </CollapsibleContent>
+                  </Card>
+                </Collapsible>
+
+                {/* Location Check-in Request Card (for family members) */}
+                <Card className="border-0 shadow-lg overflow-hidden">
+                  <div className="h-1 bg-gradient-to-r from-amber-500 via-orange-500 to-red-500" />
+                  <CardHeader className="pb-3">
+                    <CardTitle className="flex items-center gap-2 font-display text-lg">
+                      <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-amber-500/20 to-orange-500/20 flex items-center justify-center">
+                        <MapPin className="h-4 w-4 text-amber-600" />
+                      </div>
+                      Request Location Check-in
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      Request a family member to share their current location.
+                    </p>
+                    <div className="space-y-2">
+                      <Select disabled>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select family member" />
+                        </SelectTrigger>
+                      </Select>
+                      <Button className="w-full" disabled>
+                        Send Location Request
+                      </Button>
+                      <p className="text-xs text-muted-foreground text-center">
+                        (Demo mode - requests disabled)
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
                 
-                <Card>
+                {/* Check-In - Collapsible */}
+                <Collapsible defaultOpen>
+                  <Card className="border-0 shadow-lg overflow-hidden group hover:shadow-xl transition-all duration-300">
+                    <div className="h-1 bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500" />
+                    <CollapsibleTrigger asChild>
+                      <CardHeader className="pb-3 cursor-pointer hover:bg-muted/50 transition-colors bg-gradient-to-b from-muted/30 to-transparent">
+                        <CardTitle className="flex items-center justify-between font-display text-lg">
+                          <div className="flex items-center gap-2">
+                            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-violet-500/20 to-purple-500/20 flex items-center justify-center">
+                              <CheckCircle className="h-4 w-4 text-violet-600" />
+                            </div>
+                            Check-In
+                          </div>
+                          <ChevronDown className="h-5 w-5 text-muted-foreground transition-transform duration-200 [[data-state=open]>&]:rotate-180" />
+                        </CardTitle>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          Check in at your meeting or appointment to let your family know where you are.
+                        </p>
+                      </CardHeader>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent>
+                      <CardContent className="pt-0">
+                        {/* Tabbed Check-in Demo */}
+                        <Tabs defaultValue="meeting" className="w-full">
+                          <TabsList className="grid w-full grid-cols-2 mb-4">
+                            <TabsTrigger value="meeting">Meeting</TabsTrigger>
+                            <TabsTrigger value="appointment">Appointment</TabsTrigger>
+                          </TabsList>
+                          <TabsContent value="meeting" className="space-y-3">
+                            <Select disabled>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select meeting type (AA, NA, Al-Anon...)" />
+                              </SelectTrigger>
+                            </Select>
+                            <Input placeholder="Meeting name (optional)" disabled />
+                            <Button className="w-full" disabled>
+                              <CheckCircle className="h-4 w-4 mr-2" />
+                              Check In to Meeting
+                            </Button>
+                          </TabsContent>
+                          <TabsContent value="appointment" className="space-y-3">
+                            <Select disabled>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select appointment type" />
+                              </SelectTrigger>
+                            </Select>
+                            <Input placeholder="Appointment details (optional)" disabled />
+                            <Button className="w-full" disabled>
+                              <CheckCircle className="h-4 w-4 mr-2" />
+                              Check In to Appointment
+                            </Button>
+                          </TabsContent>
+                        </Tabs>
+                        <p className="text-xs text-muted-foreground text-center mt-3">
+                          (Demo mode - check-ins disabled)
+                        </p>
+                      </CardContent>
+                    </CollapsibleContent>
+                  </Card>
+                </Collapsible>
+
+                {/* Meeting Checkout Card (shows when there's a pending checkout) */}
+                {currentFamily.checkins.some(c => c.status === 'active') && (
+                  <Card className="border-0 shadow-lg overflow-hidden border-l-4 border-l-amber-500">
+                    <div className="h-1 bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-600" />
+                    <CardHeader className="pb-3 bg-gradient-to-b from-amber-50/50 to-transparent dark:from-amber-950/20">
+                      <CardTitle className="flex items-center gap-2 font-display text-lg">
+                        <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-amber-500/20 to-yellow-500/20 flex items-center justify-center">
+                          <Clock className="h-4 w-4 text-amber-600" />
+                        </div>
+                        Pending Checkout
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 mb-3">
+                        <p className="text-sm font-medium">AA Meeting - Downtown Community Center</p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Checked in at 7:00 PM • Due by 9:00 PM
+                        </p>
+                      </div>
+                      <Button className="w-full" variant="outline" disabled>
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                        Check Out Now
+                      </Button>
+                      <p className="text-xs text-muted-foreground text-center mt-2">
+                        (Demo mode - checkout disabled)
+                      </p>
+                    </CardContent>
+                  </Card>
+                )}
+                
+                {/* Check-in History */}
+                <Card className="border-0 shadow-lg overflow-hidden">
+                  <div className="h-1 bg-gradient-to-r from-slate-400 via-gray-500 to-slate-600" />
                   <CardHeader>
-                    <CardTitle className="font-display">Recent Check-ins</CardTitle>
+                    <CardTitle className="flex items-center gap-2 font-display">
+                      <Calendar className="h-5 w-5 text-muted-foreground" />
+                      Recent Check-ins
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
                     {currentFamily.checkins.length === 0 ? (
