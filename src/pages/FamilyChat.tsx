@@ -301,6 +301,7 @@ const FamilyChat = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [members, setMembers] = useState<Member[]>([]);
   const [financialRequests, setFinancialRequests] = useState<FinancialRequest[]>([]);
+  const [lifetimeTotals, setLifetimeTotals] = useState<{ requested: number; given: number }>({ requested: 0, given: 0 });
   const [newMessage, setNewMessage] = useState('');
   const [requestAmount, setRequestAmount] = useState('');
   const [requestReason, setRequestReason] = useState('');
@@ -1491,6 +1492,14 @@ const FamilyChat = () => {
       };
     });
     setFinancialRequests(requestsWithNames);
+    
+    // Calculate lifetime totals from all requests (this already includes all history)
+    const totalRequested = requestsWithNames.reduce((sum, r) => sum + r.amount, 0);
+    const totalGiven = requestsWithNames
+      .filter(r => r.payment_confirmed_at || r.status === 'approved')
+      .reduce((sum, r) => r.pledges.reduce((pSum, p) => pSum + p.amount, 0) + sum, 0);
+    
+    setLifetimeTotals({ requested: totalRequested, given: totalGiven });
   };
 
   const subscribeToMessages = () => {
@@ -2743,9 +2752,9 @@ const FamilyChat = () => {
                 </CardContent>
               </Card>
 
-              {/* Financial Summary - Dynamic Stats */}
+              {/* Financial Summary - Lifetime Totals */}
               <div className="grid grid-cols-2 gap-3">
-                {/* Total Requested */}
+                {/* Total Requested - Lifetime */}
                 <Card className="relative overflow-hidden border-0 shadow-md group hover:shadow-lg transition-all duration-300">
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 opacity-0 group-hover:opacity-100 transition-opacity" />
                   <div className="absolute top-0 right-0 w-20 h-20 bg-primary/5 rounded-full -translate-y-1/2 translate-x-1/2" />
@@ -2755,16 +2764,17 @@ const FamilyChat = () => {
                         <DollarSign className="h-5 w-5 text-primary" />
                       </div>
                       <div>
-                        <p className="text-xs text-muted-foreground font-medium">Requested</p>
+                        <p className="text-xs text-muted-foreground font-medium">Total Requested</p>
                         <p className="text-xl font-bold text-foreground">
-                          ${financialRequests.reduce((sum, r) => sum + r.amount, 0).toFixed(0)}
+                          ${lifetimeTotals.requested.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                         </p>
+                        <p className="text-[10px] text-muted-foreground">Lifetime history</p>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
 
-                {/* Total Given */}
+                {/* Total Given - Lifetime */}
                 <Card className="relative overflow-hidden border-0 shadow-md group hover:shadow-lg transition-all duration-300">
                   <div className="absolute inset-0 bg-gradient-to-br from-success/5 via-transparent to-success/10 opacity-0 group-hover:opacity-100 transition-opacity" />
                   <div className="absolute top-0 right-0 w-20 h-20 bg-success/5 rounded-full -translate-y-1/2 translate-x-1/2" />
@@ -2774,13 +2784,11 @@ const FamilyChat = () => {
                         <Heart className="h-5 w-5 text-success" />
                       </div>
                       <div>
-                        <p className="text-xs text-muted-foreground font-medium">Given</p>
+                        <p className="text-xs text-muted-foreground font-medium">Total Given</p>
                         <p className="text-xl font-bold text-success">
-                          ${financialRequests
-                            .filter(r => r.payment_confirmed_at || r.status === 'approved')
-                            .reduce((sum, r) => r.pledges.reduce((pSum, p) => pSum + p.amount, 0) + sum, 0)
-                            .toFixed(0)}
+                          ${lifetimeTotals.given.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                         </p>
+                        <p className="text-[10px] text-muted-foreground">Lifetime history</p>
                       </div>
                     </div>
                   </CardContent>
