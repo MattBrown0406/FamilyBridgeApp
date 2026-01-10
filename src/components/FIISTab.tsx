@@ -333,7 +333,8 @@ export function FIISTab({ familyId, members }: FIISTabProps) {
               <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-violet-500/20 to-purple-500/20 flex items-center justify-center">
                 <Brain className="h-4 w-4 text-violet-600" />
               </div>
-              Family Intervention Intelligence
+              <span className="hidden sm:inline">Family Intervention Intelligence System</span>
+              <span className="sm:hidden">FIIS</span>
             </CardTitle>
             <div className="flex gap-2">
               <Button
