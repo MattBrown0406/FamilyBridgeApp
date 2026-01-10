@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -1021,156 +1022,197 @@ const DemoFamily = () => {
               )}
 
               <div className="space-y-2">
-                {currentFamily.financialRequests.map((request, index) => (
-                  <div 
-                    key={request.id} 
-                    className="animate-fade-in"
-                    style={{ animationDelay: `${index * 50}ms` }}
-                  >
-                    <Card className={`overflow-hidden ${
-                      request.status === 'denied' ? 'border-red-200 bg-red-50/30' : ''
-                    }`}>
-                      <CardContent className="p-4">
-                        <div className="flex items-start justify-between gap-4">
-                          <div className="flex items-center gap-3">
-                            <Avatar className={`h-10 w-10 ring-2 ${request.status === 'denied' ? 'ring-red-300' : 'ring-primary/30'}`}>
-                              <AvatarFallback className="bg-primary/10 text-primary text-sm">
-                                {recoveringMember?.initials || 'U'}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div>
-                              <p className="font-medium">{request.requester}</p>
-                              <p className="text-sm text-muted-foreground">{request.createdAt}</p>
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <p className="text-xl font-bold">${request.amount.toFixed(2)}</p>
-                            <Badge 
-                              variant={
-                                request.status === 'denied' ? 'destructive' :
-                                request.status === 'approved' || request.status === 'completed' ? 'default' :
-                                'secondary'
-                              }
-                              className={
-                                request.status === 'denied' ? 'bg-red-100 text-red-700 border-red-200' :
-                                request.status === 'approved' || request.status === 'completed' ? 'bg-green-100 text-green-700 border-green-200' :
-                                ''
-                              }
-                            >
-                              {request.status === 'denied' && <XCircle className="h-3 w-3 mr-1" />}
-                              {(request.status === 'approved' || request.status === 'completed') && <CheckCircle className="h-3 w-3 mr-1" />}
-                              {request.status === 'pending' && <Clock className="h-3 w-3 mr-1" />}
-                              {request.status}
-                            </Badge>
-                          </div>
-                        </div>
-                        
-                        <p className="mt-3 text-sm bg-muted/50 p-3 rounded-lg">{request.reason}</p>
+                {currentFamily.financialRequests.map((request, index) => {
+                  const isCompleted = request.status === 'approved' || request.status === 'completed';
+                  
+                  const RequestContent = () => (
+                    <>
+                      <p className="mt-3 text-sm bg-muted/50 p-3 rounded-lg">{request.reason}</p>
 
-                        {/* Bill/Receipt Attachment */}
-                        {request.attachmentUrl && (
-                          <div className="mt-3">
-                            <p className="text-xs font-medium text-muted-foreground mb-2 flex items-center gap-1">
-                              <Paperclip className="h-3 w-3" />
-                              Attached Bill/Receipt
-                            </p>
-                            <Dialog>
-                              <DialogTrigger asChild>
-                                <button className="group relative overflow-hidden rounded-lg border border-border hover:border-primary/50 transition-all">
-                                  <img 
-                                    src={request.attachmentUrl} 
-                                    alt={request.attachmentCaption || 'Bill attachment'} 
-                                    className="w-full max-w-[200px] h-auto object-cover rounded-lg group-hover:scale-105 transition-transform duration-300"
-                                  />
-                                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
-                                    <Eye className="h-6 w-6 text-white opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-lg" />
-                                  </div>
-                                </button>
-                              </DialogTrigger>
-                              <DialogContent className="max-w-2xl">
-                                <DialogHeader>
-                                  <DialogTitle className="flex items-center gap-2">
-                                    <FileText className="h-5 w-5" />
-                                    Bill/Receipt for ${request.amount.toFixed(2)}
-                                  </DialogTitle>
-                                </DialogHeader>
-                                <div className="mt-4">
-                                  <img 
-                                    src={request.attachmentUrl} 
-                                    alt={request.attachmentCaption || 'Bill attachment'} 
-                                    className="w-full h-auto rounded-lg border border-border"
-                                  />
-                                  {request.attachmentCaption && (
-                                    <p className="text-sm text-muted-foreground mt-3 text-center">
-                                      {request.attachmentCaption}
-                                    </p>
-                                  )}
+                      {/* Bill/Receipt Attachment */}
+                      {request.attachmentUrl && (
+                        <div className="mt-3">
+                          <p className="text-xs font-medium text-muted-foreground mb-2 flex items-center gap-1">
+                            <Paperclip className="h-3 w-3" />
+                            Attached Bill/Receipt
+                          </p>
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <button className="group relative overflow-hidden rounded-lg border border-border hover:border-primary/50 transition-all">
+                                <img 
+                                  src={request.attachmentUrl} 
+                                  alt={request.attachmentCaption || 'Bill attachment'} 
+                                  className="w-full max-w-[200px] h-auto object-cover rounded-lg group-hover:scale-105 transition-transform duration-300"
+                                />
+                                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+                                  <Eye className="h-6 w-6 text-white opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-lg" />
                                 </div>
-                              </DialogContent>
-                            </Dialog>
-                          </div>
-                        )}
-                        
-                        {/* Votes */}
-                        <div className="mt-3 flex items-center gap-4">
-                          <div className="flex items-center gap-1 text-sm">
-                            <ThumbsUp className="h-4 w-4 text-green-600" />
-                            <span className="text-green-600 font-medium">{request.votes.approve}</span>
-                          </div>
-                          <div className="flex items-center gap-1 text-sm">
-                            <ThumbsDown className="h-4 w-4 text-red-600" />
-                            <span className="text-red-600 font-medium">{request.votes.deny}</span>
-                          </div>
-                          {request.voterDetails && (
-                            <div className="flex items-center gap-1 ml-auto">
-                              {request.voterDetails.map((voter, i) => (
-                                <Badge 
-                                  key={i}
-                                  variant="outline" 
-                                  className={`text-[10px] ${
-                                    voter.approved 
-                                      ? 'bg-green-50 border-green-200 text-green-700' 
-                                      : 'bg-red-50 border-red-200 text-red-700'
-                                  }`}
-                                >
-                                  {voter.approved ? <ThumbsUp className="h-2 w-2 mr-1" /> : <ThumbsDown className="h-2 w-2 mr-1" />}
-                                  {voter.name.split(' ')[0]}
-                                </Badge>
-                              ))}
-                            </div>
-                          )}
+                              </button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-2xl">
+                              <DialogHeader>
+                                <DialogTitle className="flex items-center gap-2">
+                                  <FileText className="h-5 w-5" />
+                                  Bill/Receipt for ${request.amount.toFixed(2)}
+                                </DialogTitle>
+                              </DialogHeader>
+                              <div className="mt-4">
+                                <img 
+                                  src={request.attachmentUrl} 
+                                  alt={request.attachmentCaption || 'Bill attachment'} 
+                                  className="w-full h-auto rounded-lg border border-border"
+                                />
+                                {request.attachmentCaption && (
+                                  <p className="text-sm text-muted-foreground mt-3 text-center">
+                                    {request.attachmentCaption}
+                                  </p>
+                                )}
+                              </div>
+                            </DialogContent>
+                          </Dialog>
                         </div>
-
-                        {/* Denial Reasons */}
-                        {request.denialReasons && request.denialReasons.length > 0 && (
-                          <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
-                            <p className="text-xs font-medium text-red-700 mb-2">Denial Reasons:</p>
-                            <ul className="space-y-1">
-                              {request.denialReasons.map((reason, i) => (
-                                <li key={i} className="text-xs text-red-600 flex items-start gap-2">
-                                  <X className="h-3 w-3 mt-0.5 shrink-0" />
-                                  {reason}
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
-
-                        {/* Pledges */}
-                        {request.pledges && request.pledges.length > 0 && (
-                          <div className="mt-3 flex flex-wrap gap-2">
-                            {request.pledges.map((pledge, i) => (
-                              <Badge key={i} variant="secondary" className="bg-green-50 text-green-700 border-green-200">
-                                <DollarSign className="h-3 w-3 mr-1" />
-                                {pledge.name}: ${pledge.amount}
+                      )}
+                      
+                      {/* Votes */}
+                      <div className="mt-3 flex items-center gap-4">
+                        <div className="flex items-center gap-1 text-sm">
+                          <ThumbsUp className="h-4 w-4 text-green-600" />
+                          <span className="text-green-600 font-medium">{request.votes.approve}</span>
+                        </div>
+                        <div className="flex items-center gap-1 text-sm">
+                          <ThumbsDown className="h-4 w-4 text-red-600" />
+                          <span className="text-red-600 font-medium">{request.votes.deny}</span>
+                        </div>
+                        {request.voterDetails && (
+                          <div className="flex items-center gap-1 ml-auto">
+                            {request.voterDetails.map((voter, i) => (
+                              <Badge 
+                                key={i}
+                                variant="outline" 
+                                className={`text-[10px] ${
+                                  voter.approved 
+                                    ? 'bg-green-50 border-green-200 text-green-700' 
+                                    : 'bg-red-50 border-red-200 text-red-700'
+                                }`}
+                              >
+                                {voter.approved ? <ThumbsUp className="h-2 w-2 mr-1" /> : <ThumbsDown className="h-2 w-2 mr-1" />}
+                                {voter.name.split(' ')[0]}
                               </Badge>
                             ))}
                           </div>
                         )}
-                      </CardContent>
-                    </Card>
-                  </div>
-                ))}
+                      </div>
+
+                      {/* Denial Reasons */}
+                      {request.denialReasons && request.denialReasons.length > 0 && (
+                        <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+                          <p className="text-xs font-medium text-red-700 mb-2">Denial Reasons:</p>
+                          <ul className="space-y-1">
+                            {request.denialReasons.map((reason, i) => (
+                              <li key={i} className="text-xs text-red-600 flex items-start gap-2">
+                                <X className="h-3 w-3 mt-0.5 shrink-0" />
+                                {reason}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+
+                      {/* Pledges */}
+                      {request.pledges && request.pledges.length > 0 && (
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          {request.pledges.map((pledge, i) => (
+                            <Badge key={i} variant="secondary" className="bg-green-50 text-green-700 border-green-200">
+                              <DollarSign className="h-3 w-3 mr-1" />
+                              {pledge.name}: ${pledge.amount}
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
+                    </>
+                  );
+                  
+                  return (
+                    <div 
+                      key={request.id} 
+                      className="animate-fade-in"
+                      style={{ animationDelay: `${index * 50}ms` }}
+                    >
+                      {isCompleted ? (
+                        <Collapsible>
+                          <Card className="overflow-hidden border-green-200 bg-green-50/30">
+                            <CollapsibleTrigger asChild>
+                              <CardContent className="p-4 cursor-pointer hover:bg-green-50/50 transition-colors">
+                                <div className="flex items-start justify-between gap-4">
+                                  <div className="flex items-center gap-3">
+                                    <Avatar className="h-10 w-10 ring-2 ring-green-300">
+                                      <AvatarFallback className="bg-primary/10 text-primary text-sm">
+                                        {recoveringMember?.initials || 'U'}
+                                      </AvatarFallback>
+                                    </Avatar>
+                                    <div>
+                                      <p className="font-medium">{request.requester}</p>
+                                      <p className="text-sm text-muted-foreground">{request.createdAt}</p>
+                                    </div>
+                                  </div>
+                                  <div className="text-right flex items-center gap-2">
+                                    <div>
+                                      <p className="text-xl font-bold">${request.amount.toFixed(2)}</p>
+                                      <Badge className="bg-green-100 text-green-700 border-green-200">
+                                        <CheckCircle className="h-3 w-3 mr-1" />
+                                        {request.status}
+                                      </Badge>
+                                    </div>
+                                    <ChevronDown className="h-5 w-5 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                                  </div>
+                                </div>
+                              </CardContent>
+                            </CollapsibleTrigger>
+                            <CollapsibleContent>
+                              <CardContent className="pt-0 pb-4 px-4 border-t border-green-200">
+                                <RequestContent />
+                              </CardContent>
+                            </CollapsibleContent>
+                          </Card>
+                        </Collapsible>
+                      ) : (
+                        <Card className={`overflow-hidden ${
+                          request.status === 'denied' ? 'border-red-200 bg-red-50/30' : ''
+                        }`}>
+                          <CardContent className="p-4">
+                            <div className="flex items-start justify-between gap-4">
+                              <div className="flex items-center gap-3">
+                                <Avatar className={`h-10 w-10 ring-2 ${request.status === 'denied' ? 'ring-red-300' : 'ring-primary/30'}`}>
+                                  <AvatarFallback className="bg-primary/10 text-primary text-sm">
+                                    {recoveringMember?.initials || 'U'}
+                                  </AvatarFallback>
+                                </Avatar>
+                                <div>
+                                  <p className="font-medium">{request.requester}</p>
+                                  <p className="text-sm text-muted-foreground">{request.createdAt}</p>
+                                </div>
+                              </div>
+                              <div className="text-right">
+                                <p className="text-xl font-bold">${request.amount.toFixed(2)}</p>
+                                <Badge 
+                                  variant={request.status === 'denied' ? 'destructive' : 'secondary'}
+                                  className={
+                                    request.status === 'denied' ? 'bg-red-100 text-red-700 border-red-200' : ''
+                                  }
+                                >
+                                  {request.status === 'denied' && <XCircle className="h-3 w-3 mr-1" />}
+                                  {request.status === 'pending' && <Clock className="h-3 w-3 mr-1" />}
+                                  {request.status}
+                                </Badge>
+                              </div>
+                            </div>
+                            <RequestContent />
+                          </CardContent>
+                        </Card>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </TabsContent>
 
