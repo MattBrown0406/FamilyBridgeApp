@@ -10,6 +10,7 @@ const corsHeaders = {
 type CreateFamilyBody = {
   name?: string;
   description?: string | null;
+  organization_id?: string | null;
 };
 
 serve(async (req) => {
@@ -51,6 +52,7 @@ serve(async (req) => {
     const body = (await req.json().catch(() => ({}))) as CreateFamilyBody;
     const name = (body.name || "").trim();
     const description = typeof body.description === "string" ? body.description.trim() : null;
+    const organizationId = body.organization_id || null;
 
     if (!name || name.length > 100) {
       return new Response(JSON.stringify({ error: "Invalid family name" }), {
@@ -63,7 +65,12 @@ serve(async (req) => {
 
     const { data: family, error: familyError } = await supabaseAdmin
       .from("families")
-      .insert({ name, description: description || null, created_by: userId })
+      .insert({ 
+        name, 
+        description: description || null, 
+        created_by: userId,
+        organization_id: organizationId 
+      })
       .select("*")
       .single();
 

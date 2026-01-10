@@ -35,8 +35,11 @@ import {
   Globe,
   User,
   Pencil,
-  Trash2
+  Trash2,
+  Plus
 } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import { format } from 'date-fns';
 
 interface FamilyDetails {
@@ -192,6 +195,13 @@ const SuperAdmin = () => {
   // Delete confirmation states
   const [deleteConfirm, setDeleteConfirm] = useState<{ type: 'family' | 'org' | 'user'; id: string; name: string } | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // Create dialog states
+  const [isCreatingProvider, setIsCreatingProvider] = useState(false);
+  const [isCreatingFamily, setIsCreatingFamily] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [providerForm, setProviderForm] = useState({ name: '', subdomain: '', support_email: '', phone: '', website_url: '' });
+  const [familyForm, setFamilyForm] = useState({ name: '', description: '', organization_id: '' });
 
   const getAuthHeaders = async () => {
     // Refresh session to ensure we have valid tokens
@@ -364,6 +374,88 @@ const SuperAdmin = () => {
     }
   };
 
+  const handleCreateProvider = async () => {
+    if (!providerForm.name.trim() || !providerForm.subdomain.trim()) {
+      toast.error('Provider name and subdomain are required');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const headers = await getAuthHeaders();
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-organization`,
+        {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({
+            name: providerForm.name.trim(),
+            subdomain: providerForm.subdomain.trim().toLowerCase().replace(/[^a-z0-9-]/g, ''),
+            support_email: providerForm.support_email.trim() || null,
+            phone: providerForm.phone.trim() || null,
+            website_url: providerForm.website_url.trim() || null,
+          }),
+        }
+      );
+
+      const result = await response.json();
+      
+      if (result.organization) {
+        toast.success('Provider created successfully');
+        setIsCreatingProvider(false);
+        setProviderForm({ name: '', subdomain: '', support_email: '', phone: '', website_url: '' });
+        refetch();
+      } else {
+        toast.error(result.error || 'Failed to create provider');
+      }
+    } catch (err) {
+      console.error('Error creating provider:', err);
+      toast.error('Failed to create provider');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleCreateFamily = async () => {
+    if (!familyForm.name.trim()) {
+      toast.error('Family name is required');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const headers = await getAuthHeaders();
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-family`,
+        {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({
+            name: familyForm.name.trim(),
+            description: familyForm.description.trim() || null,
+            organization_id: familyForm.organization_id || null,
+          }),
+        }
+      );
+
+      const result = await response.json();
+      
+      if (result.family) {
+        toast.success('Family group created successfully');
+        setIsCreatingFamily(false);
+        setFamilyForm({ name: '', description: '', organization_id: '' });
+        refetch();
+      } else {
+        toast.error(result.error || 'Failed to create family group');
+      }
+    } catch (err) {
+      console.error('Error creating family:', err);
+      toast.error('Failed to create family group');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   if (authLoading || isVerifying) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -458,16 +550,35 @@ const SuperAdmin = () => {
                 <h1 className="text-base sm:text-xl font-display font-semibold">Super Admin</h1>
               </div>
             </div>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={refetch}
-              disabled={isLoadingStats}
-              className="px-2 sm:px-3"
-            >
-              <RefreshCw className={`h-4 w-4 sm:mr-2 ${isLoadingStats ? 'animate-spin' : ''}`} />
-              <span className="hidden sm:inline">Refresh</span>
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button 
+                size="sm" 
+                onClick={() => setIsCreatingProvider(true)}
+                className="gap-1.5"
+              >
+                <Plus className="h-4 w-4" />
+                <span className="hidden sm:inline">Create Provider</span>
+              </Button>
+              <Button 
+                size="sm" 
+                variant="secondary"
+                onClick={() => setIsCreatingFamily(true)}
+                className="gap-1.5"
+              >
+                <Plus className="h-4 w-4" />
+                <span className="hidden sm:inline">Create Family</span>
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={refetch}
+                disabled={isLoadingStats}
+                className="px-2 sm:px-3"
+              >
+                <RefreshCw className={`h-4 w-4 sm:mr-2 ${isLoadingStats ? 'animate-spin' : ''}`} />
+                <span className="hidden sm:inline">Refresh</span>
+              </Button>
+            </div>
           </div>
         </div>
       </header>
@@ -1327,6 +1438,156 @@ const SuperAdmin = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Create Provider Dialog */}
+      <Dialog open={isCreatingProvider} onOpenChange={setIsCreatingProvider}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Building2 className="h-5 w-5" />
+              Create New Provider
+            </DialogTitle>
+            <DialogDescription>
+              Create a new provider organization. Providers can manage multiple family groups.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div>
+              <Label htmlFor="provider-name">Provider Name *</Label>
+              <Input
+                id="provider-name"
+                placeholder="Recovery Center Name"
+                value={providerForm.name}
+                onChange={(e) => setProviderForm({ ...providerForm, name: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label htmlFor="provider-subdomain">Subdomain *</Label>
+              <div className="flex items-center gap-2">
+                <Input
+                  id="provider-subdomain"
+                  placeholder="myrecovery"
+                  value={providerForm.subdomain}
+                  onChange={(e) => setProviderForm({ ...providerForm, subdomain: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '') })}
+                />
+                <span className="text-sm text-muted-foreground whitespace-nowrap">.familybridge.app</span>
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="provider-email">Support Email</Label>
+              <Input
+                id="provider-email"
+                type="email"
+                placeholder="support@example.com"
+                value={providerForm.support_email}
+                onChange={(e) => setProviderForm({ ...providerForm, support_email: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label htmlFor="provider-phone">Phone</Label>
+              <Input
+                id="provider-phone"
+                placeholder="(555) 123-4567"
+                value={providerForm.phone}
+                onChange={(e) => setProviderForm({ ...providerForm, phone: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label htmlFor="provider-website">Website URL</Label>
+              <Input
+                id="provider-website"
+                placeholder="https://example.com"
+                value={providerForm.website_url}
+                onChange={(e) => setProviderForm({ ...providerForm, website_url: e.target.value })}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsCreatingProvider(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleCreateProvider} disabled={isSubmitting}>
+              {isSubmitting && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+              Create Provider
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Create Family Dialog */}
+      <Dialog open={isCreatingFamily} onOpenChange={setIsCreatingFamily}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Users className="h-5 w-5" />
+              Create New Family Group
+            </DialogTitle>
+            <DialogDescription>
+              Create a new family group. You can optionally assign it to an existing provider.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div>
+              <Label htmlFor="family-name">Family Name *</Label>
+              <Input
+                id="family-name"
+                placeholder="The Smith Family"
+                value={familyForm.name}
+                onChange={(e) => setFamilyForm({ ...familyForm, name: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label htmlFor="family-description">Description</Label>
+              <Textarea
+                id="family-description"
+                placeholder="Optional description..."
+                value={familyForm.description}
+                onChange={(e) => setFamilyForm({ ...familyForm, description: e.target.value })}
+                rows={2}
+              />
+            </div>
+            <div>
+              <Label htmlFor="family-org">Assign to Provider (Optional)</Label>
+              <Select 
+                value={familyForm.organization_id || 'standalone'} 
+                onValueChange={(value) => setFamilyForm({ ...familyForm, organization_id: value === 'standalone' ? '' : value })}
+              >
+                <SelectTrigger id="family-org">
+                  <SelectValue placeholder="Select a provider..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="standalone">
+                    <span className="flex items-center gap-2">
+                      <Users className="h-4 w-4" />
+                      Standalone Family (No Provider)
+                    </span>
+                  </SelectItem>
+                  {stats?.organizations?.map((org) => (
+                    <SelectItem key={org.id} value={org.id}>
+                      <span className="flex items-center gap-2">
+                        <Building2 className="h-4 w-4" />
+                        {org.name}
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground mt-1">
+                Leave as "Standalone" if this family is not affiliated with a provider organization.
+              </p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsCreatingFamily(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleCreateFamily} disabled={isSubmitting}>
+              {isSubmitting && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+              Create Family
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
