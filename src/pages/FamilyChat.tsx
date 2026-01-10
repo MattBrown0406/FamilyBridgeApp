@@ -174,54 +174,74 @@ interface FamilyCommonGoal {
 
 const COMMON_GOALS_OPTIONS = [
   { 
-    key: 'weekly_meetings', 
-    name: 'Attend Weekly Family Meetings', 
-    description: 'Meet regularly as a family to check in and support each other.'
+    key: 'complete_intervention', 
+    name: 'Complete Family Intervention', 
+    description: 'Successfully hold an intervention with professional guidance and express love and concern.',
+    phase: 'Pre-Treatment',
+    milestone: '0 days'
   },
   { 
-    key: 'open_communication', 
-    name: 'Practice Open Communication Daily', 
-    description: 'Share feelings and concerns honestly each day.'
+    key: 'enter_treatment', 
+    name: 'Enter Treatment Program', 
+    description: 'Recovering member enters an appropriate treatment program (inpatient, outpatient, or IOP).',
+    phase: 'Pre-Treatment',
+    milestone: '1-7 days'
   },
   { 
-    key: 'no_enabling', 
-    name: 'Eliminate Enabling Behaviors', 
-    description: 'Stop actions that protect loved ones from consequences of their choices.'
+    key: 'complete_treatment', 
+    name: 'Complete Treatment Program', 
+    description: 'Successfully complete the initial treatment program and receive discharge recommendations.',
+    phase: 'Early Recovery',
+    milestone: '30-90 days'
   },
   { 
-    key: 'self_care', 
-    name: 'Prioritize Individual Self-Care', 
-    description: 'Each member commits to their own mental and physical health.'
+    key: 'establish_support_network', 
+    name: 'Establish Recovery Support Network', 
+    description: 'Build a support system: sponsor, home group, therapist, and sober connections.',
+    phase: 'Early Recovery',
+    milestone: '30 days'
   },
   { 
-    key: 'celebrate_wins', 
-    name: 'Celebrate Small Wins Together', 
-    description: 'Acknowledge and celebrate progress, no matter how small.'
+    key: 'family_therapy_sessions', 
+    name: 'Complete 8 Family Therapy Sessions', 
+    description: 'Attend and complete at least 8 family therapy sessions to address dynamics and healing.',
+    phase: 'Early Recovery',
+    milestone: '60 days'
   },
   { 
-    key: 'attend_support', 
-    name: 'Attend Support Groups (Al-Anon, etc.)', 
-    description: 'Family members participate in their own recovery support.'
+    key: '90_meetings_90_days', 
+    name: 'Attend 90 Meetings in 90 Days', 
+    description: 'Recovering member commits to attending 90 recovery meetings in the first 90 days.',
+    phase: 'Early Recovery',
+    milestone: '90 days'
   },
   { 
-    key: 'rebuild_trust', 
-    name: 'Work on Rebuilding Trust', 
-    description: 'Take intentional steps to repair and strengthen relationships.'
+    key: 'living_amends_plan', 
+    name: 'Create Living Amends Plan', 
+    description: 'Develop and begin implementing a plan for making amends through changed behavior.',
+    phase: 'Sustained Recovery',
+    milestone: '6 months'
   },
   { 
-    key: 'healthy_boundaries', 
-    name: 'Establish Healthy Boundaries', 
-    description: 'Create and maintain clear, loving boundaries.'
+    key: 'family_recovery_milestones', 
+    name: 'Celebrate 6-Month Family Recovery', 
+    description: 'Mark 6 months of family recovery journey with acknowledgment of progress and growth.',
+    phase: 'Sustained Recovery',
+    milestone: '6 months'
   },
   { 
-    key: 'financial_health', 
-    name: 'Restore Financial Stability', 
-    description: 'Work together on budget, debts, and financial recovery.'
+    key: 'rebuild_financial_trust', 
+    name: 'Restore Financial Accountability', 
+    description: 'Re-establish financial trust through transparent budgeting and consistent responsibility.',
+    phase: 'Sustained Recovery',
+    milestone: '9 months'
   },
   { 
-    key: 'quality_time', 
-    name: 'Schedule Sober Quality Time', 
-    description: 'Plan regular activities that bring joy without substances.'
+    key: 'one_year_celebration', 
+    name: 'Celebrate One Year of Sobriety', 
+    description: 'Reach the one-year sobriety milestone as a family, celebrating growth and renewed relationships.',
+    phase: 'Long-Term Recovery',
+    milestone: '1 year'
   },
 ] as const;
 
@@ -3594,7 +3614,7 @@ const FamilyChat = () => {
 
                     {/* Show current common goals if set and not editing */}
                     {familyCommonGoals.length > 0 && !isEditingCommonGoals ? (
-                      <div className="grid gap-2">
+                      <div className="grid gap-3">
                         {familyCommonGoals.map(fg => {
                           const goalOption = COMMON_GOALS_OPTIONS.find(g => g.key === fg.goal_key);
                           const isCustom = fg.goal_key.startsWith('custom_');
@@ -3602,47 +3622,64 @@ const FamilyChat = () => {
                           return (
                             <div
                               key={fg.id}
-                              className={`px-3 py-2 rounded-lg border flex items-center justify-between gap-2 ${
+                              className={`px-4 py-3 rounded-xl border transition-all ${
                                 fg.completed_at 
-                                  ? 'bg-primary/10 border-primary/30' 
-                                  : 'bg-secondary/50 border-border'
+                                  ? 'bg-success/10 border-success/30' 
+                                  : 'bg-secondary/50 border-border hover:border-primary/30'
                               }`}
                             >
-                              <div className="flex items-center gap-2 flex-1 min-w-0">
+                              <div className="flex items-start gap-3">
                                 {isAdminOrModerator ? (
                                   <button
                                     onClick={() => handleToggleCommonGoalComplete(fg.id, !!fg.completed_at)}
-                                    className={`shrink-0 h-4 w-4 rounded-full border-2 flex items-center justify-center transition-colors ${
+                                    className={`shrink-0 h-5 w-5 mt-0.5 rounded-full border-2 flex items-center justify-center transition-colors ${
                                       fg.completed_at
-                                        ? 'bg-primary border-primary text-primary-foreground'
+                                        ? 'bg-success border-success text-success-foreground'
                                         : 'border-muted-foreground hover:border-primary'
                                     }`}
                                   >
-                                    {fg.completed_at && <Check className="h-2.5 w-2.5" />}
+                                    {fg.completed_at && <Check className="h-3 w-3" />}
                                   </button>
                                 ) : (
                                   <div
-                                    className={`shrink-0 h-4 w-4 rounded-full border-2 flex items-center justify-center ${
+                                    className={`shrink-0 h-5 w-5 mt-0.5 rounded-full border-2 flex items-center justify-center ${
                                       fg.completed_at
-                                        ? 'bg-primary border-primary text-primary-foreground'
+                                        ? 'bg-success border-success text-success-foreground'
                                         : 'border-muted-foreground'
                                     }`}
                                   >
-                                    {fg.completed_at && <Check className="h-2.5 w-2.5" />}
+                                    {fg.completed_at && <Check className="h-3 w-3" />}
                                   </div>
                                 )}
-                                <span className={`text-sm font-medium truncate ${fg.completed_at ? 'line-through text-muted-foreground' : ''}`}>
-                                  {displayName}
-                                </span>
-                                {isCustom && (
-                                  <Badge variant="outline" className="text-[10px] px-1.5 py-0">Custom</Badge>
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-2 flex-wrap">
+                                    <span className={`text-sm font-semibold ${fg.completed_at ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
+                                      {displayName}
+                                    </span>
+                                    {isCustom && (
+                                      <Badge variant="outline" className="text-[10px] px-1.5 py-0">Custom</Badge>
+                                    )}
+                                  </div>
+                                  {goalOption && (
+                                    <p className="text-xs text-muted-foreground mt-1">{goalOption.description}</p>
+                                  )}
+                                  {goalOption && (
+                                    <div className="flex items-center gap-2 mt-2">
+                                      <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+                                        {goalOption.phase}
+                                      </Badge>
+                                      <span className="text-[10px] text-muted-foreground">
+                                        Target: {goalOption.milestone}
+                                      </span>
+                                    </div>
+                                  )}
+                                </div>
+                                {fg.completed_at && (
+                                  <Badge className="bg-success text-success-foreground shrink-0 text-xs">
+                                    ✓ Achieved
+                                  </Badge>
                                 )}
                               </div>
-                              {fg.completed_at && (
-                                <Badge variant="default" className="bg-primary/80 shrink-0 text-xs">
-                                  Complete
-                                </Badge>
-                              )}
                             </div>
                           );
                         })}
@@ -3663,20 +3700,33 @@ const FamilyChat = () => {
                                     <button
                                       key={option.key}
                                       onClick={() => handleToggleCommonGoal(option.key)}
-                                      className={`px-3 py-2 rounded-lg border text-left transition-all text-sm ${
+                                      className={`p-3 rounded-xl border text-left transition-all ${
                                         isSelected 
                                           ? 'bg-primary/10 border-primary' 
                                           : 'bg-secondary/50 border-border hover:border-primary/50'
                                       }`}
                                     >
-                                      <div className="flex items-center gap-2">
-                                        <Target className={`h-3 w-3 shrink-0 ${isSelected ? 'text-primary' : 'text-muted-foreground'}`} />
-                                        <span className={`font-medium ${isSelected ? 'text-foreground' : 'text-foreground/80'}`}>
-                                          {option.name}
-                                        </span>
-                                        {isSelected && (
-                                          <CheckCircle className="h-3 w-3 text-primary ml-auto shrink-0" />
-                                        )}
+                                      <div className="flex items-start gap-2">
+                                        <Target className={`h-4 w-4 shrink-0 mt-0.5 ${isSelected ? 'text-primary' : 'text-muted-foreground'}`} />
+                                        <div className="flex-1 min-w-0">
+                                          <div className="flex items-center gap-2">
+                                            <span className={`font-medium text-sm ${isSelected ? 'text-foreground' : 'text-foreground/80'}`}>
+                                              {option.name}
+                                            </span>
+                                            {isSelected && (
+                                              <CheckCircle className="h-4 w-4 text-primary shrink-0" />
+                                            )}
+                                          </div>
+                                          <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{option.description}</p>
+                                          <div className="flex items-center gap-2 mt-2">
+                                            <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                                              {option.phase}
+                                            </Badge>
+                                            <span className="text-[10px] text-muted-foreground">
+                                              {option.milestone}
+                                            </span>
+                                          </div>
+                                        </div>
                                       </div>
                                     </button>
                                   );
@@ -3686,15 +3736,19 @@ const FamilyChat = () => {
                                   <button
                                     key={customKey}
                                     onClick={() => handleToggleCommonGoal(customKey)}
-                                    className="px-3 py-2 rounded-lg border text-left transition-all text-sm bg-primary/10 border-primary"
+                                    className="p-3 rounded-xl border text-left transition-all bg-primary/10 border-primary"
                                   >
-                                    <div className="flex items-center gap-2">
-                                      <Target className="h-3 w-3 shrink-0 text-primary" />
-                                      <span className="font-medium text-foreground">
-                                        {customKey.replace('custom_', '').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
-                                      </span>
-                                      <Badge variant="outline" className="text-[10px] px-1">Custom</Badge>
-                                      <CheckCircle className="h-3 w-3 text-primary ml-auto shrink-0" />
+                                    <div className="flex items-start gap-2">
+                                      <Target className="h-4 w-4 shrink-0 mt-0.5 text-primary" />
+                                      <div className="flex-1">
+                                        <div className="flex items-center gap-2">
+                                          <span className="font-medium text-sm text-foreground">
+                                            {customKey.replace('custom_', '').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
+                                          </span>
+                                          <Badge variant="outline" className="text-[10px] px-1">Custom</Badge>
+                                          <CheckCircle className="h-4 w-4 text-primary shrink-0" />
+                                        </div>
+                                      </div>
                                     </div>
                                   </button>
                                 ))}
