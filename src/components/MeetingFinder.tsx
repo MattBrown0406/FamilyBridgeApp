@@ -521,20 +521,22 @@ export const MeetingFinder = () => {
   return (
     <Card className="w-full">
       <CardHeader className="pb-4">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-2xl font-display flex items-center gap-2">
-            <MapPin className="h-6 w-6 text-primary" />
-            Find a Meeting
+        <div className="flex items-center justify-between gap-2">
+          <CardTitle className="text-lg sm:text-2xl font-display flex items-center gap-2">
+            <MapPin className="h-5 w-5 sm:h-6 sm:w-6 text-primary shrink-0" />
+            <span className="hidden sm:inline">Find a Meeting</span>
+            <span className="sm:hidden">Meetings</span>
           </CardTitle>
           <Button
             variant="outline"
             size="sm"
             onClick={() => setShowFilters(!showFilters)}
+            className="shrink-0"
           >
-            <Filter className="h-4 w-4 mr-1" />
-            Filters
+            <Filter className="h-4 w-4 sm:mr-1" />
+            <span className="hidden sm:inline">Filters</span>
             {hasActiveFilters && (
-              <Badge variant="default" className="ml-2 h-5 w-5 p-0 flex items-center justify-center">
+              <Badge variant="default" className="ml-1 sm:ml-2 h-4 w-4 sm:h-5 sm:w-5 p-0 flex items-center justify-center text-[10px] sm:text-xs">
                 !
               </Badge>
             )}
@@ -601,22 +603,23 @@ export const MeetingFinder = () => {
         {selectedFellowship === 'Al-Anon' && (
           <Card className="border-primary/30 bg-primary/5">
             <CardContent className="py-4">
-              <div className="flex items-center justify-between gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex-1">
-                  <h4 className="font-medium text-foreground">Al-Anon Meeting Finder</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Al-Anon and Alateen meetings are available through the official Al-Anon Family Groups website, including both in-person and online meetings worldwide.
+                  <h4 className="font-medium text-foreground text-sm sm:text-base">Al-Anon Meeting Finder</h4>
+                  <p className="text-xs sm:text-sm text-muted-foreground">
+                    Al-Anon and Alateen meetings are available through the official Al-Anon Family Groups website.
                   </p>
                 </div>
-                <Button asChild variant="outline" size="sm">
+                <Button asChild variant="outline" size="sm" className="w-full sm:w-auto shrink-0">
                   <a
                     href="https://al-anon.org/al-anon-meetings/find-an-al-anon-meeting/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2"
+                    className="flex items-center justify-center gap-2"
                   >
                     <ExternalLink className="h-4 w-4" />
-                    Find Al-Anon Meetings
+                    <span className="sm:hidden">Find Meetings</span>
+                    <span className="hidden sm:inline">Find Al-Anon Meetings</span>
                   </a>
                 </Button>
               </div>
@@ -628,19 +631,19 @@ export const MeetingFinder = () => {
         {selectedFellowship === 'ACA' && (
           <Card className="border-primary/30 bg-primary/5">
             <CardContent className="py-4">
-              <div className="flex items-center justify-between gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex-1">
-                  <h4 className="font-medium text-foreground">ACA Meeting Finder</h4>
-                  <p className="text-sm text-muted-foreground">
-                    ACA meetings are available through the official Adult Children of Alcoholics World Service Organization website.
+                  <h4 className="font-medium text-foreground text-sm sm:text-base">ACA Meeting Finder</h4>
+                  <p className="text-xs sm:text-sm text-muted-foreground">
+                    ACA meetings are available through the official Adult Children of Alcoholics website.
                   </p>
                 </div>
-                <Button asChild variant="outline" size="sm">
+                <Button asChild variant="outline" size="sm" className="w-full sm:w-auto shrink-0">
                   <a
                     href="https://adultchildren.org/meeting-search/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2"
+                    className="flex items-center justify-center gap-2"
                   >
                     <ExternalLink className="h-4 w-4" />
                     Find ACA Meetings
@@ -655,19 +658,19 @@ export const MeetingFinder = () => {
         {selectedFellowship === 'NA' && (
           <Card className="border-primary/30 bg-primary/5">
             <CardContent className="py-4">
-              <div className="flex items-center justify-between gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex-1">
-                  <h4 className="font-medium text-foreground">NA Meeting Finder</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Narcotics Anonymous meetings are available through the official NA World Services website, including both in-person and virtual meetings.
+                  <h4 className="font-medium text-foreground text-sm sm:text-base">NA Meeting Finder</h4>
+                  <p className="text-xs sm:text-sm text-muted-foreground">
+                    Narcotics Anonymous meetings are available through the official NA World Services website.
                   </p>
                 </div>
-                <Button asChild variant="outline" size="sm">
+                <Button asChild variant="outline" size="sm" className="w-full sm:w-auto shrink-0">
                   <a
                     href="https://na.org/meetingsearch/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2"
+                    className="flex items-center justify-center gap-2"
                   >
                     <ExternalLink className="h-4 w-4" />
                     Find NA Meetings
@@ -682,19 +685,19 @@ export const MeetingFinder = () => {
         {selectedFellowship === 'CoDA' && (
           <Card className="border-primary/30 bg-primary/5">
             <CardContent className="py-4">
-              <div className="flex items-center justify-between gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex-1">
-                  <h4 className="font-medium text-foreground">CoDA Meeting Finder</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Co-Dependents Anonymous meetings are available through the official CoDA website, including in-person and online meetings.
+                  <h4 className="font-medium text-foreground text-sm sm:text-base">CoDA Meeting Finder</h4>
+                  <p className="text-xs sm:text-sm text-muted-foreground">
+                    Co-Dependents Anonymous meetings are available through the official CoDA website.
                   </p>
                 </div>
-                <Button asChild variant="outline" size="sm">
+                <Button asChild variant="outline" size="sm" className="w-full sm:w-auto shrink-0">
                   <a
                     href="https://coda.org/find-a-meeting/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2"
+                    className="flex items-center justify-center gap-2"
                   >
                     <ExternalLink className="h-4 w-4" />
                     Find CoDA Meetings
@@ -709,22 +712,22 @@ export const MeetingFinder = () => {
         {selectedFellowship === 'Refuge Recovery' && (
           <Card className="border-primary/30 bg-primary/5">
             <CardContent className="py-4">
-              <div className="flex items-center justify-between gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex-1">
-                  <h4 className="font-medium text-foreground">Refuge Recovery Meeting Finder</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Refuge Recovery offers Buddhist-inspired recovery meetings. Find meetings through the official Refuge Recovery website.
+                  <h4 className="font-medium text-foreground text-sm sm:text-base">Refuge Recovery Meeting Finder</h4>
+                  <p className="text-xs sm:text-sm text-muted-foreground">
+                    Refuge Recovery offers Buddhist-inspired recovery meetings.
                   </p>
                 </div>
-                <Button asChild variant="outline" size="sm">
+                <Button asChild variant="outline" size="sm" className="w-full sm:w-auto shrink-0">
                   <a
                     href="https://refugerecoverymeetings.org/meetings"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2"
+                    className="flex items-center justify-center gap-2"
                   >
                     <ExternalLink className="h-4 w-4" />
-                    Find Refuge Meetings
+                    Find Meetings
                   </a>
                 </Button>
               </div>
@@ -736,19 +739,19 @@ export const MeetingFinder = () => {
         {selectedFellowship === 'Families Anonymous' && (
           <Card className="border-primary/30 bg-primary/5">
             <CardContent className="py-4">
-              <div className="flex items-center justify-between gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex-1">
-                  <h4 className="font-medium text-foreground">Families Anonymous Meeting Finder</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Families Anonymous supports families affected by addiction. Find meetings through the official FA website.
+                  <h4 className="font-medium text-foreground text-sm sm:text-base">Families Anonymous Meeting Finder</h4>
+                  <p className="text-xs sm:text-sm text-muted-foreground">
+                    Families Anonymous supports families affected by addiction.
                   </p>
                 </div>
-                <Button asChild variant="outline" size="sm">
+                <Button asChild variant="outline" size="sm" className="w-full sm:w-auto shrink-0">
                   <a
                     href="https://familiesanonymous.org/meetings/meeting-directories/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2"
+                    className="flex items-center justify-center gap-2"
                   >
                     <ExternalLink className="h-4 w-4" />
                     Find FA Meetings
@@ -763,19 +766,19 @@ export const MeetingFinder = () => {
         {selectedFellowship === 'EDA' && (
           <Card className="border-primary/30 bg-primary/5">
             <CardContent className="py-4">
-              <div className="flex items-center justify-between gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex-1">
-                  <h4 className="font-medium text-foreground">Eating Disorders Anonymous Meeting Finder</h4>
-                  <p className="text-sm text-muted-foreground">
-                    EDA is a fellowship of individuals who share their experience, strength and hope with each other to recover from eating disorders. Find meetings through the official EDA website.
+                  <h4 className="font-medium text-foreground text-sm sm:text-base">Eating Disorders Anonymous Meeting Finder</h4>
+                  <p className="text-xs sm:text-sm text-muted-foreground">
+                    EDA is a fellowship for recovering from eating disorders.
                   </p>
                 </div>
-                <Button asChild variant="outline" size="sm">
+                <Button asChild variant="outline" size="sm" className="w-full sm:w-auto shrink-0">
                   <a
                     href="https://eatingdisordersanonymous.org/meetings/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2"
+                    className="flex items-center justify-center gap-2"
                   >
                     <ExternalLink className="h-4 w-4" />
                     Find EDA Meetings
