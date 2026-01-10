@@ -18,13 +18,13 @@ serve(async (req) => {
       throw new Error('Square credentials not configured');
     }
 
-    const { email, redirectUrl } = await req.json();
+    const { email, redirectUrl, trialDays, couponCode } = await req.json();
 
     if (!email) {
       throw new Error('Email is required');
     }
 
-    console.log('Creating family checkout for:', email);
+    console.log('Creating family checkout for:', email, trialDays ? `with ${trialDays}-day trial` : '');
 
     // Fetch locations to get a valid location ID
     const locationsResponse = await fetch('https://connect.squareup.com/v2/locations', {
@@ -51,6 +51,42 @@ serve(async (req) => {
     // Create a checkout link using Square Checkout API
     const idempotencyKey = crypto.randomUUID();
     
+    // Build the checkout request
+    const checkoutBody: any = {
+      idempotency_key: idempotencyKey,
+      quick_pay: {
+        name: trialDays 
+          ? `FamilyBridge Family Subscription (${trialDays}-Day Free Trial)`
+          : 'FamilyBridge Family Subscription',
+        price_money: {
+          amount: 1999, // $19.99 in cents
+          currency: 'USD',
+        },
+        location_id: locationId,
+      },
+      checkout_options: {
+        redirect_url: redirectUrl || `${req.headers.get('origin')}/family-purchase?status=success`,
+        ask_for_shipping_address: false,
+      },
+      pre_populated_data: {
+        buyer_email: email,
+      },
+    };
+
+    // Add note about trial if applicable
+    if (trialDays && couponCode) {
+      checkoutBody.quick_pay.name = `FamilyBridge Family Subscription - ${trialDays}-Day Free Trial (${couponCode})`;
+      // Note: Square's quick_pay doesn't support trials directly.
+      // For a true trial, you would need to use Square Subscriptions API.
+      // For now, we're noting the trial in the order name.
+      // The webhook handler will need to process this and apply the trial logic.
+      checkoutBody.note = JSON.stringify({
+        trial_days: trialDays,
+        coupon_code: couponCode,
+        trial_end_date: new Date(Date.now() + trialDays * 24 * 60 * 60 * 1000).toISOString(),
+      });
+    }
+
     const checkoutResponse = await fetch('https://connect.squareup.com/v2/online-checkout/payment-links', {
       method: 'POST',
       headers: {
@@ -58,24 +94,7 @@ serve(async (req) => {
         'Authorization': `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        idempotency_key: idempotencyKey,
-        quick_pay: {
-          name: 'FamilyBridge Family Subscription',
-          price_money: {
-            amount: 1999, // $19.99 in cents
-            currency: 'USD',
-          },
-          location_id: locationId,
-        },
-        checkout_options: {
-          redirect_url: redirectUrl || `${req.headers.get('origin')}/family-purchase?status=success`,
-          ask_for_shipping_address: false,
-        },
-        pre_populated_data: {
-          buyer_email: email,
-        },
-      }),
+      body: JSON.stringify(checkoutBody),
     });
 
     const checkoutData = await checkoutResponse.json();
@@ -89,6 +108,7 @@ serve(async (req) => {
     return new Response(JSON.stringify({
       checkoutUrl: checkoutData.payment_link?.url,
       orderId: checkoutData.payment_link?.order_id,
+      trialDays: trialDays || 0,
     }), {
       status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

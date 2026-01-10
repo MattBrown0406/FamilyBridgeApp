@@ -8,9 +8,10 @@ const corsHeaders = {
 };
 
 // Valid coupon codes for families
-const VALID_COUPONS: Record<string, { discount: number; description: string }> = {
+const VALID_COUPONS: Record<string, { discount: number; description: string; trialDays?: number }> = {
   'FAMILY100': { discount: 100, description: 'Full subscription waiver' },
   'FAMILYFREE': { discount: 100, description: 'Free family subscription' },
+  'FREEDOM': { discount: 0, description: '7-day free trial', trialDays: 7 },
 };
 
 // Generate invite code
@@ -121,6 +122,18 @@ serve(async (req) => {
       return new Response(JSON.stringify({ 
         valid: true,
         inviteCode: inviteCode,
+        message: coupon.description
+      }), {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // For trial-based coupons, return trial info
+    if (coupon.trialDays) {
+      return new Response(JSON.stringify({ 
+        valid: true,
+        trialDays: coupon.trialDays,
         message: coupon.description
       }), {
         status: 200,
