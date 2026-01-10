@@ -422,10 +422,10 @@ Deno.serve(async (req) => {
     // Sort by activity (most active first)
     familiesWithActivity.sort((a, b) => b.total_activity - a.total_activity);
 
-    // Get organization stats
+    // Get organization stats with branding
     const { data: orgData } = await adminClient
       .from("organizations")
-      .select("id, name, subdomain, created_at");
+      .select("id, name, subdomain, created_at, logo_url, primary_color, secondary_color, accent_color, background_color, foreground_color");
 
     // Count families per org
     const familiesPerOrg: Record<string, number> = {};
@@ -441,6 +441,12 @@ Deno.serve(async (req) => {
       subdomain: o.subdomain,
       created_at: o.created_at,
       family_count: familiesPerOrg[o.id] || 0,
+      logo_url: o.logo_url,
+      primary_color: o.primary_color,
+      secondary_color: o.secondary_color,
+      accent_color: o.accent_color,
+      background_color: o.background_color,
+      foreground_color: o.foreground_color,
     }));
 
     // Get family memberships count per user
