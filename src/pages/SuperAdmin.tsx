@@ -176,6 +176,9 @@ interface AdminStats {
     avatar_url: string | null;
     created_at: string;
     family_count: number;
+    family_roles?: string[];
+    org_roles?: string[];
+    is_super_admin?: boolean;
   }>;
 }
 
@@ -823,32 +826,80 @@ const SuperAdmin = () => {
                           <p>No users found</p>
                         </div>
                       ) : (
-                        filteredUsers.map((u, i) => (
-                          <div
-                            key={u.id}
-                            className="flex items-center gap-4 px-4 py-3 hover:bg-muted/50 cursor-pointer transition-colors group"
-                            onClick={() => fetchUserDetails(u.id)}
-                            style={{ animationDelay: `${i * 20}ms` }}
-                          >
-                            <Avatar className="h-10 w-10">
-                              <AvatarImage src={u.avatar_url || undefined} />
-                              <AvatarFallback className="bg-muted">
-                                <User className="h-4 w-4 text-muted-foreground" />
-                              </AvatarFallback>
-                            </Avatar>
-                            <div className="flex-1 min-w-0">
-                              <p className="font-medium truncate">{u.full_name}</p>
-                              <p className="text-xs text-muted-foreground">
-                                Joined {format(new Date(u.created_at), 'MMM d, yyyy')}
-                              </p>
+                        filteredUsers.map((u, i) => {
+                          // Determine display roles with priority
+                          const displayRoles: Array<{ label: string; variant: 'default' | 'secondary' | 'outline' | 'destructive'; className?: string }> = [];
+                          
+                          if (u.is_super_admin) {
+                            displayRoles.push({ label: 'Super Admin', variant: 'destructive' });
+                          }
+                          if (u.org_roles?.includes('owner')) {
+                            displayRoles.push({ label: 'Provider Owner', variant: 'default', className: 'bg-violet-600' });
+                          }
+                          if (u.org_roles?.includes('admin')) {
+                            displayRoles.push({ label: 'Provider Admin', variant: 'default', className: 'bg-violet-500' });
+                          }
+                          if (u.org_roles?.includes('staff')) {
+                            displayRoles.push({ label: 'Provider Staff', variant: 'secondary' });
+                          }
+                          if (u.family_roles?.includes('moderator')) {
+                            displayRoles.push({ label: 'Moderator', variant: 'default', className: 'bg-blue-600' });
+                          }
+                          if (u.family_roles?.includes('admin')) {
+                            displayRoles.push({ label: 'Family Admin', variant: 'default', className: 'bg-emerald-600' });
+                          }
+                          if (u.family_roles?.includes('recovering')) {
+                            displayRoles.push({ label: 'Recovering', variant: 'secondary', className: 'bg-amber-100 text-amber-800 border-amber-300' });
+                          }
+                          if (u.family_roles?.includes('member') && !displayRoles.some(r => r.label === 'Recovering')) {
+                            displayRoles.push({ label: 'Family Member', variant: 'outline' });
+                          }
+                          
+                          return (
+                            <div
+                              key={u.id}
+                              className="flex items-center gap-4 px-4 py-3 hover:bg-muted/50 cursor-pointer transition-colors group"
+                              onClick={() => fetchUserDetails(u.id)}
+                              style={{ animationDelay: `${i * 20}ms` }}
+                            >
+                              <Avatar className="h-10 w-10">
+                                <AvatarImage src={u.avatar_url || undefined} />
+                                <AvatarFallback className="bg-muted">
+                                  <User className="h-4 w-4 text-muted-foreground" />
+                                </AvatarFallback>
+                              </Avatar>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <p className="font-medium truncate">{u.full_name}</p>
+                                  <div className="flex items-center gap-1 flex-wrap">
+                                    {displayRoles.slice(0, 3).map((role, idx) => (
+                                      <Badge 
+                                        key={idx} 
+                                        variant={role.variant} 
+                                        className={`text-[10px] px-1.5 py-0 h-5 ${role.className || ''}`}
+                                      >
+                                        {role.label}
+                                      </Badge>
+                                    ))}
+                                    {displayRoles.length > 3 && (
+                                      <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-5">
+                                        +{displayRoles.length - 3}
+                                      </Badge>
+                                    )}
+                                  </div>
+                                </div>
+                                <p className="text-xs text-muted-foreground">
+                                  Joined {format(new Date(u.created_at), 'MMM d, yyyy')}
+                                </p>
+                              </div>
+                              <div className="hidden sm:block text-xs text-center">
+                                <p className="font-semibold text-sm">{u.family_count}</p>
+                                <p className="text-muted-foreground">families</p>
+                              </div>
+                              <ChevronRight className="h-4 w-4 text-muted-foreground/50 group-hover:text-muted-foreground transition-colors" />
                             </div>
-                            <div className="hidden sm:block text-xs text-center">
-                              <p className="font-semibold text-sm">{u.family_count}</p>
-                              <p className="text-muted-foreground">families</p>
-                            </div>
-                            <ChevronRight className="h-4 w-4 text-muted-foreground/50 group-hover:text-muted-foreground transition-colors" />
-                          </div>
-                        ))
+                          );
+                        })
                       )}
                     </div>
                   </ScrollArea>
