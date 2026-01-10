@@ -615,237 +615,254 @@ const DemoFamily = () => {
         className="border-b backdrop-blur-md bg-background/80 sticky top-0 z-50 shadow-sm"
         style={branding ? { backgroundColor: `${branding.primaryColor}08` } : undefined}
       >
-        <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm" onClick={() => navigate('/demo')} className="hover-lift">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Demo
-            </Button>
-            <div className="h-6 w-px bg-border/50" />
-            <div className="flex items-center gap-3">
-              <button 
-                onClick={() => setShowMembersList(true)}
-                className="h-10 w-10 rounded-xl flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 relative"
-                style={{ 
-                  background: branding 
-                    ? `linear-gradient(135deg, ${branding.primaryColor}, ${branding.primaryColor}cc)` 
-                    : selectedFamily === 'davis' 
-                      ? 'linear-gradient(135deg, hsl(var(--destructive)), hsl(var(--destructive) / 0.8))'
-                      : 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary) / 0.8))'
-                }}
-                title="View family members"
-              >
-                <img src={familyBridgeLogo} alt="FamilyBridge" className="h-5 w-5 object-contain" />
-                <span className="absolute -bottom-1 -right-1 h-5 w-5 rounded-full bg-white shadow-md flex items-center justify-center text-[10px] font-bold text-primary border border-primary/20">
-                  {currentFamily.members.length}
-                </span>
-              </button>
-              <div className="flex flex-col">
-                {/* Family Selector Dropdown */}
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button className="flex items-center gap-1 font-semibold text-foreground hover:text-primary transition-colors">
-                      {currentFamily.name}
-                      <ChevronDown className="h-4 w-4" />
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start" className="w-64">
-                    <DropdownMenuItem onClick={() => handleFamilyChange('johnson')} className="cursor-pointer">
-                      <div className="flex items-center gap-3 py-1">
-                        <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center">
-                          <Users className="h-4 w-4 text-primary-foreground" />
+        <div className="container mx-auto px-2 sm:px-4 py-2 sm:py-3">
+          {/* Mobile: Stack layout, Desktop: Flex row */}
+          <div className="flex items-center justify-between gap-2">
+            {/* Left side - Back button and family info */}
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+              <Button variant="ghost" size="sm" onClick={() => navigate('/demo')} className="hover-lift shrink-0 px-2 sm:px-3">
+                <ArrowLeft className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Back to Demo</span>
+              </Button>
+              <div className="h-6 w-px bg-border/50 hidden sm:block" />
+              <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                <button 
+                  onClick={() => setShowMembersList(true)}
+                  className="h-8 w-8 sm:h-10 sm:w-10 rounded-xl flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 relative shrink-0"
+                  style={{ 
+                    background: branding 
+                      ? `linear-gradient(135deg, ${branding.primaryColor}, ${branding.primaryColor}cc)` 
+                      : selectedFamily === 'davis' 
+                        ? 'linear-gradient(135deg, hsl(var(--destructive)), hsl(var(--destructive) / 0.8))'
+                        : 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary) / 0.8))'
+                  }}
+                  title="View family members"
+                >
+                  <img src={familyBridgeLogo} alt="FamilyBridge" className="h-4 w-4 sm:h-5 sm:w-5 object-contain" />
+                  <span className="absolute -bottom-1 -right-1 h-4 w-4 sm:h-5 sm:w-5 rounded-full bg-white shadow-md flex items-center justify-center text-[8px] sm:text-[10px] font-bold text-primary border border-primary/20">
+                    {currentFamily.members.length}
+                  </span>
+                </button>
+                <div className="flex flex-col min-w-0">
+                  {/* Family Selector Dropdown */}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button className="flex items-center gap-1 font-semibold text-foreground hover:text-primary transition-colors text-sm sm:text-base truncate">
+                        <span className="truncate">{currentFamily.name}</span>
+                        <ChevronDown className="h-3 w-3 sm:h-4 sm:w-4 shrink-0" />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" className="w-64">
+                      <DropdownMenuItem onClick={() => handleFamilyChange('johnson')} className="cursor-pointer">
+                        <div className="flex items-center gap-3 py-1">
+                          <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center">
+                            <Users className="h-4 w-4 text-primary-foreground" />
+                          </div>
+                          <div>
+                            <p className="font-medium">The Johnson Family</p>
+                            <p className="text-xs text-muted-foreground">Professional Moderator • Positive Recovery</p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="font-medium">The Johnson Family</p>
-                          <p className="text-xs text-muted-foreground">Professional Moderator • Positive Recovery</p>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleFamilyChange('davis')} className="cursor-pointer">
+                        <div className="flex items-center gap-3 py-1">
+                          <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-destructive to-destructive/80 flex items-center justify-center">
+                            <AlertTriangle className="h-4 w-4 text-destructive-foreground" />
+                          </div>
+                          <div>
+                            <p className="font-medium">The Davis Family</p>
+                            <p className="text-xs text-muted-foreground">Private Family • Crisis Mode</p>
+                          </div>
                         </div>
-                      </div>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleFamilyChange('davis')} className="cursor-pointer">
-                      <div className="flex items-center gap-3 py-1">
-                        <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-destructive to-destructive/80 flex items-center justify-center">
-                          <AlertTriangle className="h-4 w-4 text-destructive-foreground" />
-                        </div>
-                        <div>
-                          <p className="font-medium">The Davis Family</p>
-                          <p className="text-xs text-muted-foreground">Private Family • Crisis Mode</p>
-                        </div>
-                      </div>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-                <div className="flex items-center gap-1.5">
-                  <span className={`h-2 w-2 rounded-full ${selectedFamily === 'davis' ? 'bg-destructive' : 'bg-green-500'} animate-pulse`} />
-                  <span className="text-xs text-muted-foreground">{currentFamily.description}</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                  <div className="flex items-center gap-1.5">
+                    <span className={`h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full ${selectedFamily === 'davis' ? 'bg-destructive' : 'bg-green-500'} animate-pulse`} />
+                    <span className="text-[10px] sm:text-xs text-muted-foreground truncate">{currentFamily.description}</span>
+                  </div>
                 </div>
               </div>
+            </div>
+            
+            {/* Right side - Badges and actions */}
+            <div className="flex items-center gap-1 sm:gap-2 shrink-0">
               {selectedFamily === 'davis' && (
-                <Badge variant="destructive" className="bg-destructive/20 text-destructive border-destructive/30">
-                  <AlertTriangle className="h-3 w-3 mr-1" />
-                  Crisis
+                <Badge variant="destructive" className="bg-destructive/20 text-destructive border-destructive/30 text-[10px] sm:text-xs px-1.5 sm:px-2">
+                  <AlertTriangle className="h-2.5 w-2.5 sm:h-3 sm:w-3 mr-0.5 sm:mr-1" />
+                  <span className="hidden sm:inline">Crisis</span>
                 </Badge>
               )}
-              <Badge variant="secondary" className="bg-gradient-to-r from-primary/10 to-secondary/10 border-primary/20">
-                <Sparkles className="h-3 w-3 mr-1" />
-                Demo Mode
+              <Badge variant="secondary" className="bg-gradient-to-r from-primary/10 to-secondary/10 border-primary/20 text-[10px] sm:text-xs px-1.5 sm:px-2">
+                <Sparkles className="h-2.5 w-2.5 sm:h-3 sm:w-3 mr-0.5 sm:mr-1" />
+                <span className="hidden sm:inline">Demo Mode</span>
+                <span className="sm:hidden">Demo</span>
               </Badge>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            {/* Request Temporary Moderator Button (for Davis family only) */}
-            {selectedFamily === 'davis' && !currentFamily.hasOrganization && (
-              <AlertDialog open={showModeratorDialog} onOpenChange={setShowModeratorDialog}>
-                <AlertDialogTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="gap-2 border-destructive/50 text-destructive hover:bg-destructive hover:text-destructive-foreground"
-                  >
-                    <LifeBuoy className="h-4 w-4" />
-                    <span className="hidden sm:inline">Request 24hr Moderator</span>
-                    <span className="sm:hidden">Crisis Help</span>
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent className="max-w-md">
-                  <AlertDialogHeader>
-                    <AlertDialogTitle className="flex items-center gap-2">
-                      <AlertTriangle className="h-5 w-5 text-warning" />
-                      Request 24-Hour Crisis Support
-                    </AlertDialogTitle>
-                    <AlertDialogDescription asChild>
-                      <div className="space-y-4 text-left">
-                        <p>
-                          You are about to request temporary supervision from a professional 
-                          interventionist to help your family during a crisis.
-                        </p>
-                        
-                        <div className="bg-muted p-4 rounded-lg space-y-2">
-                          <p className="font-medium text-foreground">What happens next:</p>
-                          <ul className="list-disc list-inside text-sm space-y-1">
-                            <li>A professional interventionist will be assigned immediately</li>
-                            <li>They will have moderator access to your family group for 24 hours</li>
-                            <li>They will monitor conversations and provide guidance</li>
-                          </ul>
-                        </div>
-
-                        <div className="bg-primary/10 p-4 rounded-lg">
-                          <p className="text-sm">
-                            <strong className="text-foreground">Your membership includes:</strong>
-                            {' '}One free 24-hour crisis supervision per 30-day period.
-                          </p>
-                        </div>
-                      </div>
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={() => {
-                        toast.success('Demo: Crisis support would be activated for 24 hours');
-                        setShowModeratorDialog(false);
-                      }}
-                      className="bg-destructive hover:bg-destructive/90"
+              
+              {/* Request Temporary Moderator Button (for Davis family only) */}
+              {selectedFamily === 'davis' && !currentFamily.hasOrganization && (
+                <AlertDialog open={showModeratorDialog} onOpenChange={setShowModeratorDialog}>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="gap-1 sm:gap-2 border-destructive/50 text-destructive hover:bg-destructive hover:text-destructive-foreground text-xs sm:text-sm px-2 sm:px-3"
                     >
-                      Yes, Request Crisis Support
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            )}
-            <Button 
-              onClick={() => navigate('/family-purchase')}
-              className="hover-lift shadow-lg"
-              style={branding ? { backgroundColor: branding.primaryColor } : undefined}
-            >
-              Get Started
-            </Button>
+                      <LifeBuoy className="h-3 w-3 sm:h-4 sm:w-4" />
+                      <span className="hidden md:inline">Request 24hr Moderator</span>
+                      <span className="md:hidden">Help</span>
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent className="max-w-md mx-4">
+                    <AlertDialogHeader>
+                      <AlertDialogTitle className="flex items-center gap-2">
+                        <AlertTriangle className="h-5 w-5 text-warning" />
+                        Request 24-Hour Crisis Support
+                      </AlertDialogTitle>
+                      <AlertDialogDescription asChild>
+                        <div className="space-y-4 text-left">
+                          <p>
+                            You are about to request temporary supervision from a professional 
+                            interventionist to help your family during a crisis.
+                          </p>
+                          
+                          <div className="bg-muted p-4 rounded-lg space-y-2">
+                            <p className="font-medium text-foreground">What happens next:</p>
+                            <ul className="list-disc list-inside text-sm space-y-1">
+                              <li>A professional interventionist will be assigned immediately</li>
+                              <li>They will have moderator access to your family group for 24 hours</li>
+                              <li>They will monitor conversations and provide guidance</li>
+                            </ul>
+                          </div>
+
+                          <div className="bg-primary/10 p-4 rounded-lg">
+                            <p className="text-sm">
+                              <strong className="text-foreground">Your membership includes:</strong>
+                              {' '}One free 24-hour crisis supervision per 30-day period.
+                            </p>
+                          </div>
+                        </div>
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={() => {
+                          toast.success('Demo: Crisis support would be activated for 24 hours');
+                          setShowModeratorDialog(false);
+                        }}
+                        className="bg-destructive hover:bg-destructive/90"
+                      >
+                        Yes, Request Crisis Support
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              )}
+              <Button 
+                onClick={() => navigate('/family-purchase')}
+                size="sm"
+                className="hover-lift shadow-lg text-xs sm:text-sm px-2 sm:px-4"
+                style={branding ? { backgroundColor: branding.primaryColor } : undefined}
+              >
+                <span className="hidden sm:inline">Get Started</span>
+                <span className="sm:hidden">Start</span>
+              </Button>
+            </div>
           </div>
         </div>
       </header>
 
       {/* Demo Banner */}
       <div 
-        className={`border-b py-3 px-4 text-center ${
+        className={`border-b py-2 sm:py-3 px-2 sm:px-4 text-center ${
           selectedFamily === 'davis' 
             ? 'bg-gradient-to-r from-destructive/5 via-destructive/10 to-destructive/5' 
             : 'bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5'
         }`}
       >
-        <p className="text-sm flex items-center justify-center gap-2 animate-fade-in">
+        <p className="text-xs sm:text-sm flex items-center justify-center gap-1 sm:gap-2 animate-fade-in">
           {selectedFamily === 'davis' ? (
             <>
-              <AlertTriangle className="h-4 w-4 text-destructive animate-pulse" />
-              <span className="text-destructive font-medium">Crisis Demo: This family is struggling with active addiction and enabling patterns.</span>
-              <AlertTriangle className="h-4 w-4 text-destructive animate-pulse" />
+              <AlertTriangle className="h-3 w-3 sm:h-4 sm:w-4 text-destructive animate-pulse shrink-0" />
+              <span className="text-destructive font-medium">
+                <span className="hidden sm:inline">Crisis Demo: This family is struggling with active addiction and enabling patterns.</span>
+                <span className="sm:hidden">Crisis Demo: Active addiction & enabling patterns</span>
+              </span>
+              <AlertTriangle className="h-3 w-3 sm:h-4 sm:w-4 text-destructive animate-pulse shrink-0 hidden sm:block" />
             </>
           ) : (
             <>
-              <Sparkles className="h-4 w-4 animate-pulse" />
-              <span>Positive Recovery Demo: This family has professional support and is making progress.</span>
-              <Activity className="h-4 w-4 animate-pulse" />
+              <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 animate-pulse shrink-0" />
+              <span>
+                <span className="hidden sm:inline">Positive Recovery Demo: This family has professional support and is making progress.</span>
+                <span className="sm:hidden">Positive Recovery: Professional support & progress</span>
+              </span>
+              <Activity className="h-3 w-3 sm:h-4 sm:w-4 animate-pulse shrink-0 hidden sm:block" />
             </>
           )}
         </p>
       </div>
 
-      <div className="container mx-auto px-4 py-6">
+      <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-6">
         <div className="max-w-5xl mx-auto">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="flex flex-wrap h-auto gap-1 w-full mb-6 bg-muted/50 backdrop-blur-sm p-1.5 rounded-xl border border-border/50 shadow-sm">
+            {/* Mobile: Use grid for better spacing, Desktop: flex row */}
+            <TabsList className="grid grid-cols-7 sm:flex sm:flex-wrap h-auto gap-0.5 sm:gap-1 w-full mb-4 sm:mb-6 bg-muted/50 backdrop-blur-sm p-1 sm:p-1.5 rounded-xl border border-border/50 shadow-sm">
               <TabsTrigger 
                 value="chat" 
-                className="flex-1 min-w-[50px] data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg transition-all duration-300 flex items-center justify-center gap-1 px-2 py-2"
+                className="flex-1 min-w-0 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg transition-all duration-300 flex items-center justify-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-1.5 sm:py-2"
               >
-                <MessageCircle className="h-4 w-4 shrink-0" />
-                <span className="hidden sm:inline text-xs">Chat</span>
+                <MessageCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
+                <span className="hidden md:inline text-xs">Chat</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="financial"
-                className="flex-1 min-w-[50px] data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-300 flex items-center justify-center gap-1 px-2 py-2"
+                className="flex-1 min-w-0 data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-300 flex items-center justify-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-1.5 sm:py-2 relative"
               >
-                <DollarSign className="h-4 w-4 shrink-0" />
-                <span className="hidden sm:inline text-xs">Financial</span>
+                <DollarSign className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
+                <span className="hidden md:inline text-xs">Financial</span>
                 {selectedFamily === 'davis' && (
-                  <Badge variant="destructive" className="ml-1 h-4 w-4 p-0 flex items-center justify-center text-[8px]">5</Badge>
+                  <Badge variant="destructive" className="absolute -top-1 -right-1 h-3.5 w-3.5 sm:h-4 sm:w-4 p-0 flex items-center justify-center text-[7px] sm:text-[8px]">5</Badge>
                 )}
               </TabsTrigger>
               <TabsTrigger 
                 value="checkins"
-                className="flex-1 min-w-[50px] data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-300 flex items-center justify-center gap-1 px-2 py-2"
+                className="flex-1 min-w-0 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-300 flex items-center justify-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-1.5 sm:py-2"
               >
-                <MapPin className="h-4 w-4 shrink-0" />
-                <span className="hidden sm:inline text-xs">Check-ins</span>
+                <MapPin className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
+                <span className="hidden md:inline text-xs">Check-ins</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="values"
-                className="flex-1 min-w-[50px] data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500 data-[state=active]:to-rose-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-300 flex items-center justify-center gap-1 px-2 py-2"
+                className="flex-1 min-w-0 data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500 data-[state=active]:to-rose-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-300 flex items-center justify-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-1.5 sm:py-2"
               >
-                <Sparkles className="h-4 w-4 shrink-0" />
-                <span className="hidden sm:inline text-xs">Values</span>
+                <Sparkles className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
+                <span className="hidden md:inline text-xs">Values</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="boundaries"
-                className="flex-1 min-w-[50px] data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-violet-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-300 flex items-center justify-center gap-1 px-2 py-2"
+                className="flex-1 min-w-0 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-violet-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-300 flex items-center justify-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-1.5 sm:py-2"
               >
-                <Shield className="h-4 w-4 shrink-0" />
-                <span className="hidden sm:inline text-xs">Boundaries</span>
+                <Shield className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
+                <span className="hidden md:inline text-xs">Boundaries</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="fiis"
-                className="flex-1 min-w-[50px] data-[state=active]:bg-gradient-to-r data-[state=active]:from-violet-500 data-[state=active]:to-purple-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-300 flex items-center justify-center gap-1 px-2 py-2 relative"
+                className="flex-1 min-w-0 data-[state=active]:bg-gradient-to-r data-[state=active]:from-violet-500 data-[state=active]:to-purple-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-300 flex items-center justify-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-1.5 sm:py-2 relative"
               >
-                <Brain className="h-4 w-4 shrink-0" />
-                <span className="hidden sm:inline text-xs">FIIS</span>
+                <Brain className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
+                <span className="hidden md:inline text-xs">FIIS</span>
                 {selectedFamily === 'davis' && (
-                  <span className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-destructive animate-pulse" />
+                  <span className="absolute -top-0.5 -right-0.5 h-2 w-2 sm:h-3 sm:w-3 rounded-full bg-destructive animate-pulse" />
                 )}
               </TabsTrigger>
               <TabsTrigger 
                 value="testing"
-                className="flex-1 min-w-[50px] data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-500 data-[state=active]:to-orange-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-300 flex items-center justify-center gap-1 px-2 py-2"
+                className="flex-1 min-w-0 data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-500 data-[state=active]:to-orange-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-300 flex items-center justify-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-1.5 sm:py-2"
               >
-                <FlaskConical className="h-4 w-4 shrink-0" />
-                <span className="hidden sm:inline text-xs">Testing</span>
+                <FlaskConical className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
+                <span className="hidden md:inline text-xs">Testing</span>
               </TabsTrigger>
             </TabsList>
 
@@ -853,12 +870,12 @@ const DemoFamily = () => {
             <TabsContent value="chat" className="animate-fade-in">
               <Card className="card-interactive border-0 shadow-lg bg-gradient-to-br from-card to-card/95 overflow-hidden">
                 <div className={`h-1 ${selectedFamily === 'davis' ? 'bg-gradient-to-r from-destructive via-destructive/80 to-destructive/60' : 'bg-gradient-to-r from-primary via-primary/80 to-primary/60'}`} />
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <div className={`h-8 w-8 rounded-lg ${selectedFamily === 'davis' ? 'bg-gradient-to-br from-destructive to-destructive/80' : 'bg-gradient-to-br from-primary to-primary/80'} flex items-center justify-center`}>
-                      <MessageCircle className="h-4 w-4 text-primary-foreground" />
+                <CardHeader className="pb-2 sm:pb-3 px-3 sm:px-6">
+                  <CardTitle className="text-base sm:text-lg flex flex-wrap items-center gap-1.5 sm:gap-2">
+                    <div className={`h-6 w-6 sm:h-8 sm:w-8 rounded-lg ${selectedFamily === 'davis' ? 'bg-gradient-to-br from-destructive to-destructive/80' : 'bg-gradient-to-br from-primary to-primary/80'} flex items-center justify-center shrink-0`}>
+                      <MessageCircle className="h-3 w-3 sm:h-4 sm:w-4 text-primary-foreground" />
                     </div>
-                    Family Chat
+                    <span>Family Chat</span>
                     <DemoFamilyHealthBadge 
                       status={selectedFamily === 'davis' ? 'tension' : 'improving'}
                       reason={selectedFamily === 'davis' 
@@ -866,15 +883,15 @@ const DemoFamily = () => {
                         : 'High check-in rate, goals progressing, family engagement strong'
                       }
                     />
-                    <Badge variant="secondary" className="ml-auto bg-green-100 text-green-700 border-green-200">
-                      <Activity className="h-3 w-3 mr-1" />
+                    <Badge variant="secondary" className="ml-auto bg-green-100 text-green-700 border-green-200 text-[10px] sm:text-xs">
+                      <Activity className="h-2.5 w-2.5 sm:h-3 sm:w-3 mr-0.5 sm:mr-1" />
                       Live
                     </Badge>
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <ScrollArea className="h-[500px] pr-4">
-                    <div className="space-y-4">
+                <CardContent className="px-2 sm:px-6">
+                  <ScrollArea className="h-[350px] sm:h-[500px] pr-2 sm:pr-4">
+                    <div className="space-y-3 sm:space-y-4">
                       {messages.map((msg, index) => {
                         const member = getMemberById(msg.senderId);
                         const isRecovering = member?.role === 'recovering';
@@ -884,18 +901,18 @@ const DemoFamily = () => {
                         return (
                           <div 
                             key={msg.id} 
-                            className="flex gap-3 animate-fade-in"
+                            className="flex gap-2 sm:gap-3 animate-fade-in"
                             style={{ animationDelay: `${index * 30}ms` }}
                           >
                             <Avatar 
-                              className={`h-9 w-9 ring-2 ring-offset-2 ${
+                              className={`h-7 w-7 sm:h-9 sm:w-9 ring-2 ring-offset-1 sm:ring-offset-2 shrink-0 ${
                                 isRecovering ? 'ring-primary' : 
                                 isDad && selectedFamily === 'davis' ? 'ring-amber-500' :
                                 'ring-muted'
                               }`}
                             >
                               <AvatarFallback 
-                                className={`text-xs font-medium ${
+                                className={`text-[10px] sm:text-xs font-medium ${
                                   isRecovering ? 'bg-gradient-to-br from-primary to-primary/80 text-primary-foreground' :
                                   isDad && selectedFamily === 'davis' ? 'bg-gradient-to-br from-amber-500 to-amber-600 text-white' :
                                   'bg-muted'
@@ -904,26 +921,26 @@ const DemoFamily = () => {
                                 {msg.sender.split(' ').map(n => n[0]).join('')}
                               </AvatarFallback>
                             </Avatar>
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 flex-wrap">
-                                <span className={`font-semibold text-sm ${isRecovering ? 'text-primary' : 'text-foreground'}`}>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
+                                <span className={`font-semibold text-xs sm:text-sm ${isRecovering ? 'text-primary' : 'text-foreground'} truncate`}>
                                   {msg.sender}
                                 </span>
                                 {isRecovering && (
-                                  <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-primary/30 text-primary">
+                                  <Badge variant="outline" className="text-[8px] sm:text-[10px] px-1 sm:px-1.5 py-0 border-primary/30 text-primary">
                                     Recovering
                                   </Badge>
                                 )}
                                 {isDad && selectedFamily === 'davis' && (
-                                  <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-amber-500/30 text-amber-600 bg-amber-50">
+                                  <Badge variant="outline" className="text-[8px] sm:text-[10px] px-1 sm:px-1.5 py-0 border-amber-500/30 text-amber-600 bg-amber-50 hidden sm:flex">
                                     <AlertTriangle className="h-2 w-2 mr-0.5" />
                                     Enabling Risk
                                   </Badge>
                                 )}
-                                <span className="text-xs text-muted-foreground">{msg.time}</span>
+                                <span className="text-[10px] sm:text-xs text-muted-foreground">{msg.time}</span>
                               </div>
                               <div 
-                                className={`mt-1.5 rounded-2xl rounded-tl-sm px-4 py-2.5 inline-block max-w-[90%] ${
+                                className={`mt-1 sm:mt-1.5 rounded-2xl rounded-tl-sm px-2.5 sm:px-4 py-1.5 sm:py-2.5 inline-block max-w-full sm:max-w-[90%] ${
                                   isSystemMessage 
                                     ? 'border shadow-sm bg-primary/10 border-primary/20' 
                                     : isRecovering 
@@ -933,7 +950,7 @@ const DemoFamily = () => {
                                         : 'bg-muted/70'
                                 }`}
                               >
-                                <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                                <p className="text-xs sm:text-sm whitespace-pre-wrap break-words">{msg.content}</p>
                               </div>
                             </div>
                           </div>
@@ -942,17 +959,18 @@ const DemoFamily = () => {
                     </div>
                   </ScrollArea>
                   
-                  <div className="flex gap-2 mt-4 pt-4 border-t border-border/50">
+                  <div className="flex gap-2 mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-border/50">
                     <Input 
                       placeholder="Type a message..." 
                       value={newMessage}
                       onChange={(e) => setNewMessage(e.target.value)}
                       onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-                      className="border-muted-foreground/20 focus:border-primary focus:ring-primary/20"
+                      className="border-muted-foreground/20 focus:border-primary focus:ring-primary/20 text-sm"
                     />
                     <Button 
                       onClick={handleSendMessage}
-                      className="shadow-md hover-lift bg-gradient-to-r from-primary to-primary/90"
+                      size="sm"
+                      className="shadow-md hover-lift bg-gradient-to-r from-primary to-primary/90 px-3 sm:px-4"
                     >
                       <Send className="h-4 w-4" />
                     </Button>
@@ -964,35 +982,35 @@ const DemoFamily = () => {
             {/* Financial Tab */}
             <TabsContent value="financial" className="animate-fade-in">
               {/* Financial Summary */}
-              <Card className="mb-6 border-0 shadow-lg overflow-hidden">
+              <Card className="mb-4 sm:mb-6 border-0 shadow-lg overflow-hidden">
                 <div className={`h-1 ${selectedFamily === 'davis' ? 'bg-gradient-to-r from-red-500 via-orange-500 to-amber-500' : 'bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500'}`} />
-                <CardContent className="pt-6">
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div className="text-center p-4 bg-gradient-to-br from-muted/50 to-muted/30 rounded-xl border border-border/50">
-                      <p className="text-sm text-muted-foreground mb-1">Total Requested</p>
-                      <p className="text-2xl font-bold text-foreground">
+                <CardContent className="pt-4 sm:pt-6 px-3 sm:px-6">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
+                    <div className="text-center p-2 sm:p-4 bg-gradient-to-br from-muted/50 to-muted/30 rounded-xl border border-border/50">
+                      <p className="text-[10px] sm:text-sm text-muted-foreground mb-0.5 sm:mb-1">Total Requested</p>
+                      <p className="text-lg sm:text-2xl font-bold text-foreground">
                         ${currentFamily.financialRequests.reduce((sum, r) => sum + r.amount, 0).toFixed(2)}
                       </p>
                     </div>
-                    <div className="text-center p-4 bg-gradient-to-br from-green-50 to-emerald-50/50 rounded-xl border border-green-200">
-                      <p className="text-sm text-green-700 mb-1">Total Funded</p>
-                      <p className="text-2xl font-bold text-green-600">
+                    <div className="text-center p-2 sm:p-4 bg-gradient-to-br from-green-50 to-emerald-50/50 rounded-xl border border-green-200">
+                      <p className="text-[10px] sm:text-sm text-green-700 mb-0.5 sm:mb-1">Total Funded</p>
+                      <p className="text-lg sm:text-2xl font-bold text-green-600">
                         ${currentFamily.financialRequests.filter(r => r.status === 'approved' || r.status === 'completed').reduce((sum, r) => sum + r.amount, 0).toFixed(2)}
                       </p>
                     </div>
-                    <div className="text-center p-4 bg-gradient-to-br from-amber-50 to-yellow-50/50 rounded-xl border border-amber-200">
-                      <p className="text-sm text-amber-700 mb-1">Pending</p>
-                      <p className="text-2xl font-bold text-amber-600">
+                    <div className="text-center p-2 sm:p-4 bg-gradient-to-br from-amber-50 to-yellow-50/50 rounded-xl border border-amber-200">
+                      <p className="text-[10px] sm:text-sm text-amber-700 mb-0.5 sm:mb-1">Pending</p>
+                      <p className="text-lg sm:text-2xl font-bold text-amber-600">
                         {currentFamily.financialRequests.filter(r => r.status === 'pending').length}
                       </p>
-                      <p className="text-xs text-amber-600">requests</p>
+                      <p className="text-[10px] sm:text-xs text-amber-600">requests</p>
                     </div>
-                    <div className="text-center p-4 bg-gradient-to-br from-red-50 to-orange-50/50 rounded-xl border border-red-200">
-                      <p className="text-sm text-red-700 mb-1">Denied</p>
-                      <p className="text-2xl font-bold text-red-600">
+                    <div className="text-center p-2 sm:p-4 bg-gradient-to-br from-red-50 to-orange-50/50 rounded-xl border border-red-200">
+                      <p className="text-[10px] sm:text-sm text-red-700 mb-0.5 sm:mb-1">Denied</p>
+                      <p className="text-lg sm:text-2xl font-bold text-red-600">
                         {currentFamily.financialRequests.filter(r => r.status === 'denied').length}
                       </p>
-                      <p className="text-xs text-red-600">requests</p>
+                      <p className="text-[10px] sm:text-xs text-red-600">requests</p>
                     </div>
                   </div>
                 </CardContent>
