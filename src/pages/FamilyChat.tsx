@@ -59,6 +59,7 @@ import { ConversationStarters } from '@/components/ConversationStarters';
 import { TemporaryModeratorRequest } from '@/components/TemporaryModeratorRequest';
 import { FIISTab } from '@/components/FIISTab';
 import { MeetingFinder } from '@/components/MeetingFinder';
+import { BillReceiptCapture } from '@/components/BillReceiptCapture';
 import { useFIISNotifications } from '@/hooks/useFIISNotifications';
 
 const REQUEST_REASONS = [
@@ -2461,50 +2462,15 @@ const FamilyChat = () => {
                       </div>
                     )}
                     
-                    {/* Bill Attachment */}
-                    <div>
-                      <Label className="text-xs text-muted-foreground mb-2 block">
-                        Bill/Receipt Photo (recommended for utilities)
-                      </Label>
-                      <input
-                        ref={fileInputRef}
-                        type="file"
-                        accept="image/*"
-                        onChange={handleFileSelect}
-                        className="hidden"
-                      />
-                      {billPreview ? (
-                        <div className="relative">
-                          <img
-                            src={billPreview}
-                            alt="Bill preview"
-                            className="w-full max-h-48 object-contain rounded-lg border border-border"
-                          />
-                          <Button
-                            type="button"
-                            variant="destructive"
-                            size="sm"
-                            className="absolute top-2 right-2"
-                            onClick={clearAttachment}
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      ) : (
-                        <Button
-                          type="button"
-                          variant="outline"
-                          className="w-full"
-                          onClick={() => fileInputRef.current?.click()}
-                        >
-                          <Paperclip className="h-4 w-4 mr-2" />
-                          Attach Bill/Receipt Photo
-                        </Button>
-                      )}
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Include a photo showing the account name, number, and amount due.
-                      </p>
-                    </div>
+                    {/* Bill Attachment with Camera and AI Clarity Check */}
+                    <BillReceiptCapture
+                      onImageCapture={(file, preview) => {
+                        setBillAttachment(file);
+                        setBillPreview(preview);
+                      }}
+                      onClear={clearAttachment}
+                      preview={billPreview}
+                    />
 
                     <Button type="submit" disabled={isRequesting} className="w-full">
                       {isRequesting ? (
