@@ -8,7 +8,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Textarea } from '@/components/ui/textarea';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { FinancialRequestCard } from '@/components/FinancialRequestCard';
 import { 
   ArrowLeft, 
@@ -1066,6 +1066,50 @@ const DemoFamily = () => {
                         </div>
                         
                         <p className="mt-3 text-sm bg-muted/50 p-3 rounded-lg">{request.reason}</p>
+
+                        {/* Bill/Receipt Attachment */}
+                        {request.attachmentUrl && (
+                          <div className="mt-3">
+                            <p className="text-xs font-medium text-muted-foreground mb-2 flex items-center gap-1">
+                              <Paperclip className="h-3 w-3" />
+                              Attached Bill/Receipt
+                            </p>
+                            <Dialog>
+                              <DialogTrigger asChild>
+                                <button className="group relative overflow-hidden rounded-lg border border-border hover:border-primary/50 transition-all">
+                                  <img 
+                                    src={request.attachmentUrl} 
+                                    alt={request.attachmentCaption || 'Bill attachment'} 
+                                    className="w-full max-w-[200px] h-auto object-cover rounded-lg group-hover:scale-105 transition-transform duration-300"
+                                  />
+                                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+                                    <Eye className="h-6 w-6 text-white opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-lg" />
+                                  </div>
+                                </button>
+                              </DialogTrigger>
+                              <DialogContent className="max-w-2xl">
+                                <DialogHeader>
+                                  <DialogTitle className="flex items-center gap-2">
+                                    <FileText className="h-5 w-5" />
+                                    Bill/Receipt for ${request.amount.toFixed(2)}
+                                  </DialogTitle>
+                                </DialogHeader>
+                                <div className="mt-4">
+                                  <img 
+                                    src={request.attachmentUrl} 
+                                    alt={request.attachmentCaption || 'Bill attachment'} 
+                                    className="w-full h-auto rounded-lg border border-border"
+                                  />
+                                  {request.attachmentCaption && (
+                                    <p className="text-sm text-muted-foreground mt-3 text-center">
+                                      {request.attachmentCaption}
+                                    </p>
+                                  )}
+                                </div>
+                              </DialogContent>
+                            </Dialog>
+                          </div>
+                        )}
                         
                         {/* Votes */}
                         <div className="mt-3 flex items-center gap-4">
