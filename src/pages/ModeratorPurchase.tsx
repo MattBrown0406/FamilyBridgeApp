@@ -190,52 +190,52 @@ export default function ModeratorPurchase() {
   return (
     <div className="min-h-screen flex flex-col">
       <BrandedHeader />
-      <main className="flex-1 container py-8">
-        <div className="max-w-4xl mx-auto space-y-8">
+      <main className="flex-1 container px-3 sm:px-4 py-4 sm:py-8">
+        <div className="max-w-4xl mx-auto space-y-4 sm:space-y-8">
           {/* Hero Section */}
-          <div className="text-center space-y-4">
-            <h1 className="text-3xl md:text-4xl font-bold">Extended Moderator Support</h1>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <div className="text-center space-y-2 sm:space-y-4">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">Extended Moderator Support</h1>
+            <p className="text-sm sm:text-lg text-muted-foreground max-w-2xl mx-auto">
               Need more time with a professional moderator? Purchase additional 24-hour support sessions for your family.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8">
+          <div className="grid md:grid-cols-2 gap-4 sm:gap-8">
             {/* Features Card */}
             <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Shield className="w-5 h-5 text-primary" />
+              <CardHeader className="pb-3 sm:pb-6">
+                <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                  <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
                   What's Included
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex gap-3">
-                  <Clock className="w-5 h-5 text-primary mt-0.5" />
+              <CardContent className="space-y-3 sm:space-y-4">
+                <div className="flex gap-2 sm:gap-3">
+                  <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-primary mt-0.5 shrink-0" />
                   <div>
-                    <p className="font-medium">24 Hours of Support</p>
-                    <p className="text-sm text-muted-foreground">Full day of professional moderation</p>
+                    <p className="font-medium text-sm sm:text-base">24 Hours of Support</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Full day of professional moderation</p>
                   </div>
                 </div>
-                <div className="flex gap-3">
-                  <Users className="w-5 h-5 text-primary mt-0.5" />
+                <div className="flex gap-2 sm:gap-3">
+                  <Users className="w-4 h-4 sm:w-5 sm:h-5 text-primary mt-0.5 shrink-0" />
                   <div>
-                    <p className="font-medium">Trained Professional</p>
-                    <p className="text-sm text-muted-foreground">Expert in family recovery dynamics</p>
+                    <p className="font-medium text-sm sm:text-base">Trained Professional</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Expert in family recovery dynamics</p>
                   </div>
                 </div>
-                <div className="flex gap-3">
-                  <Shield className="w-5 h-5 text-primary mt-0.5" />
+                <div className="flex gap-2 sm:gap-3">
+                  <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-primary mt-0.5 shrink-0" />
                   <div>
-                    <p className="font-medium">Crisis Intervention</p>
-                    <p className="text-sm text-muted-foreground">Help navigate difficult conversations</p>
+                    <p className="font-medium text-sm sm:text-base">Crisis Intervention</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Help navigate difficult conversations</p>
                   </div>
                 </div>
-                <div className="flex gap-3">
-                  <CheckCircle className="w-5 h-5 text-primary mt-0.5" />
+                <div className="flex gap-2 sm:gap-3">
+                  <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-primary mt-0.5 shrink-0" />
                   <div>
-                    <p className="font-medium">Boundary Support</p>
-                    <p className="text-sm text-muted-foreground">Assistance setting healthy boundaries</p>
+                    <p className="font-medium text-sm sm:text-base">Boundary Support</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Assistance setting healthy boundaries</p>
                   </div>
                 </div>
               </CardContent>

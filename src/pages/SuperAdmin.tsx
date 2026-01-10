@@ -446,16 +446,16 @@ const SuperAdmin = () => {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b bg-card">
-        <div className="container mx-auto px-4 py-4">
+        <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" size="sm" onClick={() => navigate('/')}>
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Home
+            <div className="flex items-center gap-2 sm:gap-4">
+              <Button variant="ghost" size="sm" onClick={() => navigate('/')} className="px-2 sm:px-3">
+                <ArrowLeft className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Home</span>
               </Button>
-              <div className="flex items-center gap-2">
-                <Shield className="h-5 w-5 text-primary" />
-                <h1 className="text-xl font-display font-semibold">Super Admin</h1>
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <Shield className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+                <h1 className="text-base sm:text-xl font-display font-semibold">Super Admin</h1>
               </div>
             </div>
             <Button 
@@ -463,15 +463,16 @@ const SuperAdmin = () => {
               size="sm" 
               onClick={refetch}
               disabled={isLoadingStats}
+              className="px-2 sm:px-3"
             >
-              <RefreshCw className={`h-4 w-4 mr-2 ${isLoadingStats ? 'animate-spin' : ''}`} />
-              Refresh
+              <RefreshCw className={`h-4 w-4 sm:mr-2 ${isLoadingStats ? 'animate-spin' : ''}`} />
+              <span className="hidden sm:inline">Refresh</span>
             </Button>
           </div>
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
         {error ? (
           <Card className="border-destructive">
             <CardContent className="pt-6 text-center">
@@ -486,14 +487,14 @@ const SuperAdmin = () => {
         ) : stats ? (
           <>
             {/* Overview Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 mb-4 sm:mb-8">
               <Card>
-                <CardContent className="pt-4">
-                  <div className="flex items-center gap-2 text-muted-foreground mb-1">
-                    <Users className="h-4 w-4" />
-                    <span className="text-sm">Families</span>
+                <CardContent className="p-3 sm:pt-4">
+                  <div className="flex items-center gap-1.5 sm:gap-2 text-muted-foreground mb-1">
+                    <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                    <span className="text-xs sm:text-sm">Families</span>
                   </div>
-                  <p className="text-2xl font-bold">{stats.overview.total_families}</p>
+                  <p className="text-xl sm:text-2xl font-bold">{stats.overview.total_families}</p>
                 </CardContent>
               </Card>
               

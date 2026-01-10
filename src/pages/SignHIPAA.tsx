@@ -57,7 +57,7 @@ const SignHIPAA = () => {
   };
 
   return (
-    <div className="min-h-screen gradient-hero py-8 px-4">
+    <div className="min-h-screen gradient-hero py-4 sm:py-8 px-3 sm:px-4">
       <div className="max-w-2xl mx-auto">
         <HIPAARelease
           familyId={familyId}

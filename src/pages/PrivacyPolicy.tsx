@@ -7,10 +7,10 @@ const PrivacyPolicy = () => {
     <div className="min-h-screen bg-background flex flex-col">
       <BrandedHeader showHomeButton />
       
-      <main className="flex-1 container mx-auto px-4 py-8 max-w-4xl">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Privacy Policy</h1>
-          <p className="text-muted-foreground">
+      <main className="flex-1 container mx-auto px-3 sm:px-4 py-4 sm:py-8 max-w-4xl">
+        <div className="text-center mb-4 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">Privacy Policy</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">
             Last updated: January 2026
           </p>
         </div>
