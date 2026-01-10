@@ -17,6 +17,9 @@ interface HealthMetrics {
   boundaryViolations: number;
   recentActivity: number;
   liquorLicenseWarnings: number;
+  recentMessageSamples?: string[];
+  previousStatus?: string;
+  daysSinceLastCrisis?: number;
 }
 
 interface HealthResult {
@@ -25,7 +28,108 @@ interface HealthResult {
   metrics: HealthMetrics;
 }
 
-function calculateHealthStatus(metrics: HealthMetrics): HealthResult {
+interface AIAnalysis {
+  status: 'crisis' | 'concern' | 'tension' | 'stable' | 'improving';
+  reason: string;
+  patterns_detected: string[];
+  early_warning_signs: string[];
+}
+
+async function analyzeWithAI(metrics: HealthMetrics): Promise<AIAnalysis | null> {
+  const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+  
+  if (!LOVABLE_API_KEY) {
+    console.log("LOVABLE_API_KEY not configured, using rule-based analysis");
+    return null;
+  }
+
+  const systemPrompt = `You are a family health pattern analyzer for a recovery support app. Analyze the provided metrics and determine the family's health status.
+
+IMPORTANT STATUS DEFINITIONS:
+- "crisis": Active emergency requiring immediate intervention. Multiple severe indicators present (3+ missed checkouts, 4+ boundary violations, high conflict with many filtered messages).
+- "concern": Early warning signs detected that could escalate to crisis if unaddressed. Patterns emerging that warrant close monitoring (liquor license visits, 2 missed checkouts, escalating conflicts, increasing filtered messages).
+- "tension": Friction present but manageable. Some disagreements or communication issues but not escalating (vote conflicts, some filtered messages, low attendance).
+- "stable": Normal functioning. No significant issues, routine patterns maintained.
+- "improving": Positive momentum detected. Consistent positive patterns over time (high check-in rates, goals being completed, low conflicts, active engagement, no concerning locations visited).
+
+PATTERN ANALYSIS GUIDELINES:
+1. Look for TRENDS not just snapshots - is the situation getting better or worse?
+2. Consider combinations of factors - a single metric rarely tells the whole story
+3. Early warning signs for "concern": liquor license visits, increasing filtered messages, declining check-in rates
+4. Positive patterns for "improving": consistent high check-ins (80%+), goals being achieved, minimal conflicts, active family engagement
+5. "Stable" is the default when no clear positive or negative trends exist
+
+Respond with valid JSON only, no markdown.`;
+
+  const userPrompt = `Analyze these family health metrics and determine the appropriate status:
+
+METRICS:
+- Check-in completion rate: ${(metrics.checkinCompletionRate * 100).toFixed(1)}%
+- Missed checkouts (overdue): ${metrics.missedCheckouts}
+- Financial request approval rate: ${(metrics.financialApprovalRate * 100).toFixed(1)}%
+- Vote conflict rate: ${(metrics.voteConflictRate * 100).toFixed(1)}%
+- Filtered messages (last 7 days): ${metrics.filteredMessageCount}
+- Goals completed: ${metrics.goalsCompleted} of ${metrics.goalsTotal}
+- Boundary violations (denied requests): ${metrics.boundaryViolations}
+- Recent message activity: ${metrics.recentActivity} messages
+- Liquor license location warnings: ${metrics.liquorLicenseWarnings}
+${metrics.previousStatus ? `- Previous status: ${metrics.previousStatus}` : ''}
+${metrics.daysSinceLastCrisis !== undefined ? `- Days since last crisis: ${metrics.daysSinceLastCrisis}` : ''}
+
+Respond with JSON in this exact format:
+{
+  "status": "crisis|concern|tension|stable|improving",
+  "reason": "Brief explanation in 1-2 sentences",
+  "patterns_detected": ["pattern1", "pattern2"],
+  "early_warning_signs": ["sign1", "sign2"] 
+}`;
+
+  try {
+    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "google/gemini-3-flash-preview",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt },
+        ],
+      }),
+    });
+
+    if (!response.ok) {
+      console.error("AI gateway error:", response.status);
+      return null;
+    }
+
+    const data = await response.json();
+    const content = data.choices?.[0]?.message?.content;
+    
+    if (!content) {
+      console.error("No content in AI response");
+      return null;
+    }
+
+    // Parse JSON from response (handle potential markdown code blocks)
+    let jsonStr = content.trim();
+    if (jsonStr.startsWith("```")) {
+      jsonStr = jsonStr.replace(/```json?\n?/g, "").replace(/```/g, "").trim();
+    }
+    
+    const analysis = JSON.parse(jsonStr) as AIAnalysis;
+    console.log("AI analysis result:", analysis);
+    return analysis;
+
+  } catch (error) {
+    console.error("Error calling AI:", error);
+    return null;
+  }
+}
+
+function calculateHealthStatusRuleBased(metrics: HealthMetrics): HealthResult {
   const {
     checkinCompletionRate,
     missedCheckouts,
@@ -53,7 +157,7 @@ function calculateHealthStatus(metrics: HealthMetrics): HealthResult {
     };
   }
 
-  // Concern indicators (between crisis and tension)
+  // Concern indicators (between crisis and tension - early warning)
   if (
     liquorLicenseWarnings >= 1 || 
     missedCheckouts >= 2 || 
@@ -68,7 +172,7 @@ function calculateHealthStatus(metrics: HealthMetrics): HealthResult {
     
     return {
       status: 'concern',
-      reason: `Elevated concerns: ${reasons.join(', ')}`,
+      reason: `Early warning signs detected: ${reasons.join(', ')}`,
       metrics,
     };
   }
@@ -88,7 +192,7 @@ function calculateHealthStatus(metrics: HealthMetrics): HealthResult {
     };
   }
 
-  // Improving indicators
+  // Improving indicators - consistent positive patterns
   const goalProgress = goalsTotal > 0 ? goalsCompleted / goalsTotal : 0;
   if (
     checkinCompletionRate >= 0.8 && 
@@ -96,11 +200,26 @@ function calculateHealthStatus(metrics: HealthMetrics): HealthResult {
     voteConflictRate < 0.2 && 
     filteredMessageCount <= 1 &&
     recentActivity >= 5 &&
-    liquorLicenseWarnings === 0
+    liquorLicenseWarnings === 0 &&
+    missedCheckouts === 0
   ) {
     return {
       status: 'improving',
-      reason: `Positive trends: ${Math.round(checkinCompletionRate * 100)}% check-in rate, ${goalsCompleted}/${goalsTotal} goals progressing`,
+      reason: `Positive patterns detected: ${Math.round(checkinCompletionRate * 100)}% check-in rate, ${goalsCompleted}/${goalsTotal} goals progressing, healthy engagement`,
+      metrics,
+    };
+  }
+
+  // Stable - no concerning patterns, consistent normal behavior
+  if (
+    missedCheckouts === 0 &&
+    liquorLicenseWarnings === 0 &&
+    filteredMessageCount <= 2 &&
+    voteConflictRate <= 0.3
+  ) {
+    return {
+      status: 'stable',
+      reason: 'Family system operating normally with consistent positive patterns',
       metrics,
     };
   }
@@ -114,7 +233,6 @@ function calculateHealthStatus(metrics: HealthMetrics): HealthResult {
 }
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -141,6 +259,22 @@ serve(async (req) => {
     const now = new Date();
     const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
     const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+    // Fetch previous health status for trend analysis
+    const { data: previousHealth } = await supabase
+      .from('family_health_status')
+      .select('status, calculated_at')
+      .eq('family_id', familyId)
+      .single();
+
+    const previousStatus = previousHealth?.status;
+    let daysSinceLastCrisis: number | undefined;
+
+    if (previousHealth?.status === 'crisis' && previousHealth?.calculated_at) {
+      daysSinceLastCrisis = Math.floor(
+        (now.getTime() - new Date(previousHealth.calculated_at).getTime()) / (24 * 60 * 60 * 1000)
+      );
+    }
 
     // Fetch meeting check-ins (last 30 days)
     const { data: checkins, error: checkinsError } = await supabase
@@ -205,7 +339,6 @@ serve(async (req) => {
         console.error('Error fetching votes:', votesError);
       }
 
-      // Calculate conflict rate (requests with mixed votes)
       const votesByRequest = new Map<string, boolean[]>();
       votes?.forEach(v => {
         const existing = votesByRequest.get(v.request_id) || [];
@@ -252,7 +385,7 @@ serve(async (req) => {
     const goalsTotal = goals?.length || 0;
     const goalsCompleted = goals?.filter(g => g.completed_at)?.length || 0;
 
-    // Fetch boundary issues (denied requests with reasons in last 30 days as proxy)
+    // Fetch boundary issues
     const boundaryViolations = financialRequests?.filter(r => r.status === 'denied')?.length || 0;
 
     // Calculate health metrics
@@ -267,12 +400,33 @@ serve(async (req) => {
       boundaryViolations,
       recentActivity,
       liquorLicenseWarnings,
+      previousStatus,
+      daysSinceLastCrisis,
     };
 
     console.log('Health metrics calculated:', metrics);
 
-    const healthResult = calculateHealthStatus(metrics);
-    console.log('Health status result:', healthResult);
+    // Try AI analysis first, fall back to rule-based
+    let healthResult: HealthResult;
+    const aiAnalysis = await analyzeWithAI(metrics);
+    
+    if (aiAnalysis) {
+      healthResult = {
+        status: aiAnalysis.status,
+        reason: aiAnalysis.reason,
+        metrics: {
+          ...metrics,
+          // Don't include these in stored metrics
+          previousStatus: undefined,
+          daysSinceLastCrisis: undefined,
+          recentMessageSamples: undefined,
+        } as HealthMetrics,
+      };
+      console.log('Using AI analysis:', healthResult);
+    } else {
+      healthResult = calculateHealthStatusRuleBased(metrics);
+      console.log('Using rule-based analysis:', healthResult);
+    }
 
     // Upsert the health status
     const { data: upsertResult, error: upsertError } = await supabase
@@ -303,7 +457,8 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         success: true, 
-        healthStatus: upsertResult 
+        healthStatus: upsertResult,
+        aiPowered: !!aiAnalysis,
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
