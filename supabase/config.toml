@@ -68,3 +68,6 @@ verify_jwt = false
 
 [functions.verify-app-store-purchase]
 verify_jwt = false
+
+[functions.fiis-analyze]
+verify_jwt = false

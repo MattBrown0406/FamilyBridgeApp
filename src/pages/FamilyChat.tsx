@@ -17,7 +17,8 @@ import {
   ArrowLeft, Send, Loader2, Users, DollarSign, 
   MessageCircle, AlertTriangle, Check, X, Shield, MapPin,
   ExternalLink, CreditCard, CheckCircle2, Paperclip, Image, HandCoins, Trash2, Pencil,
-  Target, ShieldCheck, Plus, CheckCircle, MessageSquare, FlaskConical, ChevronDown, Sparkles
+  Target, ShieldCheck, Plus, CheckCircle, MessageSquare, FlaskConical, ChevronDown, Sparkles,
+  Brain
 } from 'lucide-react';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -56,6 +57,7 @@ import { LocationCapture, LocationData } from '@/components/LocationCapture';
 import { PrivateMessaging } from '@/components/PrivateMessaging';
 import { ConversationStarters } from '@/components/ConversationStarters';
 import { TemporaryModeratorRequest } from '@/components/TemporaryModeratorRequest';
+import { FIISTab } from '@/components/FIISTab';
 
 const REQUEST_REASONS = [
   'Electric',
@@ -1965,6 +1967,13 @@ const FamilyChat = () => {
               <FlaskConical className="h-4 w-4" />
               <span className="hidden sm:inline text-xs">Tests</span>
             </TabsTrigger>
+            <TabsTrigger 
+              value="fiis" 
+              className="flex-1 min-w-[50px] flex items-center justify-center gap-1 px-2 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg transition-all duration-200"
+            >
+              <Brain className="h-4 w-4" />
+              <span className="hidden sm:inline text-xs">FIIS</span>
+            </TabsTrigger>
           </TabsList>
 
           {/* Messages Tab */}
@@ -3357,6 +3366,14 @@ const FamilyChat = () => {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* FIIS Tab */}
+          <TabsContent value="fiis" className="mt-0 space-y-4 overflow-auto">
+            <FIISTab 
+              familyId={familyId!} 
+              members={members.map(m => ({ user_id: m.user_id, full_name: m.full_name }))}
+            />
           </TabsContent>
 
         </Tabs>
