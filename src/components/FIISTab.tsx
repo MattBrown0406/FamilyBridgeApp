@@ -82,6 +82,7 @@ const OBSERVATION_TYPES = [
   { value: "emotional_climate", label: "Emotional Climate Change", icon: TrendingUp },
   { value: "calm_period", label: "Period of Calm", icon: CheckCircle },
   { value: "concern", label: "Moment of Concern", icon: AlertTriangle },
+  { value: "boundary_failure", label: "Failure to Enforce Boundaries", icon: AlertTriangle },
 ] as const;
 
 const SIGNAL_ICONS: Record<string, typeof TrendingUp> = {
