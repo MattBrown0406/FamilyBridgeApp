@@ -150,6 +150,8 @@ interface AdminStats {
     name: string;
     account_number: string;
     organization_name: string | null;
+    organization_logo_url?: string | null;
+    organization_primary_color?: string | null;
     created_at: string;
     messages_last_30_days: number;
     checkins_last_30_days: number;
@@ -662,8 +664,22 @@ const SuperAdmin = () => {
                               onClick={() => fetchFamilyDetails(family.id)}
                               style={{ animationDelay: `${i * 20}ms` }}
                             >
-                              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center flex-shrink-0">
-                                <Users className="h-4 w-4 text-primary" />
+                              <div 
+                                className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden border"
+                                style={{ 
+                                  backgroundColor: family.organization_primary_color ? `hsl(${family.organization_primary_color})` : undefined,
+                                  borderColor: family.organization_primary_color ? `hsl(${family.organization_primary_color})` : 'hsl(var(--border))'
+                                }}
+                              >
+                                {family.organization_logo_url ? (
+                                  <img 
+                                    src={family.organization_logo_url} 
+                                    alt={`${family.organization_name} logo`}
+                                    className="w-full h-full object-contain bg-white p-0.5 rounded"
+                                  />
+                                ) : (
+                                  <Users className="h-4 w-4 text-primary" />
+                                )}
                               </div>
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-2">

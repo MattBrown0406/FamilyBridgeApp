@@ -397,14 +397,14 @@ Deno.serve(async (req) => {
       familyCheckinCounts[c.family_id] = (familyCheckinCounts[c.family_id] || 0) + 1;
     });
 
-    // Get organization names for families
+    // Get organization names and logos for families
     const { data: orgs } = await adminClient
       .from("organizations")
-      .select("id, name");
+      .select("id, name, logo_url, primary_color");
 
-    const orgMap: Record<string, string> = {};
+    const orgMap: Record<string, { name: string; logo_url: string | null; primary_color: string | null }> = {};
     (orgs || []).forEach(o => {
-      orgMap[o.id] = o.name;
+      orgMap[o.id] = { name: o.name, logo_url: o.logo_url, primary_color: o.primary_color };
     });
 
     // Combine family data with activity
@@ -412,7 +412,9 @@ Deno.serve(async (req) => {
       id: f.id,
       name: f.name,
       account_number: f.account_number,
-      organization_name: f.organization_id ? orgMap[f.organization_id] || null : null,
+      organization_name: f.organization_id ? orgMap[f.organization_id]?.name || null : null,
+      organization_logo_url: f.organization_id ? orgMap[f.organization_id]?.logo_url || null : null,
+      organization_primary_color: f.organization_id ? orgMap[f.organization_id]?.primary_color || null : null,
       created_at: f.created_at,
       messages_last_30_days: familyMessageCounts[f.id] || 0,
       checkins_last_30_days: familyCheckinCounts[f.id] || 0,
