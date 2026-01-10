@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { useLocationDriftMonitor } from '@/hooks/useLocationDriftMonitor';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, LogOut, MapPin, Clock, AlertCircle } from 'lucide-react';
+import { Loader2, LogOut, MapPin, Clock, AlertCircle, AlertTriangle, Navigation } from 'lucide-react';
 import { LocationCapture, LocationData } from '@/components/LocationCapture';
 import { Badge } from '@/components/ui/badge';
 import { format, formatDistanceToNow, isPast, isFuture } from 'date-fns';
@@ -19,6 +20,8 @@ interface PendingCheckout {
   checked_in_at: string;
   checkout_due_at: string;
   meeting_start_time: string;
+  latitude: number;
+  longitude: number;
 }
 
 interface MeetingCheckoutProps {
@@ -37,6 +40,18 @@ export const MeetingCheckout = ({ familyId, onCheckoutComplete }: MeetingCheckou
   const [notes, setNotes] = useState('');
   const [checkoutAvailable, setCheckoutAvailable] = useState(false);
 
+  // Location drift monitoring - tracks if user moves >100 yards from check-in location
+  const driftMonitor = useLocationDriftMonitor(
+    pendingCheckout ? {
+      checkinId: pendingCheckout.id,
+      familyId,
+      checkinLatitude: pendingCheckout.latitude,
+      checkinLongitude: pendingCheckout.longitude,
+      thresholdYards: 100,
+      checkIntervalMs: 30000,
+    } : null
+  );
+
   // Fetch pending checkout
   useEffect(() => {
     const fetchPendingCheckout = async () => {
@@ -45,7 +60,7 @@ export const MeetingCheckout = ({ familyId, onCheckoutComplete }: MeetingCheckou
       try {
         const { data, error } = await supabase
           .from('meeting_checkins')
-          .select('id, meeting_type, meeting_name, meeting_address, checked_in_at, checkout_due_at, meeting_start_time')
+          .select('id, meeting_type, meeting_name, meeting_address, checked_in_at, checkout_due_at, meeting_start_time, latitude, longitude')
           .eq('user_id', user.id)
           .eq('family_id', familyId)
           .is('checked_out_at', null)
@@ -201,7 +216,48 @@ export const MeetingCheckout = ({ familyId, onCheckoutComplete }: MeetingCheckou
           </div>
         </div>
 
-        {/* Status Message */}
+        {/* Location Drift Monitor Status */}
+        {driftMonitor.isMonitoring && (
+          <div className={`flex items-start gap-2 p-3 rounded-lg ${
+            driftMonitor.hasExceededThreshold 
+              ? 'bg-destructive/10 border border-destructive/20' 
+              : 'bg-primary/5 border border-primary/10'
+          }`}>
+            <Navigation className={`h-5 w-5 shrink-0 mt-0.5 ${
+              driftMonitor.hasExceededThreshold ? 'text-destructive' : 'text-primary'
+            }`} />
+            <div className="flex-1 min-w-0">
+              {driftMonitor.hasExceededThreshold ? (
+                <>
+                  <p className="text-sm font-medium text-destructive">Location Drift Detected</p>
+                  <p className="text-xs text-muted-foreground">
+                    You've moved {Math.round(driftMonitor.currentDistance || 0)} yards from check-in location.
+                    {driftMonitor.warningPosted && ' A notification has been sent to your family.'}
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="text-sm font-medium text-primary">Location Monitoring Active</p>
+                  <p className="text-xs text-muted-foreground">
+                    {driftMonitor.currentDistance !== null 
+                      ? `Currently ${Math.round(driftMonitor.currentDistance)} yards from check-in location`
+                      : 'Tracking your location during the meeting'}
+                  </p>
+                </>
+              )}
+            </div>
+          </div>
+        )}
+
+        {driftMonitor.error && (
+          <div className="flex items-center gap-2 p-3 bg-muted/30 rounded-lg">
+            <AlertTriangle className="h-4 w-4 text-muted-foreground" />
+            <p className="text-xs text-muted-foreground">
+              Location tracking unavailable: {driftMonitor.error}
+            </p>
+          </div>
+        )}
+
         {!checkoutAvailable ? (
           <div className="flex items-center gap-2 p-3 bg-muted/30 rounded-lg">
             <Clock className="h-5 w-5 text-muted-foreground" />
