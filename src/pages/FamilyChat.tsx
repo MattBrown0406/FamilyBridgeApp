@@ -22,6 +22,8 @@ import {
 } from 'lucide-react';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { ModeratorDisclaimer } from '@/components/ModeratorDisclaimer';
+import { HIPAAReleasesViewer } from '@/components/HIPAAReleasesViewer';
 import { Label } from '@/components/ui/label';
 import { format, startOfWeek, endOfWeek, subWeeks, isWithinInterval, isSameWeek, formatDistanceToNow, startOfMonth, endOfMonth, subMonths, isSameMonth } from 'date-fns';
 import {
@@ -420,6 +422,9 @@ const FamilyChat = () => {
   
   // FIIS notifications
   const { hasNewAnalysis, markAsViewed: markFIISViewed } = useFIISNotifications({ familyId });
+  
+  // Moderator disclaimer state (for self-created families with requested moderators)
+  const [moderatorDisclaimer, setModeratorDisclaimer] = useState<{ shown: boolean; moderatorName?: string } | null>(null);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -803,9 +808,35 @@ const FamilyChat = () => {
     setHasProfessionalModerator((tempMod && tempMod.length > 0) || (paidMod && paidMod.length > 0));
   };
 
+  // Check for moderator disclaimer for self-created families
+  const checkModeratorDisclaimer = async () => {
+    if (!familyId) return;
+    
+    const { data: disclaimer } = await supabase
+      .from('moderator_disclaimers')
+      .select('id, moderator_id')
+      .eq('family_id', familyId)
+      .maybeSingle();
+
+    if (disclaimer) {
+      // Get moderator name
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('full_name')
+        .eq('id', disclaimer.moderator_id)
+        .maybeSingle();
+      
+      setModeratorDisclaimer({
+        shown: true,
+        moderatorName: profile?.full_name || undefined,
+      });
+    }
+  };
+
   useEffect(() => {
     if (familyId) {
       checkProfessionalModerator();
+      checkModeratorDisclaimer();
     }
   }, [familyId]);
 
@@ -2448,6 +2479,11 @@ const FamilyChat = () => {
               
               <ScrollArea className="flex-1 p-4">
                 <div className="space-y-4">
+                  {/* Show moderator disclaimer for self-created families with professional moderators */}
+                  {moderatorDisclaimer?.shown && !family?.organization_id && (
+                    <ModeratorDisclaimer moderatorName={moderatorDisclaimer.moderatorName} />
+                  )}
+                  
                   {messages.length === 0 ? (
                     <div className="text-center py-12 animate-fade-in">
                       <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
@@ -4307,6 +4343,14 @@ const FamilyChat = () => {
                     )}
                   </Button>
                 </div>
+              </div>
+            )}
+
+            {/* HIPAA Releases Section - Only for organization-owned families and moderators */}
+            {isAdminOrModerator && family?.organization_id && familyId && (
+              <div className="space-y-3">
+                <h3 className="font-medium text-foreground">HIPAA Releases</h3>
+                <HIPAAReleasesViewer familyId={familyId} />
               </div>
             )}
 

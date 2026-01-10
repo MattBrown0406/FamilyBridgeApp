@@ -24,6 +24,7 @@ import DemoFamily from "./pages/DemoFamily";
 import Support from "./pages/Support";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import NotFound from "./pages/NotFound";
+import SignHIPAA from "./pages/SignHIPAA";
 import ScrollToTop from "./components/ScrollToTop";
 
 const queryClient = new QueryClient();
@@ -56,6 +57,7 @@ const App = () => (
               <Route path="/demo/family" element={<DemoFamily />} />
               <Route path="/support" element={<Support />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
+              <Route path="/sign-hipaa" element={<SignHIPAA />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

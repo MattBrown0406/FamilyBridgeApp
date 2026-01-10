@@ -136,6 +136,19 @@ serve(async (req) => {
     
     console.log("Found family:", family.name, "for invite code:", inviteCode);
 
+    // Check if this is a provider-created family (has organization_id)
+    const { data: familyDetails, error: familyDetailsError } = await supabaseAdmin
+      .from("families")
+      .select("organization_id")
+      .eq("id", family.id)
+      .single();
+
+    if (familyDetailsError) {
+      console.log("Error fetching family details", familyDetailsError);
+    }
+
+    const requiresHipaaRelease = !!(familyDetails?.organization_id);
+
     const { data: existing, error: existingError } = await supabaseAdmin
       .from("family_members")
       .select("id")
@@ -178,7 +191,10 @@ serve(async (req) => {
       });
     }
 
-    return new Response(JSON.stringify({ family }), {
+    return new Response(JSON.stringify({ 
+      family,
+      requiresHipaaRelease,
+    }), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
