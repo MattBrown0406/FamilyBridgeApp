@@ -1335,30 +1335,31 @@ const DemoFamily = () => {
                 <Card className="overflow-hidden">
                   <div className={`h-1 bg-gradient-to-r ${selectedFamily === 'johnson' ? 'from-green-500 via-emerald-500 to-teal-500' : 'from-violet-500 via-purple-500 to-fuchsia-500'}`} />
                   <CardHeader className="pb-3">
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="flex items-center gap-2 text-lg">
-                        <div className={`h-8 w-8 rounded-lg flex items-center justify-center ${selectedFamily === 'johnson' ? 'bg-gradient-to-br from-green-500/20 to-emerald-500/20' : 'bg-gradient-to-br from-violet-500/20 to-purple-500/20'}`}>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <CardTitle className="flex flex-wrap items-center gap-2 text-base sm:text-lg">
+                        <div className={`h-8 w-8 rounded-lg flex items-center justify-center shrink-0 ${selectedFamily === 'johnson' ? 'bg-gradient-to-br from-green-500/20 to-emerald-500/20' : 'bg-gradient-to-br from-violet-500/20 to-purple-500/20'}`}>
                           <Brain className={`h-4 w-4 ${selectedFamily === 'johnson' ? 'text-green-600' : 'text-violet-600'}`} />
                         </div>
-                        Family Intervention Intelligence
+                        <span className="hidden sm:inline">Family Intervention Intelligence</span>
+                        <span className="sm:hidden">AI Intel</span>
                         {selectedFamily === 'johnson' ? (
-                          <Badge variant="secondary" className="ml-2 bg-green-100 text-green-700 border-green-200">
+                          <Badge variant="secondary" className="bg-green-100 text-green-700 border-green-200 text-[10px] sm:text-xs">
                             <TrendingUp className="h-3 w-3 mr-1" />
-                            Day 47 Analysis
+                            Day 47
                           </Badge>
                         ) : (
-                          <Badge variant="destructive" className="ml-2">
+                          <Badge variant="destructive" className="text-[10px] sm:text-xs">
                             <AlertTriangle className="h-3 w-3 mr-1" />
-                            Critical Alerts
+                            Critical
                           </Badge>
                         )}
                       </CardTitle>
                       <Button
                         size="sm"
-                        className={selectedFamily === 'johnson' 
+                        className={`w-full sm:w-auto ${selectedFamily === 'johnson' 
                           ? "bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
                           : "bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600"
-                        }
+                        }`}
                         onClick={() => toast.success('Demo: AI analysis would run here')}
                       >
                         <Sparkles className="h-4 w-4 mr-1" />
@@ -1367,7 +1368,7 @@ const DemoFamily = () => {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-xs sm:text-sm text-muted-foreground">
                       AI-powered pattern analysis identifies risks, enabling behaviors, recovery trajectory, and incorporates your family's values, goals, and boundaries into its insights.
                     </p>
                   </CardContent>
@@ -1378,14 +1379,14 @@ const DemoFamily = () => {
                     {/* Johnson Family: Positive Summary Header */}
                     {selectedFamily === 'johnson' && (
                       <Card className="border-green-200 bg-gradient-to-r from-green-50/50 to-emerald-50/50">
-                        <CardContent className="pt-6">
-                          <div className="flex items-center gap-4">
-                            <div className="h-16 w-16 rounded-full bg-green-100 flex items-center justify-center shrink-0">
-                              <CheckCircle className="h-8 w-8 text-green-600" />
+                        <CardContent className="pt-4 sm:pt-6">
+                          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
+                            <div className="h-12 w-12 sm:h-16 sm:w-16 rounded-full bg-green-100 flex items-center justify-center shrink-0">
+                              <CheckCircle className="h-6 w-6 sm:h-8 sm:w-8 text-green-600" />
                             </div>
                             <div>
-                              <h3 className="text-lg font-semibold text-green-800">Recovery Stability Emerging</h3>
-                              <p className="text-sm text-green-700 mt-1">
+                              <h3 className="text-base sm:text-lg font-semibold text-green-800">Recovery Stability Emerging</h3>
+                              <p className="text-xs sm:text-sm text-green-700 mt-1">
                                 Michael has reached <strong>47 days sober</strong> with consistent meeting attendance and family support. 
                                 The 30-90 day window is critical for establishing lasting patterns - the Johnson family is navigating it well.
                               </p>
@@ -1452,21 +1453,21 @@ const DemoFamily = () => {
                     {/* Johnson Family: Strengths */}
                     {selectedFamily === 'johnson' && 'strengths' in currentFamily.fiisAnalysis && (
                       <Card className="border-green-200">
-                        <CardHeader>
-                          <CardTitle className="text-base flex items-center gap-2">
+                        <CardHeader className="pb-2 sm:pb-4">
+                          <CardTitle className="text-sm sm:text-base flex items-center gap-2">
                             <CheckCircle className="h-4 w-4 text-green-600" />
                             What's Working Well
                           </CardTitle>
                         </CardHeader>
                         <CardContent>
-                          <div className="grid md:grid-cols-2 gap-3">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-3">
                             {(currentFamily.fiisAnalysis as typeof JOHNSON_FIIS_ANALYSIS).strengths.map((strength, i) => (
-                              <div key={i} className="p-3 rounded-lg border border-green-200 bg-green-50/50">
+                              <div key={i} className="p-2 sm:p-3 rounded-lg border border-green-200 bg-green-50/50">
                                 <div className="flex items-center gap-2 mb-1">
-                                  <Check className="h-4 w-4 text-green-600" />
-                                  <span className="font-medium text-sm text-green-800">{strength.area}</span>
+                                  <Check className="h-3 w-3 sm:h-4 sm:w-4 text-green-600 shrink-0" />
+                                  <span className="font-medium text-xs sm:text-sm text-green-800">{strength.area}</span>
                                 </div>
-                                <p className="text-sm text-green-700">{strength.detail}</p>
+                                <p className="text-xs sm:text-sm text-green-700">{strength.detail}</p>
                               </div>
                             ))}
                           </div>
@@ -1476,24 +1477,24 @@ const DemoFamily = () => {
 
                     {/* What I'm Seeing */}
                     <Card>
-                      <CardHeader>
-                        <CardTitle className="text-base flex items-center gap-2">
+                      <CardHeader className="pb-2 sm:pb-4">
+                        <CardTitle className="text-sm sm:text-base flex items-center gap-2">
                           <Eye className={`h-4 w-4 ${selectedFamily === 'johnson' ? 'text-green-600' : 'text-violet-600'}`} />
                           What I'm Seeing
                         </CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <p className="text-sm">{currentFamily.fiisAnalysis.what_seeing}</p>
+                        <p className="text-xs sm:text-sm">{currentFamily.fiisAnalysis.what_seeing}</p>
                       </CardContent>
                     </Card>
 
                     {/* Pattern Signals */}
                     <Card>
-                      <CardHeader>
-                        <CardTitle className="text-base">Pattern Signals</CardTitle>
+                      <CardHeader className="pb-2 sm:pb-4">
+                        <CardTitle className="text-sm sm:text-base">Pattern Signals</CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <div className="space-y-3">
+                        <div className="space-y-2 sm:space-y-3">
                           {currentFamily.fiisAnalysis.pattern_signals.map((signal, i) => {
                             const colors: Record<string, string> = {
                               escalation: 'bg-red-100 text-red-700 border-red-200',
@@ -1522,13 +1523,13 @@ const DemoFamily = () => {
                             const Icon = icons[signal.signal_type] || Activity;
                             
                             return (
-                              <div key={i} className={`p-3 rounded-lg border ${colors[signal.signal_type] || 'bg-muted'}`}>
-                                <div className="flex items-center gap-2 mb-1">
-                                  <Icon className="h-4 w-4" />
-                                  <span className="font-medium text-sm capitalize">{signal.signal_type.replace(/_/g, ' ')}</span>
-                                  <Badge variant="outline" className="text-[10px] ml-auto">{signal.confidence}</Badge>
+                              <div key={i} className={`p-2 sm:p-3 rounded-lg border ${colors[signal.signal_type] || 'bg-muted'}`}>
+                                <div className="flex flex-wrap items-center gap-1 sm:gap-2 mb-1">
+                                  <Icon className="h-3 w-3 sm:h-4 sm:w-4 shrink-0" />
+                                  <span className="font-medium text-xs sm:text-sm capitalize">{signal.signal_type.replace(/_/g, ' ')}</span>
+                                  <Badge variant="outline" className="text-[8px] sm:text-[10px] ml-auto">{signal.confidence}</Badge>
                                 </div>
-                                <p className="text-sm">{signal.description}</p>
+                                <p className="text-xs sm:text-sm">{signal.description}</p>
                               </div>
                             );
                           })}
@@ -1539,41 +1540,41 @@ const DemoFamily = () => {
                     {/* Johnson Family: Recommendations with Values/Goals/Boundaries Integration */}
                     {selectedFamily === 'johnson' && 'recommendations' in currentFamily.fiisAnalysis && (
                       <Card className="border-blue-200">
-                        <CardHeader>
-                          <CardTitle className="text-base flex items-center gap-2">
-                            <Target className="h-4 w-4 text-blue-600" />
-                            Recommendations
-                            <Badge variant="secondary" className="ml-2 bg-blue-50 text-blue-600 border-blue-200 text-[10px]">
+                        <CardHeader className="pb-2 sm:pb-4">
+                          <CardTitle className="text-sm sm:text-base flex flex-wrap items-center gap-2">
+                            <Target className="h-4 w-4 text-blue-600 shrink-0" />
+                            <span>Recommendations</span>
+                            <Badge variant="secondary" className="bg-blue-50 text-blue-600 border-blue-200 text-[8px] sm:text-[10px]">
                               Aligned with Your Values & Goals
                             </Badge>
                           </CardTitle>
                         </CardHeader>
                         <CardContent>
-                          <div className="space-y-4">
+                          <div className="space-y-3 sm:space-y-4">
                             {(currentFamily.fiisAnalysis as typeof JOHNSON_FIIS_ANALYSIS).recommendations.map((rec, i) => (
-                              <div key={i} className={`p-4 rounded-lg border ${
+                              <div key={i} className={`p-3 sm:p-4 rounded-lg border ${
                                 rec.title.includes('Meeting Check-In') 
                                   ? 'border-amber-300 bg-amber-50' 
                                   : 'border-blue-200 bg-blue-50/50'
                               }`}>
-                                <div className="flex items-start gap-3">
+                                <div className="flex items-start gap-2 sm:gap-3">
                                   {rec.title.includes('Meeting Check-In') ? (
-                                    <div className="h-8 w-8 rounded-lg bg-amber-200 flex items-center justify-center shrink-0">
-                                      <AlertCircle className="h-4 w-4 text-amber-700" />
+                                    <div className="h-6 w-6 sm:h-8 sm:w-8 rounded-lg bg-amber-200 flex items-center justify-center shrink-0">
+                                      <AlertCircle className="h-3 w-3 sm:h-4 sm:w-4 text-amber-700" />
                                     </div>
                                   ) : (
-                                    <div className="h-8 w-8 rounded-lg bg-blue-200 flex items-center justify-center shrink-0">
-                                      <Target className="h-4 w-4 text-blue-700" />
+                                    <div className="h-6 w-6 sm:h-8 sm:w-8 rounded-lg bg-blue-200 flex items-center justify-center shrink-0">
+                                      <Target className="h-3 w-3 sm:h-4 sm:w-4 text-blue-700" />
                                     </div>
                                   )}
-                                  <div className="flex-1">
-                                    <h4 className={`font-medium ${rec.title.includes('Meeting Check-In') ? 'text-amber-800' : 'text-blue-800'}`}>
+                                  <div className="flex-1 min-w-0">
+                                    <h4 className={`font-medium text-xs sm:text-sm ${rec.title.includes('Meeting Check-In') ? 'text-amber-800' : 'text-blue-800'}`}>
                                       {rec.title}
                                     </h4>
-                                    <p className={`text-sm mt-1 ${rec.title.includes('Meeting Check-In') ? 'text-amber-700' : 'text-blue-700'}`}>
+                                    <p className={`text-xs sm:text-sm mt-1 ${rec.title.includes('Meeting Check-In') ? 'text-amber-700' : 'text-blue-700'}`}>
                                       {rec.description}
                                     </p>
-                                    <Badge variant="outline" className={`mt-2 text-[10px] ${
+                                    <Badge variant="outline" className={`mt-2 text-[8px] sm:text-[10px] ${
                                       rec.title.includes('Meeting Check-In') 
                                         ? 'bg-amber-100 border-amber-300 text-amber-700' 
                                         : 'bg-blue-100 border-blue-300 text-blue-700'
@@ -1591,29 +1592,29 @@ const DemoFamily = () => {
 
                     {/* Context */}
                     <Card>
-                      <CardHeader>
-                        <CardTitle className="text-base flex items-center gap-2">
+                      <CardHeader className="pb-2 sm:pb-4">
+                        <CardTitle className="text-sm sm:text-base flex items-center gap-2">
                           <RefreshCw className={`h-4 w-4 ${selectedFamily === 'johnson' ? 'text-green-600' : 'text-violet-600'}`} />
                           Context & Framing
                         </CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <p className="text-sm">{currentFamily.fiisAnalysis.contextual_framing}</p>
+                        <p className="text-xs sm:text-sm">{currentFamily.fiisAnalysis.contextual_framing}</p>
                       </CardContent>
                     </Card>
 
                     {/* Questions & Watch Items */}
-                    <div className="grid md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                       <Card>
-                        <CardHeader>
-                          <CardTitle className="text-base">Questions to Consider</CardTitle>
+                        <CardHeader className="pb-2 sm:pb-4">
+                          <CardTitle className="text-sm sm:text-base">Questions to Consider</CardTitle>
                         </CardHeader>
                         <CardContent>
                           <ul className="space-y-2">
                             {currentFamily.fiisAnalysis.clarifying_questions.map((q, i) => (
-                              <li key={i} className="text-sm flex items-start gap-2">
-                                <span className={`font-bold ${selectedFamily === 'johnson' ? 'text-green-600' : 'text-violet-600'}`}>?</span>
-                                {q}
+                              <li key={i} className="text-xs sm:text-sm flex items-start gap-2">
+                                <span className={`font-bold shrink-0 ${selectedFamily === 'johnson' ? 'text-green-600' : 'text-violet-600'}`}>?</span>
+                                <span>{q}</span>
                               </li>
                             ))}
                           </ul>
@@ -1621,15 +1622,15 @@ const DemoFamily = () => {
                       </Card>
                       
                       <Card>
-                        <CardHeader>
-                          <CardTitle className="text-base">What to Watch</CardTitle>
+                        <CardHeader className="pb-2 sm:pb-4">
+                          <CardTitle className="text-sm sm:text-base">What to Watch</CardTitle>
                         </CardHeader>
                         <CardContent>
                           <ul className="space-y-2">
                             {currentFamily.fiisAnalysis.what_to_watch.map((w, i) => (
-                              <li key={i} className="text-sm flex items-start gap-2">
-                                <Eye className={`h-4 w-4 shrink-0 mt-0.5 ${selectedFamily === 'johnson' ? 'text-emerald-600' : 'text-amber-600'}`} />
-                                {w}
+                              <li key={i} className="text-xs sm:text-sm flex items-start gap-2">
+                                <Eye className={`h-3 w-3 sm:h-4 sm:w-4 shrink-0 mt-0.5 ${selectedFamily === 'johnson' ? 'text-emerald-600' : 'text-amber-600'}`} />
+                                <span>{w}</span>
                               </li>
                             ))}
                           </ul>
