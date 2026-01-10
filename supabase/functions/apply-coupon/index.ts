@@ -59,12 +59,22 @@ serve(async (req) => {
     if (coupon.discount === 100) {
       const activationCode = generateActivationCode();
 
+      // Encrypt email before storage (plaintext columns are not stored)
+      const { data: emailEncrypted, error: encError } = await supabase.rpc('encrypt_sensitive', {
+        plain_text: email,
+      });
+
+      if (encError) {
+        console.error('Error encrypting email:', encError);
+        throw new Error('Failed to create activation code');
+      }
+
       // Store activation code in database
       const { error } = await supabase
         .from('activation_codes')
         .insert({
           code: activationCode,
-          email: email,
+          email_encrypted: emailEncrypted,
           expires_at: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(), // 1 year expiry
         });
 

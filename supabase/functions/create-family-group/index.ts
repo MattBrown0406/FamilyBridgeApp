@@ -34,9 +34,10 @@ serve(async (req) => {
     console.log('Creating family group:', familyName, 'with invite code:', inviteCode);
 
     // Verify the invite code exists and is not used
+    // SECURITY: select only what we need (avoid pulling any sensitive fields)
     const { data: codeData, error: codeError } = await supabase
       .from('activation_codes')
-      .select('*')
+      .select('id')
       .eq('code', inviteCode.trim().toUpperCase())
       .eq('is_used', false)
       .maybeSingle();

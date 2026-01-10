@@ -56,12 +56,15 @@ export type Database = {
         Row: {
           code: string
           created_at: string
-          email: string | null
+          email_encrypted: string | null
           expires_at: string | null
           id: string
           is_used: boolean
-          square_customer_id: string | null
-          square_subscription_id: string | null
+          purchase_ref_encrypted: string | null
+          purchase_ref_hash: string | null
+          square_customer_id_encrypted: string | null
+          square_customer_id_hash: string | null
+          square_subscription_id_encrypted: string | null
           updated_at: string
           used_at: string | null
           used_by: string | null
@@ -69,12 +72,15 @@ export type Database = {
         Insert: {
           code: string
           created_at?: string
-          email?: string | null
+          email_encrypted?: string | null
           expires_at?: string | null
           id?: string
           is_used?: boolean
-          square_customer_id?: string | null
-          square_subscription_id?: string | null
+          purchase_ref_encrypted?: string | null
+          purchase_ref_hash?: string | null
+          square_customer_id_encrypted?: string | null
+          square_customer_id_hash?: string | null
+          square_subscription_id_encrypted?: string | null
           updated_at?: string
           used_at?: string | null
           used_by?: string | null
@@ -82,12 +88,15 @@ export type Database = {
         Update: {
           code?: string
           created_at?: string
-          email?: string | null
+          email_encrypted?: string | null
           expires_at?: string | null
           id?: string
           is_used?: boolean
-          square_customer_id?: string | null
-          square_subscription_id?: string | null
+          purchase_ref_encrypted?: string | null
+          purchase_ref_hash?: string | null
+          square_customer_id_encrypted?: string | null
+          square_customer_id_hash?: string | null
+          square_subscription_id_encrypted?: string | null
           updated_at?: string
           used_at?: string | null
           used_by?: string | null

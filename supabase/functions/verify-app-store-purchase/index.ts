@@ -1,6 +1,15 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
+async function sha256Hex(input: string): Promise<string> {
+  const data = new TextEncoder().encode(input);
+  const hash = await crypto.subtle.digest('SHA-256', data);
+  return Array.from(new Uint8Array(hash))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
+}
+
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -143,15 +152,34 @@ serve(async (req) => {
     const inviteCode = generateInviteCode();
     console.log('Generated invite code:', inviteCode);
 
-    // Store the code in activation_codes table
+    // Encrypt sensitive identifiers before storage
+    const purchaseRef = `${platform}_${transactionId}`;
+
+    const { data: emailEncrypted, error: emailEncError } = await supabase.rpc('encrypt_sensitive', {
+      plain_text: email,
+    });
+    if (emailEncError) {
+      console.error('Failed to encrypt email:', emailEncError);
+      throw new Error('Failed to generate activation code');
+    }
+
+    const { data: purchaseRefEncrypted, error: refEncError } = await supabase.rpc('encrypt_sensitive', {
+      plain_text: purchaseRef,
+    });
+    if (refEncError) {
+      console.error('Failed to encrypt purchase reference:', refEncError);
+      throw new Error('Failed to generate activation code');
+    }
+
+    // Store the code in activation_codes table (no plaintext email/payment identifiers)
     const { error: insertError } = await supabase
       .from('activation_codes')
       .insert({
         code: inviteCode,
-        email: email,
+        email_encrypted: emailEncrypted,
+        purchase_ref_encrypted: purchaseRefEncrypted,
+        purchase_ref_hash: await sha256Hex(purchaseRef),
         is_used: false,
-        // Store app store transaction details for reference
-        square_customer_id: `${platform}_${transactionId}`, // Repurposing field for app store ID
       });
 
     if (insertError) {
