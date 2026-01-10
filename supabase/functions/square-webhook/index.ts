@@ -43,6 +43,14 @@ function generateActivationCode(): string {
   return result;
 }
 
+async function sha256Hex(input: string): Promise<string> {
+  const data = new TextEncoder().encode(input);
+  const hash = await crypto.subtle.digest('SHA-256', data);
+  return Array.from(new Uint8Array(hash))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -81,13 +89,39 @@ serve(async (req) => {
       // Generate activation code
       const activationCode = generateActivationCode();
 
+      // Encrypt sensitive fields before storage (plaintext columns are not stored)
+      const { data: emailEncrypted, error: emailEncError } = await supabase.rpc('encrypt_sensitive', {
+        plain_text: receiptEmail,
+      });
+      if (emailEncError) {
+        console.error('Error encrypting receipt email:', emailEncError);
+        return new Response(JSON.stringify({ error: 'Failed to create activation code' }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      const { data: customerEncrypted, error: customerEncError } = await supabase.rpc('encrypt_sensitive', {
+        plain_text: customerId,
+      });
+      if (customerEncError) {
+        console.error('Error encrypting customer ID:', customerEncError);
+        return new Response(JSON.stringify({ error: 'Failed to create activation code' }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      const squareCustomerIdHash = await sha256Hex(customerId);
+
       // Store activation code in database
       const { data, error } = await supabase
         .from('activation_codes')
         .insert({
           code: activationCode,
-          email: receiptEmail,
-          square_customer_id: customerId,
+          email_encrypted: emailEncrypted,
+          square_customer_id_encrypted: customerEncrypted,
+          square_customer_id_hash: squareCustomerIdHash,
           expires_at: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(), // 1 year expiry
         })
         .select()
@@ -119,10 +153,20 @@ serve(async (req) => {
 
       // Update activation code with subscription ID if exists
       if (subscription.customer_id) {
-        await supabase
-          .from('activation_codes')
-          .update({ square_subscription_id: subscription.id })
-          .eq('square_customer_id', subscription.customer_id);
+        const customerHash = await sha256Hex(subscription.customer_id);
+
+        const { data: subEncrypted, error: subEncError } = await supabase.rpc('encrypt_sensitive', {
+          plain_text: subscription.id,
+        });
+
+        if (subEncError) {
+          console.error('Error encrypting subscription ID:', subEncError);
+        } else {
+          await supabase
+            .from('activation_codes')
+            .update({ square_subscription_id_encrypted: subEncrypted })
+            .eq('square_customer_id_hash', customerHash);
+        }
       }
     }
 
