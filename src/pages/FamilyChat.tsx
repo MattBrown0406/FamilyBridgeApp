@@ -3377,7 +3377,7 @@ const FamilyChat = () => {
                       <CheckCircle2 className="h-5 w-5 text-accent" />
                     </div>
                     <div>
-                      <p className="text-xs text-muted-foreground font-medium">Completed</p>
+                      <p className="text-xs text-muted-foreground font-medium">Goals Achieved</p>
                       <p className="text-xl font-bold text-accent">{familyCommonGoals.filter(g => g.completed_at).length}</p>
                     </div>
                   </div>
