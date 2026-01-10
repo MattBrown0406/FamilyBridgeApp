@@ -6,7 +6,8 @@ import {
   AlertCircle, 
   CheckCircle, 
   TrendingUp,
-  Loader2
+  Loader2,
+  ShieldAlert
 } from 'lucide-react';
 import {
   Tooltip,
@@ -20,7 +21,7 @@ interface FamilyHealthBadgeProps {
   refreshTrigger?: number;
 }
 
-type HealthStatus = 'crisis' | 'tension' | 'stable' | 'improving';
+type HealthStatus = 'crisis' | 'concern' | 'tension' | 'stable' | 'improving';
 
 interface HealthData {
   status: HealthStatus;
@@ -40,6 +41,12 @@ const statusConfig: Record<HealthStatus, {
     icon: AlertTriangle,
     className: 'bg-red-100 text-red-700 border-red-200 hover:bg-red-200',
     description: 'Immediate attention needed',
+  },
+  concern: {
+    label: 'Concern',
+    icon: ShieldAlert,
+    className: 'bg-orange-100 text-orange-700 border-orange-200 hover:bg-orange-200',
+    description: 'Elevated concerns detected',
   },
   tension: {
     label: 'Tension Detected',
@@ -82,11 +89,11 @@ export function FamilyHealthBadge({ familyId, refreshTrigger }: FamilyHealthBadg
       if (data) {
         setHealthData(data as HealthData);
         
-        // Check if we need to recalculate (older than 1 hour)
+        // Check if we need to recalculate (older than 30 minutes)
         const calculatedAt = new Date(data.calculated_at);
-        const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+        const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
         
-        if (calculatedAt < oneHourAgo) {
+        if (calculatedAt < thirtyMinutesAgo) {
           recalculateHealth();
         }
       } else {
@@ -125,6 +132,86 @@ export function FamilyHealthBadge({ familyId, refreshTrigger }: FamilyHealthBadg
   useEffect(() => {
     fetchHealthStatus();
   }, [familyId, refreshTrigger]);
+
+  // Set up realtime subscription for health status changes
+  useEffect(() => {
+    const channel = supabase
+      .channel(`family-health-${familyId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'family_health_status',
+          filter: `family_id=eq.${familyId}`,
+        },
+        (payload) => {
+          console.log('Health status changed:', payload);
+          if (payload.new) {
+            setHealthData(payload.new as HealthData);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [familyId]);
+
+  // Listen for events that should trigger recalculation
+  useEffect(() => {
+    const eventsChannel = supabase
+      .channel(`family-events-${familyId}`)
+      // Listen for new check-ins
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'meeting_checkins',
+          filter: `family_id=eq.${familyId}`,
+        },
+        () => {
+          console.log('New check-in detected, recalculating health...');
+          recalculateHealth();
+        }
+      )
+      // Listen for filtered messages
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'messages',
+          filter: `family_id=eq.${familyId}`,
+        },
+        (payload) => {
+          if ((payload.new as { was_filtered?: boolean })?.was_filtered) {
+            console.log('Filtered message detected, recalculating health...');
+            recalculateHealth();
+          }
+        }
+      )
+      // Listen for financial votes
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'financial_votes',
+        },
+        () => {
+          console.log('New vote detected, recalculating health...');
+          recalculateHealth();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(eventsChannel);
+    };
+  }, [familyId]);
 
   if (loading) {
     return (
