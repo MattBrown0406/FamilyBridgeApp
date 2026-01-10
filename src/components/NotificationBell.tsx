@@ -1,6 +1,6 @@
-import { Bell, Check, CheckCheck, MessageSquare, DollarSign, Users, Trash2, X, BellRing } from 'lucide-react';
+import { Bell, Check, CheckCheck, MessageSquare, DollarSign, Users, Trash2, X, BellRing, Loader2 } from 'lucide-react';
 import { useNotifications, Notification } from '@/hooks/useNotifications';
-import { useWebPushNotifications } from '@/hooks/useWebPushNotifications';
+import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { Button } from '@/components/ui/button';
 import {
   Popover,
@@ -41,14 +41,28 @@ export const NotificationBell = () => {
     clearAll
   } = useNotifications();
 
-  const { isSupported, permission, requestPermission } = useWebPushNotifications();
+  const { 
+    isSupported, 
+    isSubscribed, 
+    isLoading: pushLoading, 
+    subscribe, 
+    unsubscribe,
+    permission 
+  } = usePushNotifications();
 
   const handleEnableNotifications = async () => {
-    const granted = await requestPermission();
-    if (granted) {
-      toast.success('Desktop notifications enabled! You\'ll be notified of new messages when the tab is not focused.');
+    const success = await subscribe();
+    if (success) {
+      toast.success('Push notifications enabled! You\'ll be notified even when the browser is closed.');
     } else {
-      toast.error('Notification permission was denied. You can enable it in your browser settings.');
+      toast.error('Failed to enable notifications. Please check your browser settings.');
+    }
+  };
+
+  const handleDisableNotifications = async () => {
+    const success = await unsubscribe();
+    if (success) {
+      toast.success('Push notifications disabled.');
     }
   };
 
@@ -103,18 +117,35 @@ export const NotificationBell = () => {
           </div>
         </div>
 
-        {/* Desktop notification enable prompt */}
-        {isSupported && permission === 'default' && (
+        {/* Push notification toggle */}
+        {isSupported && (
           <div className="p-3 bg-primary/5 border-b">
             <div className="flex items-center gap-2">
               <BellRing className="h-4 w-4 text-primary" />
               <div className="flex-1">
-                <p className="text-sm font-medium">Enable desktop notifications?</p>
-                <p className="text-xs text-muted-foreground">Get notified when you're away</p>
+                {isSubscribed ? (
+                  <>
+                    <p className="text-sm font-medium text-green-600">Push notifications enabled</p>
+                    <p className="text-xs text-muted-foreground">You'll receive alerts even when browser is closed</p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-sm font-medium">Enable push notifications?</p>
+                    <p className="text-xs text-muted-foreground">Get notified of messages & requests</p>
+                  </>
+                )}
               </div>
-              <Button size="sm" onClick={handleEnableNotifications} className="h-7 text-xs">
-                Enable
-              </Button>
+              {pushLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : isSubscribed ? (
+                <Button size="sm" variant="outline" onClick={handleDisableNotifications} className="h-7 text-xs">
+                  Disable
+                </Button>
+              ) : (
+                <Button size="sm" onClick={handleEnableNotifications} className="h-7 text-xs">
+                  Enable
+                </Button>
+              )}
             </div>
           </div>
         )}
