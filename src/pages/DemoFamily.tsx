@@ -187,6 +187,96 @@ const JOHNSON_COMMON_GOALS = [
   { key: 'attend_support', name: 'Attend Support Groups (Al-Anon, etc.)', completed: false },
 ];
 
+// FIIS Analysis for Johnson Family - Positive Recovery at 47 Days
+const JOHNSON_FIIS_ANALYSIS = {
+  what_seeing: "I'm observing a family system that is showing strong signs of early recovery stability at Day 47. Michael is demonstrating consistent engagement with his recovery program, and the family is maintaining unified support. The presence of a professional moderator (Matt Brown) is helping keep communication healthy and boundaries clear. I see evidence that the family's chosen values of Honesty & Transparency and Accountability Without Shame are being lived out in daily interactions.",
+  pattern_signals: [
+    {
+      signal_type: 'progress',
+      description: 'Michael has maintained 47 consecutive days of sobriety with consistent meeting attendance (averaging 4-5 meetings per week). Therapy sessions are being attended regularly. This consistency at the 6-week mark is a positive indicator of emerging stability.',
+      confidence: 'high'
+    },
+    {
+      signal_type: 'family_unity',
+      description: 'All family members have acknowledged and are honoring the established boundaries. Financial requests align with agreed-upon guidelines (essential bills only). No evidence of secret communications or boundary violations.',
+      confidence: 'very_high'
+    },
+    {
+      signal_type: 'healthy_communication',
+      description: 'Chat messages show supportive, encouraging language without enabling. Family celebrates milestones while maintaining realistic expectations. No toxic positivity or minimizing of the recovery journey.',
+      confidence: 'high'
+    },
+    {
+      signal_type: 'accountability_working',
+      description: 'Michael is proactively checking in to meetings and communicating his plans. Financial request for electric bill included proper documentation. The family is practicing accountability without shame, per their stated values.',
+      confidence: 'high'
+    },
+    {
+      signal_type: 'attention_needed',
+      description: 'Family has not logged a support group meeting (Al-Anon, etc.) this week. The family commitment was that ALL members, including supporters, would attend weekly meetings alongside Michael. This is the first week this has been missed.',
+      confidence: 'moderate'
+    },
+  ],
+  contextual_framing: "Day 47 represents a significant milestone. Research shows that the 30-90 day window is critical for establishing new patterns. The Johnson family is doing many things right: unified approach, professional support, clear boundaries, and values-driven decisions. The one area needing attention is the family's own recovery work through Al-Anon or similar support groups - recovery is a family journey, not just Michael's.",
+  recommendations: [
+    {
+      title: "Maintain the Winning Formula",
+      description: "Continue the current approach: consistent meeting attendance, transparent financial requests with documentation, and open family communication. What you're doing is working.",
+      related_to: "Values: Honesty & Transparency"
+    },
+    {
+      title: "Family Meeting Check-In This Week",
+      description: "Your family goal states that supporters will attend weekly Al-Anon or similar meetings. This hasn't happened this week. Sarah, David, Emily, and Robert - your recovery work matters too. Consider scheduling a group Al-Anon meeting together.",
+      related_to: "Goal: Attend Support Groups (Al-Anon, etc.)"
+    },
+    {
+      title: "Reinforce Accountability Without Shame",
+      description: "When the 3-meeting-per-week boundary is met (as it has been consistently), acknowledge this openly. Positive reinforcement of boundary compliance strengthens the recovery environment.",
+      related_to: "Value: Accountability and Repair Without Shame"
+    },
+    {
+      title: "Plan for Day 60 and Day 90 Milestones",
+      description: "Begin discussing as a family how you'll celebrate these upcoming milestones in healthy ways. Having something to look forward to supports motivation while maintaining realistic expectations.",
+      related_to: "Boundary: Check in to at least 3 meetings per week"
+    },
+    {
+      title: "Document What's Working",
+      description: "Consider logging observations about what's going well. This creates a reference point if challenges arise later and reinforces the positive patterns you've established.",
+      related_to: "Values: Honesty & Transparency"
+    }
+  ],
+  clarifying_questions: [
+    "Has the family discussed what healthy celebration looks like for the upcoming 60-day milestone?",
+    "Are family members experiencing any compassion fatigue or feeling like they need additional support?",
+    "Has Michael shared what aspects of his recovery program are feeling most helpful right now?",
+    "Are there any upcoming stressors (holidays, anniversaries, work changes) that the family should prepare for?"
+  ],
+  what_to_watch: [
+    "Family support group attendance - this week's missed meeting shouldn't become a pattern",
+    "Signs of complacency around Day 60-90 - early success can sometimes lead to reduced vigilance",
+    "Michael's stress levels as he takes on more responsibilities (work commute, managing bills)",
+    "Any changes in meeting attendance frequency or engagement quality"
+  ],
+  strengths: [
+    {
+      area: 'Professional Moderation',
+      detail: 'Matt Brown provides objective oversight and keeps communication healthy'
+    },
+    {
+      area: 'Unified Family Response',
+      detail: 'All family members are aligned on boundaries and values'
+    },
+    {
+      area: 'Transparent Finances',
+      detail: 'Financial requests include documentation, votes are thoughtful, pledges are fulfilled'
+    },
+    {
+      area: 'Consistent Recovery Work',
+      detail: 'Michael averaging 4-5 meetings per week, attending therapy regularly'
+    }
+  ]
+};
+
 // Demo Family 2: The Davis Family - Active Addiction Crisis (Private Family - No Professional Moderator)
 const DAVIS_MEMBERS = [
   { id: '1', name: 'Richard Davis', role: 'admin', relationship: 'Parent (Dad)', initials: 'RD' },
@@ -465,7 +555,7 @@ const DemoFamily = () => {
     values: JOHNSON_VALUES,
     commonGoals: JOHNSON_COMMON_GOALS,
     hasOrganization: true,
-    fiisAnalysis: null,
+    fiisAnalysis: JOHNSON_FIIS_ANALYSIS,
   } : {
     name: 'The Davis Family',
     description: 'Private Family • Crisis Mode',
@@ -1243,15 +1333,20 @@ const DemoFamily = () => {
               <div className="space-y-4">
                 {/* Header Card */}
                 <Card className="overflow-hidden">
-                  <div className="h-1 bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500" />
+                  <div className={`h-1 bg-gradient-to-r ${selectedFamily === 'johnson' ? 'from-green-500 via-emerald-500 to-teal-500' : 'from-violet-500 via-purple-500 to-fuchsia-500'}`} />
                   <CardHeader className="pb-3">
                     <div className="flex items-center justify-between">
                       <CardTitle className="flex items-center gap-2 text-lg">
-                        <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-violet-500/20 to-purple-500/20 flex items-center justify-center">
-                          <Brain className="h-4 w-4 text-violet-600" />
+                        <div className={`h-8 w-8 rounded-lg flex items-center justify-center ${selectedFamily === 'johnson' ? 'bg-gradient-to-br from-green-500/20 to-emerald-500/20' : 'bg-gradient-to-br from-violet-500/20 to-purple-500/20'}`}>
+                          <Brain className={`h-4 w-4 ${selectedFamily === 'johnson' ? 'text-green-600' : 'text-violet-600'}`} />
                         </div>
                         Family Intervention Intelligence
-                        {selectedFamily === 'davis' && (
+                        {selectedFamily === 'johnson' ? (
+                          <Badge variant="secondary" className="ml-2 bg-green-100 text-green-700 border-green-200">
+                            <TrendingUp className="h-3 w-3 mr-1" />
+                            Day 47 Analysis
+                          </Badge>
+                        ) : (
                           <Badge variant="destructive" className="ml-2">
                             <AlertTriangle className="h-3 w-3 mr-1" />
                             Critical Alerts
@@ -1260,7 +1355,10 @@ const DemoFamily = () => {
                       </CardTitle>
                       <Button
                         size="sm"
-                        className="bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600"
+                        className={selectedFamily === 'johnson' 
+                          ? "bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
+                          : "bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600"
+                        }
                         onClick={() => toast.success('Demo: AI analysis would run here')}
                       >
                         <Sparkles className="h-4 w-4 mr-1" />
@@ -1270,84 +1368,117 @@ const DemoFamily = () => {
                   </CardHeader>
                   <CardContent>
                     <p className="text-sm text-muted-foreground">
-                      AI-powered pattern analysis identifies risks, enabling behaviors, and recovery trajectory changes.
+                      AI-powered pattern analysis identifies risks, enabling behaviors, recovery trajectory, and incorporates your family's values, goals, and boundaries into its insights.
                     </p>
                   </CardContent>
                 </Card>
 
-                {selectedFamily === 'johnson' ? (
-                  <Card className="border-green-200 bg-green-50/30">
-                    <CardContent className="pt-6">
-                      <div className="text-center py-8">
-                        <div className="h-16 w-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
-                          <CheckCircle className="h-8 w-8 text-green-600" />
-                        </div>
-                        <h3 className="text-lg font-semibold text-green-800">Recovery On Track</h3>
-                        <p className="text-sm text-green-700 mt-2 max-w-md mx-auto">
-                          Michael is attending meetings regularly, family is united in their approach, and financial requests align with recovery goals.
-                        </p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ) : currentFamily.fiisAnalysis && (
+                {currentFamily.fiisAnalysis && (
                   <>
-                    {/* Risk Alerts */}
-                    <div className="space-y-3">
-                      {currentFamily.fiisAnalysis.risk_alerts.map((alert, i) => (
-                        <Card 
-                          key={i}
-                          className={`border-2 ${
-                            alert.level === 'critical' ? 'border-red-300 bg-red-50' :
-                            alert.level === 'high' ? 'border-orange-300 bg-orange-50' :
-                            'border-amber-300 bg-amber-50'
-                          }`}
-                        >
-                          <CardContent className="pt-4">
-                            <div className="flex items-start gap-4">
-                              <div className={`h-12 w-12 rounded-xl flex items-center justify-center shrink-0 ${
-                                alert.level === 'critical' ? 'bg-red-200' :
-                                alert.level === 'high' ? 'bg-orange-200' :
-                                'bg-amber-200'
-                              }`}>
-                                <AlertTriangle className={`h-6 w-6 ${
-                                  alert.level === 'critical' ? 'text-red-600' :
-                                  alert.level === 'high' ? 'text-orange-600' :
-                                  'text-amber-600'
-                                }`} />
-                              </div>
-                              <div className="flex-1">
-                                <div className="flex items-center gap-2 mb-1">
-                                  <Badge variant={alert.level === 'critical' ? 'destructive' : 'secondary'} className={
-                                    alert.level === 'critical' ? '' :
-                                    alert.level === 'high' ? 'bg-orange-100 text-orange-700 border-orange-200' :
-                                    'bg-amber-100 text-amber-700 border-amber-200'
-                                  }>
-                                    {alert.level.toUpperCase()}
-                                  </Badge>
-                                  <span className="font-semibold text-foreground">{alert.person}</span>
-                                </div>
-                                <h4 className={`font-medium ${
-                                  alert.level === 'critical' ? 'text-red-800' :
-                                  alert.level === 'high' ? 'text-orange-800' :
-                                  'text-amber-800'
-                                }`}>{alert.issue}</h4>
-                                <p className={`text-sm mt-2 ${
-                                  alert.level === 'critical' ? 'text-red-700' :
-                                  alert.level === 'high' ? 'text-orange-700' :
-                                  'text-amber-700'
-                                }`}>{alert.details}</p>
-                              </div>
+                    {/* Johnson Family: Positive Summary Header */}
+                    {selectedFamily === 'johnson' && (
+                      <Card className="border-green-200 bg-gradient-to-r from-green-50/50 to-emerald-50/50">
+                        <CardContent className="pt-6">
+                          <div className="flex items-center gap-4">
+                            <div className="h-16 w-16 rounded-full bg-green-100 flex items-center justify-center shrink-0">
+                              <CheckCircle className="h-8 w-8 text-green-600" />
                             </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
+                            <div>
+                              <h3 className="text-lg font-semibold text-green-800">Recovery Stability Emerging</h3>
+                              <p className="text-sm text-green-700 mt-1">
+                                Michael has reached <strong>47 days sober</strong> with consistent meeting attendance and family support. 
+                                The 30-90 day window is critical for establishing lasting patterns - the Johnson family is navigating it well.
+                              </p>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    {/* Davis Family: Risk Alerts */}
+                    {selectedFamily === 'davis' && 'risk_alerts' in currentFamily.fiisAnalysis && (
+                      <div className="space-y-3">
+                        {(currentFamily.fiisAnalysis as typeof DAVIS_FIIS_ANALYSIS).risk_alerts.map((alert, i) => (
+                          <Card 
+                            key={i}
+                            className={`border-2 ${
+                              alert.level === 'critical' ? 'border-red-300 bg-red-50' :
+                              alert.level === 'high' ? 'border-orange-300 bg-orange-50' :
+                              'border-amber-300 bg-amber-50'
+                            }`}
+                          >
+                            <CardContent className="pt-4">
+                              <div className="flex items-start gap-4">
+                                <div className={`h-12 w-12 rounded-xl flex items-center justify-center shrink-0 ${
+                                  alert.level === 'critical' ? 'bg-red-200' :
+                                  alert.level === 'high' ? 'bg-orange-200' :
+                                  'bg-amber-200'
+                                }`}>
+                                  <AlertTriangle className={`h-6 w-6 ${
+                                    alert.level === 'critical' ? 'text-red-600' :
+                                    alert.level === 'high' ? 'text-orange-600' :
+                                    'text-amber-600'
+                                  }`} />
+                                </div>
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <Badge variant={alert.level === 'critical' ? 'destructive' : 'secondary'} className={
+                                      alert.level === 'critical' ? '' :
+                                      alert.level === 'high' ? 'bg-orange-100 text-orange-700 border-orange-200' :
+                                      'bg-amber-100 text-amber-700 border-amber-200'
+                                    }>
+                                      {alert.level.toUpperCase()}
+                                    </Badge>
+                                    <span className="font-semibold text-foreground">{alert.person}</span>
+                                  </div>
+                                  <h4 className={`font-medium ${
+                                    alert.level === 'critical' ? 'text-red-800' :
+                                    alert.level === 'high' ? 'text-orange-800' :
+                                    'text-amber-800'
+                                  }`}>{alert.issue}</h4>
+                                  <p className={`text-sm mt-2 ${
+                                    alert.level === 'critical' ? 'text-red-700' :
+                                    alert.level === 'high' ? 'text-orange-700' :
+                                    'text-amber-700'
+                                  }`}>{alert.details}</p>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Johnson Family: Strengths */}
+                    {selectedFamily === 'johnson' && 'strengths' in currentFamily.fiisAnalysis && (
+                      <Card className="border-green-200">
+                        <CardHeader>
+                          <CardTitle className="text-base flex items-center gap-2">
+                            <CheckCircle className="h-4 w-4 text-green-600" />
+                            What's Working Well
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="grid md:grid-cols-2 gap-3">
+                            {(currentFamily.fiisAnalysis as typeof JOHNSON_FIIS_ANALYSIS).strengths.map((strength, i) => (
+                              <div key={i} className="p-3 rounded-lg border border-green-200 bg-green-50/50">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <Check className="h-4 w-4 text-green-600" />
+                                  <span className="font-medium text-sm text-green-800">{strength.area}</span>
+                                </div>
+                                <p className="text-sm text-green-700">{strength.detail}</p>
+                              </div>
+                            ))}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
 
                     {/* What I'm Seeing */}
                     <Card>
                       <CardHeader>
                         <CardTitle className="text-base flex items-center gap-2">
-                          <Eye className="h-4 w-4 text-violet-600" />
+                          <Eye className={`h-4 w-4 ${selectedFamily === 'johnson' ? 'text-green-600' : 'text-violet-600'}`} />
                           What I'm Seeing
                         </CardTitle>
                       </CardHeader>
@@ -1370,6 +1501,11 @@ const DemoFamily = () => {
                               manipulation: 'bg-purple-100 text-purple-700 border-purple-200',
                               regression: 'bg-red-100 text-red-700 border-red-200',
                               boundary_violation: 'bg-orange-100 text-orange-700 border-orange-200',
+                              progress: 'bg-green-100 text-green-700 border-green-200',
+                              family_unity: 'bg-emerald-100 text-emerald-700 border-emerald-200',
+                              healthy_communication: 'bg-teal-100 text-teal-700 border-teal-200',
+                              accountability_working: 'bg-blue-100 text-blue-700 border-blue-200',
+                              attention_needed: 'bg-amber-100 text-amber-700 border-amber-200',
                             };
                             const icons: Record<string, typeof TrendingUp> = {
                               escalation: TrendingUp,
@@ -1377,6 +1513,11 @@ const DemoFamily = () => {
                               manipulation: AlertCircle,
                               regression: TrendingDown,
                               boundary_violation: Shield,
+                              progress: TrendingUp,
+                              family_unity: Users,
+                              healthy_communication: MessageCircle,
+                              accountability_working: CheckCircle,
+                              attention_needed: AlertCircle,
                             };
                             const Icon = icons[signal.signal_type] || Activity;
                             
@@ -1395,6 +1536,72 @@ const DemoFamily = () => {
                       </CardContent>
                     </Card>
 
+                    {/* Johnson Family: Recommendations with Values/Goals/Boundaries Integration */}
+                    {selectedFamily === 'johnson' && 'recommendations' in currentFamily.fiisAnalysis && (
+                      <Card className="border-blue-200">
+                        <CardHeader>
+                          <CardTitle className="text-base flex items-center gap-2">
+                            <Target className="h-4 w-4 text-blue-600" />
+                            Recommendations
+                            <Badge variant="secondary" className="ml-2 bg-blue-50 text-blue-600 border-blue-200 text-[10px]">
+                              Aligned with Your Values & Goals
+                            </Badge>
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-4">
+                            {(currentFamily.fiisAnalysis as typeof JOHNSON_FIIS_ANALYSIS).recommendations.map((rec, i) => (
+                              <div key={i} className={`p-4 rounded-lg border ${
+                                rec.title.includes('Meeting Check-In') 
+                                  ? 'border-amber-300 bg-amber-50' 
+                                  : 'border-blue-200 bg-blue-50/50'
+                              }`}>
+                                <div className="flex items-start gap-3">
+                                  {rec.title.includes('Meeting Check-In') ? (
+                                    <div className="h-8 w-8 rounded-lg bg-amber-200 flex items-center justify-center shrink-0">
+                                      <AlertCircle className="h-4 w-4 text-amber-700" />
+                                    </div>
+                                  ) : (
+                                    <div className="h-8 w-8 rounded-lg bg-blue-200 flex items-center justify-center shrink-0">
+                                      <Target className="h-4 w-4 text-blue-700" />
+                                    </div>
+                                  )}
+                                  <div className="flex-1">
+                                    <h4 className={`font-medium ${rec.title.includes('Meeting Check-In') ? 'text-amber-800' : 'text-blue-800'}`}>
+                                      {rec.title}
+                                    </h4>
+                                    <p className={`text-sm mt-1 ${rec.title.includes('Meeting Check-In') ? 'text-amber-700' : 'text-blue-700'}`}>
+                                      {rec.description}
+                                    </p>
+                                    <Badge variant="outline" className={`mt-2 text-[10px] ${
+                                      rec.title.includes('Meeting Check-In') 
+                                        ? 'bg-amber-100 border-amber-300 text-amber-700' 
+                                        : 'bg-blue-100 border-blue-300 text-blue-700'
+                                    }`}>
+                                      {rec.related_to}
+                                    </Badge>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    {/* Context */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-base flex items-center gap-2">
+                          <RefreshCw className={`h-4 w-4 ${selectedFamily === 'johnson' ? 'text-green-600' : 'text-violet-600'}`} />
+                          Context & Framing
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-sm">{currentFamily.fiisAnalysis.contextual_framing}</p>
+                      </CardContent>
+                    </Card>
+
                     {/* Questions & Watch Items */}
                     <div className="grid md:grid-cols-2 gap-4">
                       <Card>
@@ -1405,7 +1612,7 @@ const DemoFamily = () => {
                           <ul className="space-y-2">
                             {currentFamily.fiisAnalysis.clarifying_questions.map((q, i) => (
                               <li key={i} className="text-sm flex items-start gap-2">
-                                <span className="text-violet-600 font-bold">?</span>
+                                <span className={`font-bold ${selectedFamily === 'johnson' ? 'text-green-600' : 'text-violet-600'}`}>?</span>
                                 {q}
                               </li>
                             ))}
@@ -1421,7 +1628,7 @@ const DemoFamily = () => {
                           <ul className="space-y-2">
                             {currentFamily.fiisAnalysis.what_to_watch.map((w, i) => (
                               <li key={i} className="text-sm flex items-start gap-2">
-                                <Eye className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
+                                <Eye className={`h-4 w-4 shrink-0 mt-0.5 ${selectedFamily === 'johnson' ? 'text-emerald-600' : 'text-amber-600'}`} />
                                 {w}
                               </li>
                             ))}
