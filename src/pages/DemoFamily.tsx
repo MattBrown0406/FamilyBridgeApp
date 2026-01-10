@@ -31,20 +31,45 @@ import {
   Paperclip,
   FileText,
   TrendingUp,
+  TrendingDown,
   Activity,
   Mail,
   FlaskConical,
-  Crown
+  Crown,
+  LifeBuoy,
+  Brain,
+  Eye,
+  RefreshCw,
+  Minus,
+  AlertCircle,
+  XCircle,
+  ChevronDown
 } from 'lucide-react';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 import { format } from 'date-fns';
 import demoElectricBill from '@/assets/demo-electric-bill.png';
 import { toast } from 'sonner';
-
 import demoGasReceipt from '@/assets/demo-gas-receipt.png';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
-// Demo data
-const DEMO_MEMBERS = [
+// Demo Family 1: The Johnson Family - Positive Recovery Journey (with Professional Moderator)
+const JOHNSON_MEMBERS = [
   { id: '0', name: 'Matt Brown', role: 'moderator', relationship: 'Case Manager', initials: 'MB' },
   { id: '1', name: 'Sarah Johnson', role: 'admin', relationship: 'Parent', initials: 'SJ' },
   { 
@@ -64,7 +89,7 @@ const DEMO_MEMBERS = [
   { id: '5', name: 'Robert Johnson', role: 'member', relationship: 'Grandparent', initials: 'RJ' },
 ];
 
-const DEMO_MESSAGES = [
+const JOHNSON_MESSAGES = [
   { id: '1', sender: 'Sarah Johnson', senderId: '1', content: 'Good morning everyone! Michael, how did last night go?', time: '9:15 AM' },
   { id: '2', sender: 'Michael Johnson', senderId: '2', content: 'Morning mom. Went to my AA meeting last night. 47 days sober today 🙏', time: '9:22 AM' },
   { id: '3', sender: 'Emily Johnson', senderId: '4', content: 'That\'s amazing Michael! So proud of you!', time: '9:25 AM' },
@@ -75,7 +100,7 @@ const DEMO_MESSAGES = [
   { id: '8', sender: 'Michael Johnson', senderId: '2', content: '🙏 **Checked into Recovery Meeting**\n\nI\'m attending: AA - Evening Serenity Group\n📍 St. Mark\'s Church, 123 Main St\n⏰ Checkout expected at 8:00 PM', time: '6:45 PM' },
 ];
 
-const DEMO_FINANCIAL_REQUESTS = [
+const JOHNSON_FINANCIAL_REQUESTS = [
   { 
     id: '1', 
     requester: 'Michael Johnson', 
@@ -111,7 +136,7 @@ const DEMO_FINANCIAL_REQUESTS = [
   },
 ];
 
-const DEMO_CHECKINS = [
+const JOHNSON_CHECKINS = [
   { 
     id: '1', 
     user: 'Michael Johnson', 
@@ -134,7 +159,7 @@ const DEMO_CHECKINS = [
   },
 ];
 
-const DEMO_BOUNDARIES = [
+const JOHNSON_BOUNDARIES = [
   {
     id: '1',
     content: 'No financial assistance for anything other than essential bills (rent, utilities, food)',
@@ -150,37 +175,261 @@ const DEMO_BOUNDARIES = [
     status: 'approved',
     acknowledgments: ['Sarah Johnson', 'Michael Johnson', 'David Johnson', 'Emily Johnson', 'Robert Johnson'],
   },
-  {
-    id: '3',
-    content: 'All communication must go through this app - no secret conversations',
-    createdBy: 'David Johnson',
-    status: 'pending',
-    acknowledgments: [],
-  },
-  {
-    id: '4',
-    content: 'Mom will no longer track my location on her phone - she will use the app check-ins instead',
-    createdBy: 'Michael Johnson',
-    targetUser: 'Sarah Johnson',
-    status: 'pending',
-    acknowledgments: [],
-  },
 ];
 
-const DEMO_GOALS = [
-  { id: '1', goal: 'Help Michael complete his aftercare plan', status: 'in_progress' },
-  { id: '2', goal: 'Get to 90 days sobriety', status: 'in_progress' },
-];
-
-const DEMO_VALUES = [
+const JOHNSON_VALUES = [
   { key: 'honesty', name: 'Honesty & Transparency' },
   { key: 'accountability', name: 'Accountability and Repair Without Shame' },
 ];
 
-const DEMO_COMMON_GOALS = [
+const JOHNSON_COMMON_GOALS = [
   { key: 'weekly_meetings', name: 'Attend Weekly Family Meetings', completed: false },
   { key: 'attend_support', name: 'Attend Support Groups (Al-Anon, etc.)', completed: false },
 ];
+
+// Demo Family 2: The Davis Family - Active Addiction Crisis (Private Family - No Professional Moderator)
+const DAVIS_MEMBERS = [
+  { id: '1', name: 'Richard Davis', role: 'admin', relationship: 'Parent (Dad)', initials: 'RD' },
+  { id: '2', name: 'Karen Davis', role: 'member', relationship: 'Parent (Mom)', initials: 'KD' },
+  { 
+    id: '3', 
+    name: 'Ashley Davis', 
+    role: 'recovering', 
+    relationship: 'Recovering (Daughter)', 
+    initials: 'AD',
+    paymentInfo: {
+      paypal: 'ashley.davis@email.com',
+      venmo: '@AshleyD-22',
+      cashapp: '$AshleyDavis22'
+    }
+  },
+  { id: '4', name: 'Brandon Davis', role: 'member', relationship: 'Sibling (Brother)', initials: 'BD' },
+  { id: '5', name: 'Grandma Rose', role: 'member', relationship: 'Grandparent', initials: 'GR' },
+];
+
+const DAVIS_MESSAGES = [
+  { id: '1', sender: 'Ashley Davis', senderId: '3', content: 'I need $200 for groceries. I haven\'t eaten in 2 days.', time: '8:15 AM' },
+  { id: '2', sender: 'Karen Davis', senderId: '2', content: 'Ashley, you said the same thing last week and we found out you spent it at the bar. What happened to the food stamps?', time: '8:22 AM' },
+  { id: '3', sender: 'Richard Davis', senderId: '1', content: 'Karen, don\'t be so harsh. She\'s our daughter. Ashley, sweetie, I can help you with groceries.', time: '8:28 AM' },
+  { id: '4', sender: 'Brandon Davis', senderId: '4', content: 'Dad, stop! This is exactly what we talked about. You keep bailing her out and nothing changes.', time: '8:32 AM' },
+  { id: '5', sender: 'Richard Davis', senderId: '1', content: 'Brandon, you don\'t understand. I can\'t just let her starve. She\'s my little girl.', time: '8:35 AM' },
+  { id: '6', sender: 'Ashley Davis', senderId: '3', content: 'See? Dad gets it. Everyone else just wants to punish me. I made ONE mistake.', time: '8:40 AM' },
+  { id: '7', sender: 'Karen Davis', senderId: '2', content: 'Ashley, you haven\'t been to a meeting in 3 weeks. You missed therapy twice. You\'ve asked for money 6 times this month.', time: '8:45 AM' },
+  { id: '8', sender: 'Richard Davis', senderId: '1', content: 'Maybe if we just help her get stable, she\'ll be able to focus on recovery...', time: '8:50 AM' },
+  { id: '9', sender: 'Grandma Rose', senderId: '5', content: 'Richard, honey, I love Ashley too but we agreed as a family to follow the boundaries. When we keep rescuing her, we\'re hurting her recovery.', time: '8:55 AM' },
+  { id: '10', sender: 'Brandon Davis', senderId: '4', content: 'Dad, you\'ve given her over $2,000 in the last month. How much of that went to groceries?', time: '9:00 AM' },
+  { id: '11', sender: 'Ashley Davis', senderId: '3', content: 'Whatever. None of you understand. I\'ll figure it out myself.', time: '9:05 AM' },
+  { id: '12', sender: 'Richard Davis', senderId: '1', content: 'See what you all did? Now she\'s upset. Ashley, wait - I\'ll call you privately.', time: '9:08 AM' },
+  { id: '13', sender: 'Karen Davis', senderId: '2', content: 'Richard, NO. We agreed - all communication through the app. No secret conversations. That\'s a boundary.', time: '9:10 AM' },
+  { id: '14', sender: 'Ashley Davis', senderId: '3', content: '💰 **Financial Request** from Ashley Davis\n\n**Amount:** $75\n**Reason:** Need cash for bus pass to get to job interview\n\nPlease vote on this request!', time: '11:30 AM' },
+  { id: '15', sender: 'Richard Davis', senderId: '1', content: 'I voted to approve. She needs to get to work interviews!', time: '11:45 AM' },
+  { id: '16', sender: 'Brandon Davis', senderId: '4', content: 'A bus pass is $30, not $75. And what job interview? Ashley, can you provide details?', time: '11:52 AM' },
+];
+
+const DAVIS_FINANCIAL_REQUESTS = [
+  { 
+    id: '1', 
+    requester: 'Ashley Davis', 
+    amount: 75, 
+    reason: 'Need cash for bus pass to get to job interview', 
+    status: 'pending',
+    votes: { approve: 1, deny: 3 },
+    voterDetails: [
+      { name: 'Richard Davis', approved: true },
+      { name: 'Karen Davis', approved: false },
+      { name: 'Brandon Davis', approved: false },
+      { name: 'Grandma Rose', approved: false },
+    ],
+    pledges: [
+      { name: 'Richard Davis', amount: 75 },
+    ],
+    denialReasons: ['Amount inconsistent with stated need', 'No documentation provided'],
+    createdAt: 'Today at 11:30 AM'
+  },
+  { 
+    id: '2', 
+    requester: 'Ashley Davis', 
+    amount: 200, 
+    reason: 'Groceries - haven\'t eaten in 2 days', 
+    status: 'denied',
+    votes: { approve: 1, deny: 4 },
+    voterDetails: [
+      { name: 'Richard Davis', approved: true },
+      { name: 'Karen Davis', approved: false },
+      { name: 'Brandon Davis', approved: false },
+      { name: 'Grandma Rose', approved: false },
+    ],
+    pledges: [],
+    denialReasons: ['Similar request last week was misused', 'Food stamps not accounted for', 'Violates boundary: must demonstrate recovery compliance first'],
+    createdAt: 'Yesterday at 3:15 PM'
+  },
+  { 
+    id: '3', 
+    requester: 'Ashley Davis', 
+    amount: 150, 
+    reason: 'Phone bill - need phone for job search', 
+    status: 'denied',
+    votes: { approve: 1, deny: 3 },
+    voterDetails: [
+      { name: 'Richard Davis', approved: true },
+      { name: 'Karen Davis', approved: false },
+      { name: 'Brandon Davis', approved: false },
+      { name: 'Grandma Rose', approved: false },
+    ],
+    pledges: [],
+    denialReasons: ['Has not attended meetings as required', 'Previous phone was sold - unclear what happened'],
+    createdAt: '3 days ago'
+  },
+  { 
+    id: '4', 
+    requester: 'Ashley Davis', 
+    amount: 300, 
+    reason: 'Need to pay friend back who helped me', 
+    status: 'denied',
+    votes: { approve: 1, deny: 4 },
+    voterDetails: [
+      { name: 'Richard Davis', approved: true },
+      { name: 'Karen Davis', approved: false },
+      { name: 'Brandon Davis', approved: false },
+      { name: 'Grandma Rose', approved: false },
+    ],
+    pledges: [],
+    denialReasons: ['Not an essential expense', 'Unclear who friend is or what help was provided', 'Does not align with family values: transparency'],
+    createdAt: '5 days ago'
+  },
+  { 
+    id: '5', 
+    requester: 'Ashley Davis', 
+    amount: 85, 
+    reason: 'Gas for car', 
+    status: 'denied',
+    votes: { approve: 1, deny: 3 },
+    voterDetails: [
+      { name: 'Richard Davis', approved: true },
+      { name: 'Karen Davis', approved: false },
+      { name: 'Brandon Davis', approved: false },
+    ],
+    pledges: [],
+    denialReasons: ['Car was impounded 2 weeks ago - no longer has vehicle', 'Request not aligned with reality'],
+    createdAt: '1 week ago'
+  },
+];
+
+const DAVIS_CHECKINS = [
+  { 
+    id: '1', 
+    user: 'Ashley Davis', 
+    type: 'NA', 
+    name: 'Daily Hope Group',
+    location: 'Community Center',
+    checkinTime: '7:00 PM',
+    checkoutTime: '7:15 PM',
+    status: 'incomplete',
+    notes: 'Left after 15 minutes'
+  },
+];
+
+const DAVIS_BOUNDARIES = [
+  {
+    id: '1',
+    content: 'No financial assistance until 3 consecutive meetings are attended',
+    createdBy: 'Karen Davis',
+    status: 'approved',
+    acknowledgments: ['Karen Davis', 'Brandon Davis', 'Grandma Rose'],
+    notAcknowledged: ['Richard Davis', 'Ashley Davis'],
+  },
+  {
+    id: '2',
+    content: 'All requests for money must include documentation or receipts',
+    createdBy: 'Brandon Davis',
+    status: 'approved',
+    acknowledgments: ['Karen Davis', 'Brandon Davis', 'Grandma Rose'],
+    notAcknowledged: ['Richard Davis'],
+  },
+  {
+    id: '3',
+    content: 'No private conversations about finances - all discussions in the app',
+    createdBy: 'Karen Davis',
+    status: 'approved',
+    acknowledgments: ['Karen Davis', 'Brandon Davis', 'Grandma Rose'],
+    notAcknowledged: ['Richard Davis'],
+  },
+];
+
+const DAVIS_VALUES = [
+  { key: 'tough_love', name: 'Tough Love & Clear Consequences' },
+  { key: 'transparency', name: 'Honesty & Transparency' },
+];
+
+const DAVIS_COMMON_GOALS = [
+  { key: 'weekly_meetings', name: 'Ashley attends 3+ meetings per week', completed: false },
+  { key: 'family_alignment', name: 'All family members follow agreed boundaries', completed: false, warning: 'Dad consistently breaking this' },
+];
+
+// FIIS Analysis for Davis Family
+const DAVIS_FIIS_ANALYSIS = {
+  what_seeing: "I'm observing a family in crisis with significant dysfunction in the support system. The recovering person (Ashley) is showing classic manipulation patterns and the support system is fractured, with one family member (Richard/Dad) consistently undermining agreed-upon boundaries. This creates a dangerous enabling dynamic that is actively working against recovery.",
+  pattern_signals: [
+    {
+      signal_type: 'escalation',
+      description: 'Financial requests increasing in frequency (6 in past month) with increasingly creative justifications. Each denial leads to emotional manipulation attempts.',
+      confidence: 'high'
+    },
+    {
+      signal_type: 'enabling',
+      description: 'Richard (Dad) has voted to approve 100% of requests despite family consensus to deny. Private conversations happening outside the app. Pattern indicates codependency.',
+      confidence: 'very_high'
+    },
+    {
+      signal_type: 'manipulation',
+      description: 'Ashley uses guilt ("I haven\'t eaten"), victimhood ("everyone is against me"), and triangulation (going to Dad privately) to circumvent boundaries.',
+      confidence: 'high'
+    },
+    {
+      signal_type: 'regression',
+      description: 'Meeting attendance dropped from 3x/week to 0 in past 3 weeks. Therapy sessions missed. No check-ins completed successfully. Recovery trajectory is negative.',
+      confidence: 'very_high'
+    },
+    {
+      signal_type: 'boundary_violation',
+      description: 'Multiple approved boundaries being violated: private conversations, financial handouts outside app, no documentation requirements being met.',
+      confidence: 'high'
+    },
+  ],
+  contextual_framing: "This family is at a critical juncture. The enabling pattern from Richard is preventing the natural consequences that often motivate change. Without unified family action, Ashley has no incentive to engage in recovery. The other family members are doing the right things but are being undermined.",
+  clarifying_questions: [
+    "Has Richard attended Al-Anon or received education about codependency and enabling?",
+    "Are there secret financial transactions happening between Richard and Ashley outside the app?",
+    "What consequences have been discussed if Richard continues to break agreed boundaries?",
+    "Has the family considered professional intervention services?"
+  ],
+  what_to_watch: [
+    "Richard's behavior in private - is he giving cash or help outside the app?",
+    "Ashley's escalation tactics - when manipulation fails, what comes next?",
+    "Family unity - is the enabling causing relationship damage between Richard and Karen?",
+    "Signs of crisis - verbal threats, health emergencies, or legal issues"
+  ],
+  risk_alerts: [
+    {
+      level: 'critical',
+      person: 'Richard Davis',
+      issue: 'High Risk for Enabling',
+      details: 'Richard has approved 100% of Ashley\'s requests despite family consensus to deny. His chat messages show classic codependent patterns: prioritizing short-term comfort over long-term recovery, rescuing behavior, difficulty tolerating Ashley\'s distress, and undermining other family members\' boundaries. His comment "I can\'t just let her starve" and attempts to call her privately indicate he is unable to hold firm boundaries.'
+    },
+    {
+      level: 'high',
+      person: 'Ashley Davis',
+      issue: 'Active Addiction Indicators',
+      details: 'Multiple red flags: no meeting attendance in 3 weeks, missed therapy, escalating financial requests with inconsistent explanations (bus pass = $75, gas for impounded car), manipulative language patterns, and quick emotional escalation when boundaries are enforced.'
+    },
+    {
+      level: 'moderate',
+      person: 'Family System',
+      issue: 'Boundary Inconsistency',
+      details: 'The family has good boundaries on paper but enforcement is inconsistent due to Richard\'s non-compliance. This sends mixed messages and creates an unstable recovery environment.'
+    }
+  ]
+};
 
 interface DemoBranding {
   primaryColor: string;
@@ -189,15 +438,57 @@ interface DemoBranding {
   name: string;
 }
 
+type FamilyType = 'johnson' | 'davis';
+
 const DemoFamily = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const branding = (location.state as { branding?: DemoBranding })?.branding;
   const [activeTab, setActiveTab] = useState('chat');
   const [newMessage, setNewMessage] = useState('');
-  const [messages, setMessages] = useState(DEMO_MESSAGES);
-  const [selectedMember, setSelectedMember] = useState<typeof DEMO_MEMBERS[0] | null>(null);
+  const [selectedMember, setSelectedMember] = useState<typeof JOHNSON_MEMBERS[0] | null>(null);
   const [showMembersList, setShowMembersList] = useState(false);
+  const [showModeratorDialog, setShowModeratorDialog] = useState(false);
+  
+  // Family selection state
+  const [selectedFamily, setSelectedFamily] = useState<FamilyType>('johnson');
+  
+  // Get current family data based on selection
+  const currentFamily = selectedFamily === 'johnson' ? {
+    name: 'The Johnson Family',
+    description: 'Professional Moderator • Positive Recovery',
+    members: JOHNSON_MEMBERS,
+    messages: JOHNSON_MESSAGES,
+    financialRequests: JOHNSON_FINANCIAL_REQUESTS,
+    checkins: JOHNSON_CHECKINS,
+    boundaries: JOHNSON_BOUNDARIES,
+    values: JOHNSON_VALUES,
+    commonGoals: JOHNSON_COMMON_GOALS,
+    hasOrganization: true,
+    fiisAnalysis: null,
+  } : {
+    name: 'The Davis Family',
+    description: 'Private Family • Crisis Mode',
+    members: DAVIS_MEMBERS,
+    messages: DAVIS_MESSAGES,
+    financialRequests: DAVIS_FINANCIAL_REQUESTS,
+    checkins: DAVIS_CHECKINS,
+    boundaries: DAVIS_BOUNDARIES,
+    values: DAVIS_VALUES,
+    commonGoals: DAVIS_COMMON_GOALS,
+    hasOrganization: false,
+    fiisAnalysis: DAVIS_FIIS_ANALYSIS,
+  };
+  
+  const [messages, setMessages] = useState(currentFamily.messages);
+  
+  // Update messages when family changes
+  const handleFamilyChange = (family: FamilyType) => {
+    setSelectedFamily(family);
+    const familyData = family === 'johnson' ? JOHNSON_MESSAGES : DAVIS_MESSAGES;
+    setMessages(familyData);
+    setActiveTab('chat');
+  };
 
   const handleSendMessage = () => {
     if (!newMessage.trim()) return;
@@ -213,6 +504,9 @@ const DemoFamily = () => {
     setMessages([...messages, newMsg]);
     setNewMessage('');
   };
+
+  const getMemberById = (id: string) => currentFamily.members.find(m => m.id === id);
+  const recoveringMember = currentFamily.members.find(m => m.role === 'recovering');
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
@@ -235,32 +529,60 @@ const DemoFamily = () => {
                 style={{ 
                   background: branding 
                     ? `linear-gradient(135deg, ${branding.primaryColor}, ${branding.primaryColor}cc)` 
-                    : 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary) / 0.8))'
+                    : selectedFamily === 'davis' 
+                      ? 'linear-gradient(135deg, hsl(var(--destructive)), hsl(var(--destructive) / 0.8))'
+                      : 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary) / 0.8))'
                 }}
                 title="View family members"
               >
                 <img src={familyBridgeLogo} alt="FamilyBridge" className="h-5 w-5 object-contain" />
                 <span className="absolute -bottom-1 -right-1 h-5 w-5 rounded-full bg-white shadow-md flex items-center justify-center text-[10px] font-bold text-primary border border-primary/20">
-                  {DEMO_MEMBERS.length}
+                  {currentFamily.members.length}
                 </span>
               </button>
               <div className="flex flex-col">
-                <span className="font-semibold text-foreground">The Johnson Family</span>
+                {/* Family Selector Dropdown */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="flex items-center gap-1 font-semibold text-foreground hover:text-primary transition-colors">
+                      {currentFamily.name}
+                      <ChevronDown className="h-4 w-4" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-64">
+                    <DropdownMenuItem onClick={() => handleFamilyChange('johnson')} className="cursor-pointer">
+                      <div className="flex items-center gap-3 py-1">
+                        <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center">
+                          <Users className="h-4 w-4 text-primary-foreground" />
+                        </div>
+                        <div>
+                          <p className="font-medium">The Johnson Family</p>
+                          <p className="text-xs text-muted-foreground">Professional Moderator • Positive Recovery</p>
+                        </div>
+                      </div>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleFamilyChange('davis')} className="cursor-pointer">
+                      <div className="flex items-center gap-3 py-1">
+                        <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-destructive to-destructive/80 flex items-center justify-center">
+                          <AlertTriangle className="h-4 w-4 text-destructive-foreground" />
+                        </div>
+                        <div>
+                          <p className="font-medium">The Davis Family</p>
+                          <p className="text-xs text-muted-foreground">Private Family • Crisis Mode</p>
+                        </div>
+                      </div>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
                 <div className="flex items-center gap-1.5">
-                  <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-                  <span className="text-xs text-muted-foreground">{DEMO_MEMBERS.length} members active</span>
+                  <span className={`h-2 w-2 rounded-full ${selectedFamily === 'davis' ? 'bg-destructive' : 'bg-green-500'} animate-pulse`} />
+                  <span className="text-xs text-muted-foreground">{currentFamily.description}</span>
                 </div>
               </div>
-              {branding && (
-                <Badge 
-                  variant="secondary" 
-                  className="ml-2 animate-fade-in"
-                  style={{ 
-                    backgroundColor: `${branding.primaryColor}20`,
-                    color: branding.primaryColor 
-                  }}
-                >
-                  {branding.name}
+              {selectedFamily === 'davis' && (
+                <Badge variant="destructive" className="bg-destructive/20 text-destructive border-destructive/30">
+                  <AlertTriangle className="h-3 w-3 mr-1" />
+                  Crisis
                 </Badge>
               )}
               <Badge variant="secondary" className="bg-gradient-to-r from-primary/10 to-secondary/10 border-primary/20">
@@ -269,31 +591,100 @@ const DemoFamily = () => {
               </Badge>
             </div>
           </div>
-          <Button 
-            onClick={() => navigate('/provider-purchase')}
-            className="hover-lift shadow-lg"
-            style={branding ? { backgroundColor: branding.primaryColor } : undefined}
-          >
-            Get Started
-          </Button>
+          <div className="flex items-center gap-2">
+            {/* Request Temporary Moderator Button (for Davis family only) */}
+            {selectedFamily === 'davis' && !currentFamily.hasOrganization && (
+              <AlertDialog open={showModeratorDialog} onOpenChange={setShowModeratorDialog}>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="gap-2 border-destructive/50 text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                  >
+                    <LifeBuoy className="h-4 w-4" />
+                    <span className="hidden sm:inline">Request 24hr Moderator</span>
+                    <span className="sm:hidden">Crisis Help</span>
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent className="max-w-md">
+                  <AlertDialogHeader>
+                    <AlertDialogTitle className="flex items-center gap-2">
+                      <AlertTriangle className="h-5 w-5 text-warning" />
+                      Request 24-Hour Crisis Support
+                    </AlertDialogTitle>
+                    <AlertDialogDescription asChild>
+                      <div className="space-y-4 text-left">
+                        <p>
+                          You are about to request temporary supervision from a professional 
+                          interventionist to help your family during a crisis.
+                        </p>
+                        
+                        <div className="bg-muted p-4 rounded-lg space-y-2">
+                          <p className="font-medium text-foreground">What happens next:</p>
+                          <ul className="list-disc list-inside text-sm space-y-1">
+                            <li>A professional interventionist will be assigned immediately</li>
+                            <li>They will have moderator access to your family group for 24 hours</li>
+                            <li>They will monitor conversations and provide guidance</li>
+                          </ul>
+                        </div>
+
+                        <div className="bg-primary/10 p-4 rounded-lg">
+                          <p className="text-sm">
+                            <strong className="text-foreground">Your membership includes:</strong>
+                            {' '}One free 24-hour crisis supervision per 30-day period.
+                          </p>
+                        </div>
+                      </div>
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() => {
+                        toast.success('Demo: Crisis support would be activated for 24 hours');
+                        setShowModeratorDialog(false);
+                      }}
+                      className="bg-destructive hover:bg-destructive/90"
+                    >
+                      Yes, Request Crisis Support
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
+            <Button 
+              onClick={() => navigate('/family-purchase')}
+              className="hover-lift shadow-lg"
+              style={branding ? { backgroundColor: branding.primaryColor } : undefined}
+            >
+              Get Started
+            </Button>
+          </div>
         </div>
       </header>
 
       {/* Demo Banner */}
       <div 
-        className="border-b py-3 px-4 text-center bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5"
-        style={branding ? { 
-          background: `linear-gradient(90deg, ${branding.primaryColor}08, ${branding.primaryColor}15, ${branding.primaryColor}08)`,
-          borderColor: `${branding.primaryColor}20` 
-        } : undefined}
+        className={`border-b py-3 px-4 text-center ${
+          selectedFamily === 'davis' 
+            ? 'bg-gradient-to-r from-destructive/5 via-destructive/10 to-destructive/5' 
+            : 'bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5'
+        }`}
       >
-        <p 
-          className="text-sm flex items-center justify-center gap-2 animate-fade-in"
-          style={branding ? { color: branding.primaryColor } : undefined}
-        >
-          <Sparkles className="h-4 w-4 animate-pulse" />
-          {branding ? `You're viewing a demo family powered by ${branding.name}. All data is simulated.` : "You're viewing a demo family. All data is simulated."}
-          <Activity className="h-4 w-4 animate-pulse" />
+        <p className="text-sm flex items-center justify-center gap-2 animate-fade-in">
+          {selectedFamily === 'davis' ? (
+            <>
+              <AlertTriangle className="h-4 w-4 text-destructive animate-pulse" />
+              <span className="text-destructive font-medium">Crisis Demo: This family is struggling with active addiction and enabling patterns.</span>
+              <AlertTriangle className="h-4 w-4 text-destructive animate-pulse" />
+            </>
+          ) : (
+            <>
+              <Sparkles className="h-4 w-4 animate-pulse" />
+              <span>Positive Recovery Demo: This family has professional support and is making progress.</span>
+              <Activity className="h-4 w-4 animate-pulse" />
+            </>
+          )}
         </p>
       </div>
 
@@ -314,6 +705,9 @@ const DemoFamily = () => {
               >
                 <DollarSign className="h-4 w-4 shrink-0" />
                 <span className="hidden sm:inline text-xs">Financial</span>
+                {selectedFamily === 'davis' && (
+                  <Badge variant="destructive" className="ml-1 h-4 w-4 p-0 flex items-center justify-center text-[8px]">5</Badge>
+                )}
               </TabsTrigger>
               <TabsTrigger 
                 value="checkins"
@@ -337,6 +731,16 @@ const DemoFamily = () => {
                 <span className="hidden sm:inline text-xs">Boundaries</span>
               </TabsTrigger>
               <TabsTrigger 
+                value="fiis"
+                className="flex-1 min-w-[50px] data-[state=active]:bg-gradient-to-r data-[state=active]:from-violet-500 data-[state=active]:to-purple-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-300 flex items-center justify-center gap-1 px-2 py-2 relative"
+              >
+                <Brain className="h-4 w-4 shrink-0" />
+                <span className="hidden sm:inline text-xs">AI Intel</span>
+                {selectedFamily === 'davis' && (
+                  <span className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-destructive animate-pulse" />
+                )}
+              </TabsTrigger>
+              <TabsTrigger 
                 value="testing"
                 className="flex-1 min-w-[50px] data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-500 data-[state=active]:to-orange-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-300 flex items-center justify-center gap-1 px-2 py-2"
               >
@@ -348,13 +752,19 @@ const DemoFamily = () => {
             {/* Chat Tab */}
             <TabsContent value="chat" className="animate-fade-in">
               <Card className="card-interactive border-0 shadow-lg bg-gradient-to-br from-card to-card/95 overflow-hidden">
-                <div className="h-1 bg-gradient-to-r from-primary via-primary/80 to-primary/60" />
+                <div className={`h-1 ${selectedFamily === 'davis' ? 'bg-gradient-to-r from-destructive via-destructive/80 to-destructive/60' : 'bg-gradient-to-r from-primary via-primary/80 to-primary/60'}`} />
                 <CardHeader className="pb-3">
                   <CardTitle className="text-lg flex items-center gap-2">
-                    <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center">
+                    <div className={`h-8 w-8 rounded-lg ${selectedFamily === 'davis' ? 'bg-gradient-to-br from-destructive to-destructive/80' : 'bg-gradient-to-br from-primary to-primary/80'} flex items-center justify-center`}>
                       <MessageCircle className="h-4 w-4 text-primary-foreground" />
                     </div>
                     Family Chat
+                    {selectedFamily === 'davis' && (
+                      <Badge variant="destructive" className="ml-2">
+                        <AlertTriangle className="h-3 w-3 mr-1" />
+                        Tension Detected
+                      </Badge>
+                    )}
                     <Badge variant="secondary" className="ml-auto bg-green-100 text-green-700 border-green-200">
                       <Activity className="h-3 w-3 mr-1" />
                       Live
@@ -362,36 +772,39 @@ const DemoFamily = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <ScrollArea className="h-[400px] pr-4">
+                  <ScrollArea className="h-[500px] pr-4">
                     <div className="space-y-4">
                       {messages.map((msg, index) => {
-                        const isRecovering = msg.senderId === '2';
+                        const member = getMemberById(msg.senderId);
+                        const isRecovering = member?.role === 'recovering';
+                        const isDad = selectedFamily === 'davis' && msg.senderId === '1';
                         const isSystemMessage = msg.content.includes('**Financial Request**') || msg.content.includes('**Checked into');
                         
                         return (
                           <div 
                             key={msg.id} 
                             className="flex gap-3 animate-fade-in"
-                            style={{ animationDelay: `${index * 50}ms` }}
+                            style={{ animationDelay: `${index * 30}ms` }}
                           >
                             <Avatar 
-                              className={`h-9 w-9 ring-2 ring-offset-2 ${isRecovering ? '' : 'ring-muted'}`}
-                              style={isRecovering && branding ? { '--tw-ring-color': branding.primaryColor } as React.CSSProperties : isRecovering ? { '--tw-ring-color': 'hsl(var(--primary))' } as React.CSSProperties : undefined}
+                              className={`h-9 w-9 ring-2 ring-offset-2 ${
+                                isRecovering ? 'ring-primary' : 
+                                isDad && selectedFamily === 'davis' ? 'ring-amber-500' :
+                                'ring-muted'
+                              }`}
                             >
                               <AvatarFallback 
-                                className={`text-xs font-medium ${isRecovering ? 'text-white' : 'bg-muted'}`}
-                                style={isRecovering && branding 
-                                  ? { background: `linear-gradient(135deg, ${branding.primaryColor}, ${branding.primaryColor}cc)` }
-                                  : isRecovering 
-                                    ? { background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary) / 0.8))' }
-                                    : undefined
-                                }
+                                className={`text-xs font-medium ${
+                                  isRecovering ? 'bg-gradient-to-br from-primary to-primary/80 text-primary-foreground' :
+                                  isDad && selectedFamily === 'davis' ? 'bg-gradient-to-br from-amber-500 to-amber-600 text-white' :
+                                  'bg-muted'
+                                }`}
                               >
                                 {msg.sender.split(' ').map(n => n[0]).join('')}
                               </AvatarFallback>
                             </Avatar>
                             <div className="flex-1">
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-2 flex-wrap">
                                 <span className={`font-semibold text-sm ${isRecovering ? 'text-primary' : 'text-foreground'}`}>
                                   {msg.sender}
                                 </span>
@@ -400,30 +813,24 @@ const DemoFamily = () => {
                                     Recovering
                                   </Badge>
                                 )}
+                                {isDad && selectedFamily === 'davis' && (
+                                  <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-amber-500/30 text-amber-600 bg-amber-50">
+                                    <AlertTriangle className="h-2 w-2 mr-0.5" />
+                                    Enabling Risk
+                                  </Badge>
+                                )}
                                 <span className="text-xs text-muted-foreground">{msg.time}</span>
                               </div>
                               <div 
                                 className={`mt-1.5 rounded-2xl rounded-tl-sm px-4 py-2.5 inline-block max-w-[90%] ${
                                   isSystemMessage 
-                                    ? 'border shadow-sm' 
+                                    ? 'border shadow-sm bg-primary/10 border-primary/20' 
                                     : isRecovering 
-                                      ? 'text-white shadow-md'
-                                      : 'bg-muted/70'
+                                      ? 'bg-gradient-to-br from-primary to-primary/90 text-white shadow-md'
+                                      : isDad && selectedFamily === 'davis'
+                                        ? 'bg-amber-50 border border-amber-200'
+                                        : 'bg-muted/70'
                                 }`}
-                                style={
-                                  isSystemMessage && branding
-                                    ? { 
-                                        backgroundColor: `${branding.primaryColor}10`,
-                                        borderColor: `${branding.primaryColor}30`
-                                      }
-                                    : isRecovering && branding
-                                      ? { background: `linear-gradient(135deg, ${branding.primaryColor}, ${branding.primaryColor}dd)` }
-                                      : isSystemMessage
-                                        ? { backgroundColor: 'hsl(var(--primary) / 0.1)', borderColor: 'hsl(var(--primary) / 0.2)' }
-                                        : isRecovering
-                                          ? { background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary) / 0.9))' }
-                                          : undefined
-                                }
                               >
                                 <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
                               </div>
@@ -445,7 +852,6 @@ const DemoFamily = () => {
                     <Button 
                       onClick={handleSendMessage}
                       className="shadow-md hover-lift bg-gradient-to-r from-primary to-primary/90"
-                      style={branding ? { background: `linear-gradient(135deg, ${branding.primaryColor}, ${branding.primaryColor}cc)` } : undefined}
                     >
                       <Send className="h-4 w-4" />
                     </Button>
@@ -458,58 +864,177 @@ const DemoFamily = () => {
             <TabsContent value="financial" className="animate-fade-in">
               {/* Financial Summary */}
               <Card className="mb-6 border-0 shadow-lg overflow-hidden">
-                <div className="h-1 bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500" />
+                <div className={`h-1 ${selectedFamily === 'davis' ? 'bg-gradient-to-r from-red-500 via-orange-500 to-amber-500' : 'bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500'}`} />
                 <CardContent className="pt-6">
-                  <div className="grid grid-cols-2 gap-6">
-                    <div className="text-center p-6 bg-gradient-to-br from-muted/50 to-muted/30 rounded-xl border border-border/50 hover-lift transition-all duration-300">
-                      <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
-                        <DollarSign className="h-6 w-6 text-primary" />
-                      </div>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="text-center p-4 bg-gradient-to-br from-muted/50 to-muted/30 rounded-xl border border-border/50">
                       <p className="text-sm text-muted-foreground mb-1">Total Requested</p>
-                      <p className="text-3xl font-bold text-foreground">
-                        ${DEMO_FINANCIAL_REQUESTS.reduce((sum, r) => sum + r.amount, 0).toFixed(2)}
+                      <p className="text-2xl font-bold text-foreground">
+                        ${currentFamily.financialRequests.reduce((sum, r) => sum + r.amount, 0).toFixed(2)}
                       </p>
                     </div>
-                    <div className="text-center p-6 bg-gradient-to-br from-green-50 to-emerald-50/50 rounded-xl border border-green-200 hover-lift transition-all duration-300">
-                      <div className="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-3">
-                        <TrendingUp className="h-6 w-6 text-green-600" />
-                      </div>
-                      <p className="text-sm text-green-700 mb-1">Total Funds Given</p>
-                      <p className="text-3xl font-bold text-green-600">
-                        ${DEMO_FINANCIAL_REQUESTS
-                          .filter(r => r.fundsReceived || r.status === 'approved')
-                          .reduce((sum, r) => r.pledges.reduce((pSum, p) => pSum + p.amount, 0) + sum, 0)
-                          .toFixed(2)}
+                    <div className={`text-center p-4 rounded-xl border ${
+                      selectedFamily === 'davis' 
+                        ? 'bg-gradient-to-br from-red-50 to-orange-50/50 border-red-200' 
+                        : 'bg-gradient-to-br from-green-50 to-emerald-50/50 border-green-200'
+                    }`}>
+                      <p className={`text-sm mb-1 ${selectedFamily === 'davis' ? 'text-red-700' : 'text-green-700'}`}>
+                        {selectedFamily === 'davis' ? 'Denied Requests' : 'Total Funded'}
+                      </p>
+                      <p className={`text-2xl font-bold ${selectedFamily === 'davis' ? 'text-red-600' : 'text-green-600'}`}>
+                        {selectedFamily === 'davis' 
+                          ? currentFamily.financialRequests.filter(r => r.status === 'denied').length
+                          : `$${currentFamily.financialRequests.filter(r => r.status === 'approved' || r.status === 'completed').reduce((sum, r) => sum + r.amount, 0).toFixed(2)}`
+                        }
                       </p>
                     </div>
+                    {selectedFamily === 'davis' && (
+                      <>
+                        <div className="text-center p-4 bg-gradient-to-br from-amber-50 to-yellow-50/50 rounded-xl border border-amber-200">
+                          <p className="text-sm text-amber-700 mb-1">Dad Approved</p>
+                          <p className="text-2xl font-bold text-amber-600">
+                            100%
+                          </p>
+                          <p className="text-xs text-amber-600">5 of 5 requests</p>
+                        </div>
+                        <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-cyan-50/50 rounded-xl border border-blue-200">
+                          <p className="text-sm text-blue-700 mb-1">Others Approved</p>
+                          <p className="text-2xl font-bold text-blue-600">
+                            0%
+                          </p>
+                          <p className="text-xs text-blue-600">Aligned on boundaries</p>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </CardContent>
               </Card>
 
+              {/* Davis Family Warning Banner */}
+              {selectedFamily === 'davis' && (
+                <Card className="mb-4 border-amber-200 bg-amber-50/50">
+                  <CardContent className="pt-4 pb-4">
+                    <div className="flex items-start gap-3">
+                      <div className="h-10 w-10 rounded-full bg-amber-100 flex items-center justify-center shrink-0">
+                        <AlertTriangle className="h-5 w-5 text-amber-600" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-amber-800">Pattern Detected: Enabling Behavior</h4>
+                        <p className="text-sm text-amber-700 mt-1">
+                          Richard (Dad) has voted to approve <strong>all 5 requests</strong> while the rest of the family has consistently denied them based on boundary violations. 
+                          This split indicates a potential enabling pattern that may be undermining recovery efforts.
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
               <div className="space-y-2">
-                {DEMO_FINANCIAL_REQUESTS.map((request, index) => (
+                {currentFamily.financialRequests.map((request, index) => (
                   <div 
                     key={request.id} 
                     className="animate-fade-in"
                     style={{ animationDelay: `${index * 50}ms` }}
                   >
-                    <FinancialRequestCard
-                      id={request.id}
-                      requester={request.requester}
-                      requesterInitials="MJ"
-                      amount={request.amount}
-                      reason={request.reason}
-                      status={request.status as 'pending' | 'approved' | 'denied' | 'completed'}
-                      createdAt={request.createdAt}
-                      votes={request.votes}
-                      pledges={request.pledges}
-                      attachmentUrl={request.attachmentUrl}
-                      attachmentCaption={request.attachmentCaption}
-                      fundsReceived={request.fundsReceived}
-                      fundsReceivedAt={request.fundsReceivedAt}
-                      branding={branding ? { primaryColor: branding.primaryColor } : undefined}
-                      isDemo={true}
-                    />
+                    <Card className={`overflow-hidden ${
+                      request.status === 'denied' ? 'border-red-200 bg-red-50/30' : ''
+                    }`}>
+                      <CardContent className="p-4">
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex items-center gap-3">
+                            <Avatar className={`h-10 w-10 ring-2 ${request.status === 'denied' ? 'ring-red-300' : 'ring-primary/30'}`}>
+                              <AvatarFallback className="bg-primary/10 text-primary text-sm">
+                                {recoveringMember?.initials || 'U'}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div>
+                              <p className="font-medium">{request.requester}</p>
+                              <p className="text-sm text-muted-foreground">{request.createdAt}</p>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-xl font-bold">${request.amount.toFixed(2)}</p>
+                            <Badge 
+                              variant={
+                                request.status === 'denied' ? 'destructive' :
+                                request.status === 'approved' || request.status === 'completed' ? 'default' :
+                                'secondary'
+                              }
+                              className={
+                                request.status === 'denied' ? 'bg-red-100 text-red-700 border-red-200' :
+                                request.status === 'approved' || request.status === 'completed' ? 'bg-green-100 text-green-700 border-green-200' :
+                                ''
+                              }
+                            >
+                              {request.status === 'denied' && <XCircle className="h-3 w-3 mr-1" />}
+                              {(request.status === 'approved' || request.status === 'completed') && <CheckCircle className="h-3 w-3 mr-1" />}
+                              {request.status === 'pending' && <Clock className="h-3 w-3 mr-1" />}
+                              {request.status}
+                            </Badge>
+                          </div>
+                        </div>
+                        
+                        <p className="mt-3 text-sm bg-muted/50 p-3 rounded-lg">{request.reason}</p>
+                        
+                        {/* Votes */}
+                        <div className="mt-3 flex items-center gap-4">
+                          <div className="flex items-center gap-1 text-sm">
+                            <ThumbsUp className="h-4 w-4 text-green-600" />
+                            <span className="text-green-600 font-medium">{request.votes.approve}</span>
+                          </div>
+                          <div className="flex items-center gap-1 text-sm">
+                            <ThumbsDown className="h-4 w-4 text-red-600" />
+                            <span className="text-red-600 font-medium">{request.votes.deny}</span>
+                          </div>
+                          {request.voterDetails && (
+                            <div className="flex items-center gap-1 ml-auto">
+                              {request.voterDetails.map((voter, i) => (
+                                <Badge 
+                                  key={i}
+                                  variant="outline" 
+                                  className={`text-[10px] ${
+                                    voter.approved 
+                                      ? 'bg-green-50 border-green-200 text-green-700' 
+                                      : 'bg-red-50 border-red-200 text-red-700'
+                                  }`}
+                                >
+                                  {voter.approved ? <ThumbsUp className="h-2 w-2 mr-1" /> : <ThumbsDown className="h-2 w-2 mr-1" />}
+                                  {voter.name.split(' ')[0]}
+                                </Badge>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Denial Reasons */}
+                        {request.denialReasons && request.denialReasons.length > 0 && (
+                          <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+                            <p className="text-xs font-medium text-red-700 mb-2">Denial Reasons:</p>
+                            <ul className="space-y-1">
+                              {request.denialReasons.map((reason, i) => (
+                                <li key={i} className="text-xs text-red-600 flex items-start gap-2">
+                                  <X className="h-3 w-3 mt-0.5 shrink-0" />
+                                  {reason}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+
+                        {/* Pledges */}
+                        {request.pledges && request.pledges.length > 0 && (
+                          <div className="mt-3 flex flex-wrap gap-2">
+                            {request.pledges.map((pledge, i) => (
+                              <Badge key={i} variant="secondary" className="bg-green-50 text-green-700 border-green-200">
+                                <DollarSign className="h-3 w-3 mr-1" />
+                                {pledge.name}: ${pledge.amount}
+                              </Badge>
+                            ))}
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
                   </div>
                 ))}
               </div>
@@ -518,558 +1043,428 @@ const DemoFamily = () => {
             {/* Check-ins Tab */}
             <TabsContent value="checkins" className="animate-fade-in">
               <div className="space-y-4">
-                {/* Location Capture Card */}
-                <Card className="card-interactive overflow-hidden">
-                  <div className="h-1 bg-gradient-to-r from-primary via-accent to-primary" />
-                  <CardHeader className="pb-3">
-                    <CardTitle className="flex items-center gap-2 font-display text-lg">
-                      <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
-                        <MapPin className="h-4 w-4 text-primary" />
-                      </div>
-                      Capture My Location
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-muted-foreground mb-3">
-                      Capture your current location to use for meeting check-ins or location requests.
-                    </p>
-                    <Button 
-                      className="w-full"
-                      style={branding ? { background: `linear-gradient(135deg, ${branding.primaryColor}, ${branding.primaryColor}cc)` } : undefined}
-                    >
-                      <MapPin className="h-4 w-4 mr-2" />
-                      Capture Location
-                    </Button>
-                  </CardContent>
-                </Card>
-
-                {/* Check-In Form Card */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2 font-display">
-                      <CheckCircle className="h-5 w-5 text-primary" />
-                      Check-In
-                    </CardTitle>
-                    <p className="text-sm text-muted-foreground">
-                      Check in at your meeting or appointment to let your family know where you are.
-                    </p>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    {/* Tabbed Content */}
-                    <Tabs defaultValue="recovery" className="w-full">
-                      <TabsList className="grid w-full grid-cols-2">
-                        <TabsTrigger value="recovery" className="flex items-center gap-2">
-                          <Sparkles className="h-4 w-4" />
-                          <span className="hidden sm:inline">Recovery Meetings</span>
-                          <span className="sm:hidden">Recovery</span>
-                        </TabsTrigger>
-                        <TabsTrigger value="life" className="flex items-center gap-2">
-                          <Calendar className="h-4 w-4" />
-                          <span className="hidden sm:inline">Life Appointments</span>
-                          <span className="sm:hidden">Appointments</span>
-                        </TabsTrigger>
-                      </TabsList>
-                      
-                      <TabsContent value="recovery" className="mt-4 space-y-4">
-                        <div className="p-3 bg-muted/50 rounded-lg text-sm text-muted-foreground">
-                          Capture your location above before checking in.
+                {selectedFamily === 'davis' && (
+                  <Card className="border-red-200 bg-red-50/50">
+                    <CardContent className="pt-4 pb-4">
+                      <div className="flex items-start gap-3">
+                        <div className="h-10 w-10 rounded-full bg-red-100 flex items-center justify-center shrink-0">
+                          <XCircle className="h-5 w-5 text-red-600" />
                         </div>
-                        <div className="space-y-2">
-                          <label className="text-sm font-medium">Meeting Type *</label>
-                          <div className="p-3 border rounded-lg text-muted-foreground text-sm">
-                            Select meeting type
-                          </div>
+                        <div>
+                          <h4 className="font-semibold text-red-800">Check-in Compliance: Critical</h4>
+                          <p className="text-sm text-red-700 mt-1">
+                            Ashley has not completed a full meeting check-in in <strong>3 weeks</strong>. 
+                            Last attempt showed departure after 15 minutes. This violates the boundary requiring 3+ meetings per week.
+                          </p>
                         </div>
-                        <div className="space-y-2">
-                          <label className="text-sm font-medium">Meeting Name (optional)</label>
-                          <Input placeholder="e.g., Tuesday Night Group" disabled className="opacity-60" />
-                        </div>
-                        <Button className="w-full" disabled>
-                          <CheckCircle className="h-4 w-4 mr-2" />
-                          Check In to Meeting
-                        </Button>
-                      </TabsContent>
-                      
-                      <TabsContent value="life" className="mt-4 space-y-4">
-                        <div className="p-3 bg-muted/50 rounded-lg text-sm text-muted-foreground">
-                          Capture your location above before checking in.
-                        </div>
-                        <div className="space-y-2">
-                          <label className="text-sm font-medium">Appointment Type *</label>
-                          <div className="p-3 border rounded-lg text-muted-foreground text-sm">
-                            Select appointment type
-                          </div>
-                        </div>
-                        <Button className="w-full" disabled>
-                          <CheckCircle className="h-4 w-4 mr-2" />
-                          Check In to Appointment
-                        </Button>
-                      </TabsContent>
-                    </Tabs>
-                  </CardContent>
-                </Card>
-
-                {/* Meeting Checkout Card (Demo - showing active checkout) */}
-                <Card className="border-primary/50 bg-primary/5">
-                  <CardHeader>
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <CardTitle className="flex items-center gap-2 font-display">
-                          <Activity className="h-5 w-5 text-primary" />
-                          Meeting Checkout Required
-                        </CardTitle>
-                        <p className="text-sm text-muted-foreground">
-                          Complete your meeting checkout to confirm attendance.
-                        </p>
                       </div>
-                      <Badge variant="default">Ready</Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    {/* Meeting Info */}
-                    <div className="p-3 bg-muted/50 rounded-lg space-y-2">
-                      <div className="flex items-center gap-2 text-sm">
-                        <span className="font-medium">AA</span>
-                        <span className="text-muted-foreground">• Evening Serenity Group</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <MapPin className="h-3 w-3" />
-                        St. Mark's Church, 123 Main St
-                      </div>
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <Clock className="h-3 w-3" />
-                        <span>Checked in: 6:45 PM</span>
-                        <span>•</span>
-                        <span>Checkout due: 8:00 PM</span>
-                      </div>
-                    </div>
-
-                    {/* Demo location capture */}
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Capture Your Checkout Location</label>
-                      <Button variant="outline" className="w-full">
-                        <MapPin className="h-4 w-4 mr-2" />
-                        Capture Checkout Location
-                      </Button>
-                    </div>
-
-                    {/* Notes */}
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Notes (optional)</label>
-                      <Textarea placeholder="How was the meeting?" rows={2} />
-                    </div>
-
-                    {/* Checkout Button */}
-                    <Button 
-                      className="w-full"
-                      style={branding ? { background: `linear-gradient(135deg, ${branding.primaryColor}, ${branding.primaryColor}cc)` } : undefined}
-                    >
-                      <Activity className="h-4 w-4 mr-2" />
-                      Complete Checkout
-                    </Button>
-                  </CardContent>
-                </Card>
-
-                {/* Recent Check-ins History Card */}
+                    </CardContent>
+                  </Card>
+                )}
+                
                 <Card>
                   <CardHeader>
                     <CardTitle className="font-display">Recent Check-ins</CardTitle>
-                    <p className="text-sm text-muted-foreground">
-                      Meeting attendance from family members
-                    </p>
                   </CardHeader>
-                  <CardContent className="p-0">
-                    <ScrollArea className="h-[300px]">
-                      <div className="divide-y">
-                        {DEMO_CHECKINS.map((checkin, index) => (
-                          <div key={checkin.id} className="p-4 hover:bg-muted/50 transition-colors animate-fade-in" style={{ animationDelay: `${index * 100}ms` }}>
-                            <div className="flex items-start justify-between gap-4">
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2 flex-wrap mb-1">
-                                  <Avatar className="h-6 w-6">
-                                    <AvatarFallback className="text-[10px] bg-primary/10">MJ</AvatarFallback>
-                                  </Avatar>
-                                  <span className="font-medium text-foreground">{checkin.user}</span>
-                                  <Badge 
-                                    variant="secondary" 
-                                    className={checkin.type === 'AA' 
-                                      ? 'bg-blue-100 text-blue-800' 
-                                      : 'bg-green-100 text-green-800'
-                                    }
-                                  >
-                                    {checkin.type}
-                                  </Badge>
-                                  <Badge 
-                                    variant={checkin.status === 'active' ? 'default' : 'secondary'}
-                                    className={checkin.status === 'active' 
-                                      ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white border-0' 
-                                      : ''
-                                    }
-                                  >
-                                    {checkin.status === 'active' ? (
-                                      <><Clock className="h-3 w-3 mr-1" /> In Meeting</>
-                                    ) : (
-                                      <><CheckCircle className="h-3 w-3 mr-1" /> Checked Out</>
-                                    )}
-                                  </Badge>
-                                </div>
-                                
-                                {checkin.name && (
-                                  <p className="text-sm text-foreground mb-1">{checkin.name}</p>
-                                )}
-
-                                <div className="flex items-center gap-1 text-xs text-muted-foreground mb-2">
-                                  <Clock className="h-3 w-3" />
-                                  <span>Checked in at {checkin.checkinTime}</span>
-                                  {checkin.checkoutTime && (
-                                    <>
-                                      <span className="mx-1">•</span>
-                                      <span className="text-green-600">Out: {checkin.checkoutTime}</span>
-                                    </>
-                                  )}
-                                  {checkin.checkoutDue && checkin.status === 'active' && (
-                                    <>
-                                      <span className="mx-1">•</span>
-                                      <span className="text-orange-600">Due: {checkin.checkoutDue}</span>
-                                    </>
-                                  )}
-                                </div>
-
-                                <button className="flex items-start gap-1 text-xs text-primary hover:underline">
-                                  <MapPin className="h-3 w-3 mt-0.5 shrink-0" />
-                                  <span className="text-left">{checkin.location}</span>
-                                </button>
+                  <CardContent>
+                    {currentFamily.checkins.length === 0 ? (
+                      <p className="text-center text-muted-foreground py-8">No check-ins recorded</p>
+                    ) : (
+                      <div className="space-y-3">
+                        {currentFamily.checkins.map((checkin) => (
+                          <div key={checkin.id} className={`p-4 rounded-lg border ${
+                            checkin.status === 'incomplete' 
+                              ? 'bg-red-50 border-red-200' 
+                              : checkin.status === 'active'
+                                ? 'bg-blue-50 border-blue-200'
+                                : 'bg-green-50 border-green-200'
+                          }`}>
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                <Badge variant={checkin.status === 'incomplete' ? 'destructive' : 'secondary'}>
+                                  {checkin.type}
+                                </Badge>
+                                <span className="font-medium">{checkin.name}</span>
                               </div>
+                              <Badge 
+                                variant={
+                                  checkin.status === 'incomplete' ? 'destructive' :
+                                  checkin.status === 'active' ? 'default' : 'secondary'
+                                }
+                              >
+                                {checkin.status === 'incomplete' && <AlertTriangle className="h-3 w-3 mr-1" />}
+                                {checkin.status}
+                              </Badge>
                             </div>
+                            <div className="mt-2 text-sm text-muted-foreground flex items-center gap-2">
+                              <MapPin className="h-3 w-3" />
+                              {checkin.location}
+                            </div>
+                            <div className="mt-1 text-sm text-muted-foreground flex items-center gap-2">
+                              <Clock className="h-3 w-3" />
+                              Check-in: {checkin.checkinTime}
+                              {checkin.checkoutTime && ` • Check-out: ${checkin.checkoutTime}`}
+                              {checkin.checkoutDue && ` • Due: ${checkin.checkoutDue}`}
+                            </div>
+                            {checkin.notes && (
+                              <p className="mt-2 text-sm text-red-600 font-medium">
+                                Note: {checkin.notes}
+                              </p>
+                            )}
                           </div>
                         ))}
                       </div>
-                    </ScrollArea>
+                    )}
                   </CardContent>
                 </Card>
+              </div>
+            </TabsContent>
+
+            {/* Values Tab */}
+            <TabsContent value="values" className="animate-fade-in">
+              <Card className="border-0 shadow-lg overflow-hidden">
+                <div className="h-1 bg-gradient-to-r from-pink-500 via-rose-500 to-red-500" />
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center shadow-md">
+                      <Sparkles className="h-5 w-5 text-white" />
+                    </div>
+                    Family Values & Goals
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="space-y-3">
+                    <h3 className="font-medium">Guiding Values</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {currentFamily.values.map((value) => (
+                        <Badge key={value.key} className="bg-pink-100 text-pink-700 border-pink-200 px-3 py-1.5">
+                          <Sparkles className="h-3 w-3 mr-1" />
+                          {value.name}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <h3 className="font-medium">Common Goals</h3>
+                    {currentFamily.commonGoals.map((goal) => (
+                      <div 
+                        key={goal.key}
+                        className={`p-3 rounded-lg border flex items-center justify-between ${
+                          goal.warning ? 'bg-amber-50 border-amber-200' : 'bg-muted/50'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <Target className={`h-4 w-4 ${goal.warning ? 'text-amber-600' : 'text-primary'}`} />
+                          <span className="font-medium text-sm">{goal.name}</span>
+                        </div>
+                        {goal.warning ? (
+                          <Badge variant="outline" className="bg-amber-50 border-amber-200 text-amber-700">
+                            <AlertTriangle className="h-3 w-3 mr-1" />
+                            {goal.warning}
+                          </Badge>
+                        ) : (
+                          <Badge variant="secondary">In Progress</Badge>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Boundaries Tab */}
+            <TabsContent value="boundaries" className="animate-fade-in">
+              <Card className="border-0 shadow-lg overflow-hidden">
+                <div className="h-1 bg-gradient-to-r from-purple-500 via-violet-500 to-indigo-500" />
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-purple-500 to-violet-500 flex items-center justify-center shadow-md">
+                      <Shield className="h-5 w-5 text-white" />
+                    </div>
+                    Family Boundaries
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {currentFamily.boundaries.map((boundary) => (
+                    <div 
+                      key={boundary.id}
+                      className={`p-4 rounded-lg border ${
+                        boundary.status === 'approved' 
+                          ? boundary.notAcknowledged?.length 
+                            ? 'bg-amber-50/50 border-amber-200' 
+                            : 'bg-green-50/50 border-green-200'
+                          : 'bg-muted/50'
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-4">
+                        <p className="text-sm font-medium">{boundary.content}</p>
+                        <Badge variant={boundary.status === 'approved' ? 'default' : 'secondary'}>
+                          {boundary.status}
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-2">Created by {boundary.createdBy}</p>
+                      
+                      {boundary.acknowledgments.length > 0 && (
+                        <div className="mt-3">
+                          <p className="text-xs text-muted-foreground mb-1">Acknowledged:</p>
+                          <div className="flex flex-wrap gap-1">
+                            {boundary.acknowledgments.map((name, i) => (
+                              <Badge key={i} variant="outline" className="text-[10px] bg-green-50 border-green-200 text-green-700">
+                                <Check className="h-2 w-2 mr-0.5" />
+                                {name}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      
+                      {boundary.notAcknowledged && boundary.notAcknowledged.length > 0 && (
+                        <div className="mt-2">
+                          <p className="text-xs text-amber-600 mb-1">Not Acknowledged:</p>
+                          <div className="flex flex-wrap gap-1">
+                            {boundary.notAcknowledged.map((name, i) => (
+                              <Badge key={i} variant="outline" className="text-[10px] bg-amber-50 border-amber-200 text-amber-700">
+                                <AlertTriangle className="h-2 w-2 mr-0.5" />
+                                {name}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* FIIS Tab */}
+            <TabsContent value="fiis" className="animate-fade-in">
+              <div className="space-y-4">
+                {/* Header Card */}
+                <Card className="overflow-hidden">
+                  <div className="h-1 bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500" />
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="flex items-center gap-2 text-lg">
+                        <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-violet-500/20 to-purple-500/20 flex items-center justify-center">
+                          <Brain className="h-4 w-4 text-violet-600" />
+                        </div>
+                        Family Intervention Intelligence
+                        {selectedFamily === 'davis' && (
+                          <Badge variant="destructive" className="ml-2">
+                            <AlertTriangle className="h-3 w-3 mr-1" />
+                            Critical Alerts
+                          </Badge>
+                        )}
+                      </CardTitle>
+                      <Button
+                        size="sm"
+                        className="bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600"
+                        onClick={() => toast.success('Demo: AI analysis would run here')}
+                      >
+                        <Sparkles className="h-4 w-4 mr-1" />
+                        Analyze Patterns
+                      </Button>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground">
+                      AI-powered pattern analysis identifies risks, enabling behaviors, and recovery trajectory changes.
+                    </p>
+                  </CardContent>
+                </Card>
+
+                {selectedFamily === 'johnson' ? (
+                  <Card className="border-green-200 bg-green-50/30">
+                    <CardContent className="pt-6">
+                      <div className="text-center py-8">
+                        <div className="h-16 w-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
+                          <CheckCircle className="h-8 w-8 text-green-600" />
+                        </div>
+                        <h3 className="text-lg font-semibold text-green-800">Recovery On Track</h3>
+                        <p className="text-sm text-green-700 mt-2 max-w-md mx-auto">
+                          Michael is attending meetings regularly, family is united in their approach, and financial requests align with recovery goals.
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ) : currentFamily.fiisAnalysis && (
+                  <>
+                    {/* Risk Alerts */}
+                    <div className="space-y-3">
+                      {currentFamily.fiisAnalysis.risk_alerts.map((alert, i) => (
+                        <Card 
+                          key={i}
+                          className={`border-2 ${
+                            alert.level === 'critical' ? 'border-red-300 bg-red-50' :
+                            alert.level === 'high' ? 'border-orange-300 bg-orange-50' :
+                            'border-amber-300 bg-amber-50'
+                          }`}
+                        >
+                          <CardContent className="pt-4">
+                            <div className="flex items-start gap-4">
+                              <div className={`h-12 w-12 rounded-xl flex items-center justify-center shrink-0 ${
+                                alert.level === 'critical' ? 'bg-red-200' :
+                                alert.level === 'high' ? 'bg-orange-200' :
+                                'bg-amber-200'
+                              }`}>
+                                <AlertTriangle className={`h-6 w-6 ${
+                                  alert.level === 'critical' ? 'text-red-600' :
+                                  alert.level === 'high' ? 'text-orange-600' :
+                                  'text-amber-600'
+                                }`} />
+                              </div>
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <Badge variant={alert.level === 'critical' ? 'destructive' : 'secondary'} className={
+                                    alert.level === 'critical' ? '' :
+                                    alert.level === 'high' ? 'bg-orange-100 text-orange-700 border-orange-200' :
+                                    'bg-amber-100 text-amber-700 border-amber-200'
+                                  }>
+                                    {alert.level.toUpperCase()}
+                                  </Badge>
+                                  <span className="font-semibold text-foreground">{alert.person}</span>
+                                </div>
+                                <h4 className={`font-medium ${
+                                  alert.level === 'critical' ? 'text-red-800' :
+                                  alert.level === 'high' ? 'text-orange-800' :
+                                  'text-amber-800'
+                                }`}>{alert.issue}</h4>
+                                <p className={`text-sm mt-2 ${
+                                  alert.level === 'critical' ? 'text-red-700' :
+                                  alert.level === 'high' ? 'text-orange-700' :
+                                  'text-amber-700'
+                                }`}>{alert.details}</p>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+
+                    {/* What I'm Seeing */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-base flex items-center gap-2">
+                          <Eye className="h-4 w-4 text-violet-600" />
+                          What I'm Seeing
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-sm">{currentFamily.fiisAnalysis.what_seeing}</p>
+                      </CardContent>
+                    </Card>
+
+                    {/* Pattern Signals */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-base">Pattern Signals</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-3">
+                          {currentFamily.fiisAnalysis.pattern_signals.map((signal, i) => {
+                            const colors: Record<string, string> = {
+                              escalation: 'bg-red-100 text-red-700 border-red-200',
+                              enabling: 'bg-amber-100 text-amber-700 border-amber-200',
+                              manipulation: 'bg-purple-100 text-purple-700 border-purple-200',
+                              regression: 'bg-red-100 text-red-700 border-red-200',
+                              boundary_violation: 'bg-orange-100 text-orange-700 border-orange-200',
+                            };
+                            const icons: Record<string, typeof TrendingUp> = {
+                              escalation: TrendingUp,
+                              enabling: AlertTriangle,
+                              manipulation: AlertCircle,
+                              regression: TrendingDown,
+                              boundary_violation: Shield,
+                            };
+                            const Icon = icons[signal.signal_type] || Activity;
+                            
+                            return (
+                              <div key={i} className={`p-3 rounded-lg border ${colors[signal.signal_type] || 'bg-muted'}`}>
+                                <div className="flex items-center gap-2 mb-1">
+                                  <Icon className="h-4 w-4" />
+                                  <span className="font-medium text-sm capitalize">{signal.signal_type.replace(/_/g, ' ')}</span>
+                                  <Badge variant="outline" className="text-[10px] ml-auto">{signal.confidence}</Badge>
+                                </div>
+                                <p className="text-sm">{signal.description}</p>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Questions & Watch Items */}
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="text-base">Questions to Consider</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <ul className="space-y-2">
+                            {currentFamily.fiisAnalysis.clarifying_questions.map((q, i) => (
+                              <li key={i} className="text-sm flex items-start gap-2">
+                                <span className="text-violet-600 font-bold">?</span>
+                                {q}
+                              </li>
+                            ))}
+                          </ul>
+                        </CardContent>
+                      </Card>
+                      
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="text-base">What to Watch</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <ul className="space-y-2">
+                            {currentFamily.fiisAnalysis.what_to_watch.map((w, i) => (
+                              <li key={i} className="text-sm flex items-start gap-2">
+                                <Eye className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
+                                {w}
+                              </li>
+                            ))}
+                          </ul>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </>
+                )}
               </div>
             </TabsContent>
 
             {/* Testing Tab */}
             <TabsContent value="testing" className="animate-fade-in">
-              <div className="space-y-4">
-                <Card className="border-0 shadow-lg overflow-hidden">
-                  <div className="h-1 bg-gradient-to-r from-amber-500 via-orange-500 to-red-500" />
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-md">
-                        <FlaskConical className="h-5 w-5 text-white" />
-                      </div>
-                      Drug & Alcohol Testing
-                      <Badge className="ml-auto bg-gradient-to-r from-amber-500 to-orange-500 border-0 text-white">
-                        <Crown className="h-3 w-3 mr-1" />
-                        Premium
-                      </Badge>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    {/* Coming Soon Banner */}
-                    <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 border-2 border-dashed border-amber-300 p-8">
-                      <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-amber-200/40 to-orange-200/40 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
-                      <div className="relative text-center space-y-4">
-                        <div className="inline-flex items-center justify-center h-16 w-16 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-500 shadow-lg mx-auto">
-                          <FlaskConical className="h-8 w-8 text-white" />
-                        </div>
-                        <div>
-                          <h3 className="text-xl font-bold text-foreground mb-2">Coming Soon</h3>
-                          <p className="text-muted-foreground max-w-md mx-auto">
-                            Drug and alcohol testing features are currently in development. When ready, they will be offered as part of a premium upgrade.
-                          </p>
-                        </div>
-                        <Badge variant="secondary" className="bg-amber-100 text-amber-700 border-amber-200">
-                          <Activity className="h-3 w-3 mr-1" />
-                          In Development
-                        </Badge>
-                      </div>
+              <Card className="border-0 shadow-lg overflow-hidden">
+                <div className="h-1 bg-gradient-to-r from-amber-500 via-orange-500 to-red-500" />
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-md">
+                      <FlaskConical className="h-5 w-5 text-white" />
                     </div>
-
-                    {/* Planned Features */}
-                    <div className="space-y-3">
-                      <h3 className="font-medium text-foreground flex items-center gap-2">
-                        <Sparkles className="h-4 w-4 text-amber-500" />
-                        Planned Features
-                      </h3>
-                      <div className="grid gap-3">
-                        {[
-                          { title: 'At-Home Testing Kits', description: 'Order FDA-approved drug and alcohol testing kits delivered to your door' },
-                          { title: 'Lab-Verified Results', description: 'Results verified by certified laboratories for accuracy and reliability' },
-                          { title: 'Family Dashboard', description: 'View test history and results in a secure, shared family dashboard' },
-                          { title: 'Random Testing Schedule', description: 'Set up randomized testing schedules to support accountability' },
-                          { title: 'Instant Notifications', description: 'Family members receive notifications when tests are completed' },
-                        ].map((feature, index) => (
-                          <div
-                            key={feature.title}
-                            className="p-4 rounded-lg bg-muted/30 border border-border/50 hover:bg-muted/50 transition-colors animate-fade-in"
-                            style={{ animationDelay: `${index * 100}ms` }}
-                          >
-                            <div className="flex items-start gap-3">
-                              <div className="h-6 w-6 rounded-full bg-amber-100 flex items-center justify-center shrink-0 mt-0.5">
-                                <Check className="h-3 w-3 text-amber-600" />
-                              </div>
-                              <div>
-                                <h4 className="font-medium text-sm text-foreground">{feature.title}</h4>
-                                <p className="text-xs text-muted-foreground mt-0.5">{feature.description}</p>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Interest CTA */}
-                    <div className="p-4 rounded-xl bg-gradient-to-r from-primary/5 to-primary/10 border border-primary/20">
-                      <div className="flex items-center gap-4">
-                        <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-md shrink-0">
-                          <Mail className="h-6 w-6 text-primary-foreground" />
-                        </div>
-                        <div className="flex-1">
-                          <h4 className="font-semibold text-foreground">Interested in Testing Features?</h4>
-                          <p className="text-sm text-muted-foreground">Contact us to be notified when this premium feature launches.</p>
-                        </div>
-                        <Button 
-                          variant="outline" 
-                          className="shrink-0 border-primary/30 text-primary hover:bg-primary/10"
-                          onClick={() => toast.info("Thanks for your interest! We'll notify you when testing features launch.")}
-                        >
-                          Notify Me
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </TabsContent>
-
-            {/* Values & Goals Tab */}
-            <TabsContent value="values" className="animate-fade-in">
-              <div className="space-y-4">
-                <Card className="border-0 shadow-lg overflow-hidden">
-                  <div className="h-1 bg-gradient-to-r from-pink-500 via-rose-500 to-red-500" />
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center shadow-md overflow-hidden">
-                        <img src={familyBridgeLogo} alt="FamilyBridge" className="h-7 w-7 object-contain" />
-                      </div>
-                      Family Values & Goals
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    {/* Guiding Values Section */}
-                    <div className="space-y-3">
-                      <h3 className="font-medium text-foreground">Guiding Values</h3>
-                      <div className="p-4 rounded-lg bg-pink-50/50 border border-pink-100">
-                        <p className="text-sm text-muted-foreground mb-3">
-                          Select the values that matter most to your family. These guide your decisions, shape your boundaries, and keep everyone aligned on what truly matters.
-                        </p>
-                        <div className="flex flex-wrap gap-2">
-                          {DEMO_VALUES.map((value, index) => (
-                            <div
-                              key={value.key}
-                              className="px-3 py-2 rounded-lg bg-pink-100 border border-pink-200 flex items-center gap-2 animate-fade-in"
-                              style={{ animationDelay: `${index * 100}ms` }}
-                            >
-                              <Sparkles className="h-4 w-4 text-pink-600 shrink-0" />
-                              <span className="font-medium text-sm text-foreground">{value.name}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Common Goals Section */}
-                    <div className="space-y-3">
-                      <h3 className="font-medium text-foreground">Common Goals</h3>
-                      <p className="text-sm text-muted-foreground">
-                        Choose goals that reflect your family's priorities. These shared objectives help guide decisions about financial support, boundaries, and what recovery success looks like for your family.
-                      </p>
-                      <div className="grid gap-2">
-                        {DEMO_COMMON_GOALS.map((goal, index) => (
-                          <div
-                            key={goal.key}
-                            className="px-3 py-2 rounded-lg bg-secondary/50 border border-border flex items-center justify-between gap-2 animate-fade-in"
-                            style={{ animationDelay: `${index * 100}ms` }}
-                          >
-                            <div className="flex items-center gap-2 flex-1 min-w-0">
-                              <div className="shrink-0 h-4 w-4 rounded-full border-2 border-muted-foreground flex items-center justify-center" />
-                              <span className="text-sm font-medium truncate">{goal.name}</span>
-                            </div>
-                            <Badge variant="secondary" className="bg-blue-100 text-blue-700 border-blue-200 shrink-0 text-xs">
-                              In Progress
-                            </Badge>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Family-Specific Goals */}
-                    <div className="space-y-3">
-                      <h3 className="font-medium text-foreground">Family-Specific Goals</h3>
-                      {DEMO_GOALS.map((goal, index) => (
-                        <div 
-                          key={goal.id} 
-                          className="flex items-center gap-4 p-4 bg-gradient-to-r from-purple-50/80 to-violet-50/50 rounded-xl border border-purple-100 hover-lift transition-all duration-300 animate-fade-in"
-                          style={{ animationDelay: `${index * 100}ms` }}
-                        >
-                          <div className="h-10 w-10 rounded-full bg-gradient-to-br from-purple-500 to-violet-500 flex items-center justify-center shadow-md">
-                            <Target className="h-5 w-5 text-white" />
-                          </div>
-                          <span className="text-sm font-medium flex-1">{goal.goal}</span>
-                          <Badge className="bg-purple-100 text-purple-700 border-purple-200">In Progress</Badge>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </TabsContent>
-
-            {/* Boundaries Tab */}
-            <TabsContent value="boundaries" className="animate-fade-in">
-              <div className="space-y-4">
-                {/* Universal Boundaries */}
-                <Card className="border-0 shadow-lg overflow-hidden">
-                  <div className="h-1 bg-gradient-to-r from-purple-500 via-violet-500 to-indigo-500" />
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-purple-500 to-violet-500 flex items-center justify-center shadow-md">
-                        <Shield className="h-5 w-5 text-white" />
-                      </div>
-                      Universal Boundaries
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="p-4 rounded-lg bg-purple-50/50 border border-purple-100">
-                      <p className="text-sm text-muted-foreground mb-3">
-                        These boundaries apply to all families using this platform:
-                      </p>
-                      <ul className="space-y-2 text-sm">
-                        <li className="flex items-start gap-2">
-                          <Check className="h-4 w-4 text-purple-600 shrink-0 mt-0.5" />
-                          <span>No financial support will be provided for substances or activities that enable addiction.</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <Check className="h-4 w-4 text-purple-600 shrink-0 mt-0.5" />
-                          <span>All financial support must go through the approval process on this app. No cash.</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <Check className="h-4 w-4 text-purple-600 shrink-0 mt-0.5" />
-                          <span>All family members commit to honest, respectful communication.</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <Check className="h-4 w-4 text-purple-600 shrink-0 mt-0.5" />
-                          <span>Recovery progress must be demonstrated through treatment completion, aftercare compliance, meeting and therapy attendance, medication compliance where needed.</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <Check className="h-4 w-4 text-purple-600 shrink-0 mt-0.5" />
-                          <span>Immediate response is required for all location check-in requests. Failure to respond may result in the loss of cell phone service, vehicle privileges, financial support or other natural consequences.</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <Check className="h-4 w-4 text-purple-600 shrink-0 mt-0.5" />
-                          <span>Any relapse must be disclosed to the family within 24 hours.</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <Check className="h-4 w-4 text-purple-600 shrink-0 mt-0.5" />
-                          <span>Support system members must be involved in their own recovery process and document their involvement in recovery meetings, support groups, therapy appointments or other activities that support family recovery.</span>
-                        </li>
-                      </ul>
-                    </div>
-
-                    {/* Consequences Section */}
-                    <div className="p-4 rounded-lg bg-red-50 border border-red-200 mt-4">
-                      <h3 className="font-medium text-foreground mb-2 flex items-center gap-2">
-                        <AlertTriangle className="h-4 w-4 text-red-500" />
-                        Consequences
-                      </h3>
-                      <p className="text-sm text-muted-foreground">
-                        Violation of the boundaries listed on this page could result in the reduction or elimination of financial support, access to transportation or phone service or other consequences agreed upon by the family group. Consequences apply to family group members who continue to enable the addiction or ignore their own recovery process.
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Family-Specific Boundaries */}
-                <Card className="border-0 shadow-lg overflow-hidden">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-3 text-lg">
-                      <Shield className="h-5 w-5 text-purple-600" />
-                      Family-Specific Boundaries
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    {DEMO_BOUNDARIES.map((boundary, index) => (
-                      <div 
-                        key={boundary.id} 
-                        className={`p-4 rounded-xl border animate-fade-in ${
-                          boundary.status === 'approved' 
-                            ? 'bg-green-50/50 border-green-200' 
-                            : 'bg-amber-50/50 border-amber-200'
-                        }`}
-                        style={{ animationDelay: `${index * 100}ms` }}
-                      >
-                        <div className="flex items-start justify-between mb-3">
-                          <div className="flex items-center gap-2">
-                            <Badge 
-                              variant={boundary.status === 'approved' ? 'default' : 'secondary'}
-                              className={boundary.status === 'approved' 
-                                ? 'bg-green-500 border-0' 
-                                : 'bg-amber-100 text-amber-700 border-amber-200'
-                              }
-                            >
-                              {boundary.status === 'approved' ? <CheckCircle className="h-3 w-3 mr-1" /> : <Clock className="h-3 w-3 mr-1" />}
-                              {boundary.status}
-                            </Badge>
-                            {boundary.targetUser && (
-                              <Badge variant="outline" className="border-primary/30 text-primary">
-                                <Users className="h-3 w-3 mr-1" />
-                                For: {boundary.targetUser}
-                              </Badge>
-                            )}
-                          </div>
-                          <span className="text-xs text-muted-foreground">by {boundary.createdBy}</span>
-                        </div>
-                        
-                        <p className="text-sm mb-3">{boundary.content}</p>
-                        
-                        {boundary.acknowledgments.length > 0 && (
-                          <div className="mb-3">
-                            <p className="text-xs text-muted-foreground mb-2 font-medium">Acknowledged by:</p>
-                            <div className="flex flex-wrap gap-1">
-                              {boundary.acknowledgments.map((name, i) => (
-                                <Badge 
-                                  key={i} 
-                                  variant="outline" 
-                                  className="text-xs bg-green-50 border-green-200 text-green-700"
-                                >
-                                  <CheckCircle className="h-3 w-3 mr-1" />
-                                  {name}
-                                </Badge>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-
-                        {boundary.status === 'pending' && (
-                          <div className="flex gap-2 mt-3">
-                            <Button size="sm" className="flex-1 bg-green-500 hover:bg-green-600">
-                              <Check className="h-4 w-4 mr-1" />
-                              Approve
-                            </Button>
-                            <Button size="sm" variant="outline" className="flex-1 border-red-200 text-red-600 hover:bg-red-50">
-                              <X className="h-4 w-4 mr-1" />
-                              Reject
-                            </Button>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </CardContent>
-                </Card>
-              </div>
+                    Drug & Alcohol Testing
+                    <Badge variant="secondary" className="ml-2 bg-amber-100 text-amber-700">Coming Soon</Badge>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-center py-8">
+                    <FlaskConical className="h-12 w-12 text-amber-500 mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">Lab-Verified Testing Coming Soon</h3>
+                    <p className="text-muted-foreground max-w-md mx-auto">
+                      Random testing schedules, instant notifications, and lab-verified results will be available to families.
+                    </p>
+                    <Button 
+                      variant="outline" 
+                      className="mt-4"
+                      onClick={() => toast.info("Thanks for your interest! We'll notify you when testing launches.")}
+                    >
+                      <Mail className="h-4 w-4 mr-2" />
+                      Notify Me When Available
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
             </TabsContent>
 
           </Tabs>
@@ -1104,72 +1499,52 @@ const DemoFamily = () => {
               </div>
 
               {selectedMember.paymentInfo && (
-                <div className="space-y-4">
+                <div className="space-y-3">
                   <h4 className="font-semibold text-sm text-muted-foreground flex items-center gap-2">
                     <DollarSign className="h-4 w-4" />
                     Payment Methods
                   </h4>
-                  
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-blue-50/50 rounded-xl border border-blue-200 hover-lift transition-all duration-300">
-                      <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-600 to-blue-500 flex items-center justify-center text-white text-xs font-bold shadow-md">
-                          PP
-                        </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg border border-blue-200">
+                      <div className="flex items-center gap-2">
+                        <div className="h-8 w-8 rounded bg-blue-600 flex items-center justify-center text-white text-xs font-bold">PP</div>
                         <div>
-                          <p className="text-sm font-semibold">PayPal</p>
+                          <p className="text-sm font-medium">PayPal</p>
                           <p className="text-xs text-muted-foreground">{selectedMember.paymentInfo.paypal}</p>
                         </div>
                       </div>
-                      <Button size="sm" className="bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 shadow-md" asChild>
-                        <a href={`https://paypal.me/${selectedMember.paymentInfo.paypal}`} target="_blank" rel="noopener noreferrer">
-                          <Send className="h-3 w-3 mr-1" />
-                          Send
-                        </a>
+                      <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
+                        <Send className="h-3 w-3 mr-1" />
+                        Send
                       </Button>
                     </div>
-
-                    <div className="flex items-center justify-between p-4 bg-gradient-to-r from-sky-50 to-sky-50/50 rounded-xl border border-sky-200 hover-lift transition-all duration-300">
-                      <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-sky-500 to-cyan-500 flex items-center justify-center text-white text-xs font-bold shadow-md">
-                          V
-                        </div>
+                    <div className="flex items-center justify-between p-3 bg-sky-50 rounded-lg border border-sky-200">
+                      <div className="flex items-center gap-2">
+                        <div className="h-8 w-8 rounded bg-sky-500 flex items-center justify-center text-white text-xs font-bold">V</div>
                         <div>
-                          <p className="text-sm font-semibold">Venmo</p>
+                          <p className="text-sm font-medium">Venmo</p>
                           <p className="text-xs text-muted-foreground">{selectedMember.paymentInfo.venmo}</p>
                         </div>
                       </div>
-                      <Button size="sm" className="bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 shadow-md" asChild>
-                        <a href={`https://venmo.com/${selectedMember.paymentInfo.venmo.replace('@', '')}`} target="_blank" rel="noopener noreferrer">
-                          <Send className="h-3 w-3 mr-1" />
-                          Send
-                        </a>
+                      <Button size="sm" className="bg-sky-500 hover:bg-sky-600">
+                        <Send className="h-3 w-3 mr-1" />
+                        Send
                       </Button>
                     </div>
-
-                    <div className="flex items-center justify-between p-4 bg-gradient-to-r from-green-50 to-emerald-50/50 rounded-xl border border-green-200 hover-lift transition-all duration-300">
-                      <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-green-600 to-emerald-500 flex items-center justify-center text-white text-xs font-bold shadow-md">
-                          $
-                        </div>
+                    <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-200">
+                      <div className="flex items-center gap-2">
+                        <div className="h-8 w-8 rounded bg-green-600 flex items-center justify-center text-white text-xs font-bold">$</div>
                         <div>
-                          <p className="text-sm font-semibold">Cash App</p>
+                          <p className="text-sm font-medium">Cash App</p>
                           <p className="text-xs text-muted-foreground">{selectedMember.paymentInfo.cashapp}</p>
                         </div>
                       </div>
-                      <Button size="sm" className="bg-gradient-to-r from-green-600 to-emerald-500 hover:from-green-700 hover:to-emerald-600 shadow-md" asChild>
-                        <a href={`https://cash.app/${selectedMember.paymentInfo.cashapp}`} target="_blank" rel="noopener noreferrer">
-                          <Send className="h-3 w-3 mr-1" />
-                          Send
-                        </a>
+                      <Button size="sm" className="bg-green-600 hover:bg-green-700">
+                        <Send className="h-3 w-3 mr-1" />
+                        Send
                       </Button>
                     </div>
                   </div>
-
-                  <p className="text-xs text-muted-foreground text-center bg-muted/30 p-3 rounded-lg">
-                    <Sparkles className="h-3 w-3 inline mr-1" />
-                    Click "Send" to open the payment app and send funds directly
-                  </p>
                 </div>
               )}
             </div>
@@ -1180,68 +1555,84 @@ const DemoFamily = () => {
       {/* Members List Dialog */}
       <Dialog open={showMembersList} onOpenChange={setShowMembersList}>
         <DialogContent className="sm:max-w-md border-0 shadow-2xl max-h-[80vh] overflow-auto">
-          <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary via-primary/80 to-primary/60 rounded-t-lg" />
+          <div className={`absolute inset-x-0 top-0 h-1 ${selectedFamily === 'davis' ? 'bg-gradient-to-r from-destructive via-destructive/80 to-destructive/60' : 'bg-gradient-to-r from-primary via-primary/80 to-primary/60'} rounded-t-lg`} />
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <img src={familyBridgeLogo} alt="FamilyBridge" className="h-5 w-5 object-contain" />
               Family Members
               <Badge variant="secondary" className="ml-auto bg-primary/10 text-primary">
-                {DEMO_MEMBERS.length} Members
+                {currentFamily.members.length} Members
               </Badge>
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-3 mt-4">
-            {DEMO_MEMBERS.map((member, index) => (
-              <div 
-                key={member.id}
-                className={`flex items-center justify-between p-3 rounded-xl border border-border/50 transition-all duration-300 animate-fade-in ${
-                  member.paymentInfo 
-                    ? 'cursor-pointer hover:shadow-md hover:border-primary/30 hover:bg-primary/5' 
-                    : 'bg-muted/30'
-                }`}
-                style={{ animationDelay: `${index * 50}ms` }}
-                onClick={() => {
-                  if (member.paymentInfo) {
-                    setShowMembersList(false);
-                    setSelectedMember(member);
-                  }
-                }}
-              >
-                <div className="flex items-center gap-3">
-                  <Avatar className={`h-10 w-10 ring-2 ring-offset-1 ${
-                    member.role === 'recovering' ? 'ring-primary' : 
-                    member.role === 'moderator' ? 'ring-orange-500' : 
-                    'ring-muted'
-                  }`}>
-                    <AvatarFallback className={`text-xs font-medium ${
-                      member.role === 'recovering' ? 'bg-gradient-to-br from-primary to-primary/80 text-primary-foreground' :
-                      member.role === 'moderator' ? 'bg-gradient-to-br from-orange-500 to-amber-500 text-white' :
-                      'bg-muted'
+            {currentFamily.members.map((member, index) => {
+              const isEnabling = selectedFamily === 'davis' && member.id === '1';
+              
+              return (
+                <div 
+                  key={member.id}
+                  className={`flex items-center justify-between p-3 rounded-xl border border-border/50 transition-all duration-300 animate-fade-in ${
+                    member.paymentInfo 
+                      ? 'cursor-pointer hover:shadow-md hover:border-primary/30 hover:bg-primary/5' 
+                      : isEnabling 
+                        ? 'bg-amber-50 border-amber-200'
+                        : 'bg-muted/30'
+                  }`}
+                  style={{ animationDelay: `${index * 50}ms` }}
+                  onClick={() => {
+                    if (member.paymentInfo) {
+                      setShowMembersList(false);
+                      setSelectedMember(member);
+                    }
+                  }}
+                >
+                  <div className="flex items-center gap-3">
+                    <Avatar className={`h-10 w-10 ring-2 ring-offset-1 ${
+                      member.role === 'recovering' ? 'ring-primary' : 
+                      member.role === 'moderator' ? 'ring-orange-500' : 
+                      isEnabling ? 'ring-amber-500' :
+                      'ring-muted'
                     }`}>
-                      {member.initials}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="font-medium text-sm text-foreground">{member.name}</p>
-                    <p className="text-xs text-muted-foreground">{member.relationship}</p>
+                      <AvatarFallback className={`text-xs font-medium ${
+                        member.role === 'recovering' ? 'bg-gradient-to-br from-primary to-primary/80 text-primary-foreground' :
+                        member.role === 'moderator' ? 'bg-gradient-to-br from-orange-500 to-amber-500 text-white' :
+                        isEnabling ? 'bg-gradient-to-br from-amber-400 to-amber-500 text-white' :
+                        'bg-muted'
+                      }`}>
+                        {member.initials}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <p className="font-medium text-sm text-foreground">{member.name}</p>
+                      <p className="text-xs text-muted-foreground">{member.relationship}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    {isEnabling && (
+                      <Badge variant="outline" className="text-[10px] bg-amber-50 border-amber-200 text-amber-700">
+                        <AlertTriangle className="h-2 w-2 mr-0.5" />
+                        Enabling
+                      </Badge>
+                    )}
+                    <Badge 
+                      variant={
+                        member.role === 'moderator' ? 'default' : 
+                        member.role === 'recovering' ? 'secondary' : 
+                        'outline'
+                      }
+                      className={`text-xs ${
+                        member.role === 'moderator' ? 'bg-gradient-to-r from-orange-500 to-amber-500 border-0' :
+                        member.role === 'recovering' ? 'bg-primary/10 text-primary border-primary/20' :
+                        ''
+                      }`}
+                    >
+                      {member.role}
+                    </Badge>
                   </div>
                 </div>
-                <Badge 
-                  variant={
-                    member.role === 'moderator' ? 'default' : 
-                    member.role === 'recovering' ? 'secondary' : 
-                    'outline'
-                  }
-                  className={`text-xs ${
-                    member.role === 'moderator' ? 'bg-gradient-to-r from-orange-500 to-amber-500 border-0' :
-                    member.role === 'recovering' ? 'bg-primary/10 text-primary border-primary/20' :
-                    ''
-                  }`}
-                >
-                  {member.role}
-                </Badge>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </DialogContent>
       </Dialog>
