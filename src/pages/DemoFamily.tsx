@@ -825,7 +825,7 @@ const DemoFamily = () => {
                 className="flex-1 min-w-[50px] data-[state=active]:bg-gradient-to-r data-[state=active]:from-violet-500 data-[state=active]:to-purple-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-300 flex items-center justify-center gap-1 px-2 py-2 relative"
               >
                 <Brain className="h-4 w-4 shrink-0" />
-                <span className="hidden sm:inline text-xs">AI Intel</span>
+                <span className="hidden sm:inline text-xs">FIIS</span>
                 {selectedFamily === 'davis' && (
                   <span className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-destructive animate-pulse" />
                 )}
@@ -1340,8 +1340,8 @@ const DemoFamily = () => {
                         <div className={`h-8 w-8 rounded-lg flex items-center justify-center shrink-0 ${selectedFamily === 'johnson' ? 'bg-gradient-to-br from-green-500/20 to-emerald-500/20' : 'bg-gradient-to-br from-violet-500/20 to-purple-500/20'}`}>
                           <Brain className={`h-4 w-4 ${selectedFamily === 'johnson' ? 'text-green-600' : 'text-violet-600'}`} />
                         </div>
-                        <span className="hidden sm:inline">Family Intervention Intelligence</span>
-                        <span className="sm:hidden">AI Intel</span>
+                        <span className="hidden sm:inline">Family Intervention Intelligence System</span>
+                        <span className="sm:hidden">FIIS</span>
                         {selectedFamily === 'johnson' ? (
                           <Badge variant="secondary" className="bg-green-100 text-green-700 border-green-200 text-[10px] sm:text-xs">
                             <TrendingUp className="h-3 w-3 mr-1" />
