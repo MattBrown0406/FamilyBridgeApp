@@ -60,7 +60,7 @@ const Index = () => {
     {
       icon: Shield,
       title: 'Professional Oversight Ready',
-      description: 'Professionals in private practice and professional treatment and recovery programs can access AI-generated insights to provide better guidance during difficult family conversations.',
+      description: 'Professionals in private practice, treatment centers and recovery programs can access AI-generated insights to provide better guidance during difficult family conversations.',
       gradient: 'from-primary to-accent',
     },
   ];
