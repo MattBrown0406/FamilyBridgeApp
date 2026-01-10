@@ -18,12 +18,12 @@ import {
   MessageCircle, AlertTriangle, Check, X, Shield, MapPin,
   ExternalLink, CreditCard, CheckCircle2, Paperclip, Image, HandCoins, Trash2, Pencil,
   Target, ShieldCheck, Plus, CheckCircle, MessageSquare, FlaskConical, ChevronDown, Sparkles,
-  Brain, Search
+  Brain, Search, Calendar, ChevronLeft, ChevronRight, Archive
 } from 'lucide-react';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Label } from '@/components/ui/label';
-import { format } from 'date-fns';
+import { format, startOfWeek, endOfWeek, subWeeks, isWithinInterval, isSameWeek } from 'date-fns';
 import {
   Dialog,
   DialogContent,
@@ -349,7 +349,13 @@ const FamilyChat = () => {
   const [cooldownRemaining, setCooldownRemaining] = useState(0);
   const [membersSheetOpen, setMembersSheetOpen] = useState(false);
   
+  // Weekly archive state - week starts Sunday at midnight
+  const [selectedWeekStart, setSelectedWeekStart] = useState<Date>(() => 
+    startOfWeek(new Date(), { weekStartsOn: 0 }) // 0 = Sunday
+  );
+  const [allMessages, setAllMessages] = useState<Message[]>([]);
   
+
   // Family Values state
   const [familyValues, setFamilyValues] = useState<FamilyValue[]>([]);
   const [selectedValues, setSelectedValues] = useState<string[]>([]);
@@ -805,7 +811,15 @@ const FamilyChat = () => {
           sender_name: sender?.full_name || 'Unknown',
         };
       });
-      setMessages(messagesWithNames);
+      setAllMessages(messagesWithNames);
+      // Filter messages to current week initially
+      const currentWeekStart = startOfWeek(new Date(), { weekStartsOn: 0 });
+      const currentWeekEnd = endOfWeek(new Date(), { weekStartsOn: 0 });
+      const currentWeekMessages = messagesWithNames.filter(msg => {
+        const msgDate = new Date(msg.created_at);
+        return isWithinInterval(msgDate, { start: currentWeekStart, end: currentWeekEnd });
+      });
+      setMessages(currentWeekMessages);
 
       // Fetch financial requests
       await fetchFinancialRequests(formattedMembers);
@@ -1349,10 +1363,22 @@ const FamilyChat = () => {
         (payload) => {
           const newMsg = payload.new as Message;
           const sender = members.find(m => m.user_id === newMsg.sender_id);
-          setMessages(prev => [...prev, {
+          const msgWithName = {
             ...newMsg,
             sender_name: sender?.full_name || 'Unknown',
-          }]);
+          };
+          // Add to all messages
+          setAllMessages(prev => [...prev, msgWithName]);
+          // Only add to visible messages if it's in the current week
+          const currentWeekStart = startOfWeek(new Date(), { weekStartsOn: 0 });
+          const currentWeekEnd = endOfWeek(new Date(), { weekStartsOn: 0 });
+          const msgDate = new Date(newMsg.created_at);
+          if (isWithinInterval(msgDate, { start: currentWeekStart, end: currentWeekEnd })) {
+            // Check if we're viewing the current week
+            if (isSameWeek(selectedWeekStart, new Date(), { weekStartsOn: 0 })) {
+              setMessages(prev => [...prev, msgWithName]);
+            }
+          }
         }
       )
       .subscribe();
@@ -1360,6 +1386,50 @@ const FamilyChat = () => {
     return () => {
       supabase.removeChannel(channel);
     };
+  };
+
+  // Week navigation helper
+  const isCurrentWeek = isSameWeek(selectedWeekStart, new Date(), { weekStartsOn: 0 });
+  
+  const navigateWeek = (direction: 'prev' | 'next') => {
+    const newWeekStart = direction === 'prev' 
+      ? subWeeks(selectedWeekStart, 1)
+      : startOfWeek(
+          new Date(selectedWeekStart.getTime() + 7 * 24 * 60 * 60 * 1000), 
+          { weekStartsOn: 0 }
+        );
+    
+    // Don't navigate to future weeks
+    if (direction === 'next' && newWeekStart > startOfWeek(new Date(), { weekStartsOn: 0 })) {
+      return;
+    }
+    
+    setSelectedWeekStart(newWeekStart);
+    
+    // Filter messages for the selected week
+    const weekEnd = endOfWeek(newWeekStart, { weekStartsOn: 0 });
+    const filteredMessages = allMessages.filter(msg => {
+      const msgDate = new Date(msg.created_at);
+      return isWithinInterval(msgDate, { start: newWeekStart, end: weekEnd });
+    });
+    setMessages(filteredMessages);
+  };
+  
+  const goToCurrentWeek = () => {
+    const currentWeekStart = startOfWeek(new Date(), { weekStartsOn: 0 });
+    setSelectedWeekStart(currentWeekStart);
+    
+    const currentWeekEnd = endOfWeek(new Date(), { weekStartsOn: 0 });
+    const filteredMessages = allMessages.filter(msg => {
+      const msgDate = new Date(msg.created_at);
+      return isWithinInterval(msgDate, { start: currentWeekStart, end: currentWeekEnd });
+    });
+    setMessages(filteredMessages);
+  };
+  
+  const getWeekLabel = () => {
+    const weekEnd = endOfWeek(selectedWeekStart, { weekStartsOn: 0 });
+    return `${format(selectedWeekStart, 'MMM d')} - ${format(weekEnd, 'MMM d, yyyy')}`;
   };
 
   // Cooldown timer effect
@@ -2017,15 +2087,72 @@ const FamilyChat = () => {
           {/* Messages Tab */}
           <TabsContent value="messages" className="flex-1 flex flex-col overflow-hidden mt-0">
             <Card className="flex-1 flex flex-col overflow-hidden shadow-card border-border/50 card-enter">
+              {/* Week Navigation Bar */}
+              <div className="flex items-center justify-between px-4 py-2 border-b border-border/50 bg-muted/30">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => navigateWeek('prev')}
+                  className="h-8 px-2"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  <span className="hidden sm:inline ml-1">Previous</span>
+                </Button>
+                
+                <div className="flex items-center gap-2">
+                  {!isCurrentWeek && (
+                    <Badge variant="secondary" className="text-xs">
+                      <Archive className="h-3 w-3 mr-1" />
+                      Archive
+                    </Badge>
+                  )}
+                  <span className="text-sm font-medium text-foreground flex items-center gap-1">
+                    <Calendar className="h-4 w-4 text-muted-foreground" />
+                    {getWeekLabel()}
+                  </span>
+                  {!isCurrentWeek && (
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={goToCurrentWeek}
+                      className="h-7 text-xs"
+                    >
+                      Current Week
+                    </Button>
+                  )}
+                </div>
+                
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => navigateWeek('next')}
+                  disabled={isCurrentWeek}
+                  className="h-8 px-2"
+                >
+                  <span className="hidden sm:inline mr-1">Next</span>
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+              
               <ScrollArea className="flex-1 p-4">
                 <div className="space-y-4">
                   {messages.length === 0 ? (
                     <div className="text-center py-12 animate-fade-in">
                       <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
-                        <MessageCircle className="h-8 w-8 text-primary animate-pulse-soft" />
+                        {isCurrentWeek ? (
+                          <MessageCircle className="h-8 w-8 text-primary animate-pulse-soft" />
+                        ) : (
+                          <Archive className="h-8 w-8 text-muted-foreground" />
+                        )}
                       </div>
-                      <h3 className="font-display font-semibold text-foreground mb-1">No messages yet</h3>
-                      <p className="text-muted-foreground text-sm">Start the conversation with your family!</p>
+                      <h3 className="font-display font-semibold text-foreground mb-1">
+                        {isCurrentWeek ? 'No messages yet' : 'No messages this week'}
+                      </h3>
+                      <p className="text-muted-foreground text-sm">
+                        {isCurrentWeek 
+                          ? 'Start the conversation with your family!' 
+                          : 'There were no messages during this week.'}
+                      </p>
                     </div>
                   ) : (
                     messages.map((msg, index) => (
@@ -2081,48 +2208,66 @@ const FamilyChat = () => {
                   <div ref={messagesEndRef} />
                 </div>
               </ScrollArea>
-              <form onSubmit={handleSendMessage} className="p-4 border-t border-border/50 shrink-0 bg-card/50 backdrop-blur-sm">
-                {cooldownRemaining > 0 && (
-                  <div className="mb-3 p-3 bg-destructive/10 border border-destructive/20 rounded-xl flex items-center gap-2 animate-scale-in">
-                    <AlertTriangle className="h-4 w-4 text-destructive" />
-                    <span className="text-sm text-destructive">
-                      Cooldown active: {cooldownRemaining} seconds remaining
-                    </span>
+              {/* Message Input - only show for current week */}
+              {isCurrentWeek ? (
+                <form onSubmit={handleSendMessage} className="p-4 border-t border-border/50 shrink-0 bg-card/50 backdrop-blur-sm">
+                  {cooldownRemaining > 0 && (
+                    <div className="mb-3 p-3 bg-destructive/10 border border-destructive/20 rounded-xl flex items-center gap-2 animate-scale-in">
+                      <AlertTriangle className="h-4 w-4 text-destructive" />
+                      <span className="text-sm text-destructive">
+                        Cooldown active: {cooldownRemaining} seconds remaining
+                      </span>
+                    </div>
+                  )}
+                  <div className="flex gap-2">
+                    <Input
+                      value={newMessage}
+                      onChange={(e) => setNewMessage(e.target.value)}
+                      placeholder={cooldownRemaining > 0 ? "Please wait..." : "Type a supportive message..."}
+                      className="flex-1 bg-background/80 border-border/50 focus:border-primary/50 transition-colors"
+                      disabled={cooldownRemaining > 0}
+                    />
+                    <Button 
+                      type="submit" 
+                      disabled={isSending || !newMessage.trim() || cooldownRemaining > 0}
+                      className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-md hover:shadow-lg transition-all duration-200"
+                    >
+                      {isSending ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : cooldownRemaining > 0 ? (
+                        <span className="text-xs">{cooldownRemaining}s</span>
+                      ) : (
+                        <Send className="h-4 w-4" />
+                      )}
+                    </Button>
                   </div>
-                )}
-                <div className="flex gap-2">
-                  <Input
-                    value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
-                    placeholder={cooldownRemaining > 0 ? "Please wait..." : "Type a supportive message..."}
-                    className="flex-1 bg-background/80 border-border/50 focus:border-primary/50 transition-colors"
-                    disabled={cooldownRemaining > 0}
-                  />
-                  <Button 
-                    type="submit" 
-                    disabled={isSending || !newMessage.trim() || cooldownRemaining > 0}
-                    className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-md hover:shadow-lg transition-all duration-200"
-                  >
-                    {isSending ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : cooldownRemaining > 0 ? (
-                      <span className="text-xs">{cooldownRemaining}s</span>
-                    ) : (
-                      <Send className="h-4 w-4" />
-                    )}
-                  </Button>
+                  <div className="flex items-center justify-between mt-3">
+                    <ConversationStarters 
+                      onSelect={(prompt) => setNewMessage(prompt)}
+                      disabled={cooldownRemaining > 0}
+                    />
+                    <p className="text-xs text-muted-foreground flex items-center gap-1">
+                      <Shield className="h-3 w-3" />
+                      Messages are permanent
+                    </p>
+                  </div>
+                </form>
+              ) : (
+                <div className="p-4 border-t border-border/50 shrink-0 bg-muted/30">
+                  <div className="flex items-center justify-center gap-2 text-muted-foreground">
+                    <Archive className="h-4 w-4" />
+                    <span className="text-sm">Viewing archived messages. Return to current week to send messages.</span>
+                    <Button 
+                      variant="link" 
+                      size="sm" 
+                      onClick={goToCurrentWeek}
+                      className="text-primary p-0 h-auto"
+                    >
+                      Go to current week
+                    </Button>
+                  </div>
                 </div>
-                <div className="flex items-center justify-between mt-3">
-                  <ConversationStarters 
-                    onSelect={(prompt) => setNewMessage(prompt)}
-                    disabled={cooldownRemaining > 0}
-                  />
-                  <p className="text-xs text-muted-foreground flex items-center gap-1">
-                    <Shield className="h-3 w-3" />
-                    Messages are filtered for safety
-                  </p>
-                </div>
-              </form>
+              )}
             </Card>
           </TabsContent>
 
