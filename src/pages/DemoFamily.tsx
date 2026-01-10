@@ -1009,25 +1009,6 @@ const DemoFamily = () => {
                 </CardContent>
               </Card>
 
-              {/* Davis Family Warning Banner */}
-              {selectedFamily === 'davis' && (
-                <Card className="mb-4 border-amber-200 bg-amber-50/50">
-                  <CardContent className="pt-4 pb-4">
-                    <div className="flex items-start gap-3">
-                      <div className="h-10 w-10 rounded-full bg-amber-100 flex items-center justify-center shrink-0">
-                        <AlertTriangle className="h-5 w-5 text-amber-600" />
-                      </div>
-                      <div>
-                        <h4 className="font-semibold text-amber-800">Pattern Detected: Enabling Behavior</h4>
-                        <p className="text-sm text-amber-700 mt-1">
-                          Richard (Dad) has voted to approve <strong>all 5 requests</strong> while the rest of the family has consistently denied them based on boundary violations. 
-                          This split indicates a potential enabling pattern that may be undermining recovery efforts.
-                        </p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
 
               <div className="space-y-2">
                 {currentFamily.financialRequests.map((request, index) => {
