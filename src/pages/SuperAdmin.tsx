@@ -36,7 +36,9 @@ import {
   User,
   Pencil,
   Trash2,
-  Plus
+  Plus,
+  Activity,
+  ChevronRight
 } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
@@ -175,9 +177,8 @@ const SuperAdmin = () => {
   const { isAdmin, isVerifying, stats: rawStats, isLoadingStats, error, refetch } = useSuperAdmin();
   const stats = rawStats as AdminStats | null;
   
-  const [familySearch, setFamilySearch] = useState('');
-  const [orgSearch, setOrgSearch] = useState('');
-  const [userSearch, setUserSearch] = useState('');
+  const [globalSearch, setGlobalSearch] = useState('');
+  const [activeTab, setActiveTab] = useState('families');
   
   // Detail dialog states
   const [selectedFamilyId, setSelectedFamilyId] = useState<string | null>(null);
@@ -204,10 +205,8 @@ const SuperAdmin = () => {
   const [familyForm, setFamilyForm] = useState({ name: '', description: '', organization_id: '' });
 
   const getAuthHeaders = async () => {
-    // Refresh session to ensure we have valid tokens
     const { data: { session }, error } = await supabase.auth.getSession();
     if (error || !session?.access_token) {
-      // Try to refresh the session
       const { data: refreshData } = await supabase.auth.refreshSession();
       if (!refreshData.session?.access_token) {
         throw new Error('No valid session');
@@ -315,7 +314,6 @@ const SuperAdmin = () => {
         toast.success('Updated successfully');
         setIsEditing(false);
         refetch();
-        // Refresh details
         if (selectedFamilyId) fetchFamilyDetails(selectedFamilyId);
         if (selectedOrgId) fetchOrgDetails(selectedOrgId);
         if (selectedUserId) fetchUserDetails(selectedUserId);
@@ -458,10 +456,13 @@ const SuperAdmin = () => {
 
   if (authLoading || isVerifying) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="flex items-center gap-2 text-muted-foreground">
-          <Loader2 className="h-5 w-5 animate-spin" />
-          Verifying access...
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-muted/30">
+        <div className="flex flex-col items-center gap-3 animate-fade-in">
+          <div className="relative">
+            <div className="w-12 h-12 rounded-full border-4 border-primary/20 border-t-primary animate-spin" />
+            <Shield className="h-5 w-5 text-primary absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+          </div>
+          <p className="text-sm text-muted-foreground">Verifying access...</p>
         </div>
       </div>
     );
@@ -474,10 +475,12 @@ const SuperAdmin = () => {
 
   if (!isAdmin) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Card className="max-w-md">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-destructive/5">
+        <Card className="max-w-md border-destructive/20 animate-scale-in">
           <CardContent className="pt-6 text-center">
-            <Shield className="h-12 w-12 text-destructive mx-auto mb-4" />
+            <div className="w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center mx-auto mb-4">
+              <Shield className="h-8 w-8 text-destructive" />
+            </div>
             <h2 className="text-xl font-semibold mb-2">Access Denied</h2>
             <p className="text-muted-foreground mb-4">
               You don't have permission to access this page.
@@ -489,402 +492,308 @@ const SuperAdmin = () => {
     );
   }
 
+  const searchLower = globalSearch.toLowerCase();
   const filteredFamilies = stats?.families?.filter(f => 
-    f.name.toLowerCase().includes(familySearch.toLowerCase()) ||
-    f.account_number.toLowerCase().includes(familySearch.toLowerCase()) ||
-    (f.organization_name && f.organization_name.toLowerCase().includes(familySearch.toLowerCase()))
+    f.name.toLowerCase().includes(searchLower) ||
+    f.account_number.toLowerCase().includes(searchLower) ||
+    (f.organization_name && f.organization_name.toLowerCase().includes(searchLower))
   ) || [];
 
   const filteredOrgs = stats?.organizations?.filter(o =>
-    o.name.toLowerCase().includes(orgSearch.toLowerCase()) ||
-    o.subdomain.toLowerCase().includes(orgSearch.toLowerCase())
+    o.name.toLowerCase().includes(searchLower) ||
+    o.subdomain.toLowerCase().includes(searchLower)
   ) || [];
 
   const filteredUsers = stats?.users?.filter(u =>
-    u.full_name.toLowerCase().includes(userSearch.toLowerCase())
+    u.full_name.toLowerCase().includes(searchLower)
   ) || [];
 
-  const getActivityBadge = (activity: number) => {
-    if (activity === 0) {
-      return <Badge variant="outline" className="text-muted-foreground"><Minus className="h-3 w-3 mr-1" />Inactive</Badge>;
-    }
-    if (activity < 10) {
-      return <Badge variant="outline" className="text-orange-600"><TrendingDown className="h-3 w-3 mr-1" />Low</Badge>;
-    }
-    if (activity < 50) {
-      return <Badge variant="secondary"><Minus className="h-3 w-3 mr-1" />Moderate</Badge>;
-    }
-    return <Badge className="bg-green-600"><TrendingUp className="h-3 w-3 mr-1" />Active</Badge>;
+  const getActivityIndicator = (activity: number) => {
+    if (activity === 0) return { color: 'bg-muted', label: 'Inactive' };
+    if (activity < 10) return { color: 'bg-orange-500', label: 'Low' };
+    if (activity < 50) return { color: 'bg-yellow-500', label: 'Moderate' };
+    return { color: 'bg-green-500', label: 'Active' };
   };
 
   const getRoleBadge = (role: string) => {
-    switch (role) {
-      case 'moderator':
-        return <Badge className="bg-primary">Moderator</Badge>;
-      case 'recovering':
-        return <Badge variant="secondary">Recovering</Badge>;
-      case 'owner':
-        return <Badge className="bg-primary">Owner</Badge>;
-      case 'admin':
-        return <Badge variant="secondary">Admin</Badge>;
-      case 'staff':
-        return <Badge variant="outline">Staff</Badge>;
-      default:
-        return <Badge variant="outline">{role}</Badge>;
-    }
+    const variants: Record<string, { variant: 'default' | 'secondary' | 'outline'; className?: string }> = {
+      moderator: { variant: 'default', className: 'bg-primary' },
+      recovering: { variant: 'secondary' },
+      owner: { variant: 'default', className: 'bg-primary' },
+      admin: { variant: 'secondary' },
+      staff: { variant: 'outline' },
+    };
+    const config = variants[role] || { variant: 'outline' as const };
+    return <Badge variant={config.variant} className={config.className}>{role}</Badge>;
   };
 
+  // Stat card component for cleaner code
+  const StatPill = ({ icon: Icon, label, value, subValue }: { icon: typeof Users; label: string; value: number | string; subValue?: string }) => (
+    <div className="flex items-center gap-3 px-4 py-2.5 bg-card rounded-xl border shadow-sm hover:shadow-md transition-shadow">
+      <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+        <Icon className="h-4 w-4 text-primary" />
+      </div>
+      <div className="min-w-0">
+        <p className="text-lg font-bold leading-none">{value}</p>
+        <p className="text-xs text-muted-foreground truncate">{label}</p>
+        {subValue && <p className="text-[10px] text-muted-foreground/70">{subValue}</p>}
+      </div>
+    </div>
+  );
+
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b bg-card">
-        <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 sm:gap-4">
-              <Button variant="ghost" size="sm" onClick={() => navigate('/')} className="px-2 sm:px-3">
-                <ArrowLeft className="h-4 w-4 sm:mr-2" />
-                <span className="hidden sm:inline">Home</span>
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+      {/* Compact Header */}
+      <header className="sticky top-0 z-40 border-b bg-card/80 backdrop-blur-sm">
+        <div className="container mx-auto px-4 py-2.5">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <Button variant="ghost" size="icon" onClick={() => navigate('/')} className="h-8 w-8">
+                <ArrowLeft className="h-4 w-4" />
               </Button>
-              <div className="flex items-center gap-1.5 sm:gap-2">
-                <Shield className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
-                <h1 className="text-base sm:text-xl font-display font-semibold">Super Admin</h1>
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center">
+                  <Shield className="h-4 w-4 text-primary-foreground" />
+                </div>
+                <span className="font-display font-semibold hidden sm:inline">Super Admin</span>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Button 
-                size="sm" 
-                onClick={() => setIsCreatingProvider(true)}
-                className="gap-1.5"
-              >
-                <Plus className="h-4 w-4" />
-                <span className="hidden sm:inline">Create Provider</span>
+
+            {/* Global Search */}
+            <div className="flex-1 max-w-md">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search families, providers, users..."
+                  value={globalSearch}
+                  onChange={(e) => setGlobalSearch(e.target.value)}
+                  className="pl-9 h-9 bg-muted/50 border-0 focus-visible:ring-1"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center gap-1.5">
+              <Button size="sm" onClick={() => setIsCreatingProvider(true)} className="h-8 gap-1.5">
+                <Plus className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Provider</span>
               </Button>
-              <Button 
-                size="sm" 
-                variant="secondary"
-                onClick={() => setIsCreatingFamily(true)}
-                className="gap-1.5"
-              >
-                <Plus className="h-4 w-4" />
-                <span className="hidden sm:inline">Create Family</span>
+              <Button size="sm" variant="secondary" onClick={() => setIsCreatingFamily(true)} className="h-8 gap-1.5">
+                <Plus className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Family</span>
               </Button>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={refetch}
-                disabled={isLoadingStats}
-                className="px-2 sm:px-3"
-              >
-                <RefreshCw className={`h-4 w-4 sm:mr-2 ${isLoadingStats ? 'animate-spin' : ''}`} />
-                <span className="hidden sm:inline">Refresh</span>
+              <Button variant="ghost" size="icon" onClick={refetch} disabled={isLoadingStats} className="h-8 w-8">
+                <RefreshCw className={`h-4 w-4 ${isLoadingStats ? 'animate-spin' : ''}`} />
               </Button>
             </div>
           </div>
         </div>
       </header>
 
-      <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
+      <main className="container mx-auto px-4 py-4">
         {error ? (
-          <Card className="border-destructive">
+          <Card className="border-destructive/50 animate-scale-in">
             <CardContent className="pt-6 text-center">
               <p className="text-destructive">{error}</p>
               <Button onClick={refetch} className="mt-4">Try Again</Button>
             </CardContent>
           </Card>
         ) : isLoadingStats && !stats ? (
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <div className="flex items-center justify-center py-20">
+            <div className="flex flex-col items-center gap-3">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              <p className="text-sm text-muted-foreground">Loading dashboard...</p>
+            </div>
           </div>
         ) : stats ? (
-          <>
-            {/* Overview Stats */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 mb-4 sm:mb-8">
-              <Card>
-                <CardContent className="p-3 sm:pt-4">
-                  <div className="flex items-center gap-1.5 sm:gap-2 text-muted-foreground mb-1">
-                    <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                    <span className="text-xs sm:text-sm">Families</span>
-                  </div>
-                  <p className="text-xl sm:text-2xl font-bold">{stats.overview.total_families}</p>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardContent className="pt-4">
-                  <div className="flex items-center gap-2 text-muted-foreground mb-1">
-                    <Building2 className="h-4 w-4" />
-                    <span className="text-sm">Organizations</span>
-                  </div>
-                  <p className="text-2xl font-bold">{stats.overview.total_organizations}</p>
-                </CardContent>
-              </Card>
-              
-              <Card 
-                className="cursor-pointer hover:bg-muted/50 transition-colors"
-                onClick={() => {/* Users tab will handle this */}}
-              >
-                <CardContent className="pt-4">
-                  <div className="flex items-center gap-2 text-muted-foreground mb-1">
-                    <User className="h-4 w-4" />
-                    <span className="text-sm">Total Users</span>
-                  </div>
-                  <p className="text-2xl font-bold">{stats.overview.total_users}</p>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardContent className="pt-4">
-                  <div className="flex items-center gap-2 text-muted-foreground mb-1">
-                    <MessageCircle className="h-4 w-4" />
-                    <span className="text-sm">Messages (30d)</span>
-                  </div>
-                  <p className="text-2xl font-bold">{stats.overview.messages_this_month}</p>
-                  <p className="text-xs text-muted-foreground">{stats.overview.messages_this_week} this week</p>
-                </CardContent>
-              </Card>
+          <div className="space-y-4 animate-fade-in">
+            {/* Stats Bar */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-2">
+              <StatPill icon={Users} label="Families" value={stats.overview.total_families} />
+              <StatPill icon={Building2} label="Providers" value={stats.overview.total_organizations} />
+              <StatPill icon={User} label="Users" value={stats.overview.total_users} />
+              <StatPill icon={MessageCircle} label="Messages" value={stats.overview.messages_this_month} subValue="30 days" />
+              <StatPill icon={MapPin} label="Check-ins" value={stats.overview.checkins_this_week} subValue="7 days" />
+              <StatPill icon={DollarSign} label="Requests" value={stats.overview.financial_requests_this_month} subValue="30 days" />
+              <StatPill icon={BarChart3} label="Avg/Family" value={stats.overview.total_families > 0 ? Math.round(stats.overview.messages_this_month / stats.overview.total_families) : 0} subValue="msgs/mo" />
             </div>
 
-            {/* Additional Stats Row */}
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
-              <Card>
-                <CardContent className="pt-4">
-                  <div className="flex items-center gap-2 text-muted-foreground mb-1">
-                    <MapPin className="h-4 w-4" />
-                    <span className="text-sm">Check-ins (7d)</span>
-                  </div>
-                  <p className="text-2xl font-bold">{stats.overview.checkins_this_week}</p>
-                  <p className="text-xs text-muted-foreground">{stats.overview.total_checkins} total</p>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardContent className="pt-4">
-                  <div className="flex items-center gap-2 text-muted-foreground mb-1">
-                    <DollarSign className="h-4 w-4" />
-                    <span className="text-sm">Financial Requests (30d)</span>
-                  </div>
-                  <p className="text-2xl font-bold">{stats.overview.financial_requests_this_month}</p>
-                  <p className="text-xs text-muted-foreground">{stats.overview.total_financial_requests} total</p>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardContent className="pt-4">
-                  <div className="flex items-center gap-2 text-muted-foreground mb-1">
-                    <BarChart3 className="h-4 w-4" />
-                    <span className="text-sm">Avg Messages/Family</span>
-                  </div>
-                  <p className="text-2xl font-bold">
-                    {stats.overview.total_families > 0 
-                      ? Math.round(stats.overview.messages_this_month / stats.overview.total_families)
-                      : 0}
-                  </p>
-                  <p className="text-xs text-muted-foreground">last 30 days</p>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Tabs for Families, Organizations, and Users */}
-            <Tabs defaultValue="families" className="space-y-4">
-              <TabsList>
-                <TabsTrigger value="families" className="gap-2">
-                  <Users className="h-4 w-4" />
-                  Families ({stats.families?.length || 0})
+            {/* Main Content */}
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-3">
+              <TabsList className="h-9 p-1 bg-muted/50">
+                <TabsTrigger value="families" className="h-7 text-xs gap-1.5 data-[state=active]:shadow-sm">
+                  <Users className="h-3.5 w-3.5" />
+                  Families
+                  <Badge variant="secondary" className="h-5 px-1.5 text-[10px] ml-1">{filteredFamilies.length}</Badge>
                 </TabsTrigger>
-                <TabsTrigger value="organizations" className="gap-2">
-                  <Building2 className="h-4 w-4" />
-                  Organizations ({stats.organizations?.length || 0})
+                <TabsTrigger value="organizations" className="h-7 text-xs gap-1.5 data-[state=active]:shadow-sm">
+                  <Building2 className="h-3.5 w-3.5" />
+                  Providers
+                  <Badge variant="secondary" className="h-5 px-1.5 text-[10px] ml-1">{filteredOrgs.length}</Badge>
                 </TabsTrigger>
-                <TabsTrigger value="users" className="gap-2">
-                  <User className="h-4 w-4" />
-                  Users ({stats.users?.length || 0})
+                <TabsTrigger value="users" className="h-7 text-xs gap-1.5 data-[state=active]:shadow-sm">
+                  <User className="h-3.5 w-3.5" />
+                  Users
+                  <Badge variant="secondary" className="h-5 px-1.5 text-[10px] ml-1">{filteredUsers.length}</Badge>
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="families" className="space-y-4">
-                <div className="flex items-center gap-2">
-                  <Search className="h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Search by name or account number..."
-                    value={familySearch}
-                    onChange={(e) => setFamilySearch(e.target.value)}
-                    className="max-w-sm"
-                  />
-                </div>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">All Families</CardTitle>
-                    <CardDescription>Sorted by activity (most active first). Click to view details.</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2">
+              <TabsContent value="families" className="mt-0">
+                <Card className="border-0 shadow-sm">
+                  <ScrollArea className="h-[calc(100vh-280px)]">
+                    <div className="divide-y">
                       {filteredFamilies.length === 0 ? (
-                        <p className="text-muted-foreground text-center py-8">No families found</p>
+                        <div className="py-12 text-center text-muted-foreground">
+                          <Users className="h-10 w-10 mx-auto mb-2 opacity-30" />
+                          <p>No families found</p>
+                        </div>
                       ) : (
-                        filteredFamilies.map((family) => (
-                          <div 
-                            key={family.id}
-                            className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/50 transition-colors cursor-pointer"
-                            onClick={() => fetchFamilyDetails(family.id)}
-                          >
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2">
-                                <h3 className="font-medium">{family.name}</h3>
-                                <Badge variant="outline" className="font-mono text-xs">{family.account_number}</Badge>
-                                {getActivityBadge(family.total_activity)}
+                        filteredFamilies.map((family, i) => {
+                          const activity = getActivityIndicator(family.total_activity);
+                          return (
+                            <div
+                              key={family.id}
+                              className="flex items-center gap-4 px-4 py-3 hover:bg-muted/50 cursor-pointer transition-colors group"
+                              onClick={() => fetchFamilyDetails(family.id)}
+                              style={{ animationDelay: `${i * 20}ms` }}
+                            >
+                              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center flex-shrink-0">
+                                <Users className="h-4 w-4 text-primary" />
                               </div>
-                              <div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
-                                {family.organization_name && (
-                                  <span className="flex items-center gap-1">
-                                    <Building2 className="h-3 w-3" />
-                                    {family.organization_name}
-                                  </span>
-                                )}
-                                <span className="flex items-center gap-1">
-                                  <Calendar className="h-3 w-3" />
-                                  {format(new Date(family.created_at), 'MMM d, yyyy')}
-                                </span>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2">
+                                  <p className="font-medium truncate">{family.name}</p>
+                                  <span className={`w-2 h-2 rounded-full ${activity.color} flex-shrink-0`} title={activity.label} />
+                                </div>
+                                <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                                  <span className="font-mono">{family.account_number}</span>
+                                  {family.organization_name && (
+                                    <span className="flex items-center gap-1">
+                                      <Building2 className="h-3 w-3" />
+                                      {family.organization_name}
+                                    </span>
+                                  )}
+                                </div>
                               </div>
+                              <div className="hidden sm:flex items-center gap-6 text-xs text-center">
+                                <div>
+                                  <p className="font-semibold text-sm">{family.messages_last_30_days}</p>
+                                  <p className="text-muted-foreground">msgs</p>
+                                </div>
+                                <div>
+                                  <p className="font-semibold text-sm">{family.checkins_last_30_days}</p>
+                                  <p className="text-muted-foreground">checkins</p>
+                                </div>
+                              </div>
+                              <ChevronRight className="h-4 w-4 text-muted-foreground/50 group-hover:text-muted-foreground transition-colors" />
                             </div>
-                            <div className="flex items-center gap-6 text-sm">
-                              <div className="text-center">
-                                <p className="font-medium">{family.messages_last_30_days}</p>
-                                <p className="text-xs text-muted-foreground">messages</p>
-                              </div>
-                              <div className="text-center">
-                                <p className="font-medium">{family.checkins_last_30_days}</p>
-                                <p className="text-xs text-muted-foreground">check-ins</p>
-                              </div>
-                            </div>
-                          </div>
-                        ))
+                          );
+                        })
                       )}
                     </div>
-                  </CardContent>
+                  </ScrollArea>
                 </Card>
               </TabsContent>
 
-              <TabsContent value="organizations" className="space-y-4">
-                <div className="flex items-center gap-2">
-                  <Search className="h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Search organizations..."
-                    value={orgSearch}
-                    onChange={(e) => setOrgSearch(e.target.value)}
-                    className="max-w-sm"
-                  />
-                </div>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">All Organizations</CardTitle>
-                    <CardDescription>Provider accounts with family counts. Click to view details.</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2">
+              <TabsContent value="organizations" className="mt-0">
+                <Card className="border-0 shadow-sm">
+                  <ScrollArea className="h-[calc(100vh-280px)]">
+                    <div className="divide-y">
                       {filteredOrgs.length === 0 ? (
-                        <p className="text-muted-foreground text-center py-8">No organizations found</p>
+                        <div className="py-12 text-center text-muted-foreground">
+                          <Building2 className="h-10 w-10 mx-auto mb-2 opacity-30" />
+                          <p>No providers found</p>
+                        </div>
                       ) : (
-                        filteredOrgs.map((org) => (
-                          <div 
+                        filteredOrgs.map((org, i) => (
+                          <div
                             key={org.id}
-                            className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/50 transition-colors cursor-pointer"
+                            className="flex items-center gap-4 px-4 py-3 hover:bg-muted/50 cursor-pointer transition-colors group"
                             onClick={() => fetchOrgDetails(org.id)}
+                            style={{ animationDelay: `${i * 20}ms` }}
                           >
-                            <div className="flex-1">
-                              <h3 className="font-medium">{org.name}</h3>
-                              <div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
-                                <span>{org.subdomain}.familybridge.app</span>
-                                <span className="flex items-center gap-1">
-                                  <Calendar className="h-3 w-3" />
-                                  {format(new Date(org.created_at), 'MMM d, yyyy')}
-                                </span>
-                              </div>
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-secondary to-secondary/50 flex items-center justify-center flex-shrink-0">
+                              <Building2 className="h-4 w-4 text-secondary-foreground" />
                             </div>
-                            <div className="flex items-center gap-4">
-                              <div className="text-center">
-                                <p className="font-medium">{org.family_count}</p>
-                                <p className="text-xs text-muted-foreground">families</p>
-                              </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium truncate">{org.name}</p>
+                              <p className="text-xs text-muted-foreground">{org.subdomain}.familybridge.app</p>
                             </div>
+                            <div className="hidden sm:block text-xs text-center">
+                              <p className="font-semibold text-sm">{org.family_count}</p>
+                              <p className="text-muted-foreground">families</p>
+                            </div>
+                            <div className="hidden sm:block text-xs text-muted-foreground">
+                              {format(new Date(org.created_at), 'MMM yyyy')}
+                            </div>
+                            <ChevronRight className="h-4 w-4 text-muted-foreground/50 group-hover:text-muted-foreground transition-colors" />
                           </div>
                         ))
                       )}
                     </div>
-                  </CardContent>
+                  </ScrollArea>
                 </Card>
               </TabsContent>
 
-              <TabsContent value="users" className="space-y-4">
-                <div className="flex items-center gap-2">
-                  <Search className="h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Search users..."
-                    value={userSearch}
-                    onChange={(e) => setUserSearch(e.target.value)}
-                    className="max-w-sm"
-                  />
-                </div>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">All Users</CardTitle>
-                    <CardDescription>Click to view details and manage users.</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2">
+              <TabsContent value="users" className="mt-0">
+                <Card className="border-0 shadow-sm">
+                  <ScrollArea className="h-[calc(100vh-280px)]">
+                    <div className="divide-y">
                       {filteredUsers.length === 0 ? (
-                        <p className="text-muted-foreground text-center py-8">No users found</p>
+                        <div className="py-12 text-center text-muted-foreground">
+                          <User className="h-10 w-10 mx-auto mb-2 opacity-30" />
+                          <p>No users found</p>
+                        </div>
                       ) : (
-                        filteredUsers.map((u) => (
-                          <div 
+                        filteredUsers.map((u, i) => (
+                          <div
                             key={u.id}
-                            className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/50 transition-colors cursor-pointer"
+                            className="flex items-center gap-4 px-4 py-3 hover:bg-muted/50 cursor-pointer transition-colors group"
                             onClick={() => fetchUserDetails(u.id)}
+                            style={{ animationDelay: `${i * 20}ms` }}
                           >
-                            <div className="flex items-center gap-3">
-                              <Avatar className="h-10 w-10">
-                                <AvatarImage src={u.avatar_url || undefined} />
-                                <AvatarFallback>
-                                  <User className="h-5 w-5" />
-                                </AvatarFallback>
-                              </Avatar>
-                              <div>
-                                <h3 className="font-medium">{u.full_name}</h3>
-                                <p className="text-sm text-muted-foreground">
-                                  Joined {format(new Date(u.created_at), 'MMM d, yyyy')}
-                                </p>
-                              </div>
+                            <Avatar className="h-10 w-10">
+                              <AvatarImage src={u.avatar_url || undefined} />
+                              <AvatarFallback className="bg-muted">
+                                <User className="h-4 w-4 text-muted-foreground" />
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium truncate">{u.full_name}</p>
+                              <p className="text-xs text-muted-foreground">
+                                Joined {format(new Date(u.created_at), 'MMM d, yyyy')}
+                              </p>
                             </div>
-                            <div className="text-center">
-                              <p className="font-medium">{u.family_count}</p>
-                              <p className="text-xs text-muted-foreground">families</p>
+                            <div className="hidden sm:block text-xs text-center">
+                              <p className="font-semibold text-sm">{u.family_count}</p>
+                              <p className="text-muted-foreground">families</p>
                             </div>
+                            <ChevronRight className="h-4 w-4 text-muted-foreground/50 group-hover:text-muted-foreground transition-colors" />
                           </div>
                         ))
                       )}
                     </div>
-                  </CardContent>
+                  </ScrollArea>
                 </Card>
               </TabsContent>
             </Tabs>
-          </>
+          </div>
         ) : null}
       </main>
 
       {/* Family Details Dialog */}
       <Dialog open={!!selectedFamilyId} onOpenChange={() => { setSelectedFamilyId(null); setFamilyDetails(null); setIsEditing(false); }}>
-        <DialogContent className="max-w-2xl max-h-[80vh]">
+        <DialogContent className="max-w-2xl max-h-[85vh]">
           <DialogHeader>
             <DialogTitle className="flex items-center justify-between">
               <div className="flex flex-col">
                 <span className="flex items-center gap-2">
-                  <Users className="h-5 w-5" />
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <Users className="h-4 w-4 text-primary" />
+                  </div>
                   {familyDetails?.family.name || 'Family Details'}
                 </span>
                 {familyDetails?.family.account_number && (
-                  <Badge variant="outline" className="font-mono text-xs w-fit mt-1">
+                  <Badge variant="outline" className="font-mono text-xs w-fit mt-1.5">
                     {familyDetails.family.account_number}
                   </Badge>
                 )}
@@ -892,14 +801,14 @@ const SuperAdmin = () => {
               {familyDetails && !isEditing && (
                 <div className="flex gap-2">
                   <Button size="sm" variant="outline" onClick={() => setIsEditing(true)}>
-                    <Pencil className="h-4 w-4 mr-1" /> Edit
+                    <Pencil className="h-3.5 w-3.5 mr-1.5" /> Edit
                   </Button>
                   <Button 
                     size="sm" 
                     variant="destructive" 
                     onClick={() => setDeleteConfirm({ type: 'family', id: familyDetails.family.id, name: familyDetails.family.name })}
                   >
-                    <Trash2 className="h-4 w-4 mr-1" /> Delete
+                    <Trash2 className="h-3.5 w-3.5 mr-1.5" /> Delete
                   </Button>
                 </div>
               )}
@@ -907,31 +816,25 @@ const SuperAdmin = () => {
           </DialogHeader>
           
           {isLoadingDetails ? (
-            <div className="flex items-center justify-center py-8">
+            <div className="flex items-center justify-center py-12">
               <Loader2 className="h-6 w-6 animate-spin" />
             </div>
           ) : familyDetails ? (
             <ScrollArea className="max-h-[60vh]">
-              <div className="space-y-6 pr-4">
+              <div className="space-y-5 pr-4">
                 {isEditing ? (
                   <div className="space-y-4">
                     <div>
                       <Label>Name</Label>
-                      <Input 
-                        value={editForm.name || ''} 
-                        onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                      />
+                      <Input value={editForm.name || ''} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })} />
                     </div>
                     <div>
                       <Label>Description</Label>
-                      <Input 
-                        value={editForm.description || ''} 
-                        onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
-                      />
+                      <Input value={editForm.description || ''} onChange={(e) => setEditForm({ ...editForm, description: e.target.value })} />
                     </div>
                     <div className="flex gap-2">
                       <Button onClick={handleSave} disabled={isLoadingDetails}>
-                        {isLoadingDetails ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                        {isLoadingDetails && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
                         Save
                       </Button>
                       <Button variant="outline" onClick={() => setIsEditing(false)}>Cancel</Button>
@@ -939,121 +842,49 @@ const SuperAdmin = () => {
                   </div>
                 ) : (
                   <>
-                    {/* Family Info */}
-                    <div>
-                      <h4 className="text-sm font-medium text-muted-foreground mb-2">Info</h4>
-                      <div className="text-sm space-y-1">
-                        {familyDetails.family.description && (
-                          <p>{familyDetails.family.description}</p>
-                        )}
-                        <p className="text-muted-foreground">
-                          Created {format(new Date(familyDetails.family.created_at), 'PPP')}
-                        </p>
-                        {familyDetails.organization_name && (
-                          <p className="flex items-center gap-1">
-                            <Building2 className="h-3 w-3" />
-                            {familyDetails.organization_name}
-                          </p>
-                        )}
+                    <div className="grid grid-cols-3 gap-3">
+                      <div className="p-3 rounded-lg bg-muted/50">
+                        <p className="text-2xl font-bold">{familyDetails.members.length}</p>
+                        <p className="text-xs text-muted-foreground">Members</p>
+                      </div>
+                      <div className="p-3 rounded-lg bg-muted/50">
+                        <p className="text-2xl font-bold">{familyDetails.recent_messages.length}</p>
+                        <p className="text-xs text-muted-foreground">Messages</p>
+                      </div>
+                      <div className="p-3 rounded-lg bg-muted/50">
+                        <p className="text-2xl font-bold">{familyDetails.recent_checkins.length}</p>
+                        <p className="text-xs text-muted-foreground">Check-ins</p>
                       </div>
                     </div>
 
-                    {/* Members */}
+                    {familyDetails.organization_name && (
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Building2 className="h-4 w-4" />
+                        {familyDetails.organization_name}
+                      </div>
+                    )}
+
                     <div>
-                      <h4 className="text-sm font-medium text-muted-foreground mb-2">
-                        Members ({familyDetails.members.length})
-                      </h4>
-                      <div className="space-y-2">
+                      <h4 className="text-sm font-medium mb-2">Members</h4>
+                      <div className="space-y-1.5">
                         {familyDetails.members.map((member) => (
                           <div 
                             key={member.id} 
-                            className="flex items-center justify-between p-2 bg-muted/50 rounded-lg cursor-pointer hover:bg-muted"
+                            className="flex items-center justify-between p-2 rounded-lg bg-muted/30 hover:bg-muted/50 cursor-pointer transition-colors"
                             onClick={() => { setSelectedFamilyId(null); fetchUserDetails(member.user_id); }}
                           >
-                            <div className="flex items-center gap-3">
-                              <Avatar className="h-8 w-8">
+                            <div className="flex items-center gap-2">
+                              <Avatar className="h-7 w-7">
                                 <AvatarImage src={member.profiles?.avatar_url || undefined} />
-                                <AvatarFallback>
-                                  <User className="h-4 w-4" />
-                                </AvatarFallback>
+                                <AvatarFallback><User className="h-3 w-3" /></AvatarFallback>
                               </Avatar>
-                              <div>
-                                <p className="font-medium text-sm">{member.profiles?.full_name || 'Unknown'}</p>
-                                <p className="text-xs text-muted-foreground">
-                                  {member.relationship_type || 'Member'}
-                                </p>
-                              </div>
+                              <span className="text-sm font-medium">{member.profiles?.full_name || 'Unknown'}</span>
                             </div>
                             {getRoleBadge(member.role)}
                           </div>
                         ))}
                       </div>
                     </div>
-
-                    {/* Recent Messages */}
-                    {familyDetails.recent_messages.length > 0 && (
-                      <div>
-                        <h4 className="text-sm font-medium text-muted-foreground mb-2">
-                          Recent Messages ({familyDetails.recent_messages.length})
-                        </h4>
-                        <div className="space-y-2 text-sm">
-                          {familyDetails.recent_messages.slice(0, 5).map((msg) => (
-                            <div key={msg.id} className="p-2 bg-muted/50 rounded-lg">
-                              <p className="line-clamp-2">{msg.content}</p>
-                              <p className="text-xs text-muted-foreground mt-1">
-                                {format(new Date(msg.created_at), 'MMM d, h:mm a')}
-                              </p>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Recent Check-ins */}
-                    {familyDetails.recent_checkins.length > 0 && (
-                      <div>
-                        <h4 className="text-sm font-medium text-muted-foreground mb-2">
-                          Recent Check-ins ({familyDetails.recent_checkins.length})
-                        </h4>
-                        <div className="space-y-2 text-sm">
-                          {familyDetails.recent_checkins.slice(0, 5).map((checkin) => (
-                            <div key={checkin.id} className="flex items-center justify-between p-2 bg-muted/50 rounded-lg">
-                              <div className="flex items-center gap-2">
-                                <MapPin className="h-4 w-4 text-primary" />
-                                <span>{checkin.meeting_type}</span>
-                                {checkin.meeting_name && <span className="text-muted-foreground">- {checkin.meeting_name}</span>}
-                              </div>
-                              <span className="text-xs text-muted-foreground">
-                                {format(new Date(checkin.checked_in_at), 'MMM d')}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Recent Financial Requests */}
-                    {familyDetails.recent_requests.length > 0 && (
-                      <div>
-                        <h4 className="text-sm font-medium text-muted-foreground mb-2">
-                          Recent Financial Requests
-                        </h4>
-                        <div className="space-y-2 text-sm">
-                          {familyDetails.recent_requests.slice(0, 5).map((req) => (
-                            <div key={req.id} className="flex items-center justify-between p-2 bg-muted/50 rounded-lg">
-                              <div className="flex items-center gap-2">
-                                <DollarSign className="h-4 w-4 text-green-600" />
-                                <span>${req.amount}</span>
-                                <span className="text-muted-foreground">- {req.reason}</span>
-                              </div>
-                              <Badge variant={req.status === 'approved' ? 'default' : req.status === 'denied' ? 'destructive' : 'secondary'}>
-                                {req.status}
-                              </Badge>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
                   </>
                 )}
               </div>
@@ -1064,24 +895,26 @@ const SuperAdmin = () => {
 
       {/* Organization Details Dialog */}
       <Dialog open={!!selectedOrgId} onOpenChange={() => { setSelectedOrgId(null); setOrgDetails(null); setIsEditing(false); }}>
-        <DialogContent className="max-w-2xl max-h-[80vh]">
+        <DialogContent className="max-w-2xl max-h-[85vh]">
           <DialogHeader>
             <DialogTitle className="flex items-center justify-between">
               <span className="flex items-center gap-2">
-                <Building2 className="h-5 w-5" />
-                {orgDetails?.organization.name || 'Organization Details'}
+                <div className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center">
+                  <Building2 className="h-4 w-4 text-secondary-foreground" />
+                </div>
+                {orgDetails?.organization.name || 'Provider Details'}
               </span>
               {orgDetails && !isEditing && (
                 <div className="flex gap-2">
                   <Button size="sm" variant="outline" onClick={() => setIsEditing(true)}>
-                    <Pencil className="h-4 w-4 mr-1" /> Edit
+                    <Pencil className="h-3.5 w-3.5 mr-1.5" /> Edit
                   </Button>
                   <Button 
                     size="sm" 
                     variant="destructive" 
                     onClick={() => setDeleteConfirm({ type: 'org', id: orgDetails.organization.id, name: orgDetails.organization.name })}
                   >
-                    <Trash2 className="h-4 w-4 mr-1" /> Delete
+                    <Trash2 className="h-3.5 w-3.5 mr-1.5" /> Delete
                   </Button>
                 </div>
               )}
@@ -1089,59 +922,41 @@ const SuperAdmin = () => {
           </DialogHeader>
           
           {isLoadingDetails ? (
-            <div className="flex items-center justify-center py-8">
+            <div className="flex items-center justify-center py-12">
               <Loader2 className="h-6 w-6 animate-spin" />
             </div>
           ) : orgDetails ? (
             <ScrollArea className="max-h-[60vh]">
-              <div className="space-y-6 pr-4">
+              <div className="space-y-5 pr-4">
                 {isEditing ? (
                   <div className="space-y-4">
                     <div>
                       <Label>Name</Label>
-                      <Input 
-                        value={editForm.name || ''} 
-                        onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                      />
+                      <Input value={editForm.name || ''} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })} />
                     </div>
                     <div>
                       <Label>Subdomain</Label>
-                      <Input 
-                        value={editForm.subdomain || ''} 
-                        onChange={(e) => setEditForm({ ...editForm, subdomain: e.target.value })}
-                      />
+                      <Input value={editForm.subdomain || ''} onChange={(e) => setEditForm({ ...editForm, subdomain: e.target.value })} />
                     </div>
                     <div>
                       <Label>Tagline</Label>
-                      <Input 
-                        value={editForm.tagline || ''} 
-                        onChange={(e) => setEditForm({ ...editForm, tagline: e.target.value })}
-                      />
+                      <Input value={editForm.tagline || ''} onChange={(e) => setEditForm({ ...editForm, tagline: e.target.value })} />
                     </div>
                     <div>
                       <Label>Support Email</Label>
-                      <Input 
-                        value={editForm.support_email || ''} 
-                        onChange={(e) => setEditForm({ ...editForm, support_email: e.target.value })}
-                      />
+                      <Input value={editForm.support_email || ''} onChange={(e) => setEditForm({ ...editForm, support_email: e.target.value })} />
                     </div>
                     <div>
                       <Label>Phone</Label>
-                      <Input 
-                        value={editForm.phone || ''} 
-                        onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
-                      />
+                      <Input value={editForm.phone || ''} onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })} />
                     </div>
                     <div>
                       <Label>Website URL</Label>
-                      <Input 
-                        value={editForm.website_url || ''} 
-                        onChange={(e) => setEditForm({ ...editForm, website_url: e.target.value })}
-                      />
+                      <Input value={editForm.website_url || ''} onChange={(e) => setEditForm({ ...editForm, website_url: e.target.value })} />
                     </div>
                     <div className="flex gap-2">
                       <Button onClick={handleSave} disabled={isLoadingDetails}>
-                        {isLoadingDetails ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                        {isLoadingDetails && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
                         Save
                       </Button>
                       <Button variant="outline" onClick={() => setIsEditing(false)}>Cancel</Button>
@@ -1149,117 +964,82 @@ const SuperAdmin = () => {
                   </div>
                 ) : (
                   <>
-                    {/* Org Info */}
-                    <div>
-                      <h4 className="text-sm font-medium text-muted-foreground mb-2">Info</h4>
-                      <div className="space-y-2">
-                        {orgDetails.organization.logo_url && (
-                          <img 
-                            src={orgDetails.organization.logo_url} 
-                            alt={orgDetails.organization.name} 
-                            className="h-12 w-auto object-contain"
-                          />
-                        )}
-                        {orgDetails.organization.tagline && (
-                          <p className="text-sm italic">{orgDetails.organization.tagline}</p>
-                        )}
-                        <div className="text-sm space-y-1">
-                          <p className="flex items-center gap-2">
-                            <Globe className="h-4 w-4 text-muted-foreground" />
-                            {orgDetails.organization.subdomain}.familybridge.app
-                          </p>
-                          {orgDetails.organization.support_email && (
-                            <p className="flex items-center gap-2">
-                              <Mail className="h-4 w-4 text-muted-foreground" />
-                              {orgDetails.organization.support_email}
-                            </p>
-                          )}
-                          {orgDetails.organization.phone && (
-                            <p className="flex items-center gap-2">
-                              <Phone className="h-4 w-4 text-muted-foreground" />
-                              {orgDetails.organization.phone}
-                            </p>
-                          )}
-                          {orgDetails.organization.website_url && (
-                            <a 
-                              href={orgDetails.organization.website_url} 
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              className="flex items-center gap-2 text-primary hover:underline"
-                            >
-                              <Globe className="h-4 w-4" />
-                              {orgDetails.organization.website_url}
-                            </a>
-                          )}
-                          <p className="text-muted-foreground">
-                            Created {format(new Date(orgDetails.organization.created_at), 'PPP')}
-                          </p>
-                        </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="p-3 rounded-lg bg-muted/50">
+                        <p className="text-2xl font-bold">{orgDetails.families.length}</p>
+                        <p className="text-xs text-muted-foreground">Families</p>
+                      </div>
+                      <div className="p-3 rounded-lg bg-muted/50">
+                        <p className="text-2xl font-bold">{orgDetails.members.length}</p>
+                        <p className="text-xs text-muted-foreground">Team Members</p>
                       </div>
                     </div>
 
-                    {/* Team Members */}
-                    <div>
-                      <h4 className="text-sm font-medium text-muted-foreground mb-2">
-                        Team Members ({orgDetails.members.length})
-                      </h4>
-                      <div className="space-y-2">
-                        {orgDetails.members.map((member) => (
-                          <div 
-                            key={member.id} 
-                            className="flex items-center justify-between p-2 bg-muted/50 rounded-lg cursor-pointer hover:bg-muted"
-                            onClick={() => { setSelectedOrgId(null); fetchUserDetails(member.user_id); }}
-                          >
-                            <div className="flex items-center gap-3">
-                              <Avatar className="h-8 w-8">
-                                <AvatarImage src={member.profiles?.avatar_url || undefined} />
-                                <AvatarFallback>
-                                  <User className="h-4 w-4" />
-                                </AvatarFallback>
-                              </Avatar>
-                              <div>
-                                <p className="font-medium text-sm">{member.profiles?.full_name || 'Unknown'}</p>
-                                <p className="text-xs text-muted-foreground">
-                                  Joined {format(new Date(member.joined_at), 'MMM d, yyyy')}
-                                </p>
-                              </div>
-                            </div>
-                            {getRoleBadge(member.role)}
-                          </div>
-                        ))}
-                      </div>
+                    <div className="space-y-2 text-sm">
+                      <p className="flex items-center gap-2 text-muted-foreground">
+                        <Globe className="h-4 w-4" />
+                        {orgDetails.organization.subdomain}.familybridge.app
+                      </p>
+                      {orgDetails.organization.support_email && (
+                        <p className="flex items-center gap-2 text-muted-foreground">
+                          <Mail className="h-4 w-4" />
+                          {orgDetails.organization.support_email}
+                        </p>
+                      )}
+                      {orgDetails.organization.phone && (
+                        <p className="flex items-center gap-2 text-muted-foreground">
+                          <Phone className="h-4 w-4" />
+                          {orgDetails.organization.phone}
+                        </p>
+                      )}
                     </div>
 
-                    {/* Families */}
-                    <div>
-                      <h4 className="text-sm font-medium text-muted-foreground mb-2">
-                        Families ({orgDetails.families.length})
-                      </h4>
-                      <div className="space-y-2">
-                        {orgDetails.families.length === 0 ? (
-                          <p className="text-sm text-muted-foreground">No families yet</p>
-                        ) : (
-                          orgDetails.families.map((family) => (
+                    {orgDetails.members.length > 0 && (
+                      <div>
+                        <h4 className="text-sm font-medium mb-2">Team</h4>
+                        <div className="space-y-1.5">
+                          {orgDetails.members.map((member) => (
                             <div 
-                              key={family.id} 
-                              className="flex items-center justify-between p-2 bg-muted/50 rounded-lg cursor-pointer hover:bg-muted"
-                              onClick={() => {
-                                setSelectedOrgId(null);
-                                fetchFamilyDetails(family.id);
-                              }}
+                              key={member.id} 
+                              className="flex items-center justify-between p-2 rounded-lg bg-muted/30 hover:bg-muted/50 cursor-pointer transition-colors"
+                              onClick={() => { setSelectedOrgId(null); fetchUserDetails(member.user_id); }}
                             >
                               <div className="flex items-center gap-2">
-                                <Users className="h-4 w-4 text-primary" />
-                                <span className="font-medium text-sm">{family.name}</span>
+                                <Avatar className="h-7 w-7">
+                                  <AvatarImage src={member.profiles?.avatar_url || undefined} />
+                                  <AvatarFallback><User className="h-3 w-3" /></AvatarFallback>
+                                </Avatar>
+                                <span className="text-sm font-medium">{member.profiles?.full_name || 'Unknown'}</span>
                               </div>
+                              {getRoleBadge(member.role)}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {orgDetails.families.length > 0 && (
+                      <div>
+                        <h4 className="text-sm font-medium mb-2">Families</h4>
+                        <div className="space-y-1.5">
+                          {orgDetails.families.map((family) => (
+                            <div 
+                              key={family.id} 
+                              className="flex items-center justify-between p-2 rounded-lg bg-muted/30 hover:bg-muted/50 cursor-pointer transition-colors"
+                              onClick={() => { setSelectedOrgId(null); fetchFamilyDetails(family.id); }}
+                            >
+                              <span className="text-sm font-medium flex items-center gap-2">
+                                <Users className="h-3.5 w-3.5 text-primary" />
+                                {family.name}
+                              </span>
                               <span className="text-xs text-muted-foreground">
-                                {format(new Date(family.created_at), 'MMM d, yyyy')}
+                                {format(new Date(family.created_at), 'MMM yyyy')}
                               </span>
                             </div>
-                          ))
-                        )}
+                          ))}
+                        </div>
                       </div>
-                    </div>
+                    )}
                   </>
                 )}
               </div>
@@ -1270,24 +1050,27 @@ const SuperAdmin = () => {
 
       {/* User Details Dialog */}
       <Dialog open={!!selectedUserId} onOpenChange={() => { setSelectedUserId(null); setUserDetails(null); setIsEditing(false); }}>
-        <DialogContent className="max-w-2xl max-h-[80vh]">
+        <DialogContent className="max-w-2xl max-h-[85vh]">
           <DialogHeader>
             <DialogTitle className="flex items-center justify-between">
               <span className="flex items-center gap-2">
-                <User className="h-5 w-5" />
+                <Avatar className="h-8 w-8">
+                  <AvatarImage src={userDetails?.profile?.avatar_url || undefined} />
+                  <AvatarFallback><User className="h-4 w-4" /></AvatarFallback>
+                </Avatar>
                 {userDetails?.profile?.full_name || 'User Details'}
               </span>
               {userDetails && !isEditing && (
                 <div className="flex gap-2">
                   <Button size="sm" variant="outline" onClick={() => setIsEditing(true)}>
-                    <Pencil className="h-4 w-4 mr-1" /> Edit
+                    <Pencil className="h-3.5 w-3.5 mr-1.5" /> Edit
                   </Button>
                   <Button 
                     size="sm" 
                     variant="destructive" 
                     onClick={() => setDeleteConfirm({ type: 'user', id: userDetails.profile.id, name: userDetails.profile.full_name })}
                   >
-                    <Trash2 className="h-4 w-4 mr-1" /> Delete
+                    <Trash2 className="h-3.5 w-3.5 mr-1.5" /> Delete
                   </Button>
                 </div>
               )}
@@ -1295,24 +1078,21 @@ const SuperAdmin = () => {
           </DialogHeader>
           
           {isLoadingDetails ? (
-            <div className="flex items-center justify-center py-8">
+            <div className="flex items-center justify-center py-12">
               <Loader2 className="h-6 w-6 animate-spin" />
             </div>
           ) : userDetails ? (
             <ScrollArea className="max-h-[60vh]">
-              <div className="space-y-6 pr-4">
+              <div className="space-y-5 pr-4">
                 {isEditing ? (
                   <div className="space-y-4">
                     <div>
                       <Label>Full Name</Label>
-                      <Input 
-                        value={editForm.full_name || ''} 
-                        onChange={(e) => setEditForm({ ...editForm, full_name: e.target.value })}
-                      />
+                      <Input value={editForm.full_name || ''} onChange={(e) => setEditForm({ ...editForm, full_name: e.target.value })} />
                     </div>
                     <div className="flex gap-2">
                       <Button onClick={handleSave} disabled={isLoadingDetails}>
-                        {isLoadingDetails ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                        {isLoadingDetails && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
                         Save
                       </Button>
                       <Button variant="outline" onClick={() => setIsEditing(false)}>Cancel</Button>
@@ -1320,47 +1100,40 @@ const SuperAdmin = () => {
                   </div>
                 ) : (
                   <>
-                    {/* User Info */}
-                    <div className="flex items-center gap-4">
-                      <Avatar className="h-16 w-16">
-                        <AvatarImage src={userDetails.profile?.avatar_url || undefined} />
-                        <AvatarFallback>
-                          <User className="h-8 w-8" />
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <h3 className="text-lg font-medium">{userDetails.profile?.full_name}</h3>
-                        <p className="text-sm text-muted-foreground flex items-center gap-1">
-                          <Mail className="h-4 w-4" />
-                          {userDetails.email}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="text-sm space-y-1">
-                      <p className="text-muted-foreground">
+                    <div className="space-y-2 text-sm">
+                      <p className="flex items-center gap-2 text-muted-foreground">
+                        <Mail className="h-4 w-4" />
+                        {userDetails.email}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
                         Joined {format(new Date(userDetails.created_at), 'PPP')}
                       </p>
                       {userDetails.last_sign_in && (
-                        <p className="text-muted-foreground">
-                          Last sign in: {format(new Date(userDetails.last_sign_in), 'PPP p')}
+                        <p className="text-xs text-muted-foreground">
+                          Last seen {format(new Date(userDetails.last_sign_in), 'PPP p')}
                         </p>
                       )}
                     </div>
 
-                    {/* Family Memberships */}
-                    <div>
-                      <h4 className="text-sm font-medium text-muted-foreground mb-2">
-                        Family Memberships ({userDetails.family_memberships.length})
-                      </h4>
-                      <div className="space-y-2">
-                        {userDetails.family_memberships.length === 0 ? (
-                          <p className="text-sm text-muted-foreground">No family memberships</p>
-                        ) : (
-                          userDetails.family_memberships.map((m) => (
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="p-3 rounded-lg bg-muted/50">
+                        <p className="text-2xl font-bold">{userDetails.family_memberships.length}</p>
+                        <p className="text-xs text-muted-foreground">Families</p>
+                      </div>
+                      <div className="p-3 rounded-lg bg-muted/50">
+                        <p className="text-2xl font-bold">{userDetails.organization_memberships.length}</p>
+                        <p className="text-xs text-muted-foreground">Organizations</p>
+                      </div>
+                    </div>
+
+                    {userDetails.family_memberships.length > 0 && (
+                      <div>
+                        <h4 className="text-sm font-medium mb-2">Families</h4>
+                        <div className="space-y-1.5">
+                          {userDetails.family_memberships.map((m) => (
                             <div 
                               key={m.id} 
-                              className="flex items-center justify-between p-2 bg-muted/50 rounded-lg cursor-pointer hover:bg-muted"
+                              className="flex items-center justify-between p-2 rounded-lg bg-muted/30 hover:bg-muted/50 cursor-pointer transition-colors"
                               onClick={() => {
                                 if (m.families?.id) {
                                   setSelectedUserId(null);
@@ -1368,28 +1141,25 @@ const SuperAdmin = () => {
                                 }
                               }}
                             >
-                              <div className="flex items-center gap-2">
-                                <Users className="h-4 w-4 text-primary" />
-                                <span className="font-medium text-sm">{m.families?.name || 'Unknown'}</span>
-                              </div>
+                              <span className="text-sm font-medium flex items-center gap-2">
+                                <Users className="h-3.5 w-3.5 text-primary" />
+                                {m.families?.name || 'Unknown'}
+                              </span>
                               {getRoleBadge(m.role)}
                             </div>
-                          ))
-                        )}
+                          ))}
+                        </div>
                       </div>
-                    </div>
+                    )}
 
-                    {/* Organization Memberships */}
                     {userDetails.organization_memberships.length > 0 && (
                       <div>
-                        <h4 className="text-sm font-medium text-muted-foreground mb-2">
-                          Organization Memberships ({userDetails.organization_memberships.length})
-                        </h4>
-                        <div className="space-y-2">
+                        <h4 className="text-sm font-medium mb-2">Organizations</h4>
+                        <div className="space-y-1.5">
                           {userDetails.organization_memberships.map((m) => (
                             <div 
                               key={m.id} 
-                              className="flex items-center justify-between p-2 bg-muted/50 rounded-lg cursor-pointer hover:bg-muted"
+                              className="flex items-center justify-between p-2 rounded-lg bg-muted/30 hover:bg-muted/50 cursor-pointer transition-colors"
                               onClick={() => {
                                 if (m.organizations?.id) {
                                   setSelectedUserId(null);
@@ -1397,10 +1167,10 @@ const SuperAdmin = () => {
                                 }
                               }}
                             >
-                              <div className="flex items-center gap-2">
-                                <Building2 className="h-4 w-4 text-primary" />
-                                <span className="font-medium text-sm">{m.organizations?.name || 'Unknown'}</span>
-                              </div>
+                              <span className="text-sm font-medium flex items-center gap-2">
+                                <Building2 className="h-3.5 w-3.5 text-primary" />
+                                {m.organizations?.name || 'Unknown'}
+                              </span>
                               {getRoleBadge(m.role)}
                             </div>
                           ))}
@@ -1432,7 +1202,7 @@ const SuperAdmin = () => {
               disabled={isDeleting}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {isDeleting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+              {isDeleting && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -1444,39 +1214,38 @@ const SuperAdmin = () => {
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Building2 className="h-5 w-5" />
-              Create New Provider
+              <div className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center">
+                <Building2 className="h-4 w-4 text-secondary-foreground" />
+              </div>
+              Create Provider
             </DialogTitle>
             <DialogDescription>
-              Create a new provider organization. Providers can manage multiple family groups.
+              Create a new provider organization to manage multiple family groups.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-4">
+          <div className="space-y-4 py-2">
             <div>
-              <Label htmlFor="provider-name">Provider Name *</Label>
+              <Label>Provider Name *</Label>
               <Input
-                id="provider-name"
                 placeholder="Recovery Center Name"
                 value={providerForm.name}
                 onChange={(e) => setProviderForm({ ...providerForm, name: e.target.value })}
               />
             </div>
             <div>
-              <Label htmlFor="provider-subdomain">Subdomain *</Label>
+              <Label>Subdomain *</Label>
               <div className="flex items-center gap-2">
                 <Input
-                  id="provider-subdomain"
                   placeholder="myrecovery"
                   value={providerForm.subdomain}
                   onChange={(e) => setProviderForm({ ...providerForm, subdomain: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '') })}
                 />
-                <span className="text-sm text-muted-foreground whitespace-nowrap">.familybridge.app</span>
+                <span className="text-xs text-muted-foreground whitespace-nowrap">.familybridge.app</span>
               </div>
             </div>
             <div>
-              <Label htmlFor="provider-email">Support Email</Label>
+              <Label>Support Email</Label>
               <Input
-                id="provider-email"
                 type="email"
                 placeholder="support@example.com"
                 value={providerForm.support_email}
@@ -1484,18 +1253,16 @@ const SuperAdmin = () => {
               />
             </div>
             <div>
-              <Label htmlFor="provider-phone">Phone</Label>
+              <Label>Phone</Label>
               <Input
-                id="provider-phone"
                 placeholder="(555) 123-4567"
                 value={providerForm.phone}
                 onChange={(e) => setProviderForm({ ...providerForm, phone: e.target.value })}
               />
             </div>
             <div>
-              <Label htmlFor="provider-website">Website URL</Label>
+              <Label>Website</Label>
               <Input
-                id="provider-website"
                 placeholder="https://example.com"
                 value={providerForm.website_url}
                 onChange={(e) => setProviderForm({ ...providerForm, website_url: e.target.value })}
@@ -1503,12 +1270,10 @@ const SuperAdmin = () => {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsCreatingProvider(false)}>
-              Cancel
-            </Button>
+            <Button variant="outline" onClick={() => setIsCreatingProvider(false)}>Cancel</Button>
             <Button onClick={handleCreateProvider} disabled={isSubmitting}>
               {isSubmitting && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
-              Create Provider
+              Create
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1519,27 +1284,27 @@ const SuperAdmin = () => {
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Users className="h-5 w-5" />
-              Create New Family Group
+              <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Users className="h-4 w-4 text-primary" />
+              </div>
+              Create Family Group
             </DialogTitle>
             <DialogDescription>
-              Create a new family group. You can optionally assign it to an existing provider.
+              Create a new family group, optionally assigned to a provider.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-4">
+          <div className="space-y-4 py-2">
             <div>
-              <Label htmlFor="family-name">Family Name *</Label>
+              <Label>Family Name *</Label>
               <Input
-                id="family-name"
                 placeholder="The Smith Family"
                 value={familyForm.name}
                 onChange={(e) => setFamilyForm({ ...familyForm, name: e.target.value })}
               />
             </div>
             <div>
-              <Label htmlFor="family-description">Description</Label>
+              <Label>Description</Label>
               <Textarea
-                id="family-description"
                 placeholder="Optional description..."
                 value={familyForm.description}
                 onChange={(e) => setFamilyForm({ ...familyForm, description: e.target.value })}
@@ -1547,43 +1312,31 @@ const SuperAdmin = () => {
               />
             </div>
             <div>
-              <Label htmlFor="family-org">Assign to Provider (Optional)</Label>
+              <Label>Assign to Provider</Label>
               <Select 
                 value={familyForm.organization_id || 'standalone'} 
                 onValueChange={(value) => setFamilyForm({ ...familyForm, organization_id: value === 'standalone' ? '' : value })}
               >
-                <SelectTrigger id="family-org">
+                <SelectTrigger>
                   <SelectValue placeholder="Select a provider..." />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="standalone">
-                    <span className="flex items-center gap-2">
-                      <Users className="h-4 w-4" />
-                      Standalone Family (No Provider)
-                    </span>
-                  </SelectItem>
+                  <SelectItem value="standalone">Standalone (No Provider)</SelectItem>
                   {stats?.organizations?.map((org) => (
-                    <SelectItem key={org.id} value={org.id}>
-                      <span className="flex items-center gap-2">
-                        <Building2 className="h-4 w-4" />
-                        {org.name}
-                      </span>
-                    </SelectItem>
+                    <SelectItem key={org.id} value={org.id}>{org.name}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
               <p className="text-xs text-muted-foreground mt-1">
-                Leave as "Standalone" if this family is not affiliated with a provider organization.
+                Leave as "Standalone" if not affiliated with a provider.
               </p>
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsCreatingFamily(false)}>
-              Cancel
-            </Button>
+            <Button variant="outline" onClick={() => setIsCreatingFamily(false)}>Cancel</Button>
             <Button onClick={handleCreateFamily} disabled={isSubmitting}>
               {isSubmitting && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
-              Create Family
+              Create
             </Button>
           </DialogFooter>
         </DialogContent>
