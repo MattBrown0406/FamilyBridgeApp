@@ -451,23 +451,63 @@ Deno.serve(async (req) => {
       foreground_color: o.foreground_color,
     }));
 
-    // Get family memberships count per user
+    // Get family memberships with roles per user
     const { data: familyMemberships } = await adminClient
       .from("family_members")
-      .select("user_id");
+      .select("user_id, role");
+
+    // Get organization memberships with roles per user
+    const { data: orgMemberships } = await adminClient
+      .from("organization_members")
+      .select("user_id, role");
 
     const userFamilyCounts: Record<string, number> = {};
+    const userFamilyRoles: Record<string, Set<string>> = {};
     (familyMemberships || []).forEach(m => {
       userFamilyCounts[m.user_id] = (userFamilyCounts[m.user_id] || 0) + 1;
+      if (!userFamilyRoles[m.user_id]) {
+        userFamilyRoles[m.user_id] = new Set();
+      }
+      userFamilyRoles[m.user_id].add(m.role);
     });
 
-    const usersWithStats = (usersListResult.data || []).map(u => ({
-      id: u.id,
-      full_name: u.full_name,
-      avatar_url: u.avatar_url,
-      created_at: u.created_at,
-      family_count: userFamilyCounts[u.id] || 0,
-    }));
+    const userOrgRoles: Record<string, Set<string>> = {};
+    (orgMemberships || []).forEach(m => {
+      if (!userOrgRoles[m.user_id]) {
+        userOrgRoles[m.user_id] = new Set();
+      }
+      userOrgRoles[m.user_id].add(m.role);
+    });
+
+    // Get user emails to check for super admin
+    const userEmails: Record<string, string> = {};
+    for (const u of (usersListResult.data || [])) {
+      try {
+        const { data: authData } = await adminClient.auth.admin.getUserById(u.id);
+        if (authData?.user?.email) {
+          userEmails[u.id] = authData.user.email.toLowerCase();
+        }
+      } catch (e) {
+        // Skip if can't get email
+      }
+    }
+
+    const usersWithStats = (usersListResult.data || []).map(u => {
+      const familyRoles = userFamilyRoles[u.id] ? Array.from(userFamilyRoles[u.id]) : [];
+      const orgRoles = userOrgRoles[u.id] ? Array.from(userOrgRoles[u.id]) : [];
+      const isSuperAdmin = SUPER_ADMIN_EMAILS.includes(userEmails[u.id] || "");
+      
+      return {
+        id: u.id,
+        full_name: u.full_name,
+        avatar_url: u.avatar_url,
+        created_at: u.created_at,
+        family_count: userFamilyCounts[u.id] || 0,
+        family_roles: familyRoles,
+        org_roles: orgRoles,
+        is_super_admin: isSuperAdmin,
+      };
+    });
 
     return new Response(
       JSON.stringify({
