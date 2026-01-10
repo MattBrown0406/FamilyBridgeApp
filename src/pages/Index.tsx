@@ -5,7 +5,7 @@ import { useOrganization } from '@/hooks/useOrganization';
 import { useProviderAdmin } from '@/hooks/useProviderAdmin';
 import { BrandedHeader } from '@/components/BrandedHeader';
 import { BrandedFooter } from '@/components/BrandedFooter';
-import { Shield, Users, DollarSign, MessageCircle, Eye, MapPin, ArrowRight, HelpCircle, Building2, Check, Play, LogOut } from 'lucide-react';
+import { Shield, Users, DollarSign, MessageCircle, Eye, MapPin, ArrowRight, HelpCircle, Building2, Check, Play, LogOut, Brain, Sparkles, TrendingUp, MessageSquareWarning } from 'lucide-react';
 import { RecoveryIcon } from '@/components/icons/RecoveryIcon';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 
@@ -25,34 +25,37 @@ const Index = () => {
 
   const features = [
     {
-      icon: MessageCircle,
-      title: 'Moderated Family Chat',
-      description: 'A private space where family members communicate without fear. Our AI filters harmful language in real-time, keeping conversations constructive and healing-focused.',
+      icon: Brain,
+      title: 'AI Pattern Intelligence',
+      description: 'Our AI analyzes family interactions to identify concerning patterns early—helping you intervene before a crisis, not after.',
+      highlight: true,
     },
     {
-      icon: MapPin,
-      title: 'Meeting Check-Ins',
-      description: 'Your loved one can check in at recovery meetings with verified location sharing. Build trust through accountability while respecting their journey.',
+      icon: MessageSquareWarning,
+      title: 'AI-Powered Chat Moderation',
+      description: 'Real-time AI filters harmful language and abuse, keeping conversations constructive. Toxic messages are caught before they cause damage.',
+      highlight: true,
+    },
+    {
+      icon: Sparkles,
+      title: 'Smart Behavioral Insights',
+      description: 'AI tracks check-ins, financial requests, and communication patterns to surface early warning signs and positive trends automatically.',
+      highlight: true,
     },
     {
       icon: DollarSign,
       title: 'Transparent Financial Requests',
-      description: 'No more money arguments. Requests are visible to all family members, with voting and payment confirmation—eliminating hidden transactions and building financial trust.',
+      description: 'No more money arguments. AI monitors request patterns for red flags while family voting ensures accountability.',
+    },
+    {
+      icon: MapPin,
+      title: 'Verified Meeting Check-Ins',
+      description: 'Location-verified recovery meeting attendance builds trust. AI tracks patterns to celebrate consistency or flag concerns.',
     },
     {
       icon: Shield,
-      title: 'Professional Moderation',
-      description: 'Licensed counselors or case managers can oversee your family group, providing guidance during difficult conversations and intervening when needed.',
-    },
-    {
-      icon: Users,
-      title: 'Shared Values & Boundaries',
-      description: 'Collaboratively define what matters most to your family. Set clear boundaries together and hold each other accountable with love, not judgment.',
-    },
-    {
-      icon: RecoveryIcon,
-      title: 'Recovery-Focused Design',
-      description: 'Built by families who understand addiction. Every feature supports the delicate balance between supporting recovery and preventing enabling behaviors.',
+      title: 'Professional Oversight Ready',
+      description: 'Licensed counselors can access AI-generated insights to provide better guidance during difficult family conversations.',
     },
   ];
 
@@ -120,11 +123,15 @@ const Index = () => {
       {/* Features Grid */}
       <section className="container mx-auto px-4 py-12">
         <div className="text-center mb-10">
+          <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1.5 rounded-full text-sm font-medium mb-4">
+            <Brain className="h-4 w-4" />
+            Powered by AI
+          </div>
           <h2 className="text-2xl md:text-3xl font-display font-bold text-foreground mb-2">
-            Tools for Recovery
+            Intelligent Tools for Recovery
           </h2>
           <p className="text-muted-foreground max-w-xl mx-auto">
-            Everything your family needs for healthy communication and accountability.
+            AI-powered insights help families catch warning signs early and celebrate progress together.
           </p>
         </div>
         
@@ -132,15 +139,28 @@ const Index = () => {
           {features.map((feature, index) => (
             <div
               key={feature.title}
-              className="bg-card rounded-xl p-5 shadow-card hover:shadow-elevated transition-all duration-300 animate-fade-in"
+              className={`rounded-xl p-5 shadow-card hover:shadow-elevated transition-all duration-300 animate-fade-in ${
+                feature.highlight 
+                  ? 'bg-gradient-to-br from-primary/5 to-primary/10 border border-primary/20' 
+                  : 'bg-card'
+              }`}
               style={{ animationDelay: `${index * 100}ms` }}
             >
-              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
-                <feature.icon className="h-5 w-5 text-primary" />
+              <div className={`w-10 h-10 rounded-lg flex items-center justify-center mb-4 ${
+                feature.highlight ? 'bg-primary/20' : 'bg-primary/10'
+              }`}>
+                <feature.icon className={`h-5 w-5 ${feature.highlight ? 'text-primary' : 'text-primary'}`} />
               </div>
-              <h3 className="text-lg font-display font-semibold text-foreground mb-2">
-                {feature.title}
-              </h3>
+              <div className="flex items-center gap-2 mb-2">
+                <h3 className="text-lg font-display font-semibold text-foreground">
+                  {feature.title}
+                </h3>
+                {feature.highlight && (
+                  <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded-full font-medium">
+                    AI
+                  </span>
+                )}
+              </div>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 {feature.description}
               </p>

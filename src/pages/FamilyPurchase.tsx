@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Check, CreditCard, Shield, Users, Tag, Loader2, Copy, MessageCircle, UserPlus, DollarSign, Target, Sparkles } from "lucide-react";
+import { Check, CreditCard, Shield, Users, Tag, Loader2, Copy, MessageCircle, UserPlus, DollarSign, Target, Sparkles, Brain, TrendingUp, MessageSquareWarning } from "lucide-react";
 import { BrandedHeader } from "@/components/BrandedHeader";
 import { AppStorePurchaseButton } from "@/components/AppStorePurchaseButton";
 import { AppleLogo, GooglePlayLogo } from "@/components/icons/StoreLogos";
@@ -147,11 +147,11 @@ const FamilyPurchase = () => {
   };
 
   const features = [
-    { icon: Sparkles, text: "Create your family support group" },
+    { icon: Brain, text: "AI Pattern Intelligence", subtitle: "Automatically detects concerning behavioral patterns and early warning signs", highlight: true },
+    { icon: MessageSquareWarning, text: "AI-Powered Chat Moderation", subtitle: "Real-time filtering blocks harmful language before it causes damage", highlight: true },
+    { icon: TrendingUp, text: "Smart Behavioral Insights", subtitle: "AI tracks activities and surfaces trends to help you intervene early", highlight: true },
     { icon: Users, text: "Invite unlimited family members" },
-    { icon: MessageCircle, text: "Secure, filtered, moderated communication", subtitle: "No profanity or abusive language is permitted in the discussion area" },
-    { icon: DollarSign, text: "Financial tracking & accountability", subtitle: "Request funds transparently with family voting and payment confirmation" },
-    { icon: Target, text: "Values-driven goals & boundaries", subtitle: "Set family goals and boundaries for unity and accountability" },
+    { icon: DollarSign, text: "Financial tracking & accountability", subtitle: "AI monitors request patterns for red flags" },
     { icon: Shield, text: "Privacy and content protection" },
   ];
 
@@ -278,20 +278,29 @@ const FamilyPurchase = () => {
             {/* Features Card */}
             <Card>
               <CardHeader>
+                <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-medium mb-2 w-fit">
+                  <Brain className="h-3 w-3" />
+                  AI-Powered
+                </div>
                 <CardTitle>What's Included</CardTitle>
                 <CardDescription>
-                  Everything your family needs for recovery support
+                  Intelligent tools that help families catch warning signs early
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-4">
                   {features.map((feature, index) => (
-                    <li key={index} className="flex items-start gap-3">
-                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <li key={index} className={`flex items-start gap-3 ${feature.highlight ? 'bg-primary/5 -mx-2 px-2 py-2 rounded-lg border border-primary/10' : ''}`}>
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${feature.highlight ? 'bg-primary/20' : 'bg-primary/10'}`}>
                         <feature.icon className="w-5 h-5 text-primary" />
                       </div>
                       <div className="flex flex-col">
-                        <span>{feature.text}</span>
+                        <div className="flex items-center gap-2">
+                          <span className={feature.highlight ? 'font-medium' : ''}>{feature.text}</span>
+                          {feature.highlight && (
+                            <span className="text-[10px] bg-primary/20 text-primary px-1.5 py-0.5 rounded font-medium">AI</span>
+                          )}
+                        </div>
                         {feature.subtitle && (
                           <span className="text-xs text-muted-foreground mt-0.5">{feature.subtitle}</span>
                         )}

@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Building2, Check, CreditCard, Shield, Users, Tag, Loader2, Copy } from "lucide-react";
+import { Building2, Check, CreditCard, Shield, Users, Tag, Loader2, Copy, Brain, TrendingUp, MessageSquareWarning, Sparkles } from "lucide-react";
 import { BrandedHeader } from "@/components/BrandedHeader";
 import { AppStorePurchaseButton } from "@/components/AppStorePurchaseButton";
 import { AppleLogo, GooglePlayLogo } from "@/components/icons/StoreLogos";
@@ -100,10 +100,12 @@ const ProviderPurchase = () => {
   };
 
   const features = [
+    { icon: Brain, text: "AI Pattern Intelligence Dashboard", subtitle: "Monitor all families with AI-powered behavioral insights", highlight: true },
+    { icon: TrendingUp, text: "Cross-Family Analytics", subtitle: "AI surfaces trends and early warning signs across your entire caseload", highlight: true },
+    { icon: MessageSquareWarning, text: "AI Chat Moderation", subtitle: "Automatic filtering protects communication in all family groups", highlight: true },
     { icon: Building2, text: "Create and manage your organization" },
     { icon: Users, text: "Onboard unlimited families" },
     { icon: Shield, text: "Custom branding for your organization" },
-    { icon: Check, text: "Access to all provider tools" },
   ];
 
   const handleCopyCode = () => {
@@ -236,19 +238,33 @@ const ProviderPurchase = () => {
             {/* Features Card */}
             <Card>
               <CardHeader>
+                <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-medium mb-2 w-fit">
+                  <Brain className="h-3 w-3" />
+                  AI-Powered Platform
+                </div>
                 <CardTitle>What's Included</CardTitle>
                 <CardDescription>
-                  Everything you need to support families in recovery
+                  AI-powered tools to help you support more families, more effectively
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-4">
                   {features.map((feature, index) => (
-                    <li key={index} className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                    <li key={index} className={`flex items-start gap-3 ${feature.highlight ? 'bg-primary/5 -mx-2 px-2 py-2 rounded-lg border border-primary/10' : ''}`}>
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${feature.highlight ? 'bg-primary/20' : 'bg-primary/10'}`}>
                         <feature.icon className="w-5 h-5 text-primary" />
                       </div>
-                      <span>{feature.text}</span>
+                      <div className="flex flex-col">
+                        <div className="flex items-center gap-2">
+                          <span className={feature.highlight ? 'font-medium' : ''}>{feature.text}</span>
+                          {feature.highlight && (
+                            <span className="text-[10px] bg-primary/20 text-primary px-1.5 py-0.5 rounded font-medium">AI</span>
+                          )}
+                        </div>
+                        {feature.subtitle && (
+                          <span className="text-xs text-muted-foreground mt-0.5">{feature.subtitle}</span>
+                        )}
+                      </div>
                     </li>
                   ))}
                 </ul>
