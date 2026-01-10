@@ -18,7 +18,7 @@ import {
   MessageCircle, AlertTriangle, Check, X, Shield, MapPin,
   ExternalLink, CreditCard, CheckCircle2, Paperclip, Image, HandCoins, Trash2, Pencil,
   Target, ShieldCheck, Plus, CheckCircle, MessageSquare, FlaskConical, ChevronDown, Sparkles,
-  Brain, Search, Calendar, ChevronLeft, ChevronRight, Archive
+  Brain, Search, Calendar, ChevronLeft, ChevronRight, Archive, Heart, Clock, TrendingUp
 } from 'lucide-react';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -2417,49 +2417,60 @@ const FamilyChat = () => {
           {/* Financial Tab */}
           <TabsContent value="financial" className="flex-1 overflow-auto mt-0">
             <div className="space-y-4">
-              {/* Create Request */}
-              <Card className="card-interactive card-enter overflow-hidden">
-                <div className="h-1 bg-gradient-to-r from-success via-primary to-accent" />
-                <CardHeader className="pb-3">
-                  <CardTitle className="flex items-center gap-2 text-lg font-display">
-                    <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-success/20 to-primary/20 flex items-center justify-center">
-                      <DollarSign className="h-4 w-4 text-success" />
+              {/* Create Request - Enhanced */}
+              <Card className="card-interactive overflow-hidden border-0 shadow-lg group">
+                <div className="h-1.5 bg-gradient-to-r from-success via-primary to-accent" />
+                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-success/10 to-transparent rounded-full -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+                <CardHeader className="pb-3 relative">
+                  <CardTitle className="flex items-center gap-3 text-xl font-display">
+                    <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-success/20 via-primary/20 to-accent/20 flex items-center justify-center shadow-inner">
+                      <DollarSign className="h-6 w-6 text-success" />
                     </div>
-                    Request Financial Support
+                    <div>
+                      <span className="bg-gradient-to-r from-success via-primary to-accent bg-clip-text text-transparent">
+                        Request Financial Support
+                      </span>
+                      <p className="text-sm font-normal text-muted-foreground mt-0.5">
+                        Submit a request for family review
+                      </p>
+                    </div>
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="relative">
                   {/* Warning for outstanding approved request */}
                   {financialRequests.some(r => r.status === 'approved' && !r.resolved_at) && (
-                    <div className="mb-4 p-3 rounded-lg bg-yellow-50 border border-yellow-200 text-yellow-800 flex items-start gap-2">
-                      <AlertTriangle className="h-5 w-5 shrink-0 mt-0.5" />
+                    <div className="mb-4 p-4 rounded-xl bg-gradient-to-r from-warning/10 to-orange-100/50 dark:from-warning/20 dark:to-orange-900/20 border border-warning/30 flex items-start gap-3">
+                      <div className="h-10 w-10 rounded-xl bg-warning/20 flex items-center justify-center shrink-0">
+                        <AlertTriangle className="h-5 w-5 text-warning" />
+                      </div>
                       <div className="text-sm">
-                        <p className="font-medium">Outstanding request pending</p>
-                        <p className="text-yellow-700">
-                          There is an approved request that hasn't been marked as completed yet. 
-                          New requests cannot be submitted until a moderator completes the outstanding request.
+                        <p className="font-semibold text-warning">Outstanding Request Pending</p>
+                        <p className="text-muted-foreground mt-0.5">
+                          There's an approved request awaiting completion. New requests are paused until it's resolved.
                         </p>
                       </div>
                     </div>
                   )}
                   <form onSubmit={handleCreateRequest} className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label className="text-xs text-muted-foreground mb-1 block">Amount</Label>
+                      <div className="space-y-2">
+                        <Label className="text-xs font-medium text-muted-foreground flex items-center gap-1">
+                          <DollarSign className="h-3 w-3" /> Amount
+                        </Label>
                         <Input
                           type="number"
-                          placeholder="Amount ($)"
+                          placeholder="0.00"
                           value={requestAmount}
                           onChange={(e) => setRequestAmount(e.target.value)}
                           min="0"
                           step="0.01"
-                          className="bg-background/80"
+                          className="bg-background/80 h-11 text-lg font-semibold"
                         />
                       </div>
-                      <div>
-                        <Label className="text-xs text-muted-foreground mb-1 block">Reason</Label>
+                      <div className="space-y-2">
+                        <Label className="text-xs font-medium text-muted-foreground">Reason</Label>
                         <Select value={requestReason} onValueChange={setRequestReason}>
-                          <SelectTrigger className="bg-background/80">
+                          <SelectTrigger className="bg-background/80 h-11">
                             <SelectValue placeholder="Select a reason" />
                           </SelectTrigger>
                           <SelectContent className="bg-background z-50">
@@ -2475,15 +2486,15 @@ const FamilyChat = () => {
 
                     {/* Other description field */}
                     {requestReason === 'Other' && (
-                      <div>
-                        <Label className="text-xs text-muted-foreground mb-1 block">
+                      <div className="space-y-2">
+                        <Label className="text-xs font-medium text-muted-foreground">
                           Description (required)
                         </Label>
                         <Textarea
                           placeholder="Please describe what this request is for..."
                           value={requestOtherDescription}
                           onChange={(e) => setRequestOtherDescription(e.target.value)}
-                          className="min-h-[80px]"
+                          className="min-h-[80px] bg-background/80"
                         />
                       </div>
                     )}
@@ -2499,56 +2510,136 @@ const FamilyChat = () => {
                       requestCategory={requestReason || undefined}
                     />
 
-                    <Button type="submit" disabled={isRequesting} className="w-full">
+                    <Button 
+                      type="submit" 
+                      disabled={isRequesting} 
+                      className="w-full h-12 text-base font-semibold bg-gradient-to-r from-success via-primary to-accent hover:opacity-90 transition-opacity shadow-lg"
+                    >
                       {isRequesting ? (
                         <>
-                          <Loader2 className="h-4 w-4 animate-spin" />
+                          <Loader2 className="h-5 w-5 animate-spin mr-2" />
                           Submitting...
                         </>
                       ) : (
-                        'Submit Request for Approval'
+                        <>
+                          <Send className="h-5 w-5 mr-2" />
+                          Submit Request for Approval
+                        </>
                       )}
                     </Button>
                   </form>
                 </CardContent>
               </Card>
 
-              {/* Financial Summary */}
-              <Card className="mb-4">
-                <CardContent className="pt-6">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="text-center p-4 bg-muted/50 rounded-lg">
-                      <p className="text-sm text-muted-foreground mb-1">Total Requested</p>
-                      <p className="text-2xl font-bold text-foreground">
-                        ${financialRequests.reduce((sum, r) => sum + r.amount, 0).toFixed(2)}
-                      </p>
+              {/* Financial Summary - Dynamic Stats */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                {/* Total Requested */}
+                <Card className="relative overflow-hidden border-0 shadow-md group hover:shadow-lg transition-all duration-300">
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <div className="absolute top-0 right-0 w-20 h-20 bg-primary/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+                  <CardContent className="pt-4 pb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center shrink-0">
+                        <DollarSign className="h-5 w-5 text-primary" />
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground font-medium">Requested</p>
+                        <p className="text-xl font-bold text-foreground">
+                          ${financialRequests.reduce((sum, r) => sum + r.amount, 0).toFixed(0)}
+                        </p>
+                      </div>
                     </div>
-                    <div className="text-center p-4 bg-green-50 rounded-lg border border-green-200">
-                      <p className="text-sm text-green-700 mb-1">Total Funds Given</p>
-                      <p className="text-2xl font-bold text-green-600">
-                        ${financialRequests
-                          .filter(r => r.payment_confirmed_at || r.status === 'approved')
-                          .reduce((sum, r) => r.pledges.reduce((pSum, p) => pSum + p.amount, 0) + sum, 0)
-                          .toFixed(2)}
-                      </p>
+                  </CardContent>
+                </Card>
+
+                {/* Total Given */}
+                <Card className="relative overflow-hidden border-0 shadow-md group hover:shadow-lg transition-all duration-300">
+                  <div className="absolute inset-0 bg-gradient-to-br from-success/5 via-transparent to-success/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <div className="absolute top-0 right-0 w-20 h-20 bg-success/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+                  <CardContent className="pt-4 pb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-success/20 to-success/30 flex items-center justify-center shrink-0">
+                        <Heart className="h-5 w-5 text-success" />
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground font-medium">Given</p>
+                        <p className="text-xl font-bold text-success">
+                          ${financialRequests
+                            .filter(r => r.payment_confirmed_at || r.status === 'approved')
+                            .reduce((sum, r) => r.pledges.reduce((pSum, p) => pSum + p.amount, 0) + sum, 0)
+                            .toFixed(0)}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+
+                {/* Pending */}
+                <Card className="relative overflow-hidden border-0 shadow-md group hover:shadow-lg transition-all duration-300">
+                  <div className="absolute inset-0 bg-gradient-to-br from-warning/5 via-transparent to-warning/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <div className="absolute top-0 right-0 w-20 h-20 bg-warning/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+                  <CardContent className="pt-4 pb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-warning/20 to-orange-200 flex items-center justify-center shrink-0">
+                        <Clock className="h-5 w-5 text-warning" />
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground font-medium">Pending</p>
+                        <p className="text-xl font-bold text-warning">
+                          {financialRequests.filter(r => r.status === 'pending').length}
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Approved */}
+                <Card className="relative overflow-hidden border-0 shadow-md group hover:shadow-lg transition-all duration-300">
+                  <div className="absolute inset-0 bg-gradient-to-br from-accent/5 via-transparent to-accent/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <div className="absolute top-0 right-0 w-20 h-20 bg-accent/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+                  <CardContent className="pt-4 pb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-accent/20 to-accent/30 flex items-center justify-center shrink-0">
+                        <CheckCircle2 className="h-5 w-5 text-accent" />
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground font-medium">Approved</p>
+                        <p className="text-xl font-bold text-accent">
+                          {financialRequests.filter(r => r.status === 'approved' || r.resolved_at).length}
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
 
               {/* Requests List */}
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg font-display">Financial Requests</CardTitle>
+              <Card className="border-0 shadow-lg overflow-hidden">
+                <div className="h-1 bg-gradient-to-r from-primary via-accent to-success" />
+                <CardHeader className="pb-3 bg-gradient-to-b from-muted/30 to-transparent">
+                  <CardTitle className="flex items-center justify-between text-lg font-display">
+                    <div className="flex items-center gap-2">
+                      <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
+                        <TrendingUp className="h-4 w-4 text-primary" />
+                      </div>
+                      Active Requests
+                    </div>
+                    <Badge variant="secondary" className="text-xs font-normal">
+                      {financialRequests.length} total
+                    </Badge>
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   {financialRequests.length === 0 ? (
-                    <div className="text-center py-8 text-muted-foreground">
-                      <DollarSign className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                      <p>No financial requests yet.</p>
+                    <div className="text-center py-12 text-muted-foreground">
+                      <div className="h-16 w-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center">
+                        <DollarSign className="h-8 w-8 opacity-40" />
+                      </div>
+                      <p className="font-medium">No financial requests yet</p>
+                      <p className="text-sm mt-1">Create a request above to get started</p>
                     </div>
                   ) : (
-                    <div className="space-y-2">
+                    <div className="space-y-3">
                       {financialRequests.map((req) => {
                         const hasVoted = req.votes.some(v => v.voter_id === user?.id);
                         const approvalCount = req.votes.filter(v => v.approved).length;
@@ -2576,37 +2667,69 @@ const FamilyChat = () => {
                         };
 
                         const statusColor = isCompleted 
-                          ? 'bg-gradient-to-r from-blue-500 to-indigo-500' 
+                          ? 'from-blue-500 to-indigo-500' 
                           : req.status === 'approved' 
-                            ? 'bg-gradient-to-r from-green-500 to-emerald-500' 
+                            ? 'from-success to-emerald-500' 
                             : req.status === 'denied'
-                              ? 'bg-gradient-to-r from-red-500 to-rose-500'
-                              : 'bg-gradient-to-r from-amber-500 to-orange-500';
+                              ? 'from-destructive to-rose-500'
+                              : 'from-warning to-orange-400';
+                        
+                        const statusBgColor = isCompleted 
+                          ? 'bg-blue-50 dark:bg-blue-950/30' 
+                          : req.status === 'approved' 
+                            ? 'bg-green-50 dark:bg-green-950/30' 
+                            : req.status === 'denied'
+                              ? 'bg-red-50 dark:bg-red-950/30'
+                              : 'bg-amber-50 dark:bg-amber-950/30';
+
+                        // Calculate funding progress
+                        const totalPledged = req.pledges.reduce((sum, p) => sum + Number(p.amount), 0);
+                        const fundingProgress = Math.min(100, (totalPledged / req.amount) * 100);
 
                         const CompactHeader = () => (
-                          <div className="flex items-center justify-between w-full py-2">
-                            <div className="flex items-center gap-2 min-w-0 flex-1">
-                              <Avatar className="h-6 w-6 shrink-0">
-                                <AvatarFallback className="text-[10px] bg-primary/10">
+                          <div className="flex items-center justify-between w-full py-3">
+                            <div className="flex items-center gap-3 min-w-0 flex-1">
+                              <Avatar className="h-9 w-9 shrink-0 ring-2 ring-primary/10">
+                                <AvatarFallback className="text-xs bg-gradient-to-br from-primary/20 to-accent/20 text-primary font-semibold">
                                   {req.requester_name?.split(' ').map(n => n[0]).join('').slice(0,2) || '??'}
                                 </AvatarFallback>
                               </Avatar>
-                              <span className="text-sm font-medium truncate">{req.requester_name}</span>
-                              <span className="font-bold text-primary text-sm shrink-0">${req.amount.toFixed(2)}</span>
-                              <Badge
-                                variant={req.status === 'approved' ? 'default' : req.status === 'denied' ? 'destructive' : 'secondary'}
-                                className="text-[10px] px-1.5 py-0 shrink-0"
-                              >
-                                {isCompleted ? 'completed' : req.status}
-                              </Badge>
+                              <div className="min-w-0 flex-1">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span className="text-sm font-semibold truncate">{req.requester_name}</span>
+                                  <Badge
+                                    variant={req.status === 'approved' ? 'default' : req.status === 'denied' ? 'destructive' : 'secondary'}
+                                    className={`text-[10px] px-2 py-0.5 shrink-0 ${
+                                      isCompleted ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white border-0' :
+                                      req.status === 'approved' ? 'bg-gradient-to-r from-success to-emerald-500 text-white border-0' :
+                                      req.status === 'denied' ? '' : 'bg-gradient-to-r from-warning/80 to-orange-400 text-white border-0'
+                                    }`}
+                                  >
+                                    {isCompleted ? '✓ Completed' : req.status === 'approved' ? '✓ Approved' : req.status === 'denied' ? '✗ Denied' : '⏳ Pending'}
+                                  </Badge>
+                                </div>
+                                <p className="text-xs text-muted-foreground truncate mt-0.5">{req.reason}</p>
+                              </div>
                             </div>
-                            <div className="flex items-center gap-2 shrink-0">
-                              <span className="text-[10px] text-muted-foreground hidden sm:flex items-center gap-1">
-                                <Check className="h-3 w-3 text-success" />{approvalCount}
-                                <X className="h-3 w-3 text-destructive ml-1" />{denialCount}
-                              </span>
+                            <div className="flex items-center gap-3 shrink-0">
+                              <div className="text-right">
+                                <span className="font-bold text-lg bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">${req.amount.toFixed(0)}</span>
+                                {req.status === 'pending' && totalPledged > 0 && (
+                                  <p className="text-[10px] text-muted-foreground">${totalPledged.toFixed(0)} pledged</p>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-1.5 text-xs">
+                                <div className="flex items-center gap-0.5 text-success">
+                                  <Check className="h-3.5 w-3.5" />
+                                  <span className="font-medium">{approvalCount}</span>
+                                </div>
+                                <div className="flex items-center gap-0.5 text-destructive">
+                                  <X className="h-3.5 w-3.5" />
+                                  <span className="font-medium">{denialCount}</span>
+                                </div>
+                              </div>
                               {isClosed && (
-                                <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} />
+                                <ChevronDown className={`h-5 w-5 text-muted-foreground transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} />
                               )}
                             </div>
                           </div>
@@ -2909,13 +3032,13 @@ const FamilyChat = () => {
                         if (isClosed) {
                           return (
                             <Collapsible key={req.id} open={isExpanded} onOpenChange={toggleExpanded}>
-                              <div className={`rounded-lg border border-border bg-card overflow-hidden ${statusColor.replace('bg-gradient-to-r', '')}`}>
-                                <div className={`h-0.5 ${statusColor}`} />
-                                <CollapsibleTrigger className="w-full px-3 hover:bg-muted/30 transition-colors">
+                              <div className={`rounded-xl border-0 shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md ${statusBgColor}`}>
+                                <div className={`h-1 bg-gradient-to-r ${statusColor}`} />
+                                <CollapsibleTrigger className="w-full px-4 hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
                                   <CompactHeader />
                                 </CollapsibleTrigger>
-                                <CollapsibleContent>
-                                  <div className="px-3 pb-3">
+                                <CollapsibleContent className="animate-accordion-down">
+                                  <div className="px-4 pb-4 pt-1">
                                     <FullContent />
                                   </div>
                                 </CollapsibleContent>
@@ -2927,10 +3050,25 @@ const FamilyChat = () => {
                         return (
                           <div
                             key={req.id}
-                            className="rounded-lg border border-border bg-card overflow-hidden"
+                            className={`rounded-xl border-0 shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg animate-fade-in ${statusBgColor}`}
                           >
-                            <div className={`h-1 ${statusColor}`} />
-                            <div className="px-3 pb-3">
+                            <div className={`h-1.5 bg-gradient-to-r ${statusColor}`} />
+                            {/* Progress bar for pending requests */}
+                            {req.status === 'pending' && totalPledged > 0 && (
+                              <div className="px-4 pt-3">
+                                <div className="flex items-center justify-between text-xs mb-1">
+                                  <span className="text-muted-foreground">Funding Progress</span>
+                                  <span className="font-medium text-primary">{fundingProgress.toFixed(0)}%</span>
+                                </div>
+                                <div className="h-2 bg-muted rounded-full overflow-hidden">
+                                  <div 
+                                    className="h-full bg-gradient-to-r from-primary to-accent transition-all duration-500 ease-out rounded-full"
+                                    style={{ width: `${fundingProgress}%` }}
+                                  />
+                                </div>
+                              </div>
+                            )}
+                            <div className="px-4 pb-4">
                               <CompactHeader />
                               <FullContent />
                             </div>
