@@ -1223,6 +1223,13 @@ const DemoFamily = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
+                  {/* Instructional Text for Goals */}
+                  <div className="p-4 rounded-xl bg-gradient-to-r from-pink-50 to-rose-50 dark:from-pink-950/30 dark:to-rose-950/30 border border-pink-200/50 dark:border-pink-800/50">
+                    <p className="text-sm text-muted-foreground">
+                      Select two of the goals from the list below or create custom goals for your family. Make sure the goals you create are measurable and have a path to achievement. If you need help, consult your moderator.
+                    </p>
+                  </div>
+
                   <div className="space-y-3">
                     <h3 className="font-medium">Guiding Values</h3>
                     <div className="flex flex-wrap gap-2">
@@ -1276,6 +1283,26 @@ const DemoFamily = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                  {/* Instructional Text */}
+                  <div className="p-4 rounded-xl bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950/30 dark:to-purple-950/30 border border-indigo-200/50 dark:border-indigo-800/50 space-y-3">
+                    <p className="text-sm text-foreground">
+                      <strong>Boundaries are essential</strong> to the health and stability of your family system. They should be rooted in the values that your family and each individual holds dear—never created out of anger.
+                    </p>
+                    <p className="text-sm text-foreground">
+                      When considering a boundary, ask yourself two fundamental questions:
+                    </p>
+                    <ol className="text-sm text-foreground list-decimal list-inside space-y-1 pl-2">
+                      <li><strong>Have I enabled my loved one's addiction in any way?</strong> (Financially, Emotionally, or Silently)</li>
+                      <li><strong>Has my loved one's addiction caused me harm in any way?</strong></li>
+                    </ol>
+                    <p className="text-sm text-foreground">
+                      If the answer to either (or both) of these questions is yes, consider what changes <em>you</em> need to make in YOUR behavior to avoid enabling going forward and to eliminate the harm you've experienced because of the addiction.
+                    </p>
+                    <p className="text-sm text-muted-foreground italic">
+                      All boundaries will be reviewed by the moderator or family admin before they need to be acknowledged by the group.
+                    </p>
+                  </div>
+
                   {currentFamily.boundaries.map((boundary) => (
                     <div 
                       key={boundary.id}
@@ -1369,7 +1396,7 @@ const DemoFamily = () => {
                   </CardHeader>
                   <CardContent>
                     <p className="text-xs sm:text-sm text-muted-foreground">
-                      AI-powered pattern analysis identifies risks, enabling behaviors, recovery trajectory, and incorporates your family's values, goals, and boundaries into its insights.
+                      FIIS is a unique and proprietary AI function of the FamilyBridge app. Log observations—both positive moments and reasons for concern. All of this data contributes to a comprehensive analysis of your family's situation. Use plain, conversational language to describe what you observe, and our AI will analyze it and provide recommendations. The system automatically tracks check-ins, financial requests, and other family activities to help identify patterns and early warning signs.
                     </p>
                   </CardContent>
                 </Card>
