@@ -54,7 +54,7 @@ import { CheckinHistory } from '@/components/CheckinHistory';
 import { LocationCheckinRequest } from '@/components/LocationCheckinRequest';
 import { LocationCheckinResponse } from '@/components/LocationCheckinResponse';
 import { LocationCapture, LocationData } from '@/components/LocationCapture';
-import { PrivateMessaging } from '@/components/PrivateMessaging';
+import { PrivateMessagingV2 } from '@/components/PrivateMessagingV2';
 import { ConversationStarters } from '@/components/ConversationStarters';
 import { TemporaryModeratorRequest } from '@/components/TemporaryModeratorRequest';
 import { FIISTab } from '@/components/FIISTab';
@@ -412,8 +412,7 @@ const FamilyChat = () => {
       fetchFamilyData();
       subscribeToMessages();
       fetchPaymentHandles();
-      fetchUnreadPrivateMessages();
-      subscribeToPrivateMessages();
+      // Note: Private message unread counts are now handled by PrivateMessagingV2 component
     }
   }, [user, familyId]);
 
@@ -560,44 +559,7 @@ const FamilyChat = () => {
     }
   }, [membersSheetOpen, members.length]);
 
-  const fetchUnreadPrivateMessages = async () => {
-    if (!user || !familyId) return;
-    const { count, error } = await supabase
-      .from('private_messages')
-      .select('*', { count: 'exact', head: true })
-      .eq('family_id', familyId)
-      .eq('recipient_id', user.id)
-      .eq('is_read', false);
-
-    if (!error && count !== null) {
-      setUnreadPrivateMessages(count);
-    }
-  };
-
-  const subscribeToPrivateMessages = () => {
-    if (!user || !familyId) return;
-
-    const channel = supabase
-      .channel(`private-messages-unread-${familyId}`)
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'private_messages',
-          filter: `family_id=eq.${familyId}`,
-        },
-        () => {
-          // Refetch unread count on any change
-          fetchUnreadPrivateMessages();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  };
+  // Note: Private message functions moved to PrivateMessagingV2 component
 
   const fetchPaymentHandles = async () => {
     if (!user) return;
@@ -4587,9 +4549,9 @@ const FamilyChat = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Private Messaging */}
+      {/* Private Messaging V2 - iMessage Style */}
       {user && familyId && (
-        <PrivateMessaging
+        <PrivateMessagingV2
           familyId={familyId}
           currentUserId={user.id}
           currentUserRole={currentUserRole}
@@ -4598,6 +4560,7 @@ const FamilyChat = () => {
           members={members}
           isOpen={privateMessagingOpen}
           onClose={() => setPrivateMessagingOpen(false)}
+          onUnreadCountChange={setUnreadPrivateMessages}
         />
       )}
     </div>
