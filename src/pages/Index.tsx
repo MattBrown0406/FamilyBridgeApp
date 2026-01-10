@@ -278,7 +278,10 @@ const Index = () => {
                 </p>
               </div>
             </div>
-            <Button variant="outline" size="sm" className="relative z-10 group-hover:bg-primary group-hover:text-primary-foreground group-hover:border-primary transition-colors">
+            <Button 
+              size="sm" 
+              className="relative z-10 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 transition-all duration-300 border-0"
+            >
               Find Meetings
               <ArrowRight className="h-4 w-4 ml-1 group-hover:translate-x-1 transition-transform" />
             </Button>
@@ -303,7 +306,10 @@ const Index = () => {
                 </p>
               </div>
             </div>
-            <Button variant="outline" size="sm" className="relative z-10 group-hover:bg-primary group-hover:text-primary-foreground group-hover:border-primary transition-colors">
+            <Button 
+              size="sm" 
+              className="relative z-10 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white shadow-lg shadow-amber-500/25 hover:shadow-xl hover:shadow-amber-500/30 transition-all duration-300 border-0"
+            >
               Take Exercise
               <ArrowRight className="h-4 w-4 ml-1 group-hover:translate-x-1 transition-transform" />
             </Button>
@@ -328,7 +334,10 @@ const Index = () => {
                 </p>
               </div>
             </div>
-            <Button variant="outline" size="sm" className="relative z-10 group-hover:bg-primary group-hover:text-primary-foreground group-hover:border-primary transition-colors">
+            <Button 
+              size="sm" 
+              className="relative z-10 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-lg shadow-emerald-500/25 hover:shadow-xl hover:shadow-emerald-500/30 transition-all duration-300 border-0"
+            >
               View Demo
               <ArrowRight className="h-4 w-4 ml-1 group-hover:translate-x-1 transition-transform" />
             </Button>
