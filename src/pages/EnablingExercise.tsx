@@ -302,23 +302,23 @@ const EnablingExercise = () => {
 
     return (
       <div className="min-h-screen bg-background">
-        <header className="container mx-auto px-4 py-4 border-b border-border">
+        <header className="container mx-auto px-3 sm:px-4 py-3 sm:py-4 border-b border-border">
           <nav className="flex items-center justify-between">
             <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
-              <img src={familyBridgeLogo} alt="FamilyBridge" className="h-7 w-auto object-contain" />
-              <span className="text-lg font-display font-semibold text-foreground">FamilyBridge</span>
+              <img src={familyBridgeLogo} alt="FamilyBridge" className="h-6 sm:h-7 w-auto object-contain" />
+              <span className="text-base sm:text-lg font-display font-semibold text-foreground">FamilyBridge</span>
             </div>
           </nav>
         </header>
 
-        <main className="container mx-auto px-4 py-8 max-w-3xl">
+        <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 max-w-3xl">
           <Card className="shadow-elevated">
-            <CardHeader className="text-center">
-              <div className={`w-16 h-16 rounded-full ${result.type === 'warning' ? 'bg-destructive/10' : result.type === 'caution' ? 'bg-warning/10' : 'bg-primary/10'} flex items-center justify-center mx-auto mb-4`}>
-                <ResultIcon className={`h-8 w-8 ${result.color}`} />
+            <CardHeader className="text-center px-4 sm:px-6">
+              <div className={`w-12 h-12 sm:w-16 sm:h-16 rounded-full ${result.type === 'warning' ? 'bg-destructive/10' : result.type === 'caution' ? 'bg-warning/10' : 'bg-primary/10'} flex items-center justify-center mx-auto mb-3 sm:mb-4`}>
+                <ResultIcon className={`h-6 w-6 sm:h-8 sm:w-8 ${result.color}`} />
               </div>
-              <CardTitle className="text-2xl font-display">{result.title}</CardTitle>
-              <CardDescription className="text-base mt-2">
+              <CardTitle className="text-xl sm:text-2xl font-display">{result.title}</CardTitle>
+              <CardDescription className="text-sm sm:text-base mt-2">
                 {result.message}
               </CardDescription>
             </CardHeader>
@@ -378,20 +378,20 @@ const EnablingExercise = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="container mx-auto px-4 py-4 border-b border-border">
+      <header className="container mx-auto px-3 sm:px-4 py-3 sm:py-4 border-b border-border">
         <nav className="flex items-center justify-between">
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
-            <img src={familyBridgeLogo} alt="FamilyBridge" className="h-7 w-auto object-contain" />
-            <span className="text-lg font-display font-semibold text-foreground">FamilyBridge</span>
+            <img src={familyBridgeLogo} alt="FamilyBridge" className="h-6 sm:h-7 w-auto object-contain" />
+            <span className="text-base sm:text-lg font-display font-semibold text-foreground">FamilyBridge</span>
           </div>
-          <Button variant="ghost" size="sm" onClick={() => navigate('/')}>
-            <ArrowLeft className="h-4 w-4 mr-1" />
-            Back
+          <Button variant="ghost" size="sm" onClick={() => navigate('/')} className="px-2 sm:px-3">
+            <ArrowLeft className="h-4 w-4 sm:mr-1" />
+            <span className="hidden sm:inline">Back</span>
           </Button>
         </nav>
       </header>
 
-      <main className="container mx-auto px-4 py-8 max-w-3xl">
+      <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 max-w-3xl">
         {currentStep === 0 && Object.keys(answers).length === 0 && (
           <Card className="shadow-elevated mb-6">
             <CardHeader>

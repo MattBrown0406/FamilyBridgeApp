@@ -1000,54 +1000,56 @@ const ProviderAdmin = () => {
   // Provider dashboard
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" onClick={() => navigate('/dashboard')}>
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Dashboard
+      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0 mb-4 sm:mb-8">
+          <div className="flex items-center gap-2 sm:gap-4">
+            <Button variant="ghost" size="sm" onClick={() => navigate('/dashboard')} className="px-2 sm:px-3">
+              <ArrowLeft className="h-4 w-4 sm:mr-2" />
+              <span className="hidden sm:inline">Dashboard</span>
             </Button>
-            <h1 className="text-2xl font-display font-bold text-foreground">
+            <h1 className="text-lg sm:text-2xl font-display font-bold text-foreground">
               Provider Admin
             </h1>
           </div>
-          <Button onClick={() => setIsCreating(true)}>
+          <Button size="sm" onClick={() => setIsCreating(true)} className="w-full sm:w-auto">
             <Plus className="h-4 w-4 mr-2" />
             New Organization
           </Button>
         </div>
 
-        <div className="grid lg:grid-cols-4 gap-6">
+        <div className="grid lg:grid-cols-4 gap-4 sm:gap-6">
           {/* Organization selector */}
           <div className="lg:col-span-1 space-y-2">
-            <h2 className="text-sm font-medium text-muted-foreground mb-3">
+            <h2 className="text-sm font-medium text-muted-foreground mb-2 sm:mb-3">
               Your Organizations
             </h2>
-            {organizations.map((org) => (
-              <Card 
-                key={org.id}
-                className={`cursor-pointer transition-colors ${
-                  selectedOrg === org.id ? 'ring-2 ring-primary' : 'hover:bg-muted/50'
-                }`}
-                onClick={() => handleSelectOrg(org.id)}
-              >
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-3">
-                    {org.logo_url ? (
-                      <img src={org.logo_url} alt={org.name} className="h-10 w-10 rounded object-contain" />
-                    ) : (
-                      <div className="h-10 w-10 rounded bg-primary/10 flex items-center justify-center">
-                        <Building2 className="h-5 w-5 text-primary" />
+            <div className="flex lg:flex-col gap-2 overflow-x-auto pb-2 lg:pb-0">
+              {organizations.map((org) => (
+                <Card 
+                  key={org.id}
+                  className={`cursor-pointer transition-colors shrink-0 lg:shrink ${
+                    selectedOrg === org.id ? 'ring-2 ring-primary' : 'hover:bg-muted/50'
+                  }`}
+                  onClick={() => handleSelectOrg(org.id)}
+                >
+                  <CardContent className="p-3 sm:p-4">
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      {org.logo_url ? (
+                        <img src={org.logo_url} alt={org.name} className="h-8 w-8 sm:h-10 sm:w-10 rounded object-contain" />
+                      ) : (
+                        <div className="h-8 w-8 sm:h-10 sm:w-10 rounded bg-primary/10 flex items-center justify-center">
+                          <Building2 className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+                        </div>
+                      )}
+                      <div className="min-w-0">
+                        <p className="font-medium text-foreground text-sm sm:text-base truncate">{org.name}</p>
+                        <p className="text-[10px] sm:text-xs text-muted-foreground truncate">{org.subdomain}.familybridge.app</p>
                       </div>
-                    )}
-                    <div>
-                      <p className="font-medium text-foreground">{org.name}</p>
-                      <p className="text-xs text-muted-foreground">{org.subdomain}.familybridge.app</p>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </div>
 
           {/* Main content */}

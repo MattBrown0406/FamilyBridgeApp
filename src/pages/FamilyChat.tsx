@@ -2220,71 +2220,74 @@ const FamilyChat = () => {
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-secondary/20 flex flex-col">
       {/* Header with glass effect */}
       <header className="border-b border-border/50 bg-card/80 backdrop-blur-md shrink-0 sticky top-0 z-50 shadow-soft">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center gap-4">
+        <div className="container mx-auto px-2 sm:px-4 py-2 sm:py-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             <Button 
               variant="ghost" 
               size="icon" 
               onClick={() => navigate('/dashboard')}
-              className="hover:bg-primary/10 hover:text-primary transition-colors"
+              className="hover:bg-primary/10 hover:text-primary transition-colors h-8 w-8 sm:h-10 sm:w-10"
             >
-              <ArrowLeft className="h-5 w-5" />
+              <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
             </Button>
             <button 
-              className="flex items-center gap-3 hover:opacity-80 transition-all group min-w-0 flex-1"
+              className="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-all group min-w-0 flex-1"
               onClick={() => setMembersSheetOpen(true)}
             >
               <div className="relative shrink-0">
-                <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow overflow-hidden">
+                <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg sm:rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow overflow-hidden">
                   {organization?.logo_url ? (
                     <img src={organization.logo_url} alt={organization.name || 'Organization'} className="h-full w-full object-cover" />
                   ) : (
-                    <img src={familyBridgeLogo} alt="FamilyBridge" className="h-7 w-7 object-contain" />
+                    <img src={familyBridgeLogo} alt="FamilyBridge" className="h-5 w-5 sm:h-7 sm:w-7 object-contain" />
                   )}
                 </div>
-                <div className="absolute -bottom-1 -right-1 h-4 w-4 bg-success rounded-full border-2 border-card flex items-center justify-center">
-                  <span className="text-[8px] text-white font-bold">{members.length}</span>
+                <div className="absolute -bottom-0.5 -right-0.5 sm:-bottom-1 sm:-right-1 h-3 w-3 sm:h-4 sm:w-4 bg-success rounded-full border-2 border-card flex items-center justify-center">
+                  <span className="text-[6px] sm:text-[8px] text-white font-bold">{members.length}</span>
                 </div>
               </div>
               <div className="text-left min-w-0">
-                <div className="flex items-center gap-2">
-                  <h1 className="font-display font-semibold text-foreground text-sm sm:text-lg group-hover:text-primary transition-colors truncate">
+                <div className="flex items-center gap-1 sm:gap-2">
+                  <h1 className="font-display font-semibold text-foreground text-xs sm:text-lg group-hover:text-primary transition-colors truncate max-w-[100px] sm:max-w-none">
                     {family?.name}
                   </h1>
                   {familyId && <FamilyHealthBadge familyId={familyId} />}
                 </div>
                 {organization && family?.organization_id ? (
-                  <p className="text-xs text-muted-foreground truncate">
+                  <p className="text-[10px] sm:text-xs text-muted-foreground truncate max-w-[100px] sm:max-w-none">
                     {organization.name}
                   </p>
                 ) : null}
               </div>
             </button>
-            <div className="ml-auto flex items-center gap-2 sm:gap-3">
-              {familyId && (
-                <TemporaryModeratorRequest 
-                  familyId={familyId} 
-                  hasOrganization={!!family?.organization_id} 
-                />
-              )}
+            <div className="ml-auto flex items-center gap-1 sm:gap-3">
+              <div className="hidden sm:block">
+                {familyId && (
+                  <TemporaryModeratorRequest 
+                    familyId={familyId} 
+                    hasOrganization={!!family?.organization_id} 
+                  />
+                )}
+              </div>
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => setPrivateMessagingOpen(true)}
                 title="Private Messages"
-                className="relative hover:bg-primary/10 hover:text-primary transition-colors"
+                className="relative hover:bg-primary/10 hover:text-primary transition-colors h-8 w-8 sm:h-10 sm:w-10"
               >
-                <MessageSquare className="h-5 w-5" />
+                <MessageSquare className="h-4 w-4 sm:h-5 sm:w-5" />
                 {unreadPrivateMessages > 0 && (
-                  <span className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center rounded-full bg-destructive text-destructive-foreground text-xs font-medium notification-pulse">
+                  <span className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center rounded-full bg-destructive text-destructive-foreground text-[10px] sm:text-xs font-medium notification-pulse">
                     {unreadPrivateMessages > 9 ? '9+' : unreadPrivateMessages}
                   </span>
                 )}
               </Button>
               {isAdminOrModerator && (
-                <Badge className="bg-gradient-to-r from-primary to-accent text-white border-0 shadow-md">
-                  <Shield className="h-3 w-3 mr-1" />
-                  {currentUserRole === 'moderator' ? 'Moderator' : 'Admin'}
+                <Badge className="bg-gradient-to-r from-primary to-accent text-white border-0 shadow-md text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5">
+                  <Shield className="h-2.5 w-2.5 sm:h-3 sm:w-3 mr-0.5 sm:mr-1" />
+                  <span className="hidden sm:inline">{currentUserRole === 'moderator' ? 'Moderator' : 'Admin'}</span>
+                  <span className="sm:hidden">{currentUserRole === 'moderator' ? 'Mod' : 'Adm'}</span>
                 </Badge>
               )}
               <NotificationBell />
@@ -2294,60 +2297,60 @@ const FamilyChat = () => {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 container mx-auto px-4 py-4 overflow-hidden">
+      <main className="flex-1 container mx-auto px-2 sm:px-4 py-2 sm:py-4 overflow-hidden">
         <Tabs defaultValue="messages" className="h-full flex flex-col">
-          <TabsList className="flex flex-wrap h-auto gap-1 w-full mb-4 shrink-0 bg-card/50 backdrop-blur-sm border border-border/50 p-1.5 rounded-xl shadow-soft">
+          <TabsList className="grid grid-cols-7 h-auto gap-0.5 sm:gap-1 w-full mb-2 sm:mb-4 shrink-0 bg-card/50 backdrop-blur-sm border border-border/50 p-1 sm:p-1.5 rounded-lg sm:rounded-xl shadow-soft">
             <TabsTrigger 
               value="messages" 
-              className="flex-1 min-w-[50px] flex items-center justify-center gap-1 px-2 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg transition-all duration-200"
+              className="flex items-center justify-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-1.5 sm:py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
             >
-              <MessageCircle className="h-4 w-4" />
-              <span className="hidden sm:inline text-xs">Messages</span>
+              <MessageCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              <span className="hidden md:inline text-xs">Messages</span>
             </TabsTrigger>
             <TabsTrigger 
               value="checkin" 
-              className="flex-1 min-w-[50px] flex items-center justify-center gap-1 px-2 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg transition-all duration-200"
+              className="flex items-center justify-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-1.5 sm:py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
             >
-              <MapPin className="h-4 w-4" />
-              <span className="hidden sm:inline text-xs">Check-in</span>
+              <MapPin className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              <span className="hidden md:inline text-xs">Check-in</span>
             </TabsTrigger>
             <TabsTrigger 
               value="financial" 
-              className="flex-1 min-w-[50px] flex items-center justify-center gap-1 px-2 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg transition-all duration-200"
+              className="flex items-center justify-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-1.5 sm:py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
             >
-              <DollarSign className="h-4 w-4" />
-              <span className="hidden sm:inline text-xs">Financial</span>
+              <DollarSign className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              <span className="hidden md:inline text-xs">Financial</span>
             </TabsTrigger>
             <TabsTrigger 
               value="values" 
-              className="flex-1 min-w-[50px] flex items-center justify-center gap-1 px-2 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg transition-all duration-200"
+              className="flex items-center justify-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-1.5 sm:py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
             >
-              <Target className="h-4 w-4" />
-              <span className="hidden sm:inline text-xs">Goals</span>
+              <Target className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              <span className="hidden md:inline text-xs">Goals</span>
             </TabsTrigger>
             <TabsTrigger 
               value="boundaries" 
-              className="flex-1 min-w-[50px] flex items-center justify-center gap-1 px-2 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg transition-all duration-200"
+              className="flex items-center justify-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-1.5 sm:py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
             >
-              <ShieldCheck className="h-4 w-4" />
-              <span className="hidden sm:inline text-xs">Boundaries</span>
+              <ShieldCheck className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              <span className="hidden md:inline text-xs">Boundaries</span>
             </TabsTrigger>
             <TabsTrigger 
               value="test-results" 
-              className="flex-1 min-w-[50px] flex items-center justify-center gap-1 px-2 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg transition-all duration-200"
+              className="flex items-center justify-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-1.5 sm:py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
             >
-              <FlaskConical className="h-4 w-4" />
-              <span className="hidden sm:inline text-xs">Tests</span>
+              <FlaskConical className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              <span className="hidden md:inline text-xs">Tests</span>
             </TabsTrigger>
             {currentUserRole !== 'recovering' && (
               <TabsTrigger 
                 value="fiis" 
-                className="relative flex-1 min-w-[50px] flex items-center justify-center gap-1 px-2 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg transition-all duration-200"
+                className="relative flex items-center justify-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-1.5 sm:py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
               >
-                <Brain className="h-4 w-4" />
-                <span className="hidden sm:inline text-xs">FIIS</span>
+                <Brain className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                <span className="hidden md:inline text-xs">FIIS</span>
                 {hasNewAnalysis && (
-                  <span className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full animate-pulse border-2 border-card" />
+                  <span className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 h-2.5 w-2.5 sm:h-3 sm:w-3 bg-red-500 rounded-full animate-pulse border-2 border-card" />
                 )}
               </TabsTrigger>
             )}
@@ -2356,19 +2359,18 @@ const FamilyChat = () => {
           {/* Messages Tab */}
           <TabsContent value="messages" className="flex-1 flex flex-col overflow-hidden mt-0">
             {/* Stats Cards for Messages */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4 shrink-0">
+            <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-2 sm:mb-4 shrink-0">
               <Card className="relative overflow-hidden border-0 shadow-md group hover:shadow-lg transition-all duration-300">
                 <div className="absolute inset-0 bg-gradient-to-br from-success/5 via-transparent to-success/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                <div className="absolute top-0 right-0 w-20 h-20 bg-success/5 rounded-full -translate-y-1/2 translate-x-1/2" />
-                <CardContent className="pt-4 pb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="relative h-10 w-10 rounded-xl bg-gradient-to-br from-success/20 to-emerald-300/30 flex items-center justify-center shrink-0">
-                      <Users className="h-5 w-5 text-success" />
-                      <span className="absolute -top-1 -right-1 h-3 w-3 bg-success rounded-full animate-pulse border-2 border-card" />
+                <CardContent className="p-2 sm:pt-4 sm:pb-4 sm:px-4">
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <div className="relative h-8 w-8 sm:h-10 sm:w-10 rounded-lg sm:rounded-xl bg-gradient-to-br from-success/20 to-emerald-300/30 flex items-center justify-center shrink-0">
+                      <Users className="h-4 w-4 sm:h-5 sm:w-5 text-success" />
+                      <span className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 h-2 w-2 sm:h-3 sm:w-3 bg-success rounded-full animate-pulse border-2 border-card" />
                     </div>
                     <div>
-                      <p className="text-xs text-muted-foreground font-medium">Online Now</p>
-                      <p className="text-xl font-bold text-success">{onlineMembers.length}</p>
+                      <p className="text-[10px] sm:text-xs text-muted-foreground font-medium">Online</p>
+                      <p className="text-lg sm:text-xl font-bold text-success">{onlineMembers.length}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -2376,57 +2378,41 @@ const FamilyChat = () => {
 
               <Card className="relative overflow-hidden border-0 shadow-md group hover:shadow-lg transition-all duration-300">
                 <div className="absolute inset-0 bg-gradient-to-br from-success/5 via-transparent to-success/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                <div className="absolute top-0 right-0 w-20 h-20 bg-success/5 rounded-full -translate-y-1/2 translate-x-1/2" />
-                <CardContent className="pt-4 pb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-success/20 to-success/30 flex items-center justify-center shrink-0">
-                      <Users className="h-5 w-5 text-success" />
+                <CardContent className="p-2 sm:pt-4 sm:pb-4 sm:px-4">
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg sm:rounded-xl bg-gradient-to-br from-success/20 to-success/30 flex items-center justify-center shrink-0">
+                      <Users className="h-4 w-4 sm:h-5 sm:w-5 text-success" />
                     </div>
                     <div>
-                      <p className="text-xs text-muted-foreground font-medium">Members</p>
-                      <p className="text-xl font-bold text-success">{members.length}</p>
+                      <p className="text-[10px] sm:text-xs text-muted-foreground font-medium">Members</p>
+                      <p className="text-lg sm:text-xl font-bold text-success">{members.length}</p>
                     </div>
                   </div>
                 </CardContent>
               </Card>
-
 
               <Card 
                 className="relative overflow-hidden border-0 shadow-md group hover:shadow-lg transition-all duration-300 cursor-pointer"
                 onClick={() => setPrivateMessagingOpen(true)}
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-accent/5 via-transparent to-accent/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                <div className="absolute top-0 right-0 w-20 h-20 bg-accent/5 rounded-full -translate-y-1/2 translate-x-1/2" />
-                <CardContent className="pt-4 pb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-accent/20 to-accent/30 flex items-center justify-center shrink-0">
-                      <MessageSquare className="h-5 w-5 text-accent" />
+                <CardContent className="p-2 sm:pt-4 sm:pb-4 sm:px-4">
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg sm:rounded-xl bg-gradient-to-br from-accent/20 to-accent/30 flex items-center justify-center shrink-0">
+                      <MessageSquare className="h-4 w-4 sm:h-5 sm:w-5 text-accent" />
                     </div>
-                    <div className="flex-1">
-                      <p className="text-xs text-muted-foreground font-medium">Private</p>
-                      <div className="flex items-center gap-2">
-                        {unreadPrivateMessages > 0 ? (
-                          <p className="text-xl font-bold text-accent">{unreadPrivateMessages}</p>
-                        ) : (
-                          <p className="text-sm text-muted-foreground">No unread</p>
-                        )}
-                      </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[10px] sm:text-xs text-muted-foreground font-medium">Private</p>
+                      {unreadPrivateMessages > 0 ? (
+                        <p className="text-lg sm:text-xl font-bold text-accent">{unreadPrivateMessages}</p>
+                      ) : (
+                        <p className="text-xs sm:text-sm text-muted-foreground truncate">No unread</p>
+                      )}
                     </div>
-                    <Button 
-                      size="sm" 
-                      variant="ghost"
-                      className="h-8 w-8 p-0 rounded-full bg-accent/10 hover:bg-accent/20 text-accent"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setPrivateMessagingOpen(true);
-                      }}
-                    >
-                      <Plus className="h-4 w-4" />
-                    </Button>
                   </div>
                   {unreadPrivateMessages > 0 && (
-                    <Badge className="absolute top-2 right-2 bg-destructive text-destructive-foreground text-xs px-1.5 py-0.5 notification-pulse">
-                      {unreadPrivateMessages > 9 ? '9+' : unreadPrivateMessages} new
+                    <Badge className="absolute top-1 right-1 sm:top-2 sm:right-2 bg-destructive text-destructive-foreground text-[10px] sm:text-xs px-1 sm:px-1.5 py-0.5 notification-pulse">
+                      {unreadPrivateMessages > 9 ? '9+' : unreadPrivateMessages}
                     </Badge>
                   )}
                 </CardContent>
