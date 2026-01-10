@@ -338,38 +338,42 @@ export function FIISTab({ familyId, members, onView, isModerator = false }: FIIS
       <Card className="overflow-hidden">
         <div className="h-1 bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500" />
         <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
             <CardTitle className="flex items-center gap-2 text-lg font-display">
-              <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-violet-500/20 to-purple-500/20 flex items-center justify-center">
+              <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-violet-500/20 to-purple-500/20 flex items-center justify-center shrink-0">
                 <Brain className="h-4 w-4 text-violet-600" />
               </div>
               <span className="hidden sm:inline">Family Intervention Intelligence System</span>
               <span className="sm:hidden">FIIS</span>
             </CardTitle>
-            <div className="flex gap-2">
+            <div className="flex gap-2 sm:ml-auto">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setShowForm(!showForm)}
+                className="flex-1 sm:flex-none text-xs sm:text-sm"
               >
-                <Plus className="h-4 w-4 mr-1" />
-                Log Observation
+                <Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1" />
+                <span className="hidden sm:inline">Log Observation</span>
+                <span className="sm:hidden">Log</span>
               </Button>
               <Button
                 size="sm"
                 onClick={handleAnalyze}
                 disabled={isAnalyzing || (observations.length === 0 && autoEvents.length === 0)}
-                className="bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600"
+                className="flex-1 sm:flex-none bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600 text-xs sm:text-sm"
               >
                 {isAnalyzing ? (
                   <>
-                    <Loader2 className="h-4 w-4 mr-1 animate-spin" />
-                    Analyzing...
+                    <Loader2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 animate-spin" />
+                    <span className="hidden sm:inline">Analyzing...</span>
+                    <span className="sm:hidden">...</span>
                   </>
                 ) : (
                   <>
-                    <Sparkles className="h-4 w-4 mr-1" />
-                    Analyze Patterns
+                    <Sparkles className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1" />
+                    <span className="hidden sm:inline">Analyze Patterns</span>
+                    <span className="sm:hidden">Analyze</span>
                   </>
                 )}
               </Button>
