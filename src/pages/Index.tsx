@@ -5,7 +5,7 @@ import { useOrganization } from '@/hooks/useOrganization';
 import { useProviderAdmin } from '@/hooks/useProviderAdmin';
 import { BrandedHeader } from '@/components/BrandedHeader';
 import { BrandedFooter } from '@/components/BrandedFooter';
-import { Shield, Users, DollarSign, MessageCircle, Eye, MapPin, ArrowRight, HelpCircle, Building2, Check, Play, LogOut, Brain, Sparkles, TrendingUp, MessageSquareWarning } from 'lucide-react';
+import { Shield, Users, DollarSign, MessageCircle, Eye, MapPin, ArrowRight, HelpCircle, Building2, Check, Play, LogOut, Brain, Sparkles, TrendingUp, MessageSquareWarning, Heart, ChevronDown } from 'lucide-react';
 import { RecoveryIcon } from '@/components/icons/RecoveryIcon';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 
@@ -29,34 +29,46 @@ const Index = () => {
       title: 'AI Pattern Intelligence',
       description: 'Our AI analyzes family interactions to identify concerning patterns early—helping you intervene before a crisis, not after.',
       highlight: true,
+      gradient: 'from-violet-500 to-purple-600',
     },
     {
       icon: MessageSquareWarning,
       title: 'AI-Powered Chat Moderation',
       description: 'Real-time AI filters harmful language and abuse, keeping conversations constructive. Toxic messages are caught before they cause damage.',
       highlight: true,
+      gradient: 'from-rose-500 to-pink-600',
     },
     {
       icon: Sparkles,
       title: 'Smart Behavioral Insights',
       description: 'AI tracks check-ins, financial requests, and communication patterns to surface early warning signs and positive trends automatically.',
       highlight: true,
+      gradient: 'from-amber-500 to-orange-600',
     },
     {
       icon: DollarSign,
       title: 'Transparent Financial Requests',
       description: 'No more money arguments. AI monitors request patterns for red flags while family voting ensures accountability.',
+      gradient: 'from-emerald-500 to-teal-600',
     },
     {
       icon: MapPin,
       title: 'Verified Meeting Check-Ins',
       description: 'Location-verified recovery meeting attendance builds trust. AI tracks patterns to celebrate consistency or flag concerns.',
+      gradient: 'from-blue-500 to-cyan-600',
     },
     {
       icon: Shield,
       title: 'Professional Oversight Ready',
       description: 'Licensed counselors can access AI-generated insights to provide better guidance during difficult family conversations.',
+      gradient: 'from-primary to-accent',
     },
+  ];
+
+  const stats = [
+    { value: '24/7', label: 'AI Monitoring' },
+    { value: '100%', label: 'Private & Secure' },
+    { value: 'Real-time', label: 'Pattern Detection' },
   ];
 
   const appName = isWhiteLabeled && organization ? organization.name : 'FamilyBridge';
@@ -65,18 +77,26 @@ const Index = () => {
     : 'A safe space for families affected by addiction to communicate, set boundaries, and support their loved ones on the path to recovery.';
 
   return (
-    <div className="min-h-screen gradient-hero">
+    <div className="min-h-screen bg-background overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="fixed inset-0 -z-10 overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-primary/5 via-background to-accent/5" />
+        <div className="absolute top-20 -left-20 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-float" />
+        <div className="absolute bottom-40 -right-20 w-80 h-80 bg-accent/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '-3s' }} />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-radial from-primary/5 to-transparent rounded-full" />
+      </div>
+
       {/* Header */}
-      <header className="container mx-auto px-3 sm:px-4 py-3 sm:py-4">
-        <nav className="flex items-center justify-between">
+      <header className="container mx-auto px-3 sm:px-4 py-3 sm:py-4 relative z-10">
+        <nav className="flex items-center justify-between backdrop-blur-sm bg-card/30 rounded-2xl px-4 py-2 border border-border/50 shadow-soft">
           <BrandedHeader showHomeButton={false} />
           <div className="flex items-center gap-1.5 sm:gap-3">
-            <Button variant="ghost" size="sm" className="px-2 sm:px-3" onClick={() => navigate('/demo')}>
+            <Button variant="ghost" size="sm" className="px-2 sm:px-3 hover:bg-primary/10" onClick={() => navigate('/demo')}>
               Demo
             </Button>
             {user ? (
               <>
-                <Button variant="hero" size="sm" onClick={handleDashboardClick}>
+                <Button variant="hero" size="sm" onClick={handleDashboardClick} className="shadow-lg shadow-primary/25">
                   Dashboard
                 </Button>
                 <Button variant="ghost" size="sm" className="px-2 sm:px-3" onClick={handleSignOut}>
@@ -89,7 +109,7 @@ const Index = () => {
                 <Button variant="ghost" size="sm" className="px-2 sm:px-3" onClick={() => navigate('/auth')}>
                   Sign In
                 </Button>
-                <Button variant="hero" size="sm" className="px-2 sm:px-3" onClick={() => navigate('/family-purchase')}>
+                <Button variant="hero" size="sm" className="px-2 sm:px-3 shadow-lg shadow-primary/25" onClick={() => navigate('/family-purchase')}>
                   <span className="hidden sm:inline">Get Started</span>
                   <span className="sm:hidden">Start</span>
                 </Button>
@@ -100,206 +120,280 @@ const Index = () => {
       </header>
 
       {/* Hero Section */}
-      <section className="container mx-auto px-4 py-12 text-center">
-        <div className="max-w-3xl mx-auto animate-slide-up">
-          <h1 className="text-3xl md:text-5xl font-display font-bold text-foreground mb-4 leading-tight">
+      <section className="container mx-auto px-4 pt-16 pb-20 text-center relative">
+        {/* Decorative elements */}
+        <div className="absolute top-10 left-10 w-20 h-20 border-2 border-primary/20 rounded-full animate-pulse-soft hidden lg:block" />
+        <div className="absolute top-40 right-20 w-12 h-12 bg-accent/20 rounded-lg rotate-45 animate-float hidden lg:block" style={{ animationDelay: '-2s' }} />
+        <div className="absolute bottom-20 left-1/4 w-8 h-8 bg-primary/30 rounded-full animate-bounce-subtle hidden lg:block" />
+        
+        <div className="max-w-4xl mx-auto relative z-10">
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-primary/10 to-accent/10 backdrop-blur-sm border border-primary/20 text-primary px-5 py-2 rounded-full text-sm font-medium mb-8 animate-fade-in shadow-soft">
+            <Heart className="h-4 w-4 animate-pulse-soft" />
+            Supporting families through recovery
+          </div>
+          
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-display font-bold text-foreground mb-6 leading-tight animate-slide-up">
             Healing Starts with{' '}
-            <span className="text-primary">Connection</span>
+            <span className="relative">
+              <span className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent bg-[length:200%_auto] animate-shimmer">
+                Connection
+              </span>
+              <svg className="absolute -bottom-2 left-0 w-full" viewBox="0 0 200 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1 5.5C47.6667 2.16667 141.4 -2.1 199 5.5" stroke="hsl(var(--primary))" strokeWidth="2" strokeLinecap="round" className="animate-fade-in" style={{ animationDelay: '0.5s' }}/>
+              </svg>
+            </span>
           </h1>
-          <p className="text-base md:text-lg text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed">
+          
+          <p className="text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed animate-fade-in" style={{ animationDelay: '0.2s' }}>
             {tagline}
           </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Button variant="hero" size="lg" onClick={() => navigate('/family-purchase')}>
+          
+          <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in" style={{ animationDelay: '0.4s' }}>
+            <Button 
+              size="lg" 
+              onClick={() => navigate('/family-purchase')}
+              className="group bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground shadow-xl shadow-primary/30 hover:shadow-2xl hover:shadow-primary/40 transition-all duration-300 hover:-translate-y-1"
+            >
               Start Your Journey
+              <ArrowRight className="h-5 w-5 ml-2 group-hover:translate-x-1 transition-transform" />
             </Button>
-            <Button variant="outline" size="lg" onClick={() => navigate('/auth')}>
+            <Button 
+              variant="outline" 
+              size="lg" 
+              onClick={() => navigate('/auth')}
+              className="backdrop-blur-sm bg-card/50 hover:bg-card border-border/50 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+            >
               Already a Member
             </Button>
           </div>
+
+          {/* Stats Row */}
+          <div className="flex flex-wrap justify-center gap-8 md:gap-16 mt-16 animate-fade-in" style={{ animationDelay: '0.6s' }}>
+            {stats.map((stat, index) => (
+              <div key={stat.label} className="text-center">
+                <div className="text-2xl md:text-3xl font-display font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                  {stat.value}
+                </div>
+                <div className="text-sm text-muted-foreground mt-1">{stat.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Scroll indicator */}
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 animate-bounce-subtle">
+          <ChevronDown className="h-6 w-6 text-muted-foreground/50" />
         </div>
       </section>
 
       {/* Features Grid */}
-      <section className="container mx-auto px-4 py-12">
-        <div className="text-center mb-10">
-          <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1.5 rounded-full text-sm font-medium mb-4">
+      <section className="container mx-auto px-4 py-20 relative">
+        <div className="text-center mb-16">
+          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-violet-500/10 to-purple-500/10 backdrop-blur-sm border border-violet-500/20 text-violet-600 dark:text-violet-400 px-5 py-2 rounded-full text-sm font-medium mb-6">
             <Brain className="h-4 w-4" />
-            Powered by AI
+            Powered by Advanced AI
           </div>
-          <h2 className="text-2xl md:text-3xl font-display font-bold text-foreground mb-2">
-            Intelligent Tools for Recovery
+          <h2 className="text-3xl md:text-5xl font-display font-bold text-foreground mb-4">
+            Intelligent Tools for{' '}
+            <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Recovery</span>
           </h2>
-          <p className="text-muted-foreground max-w-xl mx-auto">
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             AI-powered insights help families catch warning signs early and celebrate progress together.
           </p>
         </div>
         
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 max-w-5xl mx-auto">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
           {features.map((feature, index) => (
             <div
               key={feature.title}
-              className={`rounded-xl p-5 shadow-card hover:shadow-elevated transition-all duration-300 animate-fade-in ${
-                feature.highlight 
-                  ? 'bg-gradient-to-br from-primary/5 to-primary/10 border border-primary/20' 
-                  : 'bg-card'
-              }`}
+              className="group relative rounded-2xl p-6 bg-card/80 backdrop-blur-sm border border-border/50 shadow-card hover:shadow-elevated transition-all duration-500 hover:-translate-y-2 animate-fade-in overflow-hidden"
               style={{ animationDelay: `${index * 100}ms` }}
             >
-              <div className={`w-10 h-10 rounded-lg flex items-center justify-center mb-4 ${
-                feature.highlight ? 'bg-primary/20' : 'bg-primary/10'
-              }`}>
-                <feature.icon className={`h-5 w-5 ${feature.highlight ? 'text-primary' : 'text-primary'}`} />
+              {/* Gradient overlay on hover */}
+              <div className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-500`} />
+              
+              {/* Icon */}
+              <div className={`relative w-14 h-14 rounded-xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center mb-5 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                <feature.icon className="h-7 w-7 text-white" />
               </div>
-              <div className="flex items-center gap-2 mb-2">
-                <h3 className="text-lg font-display font-semibold text-foreground">
-                  {feature.title}
-                </h3>
-                {feature.highlight && (
-                  <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded-full font-medium">
-                    AI
-                  </span>
-                )}
+              
+              <div className="relative">
+                <div className="flex items-center gap-2 mb-3">
+                  <h3 className="text-xl font-display font-semibold text-foreground">
+                    {feature.title}
+                  </h3>
+                  {feature.highlight && (
+                    <span className="text-xs bg-gradient-to-r from-violet-500/20 to-purple-500/20 text-violet-600 dark:text-violet-400 px-2.5 py-1 rounded-full font-medium border border-violet-500/20">
+                      AI
+                    </span>
+                  )}
+                </div>
+                <p className="text-muted-foreground leading-relaxed">
+                  {feature.description}
+                </p>
               </div>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                {feature.description}
-              </p>
             </div>
           ))}
         </div>
       </section>
 
-      {/* Meeting Finder Link */}
-      <section className="container mx-auto px-4 py-10 space-y-4">
-        <div 
-          className="max-w-3xl mx-auto bg-secondary/30 rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4 cursor-pointer hover:bg-secondary/50 transition-colors"
-          onClick={() => navigate('/meetings')}
-        >
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-              <MapPin className="h-6 w-6 text-primary" />
+      {/* Quick Links Section */}
+      <section className="container mx-auto px-4 py-16">
+        <div className="max-w-4xl mx-auto space-y-4">
+          {/* Meeting Finder */}
+          <div 
+            className="group relative bg-card/80 backdrop-blur-sm rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4 cursor-pointer border border-border/50 shadow-card hover:shadow-elevated transition-all duration-300 hover:-translate-y-1 overflow-hidden"
+            onClick={() => navigate('/meetings')}
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-cyan-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <div className="flex items-center gap-5 relative z-10">
+              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                <MapPin className="h-7 w-7 text-white" />
+              </div>
+              <div>
+                <h3 className="text-xl font-display font-semibold text-foreground mb-1">
+                  Find a Recovery Meeting
+                </h3>
+                <p className="text-muted-foreground">
+                  Search for AA, Al-Anon, and other 12-step meetings near you
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 className="text-lg font-display font-semibold text-foreground">
-                Find a Recovery Meeting
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                Search for AA, Al-Anon, and other 12-step meetings near you
-              </p>
-            </div>
+            <Button variant="outline" size="sm" className="relative z-10 group-hover:bg-primary group-hover:text-primary-foreground group-hover:border-primary transition-colors">
+              Find Meetings
+              <ArrowRight className="h-4 w-4 ml-1 group-hover:translate-x-1 transition-transform" />
+            </Button>
           </div>
-          <Button variant="outline" size="sm">
-            Find Meetings
-            <ArrowRight className="h-4 w-4 ml-1" />
-          </Button>
-        </div>
 
-        {/* Enabling Exercise Link */}
-        <div 
-          className="max-w-3xl mx-auto bg-secondary/30 rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4 cursor-pointer hover:bg-secondary/50 transition-colors"
-          onClick={() => navigate('/enabling-exercise')}
-        >
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-              <HelpCircle className="h-6 w-6 text-primary" />
+          {/* Enabling Exercise */}
+          <div 
+            className="group relative bg-card/80 backdrop-blur-sm rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4 cursor-pointer border border-border/50 shadow-card hover:shadow-elevated transition-all duration-300 hover:-translate-y-1 overflow-hidden"
+            onClick={() => navigate('/enabling-exercise')}
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-amber-500/5 to-orange-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <div className="flex items-center gap-5 relative z-10">
+              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                <HelpCircle className="h-7 w-7 text-white" />
+              </div>
+              <div>
+                <h3 className="text-xl font-display font-semibold text-foreground mb-1">
+                  Am I Enabling?
+                </h3>
+                <p className="text-muted-foreground">
+                  Learn to identify crisis vs. chaos and understand healthy boundaries
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 className="text-lg font-display font-semibold text-foreground">
-                Am I Enabling?
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                Learn to identify crisis vs. chaos and understand healthy boundaries
-              </p>
-            </div>
+            <Button variant="outline" size="sm" className="relative z-10 group-hover:bg-primary group-hover:text-primary-foreground group-hover:border-primary transition-colors">
+              Take Exercise
+              <ArrowRight className="h-4 w-4 ml-1 group-hover:translate-x-1 transition-transform" />
+            </Button>
           </div>
-          <Button variant="outline" size="sm">
-            Take Exercise
-            <ArrowRight className="h-4 w-4 ml-1" />
-          </Button>
-        </div>
 
-        {/* Demo Family Link */}
-        <div 
-          className="max-w-3xl mx-auto bg-secondary/30 rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4 cursor-pointer hover:bg-secondary/50 transition-colors"
-          onClick={() => navigate('/demo')}
-        >
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-              <Play className="h-6 w-6 text-primary" />
+          {/* Demo */}
+          <div 
+            className="group relative bg-card/80 backdrop-blur-sm rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4 cursor-pointer border border-border/50 shadow-card hover:shadow-elevated transition-all duration-300 hover:-translate-y-1 overflow-hidden"
+            onClick={() => navigate('/demo')}
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-teal-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <div className="flex items-center gap-5 relative z-10">
+              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                <Play className="h-7 w-7 text-white" />
+              </div>
+              <div>
+                <h3 className="text-xl font-display font-semibold text-foreground mb-1">
+                  Try the Demo
+                </h3>
+                <p className="text-muted-foreground">
+                  Explore a sample family group to see how FamilyBridge works
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 className="text-lg font-display font-semibold text-foreground">
-                Try the Demo
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                Explore a sample family group to see how FamilyBridge works
-              </p>
-            </div>
+            <Button variant="outline" size="sm" className="relative z-10 group-hover:bg-primary group-hover:text-primary-foreground group-hover:border-primary transition-colors">
+              View Demo
+              <ArrowRight className="h-4 w-4 ml-1 group-hover:translate-x-1 transition-transform" />
+            </Button>
           </div>
-          <Button variant="outline" size="sm">
-            View Demo
-            <ArrowRight className="h-4 w-4 ml-1" />
-          </Button>
         </div>
       </section>
 
-      {/* Provider Subscription Section */}
-      <section className="container mx-auto px-4 py-10">
-        <div className="max-w-3xl mx-auto bg-card border border-border rounded-2xl p-6 md:p-8 shadow-card">
-          <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
-            <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-              <Building2 className="h-7 w-7 text-primary" />
-            </div>
-            <div className="flex-1">
-              <h3 className="text-xl font-display font-bold text-foreground mb-2">
-                Are You a Recovery Provider?
-              </h3>
-              <p className="text-muted-foreground mb-4">
-                Help families in your care with professional tools for communication and accountability.
-              </p>
-              <ul className="grid sm:grid-cols-2 gap-2 mb-4">
-                <li className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Check className="h-4 w-4 text-primary flex-shrink-0" />
-                  <span>Create and manage your organization</span>
-                </li>
-                <li className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Check className="h-4 w-4 text-primary flex-shrink-0" />
-                  <span>Onboard unlimited families</span>
-                </li>
-                <li className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Check className="h-4 w-4 text-primary flex-shrink-0" />
-                  <span>Custom branding for your organization</span>
-                </li>
-                <li className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Check className="h-4 w-4 text-primary flex-shrink-0" />
-                  <span>Access to all provider tools</span>
-                </li>
-              </ul>
-              <Button variant="outline" onClick={() => navigate('/provider-purchase')}>
-                Learn More
-                <ArrowRight className="h-4 w-4 ml-1" />
-              </Button>
+      {/* Provider Section */}
+      <section className="container mx-auto px-4 py-16">
+        <div className="max-w-4xl mx-auto relative">
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 rounded-3xl blur-xl" />
+          <div className="relative bg-card/90 backdrop-blur-sm border border-border/50 rounded-3xl p-8 md:p-12 shadow-elevated overflow-hidden">
+            {/* Decorative corner elements */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-primary/10 to-transparent rounded-bl-full" />
+            <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-accent/10 to-transparent rounded-tr-full" />
+            
+            <div className="flex flex-col md:flex-row items-start md:items-center gap-8 relative z-10">
+              <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center flex-shrink-0 shadow-xl">
+                <Building2 className="h-10 w-10 text-primary-foreground" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-2xl md:text-3xl font-display font-bold text-foreground mb-3">
+                  Are You a Recovery Provider?
+                </h3>
+                <p className="text-lg text-muted-foreground mb-6">
+                  Help families in your care with professional tools for communication and accountability.
+                </p>
+                <ul className="grid sm:grid-cols-2 gap-3 mb-8">
+                  {[
+                    'Create and manage your organization',
+                    'Onboard unlimited families',
+                    'Custom branding for your organization',
+                    'Access to all provider tools',
+                  ].map((item) => (
+                    <li key={item} className="flex items-center gap-3 text-muted-foreground">
+                      <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                        <Check className="h-3.5 w-3.5 text-primary" />
+                      </div>
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+                <Button 
+                  onClick={() => navigate('/provider-purchase')}
+                  className="group bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground shadow-lg"
+                >
+                  Learn More
+                  <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="container mx-auto px-4 py-12">
-        <div className="max-w-3xl mx-auto text-center bg-primary rounded-2xl p-8 md:p-12 shadow-elevated">
-          <h2 className="text-2xl md:text-3xl font-display font-bold text-primary-foreground mb-4">
-            Your Family's Recovery Starts Here
-          </h2>
-          <p className="text-primary-foreground/90 mb-6 max-w-xl mx-auto">
-            Join families rebuilding trust through transparent, moderated communication.
-          </p>
-          <Button 
-            size="lg" 
-            className="bg-card text-primary hover:bg-card/90 shadow-elevated"
-            onClick={() => navigate('/family-purchase')}
-          >
-            Create Your Own Family Group
-          </Button>
+      <section className="container mx-auto px-4 py-20">
+        <div className="max-w-4xl mx-auto text-center relative">
+          {/* Animated background */}
+          <div className="absolute inset-0 bg-gradient-to-r from-primary via-accent to-primary bg-[length:200%_auto] animate-shimmer rounded-3xl" />
+          <div className="absolute inset-[2px] bg-gradient-to-br from-primary to-accent rounded-3xl" />
+          
+          <div className="relative z-10 p-10 md:p-16">
+            <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-1.5 rounded-full text-sm font-medium text-primary-foreground mb-6">
+              <Heart className="h-4 w-4" />
+              Join thousands of families
+            </div>
+            <h2 className="text-3xl md:text-5xl font-display font-bold text-primary-foreground mb-6">
+              Your Family's Recovery{' '}
+              <span className="block">Starts Here</span>
+            </h2>
+            <p className="text-xl text-primary-foreground/90 mb-10 max-w-2xl mx-auto">
+              Join families rebuilding trust through transparent, AI-moderated communication.
+            </p>
+            <Button 
+              size="lg" 
+              className="group bg-card text-primary hover:bg-card/90 shadow-2xl hover:shadow-3xl transition-all duration-300 hover:-translate-y-1"
+              onClick={() => navigate('/family-purchase')}
+            >
+              Create Your Family Group
+              <ArrowRight className="h-5 w-5 ml-2 group-hover:translate-x-1 transition-transform" />
+            </Button>
+          </div>
         </div>
       </section>
 
