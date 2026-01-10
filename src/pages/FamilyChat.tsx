@@ -23,7 +23,7 @@ import {
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Label } from '@/components/ui/label';
-import { format, startOfWeek, endOfWeek, subWeeks, isWithinInterval, isSameWeek, formatDistanceToNow } from 'date-fns';
+import { format, startOfWeek, endOfWeek, subWeeks, isWithinInterval, isSameWeek, formatDistanceToNow, startOfMonth, endOfMonth, subMonths, isSameMonth } from 'date-fns';
 import {
   Dialog,
   DialogContent,
@@ -358,6 +358,11 @@ const FamilyChat = () => {
   );
   const [allMessages, setAllMessages] = useState<Message[]>([]);
   
+  // Monthly archive state for financial requests
+  const [selectedFinancialMonth, setSelectedFinancialMonth] = useState<Date>(() => 
+    startOfMonth(new Date())
+  );
+  const [allFinancialRequests, setAllFinancialRequests] = useState<FinancialRequest[]>([]);
 
   // Family Values state
   const [familyValues, setFamilyValues] = useState<FamilyValue[]>([]);
@@ -1491,7 +1496,21 @@ const FamilyChat = () => {
         resolved_at: req.resolved_at,
       };
     });
-    setFinancialRequests(requestsWithNames);
+    
+    // Store all requests for archive navigation
+    setAllFinancialRequests(requestsWithNames);
+    
+    // Filter for current month display - show active (not completed) requests + completed from current month
+    const currentMonthStart = startOfMonth(new Date());
+    const currentMonthEnd = endOfMonth(new Date());
+    const filteredRequests = requestsWithNames.filter(req => {
+      // Always show active (non-completed) requests
+      if (!req.resolved_at) return true;
+      // Show completed requests from current month
+      const resolvedDate = new Date(req.resolved_at);
+      return isWithinInterval(resolvedDate, { start: currentMonthStart, end: currentMonthEnd });
+    });
+    setFinancialRequests(filteredRequests);
     
     // Calculate lifetime totals from all requests (this already includes all history)
     const totalRequested = requestsWithNames.reduce((sum, r) => sum + r.amount, 0);
@@ -1583,6 +1602,60 @@ const FamilyChat = () => {
   const getWeekLabel = () => {
     const weekEnd = endOfWeek(selectedWeekStart, { weekStartsOn: 0 });
     return `${format(selectedWeekStart, 'MMM d')} - ${format(weekEnd, 'MMM d, yyyy')}`;
+  };
+
+  // Month navigation for financial requests
+  const isCurrentMonth = isSameMonth(selectedFinancialMonth, new Date());
+  
+  const navigateMonth = (direction: 'prev' | 'next') => {
+    const newMonthStart = direction === 'prev' 
+      ? subMonths(selectedFinancialMonth, 1)
+      : startOfMonth(new Date(selectedFinancialMonth.getTime() + 32 * 24 * 60 * 60 * 1000));
+    
+    // Don't go beyond current month
+    if (direction === 'next' && newMonthStart > new Date()) {
+      return;
+    }
+    
+    setSelectedFinancialMonth(newMonthStart);
+    
+    // Filter requests for the selected month
+    const monthEnd = endOfMonth(newMonthStart);
+    
+    if (isSameMonth(newMonthStart, new Date())) {
+      // Current month: show active requests + completed from this month
+      const filteredRequests = allFinancialRequests.filter(req => {
+        if (!req.resolved_at) return true;
+        const resolvedDate = new Date(req.resolved_at);
+        return isWithinInterval(resolvedDate, { start: newMonthStart, end: monthEnd });
+      });
+      setFinancialRequests(filteredRequests);
+    } else {
+      // Past months: show only completed requests from that month
+      const filteredRequests = allFinancialRequests.filter(req => {
+        if (!req.resolved_at) return false;
+        const resolvedDate = new Date(req.resolved_at);
+        return isWithinInterval(resolvedDate, { start: newMonthStart, end: monthEnd });
+      });
+      setFinancialRequests(filteredRequests);
+    }
+  };
+  
+  const goToCurrentMonth = () => {
+    const currentMonthStart = startOfMonth(new Date());
+    setSelectedFinancialMonth(currentMonthStart);
+    
+    const currentMonthEnd = endOfMonth(new Date());
+    const filteredRequests = allFinancialRequests.filter(req => {
+      if (!req.resolved_at) return true;
+      const resolvedDate = new Date(req.resolved_at);
+      return isWithinInterval(resolvedDate, { start: currentMonthStart, end: currentMonthEnd });
+    });
+    setFinancialRequests(filteredRequests);
+  };
+  
+  const getMonthLabel = () => {
+    return format(selectedFinancialMonth, 'MMMM yyyy');
   };
 
   // Cooldown timer effect
@@ -2795,30 +2868,79 @@ const FamilyChat = () => {
                 </Card>
               </div>
 
-              {/* Requests List */}
+              {/* Requests List with Month Navigation */}
               <Card className="border-0 shadow-lg overflow-hidden">
                 <div className="h-1 bg-gradient-to-r from-primary via-accent to-success" />
                 <CardHeader className="pb-3 bg-gradient-to-b from-muted/30 to-transparent">
-                  <CardTitle className="flex items-center justify-between text-lg font-display">
-                    <div className="flex items-center gap-2">
-                      <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
-                        <TrendingUp className="h-4 w-4 text-primary" />
+                  <CardTitle className="flex flex-col gap-3">
+                    <div className="flex items-center justify-between text-lg font-display">
+                      <div className="flex items-center gap-2">
+                        <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
+                          <TrendingUp className="h-4 w-4 text-primary" />
+                        </div>
+                        {isCurrentMonth ? 'Active Requests' : 'Archived Requests'}
                       </div>
-                      Active Requests
+                      <Badge variant="secondary" className="text-xs font-normal">
+                        {financialRequests.length} {isCurrentMonth ? 'active' : 'archived'}
+                      </Badge>
                     </div>
-                    <Badge variant="secondary" className="text-xs font-normal">
-                      {financialRequests.length} total
-                    </Badge>
+                    
+                    {/* Month Navigation */}
+                    <div className="flex items-center justify-between bg-muted/50 rounded-lg p-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => navigateMonth('prev')}
+                        className="h-8 px-2"
+                      >
+                        <ChevronLeft className="h-4 w-4 mr-1" />
+                        <span className="hidden sm:inline">Previous</span>
+                      </Button>
+                      
+                      <div className="flex items-center gap-2">
+                        <Archive className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-sm font-medium">{getMonthLabel()}</span>
+                        {!isCurrentMonth && (
+                          <Button
+                            variant="link"
+                            size="sm"
+                            onClick={goToCurrentMonth}
+                            className="text-xs text-primary h-auto p-0 ml-2"
+                          >
+                            Back to Current
+                          </Button>
+                        )}
+                      </div>
+                      
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => navigateMonth('next')}
+                        disabled={isCurrentMonth}
+                        className="h-8 px-2"
+                      >
+                        <span className="hidden sm:inline">Next</span>
+                        <ChevronRight className="h-4 w-4 ml-1" />
+                      </Button>
+                    </div>
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   {financialRequests.length === 0 ? (
                     <div className="text-center py-12 text-muted-foreground">
                       <div className="h-16 w-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center">
-                        <DollarSign className="h-8 w-8 opacity-40" />
+                        {isCurrentMonth ? (
+                          <DollarSign className="h-8 w-8 opacity-40" />
+                        ) : (
+                          <Archive className="h-8 w-8 opacity-40" />
+                        )}
                       </div>
-                      <p className="font-medium">No financial requests yet</p>
-                      <p className="text-sm mt-1">Create a request above to get started</p>
+                      <p className="font-medium">
+                        {isCurrentMonth ? 'No financial requests yet' : 'No archived requests for this month'}
+                      </p>
+                      <p className="text-sm mt-1">
+                        {isCurrentMonth ? 'Create a request above to get started' : 'Try navigating to a different month'}
+                      </p>
                     </div>
                   ) : (
                     <div className="space-y-3">
@@ -2890,7 +3012,12 @@ const FamilyChat = () => {
                                     {isCompleted ? '✓ Completed' : req.status === 'approved' ? '✓ Approved' : req.status === 'denied' ? '✗ Denied' : '⏳ Pending'}
                                   </Badge>
                                 </div>
-                                <p className="text-xs text-muted-foreground truncate mt-0.5">{req.reason}</p>
+                                <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
+                                  <span className="truncate">{req.reason}</span>
+                                  {isCompleted && req.resolved_at && (
+                                    <span className="shrink-0">• Completed {format(new Date(req.resolved_at), 'MMM d')}</span>
+                                  )}
+                                </div>
                               </div>
                             </div>
                             <div className="flex items-center gap-3 shrink-0">
