@@ -91,25 +91,43 @@ const Index = () => {
         <nav className="flex items-center justify-between backdrop-blur-sm bg-card/30 rounded-2xl px-4 py-2 border border-border/50 shadow-soft">
           <BrandedHeader showHomeButton={false} />
           <div className="flex items-center gap-1.5 sm:gap-3">
-            <Button variant="ghost" size="sm" className="px-2 sm:px-3 hover:bg-primary/10" onClick={() => navigate('/demo')}>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="px-2 sm:px-3 hover:bg-primary/10 text-muted-foreground hover:text-foreground transition-colors" 
+              onClick={() => navigate('/demo')}
+            >
               Demo
             </Button>
             {user ? (
               <>
-                <Button variant="hero" size="sm" onClick={handleDashboardClick} className="shadow-lg shadow-primary/25">
+                <Button 
+                  size="sm" 
+                  onClick={handleDashboardClick} 
+                  className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300"
+                >
                   Dashboard
                 </Button>
-                <Button variant="ghost" size="sm" className="px-2 sm:px-3" onClick={handleSignOut}>
+                <Button variant="ghost" size="sm" className="px-2 sm:px-3 text-muted-foreground hover:text-foreground hover:bg-destructive/10 transition-colors" onClick={handleSignOut}>
                   <LogOut className="h-4 w-4" />
                   <span className="hidden sm:inline ml-1">Sign Out</span>
                 </Button>
               </>
             ) : (
               <>
-                <Button variant="ghost" size="sm" className="px-2 sm:px-3" onClick={() => navigate('/auth')}>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="px-2 sm:px-3 text-muted-foreground hover:text-foreground transition-colors" 
+                  onClick={() => navigate('/auth')}
+                >
                   Sign In
                 </Button>
-                <Button variant="hero" size="sm" className="px-2 sm:px-3 shadow-lg shadow-primary/25" onClick={() => navigate('/family-purchase')}>
+                <Button 
+                  size="sm" 
+                  className="px-2 sm:px-3 bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300" 
+                  onClick={() => navigate('/family-purchase')}
+                >
                   <span className="hidden sm:inline">Get Started</span>
                   <span className="sm:hidden">Start</span>
                 </Button>
