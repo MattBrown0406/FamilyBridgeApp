@@ -2335,7 +2335,10 @@ const FamilyChat = () => {
               </Card>
 
 
-              <Card className="relative overflow-hidden border-0 shadow-md group hover:shadow-lg transition-all duration-300">
+              <Card 
+                className="relative overflow-hidden border-0 shadow-md group hover:shadow-lg transition-all duration-300 cursor-pointer"
+                onClick={() => setPrivateMessagingOpen(true)}
+              >
                 <div className="absolute inset-0 bg-gradient-to-br from-accent/5 via-transparent to-accent/10 opacity-0 group-hover:opacity-100 transition-opacity" />
                 <div className="absolute top-0 right-0 w-20 h-20 bg-accent/5 rounded-full -translate-y-1/2 translate-x-1/2" />
                 <CardContent className="pt-4 pb-4">
@@ -2343,11 +2346,33 @@ const FamilyChat = () => {
                     <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-accent/20 to-accent/30 flex items-center justify-center shrink-0">
                       <MessageSquare className="h-5 w-5 text-accent" />
                     </div>
-                    <div>
+                    <div className="flex-1">
                       <p className="text-xs text-muted-foreground font-medium">Private</p>
-                      <p className="text-xl font-bold text-accent">{unreadPrivateMessages}</p>
+                      <div className="flex items-center gap-2">
+                        {unreadPrivateMessages > 0 ? (
+                          <p className="text-xl font-bold text-accent">{unreadPrivateMessages}</p>
+                        ) : (
+                          <p className="text-sm text-muted-foreground">No unread</p>
+                        )}
+                      </div>
                     </div>
+                    <Button 
+                      size="sm" 
+                      variant="ghost"
+                      className="h-8 w-8 p-0 rounded-full bg-accent/10 hover:bg-accent/20 text-accent"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setPrivateMessagingOpen(true);
+                      }}
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
                   </div>
+                  {unreadPrivateMessages > 0 && (
+                    <Badge className="absolute top-2 right-2 bg-destructive text-destructive-foreground text-xs px-1.5 py-0.5 notification-pulse">
+                      {unreadPrivateMessages > 9 ? '9+' : unreadPrivateMessages} new
+                    </Badge>
+                  )}
                 </CardContent>
               </Card>
             </div>
