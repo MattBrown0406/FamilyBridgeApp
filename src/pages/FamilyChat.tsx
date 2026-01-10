@@ -64,6 +64,7 @@ import { MeetingFinder } from '@/components/MeetingFinder';
 import { BillReceiptCapture } from '@/components/BillReceiptCapture';
 import { useFIISNotifications } from '@/hooks/useFIISNotifications';
 import { FamilyHealthBadge } from '@/components/FamilyHealthBadge';
+import { LiquorLicenseWarnings } from '@/components/LiquorLicenseWarnings';
 
 const REQUEST_REASONS = [
   'Electric',
@@ -2486,6 +2487,15 @@ const FamilyChat = () => {
                   {/* Show moderator disclaimer for self-created families with professional moderators */}
                   {moderatorDisclaimer?.shown && !family?.organization_id && (
                     <ModeratorDisclaimer moderatorName={moderatorDisclaimer.moderatorName} />
+                  )}
+                  
+                  {/* Show liquor license warnings */}
+                  {familyId && (
+                    <LiquorLicenseWarnings 
+                      familyId={familyId}
+                      members={members.map(m => ({ user_id: m.user_id, full_name: m.full_name }))}
+                      isAdminOrModerator={isAdminOrModerator}
+                    />
                   )}
                   
                   {messages.length === 0 ? (

@@ -744,6 +744,60 @@ export type Database = {
           },
         ]
       }
+      liquor_license_warnings: {
+        Row: {
+          acknowledged_at: string | null
+          acknowledged_by: string | null
+          checkin_id: string
+          created_at: string
+          family_id: string
+          id: string
+          license_type: string | null
+          location_address: string | null
+          user_id: string
+          warned_at: string
+        }
+        Insert: {
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
+          checkin_id: string
+          created_at?: string
+          family_id: string
+          id?: string
+          license_type?: string | null
+          location_address?: string | null
+          user_id: string
+          warned_at?: string
+        }
+        Update: {
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
+          checkin_id?: string
+          created_at?: string
+          family_id?: string
+          id?: string
+          license_type?: string | null
+          location_address?: string | null
+          user_id?: string
+          warned_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "liquor_license_warnings_checkin_id_fkey"
+            columns: ["checkin_id"]
+            isOneToOne: false
+            referencedRelation: "meeting_checkins"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "liquor_license_warnings_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       location_checkin_requests: {
         Row: {
           created_at: string

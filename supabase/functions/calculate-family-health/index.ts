@@ -16,10 +16,11 @@ interface HealthMetrics {
   goalsTotal: number;
   boundaryViolations: number;
   recentActivity: number;
+  liquorLicenseWarnings: number;
 }
 
 interface HealthResult {
-  status: 'crisis' | 'tension' | 'stable' | 'improving';
+  status: 'crisis' | 'concern' | 'tension' | 'stable' | 'improving';
   reason: string;
   metrics: HealthMetrics;
 }
@@ -35,13 +36,14 @@ function calculateHealthStatus(metrics: HealthMetrics): HealthResult {
     goalsTotal,
     boundaryViolations,
     recentActivity,
+    liquorLicenseWarnings,
   } = metrics;
 
   // Crisis indicators (most severe)
-  if (missedCheckouts >= 3 || boundaryViolations >= 3 || (filteredMessageCount >= 5 && voteConflictRate > 0.5)) {
-    let reasons: string[] = [];
+  if (missedCheckouts >= 3 || boundaryViolations >= 4 || (filteredMessageCount >= 5 && voteConflictRate > 0.5)) {
+    const reasons: string[] = [];
     if (missedCheckouts >= 3) reasons.push(`${missedCheckouts} missed checkouts`);
-    if (boundaryViolations >= 3) reasons.push(`${boundaryViolations} boundary concerns`);
+    if (boundaryViolations >= 4) reasons.push(`${boundaryViolations} boundary concerns`);
     if (filteredMessageCount >= 5) reasons.push(`elevated filtered messages`);
     
     return {
@@ -51,13 +53,33 @@ function calculateHealthStatus(metrics: HealthMetrics): HealthResult {
     };
   }
 
+  // Concern indicators (between crisis and tension)
+  if (
+    liquorLicenseWarnings >= 1 || 
+    missedCheckouts >= 2 || 
+    (boundaryViolations >= 2 && voteConflictRate > 0.3) ||
+    (filteredMessageCount >= 4)
+  ) {
+    const reasons: string[] = [];
+    if (liquorLicenseWarnings >= 1) reasons.push(`${liquorLicenseWarnings} liquor license location${liquorLicenseWarnings > 1 ? 's' : ''} visited`);
+    if (missedCheckouts >= 2) reasons.push(`${missedCheckouts} missed checkouts`);
+    if (boundaryViolations >= 2) reasons.push('boundary concerns with voting conflicts');
+    if (filteredMessageCount >= 4) reasons.push('elevated communication friction');
+    
+    return {
+      status: 'concern',
+      reason: `Elevated concerns: ${reasons.join(', ')}`,
+      metrics,
+    };
+  }
+
   // Tension indicators
-  if (voteConflictRate > 0.4 || filteredMessageCount >= 3 || missedCheckouts >= 2 || checkinCompletionRate < 0.5) {
-    let reasons: string[] = [];
+  if (voteConflictRate > 0.4 || filteredMessageCount >= 3 || checkinCompletionRate < 0.5 || boundaryViolations >= 2) {
+    const reasons: string[] = [];
     if (voteConflictRate > 0.4) reasons.push('voting disagreements');
     if (filteredMessageCount >= 3) reasons.push('communication friction');
-    if (missedCheckouts >= 2) reasons.push('check-in gaps');
     if (checkinCompletionRate < 0.5) reasons.push('low meeting attendance');
+    if (boundaryViolations >= 2) reasons.push('boundary concerns');
     
     return {
       status: 'tension',
@@ -73,7 +95,8 @@ function calculateHealthStatus(metrics: HealthMetrics): HealthResult {
     goalProgress >= 0.5 && 
     voteConflictRate < 0.2 && 
     filteredMessageCount <= 1 &&
-    recentActivity >= 5
+    recentActivity >= 5 &&
+    liquorLicenseWarnings === 0
   ) {
     return {
       status: 'improving',
@@ -138,6 +161,20 @@ serve(async (req) => {
       new Date(c.checkout_due_at) < now
     )?.length || 0;
     const checkinCompletionRate = totalCheckins > 0 ? completedCheckins / totalCheckins : 1;
+
+    // Fetch liquor license warnings (last 7 days)
+    const { data: liquorWarnings, error: liquorError } = await supabase
+      .from('liquor_license_warnings')
+      .select('id')
+      .eq('family_id', familyId)
+      .gte('warned_at', sevenDaysAgo.toISOString())
+      .is('acknowledged_at', null);
+
+    if (liquorError) {
+      console.error('Error fetching liquor warnings:', liquorError);
+    }
+
+    const liquorLicenseWarnings = liquorWarnings?.length || 0;
 
     // Fetch financial requests and votes (last 30 days)
     const { data: financialRequests, error: financialError } = await supabase
@@ -229,6 +266,7 @@ serve(async (req) => {
       goalsTotal,
       boundaryViolations,
       recentActivity,
+      liquorLicenseWarnings,
     };
 
     console.log('Health metrics calculated:', metrics);

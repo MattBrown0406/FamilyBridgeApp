@@ -248,6 +248,16 @@ const MeetingCheckinForm = ({ familyId, onCheckinComplete, capturedLocation }: M
 
       if (liquorCheck?.hasLiquorLicense && data?.id) {
         await notifyModerators(data.id, liquorCheck.places);
+        
+        // Create a liquor license warning record
+        const placeNames = liquorCheck.places.map(p => p.name).join(', ');
+        await supabase.from('liquor_license_warnings').insert({
+          family_id: familyId,
+          checkin_id: data.id,
+          user_id: user?.id,
+          location_address: meetingAddress.trim() || placeNames,
+          license_type: liquorCheck.places[0]?.type || 'liquor_license',
+        });
       }
 
       toast({
