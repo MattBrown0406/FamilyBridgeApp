@@ -47,7 +47,7 @@ serve(async (req) => {
     const locationId = activeLocation.id;
     console.log('Using location:', locationId);
 
-    // Create payment link for $200 moderator support
+    // Create payment link for $150 moderator support
     const checkoutResponse = await fetch('https://connect.squareup.com/v2/online-checkout/payment-links', {
       method: 'POST',
       headers: {
@@ -58,9 +58,9 @@ serve(async (req) => {
       body: JSON.stringify({
         idempotency_key: `mod-support-${requestId}-${Date.now()}`,
         quick_pay: {
-          name: 'FamilyBridge 24-Hour Moderator Support',
+          name: 'FamilyBridge 24-Hour Crisis Moderation',
           price_money: {
-            amount: 20000, // $200.00 in cents
+            amount: 15000, // $150.00 in cents
             currency: 'USD'
           },
           location_id: locationId

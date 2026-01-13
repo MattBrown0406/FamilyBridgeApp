@@ -201,6 +201,24 @@ serve(async (req) => {
 
                 <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;" />
 
+                <h2 style="color: #2d7d6f; margin-top: 0;">🆘 Your Included Crisis Session</h2>
+                <div style="background: #e3f2fd; border-left: 4px solid #1976d2; padding: 20px; margin: 20px 0;">
+                  <p style="margin: 0 0 15px 0;"><strong>Your membership includes one FREE 24-hour crisis moderation session.</strong></p>
+                  <p style="margin: 0;">When you're facing a crisis with your loved one - whether they're refusing treatment, in active relapse, or the family is at a breaking point - you can activate your crisis session. An experienced interventionist with over 20 years of working with individuals who are reluctant to get into or stay in recovery will personally moderate your family's communications for 24 hours.</p>
+                </div>
+                
+                <p><strong>What to expect during a crisis session:</strong></p>
+                <ul style="color: #555; padding-left: 20px;">
+                  <li>Real-time guidance on how to communicate effectively during the crisis</li>
+                  <li>Step-by-step coaching to help you navigate that day</li>
+                  <li>Professional intervention techniques adapted to your specific situation</li>
+                  <li>Support for the entire family, not just the person in crisis</li>
+                </ul>
+
+                <p><strong>Need more than one day?</strong> Additional 24-hour crisis moderation sessions can be purchased on-demand for $150 per day directly within the app.</p>
+
+                <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;" />
+
                 <h2 style="color: #c62828; margin-top: 0;">⚠️ Important: When Your Loved One Resists</h2>
                 <p>If your loved one is opposed to using FamilyBridge, it may be necessary for the family to establish clear boundaries around communication:</p>
                 

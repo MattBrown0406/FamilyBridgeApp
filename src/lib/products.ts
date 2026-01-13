@@ -33,6 +33,15 @@ export const PRODUCTS = {
       webOnly: true, // Not available in App Store due to $999 limit
     },
   },
+  crisisModeration: {
+    daily: {
+      id: `${BUNDLE_ID}.crisis_moderation_daily`,
+      price: 150,
+      period: "24 hours",
+      displayName: "Crisis Moderation (24 Hours)",
+      description: "24-hour crisis moderation session with an experienced interventionist",
+    },
+  },
 } as const;
 
 // Product IDs array for fetching from stores (excludes web-only products)
@@ -40,6 +49,7 @@ export const ALL_PRODUCT_IDS = [
   PRODUCTS.family.monthly.id,
   PRODUCTS.provider.monthly.id,
   PRODUCTS.provider.quarterly.id,
+  PRODUCTS.crisisModeration.daily.id,
 ];
 
 // All product IDs including web-only

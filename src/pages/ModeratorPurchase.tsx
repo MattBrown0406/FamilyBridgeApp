@@ -244,8 +244,8 @@ export default function ModeratorPurchase() {
             {/* Purchase Card */}
             <Card>
               <CardHeader>
-                <CardTitle>Purchase 24-Hour Support</CardTitle>
-                <CardDescription>$200 per 24-hour session</CardDescription>
+              <CardTitle>Purchase 24-Hour Support</CardTitle>
+                <CardDescription>$150 per 24-hour session</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
@@ -277,7 +277,7 @@ export default function ModeratorPurchase() {
                 </div>
 
                 <Button onClick={handlePurchase} disabled={loading || !selectedFamily} className="w-full" size="lg">
-                  {loading ? "Processing..." : "Purchase for $200"}
+                  {loading ? "Processing..." : "Purchase for $150"}
                 </Button>
 
                 <p className="text-xs text-muted-foreground text-center">
