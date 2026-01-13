@@ -1,11 +1,15 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import { MermaidDiagram } from './MermaidDiagram';
+import { toast } from 'sonner';
 import { 
   Printer, 
   ChevronDown, 
@@ -17,8 +21,35 @@ import {
   Shield, 
   Bell,
   GitBranch,
-  Layers
+  Layers,
+  User,
+  Calendar,
+  Save,
+  AlertCircle
 } from 'lucide-react';
+
+// ========== INVENTION DISCLOSURE TYPES ==========
+
+interface Inventor {
+  name: string;
+  address: string;
+  citizenship: string;
+  email: string;
+}
+
+interface InventionDisclosure {
+  inventors: Inventor[];
+  dateOfConception: string;
+  dateFirstDisclosed: string;
+  priorArtNotes: string;
+  competingProducts: string;
+  academicPapers: string;
+  existingPatents: string;
+  commercialPlans: string;
+  targetMarket: string;
+  revenueModel: string;
+  developmentNotes: string;
+}
 
 // ========== MERMAID DIAGRAMS ==========
 
@@ -380,9 +411,77 @@ const Section = ({ title, icon, children, defaultOpen = false }: SectionProps) =
   );
 };
 
+const STORAGE_KEY = 'patent-invention-disclosure';
+
+const defaultDisclosure: InventionDisclosure = {
+  inventors: [{ name: '', address: '', citizenship: '', email: '' }],
+  dateOfConception: '',
+  dateFirstDisclosed: '',
+  priorArtNotes: '',
+  competingProducts: '',
+  academicPapers: '',
+  existingPatents: '',
+  commercialPlans: '',
+  targetMarket: '',
+  revenueModel: '',
+  developmentNotes: '',
+};
+
 export const PatentDocumentation = () => {
+  const [disclosure, setDisclosure] = useState<InventionDisclosure>(defaultDisclosure);
+  const [hasChanges, setHasChanges] = useState(false);
+
+  // Load saved disclosure from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try {
+        setDisclosure(JSON.parse(saved));
+      } catch (e) {
+        console.error('Failed to load saved disclosure:', e);
+      }
+    }
+  }, []);
+
   const handlePrint = () => {
     window.print();
+  };
+
+  const saveDisclosure = () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(disclosure));
+    setHasChanges(false);
+    toast.success('Invention disclosure saved locally');
+  };
+
+  const updateDisclosure = (field: keyof InventionDisclosure, value: string) => {
+    setDisclosure(prev => ({ ...prev, [field]: value }));
+    setHasChanges(true);
+  };
+
+  const updateInventor = (index: number, field: keyof Inventor, value: string) => {
+    setDisclosure(prev => {
+      const newInventors = [...prev.inventors];
+      newInventors[index] = { ...newInventors[index], [field]: value };
+      return { ...prev, inventors: newInventors };
+    });
+    setHasChanges(true);
+  };
+
+  const addInventor = () => {
+    setDisclosure(prev => ({
+      ...prev,
+      inventors: [...prev.inventors, { name: '', address: '', citizenship: '', email: '' }]
+    }));
+    setHasChanges(true);
+  };
+
+  const removeInventor = (index: number) => {
+    if (disclosure.inventors.length <= 1) return;
+    setDisclosure(prev => ({
+      ...prev,
+      inventors: prev.inventors.filter((_, i) => i !== index)
+    }));
+    setHasChanges(true);
   };
 
   return (
@@ -393,10 +492,22 @@ export const PatentDocumentation = () => {
           <h1 className="text-2xl font-bold">Patent Technical Specification</h1>
           <p className="text-muted-foreground">Family Intervention Intelligence System (FIIS)</p>
         </div>
-        <Button onClick={handlePrint} className="gap-2">
-          <Printer className="h-4 w-4" />
-          Print to PDF
-        </Button>
+        <div className="flex items-center gap-2">
+          {hasChanges && (
+            <Badge variant="outline" className="gap-1 text-orange-600 border-orange-300">
+              <AlertCircle className="h-3 w-3" />
+              Unsaved
+            </Badge>
+          )}
+          <Button onClick={saveDisclosure} variant="outline" className="gap-2" disabled={!hasChanges}>
+            <Save className="h-4 w-4" />
+            Save
+          </Button>
+          <Button onClick={handlePrint} className="gap-2">
+            <Printer className="h-4 w-4" />
+            Print to PDF
+          </Button>
+        </div>
       </div>
 
       {/* Print Header */}
@@ -410,11 +521,245 @@ export const PatentDocumentation = () => {
       <ScrollArea className="h-[calc(100vh-300px)] print:h-auto print:overflow-visible">
         <div className="space-y-4 pr-4 print:pr-0">
           
+          {/* Invention Disclosure Form */}
+          <Section 
+            title="Invention Disclosure Form" 
+            icon={<User className="h-5 w-5 text-primary" />}
+            defaultOpen={true}
+          >
+            <div className="space-y-6">
+              {/* Inventor Information */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base flex items-center justify-between">
+                    <span>Inventor Information</span>
+                    <Button size="sm" variant="outline" onClick={addInventor} className="print:hidden">
+                      + Add Inventor
+                    </Button>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {disclosure.inventors.map((inventor, index) => (
+                    <div key={index} className="p-4 border rounded-lg space-y-3 relative">
+                      <div className="flex items-center justify-between mb-2">
+                        <Badge variant="secondary">Inventor {index + 1}</Badge>
+                        {disclosure.inventors.length > 1 && (
+                          <Button 
+                            size="sm" 
+                            variant="ghost" 
+                            className="text-destructive h-6 px-2 print:hidden"
+                            onClick={() => removeInventor(index)}
+                          >
+                            Remove
+                          </Button>
+                        )}
+                      </div>
+                      <div className="grid gap-3 md:grid-cols-2">
+                        <div className="space-y-1.5">
+                          <Label htmlFor={`inventor-name-${index}`}>Full Legal Name</Label>
+                          <Input
+                            id={`inventor-name-${index}`}
+                            value={inventor.name}
+                            onChange={(e) => updateInventor(index, 'name', e.target.value)}
+                            placeholder="John Doe"
+                            className="print:border-0 print:p-0"
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <Label htmlFor={`inventor-email-${index}`}>Email</Label>
+                          <Input
+                            id={`inventor-email-${index}`}
+                            type="email"
+                            value={inventor.email}
+                            onChange={(e) => updateInventor(index, 'email', e.target.value)}
+                            placeholder="john@example.com"
+                            className="print:border-0 print:p-0"
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <Label htmlFor={`inventor-address-${index}`}>Full Address</Label>
+                          <Input
+                            id={`inventor-address-${index}`}
+                            value={inventor.address}
+                            onChange={(e) => updateInventor(index, 'address', e.target.value)}
+                            placeholder="123 Main St, City, State, ZIP"
+                            className="print:border-0 print:p-0"
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <Label htmlFor={`inventor-citizenship-${index}`}>Citizenship</Label>
+                          <Input
+                            id={`inventor-citizenship-${index}`}
+                            value={inventor.citizenship}
+                            onChange={(e) => updateInventor(index, 'citizenship', e.target.value)}
+                            placeholder="United States"
+                            className="print:border-0 print:p-0"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+
+              {/* Key Dates */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <Calendar className="h-4 w-4" />
+                    Key Dates
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="date-conception">Date of Conception</Label>
+                      <Input
+                        id="date-conception"
+                        type="date"
+                        value={disclosure.dateOfConception}
+                        onChange={(e) => updateDisclosure('dateOfConception', e.target.value)}
+                        className="print:border-0 print:p-0"
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        When you first conceived of the invention idea
+                      </p>
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="date-disclosed">Date First Publicly Disclosed</Label>
+                      <Input
+                        id="date-disclosed"
+                        type="date"
+                        value={disclosure.dateFirstDisclosed}
+                        onChange={(e) => updateDisclosure('dateFirstDisclosed', e.target.value)}
+                        className="print:border-0 print:p-0"
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        First demo, publication, or public discussion (if any)
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Prior Art Awareness */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Prior Art You Are Aware Of</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="competing-products">Competing Products / Similar Apps</Label>
+                    <Textarea
+                      id="competing-products"
+                      value={disclosure.competingProducts}
+                      onChange={(e) => updateDisclosure('competingProducts', e.target.value)}
+                      placeholder="List any recovery apps, family monitoring tools, or similar products you are aware of..."
+                      className="min-h-[80px] print:border-0 print:p-0"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="academic-papers">Academic Papers / Research</Label>
+                    <Textarea
+                      id="academic-papers"
+                      value={disclosure.academicPapers}
+                      onChange={(e) => updateDisclosure('academicPapers', e.target.value)}
+                      placeholder="List any academic papers or research on similar approaches..."
+                      className="min-h-[80px] print:border-0 print:p-0"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="existing-patents">Existing Patents</Label>
+                    <Textarea
+                      id="existing-patents"
+                      value={disclosure.existingPatents}
+                      onChange={(e) => updateDisclosure('existingPatents', e.target.value)}
+                      placeholder="List any patent numbers or applications you are aware of..."
+                      className="min-h-[80px] print:border-0 print:p-0"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="prior-art-notes">Additional Prior Art Notes</Label>
+                    <Textarea
+                      id="prior-art-notes"
+                      value={disclosure.priorArtNotes}
+                      onChange={(e) => updateDisclosure('priorArtNotes', e.target.value)}
+                      placeholder="Any other relevant prior art or distinguishing features..."
+                      className="min-h-[80px] print:border-0 print:p-0"
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Business Context */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Business Context</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="commercial-plans">Commercial Plans</Label>
+                    <Textarea
+                      id="commercial-plans"
+                      value={disclosure.commercialPlans}
+                      onChange={(e) => updateDisclosure('commercialPlans', e.target.value)}
+                      placeholder="How do you plan to commercialize this invention?"
+                      className="min-h-[80px] print:border-0 print:p-0"
+                    />
+                  </div>
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="target-market">Target Market</Label>
+                      <Textarea
+                        id="target-market"
+                        value={disclosure.targetMarket}
+                        onChange={(e) => updateDisclosure('targetMarket', e.target.value)}
+                        placeholder="Who are the target users/customers?"
+                        className="min-h-[60px] print:border-0 print:p-0"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="revenue-model">Revenue Model</Label>
+                      <Textarea
+                        id="revenue-model"
+                        value={disclosure.revenueModel}
+                        onChange={(e) => updateDisclosure('revenueModel', e.target.value)}
+                        placeholder="Subscription, licensing, etc."
+                        className="min-h-[60px] print:border-0 print:p-0"
+                      />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Development Timeline */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Development Timeline & Notes</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="development-notes">Development History</Label>
+                    <Textarea
+                      id="development-notes"
+                      value={disclosure.developmentNotes}
+                      onChange={(e) => updateDisclosure('developmentNotes', e.target.value)}
+                      placeholder="Document key milestones, design decisions, and evolution of the invention. Include dates when possible. Reference git commits, emails, or notes that document the development process..."
+                      className="min-h-[120px] print:border-0 print:p-0"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      This helps establish the timeline of invention for patent purposes
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </Section>
+
           {/* Abstract & Overview */}
           <Section 
             title="1. Abstract & Technical Field" 
             icon={<FileText className="h-5 w-5 text-primary" />}
-            defaultOpen={true}
           >
             <Card>
               <CardHeader>
