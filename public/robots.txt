@@ -12,3 +12,5 @@ Allow: /
 
 User-agent: *
 Allow: /
+
+Sitemap: https://familybridgeapp.lovable.app/sitemap.xml
