@@ -5,9 +5,27 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Users, LogOut, Loader2, Copy, ArrowRight, Crown, Home } from 'lucide-react';
+import { Users, LogOut, Loader2, Copy, ArrowRight, Crown, Home, Settings, Trash2 } from 'lucide-react';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 import { NotificationBell } from '@/components/NotificationBell';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 
 interface Family {
@@ -26,6 +44,8 @@ const Dashboard = () => {
   
   const [families, setFamilies] = useState<Family[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -108,6 +128,63 @@ const Dashboard = () => {
     navigate('/');
   };
 
+  const handleDeleteAccount = async () => {
+    setIsDeleting(true);
+    try {
+      // Delete user's family memberships
+      const { error: memberError } = await supabase
+        .from('family_members')
+        .delete()
+        .eq('user_id', user!.id);
+
+      if (memberError) throw memberError;
+
+      // Delete user's profile
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('id', user!.id);
+
+      if (profileError) throw profileError;
+
+      // Delete user's notifications
+      const { error: notifError } = await supabase
+        .from('notifications')
+        .delete()
+        .eq('user_id', user!.id);
+
+      if (notifError) throw notifError;
+
+      // Delete user's payment info
+      const { error: paymentError } = await supabase
+        .from('payment_info')
+        .delete()
+        .eq('user_id', user!.id);
+
+      if (paymentError) throw paymentError;
+
+      // Sign out the user (the auth.users record will remain but user data is deleted)
+      await signOut();
+      
+      toast({
+        title: 'Account Deleted',
+        description: 'Your account data has been successfully deleted.',
+      });
+      
+      navigate('/');
+    } catch (error) {
+      console.error('Error deleting account:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to delete account. Please contact support.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteDialog(false);
+    }
+  };
+
   if (loading || isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -141,14 +218,67 @@ const Dashboard = () => {
                 <span className="hidden sm:inline ml-2">Premium</span>
               </Button>
               <NotificationBell />
-              <Button variant="ghost" size="sm" onClick={handleSignOut}>
-                <LogOut className="h-4 w-4" />
-                <span className="hidden sm:inline ml-2">Sign Out</span>
-              </Button>
+              
+              {/* Settings Dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm">
+                    <Settings className="h-4 w-4" />
+                    <span className="hidden sm:inline ml-2">Settings</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem onClick={handleSignOut}>
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Sign Out
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem 
+                    onClick={() => setShowDeleteDialog(true)}
+                    className="text-destructive focus:text-destructive"
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete Account
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </div>
       </header>
+
+      {/* Delete Account Confirmation Dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Your Account?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete your account data, 
+              including your profile, family memberships, and all associated information.
+              {'\n\n'}
+              If you have an active subscription, please cancel it through your App Store or 
+              Google Play settings before deleting your account.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteAccount}
+              disabled={isDeleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isDeleting ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  Deleting...
+                </>
+              ) : (
+                'Delete Account'
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
