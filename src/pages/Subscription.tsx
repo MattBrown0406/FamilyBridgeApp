@@ -259,8 +259,6 @@ const Subscription = () => {
         {/* Footer Info */}
         <div className="text-center mt-8 text-sm text-muted-foreground">
           <p>
-            All payments are securely processed through Square.
-            <br />
             Your subscription can be managed from your account settings.
           </p>
         </div>
