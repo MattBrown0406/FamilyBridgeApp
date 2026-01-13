@@ -27,7 +27,7 @@ export const PRODUCTS = {
     },
     annual: {
       id: `${BUNDLE_ID}.provider_annual`,
-      price: null, // TBD - not yet available
+      price: 2500,
       period: "year",
       displayName: "Provider Annual",
       webOnly: true, // Not available in App Store due to $999 limit
