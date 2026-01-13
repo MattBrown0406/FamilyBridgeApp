@@ -25,7 +25,7 @@ const ProviderPurchase = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
   const [generatedCode, setGeneratedCode] = useState<string | null>(null);
-  const [billingPeriod, setBillingPeriod] = useState<"monthly" | "annual">("annual");
+  const [billingPeriod, setBillingPeriod] = useState<"monthly" | "quarterly" | "annual">(isNative ? "quarterly" : "annual");
 
   const handleSquarePurchase = async () => {
     if (!email) {
@@ -141,11 +141,15 @@ const ProviderPurchase = () => {
   const paymentInfo = getPaymentInfo();
 
   // Get the appropriate product ID based on billing period
-  const getProductId = () => {
-    if (billingPeriod === "annual") {
-      return "provider_annual_2500";
+  const getProductIdForPurchase = () => {
+    switch (billingPeriod) {
+      case "annual":
+        return "app.lovable.feec162303784a959c1635217b29129c.provider_annual";
+      case "quarterly":
+        return "app.lovable.feec162303784a959c1635217b29129c.provider_quarterly";
+      default:
+        return "app.lovable.feec162303784a959c1635217b29129c.provider_monthly";
     }
-    return "provider_monthly_250";
   };
 
   // Show generated activation code
@@ -296,23 +300,34 @@ const ProviderPurchase = () => {
                   </div>
                 )}
 
-                {/* Billing Toggle - only show on web or if both options available */}
-                {!isNative && (
-                  <div className="flex justify-center">
-                    <div className="inline-flex items-center bg-muted rounded-lg p-1">
+                {/* Billing Toggle */}
+                <div className="flex justify-center">
+                  <div className="inline-flex items-center bg-muted rounded-lg p-1">
+                    <button
+                      onClick={() => setBillingPeriod("monthly")}
+                      className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                        billingPeriod === "monthly"
+                          ? "bg-background shadow-sm text-foreground"
+                          : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      Monthly
+                    </button>
+                    {isNative ? (
                       <button
-                        onClick={() => setBillingPeriod("monthly")}
-                        className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                          billingPeriod === "monthly"
+                        onClick={() => setBillingPeriod("quarterly")}
+                        className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                          billingPeriod === "quarterly"
                             ? "bg-background shadow-sm text-foreground"
                             : "text-muted-foreground hover:text-foreground"
                         }`}
                       >
-                        Monthly
+                        Quarterly
                       </button>
+                    ) : (
                       <button
                         onClick={() => setBillingPeriod("annual")}
-                        className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                        className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                           billingPeriod === "annual"
                             ? "bg-background shadow-sm text-foreground"
                             : "text-muted-foreground hover:text-foreground"
@@ -320,28 +335,31 @@ const ProviderPurchase = () => {
                       >
                         Annual
                       </button>
-                    </div>
+                    )}
                   </div>
-                )}
+                </div>
 
                 {/* Pricing Display */}
                 <div className="text-center py-4">
-                  {isNative ? (
-                    // Native app pricing (show both options as available products)
-                    <div className="space-y-2">
-                      <div>
-                        <span className="text-4xl font-bold">$250</span>
-                        <span className="text-muted-foreground">/month</span>
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        or $2,500/year (save $500!)
-                      </p>
-                    </div>
-                  ) : billingPeriod === "monthly" ? (
+                  {billingPeriod === "monthly" ? (
                     <>
                       <span className="text-4xl font-bold">$250</span>
                       <span className="text-muted-foreground">/month</span>
                     </>
+                  ) : billingPeriod === "quarterly" ? (
+                    <div className="space-y-2">
+                      <div>
+                        <span className="text-4xl font-bold">$625</span>
+                        <span className="text-muted-foreground">/quarter</span>
+                      </div>
+                      <div className="inline-flex items-center gap-2 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-3 py-1 rounded-full text-sm font-medium">
+                        <Check className="w-4 h-4" />
+                        4 payments = $2,500/year
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Same as annual, paid quarterly
+                      </p>
+                    </div>
                   ) : (
                     <div className="space-y-2">
                       <div>
@@ -407,8 +425,9 @@ const ProviderPurchase = () => {
                   {isNative ? (
                     <AppStorePurchaseButton
                       platform={paymentMethod as "apple" | "google"}
-                      productId={getProductId()}
+                      productId={getProductIdForPurchase()}
                       email={email}
+                      subscriptionType="provider"
                       onSuccess={handleAppStorePurchaseSuccess}
                       disabled={!email}
                       className="w-full"
