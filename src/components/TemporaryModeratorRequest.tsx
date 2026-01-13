@@ -188,7 +188,7 @@ export const TemporaryModeratorRequest = ({
                       }}
                       className="underline hover:no-underline"
                     >
-                      Purchase additional hours ($200/day)
+                    Purchase additional hours ($150/day)
                     </button>
                   </p>
                 )}
