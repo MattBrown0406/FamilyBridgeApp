@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -22,6 +22,51 @@ interface TemporaryModeratorRequestProps {
   hasOrganization: boolean;
 }
 
+const formatCountdown = (expiresAt: Date): string => {
+  const now = Date.now();
+  const remaining = expiresAt.getTime() - now;
+  
+  if (remaining <= 0) return 'Expired';
+  
+  const totalSeconds = Math.floor(remaining / 1000);
+  const totalMinutes = Math.floor(totalSeconds / 60);
+  const totalHours = Math.floor(totalMinutes / 60);
+  
+  const hours = totalHours;
+  const minutes = totalMinutes % 60;
+  const seconds = totalSeconds % 60;
+  
+  // Last minute: show seconds
+  if (totalMinutes < 1) {
+    return `${seconds}s`;
+  }
+  
+  // Last 5 minutes: show minutes and seconds
+  if (totalMinutes < 5) {
+    return `${minutes}m ${seconds}s`;
+  }
+  
+  // Under 1 hour: show 5-minute intervals
+  if (totalHours < 1) {
+    const roundedMinutes = Math.ceil(totalMinutes / 5) * 5;
+    return `${roundedMinutes}m`;
+  }
+  
+  // Over 1 hour: show hours
+  return `${hours}h ${minutes > 0 ? `${minutes}m` : ''}`.trim();
+};
+
+const getUpdateInterval = (expiresAt: Date): number => {
+  const now = Date.now();
+  const remaining = expiresAt.getTime() - now;
+  const totalMinutes = Math.floor(remaining / 1000 / 60);
+  
+  if (totalMinutes < 1) return 1000; // Every second for last minute
+  if (totalMinutes < 5) return 1000; // Every second for last 5 minutes
+  if (totalMinutes < 60) return 5 * 60 * 1000; // Every 5 minutes under 1 hour
+  return 60 * 60 * 1000; // Every hour otherwise
+};
+
 export const TemporaryModeratorRequest = ({ 
   familyId, 
   hasOrganization 
@@ -33,12 +78,57 @@ export const TemporaryModeratorRequest = ({
   const [dialogOpen, setDialogOpen] = useState(false);
   const [hasRecentRequest, setHasRecentRequest] = useState(false);
   const [activeRequest, setActiveRequest] = useState<{ expires_at: string } | null>(null);
+  const [countdown, setCountdown] = useState<string>('');
+
+  const updateCountdown = useCallback(() => {
+    if (!activeRequest) return;
+    
+    const expiresAt = new Date(activeRequest.expires_at);
+    const formatted = formatCountdown(expiresAt);
+    setCountdown(formatted);
+    
+    // Check if expired
+    if (expiresAt.getTime() <= Date.now()) {
+      setActiveRequest(null);
+      checkExistingRequests();
+    }
+  }, [activeRequest]);
 
   useEffect(() => {
     if (user && familyId) {
       checkExistingRequests();
     }
   }, [user, familyId]);
+
+  useEffect(() => {
+    if (!activeRequest) return;
+    
+    // Initial update
+    updateCountdown();
+    
+    // Set up dynamic interval
+    const expiresAt = new Date(activeRequest.expires_at);
+    let intervalId: ReturnType<typeof setInterval>;
+    
+    const setupInterval = () => {
+      const interval = getUpdateInterval(expiresAt);
+      intervalId = setInterval(() => {
+        updateCountdown();
+        // Check if we need a faster interval now
+        const newInterval = getUpdateInterval(expiresAt);
+        if (newInterval < interval) {
+          clearInterval(intervalId);
+          setupInterval();
+        }
+      }, Math.min(interval, 1000)); // Check at least every second for transitions
+    };
+    
+    setupInterval();
+    
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [activeRequest, updateCountdown]);
 
   const checkExistingRequests = async () => {
     try {
@@ -74,6 +164,7 @@ export const TemporaryModeratorRequest = ({
     }
   };
 
+  // Don't show button if family has an organization
   const handleRequest = async () => {
     setIsLoading(true);
     try {
@@ -113,17 +204,25 @@ export const TemporaryModeratorRequest = ({
     return null;
   }
 
-  // Show active status if there's an active request
+  // Show active status with countdown if there's an active request
   if (activeRequest) {
     const expiresAt = new Date(activeRequest.expires_at);
-    const hoursRemaining = Math.max(0, Math.ceil((expiresAt.getTime() - Date.now()) / (1000 * 60 * 60)));
+    const totalMinutes = Math.floor((expiresAt.getTime() - Date.now()) / 1000 / 60);
+    const isUrgent = totalMinutes < 60;
+    const isCritical = totalMinutes < 5;
     
     return (
       <div className="flex items-center gap-2">
-        <div className="flex items-center gap-2 px-3 py-1.5 bg-success/10 text-success rounded-full text-sm">
-          <Clock className="h-4 w-4" />
-          <span className="hidden sm:inline">Crisis Support Active</span>
-          <span className="font-medium">{hoursRemaining}h left</span>
+        <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-mono ${
+          isCritical 
+            ? 'bg-destructive/10 text-destructive animate-pulse' 
+            : isUrgent 
+              ? 'bg-warning/10 text-warning' 
+              : 'bg-success/10 text-success'
+        }`}>
+          <Clock className={`h-4 w-4 ${isCritical ? 'animate-pulse' : ''}`} />
+          <span className="hidden sm:inline">Crisis Support</span>
+          <span className="font-bold tabular-nums">{countdown}</span>
         </div>
         <Button
           variant="outline"
