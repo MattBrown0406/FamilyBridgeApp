@@ -8,10 +8,10 @@ const Support = () => {
     <div className="min-h-screen bg-background flex flex-col">
       <BrandedHeader showHomeButton />
       
-      <main className="flex-1 container mx-auto px-4 py-8 max-w-4xl">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Customer Support</h1>
-          <p className="text-muted-foreground">
+      <main className="flex-1 container mx-auto px-3 sm:px-4 py-6 sm:py-8 max-w-4xl">
+        <div className="text-center mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">Customer Support</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">
             We're here to help you with any questions or concerns.
           </p>
         </div>

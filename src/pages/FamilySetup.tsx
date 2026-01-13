@@ -168,11 +168,11 @@ const FamilySetup = () => {
   return (
     <div className="min-h-screen bg-background">
       <BrandedHeader />
-      <div className="container mx-auto px-4 py-12">
+      <div className="container mx-auto px-3 sm:px-4 py-6 sm:py-12">
         <div className="max-w-2xl mx-auto">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold mb-2">Set Up Your Family Group</h1>
-            <p className="text-muted-foreground">
+          <div className="text-center mb-6 sm:mb-8">
+            <h1 className="text-2xl sm:text-3xl font-bold mb-2">Set Up Your Family Group</h1>
+            <p className="text-sm sm:text-base text-muted-foreground">
               Enter your invite code and add your family members
             </p>
           </div>
