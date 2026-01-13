@@ -445,9 +445,21 @@ const ProviderPurchase = () => {
                     </Button>
                   )}
 
-                  <p className="text-xs text-muted-foreground text-center">
-                    {paymentInfo.description}
-                  </p>
+                  {/* Auto-renewal disclosure - Required by Apple */}
+                  <div className="text-xs text-muted-foreground text-center space-y-1">
+                    <p>{paymentInfo.description}</p>
+                    <p>
+                      {isNative 
+                        ? "Subscription automatically renews unless cancelled at least 24 hours before the end of the current period. Manage subscriptions in your device settings."
+                        : "Subscription automatically renews. Cancel anytime from your account."}
+                    </p>
+                    <p className="pt-1">
+                      By subscribing, you agree to our{" "}
+                      <a href="/terms" className="text-primary hover:underline">Terms of Service</a>
+                      {" "}and{" "}
+                      <a href="/privacy" className="text-primary hover:underline">Privacy Policy</a>.
+                    </p>
+                  </div>
 
                   {/* Restore Purchases - Required by App Store */}
                   <RestorePurchasesButton 
