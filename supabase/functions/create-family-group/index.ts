@@ -191,8 +191,8 @@ serve(async (req) => {
                 <p><strong>Best Practice:</strong> Write boundaries down when everyone is calm. Having them documented prevents arguments later about "what we agreed to."</p>
 
                 <h3 style="color: #2d7d6f; margin-top: 25px;">🧪 Tests Tab</h3>
-                <p><strong>What it does:</strong> Track and share drug test results, medical screenings, and other verification documents.</p>
-                <p><strong>Best Practice:</strong> If testing is part of your family's recovery plan, use this to maintain a clear record. Transparency builds trust.</p>
+                <p><strong>Coming Soon:</strong> This feature will be available in a future update and will allow you to track and share drug test results, medical screenings, and other verification documents directly within the app.</p>
+                <p><strong>Note:</strong> The Tests feature will be available at an additional cost when released. We'll notify you when it becomes available.</p>
 
                 <h3 style="color: #2d7d6f; margin-top: 25px;">🧠 FIIS Tab (Family Interaction Intelligence System)</h3>
                 <p><strong>What it does:</strong> An AI-powered tool that analyzes patterns across family interactions - messages, check-ins, financial requests, and observations you log.</p>
