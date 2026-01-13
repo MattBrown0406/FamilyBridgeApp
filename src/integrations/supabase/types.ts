@@ -1741,6 +1741,7 @@ export type Database = {
         Args: { _family_id: string; _user_id: string }
         Returns: boolean
       }
+      is_super_admin: { Args: { _user_id: string }; Returns: boolean }
       request_has_no_votes: { Args: { _request_id: string }; Returns: boolean }
       shares_family_with: {
         Args: { _other_user_id: string; _user_id: string }
