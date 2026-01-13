@@ -1629,7 +1629,36 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      payment_info_masked: {
+        Row: {
+          cashapp_username: string | null
+          created_at: string | null
+          id: string | null
+          paypal_username: string | null
+          updated_at: string | null
+          user_id: string | null
+          venmo_username: string | null
+        }
+        Insert: {
+          cashapp_username?: never
+          created_at?: string | null
+          id?: string | null
+          paypal_username?: never
+          updated_at?: string | null
+          user_id?: string | null
+          venmo_username?: never
+        }
+        Update: {
+          cashapp_username?: never
+          created_at?: string | null
+          id?: string | null
+          paypal_username?: never
+          updated_at?: string | null
+          user_id?: string | null
+          venmo_username?: never
+        }
+        Relationships: []
+      }
     }
     Functions: {
       calculate_checkout_time: {
@@ -1645,6 +1674,7 @@ export type Database = {
         Returns: boolean
       }
       check_overdue_checkouts: { Args: never; Returns: undefined }
+      check_payment_info_access_rate: { Args: never; Returns: boolean }
       decrypt_payment_field: {
         Args: { encrypted_text: string }
         Returns: string
@@ -1675,6 +1705,14 @@ export type Database = {
           secondary_color: string
           subdomain: string
           tagline: string
+        }[]
+      }
+      get_own_payment_info: {
+        Args: never
+        Returns: {
+          cashapp_username: string
+          paypal_username: string
+          venmo_username: string
         }[]
       }
       get_payment_links_for_request: {
