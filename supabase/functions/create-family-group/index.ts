@@ -13,6 +13,11 @@ interface FamilyMember {
   relationship: string;
 }
 
+interface AdminInfo {
+  name: string;
+  email: string;
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -25,10 +30,14 @@ serve(async (req) => {
     
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    const { inviteCode, familyName, familyDescription, members } = await req.json();
+    const { inviteCode, familyName, familyDescription, adminName, adminEmail, members } = await req.json();
 
     if (!inviteCode || !familyName || !members || members.length === 0) {
       throw new Error('Invite code, family name, and at least one member are required');
+    }
+
+    if (!adminName || !adminEmail) {
+      throw new Error('Admin name and email are required');
     }
 
     console.log('Creating family group:', familyName, 'with invite code:', inviteCode);
@@ -107,10 +116,93 @@ serve(async (req) => {
       console.error('Error updating invite code:', updateError);
     }
 
-    // Send invitation emails to all family members
+    // Send emails via Resend
     if (resendApiKey) {
       const resend = new Resend(resendApiKey);
       
+      // Send welcome email to admin with detailed instructions
+      try {
+        await resend.emails.send({
+          from: 'FamilyBridge <onboarding@resend.dev>',
+          to: [adminEmail],
+          subject: `Welcome to FamilyBridge - Your ${familyName} Group is Ready!`,
+          html: `
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <meta charset="utf-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            </head>
+            <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+              <div style="text-align: center; margin-bottom: 30px;">
+                <h1 style="color: #2d7d6f; margin: 0;">FamilyBridge</h1>
+                <p style="color: #666; margin-top: 5px;">Family Recovery Support Platform</p>
+              </div>
+              
+              <div style="background: #f8f9fa; border-radius: 12px; padding: 30px; margin-bottom: 20px;">
+                <h2 style="margin-top: 0; color: #333;">Welcome, ${adminName}!</h2>
+                
+                <p>Congratulations! Your family group <strong>"${familyName}"</strong> has been successfully created. As the family administrator, you'll have access to special features to help manage and support your family.</p>
+                
+                <div style="background: #fff; border: 2px solid #2d7d6f; border-radius: 8px; padding: 20px; margin: 25px 0;">
+                  <p style="margin: 0 0 10px 0; color: #666; font-size: 14px;">Your Family Invite Code (share with family members):</p>
+                  <p style="margin: 0; font-size: 28px; font-weight: bold; font-family: monospace; letter-spacing: 2px; color: #2d7d6f; text-align: center;">${memberInviteCode}</p>
+                </div>
+                
+                <h3 style="color: #2d7d6f; margin-top: 30px;">📱 Getting Started</h3>
+                <ol style="color: #555; padding-left: 20px;">
+                  <li style="margin-bottom: 10px;"><strong>Create your account</strong> - Visit FamilyBridge and sign up with this email address (${adminEmail})</li>
+                  <li style="margin-bottom: 10px;"><strong>Join your family</strong> - Use the invite code above when prompted</li>
+                  <li style="margin-bottom: 10px;"><strong>Complete your profile</strong> - Add your details and set your preferences</li>
+                  <li style="margin-bottom: 10px;"><strong>Sign the HIPAA release</strong> - If applicable, this helps protect everyone's privacy</li>
+                </ol>
+
+                <h3 style="color: #2d7d6f; margin-top: 30px;">👥 Inviting Family Members</h3>
+                <p>We've already sent invitation emails to the family members you listed during setup. Each email contains the family invite code above.</p>
+                <p>If you need to invite additional members later:</p>
+                <ul style="color: #555; padding-left: 20px;">
+                  <li>Share the invite code: <strong style="font-family: monospace;">${memberInviteCode}</strong></li>
+                  <li>Direct them to FamilyBridge to create an account</li>
+                  <li>They'll use the code to join your family group</li>
+                </ul>
+
+                <h3 style="color: #2d7d6f; margin-top: 30px;">🛡️ As Family Admin, You Can:</h3>
+                <ul style="color: #555; padding-left: 20px;">
+                  <li>View the family invite code anytime from your dashboard</li>
+                  <li>See family activity and check-ins</li>
+                  <li>Manage family boundaries and agreements</li>
+                  <li>Approve financial requests</li>
+                  <li>Access the family chat</li>
+                </ul>
+
+                <h3 style="color: #2d7d6f; margin-top: 30px;">💡 Quick Tips</h3>
+                <ul style="color: #555; padding-left: 20px;">
+                  <li>Enable notifications so you never miss important updates</li>
+                  <li>Set up your payment info if you want to participate in financial support</li>
+                  <li>Use the Conversation Starters to get meaningful discussions going</li>
+                  <li>Check in regularly - consistent engagement helps everyone</li>
+                </ul>
+              </div>
+              
+              <div style="background: #e8f5e9; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+                <h3 style="margin-top: 0; color: #2e7d32;">Need Help?</h3>
+                <p style="margin-bottom: 0;">Visit our Support page within the app or reply to this email if you have any questions. We're here to help your family on this journey.</p>
+              </div>
+              
+              <div style="text-align: center; padding: 20px; color: #888; font-size: 14px;">
+                <p>Thank you for choosing FamilyBridge.</p>
+                <p>Together, we can build stronger families.</p>
+              </div>
+            </body>
+            </html>
+          `,
+        });
+        console.log('Admin welcome email sent to:', adminEmail);
+      } catch (emailError) {
+        console.error('Failed to send admin welcome email:', emailError);
+      }
+      
+      // Send invitation emails to all family members
       for (const member of members as FamilyMember[]) {
         try {
           await resend.emails.send({

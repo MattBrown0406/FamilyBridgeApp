@@ -50,6 +50,8 @@ const FamilySetup = () => {
   const [inviteCode, setInviteCode] = useState("");
   const [familyName, setFamilyName] = useState("");
   const [familyDescription, setFamilyDescription] = useState("");
+  const [adminName, setAdminName] = useState("");
+  const [adminEmail, setAdminEmail] = useState("");
   const [members, setMembers] = useState<FamilyMember[]>([
     { id: crypto.randomUUID(), name: "", email: "", relationship: "" }
   ]);
@@ -81,6 +83,14 @@ const FamilySetup = () => {
       toast.error("Please enter a family group name");
       return false;
     }
+    if (!adminName.trim()) {
+      toast.error("Please enter your name");
+      return false;
+    }
+    if (!adminEmail.trim() || !adminEmail.includes("@")) {
+      toast.error("Please enter a valid email address");
+      return false;
+    }
     
     const validMembers = members.filter(m => m.name.trim() && m.email.trim() && m.relationship);
     if (validMembers.length === 0) {
@@ -110,6 +120,8 @@ const FamilySetup = () => {
           inviteCode: inviteCode.trim(),
           familyName: familyName.trim(),
           familyDescription: familyDescription.trim(),
+          adminName: adminName.trim(),
+          adminEmail: adminEmail.trim(),
           members: validMembers.map(m => ({
             name: m.name.trim(),
             email: m.email.trim(),
@@ -201,6 +213,37 @@ const FamilySetup = () => {
                 <p className="text-xs text-muted-foreground">
                   This is the code you received after purchasing your subscription
                 </p>
+              </div>
+
+              {/* Admin Info */}
+              <div className="border rounded-lg p-4 bg-muted/30 space-y-4">
+                <div>
+                  <Label className="text-sm font-medium">Your Information (Family Admin)</Label>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    You'll be the administrator for this family group
+                  </p>
+                </div>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="space-y-1">
+                    <Label htmlFor="adminName" className="text-xs">Your Name *</Label>
+                    <Input
+                      id="adminName"
+                      placeholder="Your full name"
+                      value={adminName}
+                      onChange={(e) => setAdminName(e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="adminEmail" className="text-xs">Your Email *</Label>
+                    <Input
+                      id="adminEmail"
+                      type="email"
+                      placeholder="your.email@example.com"
+                      value={adminEmail}
+                      onChange={(e) => setAdminEmail(e.target.value)}
+                    />
+                  </div>
+                </div>
               </div>
 
               {/* Family Name */}
