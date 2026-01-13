@@ -1,5 +1,8 @@
 project_id = "lljqptscpeamwfkzsezo"
 
+[functions.expire-temp-moderators]
+verify_jwt = false
+
 [functions.create-family]
 verify_jwt = false
 
