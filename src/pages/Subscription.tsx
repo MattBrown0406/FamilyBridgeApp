@@ -159,7 +159,7 @@ const Subscription = () => {
               <p className="text-muted-foreground text-center text-sm mb-6">Everything you need for comprehensive family support</p>
               
               <div className="flex items-baseline justify-center gap-1 mb-6">
-                <span className="text-5xl font-display font-bold">$499</span>
+                <span className="text-5xl font-display font-bold">TBD</span>
                 <span className="text-muted-foreground">/month</span>
               </div>
               
