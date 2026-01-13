@@ -87,7 +87,7 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     if (existingRequest) {
-      throw new Error("You have already used your free 24-hour supervision this month. Additional days cost $100 each.");
+      throw new Error("You have already used your free 24-hour supervision this month. Additional days cost $150 each.");
     }
 
     // Get a moderator from Freedom Interventions organization
