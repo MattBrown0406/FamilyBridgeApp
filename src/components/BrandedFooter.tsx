@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { useOrganization } from '@/hooks/useOrganization';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 
@@ -24,6 +25,8 @@ export const BrandedFooter = () => {
             </span>
           </div>
           <div className="flex flex-col md:flex-row items-center gap-2 md:gap-4 text-sm text-muted-foreground">
+            <Link to="/terms" className="hover:text-foreground transition-colors">Terms</Link>
+            <Link to="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
             <span>© {currentYear} {organization.name}</span>
           </div>
         </div>
@@ -43,9 +46,12 @@ export const BrandedFooter = () => {
           <img src={familyBridgeLogo} alt="FamilyBridge" className="h-5 w-auto object-contain" />
           <span className="font-display font-semibold text-foreground">FamilyBridge</span>
         </div>
-        <p className="text-muted-foreground text-sm">
-          © {currentYear} FamilyBridge. Supporting families on the path to recovery.
-        </p>
+        <div className="flex flex-col md:flex-row items-center gap-2 md:gap-4 text-sm text-muted-foreground">
+          <Link to="/terms" className="hover:text-foreground transition-colors">Terms of Service</Link>
+          <Link to="/privacy" className="hover:text-foreground transition-colors">Privacy Policy</Link>
+          <Link to="/support" className="hover:text-foreground transition-colors">Support</Link>
+          <span>© {currentYear} FamilyBridge</span>
+        </div>
       </div>
     </footer>
   );
