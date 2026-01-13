@@ -38,7 +38,8 @@ import {
   Trash2,
   Plus,
   Activity,
-  ChevronRight
+  ChevronRight,
+  Copy
 } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
@@ -149,6 +150,7 @@ interface AdminStats {
     id: string;
     name: string;
     account_number: string;
+    invite_code: string | null;
     organization_name: string | null;
     organization_logo_url?: string | null;
     organization_primary_color?: string | null;
@@ -217,6 +219,12 @@ const SuperAdmin = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [providerForm, setProviderForm] = useState({ name: '', subdomain: '', support_email: '', phone: '', website_url: '' });
   const [familyForm, setFamilyForm] = useState({ name: '', description: '', organization_id: '' });
+
+  const copyInviteCode = (code: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    navigator.clipboard.writeText(code);
+    toast.success('Invite code copied to clipboard');
+  };
 
   const getAuthHeaders = async () => {
     const { data: { session }, error } = await supabase.auth.getSession();
@@ -692,13 +700,22 @@ const SuperAdmin = () => {
                                   <p className="font-medium truncate">{family.name}</p>
                                   <span className={`w-2 h-2 rounded-full ${activity.color} flex-shrink-0`} title={activity.label} />
                                 </div>
-                                <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                                <div className="flex items-center flex-wrap gap-3 text-xs text-muted-foreground">
                                   <span className="font-mono">{family.account_number}</span>
                                   {family.organization_name && (
                                     <span className="flex items-center gap-1">
                                       <Building2 className="h-3 w-3" />
                                       {family.organization_name}
                                     </span>
+                                  )}
+                                  {family.invite_code && (
+                                    <button
+                                      onClick={(e) => copyInviteCode(family.invite_code!, e)}
+                                      className="flex items-center gap-1 hover:text-primary transition-colors"
+                                    >
+                                      <Copy className="h-3 w-3" />
+                                      {family.invite_code}
+                                    </button>
                                   )}
                                 </div>
                               </div>

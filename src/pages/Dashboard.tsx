@@ -83,9 +83,9 @@ const Dashboard = () => {
             .select('*', { count: 'exact', head: true })
             .eq('family_id', member.family_id);
 
-          // Only fetch invite code if user is a moderator
+          // Fetch invite code if user is a moderator or admin
           let inviteCode: string | null = null;
-          if (member.role === 'moderator') {
+          if (member.role === 'moderator' || member.role === 'admin') {
             const { data: codeData } = await supabase
               .rpc('get_family_invite_code', { _family_id: member.family_id });
             inviteCode = codeData;
