@@ -39,8 +39,10 @@ import {
   Plus,
   Activity,
   ChevronRight,
-  Copy
+  Copy,
+  ScrollText
 } from 'lucide-react';
+import { PatentDocumentation } from '@/components/PatentDocumentation';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { format } from 'date-fns';
@@ -657,6 +659,10 @@ const SuperAdmin = () => {
                   Users
                   <Badge variant="secondary" className="h-5 px-1.5 text-[10px] ml-1">{filteredUsers.length}</Badge>
                 </TabsTrigger>
+                <TabsTrigger value="patent-docs" className="h-7 text-xs gap-1.5 data-[state=active]:shadow-sm">
+                  <ScrollText className="h-3.5 w-3.5" />
+                  Patent Docs
+                </TabsTrigger>
               </TabsList>
 
               <TabsContent value="families" className="mt-0">
@@ -940,6 +946,12 @@ const SuperAdmin = () => {
                       )}
                     </div>
                   </ScrollArea>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="patent-docs" className="mt-0">
+                <Card className="border-0 shadow-sm p-6">
+                  <PatentDocumentation />
                 </Card>
               </TabsContent>
             </Tabs>
