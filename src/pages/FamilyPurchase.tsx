@@ -375,18 +375,18 @@ const FamilyPurchase = () => {
                     </p>
                   </div>
 
-                  {/* Coupon Code Section */}
-                  <div className="space-y-2">
-                    <Label htmlFor="coupon">Coupon Code (Optional)</Label>
-                    <div className="flex gap-2">
-                      <Input
-                        id="coupon"
-                        placeholder="Enter coupon code"
-                        value={couponCode}
-                        onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                        className="flex-1"
-                      />
-                      {!isNative && (
+                  {/* Coupon Code Section - only show on web to avoid IAP bypass concerns */}
+                  {!isNative && (
+                    <div className="space-y-2">
+                      <Label htmlFor="coupon">Coupon Code (Optional)</Label>
+                      <div className="flex gap-2">
+                        <Input
+                          id="coupon"
+                          placeholder="Enter coupon code"
+                          value={couponCode}
+                          onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                          className="flex-1"
+                        />
                         <Button
                           type="button"
                           variant="outline"
@@ -400,14 +400,9 @@ const FamilyPurchase = () => {
                           )}
                           Apply
                         </Button>
-                      )}
+                      </div>
                     </div>
-                    {isNative && couponCode && (
-                      <p className="text-xs text-primary">
-                        Coupon "{couponCode}" will be applied at checkout
-                      </p>
-                    )}
-                  </div>
+                  )}
 
                   {/* Family Invite Code Section */}
                   <div className="space-y-2 pt-2 border-t">
