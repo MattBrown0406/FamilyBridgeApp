@@ -373,6 +373,16 @@ Deno.serve(async (req) => {
       `)
       .order("created_at", { ascending: false });
 
+    // Get all invite codes for families
+    const { data: inviteCodes } = await adminClient
+      .from("family_invite_codes")
+      .select("family_id, invite_code");
+    
+    const inviteCodeMap: Record<string, string> = {};
+    (inviteCodes || []).forEach(ic => {
+      inviteCodeMap[ic.family_id] = ic.invite_code;
+    });
+
     // Get message counts per family
     const { data: messagesByFamily } = await adminClient
       .from("messages")
@@ -412,6 +422,7 @@ Deno.serve(async (req) => {
       id: f.id,
       name: f.name,
       account_number: f.account_number,
+      invite_code: inviteCodeMap[f.id] || null,
       organization_name: f.organization_id ? orgMap[f.organization_id]?.name || null : null,
       organization_logo_url: f.organization_id ? orgMap[f.organization_id]?.logo_url || null : null,
       organization_primary_color: f.organization_id ? orgMap[f.organization_id]?.primary_color || null : null,

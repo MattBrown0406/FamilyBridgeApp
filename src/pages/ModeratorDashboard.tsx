@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Users, LogOut, Loader2, ArrowRight, Home, Building2, Shield, Plus } from 'lucide-react';
+import { Users, LogOut, Loader2, ArrowRight, Home, Building2, Shield, Plus, Copy } from 'lucide-react';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 import { NotificationBell } from '@/components/NotificationBell';
 
@@ -19,6 +19,7 @@ interface AssignedFamily {
   description: string | null;
   member_count: number;
   organization_name: string;
+  invite_code: string | null;
 }
 
 interface OrganizationInfo {
@@ -40,6 +41,14 @@ const ModeratorDashboard = () => {
   const [newFamilyName, setNewFamilyName] = useState('');
   const [newFamilyDescription, setNewFamilyDescription] = useState('');
   const [isCreating, setIsCreating] = useState(false);
+
+  const copyInviteCode = (code: string) => {
+    navigator.clipboard.writeText(code);
+    toast({
+      title: 'Copied!',
+      description: 'Invite code copied to clipboard.',
+    });
+  };
 
   useEffect(() => {
     if (!loading && !user) {
@@ -90,20 +99,24 @@ const ModeratorDashboard = () => {
 
       if (familyError) throw familyError;
 
-      // Get member counts for each family
+      // Get member counts and invite codes for each family
       const familiesWithCounts = await Promise.all(
         (familyMembers || []).map(async (fm: any) => {
-          const { count } = await supabase
-            .from('family_members')
-            .select('*', { count: 'exact', head: true })
-            .eq('family_id', fm.family_id);
+          const [countResult, codeResult] = await Promise.all([
+            supabase
+              .from('family_members')
+              .select('*', { count: 'exact', head: true })
+              .eq('family_id', fm.family_id),
+            supabase.rpc('get_family_invite_code', { _family_id: fm.family_id })
+          ]);
 
           return {
             id: fm.families.id,
             name: fm.families.name,
             description: fm.families.description,
-            member_count: count || 0,
+            member_count: countResult.count || 0,
             organization_name: fm.families.organizations?.name || 'Independent',
+            invite_code: codeResult.data || null,
           };
         })
       );
@@ -347,7 +360,7 @@ const ModeratorDashboard = () => {
                               {family.description}
                             </p>
                           )}
-                          <div className="flex items-center gap-3 mt-1">
+                          <div className="flex items-center flex-wrap gap-3 mt-1">
                             <span className="text-xs text-muted-foreground">
                               {family.member_count} member{family.member_count !== 1 ? 's' : ''}
                             </span>
@@ -355,6 +368,21 @@ const ModeratorDashboard = () => {
                             <span className="text-xs text-primary">
                               {family.organization_name}
                             </span>
+                            {family.invite_code && (
+                              <>
+                                <span className="text-xs text-muted-foreground">•</span>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    copyInviteCode(family.invite_code!);
+                                  }}
+                                  className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors"
+                                >
+                                  <Copy className="h-3 w-3" />
+                                  {family.invite_code}
+                                </button>
+                              </>
+                            )}
                           </div>
                         </div>
                       </div>
