@@ -21,7 +21,7 @@ export const PRODUCTS = {
     },
     quarterly: {
       id: `${BUNDLE_ID}.provider_quarterly`,
-      price: 625,
+      price: 629,
       period: "3 months",
       displayName: "Provider Quarterly",
     },
