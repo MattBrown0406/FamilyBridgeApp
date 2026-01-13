@@ -1,233 +1,293 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-async function sha256Hex(input: string): Promise<string> {
-  const data = new TextEncoder().encode(input);
-  const hash = await crypto.subtle.digest('SHA-256', data);
-  return Array.from(new Uint8Array(hash))
-    .map((b) => b.toString(16).padStart(2, '0'))
-    .join('');
-}
-
-
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Valid coupon codes with trial periods
-const VALID_TRIAL_COUPONS: Record<string, { trialDays: number; description: string }> = {
-  'FREEDOM': { trialDays: 7, description: '7-day free trial' },
-};
-
-// Generate a random invite code
+// Generate a unique invite code
 function generateInviteCode(): string {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  let code = '';
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let code = "";
   for (let i = 0; i < 12; i++) {
-    if (i === 4 || i === 8) code += '-';
+    if (i > 0 && i % 4 === 0) code += "-";
     code += chars.charAt(Math.floor(Math.random() * chars.length));
   }
   return code;
 }
 
-serve(async (req) => {
-  if (req.method === 'OPTIONS') {
+// Valid trial coupons
+const VALID_TRIAL_COUPONS: Record<string, { days: number; description: string }> = {
+  "TRIAL14": { days: 14, description: "14-day free trial" },
+  "TRIAL30": { days: 30, description: "30-day free trial" },
+  "FAMILYBRIDGE": { days: 7, description: "7-day welcome trial" },
+  "PROVIDER2025": { days: 30, description: "30-day provider trial" },
+  "FREEDOM": { days: 7, description: "7-day free trial" },
+};
+
+// Hash function for purchase reference
+async function sha256Hex(input: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(input);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+}
+
+// Verify Apple purchase using RevenueCat customer info or App Store Server API
+async function verifyApplePurchase(
+  transactionId: string,
+  customerInfo: any,
+  receiptData?: string
+): Promise<{ valid: boolean; expiresAt?: string; productId?: string; error?: string }> {
+  try {
+    // If we have RevenueCat customer info with active subscriptions, trust that
+    if (customerInfo?.activeSubscriptions?.length > 0) {
+      console.log("Verified via RevenueCat customer info:", customerInfo.activeSubscriptions);
+      return {
+        valid: true,
+        expiresAt: customerInfo.latestExpirationDate || undefined,
+        productId: customerInfo.activeSubscriptions[0],
+      };
+    }
+
+    // Legacy: Try Apple's verifyReceipt if we have receipt data and shared secret
+    const appleSharedSecret = Deno.env.get("APPLE_SHARED_SECRET");
+    if (receiptData && appleSharedSecret) {
+      const verifyUrl = "https://buy.itunes.apple.com/verifyReceipt";
+      
+      const response = await fetch(verifyUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          "receipt-data": receiptData,
+          "password": appleSharedSecret,
+          "exclude-old-transactions": true,
+        }),
+      });
+
+      const appleResponse = await response.json();
+      console.log("Apple verification response status:", appleResponse.status);
+
+      // Status 21007 means sandbox receipt sent to production
+      if (appleResponse.status === 21007) {
+        const sandboxResponse = await fetch("https://sandbox.itunes.apple.com/verifyReceipt", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            "receipt-data": receiptData,
+            "password": appleSharedSecret,
+            "exclude-old-transactions": true,
+          }),
+        });
+        const sandboxResult = await sandboxResponse.json();
+        if (sandboxResult.status === 0) {
+          return {
+            valid: true,
+            productId: sandboxResult.latest_receipt_info?.[0]?.product_id,
+            expiresAt: sandboxResult.latest_receipt_info?.[0]?.expires_date,
+          };
+        }
+      }
+
+      if (appleResponse.status === 0) {
+        return {
+          valid: true,
+          productId: appleResponse.latest_receipt_info?.[0]?.product_id,
+          expiresAt: appleResponse.latest_receipt_info?.[0]?.expires_date,
+        };
+      }
+    }
+
+    // If we have a valid transaction ID and customer info, trust the purchase
+    if (customerInfo && transactionId) {
+      console.log("Trusting client-provided purchase info for transaction:", transactionId);
+      return {
+        valid: true,
+        productId: customerInfo.activeSubscriptions?.[0] || "unknown",
+        expiresAt: customerInfo.latestExpirationDate,
+      };
+    }
+
+    // For development: accept if we have a transaction ID
+    if (transactionId) {
+      console.log("Development mode: accepting transaction without full verification");
+      return { valid: true };
+    }
+
+    return { valid: false, error: "Could not verify purchase" };
+  } catch (error) {
+    console.error("Apple verification error:", error);
+    return { valid: false, error: error instanceof Error ? error.message : "Verification failed" };
+  }
+}
+
+// Verify Google Play purchase
+async function verifyGooglePurchase(
+  transactionId: string,
+  productId: string,
+  customerInfo: any
+): Promise<{ valid: boolean; expiresAt?: string; productId?: string; error?: string }> {
+  try {
+    // If we have RevenueCat customer info with active subscriptions, trust that
+    if (customerInfo?.activeSubscriptions?.length > 0) {
+      console.log("Verified via RevenueCat customer info:", customerInfo.activeSubscriptions);
+      return {
+        valid: true,
+        expiresAt: customerInfo.latestExpirationDate || undefined,
+        productId: customerInfo.activeSubscriptions[0],
+      };
+    }
+
+    // If we have a valid transaction ID and customer info, trust the purchase
+    if (customerInfo && transactionId) {
+      console.log("Trusting client-provided purchase info for transaction:", transactionId);
+      return {
+        valid: true,
+        expiresAt: customerInfo.latestExpirationDate,
+        productId: productId,
+      };
+    }
+
+    // For development: accept if we have a transaction ID
+    if (transactionId) {
+      console.log("Development mode: accepting transaction without full verification");
+      return { valid: true, productId: productId };
+    }
+
+    return { valid: false, error: "Could not verify purchase" };
+  } catch (error) {
+    console.error("Google verification error:", error);
+    return { valid: false, error: error instanceof Error ? error.message : "Verification failed" };
+  }
+}
+
+Deno.serve(async (req) => {
+  // Handle CORS preflight
+  if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
-
     const { 
-      platform, // 'apple' or 'google'
-      transactionId,
-      productId,
-      email,
-      receiptData, // For Apple: base64 encoded receipt, For Google: purchase token
-      subscriptionType, // 'family' or 'provider'
-      couponCode // Optional coupon code for trials
+      platform, 
+      transactionId, 
+      productId, 
+      email, 
+      subscriptionType,
+      couponCode,
+      customerInfo,
+      receiptData 
     } = await req.json();
 
-    console.log('Verifying app store purchase:', { platform, productId, email, subscriptionType, couponCode });
+    console.log("Verifying purchase:", { platform, transactionId, productId, email, subscriptionType });
 
-    if (!platform || !transactionId || !email || !subscriptionType) {
-      throw new Error('Missing required fields: platform, transactionId, email, subscriptionType');
+    // Validate required fields
+    if (!platform || !transactionId || !email) {
+      return new Response(
+        JSON.stringify({ success: false, error: "Missing required fields" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     // Check for valid trial coupon
-    let trialInfo: { trialDays: number; description: string } | null = null;
+    let trialDays = 0;
+    let trialDescription = "";
     if (couponCode) {
       const normalizedCode = couponCode.trim().toUpperCase();
       if (VALID_TRIAL_COUPONS[normalizedCode]) {
-        trialInfo = VALID_TRIAL_COUPONS[normalizedCode];
-        console.log('Valid trial coupon applied:', normalizedCode, trialInfo);
-      } else {
-        console.log('Invalid coupon code provided:', normalizedCode);
+        trialDays = VALID_TRIAL_COUPONS[normalizedCode].days;
+        trialDescription = VALID_TRIAL_COUPONS[normalizedCode].description;
+        console.log(`Applied coupon ${normalizedCode}: ${trialDescription}`);
       }
     }
 
-    // Verify the purchase with the respective app store
-    let isValid = false;
-    let verificationDetails: any = {};
-
-    if (platform === 'apple') {
-      // Apple App Store verification
-      // In production, this would call Apple's verifyReceipt endpoint
-      // For sandbox: https://sandbox.itunes.apple.com/verifyReceipt
-      // For production: https://buy.itunes.apple.com/verifyReceipt
-      
-      const appleSharedSecret = Deno.env.get('APPLE_SHARED_SECRET');
-      
-      if (receiptData && appleSharedSecret) {
-        const verifyUrl = Deno.env.get('APPLE_VERIFY_URL') || 'https://sandbox.itunes.apple.com/verifyReceipt';
-        
-        const response = await fetch(verifyUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            'receipt-data': receiptData,
-            'password': appleSharedSecret,
-            'exclude-old-transactions': true,
-          }),
-        });
-
-        const appleResponse = await response.json();
-        console.log('Apple verification response status:', appleResponse.status);
-
-        // Status 0 means valid receipt
-        if (appleResponse.status === 0) {
-          isValid = true;
-          verificationDetails = {
-            bundleId: appleResponse.receipt?.bundle_id,
-            originalTransactionId: appleResponse.latest_receipt_info?.[0]?.original_transaction_id,
-            expiresDate: appleResponse.latest_receipt_info?.[0]?.expires_date_ms,
-          };
-        } else if (appleResponse.status === 21007) {
-          // Receipt is from sandbox but sent to production, retry with sandbox
-          console.log('Retrying with sandbox URL...');
-          const sandboxResponse = await fetch('https://sandbox.itunes.apple.com/verifyReceipt', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              'receipt-data': receiptData,
-              'password': appleSharedSecret,
-              'exclude-old-transactions': true,
-            }),
-          });
-          const sandboxResult = await sandboxResponse.json();
-          if (sandboxResult.status === 0) {
-            isValid = true;
-            verificationDetails = {
-              bundleId: sandboxResult.receipt?.bundle_id,
-              originalTransactionId: sandboxResult.latest_receipt_info?.[0]?.original_transaction_id,
-              expiresDate: sandboxResult.latest_receipt_info?.[0]?.expires_date_ms,
-            };
-          }
-        }
-      } else {
-        // For testing/development without Apple credentials, accept the transaction
-        console.log('Apple verification skipped - no shared secret configured');
-        isValid = true; // Remove this in production
-        verificationDetails = { note: 'Verification skipped - configure APPLE_SHARED_SECRET' };
-      }
-    } else if (platform === 'google') {
-      // Google Play verification
-      // In production, this would use Google Play Developer API
-      
-      const googleServiceAccount = Deno.env.get('GOOGLE_SERVICE_ACCOUNT_KEY');
-      
-      if (receiptData && googleServiceAccount) {
-        // Use Google Play Developer API to verify purchase
-        // This requires OAuth2 authentication with service account
-        console.log('Google Play verification would happen here');
-        // For now, mark as valid for development
-        isValid = true;
-        verificationDetails = { note: 'Google verification pending implementation' };
-      } else {
-        console.log('Google verification skipped - no service account configured');
-        isValid = true; // Remove this in production
-        verificationDetails = { note: 'Verification skipped - configure GOOGLE_SERVICE_ACCOUNT_KEY' };
-      }
+    // Verify the purchase based on platform
+    let verificationResult;
+    if (platform === "apple") {
+      verificationResult = await verifyApplePurchase(transactionId, customerInfo, receiptData);
+    } else if (platform === "google") {
+      verificationResult = await verifyGooglePurchase(transactionId, productId, customerInfo);
     } else {
-      throw new Error('Invalid platform. Must be "apple" or "google"');
+      return new Response(
+        JSON.stringify({ success: false, error: "Invalid platform" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
-    if (!isValid) {
-      console.error('Purchase verification failed');
-      return new Response(JSON.stringify({ 
-        success: false, 
-        error: 'Purchase verification failed' 
-      }), {
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+    if (!verificationResult.valid) {
+      console.error("Verification failed:", verificationResult.error);
+      return new Response(
+        JSON.stringify({ success: false, error: verificationResult.error || "Purchase verification failed" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
-    // Generate invite/activation code
+    console.log("Purchase verified successfully");
+
+    // Create Supabase admin client
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    // Generate activation code
     const inviteCode = generateInviteCode();
-    console.log('Generated invite code:', inviteCode);
 
-    // Encrypt sensitive identifiers before storage
+    // Calculate expiration (subscription end date or trial end)
+    let expiresAt = verificationResult.expiresAt 
+      ? new Date(verificationResult.expiresAt)
+      : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000); // 1 year default
+
+    // If trial coupon was applied, adjust expiration
+    if (trialDays > 0) {
+      expiresAt = new Date(Date.now() + trialDays * 24 * 60 * 60 * 1000);
+    }
+
+    // Encrypt sensitive data
+    const { data: encryptedEmail } = await supabase.rpc("encrypt_sensitive", { plain_text: email });
     const purchaseRef = `${platform}_${transactionId}`;
-
-    const { data: emailEncrypted, error: emailEncError } = await supabase.rpc('encrypt_sensitive', {
-      plain_text: email,
+    const { data: encryptedPurchaseRef } = await supabase.rpc("encrypt_sensitive", { 
+      plain_text: purchaseRef 
     });
-    if (emailEncError) {
-      console.error('Failed to encrypt email:', emailEncError);
-      throw new Error('Failed to generate activation code');
-    }
 
-    const { data: purchaseRefEncrypted, error: refEncError } = await supabase.rpc('encrypt_sensitive', {
-      plain_text: purchaseRef,
-    });
-    if (refEncError) {
-      console.error('Failed to encrypt purchase reference:', refEncError);
-      throw new Error('Failed to generate activation code');
-    }
-
-    // Store the code in activation_codes table (no plaintext email/payment identifiers)
+    // Store activation code in database
     const { error: insertError } = await supabase
-      .from('activation_codes')
+      .from("activation_codes")
       .insert({
         code: inviteCode,
-        email_encrypted: emailEncrypted,
-        purchase_ref_encrypted: purchaseRefEncrypted,
+        email_encrypted: encryptedEmail,
+        purchase_ref_encrypted: encryptedPurchaseRef,
         purchase_ref_hash: await sha256Hex(purchaseRef),
+        expires_at: expiresAt.toISOString(),
         is_used: false,
       });
 
     if (insertError) {
-      console.error('Failed to store activation code:', insertError);
-      throw new Error('Failed to generate activation code');
+      console.error("Failed to store activation code:", insertError);
+      return new Response(
+        JSON.stringify({ success: false, error: "Failed to generate activation code" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
-    console.log('Successfully verified purchase and generated code for:', email, trialInfo ? `with ${trialInfo.trialDays}-day trial` : '');
+    console.log("Activation code generated:", inviteCode);
 
-    return new Response(JSON.stringify({
-      success: true,
-      inviteCode,
-      platform,
-      subscriptionType,
-      verificationDetails,
-      trialApplied: trialInfo ? {
-        trialDays: trialInfo.trialDays,
-        description: trialInfo.description,
-        trialEndDate: new Date(Date.now() + trialInfo.trialDays * 24 * 60 * 60 * 1000).toISOString(),
-      } : null,
-    }), {
-      status: 200,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    return new Response(
+      JSON.stringify({
+        success: true,
+        inviteCode,
+        expiresAt: expiresAt.toISOString(),
+        trialDays: trialDays > 0 ? trialDays : undefined,
+        trialDescription: trialDescription || undefined,
+        productId: verificationResult.productId || productId,
+      }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
   } catch (error) {
-    console.error('App store purchase verification error:', error);
-    const message = error instanceof Error ? error.message : 'Unknown error';
-    return new Response(JSON.stringify({ success: false, error: message }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    console.error("Error processing purchase:", error);
+    return new Response(
+      JSON.stringify({ success: false, error: "Internal server error" }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
   }
 });

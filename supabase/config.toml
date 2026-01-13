@@ -83,3 +83,6 @@ verify_jwt = false
 
 [functions.analyze-image-clarity]
 verify_jwt = false
+
+[functions.app-store-notifications]
+verify_jwt = false
