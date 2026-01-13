@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Building2, Check, CreditCard, Shield, Users, Tag, Loader2, Copy, Brain, TrendingUp, MessageSquareWarning, Sparkles } from "lucide-react";
 import { BrandedHeader } from "@/components/BrandedHeader";
-import { AppStorePurchaseButton } from "@/components/AppStorePurchaseButton";
+import { AppStorePurchaseButton, RestorePurchasesButton } from "@/components/AppStorePurchaseButton";
 import { AppleLogo, GooglePlayLogo } from "@/components/icons/StoreLogos";
 
 const ProviderPurchase = () => {
@@ -349,15 +349,15 @@ const ProviderPurchase = () => {
                   ) : billingPeriod === "quarterly" ? (
                     <div className="space-y-2">
                       <div>
-                        <span className="text-4xl font-bold">$625</span>
+                        <span className="text-4xl font-bold">$629</span>
                         <span className="text-muted-foreground">/quarter</span>
                       </div>
                       <div className="inline-flex items-center gap-2 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-3 py-1 rounded-full text-sm font-medium">
                         <Check className="w-4 h-4" />
-                        4 payments = $2,500/year
+                        4 payments = $2,516/year
                       </div>
                       <p className="text-sm text-muted-foreground">
-                        Same as annual, paid quarterly
+                        Flexible quarterly billing
                       </p>
                     </div>
                   ) : (
@@ -448,6 +448,15 @@ const ProviderPurchase = () => {
                   <p className="text-xs text-muted-foreground text-center">
                     {paymentInfo.description}
                   </p>
+
+                  {/* Restore Purchases - Required by App Store */}
+                  <RestorePurchasesButton 
+                    className="w-full" 
+                    onRestore={() => {
+                      toast.success("Purchases restored! Redirecting...");
+                      navigate("/provider-admin");
+                    }}
+                  />
                 </div>
               </CardContent>
             </Card>

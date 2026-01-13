@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Check, CreditCard, Shield, Users, Tag, Loader2, Copy, MessageCircle, UserPlus, DollarSign, Target, Sparkles, Brain, TrendingUp, MessageSquareWarning } from "lucide-react";
 import { BrandedHeader } from "@/components/BrandedHeader";
-import { AppStorePurchaseButton } from "@/components/AppStorePurchaseButton";
+import { AppStorePurchaseButton, RestorePurchasesButton } from "@/components/AppStorePurchaseButton";
 import { AppleLogo, GooglePlayLogo } from "@/components/icons/StoreLogos";
 
 const FamilyPurchase = () => {
@@ -465,6 +465,15 @@ const FamilyPurchase = () => {
                   <p className="text-xs text-muted-foreground text-center">
                     {paymentInfo.description}
                   </p>
+
+                  {/* Restore Purchases - Required by App Store */}
+                  <RestorePurchasesButton 
+                    className="w-full" 
+                    onRestore={() => {
+                      toast.success("Purchases restored! Redirecting...");
+                      navigate("/family-setup");
+                    }}
+                  />
                 </div>
               </CardContent>
             </Card>
