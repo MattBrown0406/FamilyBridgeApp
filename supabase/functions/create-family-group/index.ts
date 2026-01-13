@@ -142,7 +142,7 @@ serve(async (req) => {
               <div style="background: #f8f9fa; border-radius: 12px; padding: 30px; margin-bottom: 20px;">
                 <h2 style="margin-top: 0; color: #333;">Welcome, ${adminName}!</h2>
                 
-                <p>Congratulations! Your family group <strong>"${familyName}"</strong> has been successfully created. As the family administrator, you'll have access to special features to help manage and support your family.</p>
+                <p>Congratulations! Your family group <strong>"${familyName}"</strong> has been successfully created. This email contains everything you need to know to use FamilyBridge effectively and create consistency and accountability for everyone involved.</p>
                 
                 <div style="background: #fff; border: 2px solid #2d7d6f; border-radius: 8px; padding: 20px; margin: 25px 0;">
                   <p style="margin: 0 0 10px 0; color: #666; font-size: 14px;">Your Family Invite Code (share with family members):</p>
@@ -157,36 +157,86 @@ serve(async (req) => {
                   <li style="margin-bottom: 10px;"><strong>Sign the HIPAA release</strong> - If applicable, this helps protect everyone's privacy</li>
                 </ol>
 
-                <h3 style="color: #2d7d6f; margin-top: 30px;">👥 Inviting Family Members</h3>
+                <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;" />
+
+                <h2 style="color: #2d7d6f; margin-top: 0;">📋 Understanding the App Features</h2>
+                <p>FamilyBridge has seven main sections, each designed to help your family communicate effectively, maintain accountability, and support recovery:</p>
+
+                <h3 style="color: #2d7d6f; margin-top: 25px;">💬 Messages Tab</h3>
+                <p><strong>What it does:</strong> A family group chat where everyone can communicate in one place.</p>
+                <p><strong>Key Feature - Content Filtering:</strong> FamilyBridge automatically filters profanity, abusive language, and inappropriate content from all messages. This creates a safer communication environment and reduces the emotional harm that can come from heated exchanges. Family members can communicate knowing that hurtful language will be moderated automatically.</p>
+                <p><strong>Best Practice:</strong> Use this as your primary communication channel. The filtering helps keep conversations productive, especially during difficult times.</p>
+
+                <h3 style="color: #2d7d6f; margin-top: 25px;">📍 Check-in Tab</h3>
+                <p><strong>What it does:</strong> Allows family members to check in at recovery meetings, therapy appointments, medical visits, work, and other important locations.</p>
+                <p><strong>Location Request Feature:</strong> Family members can request a location check-in from their loved one at any time. This provides peace of mind and builds trust through transparency.</p>
+                <p><strong>Meeting Verification:</strong> When checking into recovery meetings, the app verifies the location and can even detect if someone is at an establishment with a liquor license, providing helpful awareness.</p>
+                <p><strong>Best Practice:</strong> Establish an expectation that your loved one checks in at every meeting and appointment. Consistency builds trust over time. Use location requests when you need reassurance - it's not about control, it's about rebuilding trust together.</p>
+
+                <h3 style="color: #2d7d6f; margin-top: 25px;">💰 Financial Tab</h3>
+                <p><strong>What it does:</strong> Manages financial requests with full transparency. Your loved one can request money for specific needs (utilities, rent, food, medical, etc.) and attach photos of actual bills.</p>
+                <p><strong>Why it matters:</strong> Financial manipulation is common in addiction. This feature removes the guesswork - family members can see exactly what the money is for before deciding to help.</p>
+                <p><strong>Best Practice:</strong> Require bill attachments for all financial requests. This protects both parties and ensures money goes where it's intended.</p>
+
+                <h3 style="color: #2d7d6f; margin-top: 25px;">🎯 Goals Tab</h3>
+                <p><strong>What it does:</strong> Helps your family define shared values and set recovery milestones together.</p>
+                <p><strong>Family Values:</strong> Choose values like honesty, accountability, healthy boundaries, and compassionate communication that everyone commits to uphold.</p>
+                <p><strong>Recovery Goals:</strong> Track milestones like "90 meetings in 90 days," completing family therapy sessions, and celebrating sobriety anniversaries.</p>
+                <p><strong>Best Practice:</strong> Set these together as a family. When everyone agrees on the values and goals, there's less room for misunderstanding and more motivation to succeed.</p>
+
+                <h3 style="color: #2d7d6f; margin-top: 25px;">🛡️ Boundaries Tab</h3>
+                <p><strong>What it does:</strong> A place to document and agree on family boundaries - the "rules of engagement" for your family's recovery journey.</p>
+                <p><strong>Examples:</strong> "No phone calls after 10 PM unless emergency," "Weekly check-in calls on Sundays," "No financial help without 48-hour notice and documentation."</p>
+                <p><strong>Best Practice:</strong> Write boundaries down when everyone is calm. Having them documented prevents arguments later about "what we agreed to."</p>
+
+                <h3 style="color: #2d7d6f; margin-top: 25px;">🧪 Tests Tab</h3>
+                <p><strong>What it does:</strong> Track and share drug test results, medical screenings, and other verification documents.</p>
+                <p><strong>Best Practice:</strong> If testing is part of your family's recovery plan, use this to maintain a clear record. Transparency builds trust.</p>
+
+                <h3 style="color: #2d7d6f; margin-top: 25px;">🧠 FIIS Tab (Family Interaction Intelligence System)</h3>
+                <p><strong>What it does:</strong> An AI-powered tool that analyzes patterns across family interactions - messages, check-ins, financial requests, and observations you log.</p>
+                <p><strong>Note:</strong> This tab is only visible to supporting family members, not to the person in recovery, so you can track patterns privately.</p>
+                <p><strong>Best Practice:</strong> Log observations about behavior patterns, mood changes, or concerning signs. FIIS helps you see trends that might not be obvious day-to-day.</p>
+
+                <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;" />
+
+                <h2 style="color: #c62828; margin-top: 0;">⚠️ Important: When Your Loved One Resists</h2>
+                <p>If your loved one is opposed to using FamilyBridge, it may be necessary for the family to establish clear boundaries around communication:</p>
+                
+                <div style="background: #fff3e0; border-left: 4px solid #ff9800; padding: 15px; margin: 20px 0;">
+                  <p style="margin: 0;"><strong>Consider this:</strong> If they refuse to communicate through the app where content is filtered and accountability is built in, the family may need to block them from communicating through other means (phone, text, social media).</p>
+                </div>
+
+                <p><strong>Why this matters:</strong></p>
+                <ul style="color: #555; padding-left: 20px;">
+                  <li><strong>Reduced abuse:</strong> The content filter prevents profanity, manipulation, and verbal abuse from reaching family members</li>
+                  <li><strong>Documented communication:</strong> Everything is recorded, reducing "he said/she said" disputes</li>
+                  <li><strong>Location accountability:</strong> Know where your loved one is when they say they're at a meeting</li>
+                  <li><strong>Financial transparency:</strong> No more wondering where the money really went</li>
+                  <li><strong>Pattern recognition:</strong> FIIS helps you identify concerning trends before they become crises</li>
+                </ul>
+
+                <p>This may seem extreme, but directing all communication through FamilyBridge protects everyone involved. It's not about punishment - it's about creating a structured environment where trust can be rebuilt safely.</p>
+
+                <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;" />
+
+                <h3 style="color: #2d7d6f; margin-top: 0;">👥 Inviting Family Members</h3>
                 <p>We've already sent invitation emails to the family members you listed during setup. Each email contains the family invite code above.</p>
-                <p>If you need to invite additional members later:</p>
-                <ul style="color: #555; padding-left: 20px;">
-                  <li>Share the invite code: <strong style="font-family: monospace;">${memberInviteCode}</strong></li>
-                  <li>Direct them to FamilyBridge to create an account</li>
-                  <li>They'll use the code to join your family group</li>
-                </ul>
+                <p>If you need to invite additional members later, share this code: <strong style="font-family: monospace;">${memberInviteCode}</strong></p>
 
-                <h3 style="color: #2d7d6f; margin-top: 30px;">🛡️ As Family Admin, You Can:</h3>
+                <h3 style="color: #2d7d6f; margin-top: 30px;">💡 Keys to Success</h3>
                 <ul style="color: #555; padding-left: 20px;">
-                  <li>View the family invite code anytime from your dashboard</li>
-                  <li>See family activity and check-ins</li>
-                  <li>Manage family boundaries and agreements</li>
-                  <li>Approve financial requests</li>
-                  <li>Access the family chat</li>
-                </ul>
-
-                <h3 style="color: #2d7d6f; margin-top: 30px;">💡 Quick Tips</h3>
-                <ul style="color: #555; padding-left: 20px;">
-                  <li>Enable notifications so you never miss important updates</li>
-                  <li>Set up your payment info if you want to participate in financial support</li>
-                  <li>Use the Conversation Starters to get meaningful discussions going</li>
-                  <li>Check in regularly - consistent engagement helps everyone</li>
+                  <li><strong>Consistency is everything:</strong> Check in daily, respond to messages promptly, and stick to the boundaries you set</li>
+                  <li><strong>Enable notifications:</strong> Don't miss important check-ins or requests</li>
+                  <li><strong>Use Conversation Starters:</strong> These prompts help facilitate meaningful discussions about recovery</li>
+                  <li><strong>Log observations regularly:</strong> The more data FIIS has, the better it can help you see patterns</li>
+                  <li><strong>Celebrate progress:</strong> Mark milestones and acknowledge growth - recovery is hard work</li>
                 </ul>
               </div>
               
               <div style="background: #e8f5e9; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
                 <h3 style="margin-top: 0; color: #2e7d32;">Need Help?</h3>
-                <p style="margin-bottom: 0;">Visit our Support page within the app or reply to this email if you have any questions. We're here to help your family on this journey.</p>
+                <p style="margin-bottom: 0;">Visit our Support page within the app if you have any questions. We're here to help your family on this journey.</p>
               </div>
               
               <div style="text-align: center; padding: 20px; color: #888; font-size: 14px;">
