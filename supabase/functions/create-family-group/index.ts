@@ -170,12 +170,13 @@ serve(async (req) => {
                 <h3 style="color: #2d7d6f; margin-top: 25px;">📍 Check-in Tab</h3>
                 <p><strong>What it does:</strong> Allows family members to check in at recovery meetings, therapy appointments, medical visits, work, and other important locations.</p>
                 <p><strong>Location Request Feature:</strong> Family members can request a location check-in from their loved one at any time. This provides peace of mind and builds trust through transparency.</p>
-                <p><strong>Meeting Verification:</strong> When checking into recovery meetings, the app verifies the location and can even detect if someone is at an establishment with a liquor license, providing helpful awareness.</p>
+                <p><strong>Liquor License Detection:</strong> For ALL check-ins - whether your loved one is checking in at a meeting, responding to a location request, or checking in anywhere else - FamilyBridge automatically checks if the location has a liquor license on file. If they check in from a bar, restaurant with a bar, or liquor store, you'll be alerted. This works for every type of check-in, not just recovery meetings.</p>
                 <p><strong>Best Practice:</strong> Establish an expectation that your loved one checks in at every meeting and appointment. Consistency builds trust over time. Use location requests when you need reassurance - it's not about control, it's about rebuilding trust together.</p>
 
                 <h3 style="color: #2d7d6f; margin-top: 25px;">💰 Financial Tab</h3>
                 <p><strong>What it does:</strong> Manages financial requests with full transparency. Your loved one can request money for specific needs (utilities, rent, food, medical, etc.) and attach photos of actual bills.</p>
-                <p><strong>Why it matters:</strong> Financial manipulation is common in addiction. This feature removes the guesswork - family members can see exactly what the money is for before deciding to help.</p>
+                <p><strong>One Transaction at a Time:</strong> Only one financial request can be active at a time. The current request must be completed - money sent and receipt confirmed - before another request can be submitted. This ensures accountability is established for each transaction before moving to the next one.</p>
+                <p><strong>Why it matters:</strong> Financial manipulation is common in addiction. This feature removes the guesswork - family members can see exactly what the money is for before deciding to help. The one-at-a-time rule prevents requests from piling up and ensures each transaction is properly closed out.</p>
                 <p><strong>Best Practice:</strong> Require bill attachments for all financial requests. This protects both parties and ensures money goes where it's intended.</p>
 
                 <h3 style="color: #2d7d6f; margin-top: 25px;">🎯 Goals Tab</h3>
