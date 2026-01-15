@@ -12,6 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { toast } from 'sonner';
 import { 
@@ -198,7 +199,7 @@ const SuperAdmin = () => {
   const stats = rawStats as AdminStats | null;
   
   const [globalSearch, setGlobalSearch] = useState('');
-  const [activeTab, setActiveTab] = useState('families');
+  const [activeTab, setActiveTab] = useState('providers');
   
   // Detail dialog states
   const [selectedFamilyId, setSelectedFamilyId] = useState<string | null>(null);
@@ -646,15 +647,15 @@ const SuperAdmin = () => {
             {/* Main Content */}
             <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-3">
               <TabsList className="h-9 p-1 bg-muted/50">
-                <TabsTrigger value="families" className="h-7 text-xs gap-1.5 data-[state=active]:shadow-sm">
-                  <Users className="h-3.5 w-3.5" />
-                  Families
-                  <Badge variant="secondary" className="h-5 px-1.5 text-[10px] ml-1">{filteredFamilies.length}</Badge>
-                </TabsTrigger>
-                <TabsTrigger value="organizations" className="h-7 text-xs gap-1.5 data-[state=active]:shadow-sm">
+                <TabsTrigger value="providers" className="h-7 text-xs gap-1.5 data-[state=active]:shadow-sm">
                   <Building2 className="h-3.5 w-3.5" />
                   Providers
                   <Badge variant="secondary" className="h-5 px-1.5 text-[10px] ml-1">{filteredOrgs.length}</Badge>
+                </TabsTrigger>
+                <TabsTrigger value="families" className="h-7 text-xs gap-1.5 data-[state=active]:shadow-sm">
+                  <Users className="h-3.5 w-3.5" />
+                  All Families
+                  <Badge variant="secondary" className="h-5 px-1.5 text-[10px] ml-1">{filteredFamilies.length}</Badge>
                 </TabsTrigger>
                 <TabsTrigger value="users" className="h-7 text-xs gap-1.5 data-[state=active]:shadow-sm">
                   <User className="h-3.5 w-3.5" />
@@ -670,6 +671,233 @@ const SuperAdmin = () => {
                   Patent Docs
                 </TabsTrigger>
               </TabsList>
+
+              {/* Providers with Accordion Families */}
+              <TabsContent value="providers" className="mt-0">
+                <Card className="border-0 shadow-sm">
+                  <ScrollArea className="h-[calc(100vh-280px)]">
+                    {filteredOrgs.length === 0 ? (
+                      <div className="py-12 text-center text-muted-foreground">
+                        <Building2 className="h-10 w-10 mx-auto mb-2 opacity-30" />
+                        <p>No providers found</p>
+                      </div>
+                    ) : (
+                      <Accordion type="multiple" className="w-full">
+                        {filteredOrgs.map((org, i) => {
+                          // Get families for this org
+                          const orgFamilies = filteredFamilies.filter(f => f.organization_name === org.name);
+                          const hasBranding = org.logo_url || org.primary_color;
+                          
+                          return (
+                            <AccordionItem key={org.id} value={org.id} className="border-b">
+                              <AccordionTrigger className="px-4 py-3 hover:bg-muted/50 hover:no-underline group">
+                                <div className="flex items-center gap-4 w-full">
+                                  {/* Brand color accent bar */}
+                                  {org.primary_color && (
+                                    <div 
+                                      className="absolute left-0 top-0 bottom-0 w-1"
+                                      style={{ backgroundColor: `hsl(${org.primary_color})` }}
+                                    />
+                                  )}
+                                  
+                                  {/* Logo or fallback icon */}
+                                  <div 
+                                    className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden border"
+                                    style={{ 
+                                      backgroundColor: org.background_color ? `hsl(${org.background_color})` : undefined,
+                                      borderColor: org.primary_color ? `hsl(${org.primary_color})` : undefined
+                                    }}
+                                  >
+                                    {org.logo_url ? (
+                                      <img 
+                                        src={org.logo_url} 
+                                        alt={`${org.name} logo`}
+                                        className="w-full h-full object-contain"
+                                      />
+                                    ) : (
+                                      <Building2 
+                                        className="h-4 w-4" 
+                                        style={{ color: org.primary_color ? `hsl(${org.primary_color})` : undefined }}
+                                      />
+                                    )}
+                                  </div>
+                                  
+                                  <div className="flex-1 min-w-0 text-left">
+                                    <div className="flex items-center gap-2">
+                                      <p className="font-medium truncate">{org.name}</p>
+                                      {hasBranding && (
+                                        <div className="flex items-center gap-0.5">
+                                          {org.primary_color && (
+                                            <div 
+                                              className="w-3 h-3 rounded-full border border-white/50 shadow-sm" 
+                                              style={{ backgroundColor: `hsl(${org.primary_color})` }}
+                                              title="Primary color"
+                                            />
+                                          )}
+                                        </div>
+                                      )}
+                                    </div>
+                                    <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                                      <span className="font-mono">{org.subdomain}</span>
+                                      <Badge variant="secondary" className="h-5 px-1.5 text-[10px]">
+                                        {orgFamilies.length} {orgFamilies.length === 1 ? 'family' : 'families'}
+                                      </Badge>
+                                    </div>
+                                  </div>
+                                  
+                                  <Button 
+                                    size="sm" 
+                                    variant="ghost" 
+                                    className="h-8 px-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                                    onClick={(e) => { e.stopPropagation(); fetchOrgDetails(org.id); }}
+                                  >
+                                    <Pencil className="h-3.5 w-3.5" />
+                                  </Button>
+                                </div>
+                              </AccordionTrigger>
+                              
+                              <AccordionContent className="pb-0">
+                                {orgFamilies.length === 0 ? (
+                                  <div className="py-6 text-center text-muted-foreground text-sm">
+                                    <Users className="h-6 w-6 mx-auto mb-1 opacity-30" />
+                                    <p>No active families</p>
+                                  </div>
+                                ) : (
+                                  <div className="divide-y bg-muted/30">
+                                    {orgFamilies.map((family) => {
+                                      const activity = getActivityIndicator(family.total_activity);
+                                      return (
+                                        <div
+                                          key={family.id}
+                                          className="flex items-center gap-4 px-4 pl-8 py-3 hover:bg-muted/50 cursor-pointer transition-colors group"
+                                          onClick={() => fetchFamilyDetails(family.id)}
+                                        >
+                                          <div 
+                                            className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden border bg-background"
+                                            style={{ 
+                                              borderColor: org.primary_color ? `hsl(${org.primary_color})` : 'hsl(var(--border))'
+                                            }}
+                                          >
+                                            <Users className="h-3.5 w-3.5 text-primary" />
+                                          </div>
+                                          <div className="flex-1 min-w-0">
+                                            <div className="flex items-center gap-2">
+                                              <p className="font-medium truncate text-sm">{family.name}</p>
+                                              <span className={`w-2 h-2 rounded-full ${activity.color} flex-shrink-0`} title={activity.label} />
+                                            </div>
+                                            <div className="flex items-center flex-wrap gap-3 text-xs text-muted-foreground">
+                                              <span className="font-mono">{family.account_number}</span>
+                                              {family.invite_code && (
+                                                <button
+                                                  onClick={(e) => copyInviteCode(family.invite_code!, e)}
+                                                  className="flex items-center gap-1 hover:text-primary transition-colors"
+                                                >
+                                                  <Copy className="h-3 w-3" />
+                                                  {family.invite_code}
+                                                </button>
+                                              )}
+                                            </div>
+                                          </div>
+                                          <div className="hidden sm:flex items-center gap-6 text-xs text-center">
+                                            <div>
+                                              <p className="font-semibold text-sm">{family.messages_last_30_days}</p>
+                                              <p className="text-muted-foreground">msgs</p>
+                                            </div>
+                                            <div>
+                                              <p className="font-semibold text-sm">{family.checkins_last_30_days}</p>
+                                              <p className="text-muted-foreground">checkins</p>
+                                            </div>
+                                          </div>
+                                          <ChevronRight className="h-4 w-4 text-muted-foreground/50 group-hover:text-muted-foreground transition-colors" />
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                )}
+                              </AccordionContent>
+                            </AccordionItem>
+                          );
+                        })}
+                        
+                        {/* Unaffiliated families section */}
+                        {(() => {
+                          const unaffiliatedFamilies = filteredFamilies.filter(f => !f.organization_name);
+                          if (unaffiliatedFamilies.length === 0) return null;
+                          
+                          return (
+                            <AccordionItem value="unaffiliated" className="border-b">
+                              <AccordionTrigger className="px-4 py-3 hover:bg-muted/50 hover:no-underline group">
+                                <div className="flex items-center gap-4 w-full">
+                                  <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden border bg-muted">
+                                    <Users className="h-4 w-4 text-muted-foreground" />
+                                  </div>
+                                  
+                                  <div className="flex-1 min-w-0 text-left">
+                                    <p className="font-medium truncate text-muted-foreground">Unaffiliated Families</p>
+                                    <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                                      <Badge variant="secondary" className="h-5 px-1.5 text-[10px]">
+                                        {unaffiliatedFamilies.length} {unaffiliatedFamilies.length === 1 ? 'family' : 'families'}
+                                      </Badge>
+                                    </div>
+                                  </div>
+                                </div>
+                              </AccordionTrigger>
+                              
+                              <AccordionContent className="pb-0">
+                                <div className="divide-y bg-muted/30">
+                                  {unaffiliatedFamilies.map((family) => {
+                                    const activity = getActivityIndicator(family.total_activity);
+                                    return (
+                                      <div
+                                        key={family.id}
+                                        className="flex items-center gap-4 px-4 pl-8 py-3 hover:bg-muted/50 cursor-pointer transition-colors group"
+                                        onClick={() => fetchFamilyDetails(family.id)}
+                                      >
+                                        <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden border bg-background">
+                                          <Users className="h-3.5 w-3.5 text-primary" />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                          <div className="flex items-center gap-2">
+                                            <p className="font-medium truncate text-sm">{family.name}</p>
+                                            <span className={`w-2 h-2 rounded-full ${activity.color} flex-shrink-0`} title={activity.label} />
+                                          </div>
+                                          <div className="flex items-center flex-wrap gap-3 text-xs text-muted-foreground">
+                                            <span className="font-mono">{family.account_number}</span>
+                                            {family.invite_code && (
+                                              <button
+                                                onClick={(e) => copyInviteCode(family.invite_code!, e)}
+                                                className="flex items-center gap-1 hover:text-primary transition-colors"
+                                              >
+                                                <Copy className="h-3 w-3" />
+                                                {family.invite_code}
+                                              </button>
+                                            )}
+                                          </div>
+                                        </div>
+                                        <div className="hidden sm:flex items-center gap-6 text-xs text-center">
+                                          <div>
+                                            <p className="font-semibold text-sm">{family.messages_last_30_days}</p>
+                                            <p className="text-muted-foreground">msgs</p>
+                                          </div>
+                                          <div>
+                                            <p className="font-semibold text-sm">{family.checkins_last_30_days}</p>
+                                            <p className="text-muted-foreground">checkins</p>
+                                          </div>
+                                        </div>
+                                        <ChevronRight className="h-4 w-4 text-muted-foreground/50 group-hover:text-muted-foreground transition-colors" />
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              </AccordionContent>
+                            </AccordionItem>
+                          );
+                        })()}
+                      </Accordion>
+                    )}
+                  </ScrollArea>
+                </Card>
+              </TabsContent>
 
               <TabsContent value="families" className="mt-0">
                 <Card className="border-0 shadow-sm">
@@ -751,102 +979,6 @@ const SuperAdmin = () => {
                 </Card>
               </TabsContent>
 
-              <TabsContent value="organizations" className="mt-0">
-                <Card className="border-0 shadow-sm">
-                  <ScrollArea className="h-[calc(100vh-280px)]">
-                    <div className="divide-y">
-                      {filteredOrgs.length === 0 ? (
-                        <div className="py-12 text-center text-muted-foreground">
-                          <Building2 className="h-10 w-10 mx-auto mb-2 opacity-30" />
-                          <p>No providers found</p>
-                        </div>
-                      ) : (
-                        filteredOrgs.map((org, i) => {
-                          const hasBranding = org.logo_url || org.primary_color;
-                          return (
-                            <div
-                              key={org.id}
-                              className="flex items-center gap-4 px-4 py-3 hover:bg-muted/50 cursor-pointer transition-colors group relative overflow-hidden"
-                              onClick={() => fetchOrgDetails(org.id)}
-                              style={{ animationDelay: `${i * 20}ms` }}
-                            >
-                              {/* Brand color accent bar */}
-                              {org.primary_color && (
-                                <div 
-                                  className="absolute left-0 top-0 bottom-0 w-1"
-                                  style={{ backgroundColor: `hsl(${org.primary_color})` }}
-                                />
-                              )}
-                              
-                              {/* Logo or fallback icon */}
-                              <div 
-                                className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden border"
-                                style={{ 
-                                  backgroundColor: org.background_color ? `hsl(${org.background_color})` : undefined,
-                                  borderColor: org.primary_color ? `hsl(${org.primary_color})` : undefined
-                                }}
-                              >
-                                {org.logo_url ? (
-                                  <img 
-                                    src={org.logo_url} 
-                                    alt={`${org.name} logo`}
-                                    className="w-full h-full object-contain"
-                                  />
-                                ) : (
-                                  <Building2 
-                                    className="h-4 w-4" 
-                                    style={{ color: org.primary_color ? `hsl(${org.primary_color})` : undefined }}
-                                  />
-                                )}
-                              </div>
-                              
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2">
-                                  <p className="font-medium truncate">{org.name}</p>
-                                  {hasBranding && (
-                                    <div className="flex items-center gap-0.5">
-                                      {org.primary_color && (
-                                        <div 
-                                          className="w-3 h-3 rounded-full border border-white/50 shadow-sm" 
-                                          style={{ backgroundColor: `hsl(${org.primary_color})` }}
-                                          title="Primary color"
-                                        />
-                                      )}
-                                      {org.secondary_color && (
-                                        <div 
-                                          className="w-3 h-3 rounded-full border border-white/50 shadow-sm -ml-1" 
-                                          style={{ backgroundColor: `hsl(${org.secondary_color})` }}
-                                          title="Secondary color"
-                                        />
-                                      )}
-                                      {org.accent_color && (
-                                        <div 
-                                          className="w-3 h-3 rounded-full border border-white/50 shadow-sm -ml-1" 
-                                          style={{ backgroundColor: `hsl(${org.accent_color})` }}
-                                          title="Accent color"
-                                        />
-                                      )}
-                                    </div>
-                                  )}
-                                </div>
-                                <p className="text-xs text-muted-foreground">{org.subdomain}.familybridge.app</p>
-                              </div>
-                              <div className="hidden sm:block text-xs text-center">
-                                <p className="font-semibold text-sm">{org.family_count}</p>
-                                <p className="text-muted-foreground">families</p>
-                              </div>
-                              <div className="hidden sm:block text-xs text-muted-foreground">
-                                {format(new Date(org.created_at), 'MMM yyyy')}
-                              </div>
-                              <ChevronRight className="h-4 w-4 text-muted-foreground/50 group-hover:text-muted-foreground transition-colors" />
-                            </div>
-                          );
-                        })
-                      )}
-                    </div>
-                  </ScrollArea>
-                </Card>
-              </TabsContent>
 
               <TabsContent value="users" className="mt-0">
                 <Card className="border-0 shadow-sm">
