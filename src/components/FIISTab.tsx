@@ -343,8 +343,13 @@ export function FIISTab({ familyId, members, onView, isModerator = false }: FIIS
               <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-violet-500/20 to-purple-500/20 flex items-center justify-center shrink-0">
                 <Brain className="h-4 w-4 text-violet-600" />
               </div>
-              <span className="hidden sm:inline">Family Intervention Intelligence System</span>
-              <span className="sm:hidden">FIIS</span>
+              <div className="flex flex-col">
+                <div className="flex items-center gap-2">
+                  <span className="hidden sm:inline">Family Intervention Intelligence System</span>
+                  <span className="sm:hidden">FIIS</span>
+                </div>
+                <span className="text-[10px] font-normal text-muted-foreground tracking-wide">Patent Pending</span>
+              </div>
             </CardTitle>
             <div className="flex gap-2 sm:ml-auto">
               <Button
