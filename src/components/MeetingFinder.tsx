@@ -564,40 +564,42 @@ export const MeetingFinder = () => {
           </Select>
         </div>
 
-        {/* Region Selector */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-muted-foreground flex items-center gap-1">
-            <Globe className="h-4 w-4" />
-            Select Region
-          </label>
-          <p className="text-xs text-muted-foreground mb-1">
-            {isOnlineRegion 
-              ? "Online meetings are worldwide - search by meeting name" 
-              : "Search by name, city, state, or zip code"}
-          </p>
-          <Select value={selectedRegion} onValueChange={setSelectedRegion}>
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Choose a region" />
-            </SelectTrigger>
-            <SelectContent>
-              {filteredRegionGroups.map((group) => (
-                <SelectGroup key={group.label}>
-                  <SelectLabel className="font-semibold text-primary">{group.label}</SelectLabel>
-                  {group.regions.map((region) => (
-                    <SelectItem key={region.name} value={region.name}>
-                      {region.name}
-                      {region.description && (
-                        <span className="text-xs text-muted-foreground ml-2">
-                          ({region.description})
-                        </span>
-                      )}
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        {/* Region Selector - Only shown for AA fellowship */}
+        {selectedFellowship === 'AA' && (
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-muted-foreground flex items-center gap-1">
+              <Globe className="h-4 w-4" />
+              Select Region
+            </label>
+            <p className="text-xs text-muted-foreground mb-1">
+              {isOnlineRegion 
+                ? "Online meetings are worldwide - search by meeting name" 
+                : "Search by name, city, state, or zip code"}
+            </p>
+            <Select value={selectedRegion} onValueChange={setSelectedRegion}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Choose a region" />
+              </SelectTrigger>
+              <SelectContent>
+                {filteredRegionGroups.map((group) => (
+                  <SelectGroup key={group.label}>
+                    <SelectLabel className="font-semibold text-primary">{group.label}</SelectLabel>
+                    {group.regions.map((region) => (
+                      <SelectItem key={region.name} value={region.name}>
+                        {region.name}
+                        {region.description && (
+                          <span className="text-xs text-muted-foreground ml-2">
+                            ({region.description})
+                          </span>
+                        )}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
 
         {/* Al-Anon External Link */}
         {selectedFellowship === 'Al-Anon' && (
