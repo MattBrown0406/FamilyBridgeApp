@@ -644,6 +644,41 @@ export type Database = {
           },
         ]
       }
+      fiis_disclaimer_acknowledgments: {
+        Row: {
+          acknowledged_at: string
+          family_id: string
+          id: string
+          ip_address: string | null
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          acknowledged_at?: string
+          family_id: string
+          id?: string
+          ip_address?: string | null
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          acknowledged_at?: string
+          family_id?: string
+          id?: string
+          ip_address?: string | null
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fiis_disclaimer_acknowledgments_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       fiis_observations: {
         Row: {
           content: string
