@@ -339,18 +339,17 @@ const ProviderPurchase = () => {
                     >
                       Monthly
                     </button>
-                    {isNative ? (
-                      <button
-                        onClick={() => setBillingPeriod("quarterly")}
-                        className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                          billingPeriod === "quarterly"
-                            ? "bg-background shadow-sm text-foreground"
-                            : "text-muted-foreground hover:text-foreground"
-                        }`}
-                      >
-                        Quarterly
-                      </button>
-                    ) : (
+                    <button
+                      onClick={() => setBillingPeriod("quarterly")}
+                      className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                        billingPeriod === "quarterly"
+                          ? "bg-background shadow-sm text-foreground"
+                          : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      Quarterly
+                    </button>
+                    {!isNative && (
                       <button
                         onClick={() => setBillingPeriod("annual")}
                         className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
