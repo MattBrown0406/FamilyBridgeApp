@@ -20,6 +20,7 @@ import {
   MessageCircle, 
   MapPin,
   Shield,
+  ShieldCheck,
   Check,
   X,
   ThumbsUp,
@@ -46,7 +47,8 @@ import {
   AlertCircle,
   XCircle,
   ChevronDown,
-  Search
+  Search,
+  Wine
 } from 'lucide-react';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 import { format } from 'date-fns';
@@ -544,7 +546,7 @@ const DemoFamily = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const branding = (location.state as { branding?: DemoBranding })?.branding;
-  const [activeTab, setActiveTab] = useState('chat');
+  const [activeTab, setActiveTab] = useState('messages');
   const [newMessage, setNewMessage] = useState('');
   const [selectedMember, setSelectedMember] = useState<typeof JOHNSON_MEMBERS[0] | null>(null);
   const [showMembersList, setShowMembersList] = useState(false);
@@ -587,7 +589,7 @@ const DemoFamily = () => {
     setSelectedFamily(family);
     const familyData = family === 'johnson' ? JOHNSON_MESSAGES : DAVIS_MESSAGES;
     setMessages(familyData);
-    setActiveTab('chat');
+    setActiveTab('messages');
   };
 
   const handleSendMessage = () => {
@@ -808,66 +810,66 @@ const DemoFamily = () => {
         <div className="max-w-5xl mx-auto">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             {/* Mobile: Use grid for better spacing, Desktop: flex row */}
-            <TabsList className="grid grid-cols-7 sm:flex sm:flex-wrap h-auto gap-0.5 sm:gap-1 w-full mb-4 sm:mb-6 bg-muted/50 backdrop-blur-sm p-1 sm:p-1.5 rounded-xl border border-border/50 shadow-sm">
+            <TabsList className="grid grid-cols-7 h-auto gap-0.5 sm:gap-1 w-full mb-2 sm:mb-4 shrink-0 bg-card/50 backdrop-blur-sm border border-border/50 p-1 sm:p-1.5 rounded-lg sm:rounded-xl shadow-soft">
               <TabsTrigger 
-                value="chat" 
-                className="flex-1 min-w-0 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg transition-all duration-300 flex items-center justify-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-1.5 sm:py-2"
+                value="messages" 
+                className="flex items-center justify-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-1.5 sm:py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
               >
-                <MessageCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
-                <span className="hidden md:inline text-xs">Chat</span>
+                <MessageCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                <span className="hidden md:inline text-xs">Messages</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="checkin" 
+                className="flex items-center justify-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-1.5 sm:py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
+              >
+                <MapPin className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                <span className="hidden md:inline text-xs">Check-in</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="financial"
-                className="flex-1 min-w-0 data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-300 flex items-center justify-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-1.5 sm:py-2 relative"
+                className="relative flex items-center justify-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-1.5 sm:py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
               >
-                <DollarSign className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
+                <DollarSign className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                 <span className="hidden md:inline text-xs">Financial</span>
                 {selectedFamily === 'davis' && (
                   <Badge variant="destructive" className="absolute -top-1 -right-1 h-3.5 w-3.5 sm:h-4 sm:w-4 p-0 flex items-center justify-center text-[7px] sm:text-[8px]">5</Badge>
                 )}
               </TabsTrigger>
               <TabsTrigger 
-                value="checkins"
-                className="flex-1 min-w-0 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-300 flex items-center justify-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-1.5 sm:py-2"
-              >
-                <MapPin className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
-                <span className="hidden md:inline text-xs">Check-ins</span>
-              </TabsTrigger>
-              <TabsTrigger 
                 value="values"
-                className="flex-1 min-w-0 data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500 data-[state=active]:to-rose-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-300 flex items-center justify-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-1.5 sm:py-2"
+                className="flex items-center justify-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-1.5 sm:py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
               >
-                <Sparkles className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
-                <span className="hidden md:inline text-xs">Values</span>
+                <Target className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                <span className="hidden md:inline text-xs">Goals</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="boundaries"
-                className="flex-1 min-w-0 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-violet-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-300 flex items-center justify-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-1.5 sm:py-2"
+                className="flex items-center justify-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-1.5 sm:py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
               >
-                <Shield className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
+                <ShieldCheck className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                 <span className="hidden md:inline text-xs">Boundaries</span>
               </TabsTrigger>
               <TabsTrigger 
-                value="fiis"
-                className="flex-1 min-w-0 data-[state=active]:bg-gradient-to-r data-[state=active]:from-violet-500 data-[state=active]:to-purple-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-300 flex items-center justify-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-1.5 sm:py-2 relative"
+                value="test-results"
+                className="flex items-center justify-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-1.5 sm:py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
               >
-                <Brain className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
-                <span className="hidden md:inline text-xs">FIIS</span>
-                {selectedFamily === 'davis' && (
-                  <span className="absolute -top-0.5 -right-0.5 h-2 w-2 sm:h-3 sm:w-3 rounded-full bg-destructive animate-pulse" />
-                )}
+                <FlaskConical className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                <span className="hidden md:inline text-xs">Tests</span>
               </TabsTrigger>
               <TabsTrigger 
-                value="testing"
-                className="flex-1 min-w-0 data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-500 data-[state=active]:to-orange-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-300 flex items-center justify-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-1.5 sm:py-2"
+                value="fiis"
+                className="relative flex items-center justify-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-1.5 sm:py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
               >
-                <FlaskConical className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
-                <span className="hidden md:inline text-xs">Testing</span>
+                <Brain className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                <span className="hidden md:inline text-xs">FIIS</span>
+                {selectedFamily === 'davis' && (
+                  <span className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 h-2.5 w-2.5 sm:h-3 sm:w-3 bg-red-500 rounded-full animate-pulse border-2 border-card" />
+                )}
               </TabsTrigger>
             </TabsList>
 
-            {/* Chat Tab */}
-            <TabsContent value="chat" className="animate-fade-in">
+            {/* Messages Tab */}
+            <TabsContent value="messages" className="animate-fade-in">
               <Card className="card-interactive border-0 shadow-lg bg-gradient-to-br from-card to-card/95 overflow-hidden">
                 <div className={`h-1 ${selectedFamily === 'davis' ? 'bg-gradient-to-r from-destructive via-destructive/80 to-destructive/60' : 'bg-gradient-to-r from-primary via-primary/80 to-primary/60'}`} />
                 <CardHeader className="pb-2 sm:pb-3 px-3 sm:px-6">
@@ -875,7 +877,7 @@ const DemoFamily = () => {
                     <div className={`h-6 w-6 sm:h-8 sm:w-8 rounded-lg ${selectedFamily === 'davis' ? 'bg-gradient-to-br from-destructive to-destructive/80' : 'bg-gradient-to-br from-primary to-primary/80'} flex items-center justify-center shrink-0`}>
                       <MessageCircle className="h-3 w-3 sm:h-4 sm:w-4 text-primary-foreground" />
                     </div>
-                    <span>Family Chat</span>
+                    <span>Messages</span>
                     <DemoFamilyHealthBadge 
                       status={selectedFamily === 'davis' ? 'tension' : 'improving'}
                       reason={selectedFamily === 'davis' 
@@ -1212,8 +1214,8 @@ const DemoFamily = () => {
               </div>
             </TabsContent>
 
-            {/* Check-ins Tab */}
-            <TabsContent value="checkins" className="animate-fade-in">
+            {/* Check-in Tab */}
+            <TabsContent value="checkin" className="animate-fade-in">
               <div className="space-y-4">
                 {selectedFamily === 'davis' && (
                   <Card className="border-red-200 bg-red-50/50">
@@ -1942,8 +1944,8 @@ const DemoFamily = () => {
               </div>
             </TabsContent>
 
-            {/* Testing Tab */}
-            <TabsContent value="testing" className="animate-fade-in">
+            {/* Tests Tab */}
+            <TabsContent value="test-results" className="animate-fade-in">
               <Card className="border-0 shadow-lg overflow-hidden">
                 <div className="h-1 bg-gradient-to-r from-amber-500 via-orange-500 to-red-500" />
                 <CardHeader>
