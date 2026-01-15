@@ -170,11 +170,11 @@ const ProviderPurchase = () => {
   const getProductIdForPurchase = () => {
     switch (billingPeriod) {
       case "annual":
-        return "app.lovable.feec162303784a959c1635217b29129c.provider_annual";
+        return PRODUCTS.provider.annual.id;
       case "quarterly":
-        return "app.lovable.feec162303784a959c1635217b29129c.provider_quarterly";
+        return PRODUCTS.provider.quarterly.id;
       default:
-        return "app.lovable.feec162303784a959c1635217b29129c.provider_monthly";
+        return PRODUCTS.provider.monthly.id;
     }
   };
 
