@@ -71,6 +71,18 @@ interface PatternSignal {
   priority?: string;
 }
 
+interface AnonymizedPattern {
+  id: string;
+  family_id: string;
+  pattern_type: string;
+  pattern_description: string;
+  severity: string;
+  detected_at: string;
+  is_acknowledged: boolean;
+  created_at: string;
+  member_label: string;
+}
+
 interface PatternAnalysis {
   what_seeing: string;
   pattern_signals: PatternSignal[];
@@ -178,11 +190,33 @@ export function FIISTab({ familyId, members, onView, isModerator = false }: FIIS
   const [hasAcknowledgedDisclaimer, setHasAcknowledgedDisclaimer] = useState<boolean | null>(null);
   const [isAcknowledging, setIsAcknowledging] = useState(false);
 
+  // Anonymized patterns for family members
+  const [anonymizedPatterns, setAnonymizedPatterns] = useState<AnonymizedPattern[]>([]);
+
   // New observation form
   const [showForm, setShowForm] = useState(false);
   const [newType, setNewType] = useState<string>("");
   const [newContent, setNewContent] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Fetch anonymized patterns for non-moderators
+  useEffect(() => {
+    const fetchAnonymizedPatterns = async () => {
+      if (!familyId || isModerator) return;
+      
+      try {
+        const { data, error } = await supabase
+          .rpc('get_anonymized_family_patterns', { _family_id: familyId });
+        
+        if (error) throw error;
+        setAnonymizedPatterns((data as AnonymizedPattern[]) || []);
+      } catch (error) {
+        console.error('Error fetching anonymized patterns:', error);
+      }
+    };
+    
+    fetchAnonymizedPatterns();
+  }, [familyId, isModerator]);
 
   // Check if user has acknowledged the disclaimer
   useEffect(() => {
@@ -846,13 +880,77 @@ export function FIISTab({ familyId, members, onView, isModerator = false }: FIIS
         </Card>
       ) : (
         <Card>
-          <CardContent className="py-6">
-            <div className="text-center">
-              <FileText className="h-10 w-10 mx-auto mb-3 text-muted-foreground/50" />
-              <p className="text-sm text-muted-foreground">
-                Your observations are recorded anonymously and securely. Only your family's moderator can view the activity timeline to help guide your family's recovery journey.
-              </p>
-            </div>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base font-medium flex items-center gap-2">
+              <Activity className="h-4 w-4 text-muted-foreground" />
+              Family Patterns
+              {anonymizedPatterns.length > 0 && (
+                <Badge variant="secondary" className="ml-2">
+                  {anonymizedPatterns.length} detected
+                </Badge>
+              )}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {anonymizedPatterns.length === 0 ? (
+              <div className="text-center py-6">
+                <FileText className="h-10 w-10 mx-auto mb-3 text-muted-foreground/50" />
+                <p className="text-sm text-muted-foreground">
+                  No behavioral patterns have been detected yet. Your observations are recorded anonymously and securely to help identify patterns over time.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <p className="text-xs text-muted-foreground mb-3">
+                  These patterns have been detected in your family. Individual identities are protected—focus on the behavior, not the person.
+                </p>
+                <ScrollArea className="h-[300px] pr-4">
+                  <div className="space-y-2">
+                    {anonymizedPatterns.map((pattern) => {
+                      const severityColors: Record<string, string> = {
+                        warning: "bg-red-500/20 text-red-700 border-red-500/30",
+                        concern: "bg-amber-500/20 text-amber-700 border-amber-500/30",
+                        observation: "bg-blue-500/20 text-blue-700 border-blue-500/30",
+                      };
+                      const colorClass = severityColors[pattern.severity] || "bg-muted";
+                      
+                      return (
+                        <div
+                          key={pattern.id}
+                          className={`p-3 rounded-lg border ${colorClass}`}
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                <Badge variant="outline" className="text-xs capitalize">
+                                  {pattern.pattern_type.replace(/_/g, " ")}
+                                </Badge>
+                                <Badge 
+                                  variant={pattern.severity === "warning" ? "destructive" : "secondary"} 
+                                  className="text-xs capitalize"
+                                >
+                                  {pattern.severity}
+                                </Badge>
+                                {pattern.is_acknowledged && (
+                                  <Badge variant="outline" className="text-xs text-green-600">
+                                    <CheckCircle className="h-3 w-3 mr-1" />
+                                    Acknowledged
+                                  </Badge>
+                                )}
+                              </div>
+                              <p className="text-sm">{pattern.pattern_description}</p>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                {pattern.member_label} · {formatDistanceToNow(new Date(pattern.detected_at), { addSuffix: true })}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </ScrollArea>
+              </div>
+            )}
           </CardContent>
         </Card>
       )}

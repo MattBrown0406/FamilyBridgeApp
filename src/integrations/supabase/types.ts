@@ -2065,6 +2065,50 @@ export type Database = {
         }
         Relationships: []
       }
+      emotional_patterns_anonymized: {
+        Row: {
+          created_at: string | null
+          detected_at: string | null
+          family_id: string | null
+          id: string | null
+          is_acknowledged: boolean | null
+          member_label: string | null
+          pattern_description: string | null
+          pattern_type: string | null
+          severity: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          detected_at?: string | null
+          family_id?: string | null
+          id?: string | null
+          is_acknowledged?: never
+          member_label?: never
+          pattern_description?: string | null
+          pattern_type?: string | null
+          severity?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          detected_at?: string | null
+          family_id?: string | null
+          id?: string | null
+          is_acknowledged?: never
+          member_label?: never
+          pattern_description?: string | null
+          pattern_type?: string | null
+          severity?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "emotional_patterns_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payment_info_masked: {
         Row: {
           cashapp_username: string | null
@@ -2131,6 +2175,20 @@ export type Database = {
       generate_payment_access_token: {
         Args: { _request_id: string }
         Returns: string
+      }
+      get_anonymized_family_patterns: {
+        Args: { _family_id: string }
+        Returns: {
+          created_at: string
+          detected_at: string
+          family_id: string
+          id: string
+          is_acknowledged: boolean
+          member_label: string
+          pattern_description: string
+          pattern_type: string
+          severity: string
+        }[]
       }
       get_family_invite_code: { Args: { _family_id: string }; Returns: string }
       get_organization_public_theme: {
