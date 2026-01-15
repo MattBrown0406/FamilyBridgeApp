@@ -18,7 +18,8 @@ import {
   MessageCircle, AlertTriangle, Check, X, Shield, MapPin,
   ExternalLink, CreditCard, CheckCircle2, Paperclip, Image, HandCoins, Trash2, Pencil,
   Target, ShieldCheck, Plus, CheckCircle, MessageSquare, FlaskConical, ChevronDown, Sparkles,
-  Brain, Search, Calendar, ChevronLeft, ChevronRight, Archive, Heart, Clock, TrendingUp, Camera, Upload
+  Brain, Search, Calendar, ChevronLeft, ChevronRight, Archive, Heart, Clock, TrendingUp, Camera, Upload,
+  Flame
 } from 'lucide-react';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -66,6 +67,7 @@ import { useFIISNotifications } from '@/hooks/useFIISNotifications';
 import { FamilyHealthBadge } from '@/components/FamilyHealthBadge';
 import { LiquorLicenseWarnings } from '@/components/LiquorLicenseWarnings';
 import { SobrietyCounter } from '@/components/SobrietyCounter';
+import { useFamilyMemberJourney } from '@/hooks/useSobrietyJourney';
 import { CommunicationHelper } from '@/components/CommunicationHelper';
 import { DailyEmotionalCheckin } from '@/components/DailyEmotionalCheckin';
 import { EmotionalToneIndicator } from '@/components/EmotionalToneIndicator';
@@ -438,6 +440,9 @@ const FamilyChat = () => {
   // Family avatar upload state
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const avatarInputRef = useRef<HTMLInputElement>(null);
+  
+  // Sobriety journey for header display
+  const { journey: headerJourney, daysCount: headerDaysCount } = useFamilyMemberJourney(familyId || '');
 
   useEffect(() => {
     if (!loading && !user) {
@@ -2382,6 +2387,15 @@ const FamilyChat = () => {
               </button>
             </div>
             <div className="ml-auto flex items-center gap-1 sm:gap-3">
+              {/* Sobriety Counter Badge in Header */}
+              {headerJourney && (
+                <div className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 bg-primary/10 rounded-full border border-primary/20">
+                  <Flame className="h-3 w-3 sm:h-4 sm:w-4 text-primary" />
+                  <span className="font-bold text-primary text-xs sm:text-sm">{headerDaysCount}</span>
+                  <span className="text-[10px] sm:text-xs text-muted-foreground hidden sm:inline">days</span>
+                </div>
+              )}
+              
               <div className="hidden sm:block">
                 {familyId && (
                   <TemporaryModeratorRequest 
