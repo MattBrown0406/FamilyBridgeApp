@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useSuperAdmin } from '@/hooks/useSuperAdmin';
 import { useFamilyArchive } from '@/hooks/useFamilyArchive';
+import { useOrganizationBranding } from '@/hooks/useOrganizationBranding';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -35,6 +36,7 @@ const ModeratorDashboard = () => {
   const { user, signOut, loading } = useAuth();
   const { isAdmin: isSuperAdmin } = useSuperAdmin();
   const { archiveFamily, isArchiving } = useFamilyArchive();
+  const { branding, applyBranding, resetBranding } = useOrganizationBranding();
   const navigate = useNavigate();
   const { toast } = useToast();
   
@@ -46,6 +48,16 @@ const ModeratorDashboard = () => {
   const [newFamilyDescription, setNewFamilyDescription] = useState('');
   const [isCreating, setIsCreating] = useState(false);
   const [archivingFamilyId, setArchivingFamilyId] = useState<string | null>(null);
+
+  // Apply organization branding when loaded
+  useEffect(() => {
+    if (branding) {
+      applyBranding();
+    }
+    return () => {
+      resetBranding();
+    };
+  }, [branding, applyBranding, resetBranding]);
 
   const copyInviteCode = (code: string) => {
     navigator.clipboard.writeText(code);
@@ -230,8 +242,14 @@ const ModeratorDashboard = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
-                <img src={familyBridgeLogo} alt="FamilyBridge" className="h-7 w-auto object-contain" />
-                <span className="text-xl font-display font-semibold text-foreground">FamilyBridge</span>
+                <img 
+                  src={branding?.logo_url || familyBridgeLogo} 
+                  alt={branding?.name || "FamilyBridge"} 
+                  className="h-7 w-auto object-contain" 
+                />
+                <span className="text-xl font-display font-semibold text-foreground">
+                  {branding?.name || "FamilyBridge"}
+                </span>
               </div>
               <Button variant="ghost" size="sm" onClick={() => navigate('/')}>
                 <Home className="h-4 w-4" />
