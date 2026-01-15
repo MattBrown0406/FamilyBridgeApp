@@ -206,23 +206,19 @@ export const ArchivedFamilyNotice = () => {
 
             {/* Actions based on role */}
             {(family.user_role === 'admin' || family.user_role === 'moderator') ? (
-              // Admin/Moderator can reactivate as independent
+              // Admin/Moderator can reactivate as independent (requires purchase)
               <div className="space-y-3">
                 <p className="text-sm text-muted-foreground">
                   As a family admin, you can reactivate this family as an independent group 
                   (no longer associated with {family.organization_name || 'the provider'}).
+                  A subscription purchase is required to continue.
                 </p>
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button 
                       variant="default"
-                      disabled={isReactivating}
                     >
-                      {isReactivating ? (
-                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                      ) : (
-                        <RotateCcw className="h-4 w-4 mr-2" />
-                      )}
+                      <RotateCcw className="h-4 w-4 mr-2" />
                       Reactivate as Independent
                     </Button>
                   </AlertDialogTrigger>
@@ -230,17 +226,19 @@ export const ArchivedFamilyNotice = () => {
                     <AlertDialogHeader>
                       <AlertDialogTitle>Reactivate as Independent Family?</AlertDialogTitle>
                       <AlertDialogDescription>
-                        This will reactivate "{family.name}" as an independent family group, 
-                        no longer associated with {family.organization_name || 'the original provider'}.
+                        To reactivate "{family.name}" as an independent family group, 
+                        you'll need to purchase a family subscription.
                         <br /><br />
-                        <strong>Note:</strong> If you want to remain with the provider, 
-                        please contact them to reactivate your family.
+                        <strong>Note:</strong> If you want to remain with {family.organization_name || 'the provider'}, 
+                        please contact them to reactivate your family at no additional cost.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                       <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction onClick={() => handleReactivateAsIndependent(family.id, family.name)}>
-                        Reactivate as Independent
+                      <AlertDialogAction 
+                        onClick={() => navigate(`/family-purchase?reactivate=${family.id}`)}
+                      >
+                        Continue to Purchase
                       </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>

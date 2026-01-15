@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { usePlatform } from "@/hooks/usePlatform";
@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Check, CreditCard, Shield, Users, Tag, Loader2, Copy, MessageCircle, UserPlus, DollarSign, Target, Sparkles, Brain, TrendingUp, MessageSquareWarning } from "lucide-react";
+import { Check, CreditCard, Shield, Users, Tag, Loader2, Copy, MessageCircle, UserPlus, DollarSign, Target, Sparkles, Brain, TrendingUp, MessageSquareWarning, RotateCcw } from "lucide-react";
 import { BrandedHeader } from "@/components/BrandedHeader";
 import { SEOHead, createBreadcrumbSchema } from "@/components/SEOHead";
 import { AppStorePurchaseButton, RestorePurchasesButton } from "@/components/AppStorePurchaseButton";
@@ -19,6 +19,7 @@ const FamilyPurchase = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const status = searchParams.get("status");
+  const reactivateFamilyId = searchParams.get("reactivate");
   const { isNative, isIOS, isAndroid, paymentMethod } = usePlatform();
 
   const [email, setEmail] = useState(user?.email || "");
@@ -28,6 +29,71 @@ const FamilyPurchase = () => {
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
   const [isValidatingInvite, setIsValidatingInvite] = useState(false);
   const [generatedCode, setGeneratedCode] = useState<string | null>(null);
+  const [reactivatingFamily, setReactivatingFamily] = useState<{ id: string; name: string } | null>(null);
+  const [isReactivating, setIsReactivating] = useState(false);
+
+  // Fetch family info if reactivating
+  useEffect(() => {
+    if (reactivateFamilyId) {
+      supabase
+        .from('families')
+        .select('id, name')
+        .eq('id', reactivateFamilyId)
+        .single()
+        .then(({ data }) => {
+          if (data) {
+            setReactivatingFamily({ id: data.id, name: data.name });
+          }
+        });
+    }
+  }, [reactivateFamilyId]);
+
+  // Handle successful purchase for reactivation
+  useEffect(() => {
+    if (status === 'success' && reactivateFamilyId && user) {
+      handleReactivateFamily();
+    }
+  }, [status, reactivateFamilyId, user]);
+
+  const handleReactivateFamily = async () => {
+    if (!reactivateFamilyId || !user) return;
+    
+    setIsReactivating(true);
+    try {
+      // Reactivate as independent (remove organization)
+      const { error: familyError } = await supabase
+        .from('families')
+        .update({
+          is_archived: false,
+          archived_at: null,
+          archived_by: null,
+          organization_id: null, // Remove provider association
+        })
+        .eq('id', reactivateFamilyId);
+
+      if (familyError) throw familyError;
+
+      // Update any pending reactivation requests
+      await supabase
+        .from('family_reactivation_requests')
+        .update({
+          status: 'approved',
+          approved_by: user.id,
+          approved_at: new Date().toISOString(),
+          reactivation_type: 'family_admin',
+        })
+        .eq('family_id', reactivateFamilyId)
+        .eq('status', 'pending');
+
+      toast.success("Family reactivated successfully!");
+      navigate('/dashboard');
+    } catch (error) {
+      console.error('Error reactivating family:', error);
+      toast.error("Failed to reactivate family. Please contact support.");
+    } finally {
+      setIsReactivating(false);
+    }
+  };
 
   const handleSquarePurchase = async () => {
     if (!email) {
@@ -37,10 +103,15 @@ const FamilyPurchase = () => {
 
     setIsLoading(true);
     try {
+      // Include reactivate param in redirect if present
+      const redirectUrl = reactivateFamilyId 
+        ? `${window.location.origin}/family-purchase?status=success&reactivate=${reactivateFamilyId}`
+        : `${window.location.origin}/family-purchase?status=success`;
+
       const { data, error } = await supabase.functions.invoke("create-family-checkout", {
         body: {
           email,
-          redirectUrl: `${window.location.origin}/family-purchase?status=success`,
+          redirectUrl,
         },
       });
 
@@ -256,6 +327,52 @@ const FamilyPurchase = () => {
     );
   }
 
+  // Show reactivation in progress
+  if (status === "success" && reactivateFamilyId && isReactivating) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <Card className="max-w-md w-full">
+          <CardHeader className="text-center">
+            <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+              <Loader2 className="w-8 h-8 text-primary animate-spin" />
+            </div>
+            <CardTitle className="text-2xl">Reactivating Your Family...</CardTitle>
+            <CardDescription>
+              Please wait while we restore your family group.
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    );
+  }
+
+  // Show reactivation success
+  if (status === "success" && reactivateFamilyId) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <Card className="max-w-md w-full">
+          <CardHeader className="text-center">
+            <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+              <Check className="w-8 h-8 text-green-600" />
+            </div>
+            <CardTitle className="text-2xl">Family Reactivated!</CardTitle>
+            <CardDescription>
+              Your family group has been reactivated as an independent family.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-sm text-muted-foreground text-center">
+              Your family is now active and all members can access the group again.
+            </p>
+            <Button onClick={() => navigate("/dashboard")} className="w-full">
+              Go to Dashboard
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   if (status === "success") {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
@@ -298,10 +415,34 @@ const FamilyPurchase = () => {
       <BrandedHeader />
       <div className="container mx-auto px-3 sm:px-4 py-6 sm:py-12">
         <div className="max-w-4xl mx-auto">
+          {/* Reactivation Banner */}
+          {reactivatingFamily && (
+            <Card className="mb-6 border-amber-500/50 bg-amber-50/50 dark:bg-amber-950/20">
+              <CardContent className="flex items-center gap-4 py-4">
+                <div className="w-12 h-12 rounded-full bg-amber-100 dark:bg-amber-900/50 flex items-center justify-center flex-shrink-0">
+                  <RotateCcw className="w-6 h-6 text-amber-600 dark:text-amber-400" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-amber-800 dark:text-amber-300">
+                    Reactivating: {reactivatingFamily.name}
+                  </h3>
+                  <p className="text-sm text-amber-700 dark:text-amber-400">
+                    Complete your purchase to reactivate this family as an independent group.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           <div className="text-center mb-6 sm:mb-12">
-            <h1 className="text-2xl sm:text-4xl font-bold mb-2 sm:mb-4">Create Your Family Group</h1>
+            <h1 className="text-2xl sm:text-4xl font-bold mb-2 sm:mb-4">
+              {reactivatingFamily ? 'Reactivate Your Family Group' : 'Create Your Family Group'}
+            </h1>
             <p className="text-base sm:text-xl text-muted-foreground">
-              Start your family's journey to healing and connection
+              {reactivatingFamily 
+                ? 'Purchase a subscription to restore your family group'
+                : 'Start your family\'s journey to healing and connection'
+              }
             </p>
           </div>
 
