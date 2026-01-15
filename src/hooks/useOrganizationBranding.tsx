@@ -132,25 +132,38 @@ export function useOrganizationBranding() {
     const root = document.documentElement;
 
     if (branding.primary_color) {
-      root.style.setProperty("--primary", hexToHsl(branding.primary_color));
+      const primaryHsl = hexToHsl(branding.primary_color);
+      root.style.setProperty("--primary", primaryHsl);
+      // Also set sidebar-primary for consistent sidebar theming
+      root.style.setProperty("--sidebar-primary", primaryHsl);
     }
     if (branding.primary_foreground_color) {
-      root.style.setProperty(
-        "--primary-foreground",
-        hexToHsl(branding.primary_foreground_color)
-      );
+      const primaryFgHsl = hexToHsl(branding.primary_foreground_color);
+      root.style.setProperty("--primary-foreground", primaryFgHsl);
+      root.style.setProperty("--sidebar-primary-foreground", primaryFgHsl);
     }
     if (branding.secondary_color) {
       root.style.setProperty("--secondary", hexToHsl(branding.secondary_color));
     }
     if (branding.accent_color) {
-      root.style.setProperty("--accent", hexToHsl(branding.accent_color));
+      const accentHsl = hexToHsl(branding.accent_color);
+      root.style.setProperty("--accent", accentHsl);
+      root.style.setProperty("--sidebar-accent", accentHsl);
     }
     if (branding.background_color) {
-      root.style.setProperty("--background", hexToHsl(branding.background_color));
+      const bgHsl = hexToHsl(branding.background_color);
+      root.style.setProperty("--background", bgHsl);
+      root.style.setProperty("--sidebar-background", bgHsl);
     }
     if (branding.foreground_color) {
-      root.style.setProperty("--foreground", hexToHsl(branding.foreground_color));
+      const fgHsl = hexToHsl(branding.foreground_color);
+      root.style.setProperty("--foreground", fgHsl);
+      root.style.setProperty("--sidebar-foreground", fgHsl);
+    }
+    
+    // Set ring color to match primary for focus states
+    if (branding.primary_color) {
+      root.style.setProperty("--ring", hexToHsl(branding.primary_color));
     }
   }, [branding]);
 
@@ -163,6 +176,12 @@ export function useOrganizationBranding() {
     root.style.removeProperty("--accent");
     root.style.removeProperty("--background");
     root.style.removeProperty("--foreground");
+    root.style.removeProperty("--ring");
+    root.style.removeProperty("--sidebar-primary");
+    root.style.removeProperty("--sidebar-primary-foreground");
+    root.style.removeProperty("--sidebar-accent");
+    root.style.removeProperty("--sidebar-background");
+    root.style.removeProperty("--sidebar-foreground");
   }, []);
 
   return {

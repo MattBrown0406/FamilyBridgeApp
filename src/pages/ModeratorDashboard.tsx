@@ -237,7 +237,7 @@ const ModeratorDashboard = () => {
       {/* Admin Breadcrumbs for super admins and provider admins */}
       <AdminBreadcrumbs />
       {/* Header */}
-      <header className="border-b border-border bg-card">
+      <header className="border-b border-border bg-primary text-primary-foreground">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -247,21 +247,21 @@ const ModeratorDashboard = () => {
                   alt={branding?.name || "FamilyBridge"} 
                   className="h-7 w-auto object-contain" 
                 />
-                <span className="text-xl font-display font-semibold text-foreground">
+                <span className="text-xl font-display font-semibold">
                   {branding?.name || "FamilyBridge"}
                 </span>
               </div>
-              <Button variant="ghost" size="sm" onClick={() => navigate('/')}>
+              <Button variant="ghost" size="sm" onClick={() => navigate('/')} className="text-primary-foreground hover:bg-primary-foreground/10">
                 <Home className="h-4 w-4" />
                 <span className="hidden sm:inline ml-2">Home</span>
               </Button>
             </div>
             <div className="flex items-center gap-2 sm:gap-4">
-              <span className="text-sm text-muted-foreground hidden sm:block">
+              <span className="text-sm text-primary-foreground/80 hidden sm:block">
                 {user?.email}
               </span>
               <NotificationBell />
-              <Button variant="ghost" size="sm" onClick={handleSignOut}>
+              <Button variant="ghost" size="sm" onClick={handleSignOut} className="text-primary-foreground hover:bg-primary-foreground/10">
                 <LogOut className="h-4 w-4" />
                 <span className="hidden sm:inline ml-2">Sign Out</span>
               </Button>
@@ -305,7 +305,7 @@ const ModeratorDashboard = () => {
           <div className="mb-6">
             <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
               <DialogTrigger asChild>
-                <Button variant="hero" size="lg">
+                <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90">
                   <Plus className="h-5 w-5" />
                   Create Family Group
                 </Button>
@@ -356,9 +356,9 @@ const ModeratorDashboard = () => {
           </div>
 
           {/* Assigned Family Groups */}
-          <Card className="mb-6">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+          <Card className="mb-6 border-primary/20">
+            <CardHeader className="bg-primary/5 rounded-t-lg">
+              <CardTitle className="flex items-center gap-2 text-primary">
                 <Users className="h-5 w-5" />
                 Your Assigned Family Groups
               </CardTitle>

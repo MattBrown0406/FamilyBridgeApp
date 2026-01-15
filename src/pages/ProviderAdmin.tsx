@@ -1023,7 +1023,7 @@ const ProviderAdmin = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header with org branding */}
-      <header className="border-b border-border bg-card">
+      <header className="border-b border-border bg-primary text-primary-foreground">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -1033,12 +1033,12 @@ const ProviderAdmin = () => {
                   alt={branding?.name || "FamilyBridge"} 
                   className="h-7 w-auto object-contain" 
                 />
-                <span className="text-xl font-display font-semibold text-foreground">
+                <span className="text-xl font-display font-semibold">
                   {branding?.name || "Provider Admin"}
                 </span>
               </div>
             </div>
-            <Button variant="ghost" size="sm" onClick={() => navigate('/dashboard')}>
+            <Button variant="ghost" size="sm" onClick={() => navigate('/dashboard')} className="text-primary-foreground hover:bg-primary-foreground/10">
               <ArrowLeft className="h-4 w-4 mr-2" />
               <span className="hidden sm:inline">Dashboard</span>
             </Button>
@@ -1086,28 +1086,28 @@ const ProviderAdmin = () => {
           <div className="lg:col-span-3">
             {selectedOrg && currentOrg ? (
               <Tabs defaultValue="families" className="space-y-4">
-                <TabsList className="flex flex-wrap h-auto gap-1 w-full">
-                  <TabsTrigger value="families" className="flex-1 min-w-[60px] flex items-center justify-center gap-1 px-2 py-2">
+                <TabsList className="flex flex-wrap h-auto gap-1 w-full bg-primary/10">
+                  <TabsTrigger value="families" className="flex-1 min-w-[60px] flex items-center justify-center gap-1 px-2 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                     <UsersRound className="h-4 w-4" />
                     <span className="hidden sm:inline text-xs">Families</span>
                   </TabsTrigger>
-                  <TabsTrigger value="moderators" className="flex-1 min-w-[60px] flex items-center justify-center gap-1 px-2 py-2">
+                  <TabsTrigger value="moderators" className="flex-1 min-w-[60px] flex items-center justify-center gap-1 px-2 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                     <Users className="h-4 w-4" />
                     <span className="hidden sm:inline text-xs">Moderators</span>
                   </TabsTrigger>
-                  <TabsTrigger value="settings" className="flex-1 min-w-[60px] flex items-center justify-center gap-1 px-2 py-2">
+                  <TabsTrigger value="settings" className="flex-1 min-w-[60px] flex items-center justify-center gap-1 px-2 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                     <Settings className="h-4 w-4" />
                     <span className="hidden sm:inline text-xs">Settings</span>
                   </TabsTrigger>
-                  <TabsTrigger value="analytics" className="flex-1 min-w-[60px] flex items-center justify-center gap-1 px-2 py-2">
+                  <TabsTrigger value="analytics" className="flex-1 min-w-[60px] flex items-center justify-center gap-1 px-2 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                     <BarChart3 className="h-4 w-4" />
                     <span className="hidden sm:inline text-xs">Analytics</span>
                   </TabsTrigger>
-                  <TabsTrigger value="branding" className="flex-1 min-w-[60px] flex items-center justify-center gap-1 px-2 py-2">
+                  <TabsTrigger value="branding" className="flex-1 min-w-[60px] flex items-center justify-center gap-1 px-2 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                     <Palette className="h-4 w-4" />
                     <span className="hidden sm:inline text-xs">Branding</span>
                   </TabsTrigger>
-                  <TabsTrigger value="archived" className="flex-1 min-w-[60px] flex items-center justify-center gap-1 px-2 py-2">
+                  <TabsTrigger value="archived" className="flex-1 min-w-[60px] flex items-center justify-center gap-1 px-2 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                     <Archive className="h-4 w-4" />
                     <span className="hidden sm:inline text-xs">Archived</span>
                   </TabsTrigger>
@@ -1115,9 +1115,9 @@ const ProviderAdmin = () => {
 
                 <TabsContent value="branding" className="space-y-6">
                   {/* Logo & Favicon */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-lg">Logo & Favicon</CardTitle>
+                  <Card className="border-primary/20">
+                    <CardHeader className="bg-primary/5 rounded-t-lg">
+                      <CardTitle className="text-lg text-primary">Logo & Favicon</CardTitle>
                       <CardDescription>Upload your organization's branding assets</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
@@ -1167,9 +1167,9 @@ const ProviderAdmin = () => {
                   </Card>
 
                   {/* Colors */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-lg flex items-center gap-2">
+                  <Card className="border-primary/20">
+                    <CardHeader className="bg-primary/5 rounded-t-lg">
+                      <CardTitle className="text-lg flex items-center gap-2 text-primary">
                         <Palette className="h-5 w-5" />
                         Brand Colors
                       </CardTitle>
@@ -1218,9 +1218,9 @@ const ProviderAdmin = () => {
                   </Card>
 
                   {/* Typography */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-lg flex items-center gap-2">
+                  <Card className="border-primary/20">
+                    <CardHeader className="bg-primary/5 rounded-t-lg">
+                      <CardTitle className="text-lg flex items-center gap-2 text-primary">
                         <Type className="h-5 w-5" />
                         Typography
                       </CardTitle>
@@ -1249,7 +1249,7 @@ const ProviderAdmin = () => {
                   </Card>
 
                   <div className="flex gap-3">
-                    <Button onClick={handleSaveChanges} disabled={isSaving}>
+                    <Button onClick={handleSaveChanges} disabled={isSaving} className="bg-primary text-primary-foreground hover:bg-primary/90">
                       {isSaving ? 'Saving...' : 'Save Changes'}
                     </Button>
                     <Button variant="outline" asChild>
@@ -1267,9 +1267,9 @@ const ProviderAdmin = () => {
                 </TabsContent>
 
                 <TabsContent value="settings">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Organization Settings</CardTitle>
+                  <Card className="border-primary/20">
+                    <CardHeader className="bg-primary/5 rounded-t-lg">
+                      <CardTitle className="text-primary">Organization Settings</CardTitle>
                       <CardDescription>Update your organization details</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
@@ -1319,9 +1319,9 @@ const ProviderAdmin = () => {
 
                 <TabsContent value="moderators" className="space-y-6">
                   {/* Add Moderator */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
+                  <Card className="border-primary/20">
+                    <CardHeader className="bg-primary/5 rounded-t-lg">
+                      <CardTitle className="flex items-center gap-2 text-primary">
                         <Users className="h-5 w-5" />
                         Add Moderator
                       </CardTitle>
@@ -1399,9 +1399,9 @@ const ProviderAdmin = () => {
                   </Card>
 
                   {/* Existing Moderators */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Organization Members</CardTitle>
+                  <Card className="border-primary/20">
+                    <CardHeader className="bg-primary/5 rounded-t-lg">
+                      <CardTitle className="text-primary">Organization Members</CardTitle>
                       <CardDescription>
                         Manage moderators and staff in your organization
                       </CardDescription>
@@ -1503,9 +1503,9 @@ const ProviderAdmin = () => {
                 </TabsContent>
 
                 <TabsContent value="analytics">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Analytics Dashboard</CardTitle>
+                  <Card className="border-primary/20">
+                    <CardHeader className="bg-primary/5 rounded-t-lg">
+                      <CardTitle className="text-primary">Analytics Dashboard</CardTitle>
                       <CardDescription>
                         Track engagement and usage across your platform
                       </CardDescription>
@@ -1521,9 +1521,9 @@ const ProviderAdmin = () => {
 
                 <TabsContent value="families" className="space-y-6">
                   {/* Create Family Group */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
+                  <Card className="border-primary/20">
+                    <CardHeader className="bg-primary/5 rounded-t-lg">
+                      <CardTitle className="flex items-center gap-2 text-primary">
                         <UsersRound className="h-5 w-5" />
                         Create Family Group
                       </CardTitle>
@@ -1625,9 +1625,9 @@ const ProviderAdmin = () => {
                   </Card>
 
                   {/* Existing Family Groups */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Family Groups</CardTitle>
+                  <Card className="border-primary/20">
+                    <CardHeader className="bg-primary/5 rounded-t-lg">
+                      <CardTitle className="text-primary">Family Groups</CardTitle>
                       <CardDescription>
                         Manage family groups in your organization
                       </CardDescription>
