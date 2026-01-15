@@ -2,14 +2,16 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useSuperAdmin } from '@/hooks/useSuperAdmin';
+import { useFamilyArchive } from '@/hooks/useFamilyArchive';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Users, LogOut, Loader2, ArrowRight, Home, Building2, Shield, Plus, Copy } from 'lucide-react';
+import { Users, LogOut, Loader2, ArrowRight, Home, Building2, Shield, Plus, Copy, Archive } from 'lucide-react';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 import { NotificationBell } from '@/components/NotificationBell';
 import { AdminBreadcrumbs } from '@/components/AdminBreadcrumbs';
@@ -32,6 +34,7 @@ interface OrganizationInfo {
 const ModeratorDashboard = () => {
   const { user, signOut, loading } = useAuth();
   const { isAdmin: isSuperAdmin } = useSuperAdmin();
+  const { archiveFamily, isArchiving } = useFamilyArchive();
   const navigate = useNavigate();
   const { toast } = useToast();
   
@@ -42,6 +45,7 @@ const ModeratorDashboard = () => {
   const [newFamilyName, setNewFamilyName] = useState('');
   const [newFamilyDescription, setNewFamilyDescription] = useState('');
   const [isCreating, setIsCreating] = useState(false);
+  const [archivingFamilyId, setArchivingFamilyId] = useState<string | null>(null);
 
   const copyInviteCode = (code: string) => {
     navigator.clipboard.writeText(code);
@@ -80,23 +84,25 @@ const ModeratorDashboard = () => {
       }));
       setOrganizations(orgs);
 
-      // Fetch families where user is a moderator
+      // Fetch families where user is a moderator (excluding archived)
       const { data: familyMembers, error: familyError } = await supabase
         .from('family_members')
         .select(`
           family_id,
-          families (
+          families!inner (
             id,
             name,
             description,
             organization_id,
+            is_archived,
             organizations (
               name
             )
           )
         `)
         .eq('user_id', user!.id)
-        .eq('role', 'moderator');
+        .eq('role', 'moderator')
+        .eq('families.is_archived', false);
 
       if (familyError) throw familyError;
 
@@ -190,6 +196,15 @@ const ModeratorDashboard = () => {
     } finally {
       setIsCreating(false);
     }
+  };
+
+  const handleArchiveFamily = async (familyId: string, familyName: string) => {
+    setArchivingFamilyId(familyId);
+    const success = await archiveFamily(familyId, familyName);
+    if (success) {
+      fetchModeratorData();
+    }
+    setArchivingFamilyId(null);
   };
 
   const handleSignOut = async () => {
@@ -349,10 +364,12 @@ const ModeratorDashboard = () => {
                   {assignedFamilies.map((family) => (
                     <div
                       key={family.id}
-                      className="flex items-center justify-between p-4 rounded-lg border bg-card hover:shadow-md transition-shadow cursor-pointer"
-                      onClick={() => navigate(`/family/${family.id}`)}
+                      className="flex items-center justify-between p-4 rounded-lg border bg-card hover:shadow-md transition-shadow"
                     >
-                      <div className="flex items-center gap-4">
+                      <div 
+                        className="flex items-center gap-4 flex-1 cursor-pointer"
+                        onClick={() => navigate(`/family/${family.id}`)}
+                      >
                         <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
                           <Users className="h-6 w-6 text-primary" />
                         </div>
@@ -389,9 +406,47 @@ const ModeratorDashboard = () => {
                           </div>
                         </div>
                       </div>
-                      <Button variant="ghost" size="sm">
-                        <ArrowRight className="h-4 w-4" />
-                      </Button>
+                      <div className="flex items-center gap-2">
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              onClick={(e) => e.stopPropagation()}
+                              disabled={isArchiving && archivingFamilyId === family.id}
+                              className="text-muted-foreground hover:text-destructive"
+                            >
+                              {isArchiving && archivingFamilyId === family.id ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <Archive className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Archive Family Group?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                This will archive "{family.name}". The family will no longer appear in active lists, 
+                                but can be reactivated by a provider admin or super admin.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleArchiveFamily(family.id, family.name)}>
+                                Archive
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => navigate(`/family/${family.id}`)}
+                        >
+                          <ArrowRight className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
                   ))}
                 </div>

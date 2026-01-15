@@ -40,9 +40,11 @@ import {
   Activity,
   ChevronRight,
   Copy,
-  ScrollText
+  ScrollText,
+  Archive
 } from 'lucide-react';
 import { PatentDocumentation } from '@/components/PatentDocumentation';
+import { ArchivedFamiliesPanel } from '@/components/ArchivedFamiliesPanel';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { format } from 'date-fns';
@@ -659,6 +661,10 @@ const SuperAdmin = () => {
                   Users
                   <Badge variant="secondary" className="h-5 px-1.5 text-[10px] ml-1">{filteredUsers.length}</Badge>
                 </TabsTrigger>
+                <TabsTrigger value="archived" className="h-7 text-xs gap-1.5 data-[state=active]:shadow-sm">
+                  <Archive className="h-3.5 w-3.5" />
+                  Archived
+                </TabsTrigger>
                 <TabsTrigger value="patent-docs" className="h-7 text-xs gap-1.5 data-[state=active]:shadow-sm">
                   <ScrollText className="h-3.5 w-3.5" />
                   Patent Docs
@@ -947,6 +953,10 @@ const SuperAdmin = () => {
                     </div>
                   </ScrollArea>
                 </Card>
+              </TabsContent>
+
+              <TabsContent value="archived" className="mt-0">
+                <ArchivedFamiliesPanel onReactivate={refetch} />
               </TabsContent>
 
               <TabsContent value="patent-docs" className="mt-0">

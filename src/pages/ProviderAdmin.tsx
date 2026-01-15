@@ -31,8 +31,10 @@ import {
   Check,
   UsersRound,
   Pencil,
-  Trash2
+  Trash2,
+  Archive
 } from 'lucide-react';
+import { ArchivedFamiliesPanel } from '@/components/ArchivedFamiliesPanel';
 
 // Helper to convert hex to HSL string
 const hexToHsl = (hex: string): string => {
@@ -1080,6 +1082,10 @@ const ProviderAdmin = () => {
                     <Palette className="h-4 w-4" />
                     <span className="hidden sm:inline text-xs">Branding</span>
                   </TabsTrigger>
+                  <TabsTrigger value="archived" className="flex-1 min-w-[60px] flex items-center justify-center gap-1 px-2 py-2">
+                    <Archive className="h-4 w-4" />
+                    <span className="hidden sm:inline text-xs">Archived</span>
+                  </TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="branding" className="space-y-6">
@@ -1667,6 +1673,15 @@ const ProviderAdmin = () => {
                       )}
                     </CardContent>
                   </Card>
+                </TabsContent>
+
+                <TabsContent value="archived" className="space-y-6">
+                  <ArchivedFamiliesPanel 
+                    organizationId={selectedOrg} 
+                    onReactivate={() => {
+                      if (selectedOrg) fetchOrgFamilies(selectedOrg);
+                    }} 
+                  />
                 </TabsContent>
               </Tabs>
             ) : (

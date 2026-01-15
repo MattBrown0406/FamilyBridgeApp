@@ -296,33 +296,42 @@ export type Database = {
       families: {
         Row: {
           account_number: string
+          archived_at: string | null
+          archived_by: string | null
           created_at: string
           created_by: string | null
           description: string | null
           id: string
           invite_code: string | null
+          is_archived: boolean
           name: string
           organization_id: string | null
           updated_at: string
         }
         Insert: {
           account_number: string
+          archived_at?: string | null
+          archived_by?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
           id?: string
           invite_code?: string | null
+          is_archived?: boolean
           name: string
           organization_id?: string | null
           updated_at?: string
         }
         Update: {
           account_number?: string
+          archived_at?: string | null
+          archived_by?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
           id?: string
           invite_code?: string | null
+          is_archived?: boolean
           name?: string
           organization_id?: string | null
           updated_at?: string
