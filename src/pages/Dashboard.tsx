@@ -8,6 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Users, LogOut, Loader2, Copy, ArrowRight, Crown, Home, Settings, Trash2 } from 'lucide-react';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 import { NotificationBell } from '@/components/NotificationBell';
+import { AdminBreadcrumbs } from '@/components/AdminBreadcrumbs';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -195,6 +196,8 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Admin Breadcrumbs for super admins and provider admins */}
+      <AdminBreadcrumbs />
       {/* Header */}
       <header className="border-b border-border bg-card">
         <div className="container mx-auto px-4 py-4">

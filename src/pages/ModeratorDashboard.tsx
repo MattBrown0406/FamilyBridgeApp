@@ -12,6 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Users, LogOut, Loader2, ArrowRight, Home, Building2, Shield, Plus, Copy } from 'lucide-react';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 import { NotificationBell } from '@/components/NotificationBell';
+import { AdminBreadcrumbs } from '@/components/AdminBreadcrumbs';
 
 interface AssignedFamily {
   id: string;
@@ -206,6 +207,8 @@ const ModeratorDashboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Admin Breadcrumbs for super admins and provider admins */}
+      <AdminBreadcrumbs />
       {/* Header */}
       <header className="border-b border-border bg-card">
         <div className="container mx-auto px-4 py-4">

@@ -69,6 +69,7 @@ import { SobrietyCounter } from '@/components/SobrietyCounter';
 import { CommunicationHelper } from '@/components/CommunicationHelper';
 import { DailyEmotionalCheckin } from '@/components/DailyEmotionalCheckin';
 import { EmotionalToneIndicator } from '@/components/EmotionalToneIndicator';
+import { AdminBreadcrumbs } from '@/components/AdminBreadcrumbs';
 
 const REQUEST_REASONS = [
   'Electric',
@@ -2234,6 +2235,8 @@ const FamilyChat = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-secondary/20 flex flex-col">
+      {/* Admin Breadcrumbs for super admins and provider admins */}
+      <AdminBreadcrumbs />
       {/* Header with glass effect */}
       <header className="border-b border-border/50 bg-card/80 backdrop-blur-md shrink-0 sticky top-0 z-50 shadow-soft">
         <div className="container mx-auto px-2 sm:px-4 py-2 sm:py-4">
