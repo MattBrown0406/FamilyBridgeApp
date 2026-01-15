@@ -1981,6 +1981,7 @@ export type Database = {
       }
     }
     Functions: {
+      anonymize_old_location_data: { Args: never; Returns: undefined }
       audit_activation_code_access: {
         Args: { _code_id: string }
         Returns: undefined
