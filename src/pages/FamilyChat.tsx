@@ -415,6 +415,7 @@ const FamilyChat = () => {
   const [privateMessagingOpen, setPrivateMessagingOpen] = useState(false);
   const [unreadPrivateMessages, setUnreadPrivateMessages] = useState(0);
   const [hasProfessionalModerator, setHasProfessionalModerator] = useState(false);
+  const [isCurrentUserProfessionalModerator, setIsCurrentUserProfessionalModerator] = useState(false);
   
   // Online presence state
   const [onlineMembers, setOnlineMembers] = useState<string[]>([]);
@@ -788,26 +789,37 @@ const FamilyChat = () => {
   };
 
   const checkProfessionalModerator = async () => {
-    if (!familyId) return;
+    if (!familyId || !user) return;
     
-    // Check temporary moderator requests
+    // Check temporary moderator requests - also check if current user is assigned
     const { data: tempMod } = await supabase
       .from('temporary_moderator_requests')
-      .select('id')
+      .select('id, assigned_moderator_id')
       .eq('family_id', familyId)
       .eq('status', 'active')
-      .gt('expires_at', new Date().toISOString())
-      .limit(1);
+      .gt('expires_at', new Date().toISOString());
 
-    // Check paid moderator requests
+    // Check paid moderator requests - also check if current user is assigned
     const { data: paidMod } = await supabase
       .from('paid_moderator_requests')
-      .select('id')
+      .select('id, assigned_moderator_id')
       .eq('family_id', familyId)
-      .eq('status', 'active')
-      .limit(1);
+      .eq('status', 'active');
 
-    setHasProfessionalModerator((tempMod && tempMod.length > 0) || (paidMod && paidMod.length > 0));
+    const hasAnyProfessionalMod = (tempMod && tempMod.length > 0) || (paidMod && paidMod.length > 0);
+    setHasProfessionalModerator(hasAnyProfessionalMod);
+    
+    // Check if current user is the assigned professional moderator
+    const isCurrentUserTemp = tempMod?.some(m => m.assigned_moderator_id === user.id) || false;
+    const isCurrentUserPaid = paidMod?.some(m => m.assigned_moderator_id === user.id) || false;
+    const isCurrentUserProfMod = isCurrentUserTemp || isCurrentUserPaid;
+    setIsCurrentUserProfessionalModerator(isCurrentUserProfMod);
+    
+    // If current user is a professional moderator but not in family_members, set their role
+    if (isCurrentUserProfMod) {
+      setCurrentUserRole('moderator');
+      setIsAdminOrModerator(true);
+    }
   };
 
   // Check for moderator disclaimer for self-created families
@@ -2682,6 +2694,7 @@ const FamilyChat = () => {
               <LocationCheckinRequest 
                 familyId={familyId!}
                 userRole={currentUserRole}
+                isProfessionalModerator={isCurrentUserProfessionalModerator}
               />
               
               {/* Check-In - Collapsible */}

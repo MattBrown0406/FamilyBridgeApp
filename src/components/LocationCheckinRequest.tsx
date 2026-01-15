@@ -48,9 +48,10 @@ interface LocationRequest {
 interface LocationCheckinRequestProps {
   familyId: string;
   userRole: string;
+  isProfessionalModerator?: boolean;
 }
 
-export const LocationCheckinRequest = ({ familyId, userRole }: LocationCheckinRequestProps) => {
+export const LocationCheckinRequest = ({ familyId, userRole, isProfessionalModerator = false }: LocationCheckinRequestProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -62,14 +63,18 @@ export const LocationCheckinRequest = ({ familyId, userRole }: LocationCheckinRe
   const [recentRequests, setRecentRequests] = useState<LocationRequest[]>([]);
   const [showDialog, setShowDialog] = useState(false);
 
-  const isRecovering = userRole === 'recovering';
+  // Only recovering members who are NOT moderators should be blocked
+  const isRecovering = userRole === 'recovering' && !isProfessionalModerator;
+  
+  // Moderators (including professional moderators) should have access
+  const canRequestCheckins = !isRecovering || isProfessionalModerator;
 
   useEffect(() => {
-    if (!isRecovering) {
+    if (canRequestCheckins) {
       fetchRecoveringMembers();
       fetchRecentRequests();
     }
-  }, [familyId, isRecovering]);
+  }, [familyId, canRequestCheckins]);
 
   const fetchRecoveringMembers = async () => {
     setIsLoading(true);
@@ -230,8 +235,8 @@ export const LocationCheckinRequest = ({ familyId, userRole }: LocationCheckinRe
     }
   };
 
-  if (isRecovering) {
-    return null; // Recovering members don't see this component
+  if (!canRequestCheckins) {
+    return null; // Recovering members (who aren't professional moderators) don't see this component
   }
 
   if (isLoading) {
