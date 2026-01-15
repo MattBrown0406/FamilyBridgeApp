@@ -190,6 +190,41 @@ export const useSobrietyJourney = (familyId: string) => {
     }
   };
 
+  const updateStartDate = async (newStartDate: Date) => {
+    if (!journey) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('sobriety_journeys')
+        .update({ 
+          start_date: newStartDate.toISOString().split('T')[0],
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', journey.id)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      setJourney(data);
+      setDaysCount(calculateDays(data.start_date));
+      
+      toast({
+        title: "Date Updated",
+        description: "The sobriety start date has been updated.",
+      });
+
+      return data;
+    } catch (error: any) {
+      console.error('Error updating start date:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update start date",
+        variant: "destructive",
+      });
+    }
+  };
+
   const recordMilestone = async (milestoneDays: number, notes?: string) => {
     if (!journey) return;
 
@@ -284,6 +319,7 @@ export const useSobrietyJourney = (familyId: string) => {
       : null,
     startJourney,
     resetJourney,
+    updateStartDate,
     recordMilestone,
     celebrateMilestone,
     refetch: fetchJourney,
