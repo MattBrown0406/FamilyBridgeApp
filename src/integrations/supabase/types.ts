@@ -1747,6 +1747,16 @@ export type Database = {
           used_at: string
         }[]
       }
+      get_user_activation_status: {
+        Args: never
+        Returns: {
+          code_exists: boolean
+          expires_at: string
+          is_expired: boolean
+          is_used: boolean
+          used_at: string
+        }[]
+      }
       is_family_admin_or_moderator: {
         Args: { _family_id: string; _user_id: string }
         Returns: boolean
