@@ -2662,6 +2662,13 @@ const FamilyChat = () => {
                 </CardContent>
               </Card>
               
+              {/* Location Check-in Request (for family members) */}
+              <LocationCheckinRequest 
+                familyId={familyId!}
+                userRole={currentUserRole}
+                isProfessionalModerator={isCurrentUserProfessionalModerator}
+              />
+              
               {/* Meeting Finder - Collapsible */}
               <Collapsible>
                 <Card className="border-0 shadow-lg overflow-hidden group hover:shadow-xl transition-all duration-300">
@@ -2689,13 +2696,6 @@ const FamilyChat = () => {
                   </CollapsibleContent>
                 </Card>
               </Collapsible>
-              
-              {/* Location Check-in Request (for family members) */}
-              <LocationCheckinRequest 
-                familyId={familyId!}
-                userRole={currentUserRole}
-                isProfessionalModerator={isCurrentUserProfessionalModerator}
-              />
               
               {/* Check-In - Collapsible */}
               <Collapsible defaultOpen>
