@@ -14,13 +14,13 @@ export const PRODUCTS = {
   },
   provider: {
     monthly: {
-      id: `${BUNDLE_ID}.provider_monthly`,
+      id: `${BUNDLE_ID}.provider_monthly_v2`,
       price: 250,
       period: "month",
       displayName: "Provider Monthly",
     },
     quarterly: {
-      id: `${BUNDLE_ID}.provider_quarterly`,
+      id: `${BUNDLE_ID}.provider_quarterly_v2`,
       price: 629,
       period: "3 months",
       displayName: "Provider Quarterly",
