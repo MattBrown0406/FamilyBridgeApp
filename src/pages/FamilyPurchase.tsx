@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Check, CreditCard, Shield, Users, Tag, Loader2, Copy, MessageCircle, UserPlus, DollarSign, Target, Sparkles, Brain, TrendingUp, MessageSquareWarning } from "lucide-react";
 import { BrandedHeader } from "@/components/BrandedHeader";
+import { SEOHead, createBreadcrumbSchema } from "@/components/SEOHead";
 import { AppStorePurchaseButton, RestorePurchasesButton } from "@/components/AppStorePurchaseButton";
 import { AppleLogo, GooglePlayLogo } from "@/components/icons/StoreLogos";
 
@@ -281,8 +282,19 @@ const FamilyPurchase = () => {
     );
   }
 
+  const breadcrumbSchema = createBreadcrumbSchema([
+    { name: 'Home', url: '/' },
+    { name: 'Family Purchase', url: '/family-purchase' },
+  ]);
+
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title="Create Your Family Group - $19.99/month"
+        description="Start your family's recovery journey with FamilyBridge. AI-powered pattern detection, moderated chat, financial accountability, and meeting check-ins for $19.99/month."
+        canonicalPath="/family-purchase"
+        structuredData={breadcrumbSchema}
+      />
       <BrandedHeader />
       <div className="container mx-auto px-3 sm:px-4 py-6 sm:py-12">
         <div className="max-w-4xl mx-auto">

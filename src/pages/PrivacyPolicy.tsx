@@ -1,10 +1,22 @@
 import { BrandedHeader } from "@/components/BrandedHeader";
 import { BrandedFooter } from "@/components/BrandedFooter";
 import { Card, CardContent } from "@/components/ui/card";
+import { SEOHead, createBreadcrumbSchema } from "@/components/SEOHead";
 
 const PrivacyPolicy = () => {
+  const breadcrumbSchema = createBreadcrumbSchema([
+    { name: 'Home', url: '/' },
+    { name: 'Privacy Policy', url: '/privacy' },
+  ]);
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      <SEOHead
+        title="Privacy Policy"
+        description="Learn how FamilyBridge collects, uses, and protects your personal information. Read our comprehensive privacy policy for our family recovery support app."
+        canonicalPath="/privacy"
+        structuredData={breadcrumbSchema}
+      />
       <BrandedHeader showHomeButton />
       
       <main className="flex-1 container mx-auto px-3 sm:px-4 py-4 sm:py-8 max-w-4xl">

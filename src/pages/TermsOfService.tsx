@@ -1,10 +1,22 @@
 import { BrandedHeader } from "@/components/BrandedHeader";
 import { BrandedFooter } from "@/components/BrandedFooter";
 import { Card, CardContent } from "@/components/ui/card";
+import { SEOHead, createBreadcrumbSchema } from "@/components/SEOHead";
 
 const TermsOfService = () => {
+  const breadcrumbSchema = createBreadcrumbSchema([
+    { name: 'Home', url: '/' },
+    { name: 'Terms of Service', url: '/terms' },
+  ]);
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      <SEOHead
+        title="Terms of Service"
+        description="Read the FamilyBridge Terms of Service. Understand your rights and responsibilities when using our family recovery support platform."
+        canonicalPath="/terms"
+        structuredData={breadcrumbSchema}
+      />
       <BrandedHeader showHomeButton />
       
       <main className="flex-1 container mx-auto px-3 sm:px-4 py-4 sm:py-8 max-w-4xl">
