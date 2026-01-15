@@ -1998,6 +1998,10 @@ export type Database = {
         Args: { _family_id: string; _user_id: string }
         Returns: boolean
       }
+      check_and_log_activation_code_access: {
+        Args: { _code_id: string }
+        Returns: boolean
+      }
       check_overdue_checkouts: { Args: never; Returns: undefined }
       check_payment_info_access_rate: { Args: never; Returns: boolean }
       decrypt_payment_field: {
