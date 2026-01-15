@@ -65,6 +65,7 @@ import { BillReceiptCapture } from '@/components/BillReceiptCapture';
 import { useFIISNotifications } from '@/hooks/useFIISNotifications';
 import { FamilyHealthBadge } from '@/components/FamilyHealthBadge';
 import { LiquorLicenseWarnings } from '@/components/LiquorLicenseWarnings';
+import { SobrietyCounter } from '@/components/SobrietyCounter';
 
 const REQUEST_REASONS = [
   'Electric',
@@ -2634,6 +2635,14 @@ const FamilyChat = () => {
           {/* Check-in Tab */}
           <TabsContent value="checkin" className="flex-1 overflow-auto mt-0">
             <div className="space-y-4">
+
+              {/* Sobriety Day Counter - prominent for recovering members */}
+              {familyId && (
+                <SobrietyCounter 
+                  familyId={familyId}
+                  isRecoveringMember={currentUserRole === 'recovering'}
+                />
+              )}
 
               {/* Location Check-in Response (for recovering members) */}
               <LocationCheckinResponse 
