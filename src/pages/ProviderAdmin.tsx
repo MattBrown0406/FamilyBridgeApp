@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useProviderAdmin } from '@/hooks/useProviderAdmin';
 import { useAuth } from '@/hooks/useAuth';
+import { useOrganizationBranding } from '@/hooks/useOrganizationBranding';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -35,6 +36,7 @@ import {
   Archive
 } from 'lucide-react';
 import { ArchivedFamiliesPanel } from '@/components/ArchivedFamiliesPanel';
+import familyBridgeLogo from '@/assets/familybridge-logo.png';
 
 // Helper to convert hex to HSL string
 const hexToHsl = (hex: string): string => {
@@ -66,6 +68,7 @@ const hexToHsl = (hex: string): string => {
 const ProviderAdmin = () => {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
+  const { branding, applyBranding, resetBranding } = useOrganizationBranding();
   const { 
     organizations, 
     isLoading, 
@@ -82,6 +85,16 @@ const ProviderAdmin = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [isExtractingBranding, setIsExtractingBranding] = useState(false);
   const [showManualBranding, setShowManualBranding] = useState(false);
+  
+  // Apply organization branding when loaded
+  useEffect(() => {
+    if (branding) {
+      applyBranding();
+    }
+    return () => {
+      resetBranding();
+    };
+  }, [branding, applyBranding, resetBranding]);
   
   // Activation code state
   const [activationCode, setActivationCode] = useState('');
@@ -1009,19 +1022,31 @@ const ProviderAdmin = () => {
   // Provider dashboard
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0 mb-4 sm:mb-8">
-          <div className="flex items-center gap-2 sm:gap-4">
-            <Button variant="ghost" size="sm" onClick={() => navigate('/dashboard')} className="px-2 sm:px-3">
-              <ArrowLeft className="h-4 w-4 sm:mr-2" />
+      {/* Header with org branding */}
+      <header className="border-b border-border bg-card">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <img 
+                  src={branding?.logo_url || familyBridgeLogo} 
+                  alt={branding?.name || "FamilyBridge"} 
+                  className="h-7 w-auto object-contain" 
+                />
+                <span className="text-xl font-display font-semibold text-foreground">
+                  {branding?.name || "Provider Admin"}
+                </span>
+              </div>
+            </div>
+            <Button variant="ghost" size="sm" onClick={() => navigate('/dashboard')}>
+              <ArrowLeft className="h-4 w-4 mr-2" />
               <span className="hidden sm:inline">Dashboard</span>
             </Button>
-            <h1 className="text-lg sm:text-2xl font-display font-bold text-foreground">
-              Provider Admin
-            </h1>
           </div>
         </div>
+      </header>
 
+      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
         <div className="grid lg:grid-cols-4 gap-4 sm:gap-6">
           {/* Organization selector */}
           <div className="lg:col-span-1 space-y-2">
