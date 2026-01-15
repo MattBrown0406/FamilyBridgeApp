@@ -2726,17 +2726,6 @@ const FamilyChat = () => {
                     <CommunicationHelper 
                       familyId={familyId!}
                       onUseSuggestion={(text) => setNewMessage(text)}
-                      onSendMessage={async (text) => {
-                        const { error } = await supabase
-                          .from('messages')
-                          .insert({
-                            family_id: familyId,
-                            sender_id: user?.id,
-                            content: text.trim(),
-                            was_filtered: false,
-                          });
-                        if (error) throw error;
-                      }}
                     />
                   </div>
                 </form>
