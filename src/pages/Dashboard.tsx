@@ -9,6 +9,7 @@ import { Users, LogOut, Loader2, Copy, ArrowRight, Crown, Home, Settings, Trash2
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 import { NotificationBell } from '@/components/NotificationBell';
 import { AdminBreadcrumbs } from '@/components/AdminBreadcrumbs';
+import { ArchivedFamilyNotice } from '@/components/ArchivedFamilyNotice';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -62,18 +63,21 @@ const Dashboard = () => {
 
   const fetchFamilies = async () => {
     try {
+      // Fetch only active (non-archived) families
       const { data: memberData, error: memberError } = await supabase
         .from('family_members')
         .select(`
           role,
           family_id,
-          families (
+          families!inner (
             id,
             name,
-            description
+            description,
+            is_archived
           )
         `)
-        .eq('user_id', user.id);
+        .eq('user_id', user.id)
+        .eq('families.is_archived', false);
 
       if (memberError) throw memberError;
 
@@ -294,6 +298,11 @@ const Dashboard = () => {
             <p className="text-muted-foreground">
               Manage your family communication and support networks.
             </p>
+          </div>
+
+          {/* Archived Family Notice - shows if user has archived families */}
+          <div className="mb-6">
+            <ArchivedFamilyNotice />
           </div>
 
           {/* Family Groups List */}

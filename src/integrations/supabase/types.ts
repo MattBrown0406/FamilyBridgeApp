@@ -580,6 +580,50 @@ export type Database = {
           },
         ]
       }
+      family_reactivation_requests: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          family_id: string
+          id: string
+          reactivation_type: string | null
+          requested_at: string
+          requested_by: string
+          status: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          family_id: string
+          id?: string
+          reactivation_type?: string | null
+          requested_at?: string
+          requested_by: string
+          status?: string
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          family_id?: string
+          id?: string
+          reactivation_type?: string | null
+          requested_at?: string
+          requested_by?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "family_reactivation_requests_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       family_values: {
         Row: {
           created_at: string

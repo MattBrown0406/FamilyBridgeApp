@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { Archive, RotateCcw, Users, Building2, Calendar, Loader2 } from 'lucide-react';
+import { Archive, RotateCcw, Users, Building2, Calendar, Loader2, Bell } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface ArchivedFamily {
@@ -19,6 +19,7 @@ interface ArchivedFamily {
   organization_id: string | null;
   organizations?: { name: string } | null;
   archiver_profile?: { full_name: string } | null;
+  pending_requests_count: number;
 }
 
 interface ArchivedFamiliesPanelProps {
@@ -30,6 +31,7 @@ export const ArchivedFamiliesPanel = ({ organizationId, onReactivate }: Archived
   const [archivedFamilies, setArchivedFamilies] = useState<ArchivedFamily[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { reactivateFamily, isReactivating } = useFamilyArchive();
+  const [reactivatingId, setReactivatingId] = useState<string | null>(null);
 
   const fetchArchivedFamilies = async () => {
     setIsLoading(true);
@@ -57,7 +59,7 @@ export const ArchivedFamiliesPanel = ({ organizationId, onReactivate }: Archived
 
       if (error) throw error;
 
-      // Fetch archiver profiles
+      // Fetch archiver profiles and pending request counts
       const archiverIds = [...new Set((data || []).filter(f => f.archived_by).map(f => f.archived_by))];
       let archiverProfiles: Record<string, string> = {};
 
@@ -73,9 +75,27 @@ export const ArchivedFamiliesPanel = ({ organizationId, onReactivate }: Archived
         }, {} as Record<string, string>);
       }
 
+      // Get pending request counts for each family
+      const familyIds = (data || []).map(f => f.id);
+      let requestCounts: Record<string, number> = {};
+      
+      if (familyIds.length > 0) {
+        const { data: requests } = await supabase
+          .from('family_reactivation_requests')
+          .select('family_id')
+          .in('family_id', familyIds)
+          .eq('status', 'pending');
+
+        requestCounts = (requests || []).reduce((acc, r) => {
+          acc[r.family_id] = (acc[r.family_id] || 0) + 1;
+          return acc;
+        }, {} as Record<string, number>);
+      }
+
       const familiesWithArchivers = (data || []).map(family => ({
         ...family,
         archiver_profile: family.archived_by ? { full_name: archiverProfiles[family.archived_by] || 'Unknown' } : null,
+        pending_requests_count: requestCounts[family.id] || 0,
       }));
 
       setArchivedFamilies(familiesWithArchivers);
@@ -91,11 +111,32 @@ export const ArchivedFamiliesPanel = ({ organizationId, onReactivate }: Archived
   }, [organizationId]);
 
   const handleReactivate = async (family: ArchivedFamily) => {
+    setReactivatingId(family.id);
+    
+    // Provider admin reactivation - keeps organization association
     const success = await reactivateFamily(family.id, family.name);
+    
     if (success) {
+      // Also update any pending requests to approved with provider_admin type
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase
+          .from('family_reactivation_requests')
+          .update({
+            status: 'approved',
+            approved_by: user.id,
+            approved_at: new Date().toISOString(),
+            reactivation_type: 'provider_admin',
+          })
+          .eq('family_id', family.id)
+          .eq('status', 'pending');
+      }
+      
       fetchArchivedFamilies();
       onReactivate?.();
     }
+    
+    setReactivatingId(null);
   };
 
   if (isLoading) {
@@ -123,6 +164,7 @@ export const ArchivedFamiliesPanel = ({ organizationId, onReactivate }: Archived
         </CardTitle>
         <CardDescription>
           {archivedFamilies.length} archived family group{archivedFamilies.length !== 1 ? 's' : ''}
+          {organizationId && ' in your organization'}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -155,6 +197,12 @@ export const ArchivedFamiliesPanel = ({ organizationId, onReactivate }: Archived
                             {family.organizations.name}
                           </span>
                         )}
+                        {family.pending_requests_count > 0 && (
+                          <Badge variant="default" className="text-xs bg-blue-500">
+                            <Bell className="h-3 w-3 mr-1" />
+                            {family.pending_requests_count} request{family.pending_requests_count > 1 ? 's' : ''}
+                          </Badge>
+                        )}
                       </div>
                       {family.archived_at && (
                         <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
@@ -172,9 +220,9 @@ export const ArchivedFamiliesPanel = ({ organizationId, onReactivate }: Archived
                       <Button 
                         variant="outline" 
                         size="sm"
-                        disabled={isReactivating}
+                        disabled={isReactivating && reactivatingId === family.id}
                       >
-                        {isReactivating ? (
+                        {isReactivating && reactivatingId === family.id ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
                         ) : (
                           <>
@@ -188,8 +236,13 @@ export const ArchivedFamiliesPanel = ({ organizationId, onReactivate }: Archived
                       <AlertDialogHeader>
                         <AlertDialogTitle>Reactivate Family Group?</AlertDialogTitle>
                         <AlertDialogDescription>
-                          This will restore "{family.name}" to active status. 
+                          This will restore "{family.name}" to active status within your organization. 
                           All members and data will become accessible again.
+                          {family.pending_requests_count > 0 && (
+                            <span className="block mt-2 text-blue-600">
+                              Note: {family.pending_requests_count} member{family.pending_requests_count > 1 ? 's have' : ' has'} requested reactivation.
+                            </span>
+                          )}
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
