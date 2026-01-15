@@ -646,29 +646,29 @@ const SuperAdmin = () => {
 
             {/* Main Content */}
             <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-3">
-              <TabsList className="h-9 p-1 bg-muted/50">
-                <TabsTrigger value="providers" className="h-7 text-xs gap-1.5 data-[state=active]:shadow-sm">
+              <TabsList className="h-auto p-1 bg-muted/50 flex flex-wrap gap-1">
+                <TabsTrigger value="providers" className="h-7 text-xs gap-1 px-2 sm:px-3 data-[state=active]:shadow-sm flex-shrink-0">
                   <Building2 className="h-3.5 w-3.5" />
-                  Providers
-                  <Badge variant="secondary" className="h-5 px-1.5 text-[10px] ml-1">{filteredOrgs.length}</Badge>
+                  <span className="hidden xs:inline">Providers</span>
+                  <Badge variant="secondary" className="h-5 px-1 text-[10px] ml-0.5 sm:ml-1">{filteredOrgs.length}</Badge>
                 </TabsTrigger>
-                <TabsTrigger value="families" className="h-7 text-xs gap-1.5 data-[state=active]:shadow-sm">
+                <TabsTrigger value="families" className="h-7 text-xs gap-1 px-2 sm:px-3 data-[state=active]:shadow-sm flex-shrink-0">
                   <Users className="h-3.5 w-3.5" />
-                  All Families
-                  <Badge variant="secondary" className="h-5 px-1.5 text-[10px] ml-1">{filteredFamilies.length}</Badge>
+                  <span className="hidden xs:inline">Families</span>
+                  <Badge variant="secondary" className="h-5 px-1 text-[10px] ml-0.5 sm:ml-1">{filteredFamilies.length}</Badge>
                 </TabsTrigger>
-                <TabsTrigger value="users" className="h-7 text-xs gap-1.5 data-[state=active]:shadow-sm">
+                <TabsTrigger value="users" className="h-7 text-xs gap-1 px-2 sm:px-3 data-[state=active]:shadow-sm flex-shrink-0">
                   <User className="h-3.5 w-3.5" />
-                  Users
-                  <Badge variant="secondary" className="h-5 px-1.5 text-[10px] ml-1">{filteredUsers.length}</Badge>
+                  <span className="hidden xs:inline">Users</span>
+                  <Badge variant="secondary" className="h-5 px-1 text-[10px] ml-0.5 sm:ml-1">{filteredUsers.length}</Badge>
                 </TabsTrigger>
-                <TabsTrigger value="archived" className="h-7 text-xs gap-1.5 data-[state=active]:shadow-sm">
+                <TabsTrigger value="archived" className="h-7 text-xs gap-1 px-2 sm:px-3 data-[state=active]:shadow-sm flex-shrink-0">
                   <Archive className="h-3.5 w-3.5" />
-                  Archived
+                  <span className="hidden sm:inline">Archived</span>
                 </TabsTrigger>
-                <TabsTrigger value="patent-docs" className="h-7 text-xs gap-1.5 data-[state=active]:shadow-sm">
+                <TabsTrigger value="patent-docs" className="h-7 text-xs gap-1 px-2 sm:px-3 data-[state=active]:shadow-sm flex-shrink-0">
                   <ScrollText className="h-3.5 w-3.5" />
-                  Patent Docs
+                  <span className="hidden sm:inline">Patent Docs</span>
                 </TabsTrigger>
               </TabsList>
 
@@ -690,8 +690,8 @@ const SuperAdmin = () => {
                           
                           return (
                             <AccordionItem key={org.id} value={org.id} className="border-b">
-                              <AccordionTrigger className="px-4 py-3 hover:bg-muted/50 hover:no-underline group">
-                                <div className="flex items-center gap-4 w-full">
+                              <AccordionTrigger className="px-2 sm:px-4 py-2 sm:py-3 hover:bg-muted/50 hover:no-underline group">
+                                <div className="flex items-center gap-2 sm:gap-4 w-full">
                                   {/* Brand color accent bar */}
                                   {org.primary_color && (
                                     <div 
@@ -702,7 +702,7 @@ const SuperAdmin = () => {
                                   
                                   {/* Logo or fallback icon */}
                                   <div 
-                                    className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden border"
+                                    className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden border"
                                     style={{ 
                                       backgroundColor: org.background_color ? `hsl(${org.background_color})` : undefined,
                                       borderColor: org.primary_color ? `hsl(${org.primary_color})` : undefined
@@ -716,30 +716,26 @@ const SuperAdmin = () => {
                                       />
                                     ) : (
                                       <Building2 
-                                        className="h-4 w-4" 
+                                        className="h-3.5 w-3.5 sm:h-4 sm:w-4" 
                                         style={{ color: org.primary_color ? `hsl(${org.primary_color})` : undefined }}
                                       />
                                     )}
                                   </div>
                                   
                                   <div className="flex-1 min-w-0 text-left">
-                                    <div className="flex items-center gap-2">
-                                      <p className="font-medium truncate">{org.name}</p>
-                                      {hasBranding && (
-                                        <div className="flex items-center gap-0.5">
-                                          {org.primary_color && (
-                                            <div 
-                                              className="w-3 h-3 rounded-full border border-white/50 shadow-sm" 
-                                              style={{ backgroundColor: `hsl(${org.primary_color})` }}
-                                              title="Primary color"
-                                            />
-                                          )}
-                                        </div>
+                                    <div className="flex items-center gap-1 sm:gap-2">
+                                      <p className="font-medium truncate text-sm sm:text-base">{org.name}</p>
+                                      {hasBranding && org.primary_color && (
+                                        <div 
+                                          className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full border border-white/50 shadow-sm hidden sm:block" 
+                                          style={{ backgroundColor: `hsl(${org.primary_color})` }}
+                                          title="Primary color"
+                                        />
                                       )}
                                     </div>
-                                    <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                                      <span className="font-mono">{org.subdomain}</span>
-                                      <Badge variant="secondary" className="h-5 px-1.5 text-[10px]">
+                                    <div className="flex items-center gap-2 sm:gap-3 text-[10px] sm:text-xs text-muted-foreground">
+                                      <span className="font-mono hidden sm:inline">{org.subdomain}</span>
+                                      <Badge variant="secondary" className="h-4 sm:h-5 px-1 sm:px-1.5 text-[9px] sm:text-[10px]">
                                         {orgFamilies.length} {orgFamilies.length === 1 ? 'family' : 'families'}
                                       </Badge>
                                     </div>
@@ -748,10 +744,10 @@ const SuperAdmin = () => {
                                   <Button 
                                     size="sm" 
                                     variant="ghost" 
-                                    className="h-8 px-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                                    className="h-7 w-7 sm:h-8 sm:w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
                                     onClick={(e) => { e.stopPropagation(); fetchOrgDetails(org.id); }}
                                   >
-                                    <Pencil className="h-3.5 w-3.5" />
+                                    <Pencil className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                                   </Button>
                                 </div>
                               </AccordionTrigger>
@@ -769,28 +765,28 @@ const SuperAdmin = () => {
                                       return (
                                         <div
                                           key={family.id}
-                                          className="flex items-center gap-4 px-4 pl-8 py-3 hover:bg-muted/50 cursor-pointer transition-colors group"
+                                          className="flex items-center gap-2 sm:gap-4 px-2 sm:px-4 pl-4 sm:pl-8 py-2 sm:py-3 hover:bg-muted/50 cursor-pointer transition-colors group"
                                           onClick={() => fetchFamilyDetails(family.id)}
                                         >
                                           <div 
-                                            className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden border bg-background"
+                                            className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden border bg-background"
                                             style={{ 
                                               borderColor: org.primary_color ? `hsl(${org.primary_color})` : 'hsl(var(--border))'
                                             }}
                                           >
-                                            <Users className="h-3.5 w-3.5 text-primary" />
+                                            <Users className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-primary" />
                                           </div>
                                           <div className="flex-1 min-w-0">
-                                            <div className="flex items-center gap-2">
-                                              <p className="font-medium truncate text-sm">{family.name}</p>
-                                              <span className={`w-2 h-2 rounded-full ${activity.color} flex-shrink-0`} title={activity.label} />
+                                            <div className="flex items-center gap-1.5 sm:gap-2">
+                                              <p className="font-medium truncate text-xs sm:text-sm">{family.name}</p>
+                                              <span className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${activity.color} flex-shrink-0`} title={activity.label} />
                                             </div>
-                                            <div className="flex items-center flex-wrap gap-3 text-xs text-muted-foreground">
+                                            <div className="flex items-center flex-wrap gap-1.5 sm:gap-3 text-[10px] sm:text-xs text-muted-foreground">
                                               <span className="font-mono">{family.account_number}</span>
                                               {family.invite_code && (
                                                 <button
                                                   onClick={(e) => copyInviteCode(family.invite_code!, e)}
-                                                  className="flex items-center gap-1 hover:text-primary transition-colors"
+                                                  className="hidden sm:flex items-center gap-1 hover:text-primary transition-colors"
                                                 >
                                                   <Copy className="h-3 w-3" />
                                                   {family.invite_code}
@@ -808,7 +804,7 @@ const SuperAdmin = () => {
                                               <p className="text-muted-foreground">checkins</p>
                                             </div>
                                           </div>
-                                          <ChevronRight className="h-4 w-4 text-muted-foreground/50 group-hover:text-muted-foreground transition-colors" />
+                                          <ChevronRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground/50 group-hover:text-muted-foreground transition-colors" />
                                         </div>
                                       );
                                     })}
@@ -826,16 +822,16 @@ const SuperAdmin = () => {
                           
                           return (
                             <AccordionItem value="unaffiliated" className="border-b">
-                              <AccordionTrigger className="px-4 py-3 hover:bg-muted/50 hover:no-underline group">
-                                <div className="flex items-center gap-4 w-full">
-                                  <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden border bg-muted">
-                                    <Users className="h-4 w-4 text-muted-foreground" />
+                              <AccordionTrigger className="px-2 sm:px-4 py-2 sm:py-3 hover:bg-muted/50 hover:no-underline group">
+                                <div className="flex items-center gap-2 sm:gap-4 w-full">
+                                  <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden border bg-muted">
+                                    <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
                                   </div>
                                   
                                   <div className="flex-1 min-w-0 text-left">
-                                    <p className="font-medium truncate text-muted-foreground">Unaffiliated Families</p>
-                                    <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                                      <Badge variant="secondary" className="h-5 px-1.5 text-[10px]">
+                                    <p className="font-medium truncate text-muted-foreground text-sm sm:text-base">Unaffiliated Families</p>
+                                    <div className="flex items-center gap-2 sm:gap-3 text-[10px] sm:text-xs text-muted-foreground">
+                                      <Badge variant="secondary" className="h-4 sm:h-5 px-1 sm:px-1.5 text-[9px] sm:text-[10px]">
                                         {unaffiliatedFamilies.length} {unaffiliatedFamilies.length === 1 ? 'family' : 'families'}
                                       </Badge>
                                     </div>
@@ -850,23 +846,23 @@ const SuperAdmin = () => {
                                     return (
                                       <div
                                         key={family.id}
-                                        className="flex items-center gap-4 px-4 pl-8 py-3 hover:bg-muted/50 cursor-pointer transition-colors group"
+                                        className="flex items-center gap-2 sm:gap-4 px-2 sm:px-4 pl-4 sm:pl-8 py-2 sm:py-3 hover:bg-muted/50 cursor-pointer transition-colors group"
                                         onClick={() => fetchFamilyDetails(family.id)}
                                       >
-                                        <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden border bg-background">
-                                          <Users className="h-3.5 w-3.5 text-primary" />
+                                        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden border bg-background">
+                                          <Users className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-primary" />
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                          <div className="flex items-center gap-2">
-                                            <p className="font-medium truncate text-sm">{family.name}</p>
-                                            <span className={`w-2 h-2 rounded-full ${activity.color} flex-shrink-0`} title={activity.label} />
+                                          <div className="flex items-center gap-1.5 sm:gap-2">
+                                            <p className="font-medium truncate text-xs sm:text-sm">{family.name}</p>
+                                            <span className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${activity.color} flex-shrink-0`} title={activity.label} />
                                           </div>
-                                          <div className="flex items-center flex-wrap gap-3 text-xs text-muted-foreground">
+                                          <div className="flex items-center flex-wrap gap-1.5 sm:gap-3 text-[10px] sm:text-xs text-muted-foreground">
                                             <span className="font-mono">{family.account_number}</span>
                                             {family.invite_code && (
                                               <button
                                                 onClick={(e) => copyInviteCode(family.invite_code!, e)}
-                                                className="flex items-center gap-1 hover:text-primary transition-colors"
+                                                className="hidden sm:flex items-center gap-1 hover:text-primary transition-colors"
                                               >
                                                 <Copy className="h-3 w-3" />
                                                 {family.invite_code}
@@ -884,7 +880,7 @@ const SuperAdmin = () => {
                                             <p className="text-muted-foreground">checkins</p>
                                           </div>
                                         </div>
-                                        <ChevronRight className="h-4 w-4 text-muted-foreground/50 group-hover:text-muted-foreground transition-colors" />
+                                        <ChevronRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground/50 group-hover:text-muted-foreground transition-colors" />
                                       </div>
                                     );
                                   })}
@@ -914,12 +910,12 @@ const SuperAdmin = () => {
                           return (
                             <div
                               key={family.id}
-                              className="flex items-center gap-4 px-4 py-3 hover:bg-muted/50 cursor-pointer transition-colors group"
+                              className="flex items-center gap-2 sm:gap-4 px-2 sm:px-4 py-2 sm:py-3 hover:bg-muted/50 cursor-pointer transition-colors group"
                               onClick={() => fetchFamilyDetails(family.id)}
                               style={{ animationDelay: `${i * 20}ms` }}
                             >
                               <div 
-                                className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden border"
+                                className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden border"
                                 style={{ 
                                   backgroundColor: family.organization_primary_color ? `hsl(${family.organization_primary_color})` : undefined,
                                   borderColor: family.organization_primary_color ? `hsl(${family.organization_primary_color})` : 'hsl(var(--border))'
@@ -932,18 +928,18 @@ const SuperAdmin = () => {
                                     className="w-full h-full object-contain bg-white p-0.5 rounded"
                                   />
                                 ) : (
-                                  <Users className="h-4 w-4 text-primary" />
+                                  <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
                                 )}
                               </div>
                               <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2">
-                                  <p className="font-medium truncate">{family.name}</p>
-                                  <span className={`w-2 h-2 rounded-full ${activity.color} flex-shrink-0`} title={activity.label} />
+                                <div className="flex items-center gap-1.5 sm:gap-2">
+                                  <p className="font-medium truncate text-sm sm:text-base">{family.name}</p>
+                                  <span className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${activity.color} flex-shrink-0`} title={activity.label} />
                                 </div>
-                                <div className="flex items-center flex-wrap gap-3 text-xs text-muted-foreground">
+                                <div className="flex items-center flex-wrap gap-1.5 sm:gap-3 text-[10px] sm:text-xs text-muted-foreground">
                                   <span className="font-mono">{family.account_number}</span>
                                   {family.organization_name && (
-                                    <span className="flex items-center gap-1">
+                                    <span className="hidden sm:flex items-center gap-1">
                                       <Building2 className="h-3 w-3" />
                                       {family.organization_name}
                                     </span>
@@ -951,7 +947,7 @@ const SuperAdmin = () => {
                                   {family.invite_code && (
                                     <button
                                       onClick={(e) => copyInviteCode(family.invite_code!, e)}
-                                      className="flex items-center gap-1 hover:text-primary transition-colors"
+                                      className="hidden sm:flex items-center gap-1 hover:text-primary transition-colors"
                                     >
                                       <Copy className="h-3 w-3" />
                                       {family.invite_code}
@@ -969,7 +965,7 @@ const SuperAdmin = () => {
                                   <p className="text-muted-foreground">checkins</p>
                                 </div>
                               </div>
-                              <ChevronRight className="h-4 w-4 text-muted-foreground/50 group-hover:text-muted-foreground transition-colors" />
+                              <ChevronRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground/50 group-hover:text-muted-foreground transition-colors" />
                             </div>
                           );
                         })
@@ -1022,14 +1018,14 @@ const SuperAdmin = () => {
                           return (
                             <div
                               key={u.id}
-                              className="flex items-center gap-4 px-4 py-3 hover:bg-muted/50 cursor-pointer transition-colors group"
+                              className="flex items-center gap-2 sm:gap-4 px-2 sm:px-4 py-2 sm:py-3 hover:bg-muted/50 cursor-pointer transition-colors group"
                               onClick={() => fetchUserDetails(u.id)}
                               style={{ animationDelay: `${i * 20}ms` }}
                             >
                               {/* Show provider logo for moderators/owners, otherwise avatar */}
                               {(u.org_roles?.includes('owner') || u.org_roles?.includes('admin') || u.family_roles?.includes('moderator')) && u.org_logo_url ? (
                                 <div 
-                                  className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden border"
+                                  className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden border"
                                   style={{ 
                                     borderColor: u.org_primary_color ? `hsl(${u.org_primary_color})` : 'hsl(var(--border))'
                                   }}
@@ -1042,42 +1038,43 @@ const SuperAdmin = () => {
                                   />
                                 </div>
                               ) : (
-                                <Avatar className="h-10 w-10">
+                                <Avatar className="h-8 w-8 sm:h-10 sm:w-10">
                                   <AvatarImage src={u.avatar_url || undefined} />
                                   <AvatarFallback className="bg-muted">
-                                    <User className="h-4 w-4 text-muted-foreground" />
+                                    <User className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
                                   </AvatarFallback>
                                 </Avatar>
                               )}
                               <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2 flex-wrap">
-                                  <p className="font-medium truncate">{u.full_name}</p>
-                                  <div className="flex items-center gap-1 flex-wrap">
-                                    {displayRoles.slice(0, 3).map((role, idx) => (
+                                <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                                  <p className="font-medium truncate text-sm sm:text-base">{u.full_name}</p>
+                                  <div className="flex items-center gap-0.5 sm:gap-1 flex-wrap">
+                                    {displayRoles.slice(0, 2).map((role, idx) => (
                                       <Badge 
                                         key={idx} 
                                         variant={role.variant} 
-                                        className={`text-[10px] px-1.5 py-0 h-5 ${role.className || ''}`}
+                                        className={`text-[8px] sm:text-[10px] px-1 sm:px-1.5 py-0 h-4 sm:h-5 ${role.className || ''}`}
                                       >
-                                        {role.label}
+                                        <span className="hidden sm:inline">{role.label}</span>
+                                        <span className="sm:hidden">{role.label.split(' ')[0]}</span>
                                       </Badge>
                                     ))}
-                                    {displayRoles.length > 3 && (
-                                      <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-5">
-                                        +{displayRoles.length - 3}
+                                    {displayRoles.length > 2 && (
+                                      <Badge variant="outline" className="text-[8px] sm:text-[10px] px-1 sm:px-1.5 py-0 h-4 sm:h-5">
+                                        +{displayRoles.length - 2}
                                       </Badge>
                                     )}
                                   </div>
                                 </div>
-                                <p className="text-xs text-muted-foreground">
-                                  Joined {format(new Date(u.created_at), 'MMM d, yyyy')}
+                                <p className="text-[10px] sm:text-xs text-muted-foreground">
+                                  <span className="hidden sm:inline">Joined </span>{format(new Date(u.created_at), 'MMM d, yyyy')}
                                 </p>
                               </div>
                               <div className="hidden sm:block text-xs text-center">
                                 <p className="font-semibold text-sm">{u.family_count}</p>
                                 <p className="text-muted-foreground">families</p>
                               </div>
-                              <ChevronRight className="h-4 w-4 text-muted-foreground/50 group-hover:text-muted-foreground transition-colors" />
+                              <ChevronRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground/50 group-hover:text-muted-foreground transition-colors" />
                             </div>
                           );
                         })
@@ -1103,33 +1100,34 @@ const SuperAdmin = () => {
 
       {/* Family Details Dialog */}
       <Dialog open={!!selectedFamilyId} onOpenChange={() => { setSelectedFamilyId(null); setFamilyDetails(null); setIsEditing(false); }}>
-        <DialogContent className="max-w-2xl max-h-[85vh]">
+        <DialogContent className="max-w-2xl max-h-[90vh] w-[95vw] sm:w-full p-4 sm:p-6">
           <DialogHeader>
-            <DialogTitle className="flex items-center justify-between">
+            <DialogTitle className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
               <div className="flex flex-col">
                 <span className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <Users className="h-4 w-4 text-primary" />
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
                   </div>
-                  {familyDetails?.family.name || 'Family Details'}
+                  <span className="text-base sm:text-lg truncate">{familyDetails?.family.name || 'Family Details'}</span>
                 </span>
                 {familyDetails?.family.account_number && (
-                  <Badge variant="outline" className="font-mono text-xs w-fit mt-1.5">
+                  <Badge variant="outline" className="font-mono text-[10px] sm:text-xs w-fit mt-1.5">
                     {familyDetails.family.account_number}
                   </Badge>
                 )}
               </div>
               {familyDetails && !isEditing && (
-                <div className="flex gap-2">
-                  <Button size="sm" variant="outline" onClick={() => setIsEditing(true)}>
-                    <Pencil className="h-3.5 w-3.5 mr-1.5" /> Edit
+                <div className="flex gap-2 mt-2 sm:mt-0">
+                  <Button size="sm" variant="outline" onClick={() => setIsEditing(true)} className="h-7 sm:h-8 text-xs sm:text-sm">
+                    <Pencil className="h-3 w-3 sm:h-3.5 sm:w-3.5 mr-1" /> Edit
                   </Button>
                   <Button 
                     size="sm" 
                     variant="destructive" 
                     onClick={() => setDeleteConfirm({ type: 'family', id: familyDetails.family.id, name: familyDetails.family.name })}
+                    className="h-7 sm:h-8 text-xs sm:text-sm"
                   >
-                    <Trash2 className="h-3.5 w-3.5 mr-1.5" /> Delete
+                    <Trash2 className="h-3 w-3 sm:h-3.5 sm:w-3.5 mr-1" /> Delete
                   </Button>
                 </div>
               )}
