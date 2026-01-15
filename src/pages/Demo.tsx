@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
+import { SEOHead, createBreadcrumbSchema } from '@/components/SEOHead';
 import { 
   Building2, 
   Palette, 
@@ -209,8 +210,19 @@ const Demo = () => {
     ],
   };
 
+  const breadcrumbSchema = createBreadcrumbSchema([
+    { name: 'Home', url: '/' },
+    { name: 'Demo', url: '/demo' },
+  ]);
+
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title="Interactive Demo - See FamilyBridge in Action"
+        description="Experience how FamilyBridge helps families support loved ones in recovery. Try our interactive demo with custom branding, family communication tools, and accountability features."
+        canonicalPath="/demo"
+        structuredData={breadcrumbSchema}
+      />
       {/* Header */}
       <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between">

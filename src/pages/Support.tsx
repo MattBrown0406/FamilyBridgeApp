@@ -1,11 +1,23 @@
 import { BrandedHeader } from "@/components/BrandedHeader";
 import { BrandedFooter } from "@/components/BrandedFooter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { SEOHead, createBreadcrumbSchema } from "@/components/SEOHead";
 import { Mail, Phone, Clock, MessageCircle } from "lucide-react";
 
 const Support = () => {
+  const breadcrumbSchema = createBreadcrumbSchema([
+    { name: 'Home', url: '/' },
+    { name: 'Support', url: '/support' },
+  ]);
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      <SEOHead
+        title="Customer Support"
+        description="Get help with FamilyBridge. Contact our support team for account setup, billing inquiries, technical issues, and feature requests."
+        canonicalPath="/support"
+        structuredData={breadcrumbSchema}
+      />
       <BrandedHeader showHomeButton />
       
       <main className="flex-1 container mx-auto px-3 sm:px-4 py-6 sm:py-8 max-w-4xl">

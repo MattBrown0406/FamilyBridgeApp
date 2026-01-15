@@ -5,6 +5,7 @@ import { useOrganization } from '@/hooks/useOrganization';
 import { useProviderAdmin } from '@/hooks/useProviderAdmin';
 import { BrandedHeader } from '@/components/BrandedHeader';
 import { BrandedFooter } from '@/components/BrandedFooter';
+import { SEOHead, createOrganizationSchema } from '@/components/SEOHead';
 import { Shield, Users, DollarSign, MessageCircle, Eye, MapPin, ArrowRight, HelpCircle, Building2, Check, Play, LogOut, Brain, Sparkles, TrendingUp, MessageSquareWarning, Heart, ChevronDown } from 'lucide-react';
 import { RecoveryIcon } from '@/components/icons/RecoveryIcon';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
@@ -78,6 +79,12 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background overflow-hidden">
+      <SEOHead 
+        title="FamilyBridge - Recovery Support for Families"
+        description="FamilyBridge helps families support loved ones in recovery with AI-powered pattern detection, transparent communication, financial coordination, and accountability tools."
+        canonicalPath="/"
+        structuredData={createOrganizationSchema()}
+      />
       {/* Animated Background Elements */}
       <div className="fixed inset-0 -z-10 overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-primary/5 via-background to-accent/5" />

@@ -2,13 +2,25 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { MeetingFinder } from '@/components/MeetingFinder';
+import { SEOHead, createBreadcrumbSchema } from '@/components/SEOHead';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 
 const Meetings = () => {
   const navigate = useNavigate();
 
+  const breadcrumbSchema = createBreadcrumbSchema([
+    { name: 'Home', url: '/' },
+    { name: 'Find a Meeting', url: '/meetings' },
+  ]);
+
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title="Find Recovery Meetings - AA, Al-Anon, NA & More"
+        description="Search for AA, Al-Anon, NA, and other recovery meetings near you. Find support groups and connect with a community that understands your journey."
+        canonicalPath="/meetings"
+        structuredData={breadcrumbSchema}
+      />
       {/* Header */}
       <header className="container mx-auto px-4 py-4 border-b border-border">
         <nav className="flex items-center justify-between">

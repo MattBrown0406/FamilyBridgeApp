@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
+import { SEOHead } from '@/components/SEOHead';
 import { Loader2, Fingerprint } from 'lucide-react';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 import { z } from 'zod';
@@ -244,6 +245,12 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center gradient-hero p-4">
+      <SEOHead
+        title={mode === 'signin' ? 'Sign In' : 'Create Account'}
+        description="Sign in or create an account to access FamilyBridge. Connect with your family and support loved ones in recovery."
+        canonicalPath="/auth"
+        noIndex={true}
+      />
       <div className="w-full max-w-md animate-scale-in">
         <div className="text-center mb-8">
           <div 

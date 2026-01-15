@@ -2,49 +2,73 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://familybridgeapp.lovable.app/</loc>
-    <lastmod>2026-01-13</lastmod>
+    <lastmod>2026-01-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://familybridgeapp.lovable.app/auth</loc>
-    <lastmod>2026-01-13</lastmod>
+    <lastmod>2026-01-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://familybridgeapp.lovable.app/family-purchase</loc>
-    <lastmod>2026-01-13</lastmod>
+    <lastmod>2026-01-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://familybridgeapp.lovable.app/provider-purchase</loc>
-    <lastmod>2026-01-13</lastmod>
+    <lastmod>2026-01-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://familybridgeapp.lovable.app/demo</loc>
-    <lastmod>2026-01-13</lastmod>
+    <loc>https://familybridgeapp.lovable.app/moderator-purchase</loc>
+    <lastmod>2026-01-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://familybridgeapp.lovable.app/demo</loc>
+    <lastmod>2026-01-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://familybridgeapp.lovable.app/demo/family</loc>
+    <lastmod>2026-01-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://familybridgeapp.lovable.app/meetings</loc>
+    <lastmod>2026-01-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://familybridgeapp.lovable.app/enabling-exercise</loc>
+    <lastmod>2026-01-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
     <loc>https://familybridgeapp.lovable.app/support</loc>
-    <lastmod>2026-01-13</lastmod>
+    <lastmod>2026-01-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://familybridgeapp.lovable.app/privacy</loc>
-    <lastmod>2026-01-13</lastmod>
+    <lastmod>2026-01-15</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://familybridgeapp.lovable.app/terms</loc>
-    <lastmod>2026-01-13</lastmod>
+    <lastmod>2026-01-15</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.4</priority>
   </url>
