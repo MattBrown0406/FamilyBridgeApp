@@ -66,6 +66,7 @@ import { useFIISNotifications } from '@/hooks/useFIISNotifications';
 import { FamilyHealthBadge } from '@/components/FamilyHealthBadge';
 import { LiquorLicenseWarnings } from '@/components/LiquorLicenseWarnings';
 import { SobrietyCounter } from '@/components/SobrietyCounter';
+import { CommunicationHelper } from '@/components/CommunicationHelper';
 
 const REQUEST_REASONS = [
   'Electric',
@@ -2611,6 +2612,14 @@ const FamilyChat = () => {
                       <Shield className="h-3 w-3" />
                       Messages are permanent
                     </p>
+                  </div>
+                  
+                  {/* AI Communication Helper */}
+                  <div className="mt-3">
+                    <CommunicationHelper 
+                      familyId={familyId!}
+                      onUseSuggestion={(text) => setNewMessage(text)}
+                    />
                   </div>
                 </form>
               ) : (
