@@ -13,6 +13,8 @@ import { BrandedHeader } from "@/components/BrandedHeader";
 import { SEOHead, createBreadcrumbSchema } from "@/components/SEOHead";
 import { AppStorePurchaseButton, RestorePurchasesButton } from "@/components/AppStorePurchaseButton";
 import { AppleLogo, GooglePlayLogo } from "@/components/icons/StoreLogos";
+import { SubscriptionDisclosure } from "@/components/SubscriptionDisclosure";
+import { PRODUCTS } from "@/lib/products";
 
 const FamilyPurchase = () => {
   const { user } = useAuth();
@@ -488,16 +490,23 @@ const FamilyPurchase = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <paymentInfo.icon className="w-5 h-5" />
-                  Family Subscription
+                  {PRODUCTS.family.monthly.displayName}
                 </CardTitle>
                 <CardDescription>
-                  Start your family's recovery journey today
+                  Auto-renewable subscription · Cancel anytime
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="text-center py-4">
-                  <span className="text-4xl font-bold">$19.99</span>
-                  <span className="text-muted-foreground">/month</span>
+                {/* Clear Subscription Pricing - Required by Apple Guideline 3.1.2 */}
+                <div className="text-center py-4 bg-primary/5 rounded-lg border border-primary/10">
+                  <p className="text-xs text-muted-foreground mb-1">Monthly Subscription</p>
+                  <div>
+                    <span className="text-4xl font-bold">${PRODUCTS.family.monthly.price}</span>
+                    <span className="text-muted-foreground">/month</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    Billed monthly · Auto-renews until cancelled
+                  </p>
                 </div>
 
                 {/* Platform-specific payment notice */}
@@ -610,21 +619,13 @@ const FamilyPurchase = () => {
                     </Button>
                   )}
 
-                  {/* Auto-renewal disclosure - Required by Apple */}
-                  <div className="text-xs text-muted-foreground text-center space-y-1">
-                    <p>{paymentInfo.description}</p>
-                    <p>
-                      {isNative 
-                        ? "Subscription automatically renews unless cancelled at least 24 hours before the end of the current period. Manage subscriptions in your device settings."
-                        : "Subscription automatically renews. Cancel anytime from your account."}
-                    </p>
-                    <p className="pt-1">
-                      By subscribing, you agree to our{" "}
-                      <a href="/terms" className="text-primary hover:underline">Terms of Service</a>
-                      {" "}and{" "}
-                      <a href="/privacy" className="text-primary hover:underline">Privacy Policy</a>.
-                    </p>
-                  </div>
+                  {/* Apple-Compliant Subscription Disclosure - Guideline 3.1.2 */}
+                  <SubscriptionDisclosure
+                    subscriptionTitle={PRODUCTS.family.monthly.displayName}
+                    price={`$${PRODUCTS.family.monthly.price}`}
+                    period="1 month auto-renewable subscription"
+                    isNative={isNative}
+                  />
 
                   {/* Restore Purchases - Required by App Store */}
                   <RestorePurchasesButton 

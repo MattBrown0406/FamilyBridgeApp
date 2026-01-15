@@ -12,6 +12,8 @@ import { Building2, Check, CreditCard, Shield, Users, Tag, Loader2, Copy, Brain,
 import { BrandedHeader } from "@/components/BrandedHeader";
 import { AppStorePurchaseButton, RestorePurchasesButton } from "@/components/AppStorePurchaseButton";
 import { AppleLogo, GooglePlayLogo } from "@/components/icons/StoreLogos";
+import { SubscriptionDisclosure } from "@/components/SubscriptionDisclosure";
+import { PRODUCTS } from "@/lib/products";
 
 const ProviderPurchase = () => {
   const { user } = useAuth();
@@ -307,7 +309,7 @@ const ProviderPurchase = () => {
                   Provider Subscription
                 </CardTitle>
                 <CardDescription>
-                  Start your provider journey today
+                  Auto-renewable subscription · Cancel anytime
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -363,39 +365,49 @@ const ProviderPurchase = () => {
                   </div>
                 </div>
 
-                {/* Pricing Display */}
-                <div className="text-center py-4">
+                {/* Pricing Display - Clear subscription terms per Apple Guideline 3.1.2 */}
+                <div className="text-center py-4 bg-primary/5 rounded-lg border border-primary/10">
+                  <p className="text-xs text-muted-foreground mb-1">
+                    {billingPeriod === "monthly" ? "Monthly Subscription" : 
+                     billingPeriod === "quarterly" ? "Quarterly Subscription" : 
+                     "Annual Subscription"}
+                  </p>
                   {billingPeriod === "monthly" ? (
                     <>
-                      <span className="text-4xl font-bold">$250</span>
-                      <span className="text-muted-foreground">/month</span>
+                      <div>
+                        <span className="text-4xl font-bold">${PRODUCTS.provider.monthly.price}</span>
+                        <span className="text-muted-foreground">/month</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-2">
+                        Billed monthly · Auto-renews until cancelled
+                      </p>
                     </>
                   ) : billingPeriod === "quarterly" ? (
                     <div className="space-y-2">
                       <div>
-                        <span className="text-4xl font-bold">$629</span>
+                        <span className="text-4xl font-bold">${PRODUCTS.provider.quarterly.price}</span>
                         <span className="text-muted-foreground">/quarter</span>
                       </div>
                       <div className="inline-flex items-center gap-2 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-3 py-1 rounded-full text-sm font-medium">
                         <Check className="w-4 h-4" />
                         4 payments = $2,516/year
                       </div>
-                      <p className="text-sm text-muted-foreground">
-                        Flexible quarterly billing
+                      <p className="text-xs text-muted-foreground">
+                        Billed every 3 months · Auto-renews until cancelled
                       </p>
                     </div>
                   ) : (
                     <div className="space-y-2">
                       <div>
-                        <span className="text-4xl font-bold">$2,500</span>
+                        <span className="text-4xl font-bold">${PRODUCTS.provider.annual.price.toLocaleString()}</span>
                         <span className="text-muted-foreground">/year</span>
                       </div>
                       <div className="inline-flex items-center gap-2 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-3 py-1 rounded-full text-sm font-medium">
                         <Check className="w-4 h-4" />
                         Save $500/year (2 months free!)
                       </div>
-                      <p className="text-sm text-muted-foreground">
-                        Equivalent to $208/month
+                      <p className="text-xs text-muted-foreground">
+                        Billed annually · Auto-renews until cancelled
                       </p>
                     </div>
                   )}
@@ -469,21 +481,25 @@ const ProviderPurchase = () => {
                     </Button>
                   )}
 
-                  {/* Auto-renewal disclosure - Required by Apple */}
-                  <div className="text-xs text-muted-foreground text-center space-y-1">
-                    <p>{paymentInfo.description}</p>
-                    <p>
-                      {isNative 
-                        ? "Subscription automatically renews unless cancelled at least 24 hours before the end of the current period. Manage subscriptions in your device settings."
-                        : "Subscription automatically renews. Cancel anytime from your account."}
-                    </p>
-                    <p className="pt-1">
-                      By subscribing, you agree to our{" "}
-                      <a href="/terms" className="text-primary hover:underline">Terms of Service</a>
-                      {" "}and{" "}
-                      <a href="/privacy" className="text-primary hover:underline">Privacy Policy</a>.
-                    </p>
-                  </div>
+                  {/* Apple-Compliant Subscription Disclosure - Guideline 3.1.2 */}
+                  <SubscriptionDisclosure
+                    subscriptionTitle={
+                      billingPeriod === "monthly" ? PRODUCTS.provider.monthly.displayName :
+                      billingPeriod === "quarterly" ? PRODUCTS.provider.quarterly.displayName :
+                      PRODUCTS.provider.annual.displayName
+                    }
+                    price={
+                      billingPeriod === "monthly" ? `$${PRODUCTS.provider.monthly.price}` :
+                      billingPeriod === "quarterly" ? `$${PRODUCTS.provider.quarterly.price}` :
+                      `$${PRODUCTS.provider.annual.price.toLocaleString()}`
+                    }
+                    period={
+                      billingPeriod === "monthly" ? "1 month auto-renewable subscription" :
+                      billingPeriod === "quarterly" ? "3 month auto-renewable subscription" :
+                      "1 year auto-renewable subscription"
+                    }
+                    isNative={isNative}
+                  />
 
                   {/* Restore Purchases - Required by App Store */}
                   <RestorePurchasesButton 
