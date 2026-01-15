@@ -6,9 +6,26 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Valid coupon codes (in production, store these in database)
-const VALID_COUPONS: Record<string, { discount: number; description: string }> = {
-  'RECOVERED': { discount: 100, description: 'Full subscription waiver' },
+// Valid coupon codes configuration
+// discount: percentage off (100 = free)
+// specialPrice: fixed monthly price in cents (overrides percentage discount)
+// type: 'family' | 'provider' | 'both' - which subscription type this coupon applies to
+const VALID_COUPONS: Record<string, { 
+  discount?: number; 
+  specialPrice?: number;
+  description: string; 
+  type: 'family' | 'provider' | 'both';
+}> = {
+  'RECOVERED': { 
+    discount: 100, 
+    description: 'Full subscription waiver',
+    type: 'family'
+  },
+  'BRIDGE': { 
+    specialPrice: 4999, // $49.99/month in cents
+    description: 'Early adopter special - $49.99/month',
+    type: 'provider'
+  },
 };
 
 // Generate activation code
@@ -34,7 +51,7 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    const { couponCode, email } = await req.json();
+    const { couponCode, email, subscriptionType = 'family' } = await req.json();
 
     if (!couponCode || !email) {
       throw new Error('Coupon code and email are required');
@@ -42,6 +59,7 @@ serve(async (req) => {
 
     // Normalize coupon code
     const normalizedCode = couponCode.trim().toUpperCase();
+    console.log(`Validating coupon: ${normalizedCode} for ${subscriptionType} subscription`);
 
     // Check if coupon is valid
     const coupon = VALID_COUPONS[normalizedCode];
@@ -49,6 +67,32 @@ serve(async (req) => {
       return new Response(JSON.stringify({ 
         valid: false, 
         error: 'Invalid coupon code' 
+      }), {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Check if coupon applies to the subscription type
+    if (coupon.type !== 'both' && coupon.type !== subscriptionType) {
+      return new Response(JSON.stringify({ 
+        valid: false, 
+        error: `This coupon is only valid for ${coupon.type} subscriptions` 
+      }), {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Handle special price coupons (like BRIDGE) - redirect to checkout with special price
+    if (coupon.specialPrice) {
+      console.log(`Coupon ${normalizedCode} has special price: $${coupon.specialPrice / 100}/month`);
+      return new Response(JSON.stringify({ 
+        valid: true,
+        hasSpecialPrice: true,
+        specialPrice: coupon.specialPrice,
+        message: coupon.description,
+        couponCode: normalizedCode
       }), {
         status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
