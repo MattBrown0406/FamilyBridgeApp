@@ -50,6 +50,13 @@ export type Database = {
             referencedRelation: "activation_codes"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "activation_code_audit_log_activation_code_id_fkey"
+            columns: ["activation_code_id"]
+            isOneToOne: false
+            referencedRelation: "activation_codes_admin_view"
+            referencedColumns: ["id"]
+          },
         ]
       }
       activation_codes: {
@@ -1629,6 +1636,51 @@ export type Database = {
       }
     }
     Views: {
+      activation_codes_admin_view: {
+        Row: {
+          code: string | null
+          created_at: string | null
+          email_status: string | null
+          expires_at: string | null
+          id: string | null
+          is_used: boolean | null
+          purchase_ref_status: string | null
+          square_customer_status: string | null
+          square_subscription_status: string | null
+          updated_at: string | null
+          used_at: string | null
+          used_by: string | null
+        }
+        Insert: {
+          code?: string | null
+          created_at?: string | null
+          email_status?: never
+          expires_at?: string | null
+          id?: string | null
+          is_used?: boolean | null
+          purchase_ref_status?: never
+          square_customer_status?: never
+          square_subscription_status?: never
+          updated_at?: string | null
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Update: {
+          code?: string | null
+          created_at?: string | null
+          email_status?: never
+          expires_at?: string | null
+          id?: string | null
+          is_used?: boolean | null
+          purchase_ref_status?: never
+          square_customer_status?: never
+          square_subscription_status?: never
+          updated_at?: string | null
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Relationships: []
+      }
       payment_info_masked: {
         Row: {
           cashapp_username: string | null
@@ -1661,6 +1713,10 @@ export type Database = {
       }
     }
     Functions: {
+      audit_activation_code_access: {
+        Args: { _code_id: string }
+        Returns: undefined
+      }
       calculate_checkout_time: {
         Args: { checkin_time: string }
         Returns: string
