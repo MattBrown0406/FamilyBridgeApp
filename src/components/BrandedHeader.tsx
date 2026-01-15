@@ -1,15 +1,31 @@
 import { useNavigate } from 'react-router-dom';
 import { useOrganization } from '@/hooks/useOrganization';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
-import { Home } from 'lucide-react';
+import { Home, Flame } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useFamilyMemberJourney } from '@/hooks/useSobrietyJourney';
 
 interface BrandedHeaderProps {
   className?: string;
   showHomeButton?: boolean;
+  familyId?: string;
 }
 
-export const BrandedHeader = ({ className = '', showHomeButton = true }: BrandedHeaderProps) => {
+const SobrietyBadge = ({ familyId }: { familyId: string }) => {
+  const { journey, daysCount, loading } = useFamilyMemberJourney(familyId);
+
+  if (loading || !journey) return null;
+
+  return (
+    <div className="flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 rounded-full border border-primary/20">
+      <Flame className="h-4 w-4 text-primary" />
+      <span className="font-bold text-primary">{daysCount}</span>
+      <span className="text-xs text-muted-foreground hidden sm:inline">days</span>
+    </div>
+  );
+};
+
+export const BrandedHeader = ({ className = '', showHomeButton = true, familyId }: BrandedHeaderProps) => {
   const navigate = useNavigate();
   const { organization, isWhiteLabeled } = useOrganization();
 
@@ -42,12 +58,15 @@ export const BrandedHeader = ({ className = '', showHomeButton = true }: Branded
               {organization.name}
             </span>
           </div>
-          {showHomeButton && (
-            <Button variant="ghost" size="sm" onClick={handleHomeClick}>
-              <Home className="h-4 w-4 mr-1" />
-              <span className="hidden sm:inline">Home</span>
-            </Button>
-          )}
+          <div className="flex items-center gap-3">
+            {familyId && <SobrietyBadge familyId={familyId} />}
+            {showHomeButton && (
+              <Button variant="ghost" size="sm" onClick={handleHomeClick}>
+                <Home className="h-4 w-4 mr-1" />
+                <span className="hidden sm:inline">Home</span>
+              </Button>
+            )}
+          </div>
         </div>
       </header>
     );
@@ -69,12 +88,15 @@ export const BrandedHeader = ({ className = '', showHomeButton = true }: Branded
             FamilyBridge
           </span>
         </div>
-        {showHomeButton && (
-          <Button variant="ghost" size="sm" onClick={handleHomeClick}>
-            <Home className="h-4 w-4 mr-1" />
-            <span className="hidden sm:inline">Home</span>
-          </Button>
-        )}
+        <div className="flex items-center gap-3">
+          {familyId && <SobrietyBadge familyId={familyId} />}
+          {showHomeButton && (
+            <Button variant="ghost" size="sm" onClick={handleHomeClick}>
+              <Home className="h-4 w-4 mr-1" />
+              <span className="hidden sm:inline">Home</span>
+            </Button>
+          )}
+        </div>
       </div>
     </header>
   );
