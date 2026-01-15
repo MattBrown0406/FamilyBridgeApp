@@ -380,10 +380,15 @@ export function FIISTab({ familyId, members, onView, isModerator = false }: FIIS
             </div>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-3">
           <p className="text-sm text-muted-foreground">
             Log what you observe—wins and worries alike—in everyday language. FIIS combines your notes with check-ins, financial requests, and family activity to spot patterns and surface early warning signs.
           </p>
+          <div className="p-3 rounded-lg bg-violet-50 dark:bg-violet-950/30 border border-violet-200 dark:border-violet-800">
+            <p className="text-xs text-violet-700 dark:text-violet-300">
+              <strong>🔒 All entries are anonymous.</strong> Honest observations about everyone's behavior—including your own—create the clearest picture for accountability and growth. The more truthful the input, the more helpful the insights.
+            </p>
+          </div>
         </CardContent>
       </Card>
 
@@ -424,7 +429,7 @@ export function FIISTab({ familyId, members, onView, isModerator = false }: FIIS
                 className="resize-none"
               />
               <p className="text-xs text-muted-foreground mt-1">
-                Be specific about facts, timing, and observable behaviors. Avoid interpretations.
+                Be specific about facts, timing, and observable behaviors. Avoid interpretations. <span className="text-violet-600 dark:text-violet-400 font-medium">Your entry is anonymous—honest reporting about all involved improves everyone's opportunity for growth.</span>
               </p>
             </div>
             <div className="flex gap-2">
