@@ -174,11 +174,71 @@ export function FIISTab({ familyId, members, onView, isModerator = false }: FIIS
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysis, setAnalysis] = useState<PatternAnalysis | null>(null);
 
+  // Disclaimer acknowledgment
+  const [hasAcknowledgedDisclaimer, setHasAcknowledgedDisclaimer] = useState<boolean | null>(null);
+  const [isAcknowledging, setIsAcknowledging] = useState(false);
+
   // New observation form
   const [showForm, setShowForm] = useState(false);
   const [newType, setNewType] = useState<string>("");
   const [newContent, setNewContent] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Check if user has acknowledged the disclaimer
+  useEffect(() => {
+    const checkDisclaimerAcknowledgment = async () => {
+      if (!user || !familyId) return;
+      
+      const { data, error } = await supabase
+        .from("fiis_disclaimer_acknowledgments")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("family_id", familyId)
+        .maybeSingle();
+      
+      if (error) {
+        console.error("Error checking disclaimer acknowledgment:", error);
+        setHasAcknowledgedDisclaimer(false);
+        return;
+      }
+      
+      setHasAcknowledgedDisclaimer(!!data);
+    };
+    
+    checkDisclaimerAcknowledgment();
+  }, [user, familyId]);
+
+  const handleAcknowledgeDisclaimer = async () => {
+    if (!user || !familyId) return;
+    
+    setIsAcknowledging(true);
+    try {
+      const { error } = await supabase
+        .from("fiis_disclaimer_acknowledgments")
+        .insert({
+          user_id: user.id,
+          family_id: familyId,
+          user_agent: navigator.userAgent,
+        });
+      
+      if (error) throw error;
+      
+      setHasAcknowledgedDisclaimer(true);
+      toast({
+        title: "Disclaimer Acknowledged",
+        description: "Thank you. You won't see this disclaimer again.",
+      });
+    } catch (error) {
+      console.error("Error acknowledging disclaimer:", error);
+      toast({
+        title: "Error",
+        description: "Failed to save acknowledgment. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsAcknowledging(false);
+    }
+  };
 
   useEffect(() => {
     if (familyId) {
@@ -458,11 +518,29 @@ export function FIISTab({ familyId, members, onView, isModerator = false }: FIIS
               <strong>🔒 All entries are anonymous.</strong> Honest observations about everyone's behavior—including your own—create the clearest picture for accountability and growth. The more truthful the input, the more helpful the insights.
             </p>
           </div>
-          <div className="p-3 rounded-lg bg-muted/50 border border-border">
-            <p className="text-xs text-muted-foreground">
-              <strong>⚖️ Disclaimer:</strong> FIIS is a tool designed to support family growth and recovery awareness. It does not provide medical, psychiatric, or legal advice, and is not a substitute for professional care. If you or a family member need immediate help, please contact a licensed professional or emergency services.
-            </p>
-          </div>
+          {/* Disclaimer - only show if not acknowledged */}
+          {hasAcknowledgedDisclaimer === false && (
+            <div className="p-4 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800">
+              <p className="text-sm text-amber-800 dark:text-amber-300 mb-3">
+                <strong>⚖️ Important Disclaimer:</strong> FIIS is a tool designed to support family growth and recovery awareness. It does not provide medical, psychiatric, or legal advice, and is not a substitute for professional care. If you or a family member need immediate help, please contact a licensed professional or emergency services.
+              </p>
+              <Button 
+                size="sm" 
+                onClick={handleAcknowledgeDisclaimer}
+                disabled={isAcknowledging}
+                className="bg-amber-600 hover:bg-amber-700 text-white"
+              >
+                {isAcknowledging ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  "I Understand and Acknowledge"
+                )}
+              </Button>
+            </div>
+          )}
         </CardContent>
       </Card>
 
