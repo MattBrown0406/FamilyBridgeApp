@@ -2040,6 +2040,7 @@ export type Database = {
         Args: never
         Returns: {
           code_exists: boolean
+          code_masked: string
           expires_at: string
           is_expired: boolean
           is_used: boolean
