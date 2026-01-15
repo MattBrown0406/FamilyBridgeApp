@@ -458,6 +458,11 @@ export function FIISTab({ familyId, members, onView, isModerator = false }: FIIS
               <strong>🔒 All entries are anonymous.</strong> Honest observations about everyone's behavior—including your own—create the clearest picture for accountability and growth. The more truthful the input, the more helpful the insights.
             </p>
           </div>
+          <div className="p-3 rounded-lg bg-muted/50 border border-border">
+            <p className="text-xs text-muted-foreground">
+              <strong>⚖️ Disclaimer:</strong> FIIS is a tool designed to support family growth and recovery awareness. It does not provide medical, psychiatric, or legal advice, and is not a substitute for professional care. If you or a family member need immediate help, please contact a licensed professional or emergency services.
+            </p>
+          </div>
         </CardContent>
       </Card>
 
