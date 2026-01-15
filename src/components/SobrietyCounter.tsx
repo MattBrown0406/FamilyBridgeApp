@@ -15,7 +15,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { Flame, Trophy, Star, CalendarDays, RefreshCw, Sparkles } from 'lucide-react';
+import { Flame, Trophy, Star, CalendarDays, RefreshCw, Sparkles, Pencil } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useSobrietyJourney, MILESTONE_NAMES } from '@/hooks/useSobrietyJourney';
 import { format } from 'date-fns';
@@ -24,6 +24,7 @@ import { MilestoneCelebration } from './MilestoneCelebration';
 interface SobrietyCounterProps {
   familyId: string;
   isRecoveringMember?: boolean;
+  canEdit?: boolean; // Allow moderators/admins to edit
   compact?: boolean;
 }
 
@@ -41,6 +42,7 @@ const encouragingMessages = [
 export const SobrietyCounter: React.FC<SobrietyCounterProps> = ({
   familyId,
   isRecoveringMember = true,
+  canEdit = false,
   compact = false,
 }) => {
   const {
@@ -52,10 +54,13 @@ export const SobrietyCounter: React.FC<SobrietyCounterProps> = ({
     daysUntilNextMilestone,
     startJourney,
     resetJourney,
+    updateStartDate,
   } = useSobrietyJourney(familyId);
 
   const [startDate, setStartDate] = useState<Date | undefined>(new Date());
+  const [editDate, setEditDate] = useState<Date | undefined>(undefined);
   const [showCalendar, setShowCalendar] = useState(false);
+  const [showEditCalendar, setShowEditCalendar] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
   const [celebratingMilestone, setCelebratingMilestone] = useState<number | null>(null);
 
@@ -73,6 +78,20 @@ export const SobrietyCounter: React.FC<SobrietyCounterProps> = ({
   const handleReset = async () => {
     await resetJourney(new Date());
   };
+
+  const handleEditDate = async () => {
+    if (editDate) {
+      await updateStartDate(editDate);
+      setShowEditCalendar(false);
+    }
+  };
+
+  // Initialize edit date when journey loads
+  React.useEffect(() => {
+    if (journey) {
+      setEditDate(new Date(journey.start_date));
+    }
+  }, [journey]);
 
   const progressToNextMilestone = nextMilestone
     ? ((daysCount / nextMilestone) * 100)
@@ -222,33 +241,59 @@ export const SobrietyCounter: React.FC<SobrietyCounterProps> = ({
             </div>
           )}
 
-          {/* Start Date & Reset (only for recovering member) */}
-          {isRecoveringMember && (
+          {/* Start Date & Controls (for recovering member or authorized editors) */}
+          {(isRecoveringMember || canEdit) && (
             <div className="flex items-center justify-between text-xs text-muted-foreground pt-4 border-t">
-              <span>Started: {format(new Date(journey.start_date), 'MMMM d, yyyy')}</span>
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button variant="ghost" size="sm" className="text-xs opacity-60 hover:opacity-100">
-                    <RefreshCw className="h-3 w-3 mr-1" />
-                    Reset
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Start Fresh?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Starting fresh is a sign of strength. Every day is a new opportunity to grow.
-                      Your previous journey will be saved privately.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Keep Going</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleReset}>
-                      Start Fresh
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
+              <div className="flex items-center gap-2">
+                <span>Started: {format(new Date(journey.start_date), 'MMMM d, yyyy')}</span>
+                {/* Edit Date Popover */}
+                <Popover open={showEditCalendar} onOpenChange={setShowEditCalendar}>
+                  <PopoverTrigger asChild>
+                    <Button variant="ghost" size="sm" className="text-xs opacity-60 hover:opacity-100 h-6 px-2">
+                      <Pencil className="h-3 w-3" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={editDate}
+                      onSelect={setEditDate}
+                      disabled={(date) => date > new Date()}
+                      initialFocus
+                    />
+                    <div className="p-3 border-t">
+                      <Button onClick={handleEditDate} className="w-full" size="sm" disabled={!editDate}>
+                        Update Date
+                      </Button>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              </div>
+              {isRecoveringMember && (
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="ghost" size="sm" className="text-xs opacity-60 hover:opacity-100">
+                      <RefreshCw className="h-3 w-3 mr-1" />
+                      Reset
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Start Fresh?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Starting fresh is a sign of strength. Every day is a new opportunity to grow.
+                        Your previous journey will be saved privately.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Keep Going</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleReset}>
+                        Start Fresh
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              )}
             </div>
           )}
         </CardContent>

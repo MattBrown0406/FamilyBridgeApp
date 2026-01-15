@@ -2771,6 +2771,7 @@ const FamilyChat = () => {
                 <SobrietyCounter 
                   familyId={familyId}
                   isRecoveringMember={currentUserRole === 'recovering'}
+                  canEdit={isAdminOrModerator}
                 />
               )}
 
