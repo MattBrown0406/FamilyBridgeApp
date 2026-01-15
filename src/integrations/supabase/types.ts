@@ -139,6 +139,160 @@ export type Database = {
           },
         ]
       }
+      daily_emotional_checkins: {
+        Row: {
+          bypass_inferred_state: string | null
+          check_in_date: string
+          created_at: string
+          family_id: string
+          feeling: string | null
+          id: string
+          user_id: string
+          was_bypassed: boolean
+        }
+        Insert: {
+          bypass_inferred_state?: string | null
+          check_in_date?: string
+          created_at?: string
+          family_id: string
+          feeling?: string | null
+          id?: string
+          user_id: string
+          was_bypassed?: boolean
+        }
+        Update: {
+          bypass_inferred_state?: string | null
+          check_in_date?: string
+          created_at?: string
+          family_id?: string
+          feeling?: string | null
+          id?: string
+          user_id?: string
+          was_bypassed?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "daily_emotional_checkins_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      emotional_patterns: {
+        Row: {
+          acknowledged_at: string | null
+          acknowledged_by: string | null
+          created_at: string
+          data: Json | null
+          detected_at: string
+          family_id: string
+          id: string
+          pattern_description: string
+          pattern_type: string
+          severity: string
+          user_id: string
+        }
+        Insert: {
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
+          created_at?: string
+          data?: Json | null
+          detected_at?: string
+          family_id: string
+          id?: string
+          pattern_description: string
+          pattern_type: string
+          severity?: string
+          user_id: string
+        }
+        Update: {
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
+          created_at?: string
+          data?: Json | null
+          detected_at?: string
+          family_id?: string
+          id?: string
+          pattern_description?: string
+          pattern_type?: string
+          severity?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "emotional_patterns_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      emotional_tone_analysis: {
+        Row: {
+          analysis_date: string
+          analysis_summary: string | null
+          baseline_tone: string | null
+          checkin_id: string | null
+          created_at: string
+          current_tone: string | null
+          family_id: string
+          id: string
+          message_count_analyzed: number
+          pattern_notes: Json | null
+          tone_trajectory: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          analysis_date?: string
+          analysis_summary?: string | null
+          baseline_tone?: string | null
+          checkin_id?: string | null
+          created_at?: string
+          current_tone?: string | null
+          family_id: string
+          id?: string
+          message_count_analyzed?: number
+          pattern_notes?: Json | null
+          tone_trajectory?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          analysis_date?: string
+          analysis_summary?: string | null
+          baseline_tone?: string | null
+          checkin_id?: string | null
+          created_at?: string
+          current_tone?: string | null
+          family_id?: string
+          id?: string
+          message_count_analyzed?: number
+          pattern_notes?: Json | null
+          tone_trajectory?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "emotional_tone_analysis_checkin_id_fkey"
+            columns: ["checkin_id"]
+            isOneToOne: false
+            referencedRelation: "daily_emotional_checkins"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "emotional_tone_analysis_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       families: {
         Row: {
           account_number: string

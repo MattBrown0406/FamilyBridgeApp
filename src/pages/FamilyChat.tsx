@@ -67,6 +67,8 @@ import { FamilyHealthBadge } from '@/components/FamilyHealthBadge';
 import { LiquorLicenseWarnings } from '@/components/LiquorLicenseWarnings';
 import { SobrietyCounter } from '@/components/SobrietyCounter';
 import { CommunicationHelper } from '@/components/CommunicationHelper';
+import { DailyEmotionalCheckin } from '@/components/DailyEmotionalCheckin';
+import { EmotionalToneIndicator } from '@/components/EmotionalToneIndicator';
 
 const REQUEST_REASONS = [
   'Electric',
@@ -4598,6 +4600,11 @@ const FamilyChat = () => {
           onClose={() => setPrivateMessagingOpen(false)}
           onUnreadCountChange={setUnreadPrivateMessages}
         />
+      )}
+
+      {/* Daily Emotional Check-in Popup */}
+      {user && familyId && (
+        <DailyEmotionalCheckin familyId={familyId} />
       )}
     </div>
   );

@@ -89,3 +89,6 @@ verify_jwt = false
 
 [functions.app-store-notifications]
 verify_jwt = false
+
+[functions.analyze-emotional-tone]
+verify_jwt = false
