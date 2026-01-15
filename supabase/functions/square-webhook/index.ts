@@ -170,6 +170,98 @@ serve(async (req) => {
       }
     }
 
+    // Handle payment failed events
+    if (event.type === 'payment.failed' || event.type === 'invoice.payment_failed') {
+      const payment = event.data?.object?.payment || event.data?.object?.invoice;
+      const customerId = payment?.customer_id;
+      const cardLast4 = payment?.card_details?.card?.last_4;
+      const errorMessage = payment?.processing_fee?.[0]?.effective_at || 'Payment declined';
+
+      console.log('Payment failed:', { customerId, cardLast4 });
+
+      if (customerId) {
+        const customerHash = await sha256Hex(customerId);
+        const now = new Date();
+        const gracePeriodEnd = new Date(now.getTime() + 5 * 24 * 60 * 60 * 1000); // 5 days
+        const nextRetry = new Date(now.getTime() + 24 * 60 * 60 * 1000); // 24 hours
+
+        // Find or create payment status record
+        const { data: existingStatus } = await supabase
+          .from('subscription_payment_status')
+          .select('*')
+          .eq('square_customer_id_hash', customerHash)
+          .single();
+
+        if (existingStatus) {
+          // Update existing record
+          await supabase
+            .from('subscription_payment_status')
+            .update({
+              status: 'past_due',
+              last_payment_attempt: now.toISOString(),
+              next_retry_at: nextRetry.toISOString(),
+              failed_at: existingStatus.failed_at || now.toISOString(),
+              grace_period_ends_at: existingStatus.grace_period_ends_at || gracePeriodEnd.toISOString(),
+              retry_count: (existingStatus.retry_count || 0) + 1,
+              last_error: errorMessage,
+              card_last_four: cardLast4 || existingStatus.card_last_four,
+            })
+            .eq('id', existingStatus.id);
+        }
+
+        console.log('Payment status updated to past_due');
+      }
+    }
+
+    // Handle successful payment after being past_due
+    if (event.type === 'payment.completed') {
+      const payment = event.data?.object?.payment;
+      const customerId = payment?.customer_id;
+
+      if (customerId) {
+        const customerHash = await sha256Hex(customerId);
+
+        // Check if this customer was past_due and reactivate
+        const { data: existingStatus } = await supabase
+          .from('subscription_payment_status')
+          .select('*')
+          .eq('square_customer_id_hash', customerHash)
+          .in('status', ['past_due', 'suspended'])
+          .single();
+
+        if (existingStatus) {
+          console.log('Reactivating account after successful payment');
+
+          await supabase
+            .from('subscription_payment_status')
+            .update({
+              status: 'active',
+              last_payment_attempt: new Date().toISOString(),
+              next_retry_at: null,
+              failed_at: null,
+              grace_period_ends_at: null,
+              suspension_date: null,
+              retry_count: 0,
+              last_error: null,
+              payment_updated_at: new Date().toISOString(),
+            })
+            .eq('id', existingStatus.id);
+
+          // Unarchive family if it was suspended
+          if (existingStatus.entity_type === 'family' && existingStatus.status === 'suspended') {
+            await supabase
+              .from('families')
+              .update({
+                is_archived: false,
+                archived_at: null,
+                archived_by: null,
+              })
+              .eq('id', existingStatus.entity_id);
+          }
+        }
+      }
+    }
+
     return new Response(JSON.stringify({ success: true }), {
       status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

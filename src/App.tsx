@@ -26,6 +26,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import NotFound from "./pages/NotFound";
 import SignHIPAA from "./pages/SignHIPAA";
+import UpdatePayment from "./pages/UpdatePayment";
 import ScrollToTop from "./components/ScrollToTop";
 
 const queryClient = new QueryClient();
@@ -60,6 +61,7 @@ const App = () => (
               <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="/terms" element={<TermsOfService />} />
               <Route path="/sign-hipaa" element={<SignHIPAA />} />
+              <Route path="/update-payment" element={<UpdatePayment />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
