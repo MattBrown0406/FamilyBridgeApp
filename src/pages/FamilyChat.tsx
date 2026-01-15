@@ -2426,7 +2426,7 @@ const FamilyChat = () => {
               className="flex items-center justify-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-1.5 sm:py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
             >
               <MessageCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-              <span className="hidden md:inline text-xs">Messages</span>
+              <span className="hidden md:inline text-xs">Chat</span>
             </TabsTrigger>
             <TabsTrigger 
               value="checkin" 
@@ -2679,7 +2679,7 @@ const FamilyChat = () => {
               </ScrollArea>
               {/* Message Input - only show for current week */}
               {isCurrentWeek ? (
-                <form onSubmit={handleSendMessage} className="p-4 border-t border-border/50 shrink-0 bg-card/50 backdrop-blur-sm">
+                <form onSubmit={handleSendMessage} className="p-4 border-t-2 border-border shrink-0 bg-card shadow-lg">
                   {cooldownRemaining > 0 && (
                     <div className="mb-3 p-3 bg-destructive/10 border border-destructive/20 rounded-xl flex items-center gap-2 animate-scale-in">
                       <AlertTriangle className="h-4 w-4 text-destructive" />
@@ -2693,7 +2693,7 @@ const FamilyChat = () => {
                       value={newMessage}
                       onChange={(e) => setNewMessage(e.target.value)}
                       placeholder={cooldownRemaining > 0 ? "Please wait..." : "Type a supportive message..."}
-                      className="flex-1 bg-background/80 border-border/50 focus:border-primary/50 transition-colors"
+                      className="flex-1 bg-background border-2 border-border focus:border-primary transition-colors shadow-sm"
                       disabled={cooldownRemaining > 0}
                     />
                     <Button 
