@@ -31,6 +31,9 @@ import {
   Clock,
   Activity,
   FileText,
+  Shield,
+  Heart,
+  UserPlus,
 } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 
@@ -63,15 +66,22 @@ interface AutoEvent {
 interface PatternSignal {
   signal_type: string;
   description: string;
+  occurrences?: number;
   confidence: string;
+  priority?: string;
 }
 
 interface PatternAnalysis {
   what_seeing: string;
   pattern_signals: PatternSignal[];
+  risk_level?: number;
+  risk_level_name?: string;
   contextual_framing: string;
   clarifying_questions: string[];
   what_to_watch: string[];
+  recommend_professional?: boolean;
+  professional_recommendation_reason?: string;
+  positive_reinforcement?: string[];
 }
 
 const OBSERVATION_TYPES = [
@@ -87,21 +97,71 @@ const OBSERVATION_TYPES = [
 ] as const;
 
 const SIGNAL_ICONS: Record<string, typeof TrendingUp> = {
+  // Legacy signal types
   repetition: RefreshCw,
   escalation: TrendingUp,
   stabilization: Minus,
   mixed_signals: Activity,
   improvement: CheckCircle,
   regression: TrendingDown,
+  // New comprehensive signal types
+  boundary_respected: CheckCircle,
+  boundary_exception: AlertTriangle,
+  boundary_violation: AlertTriangle,
+  financial_aligned: CheckCircle,
+  financial_exception: AlertTriangle,
+  financial_manipulation: AlertTriangle,
+  recovery_consistent: CheckCircle,
+  recovery_inconsistent: RefreshCw,
+  recovery_performative: Activity,
+  emotional_stable: Minus,
+  emotional_reactive: TrendingUp,
+  emotional_volatile: TrendingUp,
+  family_aligned: CheckCircle,
+  family_splitting: TrendingDown,
+  enabling_pattern: AlertTriangle,
+  progress_indicator: CheckCircle,
+  regression_indicator: TrendingDown,
+  safety_concern: AlertTriangle,
 };
 
 const SIGNAL_COLORS: Record<string, string> = {
+  // Legacy signal types
   repetition: "bg-amber-500/20 text-amber-700 border-amber-500/30",
   escalation: "bg-red-500/20 text-red-700 border-red-500/30",
   stabilization: "bg-blue-500/20 text-blue-700 border-blue-500/30",
   mixed_signals: "bg-purple-500/20 text-purple-700 border-purple-500/30",
   improvement: "bg-green-500/20 text-green-700 border-green-500/30",
   regression: "bg-red-500/20 text-red-700 border-red-500/30",
+  // New comprehensive signal types - Positive (green)
+  boundary_respected: "bg-green-500/20 text-green-700 border-green-500/30",
+  financial_aligned: "bg-green-500/20 text-green-700 border-green-500/30",
+  recovery_consistent: "bg-green-500/20 text-green-700 border-green-500/30",
+  emotional_stable: "bg-green-500/20 text-green-700 border-green-500/30",
+  family_aligned: "bg-green-500/20 text-green-700 border-green-500/30",
+  progress_indicator: "bg-green-500/20 text-green-700 border-green-500/30",
+  // Warning (amber/yellow)
+  boundary_exception: "bg-amber-500/20 text-amber-700 border-amber-500/30",
+  financial_exception: "bg-amber-500/20 text-amber-700 border-amber-500/30",
+  recovery_inconsistent: "bg-amber-500/20 text-amber-700 border-amber-500/30",
+  recovery_performative: "bg-amber-500/20 text-amber-700 border-amber-500/30",
+  emotional_reactive: "bg-amber-500/20 text-amber-700 border-amber-500/30",
+  // Critical (red)
+  boundary_violation: "bg-red-500/20 text-red-700 border-red-500/30",
+  financial_manipulation: "bg-red-500/20 text-red-700 border-red-500/30",
+  emotional_volatile: "bg-red-500/20 text-red-700 border-red-500/30",
+  family_splitting: "bg-red-500/20 text-red-700 border-red-500/30",
+  enabling_pattern: "bg-red-500/20 text-red-700 border-red-500/30",
+  regression_indicator: "bg-red-500/20 text-red-700 border-red-500/30",
+  safety_concern: "bg-red-500/20 text-red-700 border-red-500/30",
+};
+
+const RISK_LEVEL_CONFIG: Record<string, { label: string; color: string; bgColor: string; icon: typeof CheckCircle }> = {
+  stable: { label: "Stable", color: "text-green-700 dark:text-green-400", bgColor: "bg-green-500/20 border-green-500/30", icon: CheckCircle },
+  early_drift: { label: "Early Drift", color: "text-amber-700 dark:text-amber-400", bgColor: "bg-amber-500/20 border-amber-500/30", icon: AlertTriangle },
+  pattern_formation: { label: "Pattern Formation", color: "text-orange-700 dark:text-orange-400", bgColor: "bg-orange-500/20 border-orange-500/30", icon: TrendingUp },
+  system_strain: { label: "System Strain", color: "text-red-700 dark:text-red-400", bgColor: "bg-red-500/20 border-red-500/30", icon: TrendingUp },
+  critical: { label: "Critical Risk", color: "text-red-800 dark:text-red-300", bgColor: "bg-red-600/30 border-red-600/50", icon: AlertTriangle },
 };
 
 export function FIISTab({ familyId, members, onView, isModerator = false }: FIISTabProps) {
@@ -184,12 +244,16 @@ export function FIISTab({ familyId, members, onView, isModerator = false }: FIIS
         const signals = Array.isArray(analysisData.pattern_signals) 
           ? (analysisData.pattern_signals as unknown as PatternSignal[]) 
           : [];
+        const inputSummary = analysisData.input_summary as Record<string, unknown> | null;
         setAnalysis({
           what_seeing: analysisData.what_seeing || "",
           pattern_signals: signals,
+          risk_level: (inputSummary?.risk_level as number) || 0,
+          risk_level_name: (inputSummary?.risk_level_name as string) || "stable",
           contextual_framing: analysisData.contextual_framing || "",
           clarifying_questions: (analysisData.clarifying_questions as string[]) || [],
           what_to_watch: (analysisData.what_to_watch as string[]) || [],
+          recommend_professional: (inputSummary?.recommend_professional as boolean) || false,
         });
       }
     } catch (error) {
@@ -461,12 +525,68 @@ export function FIISTab({ familyId, members, onView, isModerator = false }: FIIS
       {analysis && (
         <Card className="border-violet-500/20">
           <CardHeader className="pb-3">
-            <CardTitle className="text-base font-medium flex items-center gap-2">
-              <Brain className="h-4 w-4 text-violet-600" />
-              Pattern Analysis
-            </CardTitle>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+              <CardTitle className="text-base font-medium flex items-center gap-2">
+                <Brain className="h-4 w-4 text-violet-600" />
+                Pattern Analysis
+              </CardTitle>
+              {/* Risk Level Indicator */}
+              {analysis.risk_level_name && (
+                <div className={`px-3 py-1.5 rounded-lg border flex items-center gap-2 ${RISK_LEVEL_CONFIG[analysis.risk_level_name]?.bgColor || "bg-muted"}`}>
+                  {(() => {
+                    const config = RISK_LEVEL_CONFIG[analysis.risk_level_name || "stable"];
+                    const RiskIcon = config?.icon || Shield;
+                    return (
+                      <>
+                        <RiskIcon className={`h-4 w-4 ${config?.color || ""}`} />
+                        <span className={`text-sm font-medium ${config?.color || ""}`}>
+                          Level {analysis.risk_level}: {config?.label || analysis.risk_level_name}
+                        </span>
+                      </>
+                    );
+                  })()}
+                </div>
+              )}
+            </div>
           </CardHeader>
           <CardContent className="space-y-4">
+            {/* Professional Moderator Recommendation */}
+            {analysis.recommend_professional && (
+              <div className="p-4 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800">
+                <h4 className="text-sm font-semibold mb-2 text-red-800 dark:text-red-300 flex items-center gap-2">
+                  <UserPlus className="h-4 w-4" />
+                  Professional Support Recommended
+                </h4>
+                <p className="text-sm text-red-700 dark:text-red-400 mb-3">
+                  {analysis.professional_recommendation_reason || 
+                    "Inviting a professional moderator is not a sign of failure. It is often the most effective way to preserve relationships, restore clarity, and reduce long-term harm."}
+                </p>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="border-red-300 dark:border-red-700 text-red-700 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/50"
+                >
+                  <UserPlus className="h-4 w-4 mr-2" />
+                  Request Professional Moderator
+                </Button>
+              </div>
+            )}
+
+            {/* Positive Reinforcement */}
+            {analysis.positive_reinforcement && analysis.positive_reinforcement.length > 0 && (
+              <div className="p-4 rounded-lg bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800">
+                <h4 className="text-sm font-medium mb-2 text-green-800 dark:text-green-300 flex items-center gap-2">
+                  <Heart className="h-4 w-4" />
+                  Healthy Behaviors to Reinforce
+                </h4>
+                <ul className="list-disc list-inside space-y-1">
+                  {analysis.positive_reinforcement.map((item, i) => (
+                    <li key={i} className="text-sm text-green-700 dark:text-green-400">{item}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
             {/* What I'm Seeing */}
             <div className="p-4 rounded-lg bg-muted/50">
               <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
@@ -494,9 +614,22 @@ export function FIISTab({ familyId, members, onView, isModerator = false }: FIIS
                           <span className="text-xs font-medium capitalize">
                             {signal.signal_type.replace(/_/g, " ")}
                           </span>
+                          {signal.occurrences && signal.occurrences > 1 && (
+                            <Badge variant="secondary" className="text-[10px] px-1">
+                              ×{signal.occurrences}
+                            </Badge>
+                          )}
                           <Badge variant="outline" className="text-[10px] px-1">
                             {signal.confidence}
                           </Badge>
+                          {signal.priority && signal.priority !== "low" && (
+                            <Badge 
+                              variant={signal.priority === "critical" ? "destructive" : "secondary"} 
+                              className="text-[10px] px-1"
+                            >
+                              {signal.priority}
+                            </Badge>
+                          )}
                         </div>
                         <p className="text-xs">{signal.description}</p>
                       </div>
