@@ -1914,6 +1914,66 @@ export type Database = {
           },
         ]
       }
+      subscription_payment_status: {
+        Row: {
+          card_last_four: string | null
+          created_at: string
+          entity_id: string
+          entity_type: string
+          failed_at: string | null
+          grace_period_ends_at: string | null
+          id: string
+          last_error: string | null
+          last_payment_attempt: string | null
+          next_retry_at: string | null
+          payment_updated_at: string | null
+          retry_count: number
+          square_customer_id_hash: string | null
+          status: string
+          suspension_date: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          card_last_four?: string | null
+          created_at?: string
+          entity_id: string
+          entity_type: string
+          failed_at?: string | null
+          grace_period_ends_at?: string | null
+          id?: string
+          last_error?: string | null
+          last_payment_attempt?: string | null
+          next_retry_at?: string | null
+          payment_updated_at?: string | null
+          retry_count?: number
+          square_customer_id_hash?: string | null
+          status?: string
+          suspension_date?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          card_last_four?: string | null
+          created_at?: string
+          entity_id?: string
+          entity_type?: string
+          failed_at?: string | null
+          grace_period_ends_at?: string | null
+          id?: string
+          last_error?: string | null
+          last_payment_attempt?: string | null
+          next_retry_at?: string | null
+          payment_updated_at?: string | null
+          retry_count?: number
+          square_customer_id_hash?: string | null
+          status?: string
+          suspension_date?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       temporary_moderator_requests: {
         Row: {
           assigned_moderator_id: string

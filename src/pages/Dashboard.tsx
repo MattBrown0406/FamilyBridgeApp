@@ -10,6 +10,8 @@ import familyBridgeLogo from '@/assets/familybridge-logo.png';
 import { NotificationBell } from '@/components/NotificationBell';
 import { AdminBreadcrumbs } from '@/components/AdminBreadcrumbs';
 import { ArchivedFamilyNotice } from '@/components/ArchivedFamilyNotice';
+import { PaymentFailurePopup } from '@/components/PaymentFailurePopup';
+import { usePaymentStatus } from '@/hooks/usePaymentStatus';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -43,6 +45,12 @@ const Dashboard = () => {
   const { user, signOut, loading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { 
+    showPaymentPopup, 
+    selectedIssue, 
+    setShowPaymentPopup, 
+    getGracePeriodRemaining 
+  } = usePaymentStatus();
   
   const [families, setFamilies] = useState<Family[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -200,6 +208,13 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Payment Failure Popup */}
+      <PaymentFailurePopup
+        open={showPaymentPopup}
+        onOpenChange={setShowPaymentPopup}
+        paymentIssue={selectedIssue}
+        gracePeriodRemaining={selectedIssue ? getGracePeriodRemaining(selectedIssue) : null}
+      />
       {/* Admin Breadcrumbs for super admins and provider admins */}
       <AdminBreadcrumbs />
       {/* Header */}
