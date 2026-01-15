@@ -48,7 +48,8 @@ import {
   XCircle,
   ChevronDown,
   Search,
-  Wine
+  Wine,
+  Flame
 } from 'lucide-react';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 import { format } from 'date-fns';
@@ -275,8 +276,15 @@ const DemoFamily = () => {
               </div>
             </div>
             
-            {/* Right side - Badges and actions */}
+            {/* Right side - Sobriety counter, Badges and actions */}
             <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+              {/* Sobriety Counter Badge */}
+              <div className="flex items-center gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 bg-primary/10 rounded-full border border-primary/20">
+                <Flame className="h-3 w-3 sm:h-4 sm:w-4 text-primary" />
+                <span className="font-bold text-primary text-xs sm:text-sm">{currentFamily.sobriety.daysCount}</span>
+                <span className="text-[10px] sm:text-xs text-muted-foreground hidden sm:inline">days</span>
+              </div>
+              
               {selectedFamily === 'davis' && (
                 <Badge variant="destructive" className="bg-destructive/20 text-destructive border-destructive/30 text-[10px] sm:text-xs px-1.5 sm:px-2">
                   <AlertTriangle className="h-2.5 w-2.5 sm:h-3 sm:w-3 mr-0.5 sm:mr-1" />
