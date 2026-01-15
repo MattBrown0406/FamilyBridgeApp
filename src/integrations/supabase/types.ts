@@ -1593,6 +1593,85 @@ export type Database = {
         }
         Relationships: []
       }
+      sobriety_journeys: {
+        Row: {
+          created_at: string
+          family_id: string
+          id: string
+          is_active: boolean
+          reset_count: number
+          start_date: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          family_id: string
+          id?: string
+          is_active?: boolean
+          reset_count?: number
+          start_date?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          family_id?: string
+          id?: string
+          is_active?: boolean
+          reset_count?: number
+          start_date?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sobriety_journeys_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sobriety_milestones: {
+        Row: {
+          achieved_at: string
+          celebrated_by_family: boolean
+          created_at: string
+          id: string
+          journey_id: string
+          milestone_days: number
+          notes: string | null
+        }
+        Insert: {
+          achieved_at?: string
+          celebrated_by_family?: boolean
+          created_at?: string
+          id?: string
+          journey_id: string
+          milestone_days: number
+          notes?: string | null
+        }
+        Update: {
+          achieved_at?: string
+          celebrated_by_family?: boolean
+          created_at?: string
+          id?: string
+          journey_id?: string
+          milestone_days?: number
+          notes?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sobriety_milestones_journey_id_fkey"
+            columns: ["journey_id"]
+            isOneToOne: false
+            referencedRelation: "sobriety_journeys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       temporary_moderator_requests: {
         Row: {
           assigned_moderator_id: string
