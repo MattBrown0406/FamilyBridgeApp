@@ -79,12 +79,15 @@ export const LocationCheckinRequest = ({ familyId, userRole, isProfessionalModer
   const fetchRecoveringMembers = async () => {
     setIsLoading(true);
     try {
-      // First get family members with recovering role
+      // Get eligible family members to request a check-in from (exclude self)
+      // NOTE: We include both 'recovering' and regular 'member' roles because
+      // some families may not use the 'recovering' role consistently.
       const { data: membersData, error: membersError } = await supabase
         .from('family_members')
-        .select('user_id')
+        .select('user_id, role')
         .eq('family_id', familyId)
-        .eq('role', 'recovering');
+        .in('role', ['recovering', 'member'])
+        .neq('user_id', user?.id || '');
 
       if (membersError) throw membersError;
 
@@ -258,7 +261,7 @@ export const LocationCheckinRequest = ({ familyId, userRole, isProfessionalModer
             Location Check-In Request
           </CardTitle>
           <CardDescription>
-            No recovering family members to request check-ins from. Invite a recovering member to your family group first.
+            No eligible family members to request check-ins from.
           </CardDescription>
         </CardHeader>
       </Card>
@@ -273,7 +276,7 @@ export const LocationCheckinRequest = ({ familyId, userRole, isProfessionalModer
           Location Check-In Request
         </CardTitle>
         <CardDescription>
-          Request a location check-in from your recovering family member.
+          Request a location check-in from a family member.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
