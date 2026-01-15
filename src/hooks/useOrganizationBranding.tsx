@@ -18,10 +18,18 @@ export interface OrganizationBranding {
 }
 
 // Helper to convert hex to HSL string for CSS variables
-export const hexToHsl = (hex: string): string => {
-  if (!hex) return "";
-  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  if (!result) return "";
+// If already in HSL format (e.g., "220 75% 45%"), return as-is
+export const hexToHsl = (color: string): string => {
+  if (!color) return "";
+  
+  // Check if already in HSL format (contains spaces and %)
+  if (color.includes('%') || /^\d+\s+\d+/.test(color.trim())) {
+    return color.trim();
+  }
+  
+  // Otherwise convert from hex
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(color);
+  if (!result) return color; // Return as-is if not valid hex
 
   let r = parseInt(result[1], 16) / 255;
   let g = parseInt(result[2], 16) / 255;
