@@ -16,11 +16,13 @@ interface Suggestion {
 interface CommunicationHelperProps {
   familyId: string;
   onUseSuggestion?: (text: string) => void;
+  onSendMessage?: (text: string) => Promise<void>;
 }
 
 export const CommunicationHelper: React.FC<CommunicationHelperProps> = ({
   familyId,
   onUseSuggestion,
+  onSendMessage,
 }) => {
   const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
@@ -29,6 +31,7 @@ export const CommunicationHelper: React.FC<CommunicationHelperProps> = ({
   const [tip, setTip] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+  const [sendingIndex, setSendingIndex] = useState<number | null>(null);
 
   const handleGetSuggestions = async () => {
     if (!rawMessage.trim()) {
@@ -90,6 +93,31 @@ export const CommunicationHelper: React.FC<CommunicationHelperProps> = ({
         title: "Message ready",
         description: "The suggestion has been added to your message input.",
       });
+    }
+  };
+
+  const handleSendSuggestion = async (text: string, index: number) => {
+    if (onSendMessage) {
+      setSendingIndex(index);
+      try {
+        await onSendMessage(text);
+        setIsOpen(false);
+        setRawMessage('');
+        setSuggestions([]);
+        setTip(null);
+        toast({
+          title: "Message sent!",
+          description: "Your message has been sent to the chat.",
+        });
+      } catch (error) {
+        toast({
+          title: "Couldn't send message",
+          description: "Please try again or use the input field.",
+          variant: "destructive",
+        });
+      } finally {
+        setSendingIndex(null);
+      }
     }
   };
 
@@ -163,7 +191,7 @@ export const CommunicationHelper: React.FC<CommunicationHelperProps> = ({
                       <span className="text-xs text-muted-foreground italic">
                         {suggestion.approach}
                       </span>
-                      <div className="flex gap-1">
+                      <div className="flex gap-1 flex-wrap justify-end">
                         <Button
                           variant="ghost"
                           size="sm"
@@ -179,13 +207,29 @@ export const CommunicationHelper: React.FC<CommunicationHelperProps> = ({
                         </Button>
                         {onUseSuggestion && (
                           <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-7 text-xs"
+                            onClick={() => handleUseSuggestion(suggestion.text)}
+                          >
+                            <Lightbulb className="h-3 w-3 mr-1" />
+                            Use This
+                          </Button>
+                        )}
+                        {onSendMessage && (
+                          <Button
                             variant="default"
                             size="sm"
                             className="h-7 text-xs bg-violet-600 hover:bg-violet-700"
-                            onClick={() => handleUseSuggestion(suggestion.text)}
+                            onClick={() => handleSendSuggestion(suggestion.text, index)}
+                            disabled={sendingIndex === index}
                           >
-                            <Send className="h-3 w-3 mr-1" />
-                            Use This
+                            {sendingIndex === index ? (
+                              <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                            ) : (
+                              <Send className="h-3 w-3 mr-1" />
+                            )}
+                            Send to Chat
                           </Button>
                         )}
                       </div>
