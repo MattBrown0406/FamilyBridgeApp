@@ -5,6 +5,13 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Default pricing in cents
+const DEFAULT_PRICING = {
+  monthly: 25000, // $250/month
+  quarterly: 62900, // $629/quarter
+  annual: 250000, // $2,500/year
+};
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -18,11 +25,13 @@ serve(async (req) => {
       throw new Error('Square credentials not configured');
     }
 
-    const { email, redirectUrl } = await req.json();
+    const { email, redirectUrl, billingPeriod = 'monthly', couponCode, specialPrice } = await req.json();
 
     if (!email) {
       throw new Error('Email is required');
     }
+
+    console.log(`Creating checkout for ${email}, period: ${billingPeriod}, coupon: ${couponCode || 'none'}, specialPrice: ${specialPrice || 'none'}`);
 
     // Fetch locations to get a valid location ID
     const locationsResponse = await fetch('https://connect.squareup.com/v2/locations', {
@@ -46,6 +55,22 @@ serve(async (req) => {
     const locationId = activeLocation.id;
     console.log('Using location:', locationId, activeLocation.name);
 
+    // Determine the price - use special price if provided, otherwise use default for billing period
+    let priceInCents: number;
+    let subscriptionName: string;
+
+    if (specialPrice) {
+      // Use the special coupon price (monthly subscription at discounted rate)
+      priceInCents = specialPrice;
+      subscriptionName = `Provider Account Subscription (${couponCode || 'Promo'} - $${(specialPrice / 100).toFixed(2)}/month)`;
+      console.log(`Using special price: $${priceInCents / 100}`);
+    } else {
+      // Use default pricing based on billing period
+      priceInCents = DEFAULT_PRICING[billingPeriod as keyof typeof DEFAULT_PRICING] || DEFAULT_PRICING.monthly;
+      const periodLabel = billingPeriod === 'annual' ? 'Annual' : billingPeriod === 'quarterly' ? 'Quarterly' : 'Monthly';
+      subscriptionName = `Provider Account Subscription (${periodLabel})`;
+    }
+
     // Create a checkout link using Square Checkout API
     const idempotencyKey = crypto.randomUUID();
     
@@ -59,9 +84,9 @@ serve(async (req) => {
       body: JSON.stringify({
         idempotency_key: idempotencyKey,
         quick_pay: {
-          name: 'Provider Account Subscription',
+          name: subscriptionName,
           price_money: {
-            amount: 4999, // $49.99 in cents
+            amount: priceInCents,
             currency: 'USD',
           },
           location_id: locationId,

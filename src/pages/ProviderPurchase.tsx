@@ -80,14 +80,38 @@ const ProviderPurchase = () => {
         body: {
           couponCode: couponCode.trim(),
           email,
+          subscriptionType: 'provider',
         },
       });
 
       if (error) throw error;
 
       if (data.valid && data.activationCode) {
+        // Full discount - got an activation code
         setGeneratedCode(data.activationCode);
         toast.success("Coupon applied! Your activation code has been generated.");
+      } else if (data.valid && data.hasSpecialPrice) {
+        // Special price coupon (like BRIDGE) - redirect to checkout with special price
+        toast.success(`${data.message} - Redirecting to checkout...`);
+        
+        // Create checkout with special price
+        const { data: checkoutData, error: checkoutError } = await supabase.functions.invoke("create-square-checkout", {
+          body: {
+            email,
+            redirectUrl: `${window.location.origin}/provider-purchase?status=success`,
+            billingPeriod: 'monthly',
+            couponCode: data.couponCode,
+            specialPrice: data.specialPrice,
+          },
+        });
+
+        if (checkoutError) throw checkoutError;
+
+        if (checkoutData.checkoutUrl) {
+          window.location.href = checkoutData.checkoutUrl;
+        } else {
+          throw new Error("Failed to create checkout session");
+        }
       } else if (!data.valid) {
         toast.error(data.error || "Invalid coupon code");
       }
