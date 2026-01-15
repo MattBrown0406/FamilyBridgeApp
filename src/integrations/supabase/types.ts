@@ -298,6 +298,7 @@ export type Database = {
           account_number: string
           archived_at: string | null
           archived_by: string | null
+          avatar_url: string | null
           created_at: string
           created_by: string | null
           description: string | null
@@ -312,6 +313,7 @@ export type Database = {
           account_number: string
           archived_at?: string | null
           archived_by?: string | null
+          avatar_url?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
@@ -326,6 +328,7 @@ export type Database = {
           account_number?: string
           archived_at?: string | null
           archived_by?: string | null
+          avatar_url?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null

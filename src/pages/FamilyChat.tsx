@@ -18,7 +18,7 @@ import {
   MessageCircle, AlertTriangle, Check, X, Shield, MapPin,
   ExternalLink, CreditCard, CheckCircle2, Paperclip, Image, HandCoins, Trash2, Pencil,
   Target, ShieldCheck, Plus, CheckCircle, MessageSquare, FlaskConical, ChevronDown, Sparkles,
-  Brain, Search, Calendar, ChevronLeft, ChevronRight, Archive, Heart, Clock, TrendingUp
+  Brain, Search, Calendar, ChevronLeft, ChevronRight, Archive, Heart, Clock, TrendingUp, Camera, Upload
 } from 'lucide-react';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -145,6 +145,7 @@ interface Family {
   name: string;
   description: string | null;
   organization_id: string | null;
+  avatar_url: string | null;
 }
 
 
@@ -433,6 +434,10 @@ const FamilyChat = () => {
   
   // Moderator disclaimer state (for self-created families with requested moderators)
   const [moderatorDisclaimer, setModeratorDisclaimer] = useState<{ shown: boolean; moderatorName?: string } | null>(null);
+  
+  // Family avatar upload state
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -877,7 +882,7 @@ const FamilyChat = () => {
       // Note: invite_code is not fetched here - only moderators can access it via get_family_invite_code()
       const { data: familyData, error: familyError } = await supabase
         .from('families')
-        .select('id, name, description, organization_id, created_by')
+        .select('id, name, description, organization_id, created_by, avatar_url')
         .eq('id', familyId)
         .maybeSingle();
 
@@ -1411,6 +1416,70 @@ const FamilyChat = () => {
         description: 'Failed to remove boundary.',
         variant: 'destructive',
       });
+    }
+  };
+
+  // Family avatar upload handler
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !familyId || !user) return;
+    
+    // Check if user is admin/moderator
+    if (!isAdminOrModerator) {
+      toast({
+        title: 'Permission denied',
+        description: 'Only family admins can update the family avatar.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
+    setIsUploadingAvatar(true);
+    try {
+      // Generate unique filename
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${familyId}/${Date.now()}.${fileExt}`;
+      
+      // Upload to storage
+      const { error: uploadError } = await supabase.storage
+        .from('family-avatars')
+        .upload(fileName, file, { upsert: true });
+      
+      if (uploadError) throw uploadError;
+      
+      // Get public URL
+      const { data: urlData } = supabase.storage
+        .from('family-avatars')
+        .getPublicUrl(fileName);
+      
+      // Update family record
+      const { error: updateError } = await supabase
+        .from('families')
+        .update({ avatar_url: urlData.publicUrl })
+        .eq('id', familyId);
+      
+      if (updateError) throw updateError;
+      
+      // Update local state
+      setFamily(prev => prev ? { ...prev, avatar_url: urlData.publicUrl } : null);
+      
+      toast({
+        title: 'Avatar updated',
+        description: 'Family avatar has been updated successfully.',
+      });
+    } catch (error: any) {
+      console.error('Error uploading avatar:', error);
+      toast({
+        title: 'Upload failed',
+        description: error.message || 'Failed to upload avatar.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsUploadingAvatar(false);
+      // Reset input
+      if (avatarInputRef.current) {
+        avatarInputRef.current.value = '';
+      }
     }
   };
 
@@ -2249,36 +2318,69 @@ const FamilyChat = () => {
             >
               <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
             </Button>
-            <button 
-              className="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-all group min-w-0 flex-1"
-              onClick={() => setMembersSheetOpen(true)}
-            >
-              <div className="relative shrink-0">
-                <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg sm:rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow overflow-hidden">
-                  {organization?.logo_url ? (
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+              {/* Family Avatar with upload capability for admins */}
+              <div className="relative shrink-0 group/avatar">
+                <input
+                  ref={avatarInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleAvatarUpload}
+                  className="hidden"
+                  id="family-avatar-upload"
+                />
+                <button 
+                  className="h-10 w-10 sm:h-12 sm:w-12 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg hover:shadow-xl transition-all overflow-hidden relative"
+                  onClick={(e) => {
+                    if (isAdminOrModerator) {
+                      e.stopPropagation();
+                      avatarInputRef.current?.click();
+                    } else {
+                      setMembersSheetOpen(true);
+                    }
+                  }}
+                  title={isAdminOrModerator ? "Click to change family avatar" : family?.name || "Family"}
+                >
+                  {isUploadingAvatar ? (
+                    <Loader2 className="h-5 w-5 text-white animate-spin" />
+                  ) : family?.avatar_url ? (
+                    <img src={family.avatar_url} alt={family.name} className="h-full w-full object-cover" />
+                  ) : organization?.logo_url ? (
                     <img src={organization.logo_url} alt={organization.name || 'Organization'} className="h-full w-full object-cover" />
                   ) : (
-                    <img src={familyBridgeLogo} alt="FamilyBridge" className="h-5 w-5 sm:h-7 sm:w-7 object-contain" />
+                    <span className="text-lg sm:text-xl font-bold text-white">
+                      {family?.name?.charAt(0)?.toUpperCase() || 'F'}
+                    </span>
                   )}
-                </div>
-                <div className="absolute -bottom-0.5 -right-0.5 sm:-bottom-1 sm:-right-1 h-3 w-3 sm:h-4 sm:w-4 bg-success rounded-full border-2 border-card flex items-center justify-center">
+                  {isAdminOrModerator && !isUploadingAvatar && (
+                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover/avatar:opacity-100 transition-opacity flex items-center justify-center">
+                      <Camera className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
+                    </div>
+                  )}
+                </button>
+                <div className="absolute -bottom-0.5 -right-0.5 sm:-bottom-1 sm:-right-1 h-3.5 w-3.5 sm:h-4 sm:w-4 bg-success rounded-full border-2 border-card flex items-center justify-center">
                   <span className="text-[6px] sm:text-[8px] text-white font-bold">{members.length}</span>
                 </div>
               </div>
-              <div className="text-left min-w-0">
+              
+              {/* Family name and info */}
+              <button 
+                className="text-left min-w-0 hover:opacity-80 transition-all"
+                onClick={() => setMembersSheetOpen(true)}
+              >
                 <div className="flex items-center gap-1 sm:gap-2">
-                  <h1 className="font-display font-semibold text-foreground text-xs sm:text-lg group-hover:text-primary transition-colors truncate max-w-[100px] sm:max-w-none">
+                  <h1 className="font-display font-semibold text-foreground text-sm sm:text-lg hover:text-primary transition-colors truncate max-w-[120px] sm:max-w-none">
                     {family?.name}
                   </h1>
                   {familyId && <FamilyHealthBadge familyId={familyId} />}
                 </div>
                 {organization && family?.organization_id ? (
-                  <p className="text-[10px] sm:text-xs text-muted-foreground truncate max-w-[100px] sm:max-w-none">
+                  <p className="text-[10px] sm:text-xs text-muted-foreground truncate max-w-[120px] sm:max-w-none">
                     {organization.name}
                   </p>
                 ) : null}
-              </div>
-            </button>
+              </button>
+            </div>
             <div className="ml-auto flex items-center gap-1 sm:gap-3">
               <div className="hidden sm:block">
                 {familyId && (
