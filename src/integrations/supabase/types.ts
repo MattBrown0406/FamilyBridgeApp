@@ -110,6 +110,103 @@ export type Database = {
         }
         Relationships: []
       }
+      aftercare_plans: {
+        Row: {
+          created_at: string
+          created_by: string
+          family_id: string
+          id: string
+          is_active: boolean
+          notes: string | null
+          target_user_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          family_id: string
+          id?: string
+          is_active?: boolean
+          notes?: string | null
+          target_user_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          family_id?: string
+          id?: string
+          is_active?: boolean
+          notes?: string | null
+          target_user_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "aftercare_plans_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      aftercare_recommendations: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          description: string | null
+          facility_name: string | null
+          frequency: string | null
+          id: string
+          is_completed: boolean
+          plan_id: string
+          recommendation_type: string
+          recommended_duration: string | null
+          therapy_type: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          facility_name?: string | null
+          frequency?: string | null
+          id?: string
+          is_completed?: boolean
+          plan_id: string
+          recommendation_type: string
+          recommended_duration?: string | null
+          therapy_type?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          facility_name?: string | null
+          frequency?: string | null
+          id?: string
+          is_completed?: boolean
+          plan_id?: string
+          recommendation_type?: string
+          recommended_duration?: string | null
+          therapy_type?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "aftercare_recommendations_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "aftercare_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       boundary_acknowledgments: {
         Row: {
           acknowledged_at: string
