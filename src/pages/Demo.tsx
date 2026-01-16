@@ -290,7 +290,7 @@ const Demo = () => {
                 <div className="mt-3 p-3 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 border border-amber-200 dark:border-amber-800 rounded-lg">
                   <p className="text-sm font-medium text-amber-800 dark:text-amber-200 flex items-center gap-2">
                     <Sparkles className="h-4 w-4" />
-                    Early Adopter Special for Organizations: $49.99/month for all of 2026!
+                    Early Adopter Special for Organizations: $250/month for all of 2026!
                   </p>
                   <p className="text-xs text-amber-700 dark:text-amber-300 mt-1 ml-6">
                     Individual family subscriptions available at $19.99/month
