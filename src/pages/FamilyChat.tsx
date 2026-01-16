@@ -19,7 +19,7 @@ import {
   ExternalLink, CreditCard, CheckCircle2, Paperclip, Image, HandCoins, Trash2, Pencil,
   Target, ShieldCheck, Plus, CheckCircle, MessageSquare, FlaskConical, ChevronDown, Sparkles,
   Brain, Search, Calendar, ChevronLeft, ChevronRight, Archive, Heart, Clock, TrendingUp, Camera, Upload,
-  Flame
+  Flame, ClipboardList
 } from 'lucide-react';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -72,6 +72,7 @@ import { CommunicationHelper } from '@/components/CommunicationHelper';
 import { DailyEmotionalCheckin } from '@/components/DailyEmotionalCheckin';
 import { EmotionalToneIndicator } from '@/components/EmotionalToneIndicator';
 import { AdminBreadcrumbs } from '@/components/AdminBreadcrumbs';
+import { AftercarePlanTab } from '@/components/AftercarePlanTab';
 
 const REQUEST_REASONS = [
   'Electric',
@@ -2434,7 +2435,7 @@ const FamilyChat = () => {
       {/* Main Content */}
       <main className="flex-1 container mx-auto px-2 sm:px-4 py-2 sm:py-4 overflow-hidden">
         <Tabs defaultValue="messages" className="h-full flex flex-col">
-          <TabsList className="grid grid-cols-7 h-auto gap-0.5 sm:gap-1 w-full mb-2 sm:mb-4 shrink-0 bg-card/50 backdrop-blur-sm border border-border/50 p-1 sm:p-1.5 rounded-lg sm:rounded-xl shadow-soft">
+          <TabsList className="grid grid-cols-8 h-auto gap-0.5 sm:gap-1 w-full mb-2 sm:mb-4 shrink-0 bg-card/50 backdrop-blur-sm border border-border/50 p-1 sm:p-1.5 rounded-lg sm:rounded-xl shadow-soft">
             <TabsTrigger 
               value="messages" 
               className="flex items-center justify-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-1.5 sm:py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
@@ -2469,6 +2470,13 @@ const FamilyChat = () => {
             >
               <ShieldCheck className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               <span className="hidden md:inline text-xs">Boundaries</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="aftercare" 
+              className="flex items-center justify-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-1.5 sm:py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
+            >
+              <ClipboardList className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              <span className="hidden md:inline text-xs">Aftercare</span>
             </TabsTrigger>
             <TabsTrigger 
               value="test-results" 
@@ -4405,6 +4413,20 @@ const FamilyChat = () => {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Aftercare Plans Tab */}
+          <TabsContent value="aftercare" className="mt-0 space-y-4 overflow-auto">
+            <AftercarePlanTab
+              familyId={familyId!}
+              members={members.map(m => ({ 
+                id: m.id, 
+                user_id: m.user_id, 
+                role: m.role, 
+                full_name: m.full_name 
+              }))}
+              isModerator={isAdminOrModerator}
+            />
           </TabsContent>
 
           {/* FIIS Tab - Hidden from recovering individuals */}
