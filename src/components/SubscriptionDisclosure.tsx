@@ -6,6 +6,7 @@ interface SubscriptionDisclosureProps {
   price: string;
   period: string;
   isNative?: boolean;
+  isOneTimePurchase?: boolean;
   className?: string;
 }
 
@@ -23,6 +24,7 @@ export const SubscriptionDisclosure = ({
   price,
   period,
   isNative = false,
+  isOneTimePurchase = false,
   className = "",
 }: SubscriptionDisclosureProps) => {
   return (
@@ -35,14 +37,28 @@ export const SubscriptionDisclosure = ({
         </p>
       </div>
       
-      {/* Auto-Renewal Terms */}
+      {/* Terms */}
       <div className="text-xs text-muted-foreground space-y-2">
-        <p className="font-medium text-foreground">Subscription Terms:</p>
+        <p className="font-medium text-foreground">
+          {isOneTimePurchase ? "Purchase Terms:" : "Subscription Terms:"}
+        </p>
         
-        {isNative ? (
+        {isOneTimePurchase ? (
           <>
             <p>
-              • Payment will be charged to your {isNative ? "Apple ID" : ""} account at confirmation of purchase.
+              • Payment will be charged to your {isNative ? "Apple ID" : "payment method"} at confirmation of purchase.
+            </p>
+            <p>
+              • This is a one-time purchase and does not automatically renew.
+            </p>
+            <p>
+              • Service will be provided for the duration specified above.
+            </p>
+          </>
+        ) : isNative ? (
+          <>
+            <p>
+              • Payment will be charged to your Apple ID account at confirmation of purchase.
             </p>
             <p>
               • Subscription automatically renews unless cancelled at least 24 hours before the end of the current period.
@@ -75,7 +91,7 @@ export const SubscriptionDisclosure = ({
       {/* Legal Links - Prominent as required */}
       <div className="pt-2 border-t">
         <p className="text-xs text-muted-foreground mb-2">
-          By subscribing, you agree to our:
+          By {isOneTimePurchase ? "purchasing" : "subscribing"}, you agree to our:
         </p>
         <div className="flex flex-wrap justify-center gap-4 text-xs">
           <Link 

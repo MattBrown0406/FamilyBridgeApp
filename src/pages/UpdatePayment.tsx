@@ -7,8 +7,9 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { usePlatform } from "@/hooks/usePlatform";
 import { toast } from "sonner";
-import { CreditCard, Shield, Loader2, CheckCircle, ArrowLeft } from "lucide-react";
+import { CreditCard, Shield, Loader2, CheckCircle, ArrowLeft, Smartphone } from "lucide-react";
 import { BrandedHeader } from "@/components/BrandedHeader";
 import { BrandedFooter } from "@/components/BrandedFooter";
 
@@ -16,6 +17,7 @@ export default function UpdatePayment() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { isNative, isIOS } = usePlatform();
   
   const entityType = searchParams.get("entity") as "family" | "organization" | null;
   const entityId = searchParams.get("id");
@@ -112,6 +114,67 @@ export default function UpdatePayment() {
                   Go to Dashboard
                 </Button>
               </div>
+            </CardContent>
+          </Card>
+        </main>
+        <BrandedFooter />
+      </div>
+    );
+  }
+
+  // On iOS, payment updates must be handled through the App Store
+  if (isNative && isIOS) {
+    return (
+      <div className="min-h-screen flex flex-col bg-background">
+        <BrandedHeader />
+        <main className="flex-1 container max-w-lg mx-auto px-4 py-12">
+          <Button
+            variant="ghost"
+            onClick={() => navigate(-1)}
+            className="mb-6 gap-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back
+          </Button>
+
+          <Card>
+            <CardHeader className="text-center">
+              <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+                <Smartphone className="h-6 w-6 text-primary" />
+              </div>
+              <CardTitle>Manage Subscription</CardTitle>
+              <CardDescription>
+                Your subscription is managed through the App Store
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <Alert>
+                <Shield className="h-4 w-4" />
+                <AlertDescription>
+                  To update your payment method or manage your subscription, 
+                  please use your device's Settings app.
+                </AlertDescription>
+              </Alert>
+
+              <div className="space-y-4">
+                <p className="text-sm text-muted-foreground">
+                  <strong>To update your payment method:</strong>
+                </p>
+                <ol className="text-sm text-muted-foreground space-y-2 list-decimal list-inside">
+                  <li>Open the <strong>Settings</strong> app on your device</li>
+                  <li>Tap your <strong>Apple ID</strong> at the top</li>
+                  <li>Tap <strong>Subscriptions</strong></li>
+                  <li>Select <strong>FamilyBridge</strong></li>
+                  <li>Update your payment information</li>
+                </ol>
+              </div>
+
+              <Button
+                onClick={() => navigate("/dashboard")}
+                className="w-full"
+              >
+                Return to Dashboard
+              </Button>
             </CardContent>
           </Card>
         </main>
