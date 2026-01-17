@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { ExternalLink } from "lucide-react";
+import { usePlatform } from "@/hooks/usePlatform";
 
 interface SubscriptionDisclosureProps {
   subscriptionTitle: string;
@@ -11,8 +12,8 @@ interface SubscriptionDisclosureProps {
 }
 
 /**
- * Apple-compliant subscription disclosure component.
- * Displays all required information per App Store Guideline 3.1.2:
+ * Apple/Google-compliant subscription disclosure component.
+ * Displays all required information per App Store Guideline 3.1.2 and Google Play policies:
  * - Subscription title matching IAP product name
  * - Clear price and duration
  * - Auto-renewal terms
@@ -27,6 +28,22 @@ export const SubscriptionDisclosure = ({
   isOneTimePurchase = false,
   className = "",
 }: SubscriptionDisclosureProps) => {
+  const { isIOS, isAndroid } = usePlatform();
+  
+  // Get platform-specific account name
+  const getAccountName = () => {
+    if (isIOS) return "Apple ID account";
+    if (isAndroid) return "Google Play account";
+    return "payment method";
+  };
+
+  // Get platform-specific settings location
+  const getSettingsLocation = () => {
+    if (isIOS) return "your device's Account Settings";
+    if (isAndroid) return "Google Play Store → Subscriptions";
+    return "your account settings";
+  };
+
   return (
     <div className={`bg-muted/30 border rounded-lg p-4 space-y-3 ${className}`}>
       {/* Subscription Details Header */}
@@ -46,7 +63,7 @@ export const SubscriptionDisclosure = ({
         {isOneTimePurchase ? (
           <>
             <p>
-              • Payment will be charged to your {isNative ? "Apple ID" : "payment method"} at confirmation of purchase.
+              • Payment will be charged to your {getAccountName()} at confirmation of purchase.
             </p>
             <p>
               • This is a one-time purchase and does not automatically renew.
@@ -58,7 +75,7 @@ export const SubscriptionDisclosure = ({
         ) : isNative ? (
           <>
             <p>
-              • Payment will be charged to your Apple ID account at confirmation of purchase.
+              • Payment will be charged to your {getAccountName()} at confirmation of purchase.
             </p>
             <p>
               • Subscription automatically renews unless cancelled at least 24 hours before the end of the current period.
@@ -67,11 +84,13 @@ export const SubscriptionDisclosure = ({
               • Your account will be charged for renewal within 24 hours prior to the end of the current period.
             </p>
             <p>
-              • Subscriptions may be managed and auto-renewal turned off in your device's Account Settings after purchase.
+              • Subscriptions may be managed and auto-renewal turned off in {getSettingsLocation()} after purchase.
             </p>
-            <p>
-              • Any unused portion of a free trial period will be forfeited when you purchase a subscription.
-            </p>
+            {isIOS && (
+              <p>
+                • Any unused portion of a free trial period will be forfeited when you purchase a subscription.
+              </p>
+            )}
           </>
         ) : (
           <>
