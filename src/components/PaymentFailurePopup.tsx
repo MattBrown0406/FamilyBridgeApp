@@ -11,8 +11,9 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { CreditCard, AlertTriangle, Clock, XCircle } from "lucide-react";
+import { CreditCard, AlertTriangle, Clock, XCircle, Smartphone } from "lucide-react";
 import { PaymentStatus } from "@/hooks/usePaymentStatus";
+import { usePlatform } from "@/hooks/usePlatform";
 
 interface PaymentFailurePopupProps {
   open: boolean;
@@ -28,6 +29,7 @@ export function PaymentFailurePopup({
   gracePeriodRemaining,
 }: PaymentFailurePopupProps) {
   const navigate = useNavigate();
+  const { isNative, isIOS } = usePlatform();
 
   if (!paymentIssue) return null;
 
@@ -36,6 +38,8 @@ export function PaymentFailurePopup({
 
   const handleUpdatePayment = () => {
     onOpenChange(false);
+    // On iOS, navigate to update-payment which will show App Store instructions
+    // On web, it will show the Square checkout flow
     navigate(`/update-payment?entity=${paymentIssue.entity_type}&id=${paymentIssue.entity_id}`);
   };
 
@@ -89,15 +93,18 @@ export function PaymentFailurePopup({
                 </div>
               )}
 
-              {paymentIssue.card_last_four && (
+              {paymentIssue.card_last_four && !isNative && (
                 <p className="text-sm text-muted-foreground">
                   Card ending in •••• {paymentIssue.card_last_four}
                 </p>
               )}
 
               <p className="text-sm text-muted-foreground">
-                We will automatically retry charging your card daily. You can also update 
-                your payment method now to resolve this immediately.
+                {isNative && isIOS ? (
+                  "Please update your payment method in your device's Settings to restore your subscription."
+                ) : (
+                  "We will automatically retry charging your card daily. You can also update your payment method now to resolve this immediately."
+                )}
               </p>
             </div>
           </AlertDialogDescription>
@@ -105,8 +112,17 @@ export function PaymentFailurePopup({
         <AlertDialogFooter className="flex-col gap-2 sm:flex-row">
           <AlertDialogCancel>Remind Me Later</AlertDialogCancel>
           <Button onClick={handleUpdatePayment} className="gap-2">
-            <CreditCard className="h-4 w-4" />
-            Update Payment Method
+            {isNative && isIOS ? (
+              <>
+                <Smartphone className="h-4 w-4" />
+                Manage Subscription
+              </>
+            ) : (
+              <>
+                <CreditCard className="h-4 w-4" />
+                Update Payment Method
+              </>
+            )}
           </Button>
         </AlertDialogFooter>
       </AlertDialogContent>

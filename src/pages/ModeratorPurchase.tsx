@@ -5,16 +5,21 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
+import { usePlatform } from "@/hooks/usePlatform";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Shield, Clock, CheckCircle, Users, AlertCircle } from "lucide-react";
+import { Shield, Clock, CheckCircle, Users, AlertCircle, Smartphone, ArrowLeft } from "lucide-react";
 import { BrandedHeader } from "@/components/BrandedHeader";
 import { BrandedFooter } from "@/components/BrandedFooter";
+import { AppStorePurchaseButton } from "@/components/AppStorePurchaseButton";
+import { SubscriptionDisclosure } from "@/components/SubscriptionDisclosure";
+import { PRODUCTS } from "@/lib/products";
 
 export default function ModeratorPurchase() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { isNative, isIOS, paymentMethod } = usePlatform();
   const [loading, setLoading] = useState(false);
   const [families, setFamilies] = useState<{ id: string; name: string }[]>([]);
   const [selectedFamily, setSelectedFamily] = useState<string>("");
@@ -276,13 +281,40 @@ export default function ModeratorPurchase() {
                   />
                 </div>
 
-                <Button onClick={handlePurchase} disabled={loading || !selectedFamily} className="w-full" size="lg">
-                  {loading ? "Processing..." : "Purchase for $150"}
-                </Button>
-
-                <p className="text-xs text-muted-foreground text-center">
-                  Secure payment powered by Square. Support begins once a moderator is assigned.
-                </p>
+                {isNative ? (
+                  <>
+                    <AppStorePurchaseButton
+                      platform={paymentMethod as "apple" | "google"}
+                      productId={PRODUCTS.crisisModeration.daily.id}
+                      email={email}
+                      subscriptionType="family"
+                      onSuccess={(transactionId, inviteCode) => {
+                        toast.success("Purchase complete! A moderator will be assigned shortly.");
+                        navigate(`/family/${selectedFamily}`);
+                      }}
+                      disabled={!selectedFamily || !email}
+                      className="w-full"
+                    >
+                      Purchase for ${PRODUCTS.crisisModeration.daily.price}
+                    </AppStorePurchaseButton>
+                    <SubscriptionDisclosure
+                      subscriptionTitle={PRODUCTS.crisisModeration.daily.displayName}
+                      price={`$${PRODUCTS.crisisModeration.daily.price}`}
+                      period="One-time purchase for 24 hours"
+                      isNative={isNative}
+                      isOneTimePurchase={true}
+                    />
+                  </>
+                ) : (
+                  <>
+                    <Button onClick={handlePurchase} disabled={loading || !selectedFamily} className="w-full" size="lg">
+                      {loading ? "Processing..." : "Purchase for $150"}
+                    </Button>
+                    <p className="text-xs text-muted-foreground text-center">
+                      Secure payment powered by Square. Support begins once a moderator is assigned.
+                    </p>
+                  </>
+                )}
               </CardContent>
             </Card>
           </div>
