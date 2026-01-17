@@ -606,7 +606,7 @@ const FamilyPurchase = () => {
                   {isNative ? (
                     <AppStorePurchaseButton
                       platform={paymentMethod as "apple" | "google"}
-                      productId="family_monthly_1999"
+                      productId={PRODUCTS.family.monthly.id}
                       email={email}
                       couponCode={couponCode}
                       onSuccess={handleAppStorePurchaseSuccess}
