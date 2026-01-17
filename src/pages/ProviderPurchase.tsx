@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { usePlatform } from "@/hooks/usePlatform";
@@ -28,6 +28,13 @@ const ProviderPurchase = () => {
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
   const [generatedCode, setGeneratedCode] = useState<string | null>(null);
   const [billingPeriod, setBillingPeriod] = useState<"monthly" | "quarterly" | "annual">(isNative ? "quarterly" : "annual");
+
+  // Safety guard: ensure annual is never selected on native (Apple doesn't allow >$999 IAP)
+  useEffect(() => {
+    if (isNative && billingPeriod === "annual") {
+      setBillingPeriod("quarterly");
+    }
+  }, [isNative, billingPeriod]);
 
   const handleSquarePurchase = async () => {
     if (!email) {
