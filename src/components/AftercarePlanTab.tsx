@@ -104,6 +104,7 @@ const THERAPY_MODALITIES = [
   'CBT (Cognitive Behavioral Therapy)',
   'DBT (Dialectical Behavior Therapy)',
   'EMDR (Eye Movement Desensitization)',
+  'IFS (Internal Family Systems)',
   'Psychodynamic Therapy',
   'Trauma-Focused Therapy',
   'Motivational Interviewing',
