@@ -425,6 +425,7 @@ const FamilyChat = () => {
   const [unreadPrivateMessages, setUnreadPrivateMessages] = useState(0);
   const [hasProfessionalModerator, setHasProfessionalModerator] = useState(false);
   const [isCurrentUserProfessionalModerator, setIsCurrentUserProfessionalModerator] = useState(false);
+  const [professionalModeratorIds, setProfessionalModeratorIds] = useState<string[]>([]);
   
   // Online presence state
   const [onlineMembers, setOnlineMembers] = useState<string[]>([]);
@@ -824,6 +825,16 @@ const FamilyChat = () => {
 
     const hasAnyProfessionalMod = (tempMod && tempMod.length > 0) || (paidMod && paidMod.length > 0);
     setHasProfessionalModerator(hasAnyProfessionalMod);
+    
+    // Collect all professional moderator IDs for exclusion from FIIS analysis
+    const profModIds: string[] = [];
+    tempMod?.forEach(m => {
+      if (m.assigned_moderator_id) profModIds.push(m.assigned_moderator_id);
+    });
+    paidMod?.forEach(m => {
+      if (m.assigned_moderator_id) profModIds.push(m.assigned_moderator_id);
+    });
+    setProfessionalModeratorIds([...new Set(profModIds)]);
     
     // Check if current user is the assigned professional moderator
     const isCurrentUserTemp = tempMod?.some(m => m.assigned_moderator_id === user.id) || false;
@@ -4438,7 +4449,10 @@ const FamilyChat = () => {
             >
               <FIISTab 
                 familyId={familyId!} 
-                members={members.map(m => ({ user_id: m.user_id, full_name: m.full_name }))}
+                members={members
+                  .filter(m => !professionalModeratorIds.includes(m.user_id))
+                  .map(m => ({ user_id: m.user_id, full_name: m.full_name }))}
+                excludeUserIds={professionalModeratorIds}
                 onView={markFIISViewed}
                 isModerator={isAdminOrModerator}
               />

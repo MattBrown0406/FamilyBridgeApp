@@ -40,6 +40,7 @@ import { format, formatDistanceToNow } from "date-fns";
 interface FIISTabProps {
   familyId: string;
   members: Array<{ user_id: string; full_name: string }>;
+  excludeUserIds?: string[];
   onView?: () => void;
   isModerator?: boolean;
 }
@@ -176,7 +177,7 @@ const RISK_LEVEL_CONFIG: Record<string, { label: string; color: string; bgColor:
   critical: { label: "Critical Risk", color: "text-red-800 dark:text-red-300", bgColor: "bg-red-600/30 border-red-600/50", icon: AlertTriangle },
 };
 
-export function FIISTab({ familyId, members, onView, isModerator = false }: FIISTabProps) {
+export function FIISTab({ familyId, members, excludeUserIds = [], onView, isModerator = false }: FIISTabProps) {
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -311,16 +312,20 @@ export function FIISTab({ familyId, members, onView, isModerator = false }: FIIS
 
       if (eventError) throw eventError;
 
-      // Add user names
-      const obsWithNames = (obsData || []).map((obs) => ({
-        ...obs,
-        user_name: members.find((m) => m.user_id === obs.user_id)?.full_name || "Unknown",
-      }));
+      // Add user names and filter out professional moderators
+      const obsWithNames = (obsData || [])
+        .filter((obs) => !excludeUserIds.includes(obs.user_id))
+        .map((obs) => ({
+          ...obs,
+          user_name: members.find((m) => m.user_id === obs.user_id)?.full_name || "Unknown",
+        }));
 
-      const eventsWithNames = (eventData || []).map((event) => ({
-        ...event,
-        user_name: members.find((m) => m.user_id === event.user_id)?.full_name || "Unknown",
-      }));
+      const eventsWithNames = (eventData || [])
+        .filter((event) => !excludeUserIds.includes(event.user_id))
+        .map((event) => ({
+          ...event,
+          user_name: members.find((m) => m.user_id === event.user_id)?.full_name || "Unknown",
+        }));
 
       setObservations(obsWithNames);
       setAutoEvents(eventsWithNames);
