@@ -43,15 +43,13 @@ export function HIPAARelease({
 
     setIsSubmitting(true);
     try {
-      const { error } = await supabase
-        .from('hipaa_releases')
-        .insert({
-          family_id: familyId,
-          user_id: userId,
-          full_name: userFullName,
-          signature_data: signature.trim(),
-          user_agent: navigator.userAgent,
-        });
+      // Use secure RPC function that encrypts signature server-side
+      const { error } = await supabase.rpc('sign_hipaa_release', {
+        _family_id: familyId,
+        _full_name: userFullName,
+        _signature: signature.trim(),
+        _user_agent: navigator.userAgent,
+      });
 
       if (error) throw error;
 

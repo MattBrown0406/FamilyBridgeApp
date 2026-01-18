@@ -1097,6 +1097,7 @@ export type Database = {
           ip_address: string | null
           release_version: string
           signature_data: string
+          signature_data_encrypted: string | null
           signed_at: string
           user_agent: string | null
           user_id: string
@@ -1109,6 +1110,7 @@ export type Database = {
           ip_address?: string | null
           release_version?: string
           signature_data: string
+          signature_data_encrypted?: string | null
           signed_at?: string
           user_agent?: string | null
           user_id: string
@@ -1121,6 +1123,7 @@ export type Database = {
           ip_address?: string | null
           release_version?: string
           signature_data?: string
+          signature_data_encrypted?: string | null
           signed_at?: string
           user_agent?: string | null
           user_id?: string
@@ -2359,6 +2362,7 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_hipaa_signature: { Args: { _release_id: string }; Returns: string }
       get_organization_public_theme: {
         Args: { _subdomain: string }
         Returns: {
@@ -2476,6 +2480,15 @@ export type Database = {
       shares_family_with: {
         Args: { _other_user_id: string; _user_id: string }
         Returns: boolean
+      }
+      sign_hipaa_release: {
+        Args: {
+          _family_id: string
+          _full_name: string
+          _signature: string
+          _user_agent?: string
+        }
+        Returns: string
       }
     }
     Enums: {
