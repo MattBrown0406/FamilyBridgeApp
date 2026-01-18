@@ -16,6 +16,46 @@ import { Users, LogOut, Loader2, ArrowRight, Home, Building2, Shield, Plus, Copy
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 import { NotificationBell } from '@/components/NotificationBell';
 import { AdminBreadcrumbs } from '@/components/AdminBreadcrumbs';
+import { FamilyHealthBadge } from '@/components/FamilyHealthBadge';
+
+type HealthStatus = 'crisis' | 'concern' | 'tension' | 'stable' | 'improving';
+
+// Color coding for family cards based on health status
+const getHealthBorderColor = (status: HealthStatus | null): string => {
+  if (!status) return 'border-l-muted';
+  switch (status) {
+    case 'crisis':
+      return 'border-l-red-500';
+    case 'concern':
+      return 'border-l-orange-500';
+    case 'tension':
+      return 'border-l-amber-500';
+    case 'stable':
+      return 'border-l-green-500';
+    case 'improving':
+      return 'border-l-green-400';
+    default:
+      return 'border-l-muted';
+  }
+};
+
+const getHealthBgColor = (status: HealthStatus | null): string => {
+  if (!status) return '';
+  switch (status) {
+    case 'crisis':
+      return 'bg-red-50/50';
+    case 'concern':
+      return 'bg-orange-50/50';
+    case 'tension':
+      return 'bg-amber-50/50';
+    case 'stable':
+      return 'bg-green-50/30';
+    case 'improving':
+      return 'bg-green-50/30';
+    default:
+      return '';
+  }
+};
 
 interface AssignedFamily {
   id: string;
@@ -24,6 +64,7 @@ interface AssignedFamily {
   member_count: number;
   organization_name: string;
   invite_code: string | null;
+  health_status: HealthStatus | null;
 }
 
 interface OrganizationInfo {
@@ -118,15 +159,20 @@ const ModeratorDashboard = () => {
 
       if (familyError) throw familyError;
 
-      // Get member counts and invite codes for each family
+      // Get member counts, invite codes, and health status for each family
       const familiesWithCounts = await Promise.all(
         (familyMembers || []).map(async (fm: any) => {
-          const [countResult, codeResult] = await Promise.all([
+          const [countResult, codeResult, healthResult] = await Promise.all([
             supabase
               .from('family_members')
               .select('*', { count: 'exact', head: true })
               .eq('family_id', fm.family_id),
-            supabase.rpc('get_family_invite_code', { _family_id: fm.family_id })
+            supabase.rpc('get_family_invite_code', { _family_id: fm.family_id }),
+            supabase
+              .from('family_health_status')
+              .select('status')
+              .eq('family_id', fm.family_id)
+              .maybeSingle()
           ]);
 
           return {
@@ -136,9 +182,26 @@ const ModeratorDashboard = () => {
             member_count: countResult.count || 0,
             organization_name: fm.families.organizations?.name || 'Independent',
             invite_code: codeResult.data || null,
+            health_status: (healthResult.data?.status as HealthStatus) || null,
           };
         })
       );
+
+      // Sort families by health status priority: crisis first, then concern, tension, stable, improving
+      const statusPriority: Record<HealthStatus | 'null', number> = {
+        crisis: 0,
+        concern: 1,
+        tension: 2,
+        stable: 3,
+        improving: 4,
+        null: 5,
+      };
+
+      familiesWithCounts.sort((a, b) => {
+        const priorityA = statusPriority[a.health_status || 'null'];
+        const priorityB = statusPriority[b.health_status || 'null'];
+        return priorityA - priorityB;
+      });
 
       setAssignedFamilies(familiesWithCounts);
     } catch (error) {
@@ -363,8 +426,27 @@ const ModeratorDashboard = () => {
                 Your Assigned Family Groups
               </CardTitle>
               <CardDescription>
-                Family groups you are moderating ({assignedFamilies.length} total)
+                Family groups you are moderating ({assignedFamilies.length} total) - sorted by priority
               </CardDescription>
+              {/* Legend */}
+              <div className="flex flex-wrap gap-3 mt-3 text-xs">
+                <div className="flex items-center gap-1.5">
+                  <div className="w-3 h-3 rounded-full bg-red-500" />
+                  <span className="text-muted-foreground">Critical</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-3 h-3 rounded-full bg-orange-500" />
+                  <span className="text-muted-foreground">Concern</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-3 h-3 rounded-full bg-amber-500" />
+                  <span className="text-muted-foreground">Tension</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-3 h-3 rounded-full bg-green-500" />
+                  <span className="text-muted-foreground">Stable</span>
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
               {assignedFamilies.length === 0 ? (
@@ -382,7 +464,7 @@ const ModeratorDashboard = () => {
                   {assignedFamilies.map((family) => (
                     <div
                       key={family.id}
-                      className="flex items-center justify-between p-4 rounded-lg border bg-card hover:shadow-md transition-shadow"
+                      className={`flex items-center justify-between p-4 rounded-lg border border-l-4 ${getHealthBorderColor(family.health_status)} ${getHealthBgColor(family.health_status)} bg-card hover:shadow-md transition-shadow`}
                     >
                       <div 
                         className="flex items-center gap-4 flex-1 cursor-pointer"
@@ -391,8 +473,11 @@ const ModeratorDashboard = () => {
                         <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
                           <Users className="h-6 w-6 text-primary" />
                         </div>
-                        <div>
-                          <h3 className="font-semibold text-foreground">{family.name}</h3>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <h3 className="font-semibold text-foreground">{family.name}</h3>
+                            <FamilyHealthBadge familyId={family.id} />
+                          </div>
                           {family.description && (
                             <p className="text-sm text-muted-foreground line-clamp-1">
                               {family.description}
