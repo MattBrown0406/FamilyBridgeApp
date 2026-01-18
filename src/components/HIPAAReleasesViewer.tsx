@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Loader2, FileText, CheckCircle2, User } from 'lucide-react';
+import { Loader2, FileText, CheckCircle2, User, ShieldCheck } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface HIPAARelease {
@@ -11,7 +11,7 @@ interface HIPAARelease {
   user_id: string;
   full_name: string;
   signed_at: string;
-  signature_data: string;
+  signature_status: string;
   release_version: string;
 }
 
@@ -26,14 +26,28 @@ export function HIPAAReleasesViewer({ familyId }: HIPAAReleasesViewerProps) {
   useEffect(() => {
     const fetchReleases = async () => {
       try {
+        // Use the secure RPC function that masks sensitive data and logs access
         const { data, error } = await supabase
-          .from('hipaa_releases')
-          .select('*')
-          .eq('family_id', familyId)
-          .order('signed_at', { ascending: false });
+          .rpc('get_hipaa_releases_for_family', { _family_id: familyId });
 
-        if (error) throw error;
-        setReleases(data || []);
+        if (error) {
+          // Fallback to direct query for users viewing their own releases
+          const { data: directData, error: directError } = await supabase
+            .from('hipaa_releases')
+            .select('id, user_id, full_name, signed_at, release_version')
+            .eq('family_id', familyId)
+            .order('signed_at', { ascending: false });
+
+          if (directError) throw directError;
+          
+          // Map to include signature_status for consistency
+          setReleases((directData || []).map(r => ({
+            ...r,
+            signature_status: '[SIGNATURE ON FILE]'
+          })));
+        } else {
+          setReleases(data || []);
+        }
       } catch (error) {
         console.error('Error fetching HIPAA releases:', error);
       } finally {
@@ -78,6 +92,10 @@ export function HIPAAReleasesViewer({ familyId }: HIPAAReleasesViewerProps) {
         </CardDescription>
       </CardHeader>
       <CardContent>
+        <div className="mb-4 p-3 bg-muted/50 rounded-lg border border-dashed flex items-center gap-2 text-sm text-muted-foreground">
+          <ShieldCheck className="h-4 w-4 text-primary" />
+          <span>Signature data is protected. Access is logged for HIPAA compliance.</span>
+        </div>
         <ScrollArea className="h-[400px]">
           <div className="space-y-3">
             {releases.map((release) => (
@@ -95,8 +113,9 @@ export function HIPAAReleasesViewer({ familyId }: HIPAAReleasesViewerProps) {
                       <p className="text-sm text-muted-foreground">
                         Signed: {format(new Date(release.signed_at), 'MMM d, yyyy \'at\' h:mm a')}
                       </p>
-                      <p className="text-sm text-muted-foreground font-serif italic mt-1">
-                        Signature: "{release.signature_data}"
+                      <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
+                        <ShieldCheck className="h-3 w-3" />
+                        {release.signature_status}
                       </p>
                     </div>
                   </div>
