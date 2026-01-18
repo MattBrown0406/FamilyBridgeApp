@@ -2406,6 +2406,12 @@ export type Database = {
           venmo_link: string
         }[]
       }
+      get_super_admin_ids: {
+        Args: never
+        Returns: {
+          user_id: string
+        }[]
+      }
       get_user_activation_code_status: {
         Args: never
         Returns: {
