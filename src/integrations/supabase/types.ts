@@ -1079,6 +1079,13 @@ export type Database = {
             referencedRelation: "hipaa_releases"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "hipaa_access_audit_hipaa_release_id_fkey"
+            columns: ["hipaa_release_id"]
+            isOneToOne: false
+            referencedRelation: "hipaa_releases_admin_view"
+            referencedColumns: ["id"]
+          },
         ]
       }
       hipaa_releases: {
@@ -2206,6 +2213,53 @@ export type Database = {
           },
         ]
       }
+      hipaa_releases_admin_view: {
+        Row: {
+          created_at: string | null
+          family_id: string | null
+          full_name: string | null
+          id: string | null
+          ip_address_masked: string | null
+          release_version: string | null
+          signature_status: string | null
+          signed_at: string | null
+          user_agent_status: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          family_id?: string | null
+          full_name?: string | null
+          id?: string | null
+          ip_address_masked?: never
+          release_version?: string | null
+          signature_status?: never
+          signed_at?: string | null
+          user_agent_status?: never
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          family_id?: string | null
+          full_name?: string | null
+          id?: string | null
+          ip_address_masked?: never
+          release_version?: string | null
+          signature_status?: never
+          signed_at?: string | null
+          user_agent_status?: never
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hipaa_releases_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payment_info_masked: {
         Row: {
           cashapp_username: string | null
@@ -2288,6 +2342,19 @@ export type Database = {
         }[]
       }
       get_family_invite_code: { Args: { _family_id: string }; Returns: string }
+      get_hipaa_releases_for_family: {
+        Args: { _family_id: string }
+        Returns: {
+          created_at: string
+          family_id: string
+          full_name: string
+          id: string
+          release_version: string
+          signature_status: string
+          signed_at: string
+          user_id: string
+        }[]
+      }
       get_organization_public_theme: {
         Args: { _subdomain: string }
         Returns: {
