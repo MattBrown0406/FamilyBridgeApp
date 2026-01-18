@@ -84,7 +84,7 @@ const RECOMMENDATION_TYPES = [
   { value: 'iop', label: 'IOP (Intensive Outpatient)', icon: Building, description: 'Structured outpatient treatment program' },
   
   { value: 'meeting_attendance', label: 'Meeting Attendance', icon: Users, description: 'AA, NA, or other recovery meetings' },
-  { value: 'recovery_meetings', label: 'Recovery Meetings', icon: Heart, description: 'Family member support meetings' },
+  
   { value: 'individual_therapy', label: 'Individual Therapy', icon: Stethoscope, description: 'One-on-one therapy for family members' },
   { value: 'couples_therapy', label: 'Couples Therapy', icon: Heart, description: 'Relationship-focused therapy' },
   { value: 'family_therapy', label: 'Family Therapy', icon: Users, description: 'Whole family therapy sessions' },
@@ -364,7 +364,7 @@ export function AftercarePlanTab({ familyId, members, isModerator }: AftercarePl
   };
 
   const getRecTypeInfo = (type: string) => {
-    return RECOMMENDATION_TYPES.find(t => t.value === type) || RECOMMENDATION_TYPES[8];
+    return RECOMMENDATION_TYPES.find(t => t.value === type) || RECOMMENDATION_TYPES[7];
   };
 
   const togglePlanExpanded = (planId: string) => {
