@@ -91,6 +91,47 @@ serve(async (req) => {
       });
     }
 
+    // Get user email for Mailchimp
+    const userEmail = userData.user.email;
+
+    // Add provider admin to Mailchimp provider list
+    const mailchimpApiKey = Deno.env.get("MAILCHIMP_API_KEY");
+    const mailchimpProviderListId = Deno.env.get("MAILCHIMP_PROVIDER_LIST_ID");
+    const mailchimpServerPrefix = Deno.env.get("MAILCHIMP_SERVER_PREFIX");
+    
+    if (mailchimpApiKey && mailchimpProviderListId && mailchimpServerPrefix && userEmail) {
+      try {
+        const mailchimpUrl = `https://${mailchimpServerPrefix}.api.mailchimp.com/3.0/lists/${mailchimpProviderListId}/members`;
+        const mailchimpResponse = await fetch(mailchimpUrl, {
+          method: "POST",
+          headers: {
+            "Authorization": `Basic ${btoa(`anystring:${mailchimpApiKey}`)}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email_address: userEmail,
+            status: "subscribed",
+            tags: ["provider-admin", "owner"],
+            merge_fields: {
+              ORG: org.name,
+              ROLE: "owner",
+            },
+          }),
+        });
+        
+        const mailchimpData = await mailchimpResponse.json();
+        if (mailchimpData.title === "Member Exists") {
+          console.log("Email already subscribed to Mailchimp provider list");
+        } else if (!mailchimpResponse.ok) {
+          console.error("Mailchimp error:", mailchimpData);
+        } else {
+          console.log("Successfully added provider admin to Mailchimp:", userEmail);
+        }
+      } catch (e) {
+        console.error("Failed to add to Mailchimp:", e);
+      }
+    }
+
     return new Response(JSON.stringify({ organization: org }), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
