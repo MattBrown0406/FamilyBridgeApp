@@ -82,7 +82,7 @@ interface AftercarePlanTabProps {
 const RECOMMENDATION_TYPES = [
   { value: 'sober_living', label: 'Sober Living', icon: Home, description: 'Transitional housing with structure and support' },
   { value: 'iop', label: 'IOP (Intensive Outpatient)', icon: Building, description: 'Structured outpatient treatment program' },
-  { value: 'weekly_therapy', label: 'Weekly Therapy', icon: Brain, description: 'Regular individual therapy sessions' },
+  
   { value: 'meeting_attendance', label: 'Meeting Attendance', icon: Users, description: 'AA, NA, or other recovery meetings' },
   { value: 'recovery_meetings', label: 'Recovery Meetings', icon: Heart, description: 'Family member support meetings' },
   { value: 'individual_therapy', label: 'Individual Therapy', icon: Stethoscope, description: 'One-on-one therapy for family members' },
