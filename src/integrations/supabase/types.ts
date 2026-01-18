@@ -2305,6 +2305,10 @@ export type Database = {
         Args: { _family_id: string; _user_id: string }
         Returns: boolean
       }
+      can_manage_aftercare_plans: {
+        Args: { _family_id: string; _user_id: string }
+        Returns: boolean
+      }
       can_manage_family_admins: {
         Args: { _family_id: string; _user_id: string }
         Returns: boolean
@@ -2475,7 +2479,13 @@ export type Database = {
       }
     }
     Enums: {
-      family_role: "member" | "recovering" | "moderator" | "admin"
+      family_role:
+        | "member"
+        | "recovering"
+        | "moderator"
+        | "admin"
+        | "therapist"
+        | "case_manager"
       meeting_type:
         | "AA"
         | "Al-Anon"
@@ -2641,7 +2651,14 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      family_role: ["member", "recovering", "moderator", "admin"],
+      family_role: [
+        "member",
+        "recovering",
+        "moderator",
+        "admin",
+        "therapist",
+        "case_manager",
+      ],
       meeting_type: [
         "AA",
         "Al-Anon",
