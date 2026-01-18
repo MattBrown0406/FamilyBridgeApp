@@ -272,6 +272,43 @@ Deno.serve(async (req) => {
 
     console.log("Activation code generated:", inviteCode);
 
+    // Add family subscriber to Mailchimp premium waitlist
+    const mailchimpApiKey = Deno.env.get("MAILCHIMP_API_KEY");
+    const mailchimpListId = Deno.env.get("MAILCHIMP_LIST_ID");
+    const mailchimpServerPrefix = Deno.env.get("MAILCHIMP_SERVER_PREFIX");
+    
+    if (mailchimpApiKey && mailchimpListId && mailchimpServerPrefix) {
+      try {
+        const mailchimpUrl = `https://${mailchimpServerPrefix}.api.mailchimp.com/3.0/lists/${mailchimpListId}/members`;
+        const mailchimpResponse = await fetch(mailchimpUrl, {
+          method: "POST",
+          headers: {
+            "Authorization": `Basic ${btoa(`anystring:${mailchimpApiKey}`)}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email_address: email,
+            status: "subscribed",
+            tags: ["family-subscriber", "app-store"],
+            merge_fields: {
+              SUBTYPE: "family",
+            },
+          }),
+        });
+        
+        const mailchimpData = await mailchimpResponse.json();
+        if (mailchimpData.title === "Member Exists") {
+          console.log("Email already subscribed to Mailchimp");
+        } else if (!mailchimpResponse.ok) {
+          console.error("Mailchimp error:", mailchimpData);
+        } else {
+          console.log("Successfully added to Mailchimp:", email);
+        }
+      } catch (e) {
+        console.error("Failed to add to Mailchimp:", e);
+      }
+    }
+
     return new Response(
       JSON.stringify({
         success: true,
