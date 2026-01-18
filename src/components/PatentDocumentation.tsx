@@ -435,24 +435,101 @@ const defaultDisclosure: InventionDisclosure = {
 4. PRIVACY-PRESERVING FAMILY DYNAMICS: The architecture supports complex family role hierarchies (recovering individual, support family members, professional moderators) with granular access controls while enabling collective insight generation.
 
 5. REAL-TIME INTERVENTION SUPPORT: The system provides immediate analysis upon observation submission, enabling families to respond to concerning patterns before they escalate to crisis.`,
-  competingProducts: `EXISTING RECOVERY/SOBRIETY APPS:
-- Sober Grid, I Am Sober, Nomo: Focus solely on the recovering individual; no family involvement features
-- Soberlink: Alcohol monitoring device with family alerts, but no behavioral pattern analysis or AI insights
-- In The Rooms: Recovery community platform; no family-specific features or pattern analysis
+  competingProducts: `COMPETITIVE LANDSCAPE ANALYSIS (with AI capabilities noted):
 
-FAMILY MONITORING APPS:
-- Life360, Find My Friends: Location tracking only; no behavioral pattern analysis
-- Family Link, Bark: Parental controls and content monitoring for children; not designed for adult family dynamics
+══════════════════════════════════════════════════════════════
+RECOVERY/SOBRIETY APPS
+══════════════════════════════════════════════════════════════
 
-MENTAL HEALTH PLATFORMS:
-- BetterHelp, Talkspace: Therapy platforms; no family behavior tracking or AI-driven pattern analysis
-- Daylio, Moodpath: Personal mood tracking; no family integration or intervention support
+• I Am Sober
+  - AI Features: Yes - "Analyze Triggers" system identifies behavioral patterns
+  - Limitation: Individual-focused only; no family involvement or collective insights
+  - Gap: Cannot aggregate family observations or provide intervention support
 
-HEALTHCARE MONITORING:
-- Care.com, Caring Village: Caregiver coordination; no AI-driven behavioral analysis
-- PatientsLikeMe: Health tracking communities; no family intervention focus
+• Sober Grid
+  - AI Features: No - Geo-social networking with manual "Burning Desire" button
+  - Limitation: Peer support focused; no behavioral analysis
+  - Gap: No pattern detection, no family integration
 
-KEY DIFFERENTIATION: No existing product combines multi-source family behavioral data aggregation with AI-powered pattern analysis specifically designed for addiction recovery intervention support.`,
+• Nomo
+  - AI Features: No - Manual sobriety clocks and milestone tracking
+  - Limitation: Simple tracking tool
+  - Gap: No AI analysis, no family features
+
+• Soberlink
+  - AI Features: Limited - Facial recognition for identity verification only
+  - Limitation: Hardware breathalyzer focused; alerts but no behavioral insights
+  - Gap: No pattern analysis, no comprehensive family behavioral data
+
+• In The Rooms
+  - AI Features: No - Video conferencing and community hub
+  - Limitation: Meeting platform only
+  - Gap: No behavioral tracking or AI insights
+
+══════════════════════════════════════════════════════════════
+FAMILY MONITORING APPS
+══════════════════════════════════════════════════════════════
+
+• Bark (CLOSEST COMPETITOR for AI pattern detection)
+  - AI Features: Yes - Scans text, photos, videos for concerning patterns (bullying, depression, self-harm)
+  - Limitation: Designed for youth/child safety monitoring, not adult family dynamics
+  - Gap: Not designed for addiction recovery; no meeting tracking, financial patterns, or intervention-specific insights
+
+• Life360
+  - AI Features: Yes - Predictive analytics for "Smart Notifications" and crash detection
+  - Limitation: Location and driving safety focused
+  - Gap: No behavioral health analysis, no addiction recovery features
+
+• Find My Friends / Family Link
+  - AI Features: No - Basic location sharing and parental controls
+  - Limitation: Child-focused controls
+  - Gap: No behavioral pattern analysis
+
+══════════════════════════════════════════════════════════════
+MENTAL HEALTH PLATFORMS
+══════════════════════════════════════════════════════════════
+
+• BetterHelp / Talkspace
+  - AI Features: Yes - Provider matching algorithms and administrative AI; recent clinical personalization tools
+  - Limitation: Therapist-patient platform
+  - Gap: No family behavioral tracking, no real-time pattern analysis between sessions
+
+• MindDoc (formerly Moodpath)
+  - AI Features: Yes - Adaptive algorithms provide psychological insights from daily check-ins
+  - Limitation: Individual mental health tracking
+  - Gap: No family integration, no addiction-specific analysis
+
+• Daylio
+  - AI Features: Limited - Statistics and correlations from manual input
+  - Limitation: Manual mood/activity tracker
+  - Gap: No predictive AI, no family features
+
+══════════════════════════════════════════════════════════════
+HEALTHCARE COORDINATION
+══════════════════════════════════════════════════════════════
+
+• Care.com / Caring Village
+  - AI Features: No - Caregiver coordination and scheduling
+  - Limitation: Logistics focused
+  - Gap: No behavioral analysis
+
+• PatientsLikeMe
+  - AI Features: Limited - Data aggregation for research
+  - Limitation: Health community platform
+  - Gap: No family intervention focus
+
+══════════════════════════════════════════════════════════════
+KEY DIFFERENTIATION SUMMARY
+══════════════════════════════════════════════════════════════
+
+No existing product combines ALL of:
+1. Multi-source family behavioral data (meetings, messages, finances, location, observations)
+2. Addiction-recovery-specific AI pattern analysis
+3. Family intervention insight generation (signals, framing, questions, watch items)
+4. Real-time family notification orchestration
+5. Complex family role hierarchies with privacy-preserving architecture
+
+Bark comes closest in AI pattern detection but targets child safety, not adult addiction recovery with family involvement. I Am Sober has trigger analysis but lacks family integration entirely.`,
   academicPapers: `RELEVANT ACADEMIC RESEARCH:
 
 1. Family-Based Intervention Research:
