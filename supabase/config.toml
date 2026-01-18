@@ -95,3 +95,6 @@ verify_jwt = false
 
 [functions.check-escalations]
 verify_jwt = false
+
+[functions.finalize-family-purchase]
+verify_jwt = false
