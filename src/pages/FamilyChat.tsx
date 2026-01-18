@@ -19,7 +19,7 @@ import {
   ExternalLink, CreditCard, CheckCircle2, Paperclip, Image, HandCoins, Trash2, Pencil,
   Target, ShieldCheck, Plus, CheckCircle, MessageSquare, FlaskConical, ChevronDown, Sparkles,
   Brain, Search, Calendar, ChevronLeft, ChevronRight, Archive, Heart, Clock, TrendingUp, Camera, Upload,
-  Flame, ClipboardList
+  Flame, ClipboardList, Stethoscope, Copy
 } from 'lucide-react';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -384,7 +384,8 @@ const FamilyChat = () => {
   const [cooldownEndTime, setCooldownEndTime] = useState<number | null>(null);
   const [cooldownRemaining, setCooldownRemaining] = useState(0);
   const [membersSheetOpen, setMembersSheetOpen] = useState(false);
-  
+  const [familyInviteCode, setFamilyInviteCode] = useState<string | null>(null);
+  const [copiedInviteCode, setCopiedInviteCode] = useState(false);
   // Weekly archive state - week starts Sunday at midnight
   const [selectedWeekStart, setSelectedWeekStart] = useState<Date>(() => 
     startOfWeek(new Date(), { weekStartsOn: 0 }) // 0 = Sunday
@@ -983,7 +984,14 @@ const FamilyChat = () => {
       const currentMember = formattedMembers.find((m) => m.user_id === user?.id);
       if (currentMember) {
         setCurrentUserRole(currentMember.role);
-        setIsAdminOrModerator(currentMember.role === 'admin' || currentMember.role === 'moderator');
+        const hasModeratorAccess = currentMember.role === 'admin' || currentMember.role === 'moderator';
+        setIsAdminOrModerator(hasModeratorAccess);
+        
+        // Fetch invite code for admins/moderators
+        if (hasModeratorAccess && familyId) {
+          const { data: inviteCode } = await supabase.rpc('get_family_invite_code', { _family_id: familyId });
+          setFamilyInviteCode(inviteCode);
+        }
       }
       
       // Check if user is the family creator
@@ -4546,6 +4554,58 @@ const FamilyChat = () => {
               </div>
             )}
 
+            {/* Invite Professional Section - For moderators and admins */}
+            {isAdminOrModerator && familyInviteCode && (
+              <div className="space-y-3">
+                <h3 className="font-medium text-foreground flex items-center gap-2">
+                  <Stethoscope className="h-4 w-4 text-primary" />
+                  Invite Professionals
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  Add therapists, case managers, or treatment center staff to support the family during treatment and aftercare planning.
+                </p>
+                <div className="bg-secondary/50 rounded-lg p-3 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs text-muted-foreground">Invite Code</p>
+                      <code className="text-sm font-mono bg-background px-2 py-1 rounded inline-block">
+                        {familyInviteCode}
+                      </code>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        navigator.clipboard.writeText(familyInviteCode);
+                        setCopiedInviteCode(true);
+                        setTimeout(() => setCopiedInviteCode(false), 2000);
+                        toast({
+                          title: 'Copied!',
+                          description: 'Invite code copied to clipboard.',
+                        });
+                      }}
+                      className="gap-1"
+                    >
+                      {copiedInviteCode ? (
+                        <>
+                          <Check className="h-4 w-4" />
+                          Copied
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="h-4 w-4" />
+                          Copy
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Share this code with therapists or case managers. After joining, you can assign them the appropriate role.
+                  </p>
+                </div>
+              </div>
+            )}
+
             {/* Family Members List */}
             <div className="space-y-3">
               <h3 className="font-medium text-foreground">Family Members</h3>
@@ -4630,12 +4690,24 @@ const FamilyChat = () => {
                               variant={
                                 member.role === 'moderator' || member.role === 'admin'
                                   ? 'default'
+                                  : member.role === 'therapist' || member.role === 'case_manager'
+                                  ? 'default'
                                   : member.role === 'recovering'
                                   ? 'outline'
                                   : 'secondary'
                               }
+                              className={
+                                member.role === 'therapist' 
+                                  ? 'bg-purple-100 text-purple-700 border-purple-200 hover:bg-purple-200'
+                                  : member.role === 'case_manager'
+                                  ? 'bg-teal-100 text-teal-700 border-teal-200 hover:bg-teal-200'
+                                  : ''
+                              }
                             >
-                              {member.role === 'admin' ? 'Admin' : member.role}
+                              {member.role === 'admin' ? 'Admin' : 
+                               member.role === 'therapist' ? 'Therapist' : 
+                               member.role === 'case_manager' ? 'Case Manager' : 
+                               member.role}
                             </Badge>
                           </div>
                         </div>
@@ -4709,8 +4781,8 @@ const FamilyChat = () => {
               />
             </div>
             
-            {/* Role selector - only for family creator */}
-            {isFamilyCreator && editingMember && editingMember.role !== 'moderator' && (
+            {/* Role selector - for family creator or moderators */}
+            {(isFamilyCreator || isAdminOrModerator) && editingMember && editingMember.role !== 'moderator' && (
               <div className="space-y-2">
                 <Label htmlFor="editRole">Member Role</Label>
                 <Select value={editRole} onValueChange={setEditRole}>
@@ -4720,11 +4792,15 @@ const FamilyChat = () => {
                   <SelectContent>
                     <SelectItem value="member">Member</SelectItem>
                     <SelectItem value="recovering">Recovering</SelectItem>
-                    <SelectItem value="admin">Admin</SelectItem>
+                    {isFamilyCreator && <SelectItem value="admin">Admin</SelectItem>}
+                    <SelectItem value="therapist">Therapist</SelectItem>
+                    <SelectItem value="case_manager">Case Manager</SelectItem>
                   </SelectContent>
                 </Select>
                 <p className="text-xs text-muted-foreground">
-                  Admins can approve boundaries, manage values & goals, and help moderate the family.
+                  {editRole === 'therapist' || editRole === 'case_manager' 
+                    ? 'Therapists and Case Managers can view family communications and participate in aftercare planning.'
+                    : 'Admins can approve boundaries, manage values & goals, and help moderate the family.'}
                 </p>
               </div>
             )}
