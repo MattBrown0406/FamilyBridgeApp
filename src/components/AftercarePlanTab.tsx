@@ -88,6 +88,7 @@ const RECOMMENDATION_TYPES = [
   { value: 'individual_therapy', label: 'Individual Therapy', icon: Stethoscope, description: 'One-on-one therapy for family members' },
   { value: 'couples_therapy', label: 'Couples Therapy', icon: Heart, description: 'Relationship-focused therapy' },
   { value: 'family_therapy', label: 'Family Therapy', icon: Users, description: 'Whole family therapy sessions' },
+  { value: 'medication_compliance', label: 'Medication Compliance', icon: Stethoscope, description: 'Adherence to prescribed medication regimen' },
   { value: 'other', label: 'Other', icon: Calendar, description: 'Custom recommendation' },
 ] as const;
 
