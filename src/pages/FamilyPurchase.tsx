@@ -30,6 +30,7 @@ const FamilyPurchase = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
   const [isValidatingInvite, setIsValidatingInvite] = useState(false);
+  const [isFinalizing, setIsFinalizing] = useState(false);
   const [generatedCode, setGeneratedCode] = useState<string | null>(null);
   const [reactivatingFamily, setReactivatingFamily] = useState<{ id: string; name: string } | null>(null);
   const [isReactivating, setIsReactivating] = useState(false);
@@ -56,6 +57,49 @@ const FamilyPurchase = () => {
       handleReactivateFamily();
     }
   }, [status, reactivateFamilyId, user]);
+
+  // After returning from Square checkout, finalize purchase and generate the invite code.
+  useEffect(() => {
+    const finalize = async () => {
+      if (status !== 'success') return;
+      if (reactivateFamilyId) return; // reactivation has its own flow
+      if (generatedCode) return;
+      if (isNative) return; // App store flow already provides code
+
+      const orderId = localStorage.getItem('familybridge_family_checkout_order_id');
+      const purchaseEmail = localStorage.getItem('familybridge_family_checkout_email') || email;
+
+      if (!orderId) {
+        // If we don't have an order id, we can't verify payment. Show a clear message.
+        toast.error('We could not confirm your payment automatically. Please contact support.');
+        return;
+      }
+
+      setIsFinalizing(true);
+      try {
+        const { data, error } = await supabase.functions.invoke('finalize-family-purchase', {
+          body: { orderId, email: purchaseEmail },
+        });
+
+        if (error) throw error;
+
+        if (data?.success && data?.inviteCode) {
+          setGeneratedCode(data.inviteCode);
+          toast.success('Invite code created!');
+        } else {
+          toast.error(data?.error || 'Unable to generate invite code yet. Please try again in a minute.');
+        }
+      } catch (e) {
+        console.error('Finalize family purchase error:', e);
+        toast.error('Unable to confirm payment and generate code. Please contact support.');
+      } finally {
+        setIsFinalizing(false);
+      }
+    };
+
+    finalize();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status, reactivateFamilyId, generatedCode, isNative]);
 
   const handleReactivateFamily = async () => {
     if (!reactivateFamilyId || !user) return;
@@ -120,6 +164,12 @@ const FamilyPurchase = () => {
       if (error) throw error;
 
       if (data.checkoutUrl) {
+        // Save order id so we can verify payment & generate invite code after redirect
+        if (data.orderId) {
+          localStorage.setItem('familybridge_family_checkout_order_id', data.orderId);
+        }
+        localStorage.setItem('familybridge_family_checkout_email', email);
+
         window.location.href = data.checkoutUrl;
       } else {
         throw new Error("Failed to create checkout session");
@@ -387,20 +437,20 @@ const FamilyPurchase = () => {
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <Card className="max-w-md w-full">
           <CardHeader className="text-center">
-            <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
-              <Check className="w-8 h-8 text-green-600" />
+            <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+              <Loader2 className="w-8 h-8 text-primary animate-spin" />
             </div>
-            <CardTitle className="text-2xl">Payment Successful!</CardTitle>
+            <CardTitle className="text-2xl">Finalizing your purchase…</CardTitle>
             <CardDescription>
-              Your invite code has been generated and sent to your email.
+              We’re confirming your payment and generating your invite code.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm text-muted-foreground text-center">
-              Check your email for your invite code, then use it to set up your family group.
+              This usually takes a few seconds. If it doesn’t finish, please try refreshing.
             </p>
-            <Button onClick={() => navigate("/family-setup")} className="w-full">
-              Go to Family Setup
+            <Button onClick={() => window.location.reload()} className="w-full" disabled={isFinalizing}>
+              Refresh
             </Button>
           </CardContent>
         </Card>
