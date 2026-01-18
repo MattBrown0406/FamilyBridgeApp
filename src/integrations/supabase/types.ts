@@ -2523,6 +2523,7 @@ export type Database = {
         | "cousin"
         | "friend"
         | "other"
+        | "interventionist"
       request_status: "pending" | "approved" | "denied"
     }
     CompositeTypes: {
@@ -2697,6 +2698,7 @@ export const Constants = {
         "cousin",
         "friend",
         "other",
+        "interventionist",
       ],
       request_status: ["pending", "approved", "denied"],
     },
