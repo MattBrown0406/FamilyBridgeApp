@@ -422,8 +422,8 @@ const defaultDisclosure: InventionDisclosure = {
       email: 'patent@familybridge.app' 
     }
   ],
-  dateOfConception: '2024-01-15',
-  dateFirstDisclosed: '2024-06-01',
+  dateOfConception: '2025-11-01',
+  dateFirstDisclosed: '2025-12-27',
   priorArtNotes: `The FIIS (Family Intervention Intelligence System) represents a novel approach that differs from prior art in several key ways:
 
 1. MULTI-SOURCE DATA INTEGRATION: Unlike existing solutions that focus on single data sources (e.g., only messaging or only location tracking), FIIS uniquely aggregates data from multiple behavioral vectors including meeting attendance verification, geographic check-ins with liquor license proximity detection, financial request patterns, message sentiment analysis, and family member observations.
