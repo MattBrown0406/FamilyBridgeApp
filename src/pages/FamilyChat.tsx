@@ -2826,6 +2826,7 @@ const FamilyChat = () => {
                 familyId={familyId!}
                 userRole={currentUserRole}
                 isProfessionalModerator={isCurrentUserProfessionalModerator}
+                excludeUserIds={professionalModeratorIds}
               />
               
               {/* Meeting Finder - Collapsible */}
@@ -2911,7 +2912,8 @@ const FamilyChat = () => {
           {/* Financial Tab */}
           <TabsContent value="financial" className="flex-1 overflow-auto mt-0">
             <div className="space-y-4">
-              {/* Create Request - Enhanced */}
+              {/* Create Request - Enhanced (hidden from professional moderators) */}
+              {!isCurrentUserProfessionalModerator && (
               <Card className="card-interactive overflow-hidden border-0 shadow-lg group">
                 <div className="h-1.5 bg-gradient-to-r from-success via-primary to-accent" />
                 <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-success/10 to-transparent rounded-full -translate-y-1/2 translate-x-1/2 pointer-events-none" />
@@ -3024,6 +3026,7 @@ const FamilyChat = () => {
                   </form>
                 </CardContent>
               </Card>
+              )}
 
               {/* Financial Summary - Lifetime Totals */}
               <div className="grid grid-cols-2 gap-3">
@@ -3306,8 +3309,8 @@ const FamilyChat = () => {
                               )}
                             </div>
 
-                            {/* Voting buttons for pending requests */}
-                            {req.status === 'pending' && !isRequester && !hasVoted && (
+                            {/* Voting buttons for pending requests (hidden from professional moderators) */}
+                            {req.status === 'pending' && !isRequester && !hasVoted && !isCurrentUserProfessionalModerator && (
                               <div className="flex gap-2">
                                 <Button
                                   size="sm"
@@ -3329,7 +3332,7 @@ const FamilyChat = () => {
                                 </Button>
                               </div>
                             )}
-                            {hasVoted && req.status === 'pending' && (
+                            {hasVoted && req.status === 'pending' && !isCurrentUserProfessionalModerator && (
                               <p className="text-[10px] text-muted-foreground">You've voted</p>
                             )}
 
@@ -3365,8 +3368,8 @@ const FamilyChat = () => {
                                   </div>
                                 )}
 
-                                {/* Add pledge form (for non-requesters) */}
-                                {!isRequester && (
+                                {/* Add pledge form (for non-requesters, excluding professional moderators) */}
+                                {!isRequester && !isCurrentUserProfessionalModerator && (
                                   <div className="space-y-1">
                                     <p className="text-xs font-medium text-foreground">Pledge:</p>
                                     <div className="flex gap-1">
@@ -3414,8 +3417,8 @@ const FamilyChat = () => {
                             {/* Payment section for approved requests */}
                             {isApproved && !isConfirmed && (
                               <div className="border-t border-border pt-2 mt-2">
-                                {/* If not paid yet - show payment options to non-requesters */}
-                                {!isPaid && !isRequester && (
+                                {/* If not paid yet - show payment options to non-requesters (excluding professional moderators) */}
+                                {!isPaid && !isRequester && !isCurrentUserProfessionalModerator && (
                                   <div className="space-y-1">
                                     <Dialog>
                                       <DialogTrigger asChild>
