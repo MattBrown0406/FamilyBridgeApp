@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import mermaid from 'mermaid';
 
 interface MermaidDiagramProps {
@@ -54,37 +54,71 @@ mermaid.initialize({
 export const MermaidDiagram = ({ chart, className = '' }: MermaidDiagramProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [error, setError] = useState<string | null>(null);
-  const [isRendered, setIsRendered] = useState(false);
+  const [svgContent, setSvgContent] = useState<string | null>(null);
+  const [isRendering, setIsRendering] = useState(true);
+
+  // Cleanup function to safely remove any DOM nodes Mermaid may have created
+  const cleanupMermaidNodes = useCallback(() => {
+    // Mermaid creates temporary elements in the document body with specific IDs
+    // Clean them up to prevent memory leaks and DOM conflicts
+    const tempElements = document.querySelectorAll('[id^="dmermaid-"], [id^="mermaid-"]');
+    tempElements.forEach(el => {
+      // Only remove if it's a direct child of body (temp render elements)
+      if (el.parentElement === document.body) {
+        try {
+          el.remove();
+        } catch (e) {
+          // Ignore cleanup errors
+        }
+      }
+    });
+  }, []);
 
   useEffect(() => {
+    let isMounted = true;
+
     const renderDiagram = async () => {
-      if (!containerRef.current) return;
+      if (!chart) return;
 
       try {
         setError(null);
-        setIsRendered(false);
-        
-        // Clear previous content
-        containerRef.current.innerHTML = '';
+        setIsRendering(true);
         
         // Generate unique ID for each render
         const id = `mermaid-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
         
-        // Render the diagram
+        // Render the diagram - this returns SVG as a string
         const { svg } = await mermaid.render(id, chart);
         
-        if (containerRef.current) {
-          containerRef.current.innerHTML = svg;
-          setIsRendered(true);
+        // Only update state if component is still mounted
+        if (isMounted) {
+          setSvgContent(svg);
+          setIsRendering(false);
         }
       } catch (err) {
         console.error('Mermaid rendering error:', err);
-        setError(err instanceof Error ? err.message : 'Failed to render diagram');
+        if (isMounted) {
+          setError(err instanceof Error ? err.message : 'Failed to render diagram');
+          setIsRendering(false);
+        }
       }
     };
 
     renderDiagram();
-  }, [chart]);
+
+    // Cleanup function
+    return () => {
+      isMounted = false;
+      cleanupMermaidNodes();
+    };
+  }, [chart, cleanupMermaidNodes]);
+
+  // Additional cleanup on unmount
+  useEffect(() => {
+    return () => {
+      cleanupMermaidNodes();
+    };
+  }, [cleanupMermaidNodes]);
 
   if (error) {
     return (
@@ -102,11 +136,14 @@ export const MermaidDiagram = ({ chart, className = '' }: MermaidDiagramProps) =
   return (
     <div 
       ref={containerRef} 
-      className={`mermaid-diagram overflow-x-auto ${className} ${!isRendered ? 'min-h-[100px] flex items-center justify-center' : ''}`}
+      className={`mermaid-diagram overflow-x-auto ${className} ${isRendering ? 'min-h-[100px] flex items-center justify-center' : ''}`}
     >
-      {!isRendered && (
+      {isRendering ? (
         <div className="text-sm text-muted-foreground animate-pulse">Loading diagram...</div>
-      )}
+      ) : svgContent ? (
+        // Use dangerouslySetInnerHTML with React's control instead of direct DOM manipulation
+        <div dangerouslySetInnerHTML={{ __html: svgContent }} />
+      ) : null}
     </div>
   );
 };
