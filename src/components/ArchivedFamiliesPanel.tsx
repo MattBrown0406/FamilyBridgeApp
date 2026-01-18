@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { fetchProfilesByIds } from '@/lib/profileApi';
 import { useFamilyArchive } from '@/hooks/useFamilyArchive';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Archive, RotateCcw, Users, Building2, Calendar, Loader2, Bell } from 'lucide-react';
 import { format } from 'date-fns';
@@ -64,10 +64,7 @@ export const ArchivedFamiliesPanel = ({ organizationId, onReactivate }: Archived
       let archiverProfiles: Record<string, string> = {};
 
       if (archiverIds.length > 0) {
-        const { data: profiles } = await supabase
-          .from('profiles')
-          .select('id, full_name')
-          .in('id', archiverIds);
+        const profiles = await fetchProfilesByIds(archiverIds);
 
         archiverProfiles = (profiles || []).reduce((acc, p) => {
           acc[p.id] = p.full_name;

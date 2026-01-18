@@ -11,12 +11,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { 
-  Building2, 
-  Palette, 
-  Users, 
-  BarChart3, 
-  Settings, 
+import { fetchProfilesByIds } from '@/lib/profileApi';
+import {
+  Building2,
+  Palette,
+  Users,
+  BarChart3,
+  Settings,
   Upload,
   ArrowLeft,
   Plus,
@@ -33,7 +34,7 @@ import {
   UsersRound,
   Pencil,
   Trash2,
-  Archive
+  Archive,
 } from 'lucide-react';
 import { ArchivedFamiliesPanel } from '@/components/ArchivedFamiliesPanel';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
@@ -350,16 +351,15 @@ const ProviderAdmin = () => {
 
       if (membersError) throw membersError;
 
-      // Then fetch profiles for those members
+      // Then fetch profiles for those members via rate-limited backend function
       if (members && members.length > 0) {
         const userIds = members.map(m => m.user_id);
-        const { data: profiles, error: profilesError } = await supabase
-          .from('profiles')
-          .select('id, full_name, avatar_url')
-          .in('id', userIds);
+        let profiles: Array<{ id: string; full_name: string; avatar_url?: string | null }> = [];
 
-        if (profilesError) {
-          console.error('Error fetching profiles:', profilesError);
+        try {
+          profiles = await fetchProfilesByIds(userIds);
+        } catch (err) {
+          console.error('Error fetching profiles:', err);
         }
 
         // Combine members with their profiles

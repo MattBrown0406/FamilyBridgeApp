@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { fetchProfilesByIds } from '@/lib/profileApi';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -98,14 +98,9 @@ export const LocationCheckinRequest = ({ familyId, userRole, isProfessionalModer
         return;
       }
 
-      // Then fetch their profiles separately
+      // Then fetch their profiles separately (rate-limited backend function)
       const userIds = membersData.map(m => m.user_id);
-      const { data: profilesData, error: profilesError } = await supabase
-        .from('profiles')
-        .select('id, full_name')
-        .in('id', userIds);
-
-      if (profilesError) throw profilesError;
+      const profilesData = await fetchProfilesByIds(userIds);
 
       const profileMap = new Map(profilesData?.map(p => [p.id, p.full_name]) || []);
       
