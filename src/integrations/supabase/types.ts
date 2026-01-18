@@ -2233,7 +2233,7 @@ export type Database = {
           release_version: string | null
           signature_status: string | null
           signed_at: string | null
-          user_agent_status: string | null
+          user_agent: string | null
           user_id: string | null
         }
         Insert: {
@@ -2245,7 +2245,7 @@ export type Database = {
           release_version?: string | null
           signature_status?: never
           signed_at?: string | null
-          user_agent_status?: never
+          user_agent?: never
           user_id?: string | null
         }
         Update: {
@@ -2257,7 +2257,7 @@ export type Database = {
           release_version?: string | null
           signature_status?: never
           signed_at?: string | null
-          user_agent_status?: never
+          user_agent?: never
           user_id?: string | null
         }
         Relationships: [
@@ -2414,10 +2414,12 @@ export type Database = {
       get_my_hipaa_release: {
         Args: { _family_id: string }
         Returns: {
+          created_at: string
           family_id: string
+          full_name: string
           id: string
+          is_signed: boolean
           release_version: string
-          signature_status: string
           signed_at: string
         }[]
       }
