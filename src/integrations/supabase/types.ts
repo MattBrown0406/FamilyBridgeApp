@@ -1086,6 +1086,13 @@ export type Database = {
             referencedRelation: "hipaa_releases_admin_view"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "hipaa_access_audit_hipaa_release_id_fkey"
+            columns: ["hipaa_release_id"]
+            isOneToOne: false
+            referencedRelation: "hipaa_releases_user_view"
+            referencedColumns: ["id"]
+          },
         ]
       }
       hipaa_releases: {
@@ -2263,6 +2270,47 @@ export type Database = {
           },
         ]
       }
+      hipaa_releases_user_view: {
+        Row: {
+          created_at: string | null
+          family_id: string | null
+          full_name: string | null
+          id: string | null
+          release_version: string | null
+          signature_status: string | null
+          signed_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          family_id?: string | null
+          full_name?: string | null
+          id?: string | null
+          release_version?: string | null
+          signature_status?: never
+          signed_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          family_id?: string | null
+          full_name?: string | null
+          id?: string | null
+          release_version?: string | null
+          signature_status?: never
+          signed_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hipaa_releases_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payment_info_masked: {
         Row: {
           cashapp_username: string | null
@@ -2363,6 +2411,16 @@ export type Database = {
         }[]
       }
       get_hipaa_signature: { Args: { _release_id: string }; Returns: string }
+      get_my_hipaa_release: {
+        Args: { _family_id: string }
+        Returns: {
+          family_id: string
+          id: string
+          release_version: string
+          signature_status: string
+          signed_at: string
+        }[]
+      }
       get_organization_public_theme: {
         Args: { _subdomain: string }
         Returns: {
