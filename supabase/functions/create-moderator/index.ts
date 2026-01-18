@@ -144,6 +144,45 @@ serve(async (req) => {
 
     console.log(`Successfully created moderator ${email} for organization ${organizationId}`);
 
+    // Add moderator to Mailchimp provider list
+    const mailchimpApiKey = Deno.env.get("MAILCHIMP_API_KEY");
+    const mailchimpProviderListId = Deno.env.get("MAILCHIMP_PROVIDER_LIST_ID");
+    const mailchimpServerPrefix = Deno.env.get("MAILCHIMP_SERVER_PREFIX");
+    
+    if (mailchimpApiKey && mailchimpProviderListId && mailchimpServerPrefix) {
+      try {
+        const mailchimpUrl = `https://${mailchimpServerPrefix}.api.mailchimp.com/3.0/lists/${mailchimpProviderListId}/members`;
+        const mailchimpResponse = await fetch(mailchimpUrl, {
+          method: "POST",
+          headers: {
+            "Authorization": `Basic ${btoa(`anystring:${mailchimpApiKey}`)}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email_address: email,
+            status: "subscribed",
+            tags: ["moderator", role],
+            merge_fields: {
+              FNAME: fullName.split(' ')[0] || '',
+              LNAME: fullName.split(' ').slice(1).join(' ') || '',
+              ROLE: role,
+            },
+          }),
+        });
+        
+        const mailchimpData = await mailchimpResponse.json();
+        if (mailchimpData.title === "Member Exists") {
+          console.log("Email already subscribed to Mailchimp provider list");
+        } else if (!mailchimpResponse.ok) {
+          console.error("Mailchimp error:", mailchimpData);
+        } else {
+          console.log("Successfully added moderator to Mailchimp:", email);
+        }
+      } catch (e) {
+        console.error("Failed to add to Mailchimp:", e);
+      }
+    }
+
     return new Response(
       JSON.stringify({
         success: true,
