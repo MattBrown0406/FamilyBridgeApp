@@ -49,9 +49,10 @@ interface LocationCheckinRequestProps {
   familyId: string;
   userRole: string;
   isProfessionalModerator?: boolean;
+  excludeUserIds?: string[];
 }
 
-export const LocationCheckinRequest = ({ familyId, userRole, isProfessionalModerator = false }: LocationCheckinRequestProps) => {
+export const LocationCheckinRequest = ({ familyId, userRole, isProfessionalModerator = false, excludeUserIds = [] }: LocationCheckinRequestProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -108,10 +109,13 @@ export const LocationCheckinRequest = ({ familyId, userRole, isProfessionalModer
 
       const profileMap = new Map(profilesData?.map(p => [p.id, p.full_name]) || []);
       
-      const members = membersData.map((m) => ({
-        user_id: m.user_id,
-        full_name: profileMap.get(m.user_id) || 'Unknown',
-      }));
+      // Filter out excluded users (professional moderators)
+      const members = membersData
+        .filter((m) => !excludeUserIds.includes(m.user_id))
+        .map((m) => ({
+          user_id: m.user_id,
+          full_name: profileMap.get(m.user_id) || 'Unknown',
+        }));
 
       setRecoveringMembers(members);
     } catch (error) {
