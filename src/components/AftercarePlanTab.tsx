@@ -84,7 +84,7 @@ const RECOMMENDATION_TYPES = [
   { value: 'iop', label: 'IOP (Intensive Outpatient)', icon: Building, description: 'Structured outpatient treatment program' },
   { value: 'weekly_therapy', label: 'Weekly Therapy', icon: Brain, description: 'Regular individual therapy sessions' },
   { value: 'meeting_attendance', label: 'Meeting Attendance', icon: Users, description: 'AA, NA, or other recovery meetings' },
-  { value: 'alanon_meetings', label: 'Al-Anon Meetings', icon: Heart, description: 'Family member support meetings' },
+  { value: 'recovery_meetings', label: 'Recovery Meetings', icon: Heart, description: 'Family member support meetings' },
   { value: 'individual_therapy', label: 'Individual Therapy', icon: Stethoscope, description: 'One-on-one therapy for family members' },
   { value: 'couples_therapy', label: 'Couples Therapy', icon: Heart, description: 'Relationship-focused therapy' },
   { value: 'family_therapy', label: 'Family Therapy', icon: Users, description: 'Whole family therapy sessions' },
