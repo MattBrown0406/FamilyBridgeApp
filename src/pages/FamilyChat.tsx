@@ -2714,7 +2714,7 @@ const FamilyChat = () => {
                     <Input
                       value={newMessage}
                       onChange={(e) => setNewMessage(e.target.value)}
-                      placeholder={cooldownRemaining > 0 ? "Please wait..." : "Type a supportive message..."}
+                      placeholder={cooldownRemaining > 0 ? "Please wait..." : "Type a message..."}
                       className="flex-1 bg-background border-2 border-border focus:border-primary transition-colors shadow-sm"
                       disabled={cooldownRemaining > 0}
                     />
