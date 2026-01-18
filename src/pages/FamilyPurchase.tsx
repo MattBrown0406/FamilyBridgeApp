@@ -346,24 +346,32 @@ const FamilyPurchase = () => {
             <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
               <Check className="w-8 h-8 text-green-600" />
             </div>
-            <CardTitle className="text-2xl">Your Invite Code is Ready!</CardTitle>
+            <CardTitle className="text-2xl">Payment Successful!</CardTitle>
             <CardDescription>
-              Copy your code and proceed to set up your family group
+              Your subscription is now active. Here's your activation code.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="bg-muted p-4 rounded-lg">
-              <p className="text-xs text-muted-foreground mb-2 text-center">Your Family Invite Code</p>
-              <div className="flex items-center justify-center gap-2">
-                <p className="text-2xl font-mono font-bold tracking-widest">{generatedCode}</p>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleCopyCode}
-                  className="h-8 w-8"
-                >
-                  <Copy className="h-4 w-4" />
-                </Button>
+            <div className="bg-amber-50 border-2 border-amber-400 p-4 rounded-lg">
+              <p className="text-sm font-semibold text-amber-800 mb-1 text-center">
+                ⚠️ IMPORTANT: Please write this code down!
+              </p>
+              <p className="text-xs text-amber-700 text-center mb-3">
+                You'll need this code to set up your family group.
+              </p>
+              <div className="bg-white p-3 rounded-md border border-amber-300">
+                <p className="text-xs text-muted-foreground mb-1 text-center">Your Activation Code</p>
+                <div className="flex items-center justify-center gap-2">
+                  <p className="text-2xl font-mono font-bold tracking-widest text-primary">{generatedCode}</p>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleCopyCode}
+                    className="h-8 w-8"
+                  >
+                    <Copy className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             </div>
             <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 space-y-3">
@@ -371,12 +379,15 @@ const FamilyPurchase = () => {
                 Next Steps:
               </p>
               <ol className="text-sm text-muted-foreground space-y-2 list-decimal list-inside">
-                <li>Copy your invite code above</li>
+                <li><strong>Write down or copy</strong> your activation code above</li>
                 <li>Click the button below to set up your family</li>
+                <li>Enter your activation code when prompted</li>
                 <li>Add your family members' information</li>
-                <li>Everyone will receive an email invitation</li>
               </ol>
             </div>
+            <p className="text-xs text-muted-foreground text-center">
+              A copy of this code has also been sent to your email.
+            </p>
             <Button onClick={() => navigate("/family-setup")} className="w-full" size="lg">
               Continue to Family Setup
             </Button>
