@@ -12,6 +12,30 @@ serve(async (req) => {
   }
 
   try {
+    // SECURITY: Require authentication
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: "Authorization required" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Verify user authentication
+    const token = authHeader.replace("Bearer ", "");
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+
+    if (authError || !user) {
+      return new Response(
+        JSON.stringify({ error: "Invalid authentication" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const { rawMessage, familyId } = await req.json();
 
     if (!rawMessage || !familyId) {
@@ -21,41 +45,42 @@ serve(async (req) => {
       );
     }
 
+    // SECURITY: Verify user is a member of the family
+    const { data: membership, error: membershipError } = await supabase
+      .from("family_members")
+      .select("id")
+      .eq("family_id", familyId)
+      .eq("user_id", user.id)
+      .single();
+
+    if (membershipError || !membership) {
+      return new Response(
+        JSON.stringify({ error: "Not authorized for this family" }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    // Get user's auth token to fetch their previous messages for style analysis
-    const authHeader = req.headers.get("Authorization");
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
+    // Fetch user's recent messages to understand their writing style
     let userWritingStyle = "";
-    
-    if (authHeader) {
-      const token = authHeader.replace("Bearer ", "");
-      const { data: { user } } = await supabase.auth.getUser(token);
-      
-      if (user) {
-        // Fetch user's recent messages to understand their writing style
-        const { data: recentMessages } = await supabase
-          .from("messages")
-          .select("content")
-          .eq("family_id", familyId)
-          .eq("sender_id", user.id)
-          .order("created_at", { ascending: false })
-          .limit(10);
+    const { data: recentMessages } = await supabase
+      .from("messages")
+      .select("content")
+      .eq("family_id", familyId)
+      .eq("sender_id", user.id)
+      .order("created_at", { ascending: false })
+      .limit(10);
 
-        if (recentMessages && recentMessages.length > 0) {
-          userWritingStyle = `
+    if (recentMessages && recentMessages.length > 0) {
+      userWritingStyle = `
 Here are examples of how this person typically writes:
 ${recentMessages.map((m, i) => `${i + 1}. "${m.content}"`).join("\n")}
 
 Try to match their tone, vocabulary level, and communication style when suggesting alternatives.`;
-        }
-      }
     }
 
     const systemPrompt = `You are a compassionate communication coach specializing in family recovery dynamics. Your role is to help users express difficult emotions and concerns in ways that are:
