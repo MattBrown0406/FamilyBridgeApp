@@ -100,8 +100,22 @@ const FREQUENCY_OPTIONS = [
   'Daily', '3x per week', '2x per week', 'Weekly', 'Bi-weekly', 'Monthly', 'As needed'
 ];
 
-const THERAPY_TYPES = [
-  'Individual', 'Couples', 'Family', 'Group'
+const THERAPY_MODALITIES = [
+  'CBT (Cognitive Behavioral Therapy)',
+  'DBT (Dialectical Behavior Therapy)',
+  'EMDR (Eye Movement Desensitization)',
+  'Psychodynamic Therapy',
+  'Trauma-Focused Therapy',
+  'Motivational Interviewing',
+  'Solution-Focused Brief Therapy',
+  'Acceptance and Commitment Therapy (ACT)',
+  'Gottman Method (Couples)',
+  'Emotionally Focused Therapy (EFT)',
+  'Structural Family Therapy',
+  'Narrative Therapy',
+  'Art/Music Therapy',
+  'Somatic Therapy',
+  'Other'
 ];
 
 export function AftercarePlanTab({ familyId, members, isModerator }: AftercarePlanTabProps) {
@@ -695,8 +709,7 @@ export function AftercarePlanTab({ familyId, members, isModerator }: AftercarePl
                                     </Select>
                                   </div>
                                   
-                                  {(newRecType === 'meeting_attendance' || newRecType === 'alanon_meetings' || 
-                                    newRecType === 'weekly_therapy' || newRecType === 'individual_therapy' ||
+                                  {(newRecType === 'meeting_attendance' || newRecType === 'individual_therapy' ||
                                     newRecType === 'couples_therapy' || newRecType === 'family_therapy') && (
                                     <div className="space-y-2">
                                       <Label>Frequency</Label>
@@ -714,15 +727,15 @@ export function AftercarePlanTab({ familyId, members, isModerator }: AftercarePl
                                   )}
                                   
                                   {(newRecType === 'individual_therapy' || newRecType === 'couples_therapy' || 
-                                    newRecType === 'family_therapy' || newRecType === 'weekly_therapy') && (
+                                    newRecType === 'family_therapy') && (
                                     <div className="space-y-2">
-                                      <Label>Therapy Type</Label>
+                                      <Label>Therapeutic Modality</Label>
                                       <Select value={newRecTherapyType} onValueChange={setNewRecTherapyType}>
                                         <SelectTrigger>
-                                          <SelectValue placeholder="Select therapy type" />
+                                          <SelectValue placeholder="Select modality" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                          {THERAPY_TYPES.map(opt => (
+                                          {THERAPY_MODALITIES.map(opt => (
                                             <SelectItem key={opt} value={opt}>{opt}</SelectItem>
                                           ))}
                                         </SelectContent>
