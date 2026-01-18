@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { fetchProfilesByIds } from '@/lib/profileApi';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -9,7 +10,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Checkbox } from '@/components/ui/checkbox';
 import {
   Select,
   SelectContent,
@@ -183,11 +183,8 @@ export function AftercarePlanTab({ familyId, members, isModerator }: AftercarePl
 
       let userNames: Record<string, string> = {};
       if (userIds.length > 0) {
-        const { data: profilesData } = await supabase
-          .from('profiles')
-          .select('id, full_name')
-          .in('id', userIds);
-        
+        const profilesData = await fetchProfilesByIds(userIds);
+
         userNames = (profilesData || []).reduce((acc, p) => {
           acc[p.id] = p.full_name;
           return acc;

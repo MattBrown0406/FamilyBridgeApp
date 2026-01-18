@@ -3,13 +3,13 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useOrganization } from '@/hooks/useOrganization';
 import { supabase } from '@/integrations/supabase/client';
+import { fetchProfilesByIds } from '@/lib/profileApi';
 import { filterContent } from '@/lib/contentFilter';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
@@ -936,13 +936,8 @@ const FamilyChat = () => {
       const paymentInfoById = new Map<string, { paypal_username?: string | null; venmo_username?: string | null; cashapp_username?: string | null }>();
 
       if (memberUserIds.length > 0) {
-        // Fetch profiles (names only)
-        const { data: profilesData, error: profilesError } = await supabase
-          .from('profiles')
-          .select('id, full_name')
-          .in('id', memberUserIds);
-
-        if (profilesError) throw profilesError;
+        // Fetch profiles (names only) via rate-limited backend function
+        const profilesData = await fetchProfilesByIds(memberUserIds);
 
         for (const p of profilesData || []) {
           profilesById.set(p.id, { full_name: p.full_name });

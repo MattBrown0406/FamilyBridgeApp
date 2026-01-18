@@ -207,6 +207,36 @@ export type Database = {
           },
         ]
       }
+      api_rate_limits: {
+        Row: {
+          count: number
+          created_at: string
+          id: string
+          key: string
+          updated_at: string
+          user_id: string
+          window_start: string
+        }
+        Insert: {
+          count?: number
+          created_at?: string
+          id?: string
+          key: string
+          updated_at?: string
+          user_id: string
+          window_start: string
+        }
+        Update: {
+          count?: number
+          created_at?: string
+          id?: string
+          key?: string
+          updated_at?: string
+          user_id?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
       boundary_acknowledgments: {
         Row: {
           acknowledged_at: string
