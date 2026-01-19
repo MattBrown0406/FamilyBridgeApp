@@ -1164,7 +1164,7 @@ const DemoFamily = () => {
                     </p>
                     <ol className="text-sm text-foreground list-decimal list-inside space-y-1 pl-2">
                       <li><strong>Have I enabled my loved one's addiction in any way?</strong> (Financially, Emotionally, or Silently)</li>
-                      <li><strong>Has my loved one's addiction caused me harm in any way?</strong></li>
+                      <li><strong>Has my loved one's addiction caused me harm in any way?</strong> (Financially, Emotionally or Physically)</li>
                     </ol>
                     <p className="text-sm text-foreground">
                       If the answer to either (or both) of these questions is yes, consider what changes <em>you</em> need to make in YOUR behavior to avoid enabling going forward and to eliminate the harm you've experienced because of the addiction.
