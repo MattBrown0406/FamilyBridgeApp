@@ -145,7 +145,7 @@ const Index = () => {
       </header>
 
       {/* Hero Section */}
-      <section className="container mx-auto px-4 pt-8 sm:pt-12 pb-12 sm:pb-16 text-center relative">
+      <section className="container mx-auto px-3 sm:px-4 pt-6 sm:pt-12 pb-10 sm:pb-16 text-center relative">
         {/* Decorative elements */}
         <div className="absolute top-10 left-10 w-20 h-20 border-2 border-primary/20 rounded-full animate-pulse-soft hidden lg:block" />
         <div className="absolute top-40 right-20 w-12 h-12 bg-accent/20 rounded-lg rotate-45 animate-float hidden lg:block" style={{ animationDelay: '-2s' }} />
@@ -158,7 +158,7 @@ const Index = () => {
             Supporting families through recovery
           </div>
           
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-display font-bold text-foreground mb-4 leading-tight animate-slide-up">
+          <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-display font-bold text-foreground mb-3 sm:mb-4 leading-tight animate-slide-up">
             Healing Starts with{' '}
             <span className="relative">
               <span className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent bg-[length:200%_auto] animate-shimmer">
@@ -170,11 +170,11 @@ const Index = () => {
             </span>
           </h1>
           
-          <p className="text-lg md:text-xl text-muted-foreground mb-6 sm:mb-8 max-w-2xl mx-auto leading-relaxed animate-fade-in" style={{ animationDelay: '0.2s' }}>
+          <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-5 sm:mb-8 max-w-2xl mx-auto leading-relaxed animate-fade-in px-2" style={{ animationDelay: '0.2s' }}>
             {tagline}
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in" style={{ animationDelay: '0.4s' }}>
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4 sm:px-0 animate-fade-in" style={{ animationDelay: '0.4s' }}>
             <Button 
               size="lg" 
               onClick={() => navigate('/family-purchase')}
@@ -194,7 +194,7 @@ const Index = () => {
           </div>
 
           {/* Stats Row */}
-          <div className="flex flex-wrap justify-center gap-6 md:gap-12 mt-8 sm:mt-10 animate-fade-in" style={{ animationDelay: '0.6s' }}>
+          <div className="flex flex-wrap justify-center gap-4 sm:gap-6 md:gap-12 mt-6 sm:mt-10 animate-fade-in" style={{ animationDelay: '0.6s' }}>
             {stats.map((stat, index) => (
               <div key={stat.label} className="text-center">
                 <div className="text-2xl md:text-3xl font-display font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
@@ -213,39 +213,39 @@ const Index = () => {
       </section>
 
       {/* Features Grid */}
-      <section className="container mx-auto px-4 py-10 sm:py-14 relative">
-        <div className="text-center mb-8 sm:mb-10">
+      <section className="container mx-auto px-3 sm:px-4 py-8 sm:py-14 relative">
+        <div className="text-center mb-6 sm:mb-10">
           <div className="inline-flex items-center gap-2 bg-gradient-to-r from-violet-500/10 to-purple-500/10 backdrop-blur-sm border border-violet-500/20 text-violet-600 dark:text-violet-400 px-5 py-2 rounded-full text-sm font-medium mb-3 sm:mb-4">
             <Brain className="h-4 w-4" />
             FIIS Powered by Advanced AI <span className="text-violet-500/70 dark:text-violet-400/70">(patent pending)</span>
           </div>
-          <h2 className="text-3xl md:text-5xl font-display font-bold text-foreground mb-3">
+          <h2 className="text-2xl sm:text-3xl md:text-5xl font-display font-bold text-foreground mb-2 sm:mb-3">
             Intelligent Tools for{' '}
             <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Recovery</span>
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto px-2">
             AI-powered insights help families catch warning signs early and celebrate progress together.
           </p>
         </div>
         
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 max-w-6xl mx-auto">
           {features.map((feature, index) => (
             <div
               key={feature.title}
-              className="group relative rounded-2xl p-6 bg-card/80 backdrop-blur-sm border border-border/50 shadow-card hover:shadow-elevated transition-all duration-500 hover:-translate-y-2 animate-fade-in overflow-hidden"
+              className="group relative rounded-xl sm:rounded-2xl p-4 sm:p-6 bg-card/80 backdrop-blur-sm border border-border/50 shadow-card hover:shadow-elevated transition-all duration-500 hover:-translate-y-2 animate-fade-in overflow-hidden"
               style={{ animationDelay: `${index * 100}ms` }}
             >
               {/* Gradient overlay on hover */}
               <div className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-500`} />
               
               {/* Icon */}
-              <div className={`relative w-14 h-14 rounded-xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center mb-5 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
-                <feature.icon className="h-7 w-7 text-white" />
+              <div className={`relative w-11 h-11 sm:w-14 sm:h-14 rounded-lg sm:rounded-xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center mb-4 sm:mb-5 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                <feature.icon className="h-5 w-5 sm:h-7 sm:w-7 text-white" />
               </div>
               
               <div className="relative">
-                <div className="flex items-center gap-2 mb-3">
-                  <h3 className="text-xl font-display font-semibold text-foreground">
+                <div className="flex items-center gap-2 mb-2 sm:mb-3">
+                  <h3 className="text-lg sm:text-xl font-display font-semibold text-foreground">
                     {feature.title}
                   </h3>
                   {feature.highlight && (
@@ -254,7 +254,7 @@ const Index = () => {
                     </span>
                   )}
                 </div>
-                <p className="text-muted-foreground leading-relaxed">
+                <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
                   {feature.description}
                 </p>
               </div>
@@ -264,23 +264,23 @@ const Index = () => {
       </section>
 
       {/* Quick Links Section */}
-      <section className="container mx-auto px-4 py-8 sm:py-10">
+      <section className="container mx-auto px-3 sm:px-4 py-6 sm:py-10">
         <div className="max-w-4xl mx-auto space-y-4">
           {/* Demo */}
           <div 
-            className="group relative bg-card/80 backdrop-blur-sm rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4 cursor-pointer border border-border/50 shadow-card hover:shadow-elevated transition-all duration-300 hover:-translate-y-1 overflow-hidden"
+            className="group relative bg-card/80 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 cursor-pointer border border-border/50 shadow-card hover:shadow-elevated transition-all duration-300 hover:-translate-y-1 overflow-hidden"
             onClick={() => navigate('/demo')}
           >
             <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-teal-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            <div className="flex items-center gap-5 relative z-10">
-              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
-                <Play className="h-7 w-7 text-white" />
+            <div className="flex items-center gap-3 sm:gap-5 relative z-10">
+              <div className="w-11 h-11 sm:w-14 sm:h-14 rounded-lg sm:rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300 flex-shrink-0">
+                <Play className="h-5 w-5 sm:h-7 sm:w-7 text-white" />
               </div>
               <div>
-                <h3 className="text-xl font-display font-semibold text-foreground mb-1">
+                <h3 className="text-lg sm:text-xl font-display font-semibold text-foreground mb-0.5 sm:mb-1">
                   Try the Demo
                 </h3>
-                <p className="text-muted-foreground">
+                <p className="text-sm sm:text-base text-muted-foreground">
                   Explore a sample family group to see how FamilyBridge works
                 </p>
               </div>
@@ -297,35 +297,35 @@ const Index = () => {
       </section>
 
       {/* Provider Section */}
-      <section className="container mx-auto px-4 py-8 sm:py-12">
+      <section className="container mx-auto px-3 sm:px-4 py-6 sm:py-12">
         <div className="max-w-4xl mx-auto relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 rounded-3xl blur-xl" />
-          <div className="relative bg-card/90 backdrop-blur-sm border border-border/50 rounded-3xl p-8 md:p-12 shadow-elevated overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 rounded-2xl sm:rounded-3xl blur-xl" />
+          <div className="relative bg-card/90 backdrop-blur-sm border border-border/50 rounded-2xl sm:rounded-3xl p-5 sm:p-8 md:p-12 shadow-elevated overflow-hidden">
             {/* Decorative corner elements */}
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-primary/10 to-transparent rounded-bl-full" />
-            <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-accent/10 to-transparent rounded-tr-full" />
+            <div className="absolute top-0 right-0 w-20 sm:w-32 h-20 sm:h-32 bg-gradient-to-bl from-primary/10 to-transparent rounded-bl-full" />
+            <div className="absolute bottom-0 left-0 w-16 sm:w-24 h-16 sm:h-24 bg-gradient-to-tr from-accent/10 to-transparent rounded-tr-full" />
             
-            <div className="flex flex-col md:flex-row items-start md:items-center gap-8 relative z-10">
-              <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center flex-shrink-0 shadow-xl">
-                <Building2 className="h-10 w-10 text-primary-foreground" />
+            <div className="flex flex-col md:flex-row items-start md:items-center gap-4 sm:gap-8 relative z-10">
+              <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-xl sm:rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center flex-shrink-0 shadow-xl">
+                <Building2 className="h-7 w-7 sm:h-10 sm:w-10 text-primary-foreground" />
               </div>
               <div className="flex-1">
-                <h3 className="text-2xl md:text-3xl font-display font-bold text-foreground mb-3">
+                <h3 className="text-xl sm:text-2xl md:text-3xl font-display font-bold text-foreground mb-2 sm:mb-3">
                   Are You a Recovery Provider?
                 </h3>
-                <p className="text-lg text-muted-foreground mb-6">
+                <p className="text-sm sm:text-lg text-muted-foreground mb-4 sm:mb-6">
                   Help families in your care with professional tools for communication and accountability.
                 </p>
-                <ul className="grid sm:grid-cols-2 gap-3 mb-8">
+                <ul className="grid sm:grid-cols-2 gap-2 sm:gap-3 mb-5 sm:mb-8">
                   {[
                     'Create and manage your organization',
                     'Onboard unlimited families',
                     'Custom branding for your organization',
                     'Access to all provider tools',
                   ].map((item) => (
-                    <li key={item} className="flex items-center gap-3 text-muted-foreground">
-                      <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
-                        <Check className="h-3.5 w-3.5 text-primary" />
+                    <li key={item} className="flex items-center gap-2 sm:gap-3 text-sm sm:text-base text-muted-foreground">
+                      <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                        <Check className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-primary" />
                       </div>
                       <span>{item}</span>
                     </li>
@@ -333,7 +333,7 @@ const Index = () => {
                 </ul>
                 <Button 
                   onClick={() => navigate('/provider-purchase')}
-                  className="group bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground shadow-lg"
+                  className="group bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground shadow-lg w-full sm:w-auto"
                 >
                   Learn More
                   <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
@@ -345,27 +345,27 @@ const Index = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="container mx-auto px-4 py-10 sm:py-14">
+      <section className="container mx-auto px-3 sm:px-4 py-8 sm:py-14">
         <div className="max-w-4xl mx-auto text-center relative">
           {/* Animated background */}
-          <div className="absolute inset-0 bg-gradient-to-r from-primary via-accent to-primary bg-[length:200%_auto] animate-shimmer rounded-3xl" />
-          <div className="absolute inset-[2px] bg-gradient-to-br from-primary to-accent rounded-3xl" />
+          <div className="absolute inset-0 bg-gradient-to-r from-primary via-accent to-primary bg-[length:200%_auto] animate-shimmer rounded-2xl sm:rounded-3xl" />
+          <div className="absolute inset-[2px] bg-gradient-to-br from-primary to-accent rounded-2xl sm:rounded-3xl" />
           
-          <div className="relative z-10 p-10 md:p-16">
-            <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-1.5 rounded-full text-sm font-medium text-primary-foreground mb-6">
-              <Heart className="h-4 w-4" />
+          <div className="relative z-10 p-6 sm:p-10 md:p-16">
+            <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-3 sm:px-4 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium text-primary-foreground mb-4 sm:mb-6">
+              <Heart className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               Join thousands of families
             </div>
-            <h2 className="text-3xl md:text-5xl font-display font-bold text-primary-foreground mb-6">
+            <h2 className="text-2xl sm:text-3xl md:text-5xl font-display font-bold text-primary-foreground mb-4 sm:mb-6">
               Your Family's Recovery{' '}
               <span className="block">Starts Here</span>
             </h2>
-            <p className="text-xl text-primary-foreground/90 mb-10 max-w-2xl mx-auto">
+            <p className="text-base sm:text-xl text-primary-foreground/90 mb-6 sm:mb-10 max-w-2xl mx-auto px-2">
               Join families rebuilding trust through transparent, AI-moderated communication.
             </p>
             <Button 
               size="lg" 
-              className="group bg-card text-primary hover:bg-card/90 shadow-2xl hover:shadow-3xl transition-all duration-300 hover:-translate-y-1"
+              className="group bg-card text-primary hover:bg-card/90 shadow-2xl hover:shadow-3xl transition-all duration-300 hover:-translate-y-1 w-full sm:w-auto"
               onClick={() => navigate('/family-purchase')}
             >
               Create Your Family Group

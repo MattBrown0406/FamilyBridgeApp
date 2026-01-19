@@ -244,7 +244,7 @@ const Auth = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center gradient-hero p-4">
+    <div className="min-h-screen flex items-center justify-center gradient-hero p-3 sm:p-4">
       <SEOHead
         title={mode === 'signin' ? 'Sign In' : 'Create Account'}
         description="Sign in or create an account to access FamilyBridge. Connect with your family and support loved ones in recovery."
@@ -252,15 +252,15 @@ const Auth = () => {
         noIndex={true}
       />
       <div className="w-full max-w-md animate-scale-in">
-        <div className="text-center mb-8">
+        <div className="text-center mb-5 sm:mb-8">
           <div 
-            className="flex items-center justify-center gap-2 cursor-pointer mb-4"
+            className="flex items-center justify-center gap-2 cursor-pointer mb-3 sm:mb-4"
             onClick={() => navigate('/')}
           >
-            <img src={familyBridgeLogo} alt="FamilyBridge" className="h-10 w-auto object-contain" />
-            <span className="text-2xl font-display font-bold text-foreground">FamilyBridge</span>
+            <img src={familyBridgeLogo} alt="FamilyBridge" className="h-8 sm:h-10 w-auto object-contain" />
+            <span className="text-xl sm:text-2xl font-display font-bold text-foreground">FamilyBridge</span>
           </div>
-          <p className="text-muted-foreground">
+          <p className="text-sm sm:text-base text-muted-foreground">
             {mode === 'signin' ? 'Welcome back' : familyInviteCode ? 'Create your account to join the family' : 'Start your recovery journey'}
           </p>
           {familyInviteCode && mode === 'signup' && (
@@ -271,17 +271,17 @@ const Auth = () => {
         </div>
 
         <Card className="shadow-elevated border-0">
-          <CardHeader className="space-y-1 pb-4">
-            <CardTitle className="text-2xl font-display">
+          <CardHeader className="space-y-1 pb-3 sm:pb-4 px-4 sm:px-6">
+            <CardTitle className="text-xl sm:text-2xl font-display">
               {mode === 'signin' ? 'Sign In' : 'Create Account'}
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-sm">
               {mode === 'signin'
                 ? 'Enter your credentials to access your family groups'
                 : 'Create an account to connect with your family'}
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="px-4 sm:px-6">
             {/* Biometric Login Button */}
             {mode === 'signin' && biometricAvailable && hasStoredCredentials && (
               <div className="mb-6">

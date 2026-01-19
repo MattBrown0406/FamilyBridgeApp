@@ -219,12 +219,12 @@ const Dashboard = () => {
       <AdminBreadcrumbs />
       {/* Header */}
       <header className="border-b border-border bg-card">
-        <div className="container mx-auto px-4 py-4">
+        <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
-                <img src={familyBridgeLogo} alt="FamilyBridge" className="h-7 w-auto object-contain" />
-                <span className="text-xl font-display font-semibold text-foreground">FamilyBridge</span>
+              <div className="flex items-center gap-2 sm:gap-4">
+              <div className="flex items-center gap-1.5 sm:gap-2 cursor-pointer" onClick={() => navigate('/')}>
+                <img src={familyBridgeLogo} alt="FamilyBridge" className="h-6 sm:h-7 w-auto object-contain" />
+                <span className="text-lg sm:text-xl font-display font-semibold text-foreground hidden xs:inline">FamilyBridge</span>
               </div>
               <Button variant="ghost" size="sm" onClick={() => navigate('/')}>
                 <Home className="h-4 w-4" />
@@ -303,11 +303,11 @@ const Dashboard = () => {
       </AlertDialog>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
         <div className="max-w-4xl mx-auto">
           {/* Welcome Section */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-display font-bold text-foreground mb-2">
+          <div className="mb-6 sm:mb-8">
+            <h1 className="text-2xl sm:text-3xl font-display font-bold text-foreground mb-1 sm:mb-2">
               Your Family Groups
             </h1>
             <p className="text-muted-foreground">
