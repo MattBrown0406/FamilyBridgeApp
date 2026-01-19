@@ -310,9 +310,14 @@ export default function ModeratorPurchase() {
                     <Button onClick={handlePurchase} disabled={loading || !selectedFamily} className="w-full" size="lg">
                       {loading ? "Processing..." : "Purchase for $150"}
                     </Button>
-                    <p className="text-xs text-muted-foreground text-center">
-                      Secure payment powered by Square. Support begins once a moderator is assigned.
-                    </p>
+                    {/* Apple-Compliant Purchase Disclosure - Guideline 3.1.2 */}
+                    <SubscriptionDisclosure
+                      subscriptionTitle={PRODUCTS.crisisModeration.daily.displayName}
+                      price={`$${PRODUCTS.crisisModeration.daily.price}`}
+                      period="One-time purchase for 24 hours"
+                      isNative={false}
+                      isOneTimePurchase={true}
+                    />
                   </>
                 )}
               </CardContent>
