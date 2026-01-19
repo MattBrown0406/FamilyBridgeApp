@@ -2276,36 +2276,10 @@ export type Database = {
           family_id: string | null
           full_name: string | null
           id: string | null
-          ip_address_masked: string | null
           release_version: string | null
           signature_status: string | null
           signed_at: string | null
-          user_agent: string | null
           user_id: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          family_id?: string | null
-          full_name?: string | null
-          id?: string | null
-          ip_address_masked?: never
-          release_version?: string | null
-          signature_status?: never
-          signed_at?: string | null
-          user_agent?: never
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          family_id?: string | null
-          full_name?: string | null
-          id?: string | null
-          ip_address_masked?: never
-          release_version?: string | null
-          signature_status?: never
-          signed_at?: string | null
-          user_agent?: never
-          user_id?: string | null
         }
         Relationships: [
           {
