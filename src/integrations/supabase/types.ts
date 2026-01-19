@@ -2371,6 +2371,27 @@ export type Database = {
         }
         Relationships: []
       }
+      subscription_service_status: {
+        Row: {
+          entity_id: string | null
+          entity_type: string | null
+          in_grace_period: boolean | null
+          service_status: string | null
+        }
+        Insert: {
+          entity_id?: string | null
+          entity_type?: string | null
+          in_grace_period?: never
+          service_status?: never
+        }
+        Update: {
+          entity_id?: string | null
+          entity_type?: string | null
+          in_grace_period?: never
+          service_status?: never
+        }
+        Relationships: []
+      }
     }
     Functions: {
       anonymize_old_location_data: { Args: never; Returns: undefined }
@@ -2392,6 +2413,10 @@ export type Database = {
       }
       can_manage_family_admins: {
         Args: { _family_id: string; _user_id: string }
+        Returns: boolean
+      }
+      can_view_service_status: {
+        Args: { _entity_id: string; _entity_type: string }
         Returns: boolean
       }
       check_and_log_activation_code_access: {

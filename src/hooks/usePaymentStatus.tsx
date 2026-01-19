@@ -34,10 +34,12 @@ export function usePaymentStatus() {
     }
 
     try {
-      // Get all payment statuses where user is an admin
+      // Only fetch payment statuses where the current user is the subscription owner
+      // This respects the new restrictive RLS policy that protects payment privacy
       const { data, error } = await supabase
         .from("subscription_payment_status")
         .select("*")
+        .eq("user_id", user.id)
         .in("status", ["past_due", "suspended"]);
 
       if (error) throw error;
@@ -45,7 +47,7 @@ export function usePaymentStatus() {
       const issues = (data || []) as PaymentStatus[];
       setPaymentIssues(issues);
 
-      // Show popup if there are any payment issues
+      // Show popup if there are any payment issues for this user's subscriptions
       if (issues.length > 0) {
         setSelectedIssue(issues[0]);
         setShowPaymentPopup(true);
