@@ -2448,9 +2448,9 @@ const FamilyChat = () => {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 container mx-auto px-2 sm:px-4 py-2 sm:py-4 overflow-hidden">
+      <main className="flex-1 container mx-auto px-1.5 sm:px-4 py-1.5 sm:py-4 overflow-hidden">
         <Tabs defaultValue="messages" className="h-full flex flex-col">
-          <TabsList className="grid grid-cols-8 h-auto gap-0.5 sm:gap-1 w-full mb-2 sm:mb-4 shrink-0 bg-card/50 backdrop-blur-sm border border-border/50 p-1 sm:p-1.5 rounded-lg sm:rounded-xl shadow-soft">
+          <TabsList className="grid grid-cols-7 md:grid-cols-8 h-auto gap-0.5 w-full mb-2 sm:mb-4 shrink-0 bg-card/50 backdrop-blur-sm border border-border/50 p-0.5 sm:p-1.5 rounded-lg sm:rounded-xl shadow-soft">
             <TabsTrigger 
               value="messages" 
               className="flex items-center justify-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-1.5 sm:py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
@@ -2517,7 +2517,7 @@ const FamilyChat = () => {
           {/* Messages Tab */}
           <TabsContent value="messages" className="flex-1 flex flex-col overflow-hidden mt-0">
             {/* Stats Cards for Messages */}
-            <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-2 sm:mb-4 shrink-0">
+            <div className="grid grid-cols-3 gap-1.5 sm:gap-3 mb-2 sm:mb-4 shrink-0">
               <Card className="relative overflow-hidden border-0 shadow-md group hover:shadow-lg transition-all duration-300">
                 <div className="absolute inset-0 bg-gradient-to-br from-success/5 via-transparent to-success/10 opacity-0 group-hover:opacity-100 transition-opacity" />
                 <CardContent className="p-2 sm:pt-4 sm:pb-4 sm:px-4">

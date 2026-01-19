@@ -301,16 +301,16 @@ const ModeratorDashboard = () => {
       <AdminBreadcrumbs />
       {/* Header */}
       <header className="border-b border-border bg-primary text-primary-foreground">
-        <div className="container mx-auto px-4 py-4">
+        <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
+            <div className="flex items-center gap-2 sm:gap-4">
+              <div className="flex items-center gap-1.5 sm:gap-2 cursor-pointer" onClick={() => navigate('/')}>
                 <img 
                   src={branding?.logo_url || familyBridgeLogo} 
                   alt={branding?.name || "FamilyBridge"} 
-                  className="h-7 w-auto object-contain" 
+                  className="h-6 sm:h-7 w-auto object-contain" 
                 />
-                <span className="text-xl font-display font-semibold">
+                <span className="text-lg sm:text-xl font-display font-semibold hidden xs:inline">
                   {branding?.name || "FamilyBridge"}
                 </span>
               </div>
@@ -334,11 +334,11 @@ const ModeratorDashboard = () => {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
         <div className="max-w-4xl mx-auto">
           {/* Welcome Section */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-display font-bold text-foreground mb-2">
+          <div className="mb-6 sm:mb-8">
+            <h1 className="text-2xl sm:text-3xl font-display font-bold text-foreground mb-1 sm:mb-2">
               Moderator Dashboard
             </h1>
             <p className="text-muted-foreground">

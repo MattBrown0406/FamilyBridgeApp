@@ -402,11 +402,11 @@ const DemoFamily = () => {
         </p>
       </div>
 
-      <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-6">
+      <div className="container mx-auto px-1.5 sm:px-4 py-3 sm:py-6">
         <div className="max-w-5xl mx-auto">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             {/* Mobile: Use grid for better spacing, Desktop: flex row */}
-            <TabsList className="grid grid-cols-7 h-auto gap-0.5 sm:gap-1 w-full mb-2 sm:mb-4 shrink-0 bg-card/50 backdrop-blur-sm border border-border/50 p-1 sm:p-1.5 rounded-lg sm:rounded-xl shadow-soft">
+            <TabsList className="grid grid-cols-6 md:grid-cols-7 h-auto gap-0.5 w-full mb-2 sm:mb-4 shrink-0 bg-card/50 backdrop-blur-sm border border-border/50 p-0.5 sm:p-1.5 rounded-lg sm:rounded-xl shadow-soft">
               <TabsTrigger 
                 value="messages" 
                 className="flex items-center justify-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-1.5 sm:py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
