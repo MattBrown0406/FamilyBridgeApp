@@ -1155,25 +1155,12 @@ const DemoFamily = () => {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {/* Instructional Text */}
-                  <div className="p-4 rounded-xl bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950/30 dark:to-purple-950/30 border border-indigo-200/50 dark:border-indigo-800/50 space-y-3">
+                  <div className="p-4 rounded-xl bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950/30 dark:to-purple-950/30 border border-indigo-200/50 dark:border-indigo-800/50 space-y-2">
                     <p className="text-sm text-foreground">
-                      <strong>Boundaries are essential</strong> to the health and stability of your family system. They should be rooted in the values that your family and each individual holds dear—never created out of anger.
+                      <strong>A boundary without a consequence is just a request.</strong> Boundaries protect you from enabling or harm (financial, emotional, physical). Include the action you'll take if violated.
                     </p>
-                    <p className="text-sm text-foreground">
-                      When considering a boundary, ask yourself two fundamental questions:
-                    </p>
-                    <ol className="text-sm text-foreground list-decimal list-inside space-y-1 pl-2">
-                      <li><strong>Have I enabled my loved one's addiction in any way?</strong> (Financially, Emotionally, or Silently)</li>
-                      <li><strong>Has my loved one's addiction caused me harm in any way?</strong> (Financially, Emotionally or Physically)</li>
-                    </ol>
-                    <p className="text-sm text-foreground">
-                      If the answer to either (or both) of these questions is yes, consider what changes <em>you</em> need to make in YOUR behavior to avoid enabling going forward and to eliminate the harm you've experienced because of the addiction.
-                    </p>
-                    <p className="text-sm text-foreground font-medium mt-3">
-                      <strong>Important:</strong> Every boundary must have a consequence attached to it—both positive and negative. If a boundary doesn't have a consequence, it's not a boundary, it's a request. When family members violate a boundary, the stated consequence must be enforced for the boundary to have meaning.
-                    </p>
-                    <p className="text-sm text-muted-foreground italic">
-                      All boundaries will be reviewed by the moderator or family admin before they need to be acknowledged by the group.
+                    <p className="text-xs text-muted-foreground italic">
+                      All boundaries are reviewed by the moderator before acknowledgment.
                     </p>
                   </div>
 
