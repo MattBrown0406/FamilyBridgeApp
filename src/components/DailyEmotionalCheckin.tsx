@@ -25,12 +25,46 @@ export function DailyEmotionalCheckin({ familyId, onComplete }: DailyEmotionalCh
   const [feeling, setFeeling] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hasCheckedToday, setHasCheckedToday] = useState<boolean | null>(null);
+  const [isModeratorOrProvider, setIsModeratorOrProvider] = useState<boolean | null>(null);
 
   useEffect(() => {
     if (user && familyId) {
-      checkTodaysCheckin();
+      checkUserRole();
     }
   }, [user, familyId]);
+
+  const checkUserRole = async () => {
+    if (!user) return;
+
+    // Check if user is a moderator in this family
+    const { data: memberData } = await supabase
+      .from('family_members')
+      .select('role')
+      .eq('user_id', user.id)
+      .eq('family_id', familyId)
+      .maybeSingle();
+
+    const isModerator = memberData?.role === 'moderator';
+
+    // Check if user is a provider admin (organization member)
+    const { data: orgData } = await supabase
+      .from('organization_members')
+      .select('id')
+      .eq('user_id', user.id)
+      .limit(1);
+
+    const isProvider = (orgData?.length ?? 0) > 0;
+
+    // If moderator or provider, skip the check-in entirely
+    if (isModerator || isProvider) {
+      setIsModeratorOrProvider(true);
+      setHasCheckedToday(true); // Prevent showing the dialog
+      return;
+    }
+
+    setIsModeratorOrProvider(false);
+    checkTodaysCheckin();
+  };
 
   const checkTodaysCheckin = async () => {
     if (!user) return;
