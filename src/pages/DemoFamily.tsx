@@ -1169,6 +1169,9 @@ const DemoFamily = () => {
                     <p className="text-sm text-foreground">
                       If the answer to either (or both) of these questions is yes, consider what changes <em>you</em> need to make in YOUR behavior to avoid enabling going forward and to eliminate the harm you've experienced because of the addiction.
                     </p>
+                    <p className="text-sm text-foreground font-medium mt-3">
+                      <strong>Important:</strong> Every boundary must have a consequence attached to it—both positive and negative. If a boundary doesn't have a consequence, it's not a boundary, it's a request. When family members violate a boundary, the stated consequence must be enforced for the boundary to have meaning.
+                    </p>
                     <p className="text-sm text-muted-foreground italic">
                       All boundaries will be reviewed by the moderator or family admin before they need to be acknowledged by the group.
                     </p>

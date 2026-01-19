@@ -161,6 +161,7 @@ interface FamilyBoundary {
   target_user_id: string | null;
   target_name?: string;
   content: string;
+  consequence: string | null;
   status: string;
   approved_by: string | null;
   approved_at: string | null;
@@ -418,9 +419,11 @@ const FamilyChat = () => {
   // Boundaries state
   const [familyBoundaries, setFamilyBoundaries] = useState<FamilyBoundary[]>([]);
   const [newBoundaryContent, setNewBoundaryContent] = useState('');
+  const [newBoundaryConsequence, setNewBoundaryConsequence] = useState('');
   const [newBoundaryTarget, setNewBoundaryTarget] = useState<string>('all');
   const [isAddingBoundary, setIsAddingBoundary] = useState(false);
   const [showBoundaryForm, setShowBoundaryForm] = useState(false);
+  const [boundaryToAcknowledge, setBoundaryToAcknowledge] = useState<FamilyBoundary | null>(null);
   
   // Private messaging state
   const [privateMessagingOpen, setPrivateMessagingOpen] = useState(false);
@@ -1304,6 +1307,7 @@ const FamilyChat = () => {
           created_by: user.id,
           target_user_id: newBoundaryTarget === 'all' ? null : newBoundaryTarget,
           content: newBoundaryContent.trim(),
+          consequence: newBoundaryConsequence.trim() || null,
         });
 
       if (error) throw error;
@@ -1314,6 +1318,7 @@ const FamilyChat = () => {
       });
 
       setNewBoundaryContent('');
+      setNewBoundaryConsequence('');
       setNewBoundaryTarget('all');
       setShowBoundaryForm(false);
       await fetchFamilyBoundaries();
@@ -1388,12 +1393,20 @@ const FamilyChat = () => {
   };
 
   const handleAcknowledgeBoundary = async (boundaryId: string) => {
-    if (!user) return;
+    // Find the boundary to show in confirmation dialog
+    const boundary = familyBoundaries.find(b => b.id === boundaryId);
+    if (boundary) {
+      setBoundaryToAcknowledge(boundary);
+    }
+  };
+
+  const confirmAcknowledgeBoundary = async () => {
+    if (!user || !boundaryToAcknowledge) return;
     try {
       const { error } = await supabase
         .from('boundary_acknowledgments')
         .insert({
-          boundary_id: boundaryId,
+          boundary_id: boundaryToAcknowledge.id,
           user_id: user.id,
         });
 
@@ -1401,9 +1414,10 @@ const FamilyChat = () => {
 
       toast({
         title: 'Boundary acknowledged',
-        description: 'You have acknowledged this boundary.',
+        description: 'You have acknowledged this boundary and its consequence.',
       });
 
+      setBoundaryToAcknowledge(null);
       await fetchFamilyBoundaries();
     } catch (error) {
       console.error('Error acknowledging boundary:', error);
@@ -4083,6 +4097,9 @@ const FamilyChat = () => {
                     <p className="text-sm text-foreground">
                       If the answer to either (or both) of these questions is yes, consider what changes <em>you</em> need to make in YOUR behavior to avoid enabling going forward and to eliminate the harm you've experienced because of the addiction.
                     </p>
+                    <p className="text-sm text-foreground font-medium mt-3">
+                      <strong>Important:</strong> Every boundary must have a consequence attached to it—both positive and negative. If a boundary doesn't have a consequence, it's not a boundary, it's a request. When family members violate a boundary, the stated consequence must be enforced for the boundary to have meaning.
+                    </p>
                     <p className="text-sm text-muted-foreground italic">
                       All boundaries will be reviewed by the moderator or family admin before they need to be acknowledged by the group.
                     </p>
@@ -4118,10 +4135,23 @@ const FamilyChat = () => {
                           rows={3}
                         />
                       </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="boundaryConsequence">Consequence if Violated</Label>
+                        <Textarea
+                          id="boundaryConsequence"
+                          placeholder="What will happen if this boundary is violated? (e.g., 'Financial support will be suspended for 30 days')"
+                          value={newBoundaryConsequence}
+                          onChange={(e) => setNewBoundaryConsequence(e.target.value)}
+                          rows={2}
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          A boundary without a consequence is just a request. Be specific about what will happen.
+                        </p>
+                      </div>
                       <div className="flex gap-2">
                         <Button
                           onClick={handleCreateBoundary}
-                          disabled={!newBoundaryContent.trim() || isAddingBoundary}
+                          disabled={!newBoundaryContent.trim() || !newBoundaryConsequence.trim() || isAddingBoundary}
                         >
                           {isAddingBoundary ? (
                             <>
@@ -4156,6 +4186,11 @@ const FamilyChat = () => {
                                   {boundary.target_name && ` for ${boundary.target_name}`}
                                 </p>
                                 <p className="text-sm">{boundary.content}</p>
+                                {boundary.consequence && (
+                                  <p className="text-sm text-destructive/80 mt-2">
+                                    <strong>Consequence:</strong> {boundary.consequence}
+                                  </p>
+                                )}
                               </div>
                               <div className="flex gap-2 shrink-0">
                                 <Button
@@ -4198,6 +4233,11 @@ const FamilyChat = () => {
                                   {boundary.target_name ? `For ${boundary.target_name}` : 'For All Members'}
                                 </p>
                                 <p className="text-sm">{boundary.content}</p>
+                                {boundary.consequence && (
+                                  <p className="text-sm text-destructive/80 mt-2">
+                                    <strong>Consequence:</strong> {boundary.consequence}
+                                  </p>
+                                )}
                                 <p className="text-xs text-muted-foreground mt-2">
                                   Awaiting approval from a moderator or family admin...
                                 </p>
@@ -4232,6 +4272,11 @@ const FamilyChat = () => {
                                   </span>
                                 </p>
                                 <p className="text-sm">{boundary.content}</p>
+                                {boundary.consequence && (
+                                  <p className="text-sm text-destructive/80 mt-2">
+                                    <strong>Consequence if violated:</strong> {boundary.consequence}
+                                  </p>
+                                )}
                               </div>
                               {isAdminOrModerator && (
                                 <Button
@@ -4832,6 +4877,47 @@ const FamilyChat = () => {
           onUnreadCountChange={setUnreadPrivateMessages}
         />
       )}
+
+      {/* Boundary Acknowledgment Confirmation Dialog */}
+      <Dialog open={!!boundaryToAcknowledge} onOpenChange={(open) => !open && setBoundaryToAcknowledge(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Shield className="h-5 w-5 text-primary" />
+              Acknowledge Boundary
+            </DialogTitle>
+            <DialogDescription>
+              Please review this boundary and its consequence before acknowledging.
+            </DialogDescription>
+          </DialogHeader>
+          {boundaryToAcknowledge && (
+            <div className="space-y-4 py-4">
+              <div className="p-4 rounded-lg bg-secondary/50 border border-border">
+                <p className="text-sm font-medium mb-2">Boundary:</p>
+                <p className="text-sm">{boundaryToAcknowledge.content}</p>
+              </div>
+              {boundaryToAcknowledge.consequence && (
+                <div className="p-4 rounded-lg bg-destructive/10 border border-destructive/30">
+                  <p className="text-sm font-medium mb-2 text-destructive">Consequence if Violated:</p>
+                  <p className="text-sm">{boundaryToAcknowledge.consequence}</p>
+                </div>
+              )}
+              <p className="text-sm text-muted-foreground">
+                By acknowledging this boundary, you confirm that you understand both the boundary and its consequence.
+              </p>
+            </div>
+          )}
+          <div className="flex gap-2 justify-end">
+            <Button variant="ghost" onClick={() => setBoundaryToAcknowledge(null)}>
+              Cancel
+            </Button>
+            <Button onClick={confirmAcknowledgeBoundary}>
+              <Check className="h-4 w-4 mr-2" />
+              I Understand & Acknowledge
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Daily Emotional Check-in Popup */}
       {user && familyId && (
