@@ -2495,7 +2495,7 @@ const FamilyChat = () => {
             </TabsTrigger>
             <TabsTrigger 
               value="test-results" 
-              className="flex items-center justify-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-1.5 sm:py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
+              className="hidden md:flex items-center justify-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-1.5 sm:py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
             >
               <FlaskConical className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               <span className="hidden md:inline text-xs">Tests</span>
