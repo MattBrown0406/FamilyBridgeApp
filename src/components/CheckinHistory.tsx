@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { MapPin, Clock, CalendarDays, ExternalLink, Loader2, LogOut, CheckCircle } from 'lucide-react';
+import { MapPin, Clock, CalendarDays, ExternalLink, Loader2, LogOut, CheckCircle, ShieldAlert } from 'lucide-react';
 import { format, formatDistanceToNow } from 'date-fns';
 
 interface Checkin {
@@ -12,8 +12,8 @@ interface Checkin {
   meeting_type: string;
   meeting_name: string | null;
   meeting_address: string | null;
-  latitude: number;
-  longitude: number;
+  latitude: number | null;
+  longitude: number | null;
   notes: string | null;
   checked_in_at: string;
   checkout_due_at: string | null;
@@ -33,6 +33,8 @@ interface CheckinHistoryProps {
   familyId: string;
   members: Member[];
   refreshKey?: number;
+  currentUserId?: string;
+  isModerator?: boolean;
 }
 
 const MEETING_TYPE_COLORS: Record<string, string> = {
@@ -43,7 +45,7 @@ const MEETING_TYPE_COLORS: Record<string, string> = {
   'Other': 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200',
 };
 
-export const CheckinHistory = ({ familyId, members, refreshKey }: CheckinHistoryProps) => {
+export const CheckinHistory = ({ familyId, members, refreshKey, currentUserId, isModerator }: CheckinHistoryProps) => {
   const [checkins, setCheckins] = useState<Checkin[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -53,6 +55,9 @@ export const CheckinHistory = ({ familyId, members, refreshKey }: CheckinHistory
 
   const fetchCheckins = async () => {
     try {
+      // Use the base table - RLS policies control what data is visible
+      // Users see their own checkins with full location data
+      // Moderators see family checkins but location data is controlled by RLS
       const { data, error } = await supabase
         .from('meeting_checkins')
         .select('*')
@@ -78,8 +83,20 @@ export const CheckinHistory = ({ familyId, members, refreshKey }: CheckinHistory
     }
   };
 
-  const openInMaps = (lat: number, lng: number) => {
-    window.open(`https://www.google.com/maps?q=${lat},${lng}`, '_blank');
+  const openInMaps = (lat: number | null, lng: number | null) => {
+    if (lat && lng) {
+      window.open(`https://www.google.com/maps?q=${lat},${lng}`, '_blank');
+    }
+  };
+
+  // Check if location data is available (not masked)
+  const hasLocationData = (checkin: Checkin) => {
+    return checkin.latitude !== null && checkin.longitude !== null;
+  };
+
+  // Check if user is viewing their own checkin
+  const isOwnCheckin = (checkin: Checkin) => {
+    return currentUserId && checkin.user_id === currentUserId;
   };
 
   const getCheckoutStatus = (checkin: Checkin) => {
@@ -181,11 +198,11 @@ export const CheckinHistory = ({ familyId, members, refreshKey }: CheckinHistory
                           <span>
                             Checked out at {format(new Date(checkin.checked_out_at), 'h:mm a')}
                           </span>
-                          {checkin.checkout_address && (
+                          {checkin.checkout_address && checkin.checkout_latitude && checkin.checkout_longitude && (
                             <>
                               <span className="mx-1">•</span>
                               <button
-                                onClick={() => openInMaps(checkin.checkout_latitude!, checkin.checkout_longitude!)}
+                                onClick={() => openInMaps(checkin.checkout_latitude, checkin.checkout_longitude)}
                                 className="flex items-center gap-1 hover:underline"
                               >
                                 <MapPin className="h-3 w-3" />
@@ -193,10 +210,20 @@ export const CheckinHistory = ({ familyId, members, refreshKey }: CheckinHistory
                               </button>
                             </>
                           )}
+                          {checkin.checkout_address && !checkin.checkout_latitude && (
+                            <>
+                              <span className="mx-1">•</span>
+                              <span className="flex items-center gap-1 text-muted-foreground">
+                                <ShieldAlert className="h-3 w-3" />
+                                <span className="truncate max-w-[150px]">{checkin.checkout_address}</span>
+                              </span>
+                            </>
+                          )}
                         </div>
                       )}
 
-                      {checkin.meeting_address && (
+                      {/* Show full location for user's own checkins */}
+                      {hasLocationData(checkin) && checkin.meeting_address && (
                         <button
                           onClick={() => openInMaps(checkin.latitude, checkin.longitude)}
                           className="flex items-start gap-1 text-xs text-primary hover:underline group"
@@ -207,7 +234,7 @@ export const CheckinHistory = ({ familyId, members, refreshKey }: CheckinHistory
                         </button>
                       )}
 
-                      {!checkin.meeting_address && (
+                      {hasLocationData(checkin) && !checkin.meeting_address && (
                         <button
                           onClick={() => openInMaps(checkin.latitude, checkin.longitude)}
                           className="flex items-center gap-1 text-xs text-primary hover:underline"
@@ -216,6 +243,22 @@ export const CheckinHistory = ({ familyId, members, refreshKey }: CheckinHistory
                           <span>View on map</span>
                           <ExternalLink className="h-3 w-3" />
                         </button>
+                      )}
+
+                      {/* Show masked location indicator for moderators viewing others' checkins */}
+                      {!hasLocationData(checkin) && checkin.meeting_address && (
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                          <ShieldAlert className="h-3 w-3" />
+                          <span>{checkin.meeting_address}</span>
+                          <span className="text-xs italic">(Location protected)</span>
+                        </div>
+                      )}
+
+                      {!hasLocationData(checkin) && !checkin.meeting_address && !isOwnCheckin(checkin) && (
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                          <ShieldAlert className="h-3 w-3" />
+                          <span className="italic">Location protected for privacy</span>
+                        </div>
                       )}
 
                       {checkin.notes && (
