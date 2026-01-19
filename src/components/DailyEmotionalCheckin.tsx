@@ -164,6 +164,7 @@ export function DailyEmotionalCheckin({ familyId, onComplete }: DailyEmotionalCh
 
   // Quick emotion suggestions
   const emotionSuggestions = [
+    'happy', 'sad', 'angry', 'afraid', 'calm',
     'hopeful', 'anxious', 'grateful', 'tired', 'motivated', 
     'stressed', 'peaceful', 'frustrated', 'optimistic', 'overwhelmed'
   ];
