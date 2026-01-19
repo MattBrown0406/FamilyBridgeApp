@@ -2997,6 +2997,8 @@ const FamilyChat = () => {
                 familyId={familyId!} 
                 members={members.map(m => ({ user_id: m.user_id, full_name: m.full_name }))}
                 refreshKey={checkinRefreshKey}
+                currentUserId={user?.id}
+                isModerator={isAdminOrModerator}
               />
             </div>
           </TabsContent>

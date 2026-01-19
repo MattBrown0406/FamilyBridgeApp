@@ -1224,6 +1224,20 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "liquor_license_warnings_checkin_id_fkey"
+            columns: ["checkin_id"]
+            isOneToOne: false
+            referencedRelation: "meeting_checkins_moderator_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "liquor_license_warnings_checkin_id_fkey"
+            columns: ["checkin_id"]
+            isOneToOne: false
+            referencedRelation: "meeting_checkins_user_view"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "liquor_license_warnings_family_id_fkey"
             columns: ["family_id"]
             isOneToOne: false
@@ -2337,6 +2351,148 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "hipaa_releases_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      meeting_checkins_moderator_view: {
+        Row: {
+          checked_in_at: string | null
+          checked_out_at: string | null
+          checkout_address: string | null
+          checkout_due_at: string | null
+          checkout_latitude: number | null
+          checkout_longitude: number | null
+          created_at: string | null
+          family_id: string | null
+          id: string | null
+          latitude: number | null
+          longitude: number | null
+          meeting_address: string | null
+          meeting_name: string | null
+          meeting_start_time: string | null
+          meeting_type: Database["public"]["Enums"]["meeting_type"] | null
+          notes: string | null
+          overdue_alert_sent: boolean | null
+          user_id: string | null
+        }
+        Insert: {
+          checked_in_at?: string | null
+          checked_out_at?: string | null
+          checkout_address?: never
+          checkout_due_at?: string | null
+          checkout_latitude?: never
+          checkout_longitude?: never
+          created_at?: string | null
+          family_id?: string | null
+          id?: string | null
+          latitude?: never
+          longitude?: never
+          meeting_address?: never
+          meeting_name?: string | null
+          meeting_start_time?: string | null
+          meeting_type?: Database["public"]["Enums"]["meeting_type"] | null
+          notes?: string | null
+          overdue_alert_sent?: boolean | null
+          user_id?: string | null
+        }
+        Update: {
+          checked_in_at?: string | null
+          checked_out_at?: string | null
+          checkout_address?: never
+          checkout_due_at?: string | null
+          checkout_latitude?: never
+          checkout_longitude?: never
+          created_at?: string | null
+          family_id?: string | null
+          id?: string | null
+          latitude?: never
+          longitude?: never
+          meeting_address?: never
+          meeting_name?: string | null
+          meeting_start_time?: string | null
+          meeting_type?: Database["public"]["Enums"]["meeting_type"] | null
+          notes?: string | null
+          overdue_alert_sent?: boolean | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meeting_checkins_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      meeting_checkins_user_view: {
+        Row: {
+          checked_in_at: string | null
+          checked_out_at: string | null
+          checkout_address: string | null
+          checkout_due_at: string | null
+          checkout_latitude: number | null
+          checkout_longitude: number | null
+          created_at: string | null
+          family_id: string | null
+          id: string | null
+          latitude: number | null
+          longitude: number | null
+          meeting_address: string | null
+          meeting_name: string | null
+          meeting_start_time: string | null
+          meeting_type: Database["public"]["Enums"]["meeting_type"] | null
+          notes: string | null
+          overdue_alert_sent: boolean | null
+          user_id: string | null
+        }
+        Insert: {
+          checked_in_at?: string | null
+          checked_out_at?: string | null
+          checkout_address?: string | null
+          checkout_due_at?: string | null
+          checkout_latitude?: number | null
+          checkout_longitude?: number | null
+          created_at?: string | null
+          family_id?: string | null
+          id?: string | null
+          latitude?: number | null
+          longitude?: number | null
+          meeting_address?: string | null
+          meeting_name?: string | null
+          meeting_start_time?: string | null
+          meeting_type?: Database["public"]["Enums"]["meeting_type"] | null
+          notes?: string | null
+          overdue_alert_sent?: boolean | null
+          user_id?: string | null
+        }
+        Update: {
+          checked_in_at?: string | null
+          checked_out_at?: string | null
+          checkout_address?: string | null
+          checkout_due_at?: string | null
+          checkout_latitude?: number | null
+          checkout_longitude?: number | null
+          created_at?: string | null
+          family_id?: string | null
+          id?: string | null
+          latitude?: number | null
+          longitude?: number | null
+          meeting_address?: string | null
+          meeting_name?: string | null
+          meeting_start_time?: string | null
+          meeting_type?: Database["public"]["Enums"]["meeting_type"] | null
+          notes?: string | null
+          overdue_alert_sent?: boolean | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meeting_checkins_family_id_fkey"
             columns: ["family_id"]
             isOneToOne: false
             referencedRelation: "families"
