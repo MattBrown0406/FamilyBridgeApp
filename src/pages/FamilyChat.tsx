@@ -425,6 +425,9 @@ const FamilyChat = () => {
   const [isAddingBoundary, setIsAddingBoundary] = useState(false);
   const [showBoundaryForm, setShowBoundaryForm] = useState(false);
   const [boundaryToAcknowledge, setBoundaryToAcknowledge] = useState<FamilyBoundary | null>(null);
+  const [editingBoundary, setEditingBoundary] = useState<FamilyBoundary | null>(null);
+  const [editBoundaryContent, setEditBoundaryContent] = useState('');
+  const [editBoundaryConsequence, setEditBoundaryConsequence] = useState('');
   
   // Private messaging state
   const [privateMessagingOpen, setPrivateMessagingOpen] = useState(false);
@@ -1455,7 +1458,77 @@ const FamilyChat = () => {
     }
   };
 
-  // Family avatar upload handler
+  const handleRescindBoundary = async (boundaryId: string) => {
+    if (!confirm('Are you sure you want to rescind this boundary? This will remove it for all family members.')) {
+      return;
+    }
+    
+    try {
+      const { error } = await supabase
+        .from('family_boundaries')
+        .delete()
+        .eq('id', boundaryId);
+
+      if (error) throw error;
+
+      toast({
+        title: 'Boundary rescinded',
+        description: 'Your boundary has been removed.',
+      });
+
+      await fetchFamilyBoundaries();
+    } catch (error) {
+      console.error('Error rescinding boundary:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to rescind boundary.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleUpdateBoundary = async () => {
+    if (!editingBoundary || !editBoundaryContent.trim()) {
+      toast({
+        title: 'Content required',
+        description: 'Please enter the boundary content.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('family_boundaries')
+        .update({
+          content: editBoundaryContent.trim(),
+          consequence: editBoundaryConsequence.trim() || null,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', editingBoundary.id);
+
+      if (error) throw error;
+
+      toast({
+        title: 'Boundary updated',
+        description: 'Your boundary has been updated successfully.',
+      });
+
+      setEditingBoundary(null);
+      setEditBoundaryContent('');
+      setEditBoundaryConsequence('');
+      await fetchFamilyBoundaries();
+    } catch (error) {
+      console.error('Error updating boundary:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to update boundary.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !familyId || !user) return;
@@ -4286,18 +4359,43 @@ const FamilyChat = () => {
                                   </p>
                                 )}
                               </div>
-                              {isAdminOrModerator && (
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="h-8 w-8 text-muted-foreground hover:text-destructive shrink-0"
-                                  onClick={() => handleDeleteBoundary(boundary.id)}
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              )}
+                              <div className="flex items-center gap-1 shrink-0">
+                                {boundary.created_by === user?.id && (
+                                  <>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                                      onClick={() => {
+                                        setEditingBoundary(boundary);
+                                        setEditBoundaryContent(boundary.content);
+                                        setEditBoundaryConsequence(boundary.consequence || '');
+                                      }}
+                                    >
+                                      <Pencil className="h-4 w-4" />
+                                    </Button>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                                      onClick={() => handleRescindBoundary(boundary.id)}
+                                    >
+                                      <X className="h-4 w-4" />
+                                    </Button>
+                                  </>
+                                )}
+                                {isAdminOrModerator && boundary.created_by !== user?.id && (
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                                    onClick={() => handleDeleteBoundary(boundary.id)}
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                )}
+                              </div>
                             </div>
-                            
                             {/* Acknowledgment section */}
                             <div className="pt-3 border-t border-border">
                               <div className="flex items-center justify-between">
@@ -4927,7 +5025,50 @@ const FamilyChat = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Daily Emotional Check-in Popup */}
+      {/* Edit Boundary Dialog */}
+      <Dialog open={!!editingBoundary} onOpenChange={(open) => !open && setEditingBoundary(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Pencil className="h-5 w-5 text-primary" />
+              Edit Boundary
+            </DialogTitle>
+            <DialogDescription>
+              Update your boundary content and consequence.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Boundary</Label>
+              <Textarea
+                placeholder="Describe the boundary..."
+                value={editBoundaryContent}
+                onChange={(e) => setEditBoundaryContent(e.target.value)}
+                rows={3}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Consequence if Violated</Label>
+              <Textarea
+                placeholder="What will happen if this boundary is violated?"
+                value={editBoundaryConsequence}
+                onChange={(e) => setEditBoundaryConsequence(e.target.value)}
+                rows={2}
+              />
+            </div>
+          </div>
+          <div className="flex gap-2 justify-end">
+            <Button variant="ghost" onClick={() => setEditingBoundary(null)}>
+              Cancel
+            </Button>
+            <Button onClick={handleUpdateBoundary}>
+              <Check className="h-4 w-4 mr-2" />
+              Save Changes
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {user && familyId && (
         <DailyEmotionalCheckin familyId={familyId} />
       )}
