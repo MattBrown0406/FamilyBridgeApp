@@ -27,14 +27,19 @@ const ProviderPurchase = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
   const [generatedCode, setGeneratedCode] = useState<string | null>(null);
-  const [billingPeriod, setBillingPeriod] = useState<"monthly" | "quarterly" | "annual">(isNative ? "quarterly" : "annual");
+  // Billing period - default to quarterly which works on all platforms
+  // Annual is web-only (Apple doesn't allow >$999 IAP)
+  const [billingPeriod, setBillingPeriod] = useState<"monthly" | "quarterly" | "annual">("quarterly");
 
-  // Safety guard: ensure annual is never selected on native (Apple doesn't allow >$999 IAP)
+  // Safety guard: ensure annual is never selected on native platforms
   useEffect(() => {
     if (isNative && billingPeriod === "annual") {
       setBillingPeriod("quarterly");
     }
   }, [isNative, billingPeriod]);
+
+  // Never show annual option on native platforms
+  const showAnnualOption = !isNative;
 
   const handleSquarePurchase = async () => {
     if (!email) {
@@ -363,7 +368,7 @@ const ProviderPurchase = () => {
                     >
                       Quarterly
                     </button>
-                    {!isNative && (
+                    {showAnnualOption && (
                       <button
                         onClick={() => setBillingPeriod("annual")}
                         className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
