@@ -46,6 +46,7 @@ import {
 } from 'lucide-react';
 import { PatentDocumentation } from '@/components/PatentDocumentation';
 import { ArchivedFamiliesPanel } from '@/components/ArchivedFamiliesPanel';
+import { SuperAdminBroadcast } from '@/components/SuperAdminBroadcast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { format } from 'date-fns';
@@ -616,6 +617,7 @@ const SuperAdmin = () => {
                 <Plus className="h-3.5 w-3.5" />
                 <span className="hidden sm:inline">Family</span>
               </Button>
+              <SuperAdminBroadcast />
               <Button variant="ghost" size="icon" onClick={refetch} disabled={isLoadingStats} className="h-8 w-8">
                 <RefreshCw className={`h-4 w-4 ${isLoadingStats ? 'animate-spin' : ''}`} />
               </Button>
