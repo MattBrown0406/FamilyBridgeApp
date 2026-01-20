@@ -279,7 +279,7 @@ const Support = () => {
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground mb-2">
-                  Monday - Friday: 9:00 AM - 5:00 PM EST
+                  Monday - Friday: 9:00 AM - 5:00 PM PST
                 </p>
                 <p className="text-muted-foreground">
                   Weekend: Limited availability
