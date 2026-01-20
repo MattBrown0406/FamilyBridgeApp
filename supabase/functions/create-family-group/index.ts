@@ -125,7 +125,7 @@ serve(async (req) => {
       // Send welcome email to admin with detailed instructions
       try {
         await resend.emails.send({
-          from: 'FamilyBridge <onboarding@resend.dev>',
+          from: 'FamilyBridge <noreply@familybridgeapp.com>',
           to: [adminEmail],
           subject: `Welcome to FamilyBridge - Your ${familyName} Group is Ready!`,
           html: `
@@ -277,7 +277,7 @@ serve(async (req) => {
       for (const member of members as FamilyMember[]) {
         try {
           await resend.emails.send({
-            from: 'FamilyBridge <onboarding@resend.dev>',
+            from: 'FamilyBridge <noreply@familybridgeapp.com>',
             to: [member.email],
             subject: `You're Invited to Join ${familyName} on FamilyBridge`,
             html: `

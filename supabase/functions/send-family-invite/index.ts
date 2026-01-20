@@ -37,7 +37,7 @@ const handler = async (req: Request): Promise<Response> => {
     const joinUrl = `${appUrl}/family-purchase?inviteCode=${encodeURIComponent(inviteCode)}`;
 
     const emailResponse = await resend.emails.send({
-      from: `${organizationName} <onboarding@resend.dev>`,
+      from: `${organizationName} <noreply@familybridgeapp.com>`,
       to: [recipientEmail],
       subject: `You're Invited to Join ${familyName} on FamilyBridge`,
       html: `
