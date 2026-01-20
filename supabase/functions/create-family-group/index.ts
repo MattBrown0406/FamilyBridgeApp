@@ -274,34 +274,66 @@ serve(async (req) => {
       }
       
       // Send invitation emails to all family members
+      const appUrl = 'https://familybridgeapp.com';
       for (const member of members as FamilyMember[]) {
         try {
+          const setupUrl = `${appUrl}/family-purchase?inviteCode=${encodeURIComponent(memberInviteCode)}`;
           await resend.emails.send({
             from: 'FamilyBridge <noreply@familybridgeapp.com>',
             to: [member.email],
             subject: `You're Invited to Join ${familyName} on FamilyBridge`,
             html: `
-              <h1>You've Been Invited to FamilyBridge!</h1>
-              <p>Hello ${member.name},</p>
-              <p>You've been invited to join <strong>${familyName}</strong> on FamilyBridge - a safe space for families to communicate, set boundaries, and support each other.</p>
-              
-              <div style="background: #f4f4f4; padding: 20px; border-radius: 8px; margin: 20px 0;">
-                <p style="margin: 0 0 10px 0; font-weight: bold;">Your Family Invite Code:</p>
-                <p style="font-size: 24px; font-family: monospace; font-weight: bold; letter-spacing: 2px; margin: 0; color: #2563eb;">
-                  ${memberInviteCode}
-                </p>
-              </div>
-
-              <h3>Getting Started:</h3>
-              <ol>
-                <li>Visit FamilyBridge and create an account</li>
-                <li>Click "Join with Code" and enter the invite code above</li>
-                <li>Select your relationship to the family</li>
-                <li>Start connecting with your family!</li>
-              </ol>
-
-              <p>We're here to help your family heal and grow together.</p>
-              <p>Best regards,<br>The FamilyBridge Team</p>
+              <!DOCTYPE html>
+              <html>
+              <head>
+                <meta charset="utf-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              </head>
+              <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+                <div style="text-align: center; margin-bottom: 30px;">
+                  <h1 style="color: #2d7d6f; margin: 0;">FamilyBridge</h1>
+                  <p style="color: #666; margin-top: 5px;">Family Recovery Support Platform</p>
+                </div>
+                
+                <div style="background: #f8f9fa; border-radius: 12px; padding: 30px; margin-bottom: 20px;">
+                  <h2 style="margin-top: 0; color: #333;">Hello ${member.name}!</h2>
+                  
+                  <p>You've been invited to join <strong>${familyName}</strong> on FamilyBridge - a safe space for families to communicate, set boundaries, and support each other through recovery.</p>
+                  
+                  <div style="background: #fff; border: 2px dashed #2d7d6f; border-radius: 8px; padding: 20px; text-align: center; margin: 25px 0;">
+                    <p style="margin: 0 0 10px 0; color: #666; font-size: 14px;">Your Family Invite Code</p>
+                    <p style="margin: 0; font-size: 28px; font-weight: bold; font-family: monospace; letter-spacing: 2px; color: #2d7d6f;">
+                      ${memberInviteCode}
+                    </p>
+                  </div>
+                  
+                  <p style="text-align: center;">
+                    <a href="${setupUrl}" style="display: inline-block; background: #2d7d6f; color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 8px; font-weight: bold; font-size: 16px;">
+                      Set Up Your Account →
+                    </a>
+                  </p>
+                  
+                  <p style="color: #666; font-size: 14px; margin-top: 20px; text-align: center;">Or copy and paste this link into your browser:</p>
+                  <p style="word-break: break-all; font-size: 14px; color: #2d7d6f; text-align: center;">${setupUrl}</p>
+                  
+                  <hr style="border: none; border-top: 1px solid #ddd; margin: 25px 0;" />
+                  
+                  <h3 style="color: #2d7d6f;">Getting Started:</h3>
+                  <ol style="color: #555; padding-left: 20px;">
+                    <li style="margin-bottom: 8px;">Click the button above or visit FamilyBridge</li>
+                    <li style="margin-bottom: 8px;">Create your account with your email</li>
+                    <li style="margin-bottom: 8px;">Enter the invite code when prompted</li>
+                    <li style="margin-bottom: 8px;">Select your relationship to the family</li>
+                    <li style="margin-bottom: 8px;">Start connecting with your family!</li>
+                  </ol>
+                </div>
+                
+                <div style="text-align: center; padding: 20px; color: #888; font-size: 14px;">
+                  <p>We're here to help your family heal and grow together.</p>
+                  <p>Best regards,<br>The FamilyBridge Team</p>
+                </div>
+              </body>
+              </html>
             `,
           });
           console.log('Invitation email sent to:', member.email);
