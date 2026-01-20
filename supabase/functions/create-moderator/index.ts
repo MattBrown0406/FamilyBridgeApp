@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { Resend } from "https://esm.sh/resend@2.0.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -12,6 +13,9 @@ interface CreateModeratorRequest {
   password: string;
   fullName: string;
   role: 'admin' | 'staff';
+  creatorName?: string;
+  organizationName?: string;
+  organizationLogo?: string;
 }
 
 serve(async (req) => {
@@ -50,7 +54,7 @@ serve(async (req) => {
       throw new Error("Unauthorized");
     }
 
-    const { organizationId, email, password, fullName, role }: CreateModeratorRequest = await req.json();
+    const { organizationId, email, password, fullName, role, creatorName, organizationName, organizationLogo }: CreateModeratorRequest = await req.json();
 
     if (!organizationId || !email || !password || !fullName) {
       throw new Error("Missing required fields: organizationId, email, password, fullName");
@@ -143,6 +147,94 @@ serve(async (req) => {
     }
 
     console.log(`Successfully created moderator ${email} for organization ${organizationId}`);
+
+    // Send welcome email to the new moderator
+    const resendApiKey = Deno.env.get("RESEND_API_KEY");
+    const orgDisplayName = organizationName || 'FamilyBridge';
+    
+    if (resendApiKey && !existingUser) {
+      try {
+        const resend = new Resend(resendApiKey);
+        const appUrl = 'https://familybridgeapp.com';
+        
+        await resend.emails.send({
+          from: `${orgDisplayName} <noreply@familybridgeapp.com>`,
+          to: [email],
+          subject: `Welcome to ${orgDisplayName} - Your Moderator Account is Ready`,
+          html: `
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <meta charset="utf-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            </head>
+            <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+              <div style="text-align: center; margin-bottom: 30px;">
+                <h1 style="color: #2d7d6f; margin: 0;">FamilyBridge</h1>
+                <p style="color: #666; margin-top: 5px;">Family Recovery Support Platform</p>
+              </div>
+              
+              <div style="background: #f8f9fa; border-radius: 12px; padding: 30px; margin-bottom: 20px;">
+                <h2 style="margin-top: 0; color: #333;">Welcome, ${fullName}!</h2>
+                
+                <p>Your moderator account has been created for <strong>${orgDisplayName}</strong> on FamilyBridge.</p>
+                
+                <div style="background: #fff; border: 2px solid #2d7d6f; border-radius: 8px; padding: 20px; margin: 25px 0;">
+                  <p style="margin: 0 0 10px 0; color: #666; font-size: 14px;">Your Login Email:</p>
+                  <p style="margin: 0; font-size: 18px; font-weight: bold; color: #2d7d6f;">${email}</p>
+                  <p style="margin: 15px 0 5px 0; color: #666; font-size: 14px;">Your Role:</p>
+                  <p style="margin: 0; font-size: 16px; font-weight: bold; color: #333; text-transform: capitalize;">${role}</p>
+                </div>
+                
+                <p style="text-align: center;">
+                  <a href="${appUrl}/auth" style="display: inline-block; background: #2d7d6f; color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 8px; font-weight: bold; font-size: 16px;">
+                    Log In to FamilyBridge →
+                  </a>
+                </p>
+                
+                <hr style="border: none; border-top: 1px solid #ddd; margin: 25px 0;" />
+                
+                <h3 style="color: #2d7d6f;">As a Moderator, You Can:</h3>
+                <ul style="color: #555; padding-left: 20px;">
+                  <li style="margin-bottom: 8px;">Monitor family group communications and health status</li>
+                  <li style="margin-bottom: 8px;">Provide guidance and support during difficult conversations</li>
+                  <li style="margin-bottom: 8px;">Approve boundaries and financial requests</li>
+                  <li style="margin-bottom: 8px;">Access crisis intervention tools when needed</li>
+                  <li style="margin-bottom: 8px;">View family patterns and insights</li>
+                </ul>
+                
+                <div style="background: #fff3e0; border-left: 4px solid #ff9800; padding: 15px; margin: 20px 0;">
+                  <p style="margin: 0;"><strong>Important:</strong> Use the password that was provided to you by your administrator to log in. You can change it after your first login.</p>
+                </div>
+              </div>
+              
+              <div style="text-align: center; padding: 20px; color: #888; font-size: 14px;">
+                ${creatorName ? `
+                  <table cellpadding="0" cellspacing="0" border="0" style="margin: 0 auto;">
+                    <tr>
+                      ${organizationLogo ? `<td style="vertical-align: middle; padding-right: 12px;"><img src="${organizationLogo}" alt="${orgDisplayName}" style="width: 40px; height: 40px; object-fit: contain; border-radius: 4px;" /></td>` : ''}
+                      <td style="vertical-align: middle; text-align: left;">
+                        <p style="margin: 0 0 2px 0; font-size: 13px; color: #888;">Thank you,</p>
+                        <p style="margin: 0; font-weight: bold; color: #333;">${creatorName}</p>
+                        <p style="margin: 0; color: #666; font-size: 13px;">${orgDisplayName}</p>
+                      </td>
+                    </tr>
+                  </table>
+                ` : `
+                  <p style="margin-bottom: 5px;">Thank you,</p>
+                  <p style="font-weight: bold; margin-top: 0;">Matt Brown, Creator of Family Bridge</p>
+                `}
+              </div>
+            </body>
+            </html>
+          `,
+        });
+        console.log('Welcome email sent to new moderator:', email);
+      } catch (emailError) {
+        console.error('Failed to send welcome email:', emailError);
+        // Don't throw - account was still created successfully
+      }
+    }
 
     // Add moderator to Mailchimp provider list
     const mailchimpApiKey = Deno.env.get("MAILCHIMP_API_KEY");
