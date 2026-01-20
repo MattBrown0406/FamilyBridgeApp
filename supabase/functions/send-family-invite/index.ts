@@ -65,12 +65,23 @@ const handler = async (req: Request): Promise<Response> => {
               <p style="margin: 0; font-size: 28px; font-weight: bold; font-family: monospace; letter-spacing: 2px; color: #2d7d6f;">${inviteCode}</p>
             </div>
             
-            <p>To join your family group:</p>
-            <ol style="color: #555;">
-              <li>Visit FamilyBridge and click "Get Started"</li>
-              <li>Enter the invite code shown above</li>
-              <li>Create your account</li>
-              <li>You'll be connected to your family group immediately</li>
+            <p style="text-align: center;">
+              <a href="${joinUrl}" style="display: inline-block; background: #2d7d6f; color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 8px; font-weight: bold; font-size: 16px;">
+                Set Up Your Account →
+              </a>
+            </p>
+            
+            <p style="color: #666; font-size: 14px; margin-top: 20px; text-align: center;">Or copy and paste this link into your browser:</p>
+            <p style="word-break: break-all; font-size: 14px; color: #2d7d6f; text-align: center;">${joinUrl}</p>
+            
+            <hr style="border: none; border-top: 1px solid #ddd; margin: 25px 0;" />
+            
+            <h3 style="color: #2d7d6f;">To join your family group:</h3>
+            <ol style="color: #555; padding-left: 20px;">
+              <li style="margin-bottom: 8px;">Click the button above or visit FamilyBridge</li>
+              <li style="margin-bottom: 8px;">Enter the invite code shown above</li>
+              <li style="margin-bottom: 8px;">Create your account</li>
+              <li style="margin-bottom: 8px;">You'll be connected to your family group immediately</li>
             </ol>
           </div>
           
