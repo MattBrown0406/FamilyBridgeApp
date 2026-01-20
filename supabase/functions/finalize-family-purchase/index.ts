@@ -44,7 +44,7 @@ serve(async (req) => {
     if (!squareAccessToken) throw new Error("Square credentials not configured");
 
     const resendApiKey = Deno.env.get("RESEND_API_KEY");
-    const resendFrom = Deno.env.get("RESEND_FROM") || "FamilyBridge <onboarding@resend.dev>";
+    const resendFrom = Deno.env.get("RESEND_FROM") || "FamilyBridge <noreply@familybridgeapp.com>";
 
     const { orderId, email }: FinalizeFamilyPurchaseBody = await req.json();
 

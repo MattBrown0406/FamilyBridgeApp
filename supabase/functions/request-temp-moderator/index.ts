@@ -173,7 +173,7 @@ const handler = async (req: Request): Promise<Response> => {
       try {
         const resend = new Resend(resendApiKey);
         const emailResponse = await resend.emails.send({
-          from: "FamilyBridge <onboarding@resend.dev>",
+          from: "FamilyBridge <noreply@familybridgeapp.com>",
           to: [moderatorEmail],
           subject: "🚨 Temporary Moderator Assignment - Crisis Support Requested",
           html: `

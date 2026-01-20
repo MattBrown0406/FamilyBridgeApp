@@ -134,7 +134,7 @@ const handler = async (req: Request): Promise<Response> => {
 
             if (moderator?.email) {
               await resend.emails.send({
-                from: "FamilyBridge <onboarding@resend.dev>",
+                from: "FamilyBridge <noreply@familybridgeapp.com>",
                 to: [moderator.email],
                 subject: "Crisis Moderation Session Ended",
                 html: `
@@ -153,7 +153,7 @@ const handler = async (req: Request): Promise<Response> => {
 
             if (requester?.email) {
               await resend.emails.send({
-                from: "FamilyBridge <onboarding@resend.dev>",
+                from: "FamilyBridge <noreply@familybridgeapp.com>",
                 to: [requester.email],
                 subject: "Your Crisis Moderation Session Has Ended",
                 html: `
