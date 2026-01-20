@@ -574,9 +574,6 @@ const ModeratorDashboard = () => {
 
           {/* Quick Actions */}
           <div className="flex flex-wrap gap-4">
-            <Button variant="outline" onClick={() => navigate('/dashboard')}>
-              View Personal Dashboard
-            </Button>
             {organizations.some(o => o.role === 'owner' || o.role === 'admin') && (
               <Button variant="outline" onClick={() => navigate('/provider-admin')}>
                 Provider Admin Panel
