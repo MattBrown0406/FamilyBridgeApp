@@ -14,6 +14,15 @@ export const useFamilyArchive = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
+      // Check if this family belongs to an organization (provider-managed)
+      const { data: family } = await supabase
+        .from('families')
+        .select('organization_id')
+        .eq('id', familyId)
+        .single();
+
+      const isProviderManaged = family?.organization_id !== null;
+
       const { error } = await supabase
         .from('families')
         .update({
@@ -24,6 +33,18 @@ export const useFamilyArchive = () => {
         .eq('id', familyId);
 
       if (error) throw error;
+
+      // Send archive notification email if this was a provider-managed family
+      if (isProviderManaged) {
+        try {
+          await supabase.functions.invoke('send-archive-notification', {
+            body: { familyId, familyName },
+          });
+        } catch (emailError) {
+          console.error('Error sending archive notification:', emailError);
+          // Don't fail the archive operation if email fails
+        }
+      }
 
       toast({
         title: 'Family Archived',
