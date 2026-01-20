@@ -47,6 +47,7 @@ import {
 import { PatentDocumentation } from '@/components/PatentDocumentation';
 import { ArchivedFamiliesPanel } from '@/components/ArchivedFamiliesPanel';
 import { SuperAdminBroadcast } from '@/components/SuperAdminBroadcast';
+import { SuperAdminRequests } from '@/components/SuperAdminRequests';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { format } from 'date-fns';
@@ -618,6 +619,7 @@ const SuperAdmin = () => {
                 <span className="hidden sm:inline">Family</span>
               </Button>
               <SuperAdminBroadcast />
+              <SuperAdminRequests />
               <Button variant="ghost" size="icon" onClick={refetch} disabled={isLoadingStats} className="h-8 w-8">
                 <RefreshCw className={`h-4 w-4 ${isLoadingStats ? 'animate-spin' : ''}`} />
               </Button>

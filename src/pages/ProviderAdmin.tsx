@@ -39,6 +39,7 @@ import {
 } from 'lucide-react';
 import { ArchivedFamiliesPanel } from '@/components/ArchivedFamiliesPanel';
 import { BroadcastMessage } from '@/components/BroadcastMessage';
+import { ProviderAdminSupport } from '@/components/ProviderAdminSupport';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 
 // Helper to convert hex to HSL string
@@ -1062,6 +1063,12 @@ const ProviderAdmin = () => {
                 <Users className="h-4 w-4" />
                 <span className="hidden sm:inline ml-2">Moderator</span>
               </Button>
+              {currentOrg && (
+                <ProviderAdminSupport 
+                  organizationId={currentOrg.id} 
+                  organizationName={currentOrg.name} 
+                />
+              )}
               <Button 
                 variant="ghost" 
                 size="sm" 
@@ -1075,7 +1082,7 @@ const ProviderAdmin = () => {
                 className="text-primary-foreground hover:bg-primary-foreground/10"
               >
                 <HelpCircle className="h-4 w-4" />
-                <span className="hidden sm:inline ml-2">Support</span>
+                <span className="hidden sm:inline ml-2">General Support</span>
               </Button>
               <Button variant="ghost" size="sm" onClick={() => navigate('/dashboard')} className="text-primary-foreground hover:bg-primary-foreground/10">
                 <ArrowLeft className="h-4 w-4 mr-2" />

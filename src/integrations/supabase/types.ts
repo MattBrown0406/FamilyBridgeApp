@@ -2046,6 +2046,59 @@ export type Database = {
         }
         Relationships: []
       }
+      provider_admin_requests: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          organization_id: string
+          request_type: string
+          responded_at: string | null
+          responded_by: string | null
+          response: string | null
+          sender_id: string
+          status: string
+          subject: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          organization_id: string
+          request_type: string
+          responded_at?: string | null
+          responded_by?: string | null
+          response?: string | null
+          sender_id: string
+          status?: string
+          subject: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          organization_id?: string
+          request_type?: string
+          responded_at?: string | null
+          responded_by?: string | null
+          response?: string | null
+          sender_id?: string
+          status?: string
+          subject?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_admin_requests_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       push_subscriptions: {
         Row: {
           auth: string
