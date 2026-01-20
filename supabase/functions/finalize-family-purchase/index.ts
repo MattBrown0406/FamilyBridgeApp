@@ -197,8 +197,8 @@ serve(async (req) => {
               </div>
               
               <div style="text-align: center; padding: 20px; color: #888; font-size: 14px;">
-                <p>If you didn't request this, you can ignore this email.</p>
-                <p>Best regards,<br>The FamilyBridge Team</p>
+                <p style="margin-bottom: 5px;">Thank you,</p>
+                <p style="font-weight: bold; margin-top: 0;">Matt Brown, Creator of Family Bridge</p>
               </div>
             </body>
             </html>
