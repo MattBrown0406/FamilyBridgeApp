@@ -18,6 +18,14 @@ import { format } from 'date-fns';
 interface Organization {
   id: string;
   name: string;
+  admin_count?: number;
+}
+
+interface ProviderAdmin {
+  user_id: string;
+  organization_id: string;
+  role: string;
+  full_name?: string;
 }
 
 interface Family {
@@ -35,6 +43,7 @@ interface BroadcastHistory {
   sent_at: string;
   sender_name?: string;
   organization_name?: string;
+  recipient_type?: 'providers' | 'families';
 }
 
 type RecipientType = 'providers' | 'families';
@@ -48,6 +57,7 @@ export const SuperAdminBroadcast = () => {
   const [recipientType, setRecipientType] = useState<RecipientType>('families');
   
   const [organizations, setOrganizations] = useState<Organization[]>([]);
+  const [providerAdmins, setProviderAdmins] = useState<ProviderAdmin[]>([]);
   const [families, setFamilies] = useState<Family[]>([]);
   const [selectedOrgs, setSelectedOrgs] = useState<string[]>([]);
   const [selectedFamilies, setSelectedFamilies] = useState<string[]>([]);
@@ -83,7 +93,46 @@ export const SuperAdminBroadcast = () => {
         .order('name');
 
       if (orgsError) throw orgsError;
-      setOrganizations(orgsData || []);
+
+      // Fetch organization members (provider admins)
+      const { data: membersData, error: membersError } = await supabase
+        .from('organization_members')
+        .select('user_id, organization_id, role');
+
+      if (membersError) throw membersError;
+
+      // Fetch profiles for admin names
+      const memberUserIds = [...new Set((membersData || []).map(m => m.user_id))];
+      let profilesMap = new Map<string, string>();
+      
+      if (memberUserIds.length > 0) {
+        const { data: profilesData } = await supabase
+          .from('profiles')
+          .select('id, full_name')
+          .in('id', memberUserIds);
+        
+        profilesMap = new Map((profilesData || []).map(p => [p.id, p.full_name]));
+      }
+
+      const adminsWithNames: ProviderAdmin[] = (membersData || []).map(m => ({
+        ...m,
+        full_name: profilesMap.get(m.user_id) || 'Unknown'
+      }));
+      
+      setProviderAdmins(adminsWithNames);
+
+      // Count admins per org
+      const adminCountByOrg = new Map<string, number>();
+      (membersData || []).forEach(m => {
+        adminCountByOrg.set(m.organization_id, (adminCountByOrg.get(m.organization_id) || 0) + 1);
+      });
+
+      const orgsWithCounts = (orgsData || []).map(o => ({
+        ...o,
+        admin_count: adminCountByOrg.get(o.id) || 0
+      }));
+      
+      setOrganizations(orgsWithCounts);
 
       // Fetch all active families
       const { data: familiesData, error: familiesError } = await supabase
@@ -192,42 +241,6 @@ export const SuperAdminBroadcast = () => {
       return;
     }
 
-    let targetFamilyIds: string[] = [];
-    
-    if (recipientType === 'providers') {
-      if (selectedOrgs.length === 0) {
-        toast({
-          title: 'No providers selected',
-          description: 'Please select at least one provider organization.',
-          variant: 'destructive',
-        });
-        return;
-      }
-      // Get all families belonging to selected organizations
-      targetFamilyIds = families
-        .filter(f => f.organization_id && selectedOrgs.includes(f.organization_id))
-        .map(f => f.id);
-      
-      if (targetFamilyIds.length === 0) {
-        toast({
-          title: 'No families found',
-          description: 'The selected providers have no active family groups.',
-          variant: 'destructive',
-        });
-        return;
-      }
-    } else {
-      if (selectedFamilies.length === 0) {
-        toast({
-          title: 'No families selected',
-          description: 'Please select at least one family group.',
-          variant: 'destructive',
-        });
-        return;
-      }
-      targetFamilyIds = selectedFamilies;
-    }
-
     setIsSending(true);
     try {
       // Get sender name
@@ -239,30 +252,85 @@ export const SuperAdminBroadcast = () => {
 
       const senderName = profile?.full_name || 'FamilyBridge Admin';
 
-      // For each selected org (when sending to providers), record a broadcast per org
-      // For direct family selection, record a single broadcast with null org
       if (recipientType === 'providers') {
-        for (const orgId of selectedOrgs) {
-          const orgFamilyIds = families
-            .filter(f => f.organization_id === orgId)
-            .map(f => f.id);
-          
-          if (orgFamilyIds.length > 0) {
-            const { error: broadcastError } = await supabase
-              .from('broadcast_messages')
-              .insert({
-                organization_id: orgId,
-                sender_id: user!.id,
-                subject: subject.trim() || null,
-                content: message.trim(),
-                family_ids: orgFamilyIds,
-              });
-            
-            if (broadcastError) throw broadcastError;
-          }
+        // Send notifications directly to provider admin accounts
+        if (selectedOrgs.length === 0) {
+          toast({
+            title: 'No providers selected',
+            description: 'Please select at least one provider organization.',
+            variant: 'destructive',
+          });
+          setIsSending(false);
+          return;
         }
+
+        // Get all admin user IDs from selected orgs
+        const targetAdminIds = providerAdmins
+          .filter(admin => selectedOrgs.includes(admin.organization_id))
+          .map(admin => admin.user_id);
+        
+        // Remove duplicates (user might be admin of multiple orgs)
+        const uniqueAdminIds = [...new Set(targetAdminIds)];
+
+        if (uniqueAdminIds.length === 0) {
+          toast({
+            title: 'No admins found',
+            description: 'The selected providers have no admin accounts.',
+            variant: 'destructive',
+          });
+          setIsSending(false);
+          return;
+        }
+
+        // Create notifications for each admin
+        const notificationInserts = uniqueAdminIds.map(userId => ({
+          user_id: userId,
+          type: 'platform_announcement',
+          title: subject.trim() || 'Platform Announcement',
+          body: message.trim(),
+          is_read: false,
+        }));
+
+        const { error: notificationsError } = await supabase
+          .from('notifications')
+          .insert(notificationInserts);
+
+        if (notificationsError) throw notificationsError;
+
+        // Record in broadcast_messages for history (with empty family_ids since these go to admins)
+        for (const orgId of selectedOrgs) {
+          const { error: broadcastError } = await supabase
+            .from('broadcast_messages')
+            .insert({
+              organization_id: orgId,
+              sender_id: user!.id,
+              subject: subject.trim() || null,
+              content: message.trim(),
+              family_ids: [], // Empty since this goes to admin accounts, not families
+            });
+          
+          if (broadcastError) throw broadcastError;
+        }
+
+        toast({
+          title: 'Announcement sent!',
+          description: `Your message was sent to ${uniqueAdminIds.length} provider admin${uniqueAdminIds.length > 1 ? 's' : ''} across ${selectedOrgs.length} organization${selectedOrgs.length > 1 ? 's' : ''}.`,
+        });
       } else {
-        // For direct family selection, group by org or use first family's org
+        // Send to family groups (existing logic)
+        if (selectedFamilies.length === 0) {
+          toast({
+            title: 'No families selected',
+            description: 'Please select at least one family group.',
+            variant: 'destructive',
+          });
+          setIsSending(false);
+          return;
+        }
+
+        const targetFamilyIds = selectedFamilies;
+
+        // Record in broadcast_messages for history
         const orgId = families.find(f => targetFamilyIds.includes(f.id))?.organization_id;
         
         if (orgId) {
@@ -278,34 +346,30 @@ export const SuperAdminBroadcast = () => {
           
           if (broadcastError) throw broadcastError;
         }
+
+        // Format the announcement message
+        const announcementContent = `📢 **Announcement from FamilyBridge**${subject ? `\n**${subject}**` : ''}\n\n${message.trim()}\n\n_— ${senderName}_`;
+
+        // Insert messages into each target family's chat
+        const messageInserts = targetFamilyIds.map(familyId => ({
+          family_id: familyId,
+          sender_id: user!.id,
+          content: announcementContent,
+          is_announcement: true,
+          announcement_subject: subject.trim() || null,
+        }));
+
+        const { error: messagesError } = await supabase
+          .from('messages')
+          .insert(messageInserts);
+
+        if (messagesError) throw messagesError;
+
+        toast({
+          title: 'Announcement sent!',
+          description: `Your message was sent to ${targetFamilyIds.length} family group${targetFamilyIds.length > 1 ? 's' : ''}.`,
+        });
       }
-
-      // Format the announcement message
-      const announcementContent = `📢 **Announcement from FamilyBridge**${subject ? `\n**${subject}**` : ''}\n\n${message.trim()}\n\n_— ${senderName}_`;
-
-      // Insert messages into each target family's chat
-      const messageInserts = targetFamilyIds.map(familyId => ({
-        family_id: familyId,
-        sender_id: user!.id,
-        content: announcementContent,
-        is_announcement: true,
-        announcement_subject: subject.trim() || null,
-      }));
-
-      const { error: messagesError } = await supabase
-        .from('messages')
-        .insert(messageInserts);
-
-      if (messagesError) throw messagesError;
-
-      const recipientLabel = recipientType === 'providers' 
-        ? `${selectedOrgs.length} provider${selectedOrgs.length > 1 ? 's' : ''} (${targetFamilyIds.length} families)`
-        : `${targetFamilyIds.length} family group${targetFamilyIds.length > 1 ? 's' : ''}`;
-
-      toast({
-        title: 'Announcement sent!',
-        description: `Your message was sent to ${recipientLabel}.`,
-      });
 
       // Reset form
       setSubject('');
@@ -386,7 +450,7 @@ export const SuperAdminBroadcast = () => {
                   <SelectItem value="providers">
                     <div className="flex items-center gap-2">
                       <Building2 className="h-4 w-4" />
-                      Provider Organizations (all their families)
+                      Provider Admin Accounts
                     </div>
                   </SelectItem>
                 </SelectContent>
@@ -440,7 +504,7 @@ export const SuperAdminBroadcast = () => {
                             {org.name}
                           </label>
                           <Badge variant="secondary" className="text-xs">
-                            {families.filter(f => f.organization_id === org.id).length} families
+                            {org.admin_count || 0} admin{(org.admin_count || 0) !== 1 ? 's' : ''}
                           </Badge>
                         </div>
                       ))
@@ -478,11 +542,17 @@ export const SuperAdminBroadcast = () => {
               {currentSelection.length > 0 && (
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   {recipientType === 'providers' ? (
-                    <>
-                      <Building2 className="h-4 w-4" />
-                      {selectedOrgs.length} provider{selectedOrgs.length > 1 ? 's' : ''} selected
-                      ({families.filter(f => f.organization_id && selectedOrgs.includes(f.organization_id)).length} families)
-                    </>
+                    (() => {
+                      const adminCount = providerAdmins.filter(a => selectedOrgs.includes(a.organization_id)).length;
+                      const uniqueAdminCount = new Set(providerAdmins.filter(a => selectedOrgs.includes(a.organization_id)).map(a => a.user_id)).size;
+                      return (
+                        <>
+                          <Building2 className="h-4 w-4" />
+                          {selectedOrgs.length} organization{selectedOrgs.length > 1 ? 's' : ''} selected
+                          ({uniqueAdminCount} admin{uniqueAdminCount !== 1 ? 's' : ''})
+                        </>
+                      );
+                    })()
                   ) : (
                     <>
                       <Users className="h-4 w-4" />
@@ -544,13 +614,23 @@ export const SuperAdminBroadcast = () => {
                   Sending...
                 </>
               ) : (
-                <>
-                  <Send className="h-4 w-4 mr-2" />
-                  {recipientType === 'providers' 
-                    ? `Send to ${selectedOrgs.length || 0} Provider${selectedOrgs.length !== 1 ? 's' : ''}`
-                    : `Send to ${selectedFamilies.length || 0} Family${selectedFamilies.length !== 1 ? ' Groups' : ''}`
+                (() => {
+                  if (recipientType === 'providers') {
+                    const uniqueAdminCount = new Set(providerAdmins.filter(a => selectedOrgs.includes(a.organization_id)).map(a => a.user_id)).size;
+                    return (
+                      <>
+                        <Send className="h-4 w-4 mr-2" />
+                        Send to {uniqueAdminCount || 0} Admin{uniqueAdminCount !== 1 ? 's' : ''}
+                      </>
+                    );
                   }
-                </>
+                  return (
+                    <>
+                      <Send className="h-4 w-4 mr-2" />
+                      Send to {selectedFamilies.length || 0} Family{selectedFamilies.length !== 1 ? ' Groups' : ''}
+                    </>
+                  );
+                })()
               )}
             </Button>
           </div>
@@ -585,7 +665,10 @@ export const SuperAdminBroadcast = () => {
                               </Badge>
                             )}
                             <Badge variant="secondary" className="text-xs">
-                              {broadcast.family_ids.length} group{broadcast.family_ids.length !== 1 ? 's' : ''}
+                              {broadcast.family_ids.length > 0 
+                                ? `${broadcast.family_ids.length} group${broadcast.family_ids.length !== 1 ? 's' : ''}`
+                                : 'Admins'
+                              }
                             </Badge>
                           </div>
                         </div>
