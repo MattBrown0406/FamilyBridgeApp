@@ -17,6 +17,7 @@ import familyBridgeLogo from '@/assets/familybridge-logo.png';
 import { NotificationBell } from '@/components/NotificationBell';
 import { AdminBreadcrumbs } from '@/components/AdminBreadcrumbs';
 import { FamilyHealthBadge } from '@/components/FamilyHealthBadge';
+import { BroadcastMessage } from '@/components/BroadcastMessage';
 
 type HealthStatus = 'crisis' | 'concern' | 'tension' | 'stable' | 'improving';
 
@@ -388,8 +389,8 @@ const ModeratorDashboard = () => {
             </div>
           )}
 
-          {/* Create Family Group Button */}
-          <div className="mb-6">
+          {/* Action Buttons */}
+          <div className="mb-6 flex flex-wrap gap-3">
             <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
               <DialogTrigger asChild>
                 <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90">
@@ -440,6 +441,14 @@ const ModeratorDashboard = () => {
                 </div>
               </DialogContent>
             </Dialog>
+
+            {/* Broadcast Message Button - show if user has at least one org */}
+            {organizations.length > 0 && (
+              <BroadcastMessage 
+                organizationId={organizations[0].id} 
+                organizationName={organizations[0].name} 
+              />
+            )}
           </div>
 
           {/* Assigned Family Groups */}

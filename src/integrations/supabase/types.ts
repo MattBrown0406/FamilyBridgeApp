@@ -293,6 +293,47 @@ export type Database = {
           },
         ]
       }
+      broadcast_messages: {
+        Row: {
+          content: string
+          created_at: string
+          family_ids: string[]
+          id: string
+          organization_id: string
+          sender_id: string
+          sent_at: string
+          subject: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          family_ids: string[]
+          id?: string
+          organization_id: string
+          sender_id: string
+          sent_at?: string
+          subject?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          family_ids?: string[]
+          id?: string
+          organization_id?: string
+          sender_id?: string
+          sent_at?: string
+          subject?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "broadcast_messages_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       daily_emotional_checkins: {
         Row: {
           bypass_inferred_state: string | null
@@ -1402,28 +1443,34 @@ export type Database = {
       }
       messages: {
         Row: {
+          announcement_subject: string | null
           content: string
           created_at: string
           family_id: string
           id: string
+          is_announcement: boolean | null
           original_content: string | null
           sender_id: string
           was_filtered: boolean | null
         }
         Insert: {
+          announcement_subject?: string | null
           content: string
           created_at?: string
           family_id: string
           id?: string
+          is_announcement?: boolean | null
           original_content?: string | null
           sender_id: string
           was_filtered?: boolean | null
         }
         Update: {
+          announcement_subject?: string | null
           content?: string
           created_at?: string
           family_id?: string
           id?: string
+          is_announcement?: boolean | null
           original_content?: string | null
           sender_id?: string
           was_filtered?: boolean | null
