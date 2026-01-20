@@ -332,9 +332,6 @@ const ModeratorDashboard = () => {
                   <span className="hidden sm:inline ml-2">Super Admin</span>
                 </Button>
               )}
-              <span className="text-sm text-primary-foreground/80 hidden sm:block">
-                {user?.email}
-              </span>
               <Button 
                 variant="ghost" 
                 size="sm" 
