@@ -4993,6 +4993,35 @@ const FamilyChat = () => {
               />
             </div>
             
+            {/* True Link Financial recommendation */}
+            {editingMember && (editingMember.role === 'recovering' || editRole === 'recovering') && (
+              <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 space-y-2">
+                <div className="flex items-center gap-2">
+                  <Shield className="h-4 w-4 text-primary" />
+                  <Label className="font-medium text-sm">True Link Financial</Label>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  For enhanced financial protection, consider setting up a True Link prepaid card. 
+                  It provides spending controls and oversight for those in recovery.
+                </p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full"
+                  asChild
+                >
+                  <a 
+                    href="https://www.truelinkfinancial.com" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                  >
+                    <ExternalLink className="h-3 w-3 mr-2" />
+                    Learn About True Link
+                  </a>
+                </Button>
+              </div>
+            )}
+            
             {/* Role selector - for family creator or moderators */}
             {(isFamilyCreator || isAdminOrModerator) && editingMember && editingMember.role !== 'moderator' && (
               <div className="space-y-2">
