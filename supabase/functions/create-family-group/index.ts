@@ -117,8 +117,10 @@ serve(async (req) => {
     }
 
     // Send emails via Resend
+    console.log('Resend API key configured:', !!resendApiKey);
     if (resendApiKey) {
       const resend = new Resend(resendApiKey);
+      console.log('Starting to send emails...');
       
       // Send welcome email to admin with detailed instructions
       try {
