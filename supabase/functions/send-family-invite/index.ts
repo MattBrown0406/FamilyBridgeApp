@@ -15,6 +15,8 @@ interface SendFamilyInviteRequest {
   familyName: string;
   inviteCode: string;
   organizationName: string;
+  creatorName?: string;
+  organizationLogo?: string;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -24,7 +26,7 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { recipientEmail, recipientName, familyName, inviteCode, organizationName }: SendFamilyInviteRequest = await req.json();
+    const { recipientEmail, recipientName, familyName, inviteCode, organizationName, creatorName, organizationLogo }: SendFamilyInviteRequest = await req.json();
 
     if (!recipientEmail || !recipientName || !familyName || !inviteCode) {
       return new Response(
@@ -87,8 +89,19 @@ const handler = async (req: Request): Promise<Response> => {
           
           <div style="text-align: center; padding: 20px; color: #888; font-size: 14px;">
             <p>This invitation was sent by ${organizationName}.</p>
-            <p style="margin-bottom: 5px; margin-top: 20px;">Thank you,</p>
-            <p style="font-weight: bold; margin-top: 0;">Matt Brown, Creator of Family Bridge</p>
+            ${creatorName ? `
+              <div style="display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 20px;">
+                ${organizationLogo ? `<img src="${organizationLogo}" alt="${organizationName}" style="width: 40px; height: 40px; object-fit: contain; border-radius: 4px;" />` : ''}
+                <div style="text-align: left;">
+                  <p style="margin: 0 0 2px 0; font-size: 13px;">Thank you,</p>
+                  <p style="margin: 0; font-weight: bold;">${creatorName}</p>
+                  <p style="margin: 0; color: #666; font-size: 13px;">${organizationName}</p>
+                </div>
+              </div>
+            ` : `
+              <p style="margin-bottom: 5px; margin-top: 20px;">Thank you,</p>
+              <p style="font-weight: bold; margin-top: 0;">Matt Brown, Creator of Family Bridge</p>
+            `}
           </div>
         </body>
         </html>
