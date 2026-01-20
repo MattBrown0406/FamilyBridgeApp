@@ -38,6 +38,7 @@ import {
   HelpCircle,
 } from 'lucide-react';
 import { ArchivedFamiliesPanel } from '@/components/ArchivedFamiliesPanel';
+import { BroadcastMessage } from '@/components/BroadcastMessage';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 
 // Helper to convert hex to HSL string
@@ -1550,10 +1551,18 @@ const ProviderAdmin = () => {
                   {/* Create Family Group */}
                   <Card className="border-primary/20">
                     <CardHeader className="bg-primary/5 rounded-t-lg">
-                      <CardTitle className="flex items-center gap-2 text-primary">
-                        <UsersRound className="h-5 w-5" />
-                        Create Family Group
-                      </CardTitle>
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="flex items-center gap-2 text-primary">
+                          <UsersRound className="h-5 w-5" />
+                          Create Family Group
+                        </CardTitle>
+                        {selectedOrg && currentOrg && (
+                          <BroadcastMessage 
+                            organizationId={selectedOrg} 
+                            organizationName={currentOrg.name} 
+                          />
+                        )}
+                      </div>
                       <CardDescription>
                         Create a new family group and generate an invite code for clients
                       </CardDescription>
