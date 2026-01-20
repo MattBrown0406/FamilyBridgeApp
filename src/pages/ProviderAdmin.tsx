@@ -1046,6 +1046,24 @@ const ProviderAdmin = () => {
               <Button 
                 variant="ghost" 
                 size="sm" 
+                onClick={() => navigate('/super-admin')}
+                className="text-primary-foreground hover:bg-primary-foreground/10"
+              >
+                <Shield className="h-4 w-4" />
+                <span className="hidden sm:inline ml-2">Super Admin</span>
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => navigate('/moderator-dashboard')}
+                className="text-primary-foreground hover:bg-primary-foreground/10"
+              >
+                <Users className="h-4 w-4" />
+                <span className="hidden sm:inline ml-2">Moderator</span>
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="sm" 
                 onClick={() => {
                   const org = currentOrg;
                   const params = new URLSearchParams({ type: 'provider' });
