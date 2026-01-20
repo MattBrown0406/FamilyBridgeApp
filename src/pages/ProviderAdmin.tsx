@@ -229,7 +229,7 @@ const ProviderAdmin = () => {
     }
 
     if (!leadMemberName.trim() || !leadMemberEmail.trim()) {
-      toast({ title: 'Error', description: 'Lead family member name and email are required', variant: 'destructive' });
+      toast({ title: 'Error', description: 'Family admin name and email are required', variant: 'destructive' });
       return;
     }
 
@@ -1580,15 +1580,15 @@ const ProviderAdmin = () => {
                         </div>
                       </div>
                       
-                      {/* Lead Family Member */}
+                      {/* Family Admin */}
                       <div className="border-t pt-4 mt-4">
-                        <p className="text-sm font-medium mb-3">Lead Family Member</p>
+                        <p className="text-sm font-medium mb-3">Family Admin</p>
                         <div className="grid gap-4 sm:grid-cols-2">
                           <div className="space-y-2">
                             <Label htmlFor="lead-member-name">Name *</Label>
                             <Input
                               id="lead-member-name"
-                              placeholder="Lead family member's name"
+                              placeholder="Family admin's name"
                               value={leadMemberName}
                               onChange={(e) => setLeadMemberName(e.target.value)}
                             />
