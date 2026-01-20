@@ -97,7 +97,7 @@ serve(async (req) => {
         try {
           const resend = new Resend(resendApiKey);
           await resend.emails.send({
-            from: 'FamilyBridge <onboarding@resend.dev>',
+            from: 'FamilyBridge <noreply@familybridgeapp.com>',
             to: [email],
             subject: 'Your FamilyBridge Invite Code',
             html: `
