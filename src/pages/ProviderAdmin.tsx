@@ -35,6 +35,7 @@ import {
   Pencil,
   Trash2,
   Archive,
+  HelpCircle,
 } from 'lucide-react';
 import { ArchivedFamiliesPanel } from '@/components/ArchivedFamiliesPanel';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
@@ -1038,10 +1039,27 @@ const ProviderAdmin = () => {
                 </span>
               </div>
             </div>
-            <Button variant="ghost" size="sm" onClick={() => navigate('/dashboard')} className="text-primary-foreground hover:bg-primary-foreground/10">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">Dashboard</span>
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => {
+                  const org = currentOrg;
+                  const params = new URLSearchParams({ type: 'provider' });
+                  if (org?.name) params.set('org', org.name);
+                  if (org?.id) params.set('orgId', org.id);
+                  navigate(`/support?${params.toString()}`);
+                }}
+                className="text-primary-foreground hover:bg-primary-foreground/10"
+              >
+                <HelpCircle className="h-4 w-4" />
+                <span className="hidden sm:inline ml-2">Support</span>
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => navigate('/dashboard')} className="text-primary-foreground hover:bg-primary-foreground/10">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                <span className="hidden sm:inline">Dashboard</span>
+              </Button>
+            </div>
           </div>
         </div>
       </header>
