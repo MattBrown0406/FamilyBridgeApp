@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { useProviderAdmin } from '@/hooks/useProviderAdmin';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -44,6 +45,7 @@ interface Family {
 
 const Dashboard = () => {
   const { user, signOut, loading } = useAuth();
+  const { isProvider, isLoading: isProviderLoading } = useProviderAdmin();
   const navigate = useNavigate();
   const { toast } = useToast();
   const { 
@@ -63,6 +65,13 @@ const Dashboard = () => {
       navigate('/auth');
     }
   }, [user, loading, navigate]);
+
+  // Redirect provider admins/moderators to the moderator dashboard
+  useEffect(() => {
+    if (!isProviderLoading && isProvider) {
+      navigate('/moderator-dashboard', { replace: true });
+    }
+  }, [isProvider, isProviderLoading, navigate]);
 
   useEffect(() => {
     if (user) {
@@ -201,7 +210,16 @@ const Dashboard = () => {
     }
   };
 
-  if (loading || isLoading) {
+  if (loading || isLoading || isProviderLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  // Don't render if provider (they will be redirected)
+  if (isProvider) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
