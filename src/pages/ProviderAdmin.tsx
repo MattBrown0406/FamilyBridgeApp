@@ -295,13 +295,18 @@ const ProviderAdmin = () => {
       // Send email to lead family member with the invite code
       if (inviteCodeData?.invite_code) {
         try {
+          // Get the current user's name from their profile or metadata
+          const creatorName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Provider Admin';
+          
           await supabase.functions.invoke('send-family-invite', {
             body: {
               recipientEmail: leadMemberEmail.trim(),
               recipientName: leadMemberName.trim(),
               familyName: newFamilyName.trim(),
               inviteCode: inviteCodeData.invite_code,
-              organizationName: currentOrg?.name || 'FamilyBridge'
+              organizationName: currentOrg?.name || 'FamilyBridge',
+              creatorName: creatorName,
+              organizationLogo: currentOrg?.logo_url || null
             }
           });
           toast({ title: 'Success', description: 'Family group created and invite email sent!' });
