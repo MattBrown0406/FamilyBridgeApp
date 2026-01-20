@@ -3165,6 +3165,69 @@ const FamilyChat = () => {
                 </Card>
               </div>
 
+              {/* True Link Financial - Only for admins and recovering members */}
+              {(currentUserRole === 'admin' || currentUserRole === 'recovering') && (
+                <Card className="relative overflow-hidden border-0 shadow-lg group">
+                  <div className="h-1.5 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500" />
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-blue-500/10 to-transparent rounded-full -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+                  <CardHeader className="pb-3 relative">
+                    <CardTitle className="flex items-center gap-3 text-lg font-display">
+                      <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-500/20 via-indigo-500/20 to-purple-500/20 flex items-center justify-center shadow-inner">
+                        <Shield className="h-5 w-5 text-blue-600" />
+                      </div>
+                      <div>
+                        <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                          True Link Financial
+                        </span>
+                        <p className="text-xs font-normal text-muted-foreground mt-0.5">
+                          Protected payment cards for recovery
+                        </p>
+                      </div>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="relative space-y-4">
+                    <p className="text-sm text-muted-foreground">
+                      True Link offers prepaid Visa cards with customizable spending controls, 
+                      designed to protect individuals in recovery while building financial independence.
+                    </p>
+                    <div className="grid gap-2 text-xs text-muted-foreground">
+                      <div className="flex items-start gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-success shrink-0 mt-0.5" />
+                        <span>Block purchases at liquor stores, casinos, and other risky merchants</span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-success shrink-0 mt-0.5" />
+                        <span>Set daily, weekly, or monthly spending limits</span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-success shrink-0 mt-0.5" />
+                        <span>Family members can fund the card directly</span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-success shrink-0 mt-0.5" />
+                        <span>Real-time transaction notifications for transparency</span>
+                      </div>
+                    </div>
+                    <a 
+                      href="https://www.truelinkfinancial.com" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="block"
+                    >
+                      <Button 
+                        className="w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:opacity-90 transition-opacity"
+                      >
+                        <ExternalLink className="h-4 w-4 mr-2" />
+                        Learn More & Set Up True Link
+                      </Button>
+                    </a>
+                    <p className="text-[10px] text-muted-foreground text-center">
+                      External service • Not affiliated with FamilyBridge
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
+
               {/* Requests List with Month Navigation */}
               <Card className="border-0 shadow-lg overflow-hidden">
                 <div className="h-1 bg-gradient-to-r from-primary via-accent to-success" />
