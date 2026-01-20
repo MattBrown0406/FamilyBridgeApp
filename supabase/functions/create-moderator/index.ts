@@ -10,7 +10,6 @@ const corsHeaders = {
 interface CreateModeratorRequest {
   organizationId: string;
   email: string;
-  password: string;
   fullName: string;
   role: 'admin' | 'staff';
   creatorName?: string;
@@ -54,14 +53,10 @@ serve(async (req) => {
       throw new Error("Unauthorized");
     }
 
-    const { organizationId, email, password, fullName, role, creatorName, organizationName, organizationLogo }: CreateModeratorRequest = await req.json();
+    const { organizationId, email, fullName, role, creatorName, organizationName, organizationLogo }: CreateModeratorRequest = await req.json();
 
-    if (!organizationId || !email || !password || !fullName) {
-      throw new Error("Missing required fields: organizationId, email, password, fullName");
-    }
-
-    if (password.length < 6) {
-      throw new Error("Password must be at least 6 characters");
+    if (!organizationId || !email || !fullName) {
+      throw new Error("Missing required fields: organizationId, email, fullName");
     }
 
     // Verify caller is an admin/owner of the organization
@@ -102,23 +97,25 @@ serve(async (req) => {
         throw new Error("This user is already a member of the organization");
       }
     } else {
-      // Create new user account
-      const { data: newUser, error: createUserError } = await supabaseAdmin.auth.admin.createUser({
+      // Invite new user - they will set their own password
+      const appUrl = 'https://familybridgeapp.com';
+      const { data: newUser, error: createUserError } = await supabaseAdmin.auth.admin.inviteUserByEmail(
         email,
-        password,
-        email_confirm: true, // Auto-confirm email
-        user_metadata: {
-          full_name: fullName,
-        },
-      });
+        {
+          redirectTo: `${appUrl}/auth`,
+          data: {
+            full_name: fullName,
+          },
+        }
+      );
 
       if (createUserError) {
-        console.error("Error creating user:", createUserError);
-        throw new Error(`Failed to create user account: ${createUserError.message}`);
+        console.error("Error inviting user:", createUserError);
+        throw new Error(`Failed to invite user: ${createUserError.message}`);
       }
 
       if (!newUser.user) {
-        throw new Error("Failed to create user account");
+        throw new Error("Failed to invite user");
       }
 
       userId = newUser.user.id;
@@ -160,7 +157,7 @@ serve(async (req) => {
         await resend.emails.send({
           from: `${orgDisplayName} <noreply@familybridgeapp.com>`,
           to: [email],
-          subject: `Welcome to ${orgDisplayName} - Your Moderator Account is Ready`,
+          subject: `Welcome to ${orgDisplayName} - Set Up Your Moderator Account`,
           html: `
             <!DOCTYPE html>
             <html>
@@ -177,7 +174,7 @@ serve(async (req) => {
               <div style="background: #f8f9fa; border-radius: 12px; padding: 30px; margin-bottom: 20px;">
                 <h2 style="margin-top: 0; color: #333;">Welcome, ${fullName}!</h2>
                 
-                <p>Your moderator account has been created for <strong>${orgDisplayName}</strong> on FamilyBridge.</p>
+                <p>You've been invited to join <strong>${orgDisplayName}</strong> as a moderator on FamilyBridge.</p>
                 
                 <div style="background: #fff; border: 2px solid #2d7d6f; border-radius: 8px; padding: 20px; margin: 25px 0;">
                   <p style="margin: 0 0 10px 0; color: #666; font-size: 14px;">Your Login Email:</p>
@@ -186,11 +183,9 @@ serve(async (req) => {
                   <p style="margin: 0; font-size: 16px; font-weight: bold; color: #333; text-transform: capitalize;">${role}</p>
                 </div>
                 
-                <p style="text-align: center;">
-                  <a href="${appUrl}/auth" style="display: inline-block; background: #2d7d6f; color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 8px; font-weight: bold; font-size: 16px;">
-                    Log In to FamilyBridge →
-                  </a>
-                </p>
+                <div style="background: #e8f5e9; border-left: 4px solid #4caf50; padding: 15px; margin: 20px 0;">
+                  <p style="margin: 0;"><strong>Next Step:</strong> Check your inbox for a separate email from FamilyBridge with a link to set your password. Click that link to create your password and activate your account.</p>
+                </div>
                 
                 <hr style="border: none; border-top: 1px solid #ddd; margin: 25px 0;" />
                 
@@ -202,10 +197,6 @@ serve(async (req) => {
                   <li style="margin-bottom: 8px;">Access crisis intervention tools when needed</li>
                   <li style="margin-bottom: 8px;">View family patterns and insights</li>
                 </ul>
-                
-                <div style="background: #fff3e0; border-left: 4px solid #ff9800; padding: 15px; margin: 20px 0;">
-                  <p style="margin: 0;"><strong>Important:</strong> Use the password that was provided to you by your administrator to log in. You can change it after your first login.</p>
-                </div>
               </div>
               
               <div style="text-align: center; padding: 20px; color: #888; font-size: 14px;">

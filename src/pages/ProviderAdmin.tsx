@@ -121,7 +121,6 @@ const ProviderAdmin = () => {
   const [isAddingModerator, setIsAddingModerator] = useState(false);
   const [newModeratorName, setNewModeratorName] = useState('');
   const [newModeratorEmail, setNewModeratorEmail] = useState('');
-  const [newModeratorPassword, setNewModeratorPassword] = useState('');
   const [newModeratorRole, setNewModeratorRole] = useState<'admin' | 'staff'>('staff');
   const [editingModerator, setEditingModerator] = useState<string | null>(null);
   const [editModeratorRole, setEditModeratorRole] = useState<'admin' | 'staff'>('staff');
@@ -417,13 +416,8 @@ const ProviderAdmin = () => {
 
   // Add a new moderator
   const handleAddModerator = async () => {
-    if (!newModeratorEmail.trim() || !newModeratorName.trim() || !newModeratorPassword.trim() || !selectedOrg) {
-      toast({ title: 'Error', description: 'Name, email, and password are required', variant: 'destructive' });
-      return;
-    }
-
-    if (newModeratorPassword.length < 6) {
-      toast({ title: 'Error', description: 'Password must be at least 6 characters', variant: 'destructive' });
+    if (!newModeratorEmail.trim() || !newModeratorName.trim() || !selectedOrg) {
+      toast({ title: 'Error', description: 'Name and email are required', variant: 'destructive' });
       return;
     }
 
@@ -436,7 +430,6 @@ const ProviderAdmin = () => {
         body: {
           organizationId: selectedOrg,
           email: newModeratorEmail.trim(),
-          password: newModeratorPassword,
           fullName: newModeratorName.trim(),
           role: newModeratorRole,
           creatorName: creatorName,
@@ -449,14 +442,13 @@ const ProviderAdmin = () => {
       if (data?.error) throw new Error(data.error);
 
       toast({ 
-        title: 'Success', 
-        description: data?.message || 'Moderator account created successfully! They can now log in with their email and password.',
+        title: 'Invitation Sent!', 
+        description: data?.message || 'An email has been sent to the moderator with a link to set their password.',
       });
 
       // Clear form
       setNewModeratorName('');
       setNewModeratorEmail('');
-      setNewModeratorPassword('');
       setNewModeratorRole('staff');
       
       // Refresh moderators list
@@ -1381,46 +1373,34 @@ const ProviderAdmin = () => {
                           />
                         </div>
                       </div>
-                      <div className="grid gap-4 sm:grid-cols-2">
-                        <div className="space-y-2">
-                          <Label htmlFor="moderator-password">Password *</Label>
-                          <Input
-                            id="moderator-password"
-                            type="password"
-                            placeholder="Min. 6 characters"
-                            value={newModeratorPassword}
-                            onChange={(e) => setNewModeratorPassword(e.target.value)}
-                          />
-                          <p className="text-xs text-muted-foreground">
-                            An account will be created with this password
-                          </p>
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="moderator-role">Role</Label>
-                          <select
-                            id="moderator-role"
-                            value={newModeratorRole}
-                            onChange={(e) => setNewModeratorRole(e.target.value as 'admin' | 'staff')}
-                            className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
-                          >
-                            <option value="staff">Staff</option>
-                            <option value="admin">Admin</option>
-                          </select>
-                        </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="moderator-role">Role</Label>
+                        <select
+                          id="moderator-role"
+                          value={newModeratorRole}
+                          onChange={(e) => setNewModeratorRole(e.target.value as 'admin' | 'staff')}
+                          className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
+                        >
+                          <option value="staff">Staff</option>
+                          <option value="admin">Admin</option>
+                        </select>
+                        <p className="text-xs text-muted-foreground">
+                          They'll receive an email to set their own password
+                        </p>
                       </div>
                       <Button 
                         onClick={handleAddModerator} 
-                        disabled={isAddingModerator || !newModeratorEmail.trim() || !newModeratorName.trim() || newModeratorPassword.length < 6}
+                        disabled={isAddingModerator || !newModeratorEmail.trim() || !newModeratorName.trim()}
                       >
                         {isAddingModerator ? (
                           <>
                             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                            Adding...
+                            Sending Invite...
                           </>
                         ) : (
                           <>
                             <Plus className="h-4 w-4 mr-2" />
-                            Add Moderator
+                            Send Invite
                           </>
                         )}
                       </Button>
