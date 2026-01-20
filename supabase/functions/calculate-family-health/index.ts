@@ -428,6 +428,16 @@ serve(async (req) => {
       console.log('Using rule-based analysis:', healthResult);
     }
 
+    // Check if status changed for notification purposes
+    const statusChanged = previousStatus && previousStatus !== healthResult.status;
+    const shouldNotify = statusChanged && (
+      // Notify when dropping to tension, concern, or crisis
+      (['tension', 'concern', 'crisis'].includes(healthResult.status) && 
+       ['stable', 'improving', 'tension', 'concern'].includes(previousStatus)) ||
+      // Also notify when returning to stable (good news!)
+      (healthResult.status === 'stable' && ['tension', 'concern', 'crisis'].includes(previousStatus))
+    );
+
     // Upsert the health status
     const { data: upsertResult, error: upsertError } = await supabase
       .from('family_health_status')
@@ -454,11 +464,79 @@ serve(async (req) => {
 
     console.log('Health status saved successfully:', upsertResult);
 
+    // Send push notifications to moderators if status changed
+    if (shouldNotify) {
+      try {
+        // Get family name
+        const { data: family } = await supabase
+          .from('families')
+          .select('name')
+          .eq('id', familyId)
+          .single();
+
+        const familyName = family?.name || 'A family';
+
+        // Get moderators for this family
+        const { data: moderators } = await supabase
+          .from('family_members')
+          .select('user_id')
+          .eq('family_id', familyId)
+          .eq('role', 'moderator');
+
+        if (moderators && moderators.length > 0) {
+          const moderatorIds = moderators.map(m => m.user_id);
+          
+          // Determine notification message based on status change
+          let title: string;
+          let body: string;
+          
+          if (healthResult.status === 'stable') {
+            title = '✅ Family Status Improved';
+            body = `"${familyName}" is now back to stable status. Great progress!`;
+          } else if (healthResult.status === 'crisis') {
+            title = '🚨 Family Status Critical';
+            body = `"${familyName}" has changed to crisis status. Immediate attention needed.`;
+          } else if (healthResult.status === 'concern') {
+            title = '⚠️ Family Status: Concern';
+            body = `"${familyName}" has changed to concern status. Early warning signs detected.`;
+          } else if (healthResult.status === 'tension') {
+            title = '📊 Family Status: Tension';
+            body = `"${familyName}" has changed to tension status. Some friction detected.`;
+          } else {
+            title = '📋 Family Status Update';
+            body = `"${familyName}" status changed from ${previousStatus} to ${healthResult.status}.`;
+          }
+
+          console.log(`Sending push notification to ${moderatorIds.length} moderators for status change: ${previousStatus} -> ${healthResult.status}`);
+
+          // Send push notification
+          await supabase.functions.invoke('send-push-notification', {
+            body: {
+              user_ids: moderatorIds,
+              title,
+              body,
+              type: 'family_status_change',
+              data: {
+                family_id: familyId,
+                previous_status: previousStatus,
+                new_status: healthResult.status,
+              },
+            },
+          });
+        }
+      } catch (notifyError) {
+        // Don't fail the whole request if notification fails
+        console.error('Error sending status change notification:', notifyError);
+      }
+    }
+
     return new Response(
       JSON.stringify({ 
         success: true, 
         healthStatus: upsertResult,
         aiPowered: !!aiAnalysis,
+        statusChanged: shouldNotify,
+        previousStatus: previousStatus || null,
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
