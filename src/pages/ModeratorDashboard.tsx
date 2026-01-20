@@ -320,6 +320,18 @@ const ModeratorDashboard = () => {
               </Button>
             </div>
             <div className="flex items-center gap-2 sm:gap-4">
+              {organizations.some(o => o.role === 'owner' || o.role === 'admin') && (
+                <Button variant="ghost" size="sm" onClick={() => navigate('/provider-admin')} className="text-primary-foreground hover:bg-primary-foreground/10">
+                  <Building2 className="h-4 w-4" />
+                  <span className="hidden sm:inline ml-2">Provider Admin</span>
+                </Button>
+              )}
+              {isSuperAdmin && (
+                <Button variant="ghost" size="sm" onClick={() => navigate('/super-admin')} className="text-primary-foreground hover:bg-primary-foreground/10">
+                  <Shield className="h-4 w-4" />
+                  <span className="hidden sm:inline ml-2">Super Admin</span>
+                </Button>
+              )}
               <span className="text-sm text-primary-foreground/80 hidden sm:block">
                 {user?.email}
               </span>
@@ -572,20 +584,6 @@ const ModeratorDashboard = () => {
             </CardContent>
           </Card>
 
-          {/* Quick Actions */}
-          <div className="flex flex-wrap gap-4">
-            {organizations.some(o => o.role === 'owner' || o.role === 'admin') && (
-              <Button variant="outline" onClick={() => navigate('/provider-admin')}>
-                Provider Admin Panel
-              </Button>
-            )}
-            {isSuperAdmin && (
-              <Button variant="outline" onClick={() => navigate('/super-admin')}>
-                <Shield className="h-4 w-4 mr-2" />
-                Super Admin
-              </Button>
-            )}
-          </div>
         </div>
       </main>
     </div>
