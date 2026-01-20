@@ -600,6 +600,14 @@ const SuperAdmin = () => {
             </div>
 
             <div className="flex items-center gap-1.5">
+              <Button size="sm" variant="outline" onClick={() => navigate('/provider-admin')} className="h-8 gap-1.5">
+                <Building2 className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Provider Admin</span>
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => navigate('/moderator-dashboard')} className="h-8 gap-1.5">
+                <Users className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Moderator</span>
+              </Button>
               <Button size="sm" onClick={() => setIsCreatingProvider(true)} className="h-8 gap-1.5">
                 <Plus className="h-3.5 w-3.5" />
                 <span className="hidden sm:inline">Provider</span>
