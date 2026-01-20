@@ -92,6 +92,10 @@ serve(async (req) => {
 
       console.log('Invite code created via coupon:', inviteCode);
 
+      // Build the setup URL
+      const appUrl = 'https://familybridgeapp.com';
+      const setupUrl = `${appUrl}/family-purchase?inviteCode=${encodeURIComponent(inviteCode)}`;
+
       // Send email with invite code if Resend is configured
       if (resendApiKey) {
         try {
@@ -101,15 +105,46 @@ serve(async (req) => {
             to: [email],
             subject: 'Your FamilyBridge Invite Code',
             html: `
-              <h1>Welcome to FamilyBridge!</h1>
-              <p>Thank you for creating your family group. Your invite code is:</p>
-              <div style="background: #f4f4f4; padding: 20px; border-radius: 8px; text-align: center; margin: 20px 0;">
-                <p style="font-size: 28px; font-family: monospace; font-weight: bold; letter-spacing: 3px; margin: 0;">
-                  ${inviteCode}
-                </p>
-              </div>
-              <p>Use this code to set up your family group and invite your family members.</p>
-              <p>Best regards,<br>The FamilyBridge Team</p>
+              <!DOCTYPE html>
+              <html>
+              <head>
+                <meta charset="utf-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              </head>
+              <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+                <div style="text-align: center; margin-bottom: 30px;">
+                  <h1 style="color: #2d7d6f; margin: 0;">FamilyBridge</h1>
+                  <p style="color: #666; margin-top: 5px;">Family Recovery Support Platform</p>
+                </div>
+                
+                <div style="background: #f8f9fa; border-radius: 12px; padding: 30px; margin-bottom: 20px;">
+                  <h2 style="margin-top: 0; color: #333;">Welcome to FamilyBridge!</h2>
+                  
+                  <p>Thank you for joining. Your invite code is:</p>
+                  
+                  <div style="background: #fff; border: 2px dashed #2d7d6f; border-radius: 8px; padding: 20px; text-align: center; margin: 25px 0;">
+                    <p style="margin: 0 0 10px 0; color: #666; font-size: 14px;">Your Invite Code</p>
+                    <p style="margin: 0; font-size: 28px; font-weight: bold; font-family: monospace; letter-spacing: 3px; color: #2d7d6f;">
+                      ${inviteCode}
+                    </p>
+                  </div>
+                  
+                  <p style="text-align: center;">
+                    <a href="${setupUrl}" style="display: inline-block; background: #2d7d6f; color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 8px; font-weight: bold; font-size: 16px;">
+                      Set Up Your Account →
+                    </a>
+                  </p>
+                  
+                  <p style="color: #666; font-size: 14px; margin-top: 20px;">Or copy and paste this link into your browser:</p>
+                  <p style="word-break: break-all; font-size: 14px; color: #2d7d6f;">${setupUrl}</p>
+                </div>
+                
+                <div style="text-align: center; padding: 20px; color: #888; font-size: 14px;">
+                  <p>Use this code to set up your family group and invite your family members.</p>
+                  <p>Best regards,<br>The FamilyBridge Team</p>
+                </div>
+              </body>
+              </html>
             `,
           });
           console.log('Invite code email sent to:', email);
