@@ -5,7 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Users, LogOut, Loader2, Copy, ArrowRight, Crown, Home, Settings, Trash2 } from 'lucide-react';
+import { Users, LogOut, Loader2, Copy, ArrowRight, Crown, Home, Settings, Trash2, HelpCircle } from 'lucide-react';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 import { NotificationBell } from '@/components/NotificationBell';
 import { AdminBreadcrumbs } from '@/components/AdminBreadcrumbs';
@@ -39,6 +39,7 @@ interface Family {
   invite_code: string | null;
   role: string;
   member_count: number;
+  account_number: string;
 }
 
 const Dashboard = () => {
@@ -81,7 +82,8 @@ const Dashboard = () => {
             id,
             name,
             description,
-            is_archived
+            is_archived,
+            account_number
           )
         `)
         .eq('user_id', user.id)
@@ -108,6 +110,7 @@ const Dashboard = () => {
             id: (member.families as any).id,
             name: (member.families as any).name,
             description: (member.families as any).description,
+            account_number: (member.families as any).account_number,
             invite_code: inviteCode,
             role: member.role,
             member_count: count || 0,
@@ -238,6 +241,19 @@ const Dashboard = () => {
               <Button variant="ghost" size="sm" onClick={() => navigate('/subscription')}>
                 <Crown className="h-4 w-4" />
                 <span className="hidden sm:inline ml-2">Premium</span>
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => {
+                  const firstFamily = families[0];
+                  const params = new URLSearchParams({ type: 'family' });
+                  if (firstFamily?.account_number) params.set('account', firstFamily.account_number);
+                  navigate(`/support?${params.toString()}`);
+                }}
+              >
+                <HelpCircle className="h-4 w-4" />
+                <span className="hidden sm:inline ml-2">Support</span>
               </Button>
               <NotificationBell />
               

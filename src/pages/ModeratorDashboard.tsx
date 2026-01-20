@@ -12,7 +12,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Users, LogOut, Loader2, ArrowRight, Home, Building2, Shield, Plus, Copy, Archive } from 'lucide-react';
+import { Users, LogOut, Loader2, ArrowRight, Home, Building2, Shield, Plus, Copy, Archive, HelpCircle } from 'lucide-react';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 import { NotificationBell } from '@/components/NotificationBell';
 import { AdminBreadcrumbs } from '@/components/AdminBreadcrumbs';
@@ -323,6 +323,21 @@ const ModeratorDashboard = () => {
               <span className="text-sm text-primary-foreground/80 hidden sm:block">
                 {user?.email}
               </span>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => {
+                  const org = organizations[0];
+                  const params = new URLSearchParams({ type: 'moderator' });
+                  if (org?.name) params.set('org', org.name);
+                  if (org?.id) params.set('orgId', org.id);
+                  navigate(`/support?${params.toString()}`);
+                }}
+                className="text-primary-foreground hover:bg-primary-foreground/10"
+              >
+                <HelpCircle className="h-4 w-4" />
+                <span className="hidden sm:inline ml-2">Support</span>
+              </Button>
               <NotificationBell />
               <Button variant="ghost" size="sm" onClick={handleSignOut} className="text-primary-foreground hover:bg-primary-foreground/10">
                 <LogOut className="h-4 w-4" />
