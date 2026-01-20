@@ -429,6 +429,9 @@ const ProviderAdmin = () => {
 
     setIsAddingModerator(true);
     try {
+      // Get the current user's name from their profile or metadata
+      const creatorName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Provider Admin';
+      
       const { data, error } = await supabase.functions.invoke('create-moderator', {
         body: {
           organizationId: selectedOrg,
@@ -436,6 +439,9 @@ const ProviderAdmin = () => {
           password: newModeratorPassword,
           fullName: newModeratorName.trim(),
           role: newModeratorRole,
+          creatorName: creatorName,
+          organizationName: currentOrg?.name || 'FamilyBridge',
+          organizationLogo: currentOrg?.logo_url || null
         },
       });
 
