@@ -178,6 +178,9 @@ const handler = async (req: Request): Promise<Response> => {
           subject: "🚨 Temporary Moderator Assignment - Crisis Support Requested",
           html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <div style="text-align: center; margin-bottom: 20px;">
+                <img src="https://familybridgeapp.com/og-image.png" alt="FamilyBridge" style="max-width: 180px; height: auto;" />
+              </div>
               <h1 style="color: #7c3aed;">Temporary Moderator Assignment</h1>
               <p>You have been assigned as a temporary moderator for a family in crisis.</p>
               

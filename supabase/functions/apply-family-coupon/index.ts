@@ -113,6 +113,7 @@ serve(async (req) => {
               </head>
               <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
                 <div style="text-align: center; margin-bottom: 30px;">
+                  <img src="https://familybridgeapp.com/og-image.png" alt="FamilyBridge" style="max-width: 200px; height: auto; margin-bottom: 15px;" />
                   <h1 style="color: #2d7d6f; margin: 0;">FamilyBridge</h1>
                   <p style="color: #666; margin-top: 5px;">Family Recovery Support Platform</p>
                 </div>

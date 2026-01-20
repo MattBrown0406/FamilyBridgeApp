@@ -99,6 +99,7 @@ const handler = async (req: Request): Promise<Response> => {
         </head>
         <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
           <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
+            <img src="https://familybridgeapp.com/og-image.png" alt="FamilyBridge" style="max-width: 180px; height: auto; margin-bottom: 15px; background: white; padding: 10px; border-radius: 8px;" />
             <h1 style="color: white; margin: 0; font-size: 28px;">Family Bridge</h1>
             <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0;">Your Recovery Journey Continues</p>
           </div>

@@ -139,6 +139,9 @@ const handler = async (req: Request): Promise<Response> => {
                 subject: "Crisis Moderation Session Ended",
                 html: `
                   <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                    <div style="text-align: center; margin-bottom: 20px;">
+                      <img src="https://familybridgeapp.com/og-image.png" alt="FamilyBridge" style="max-width: 180px; height: auto;" />
+                    </div>
                     <h1 style="color: #7c3aed;">Session Ended</h1>
                     <p>Your 24-hour crisis moderation session for <strong>${familyName}</strong> has ended.</p>
                     <p>You have been automatically removed from the family group.</p>
@@ -156,6 +159,9 @@ const handler = async (req: Request): Promise<Response> => {
                 subject: "Your Crisis Moderation Session Has Ended",
                 html: `
                   <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                    <div style="text-align: center; margin-bottom: 20px;">
+                      <img src="https://familybridgeapp.com/og-image.png" alt="FamilyBridge" style="max-width: 180px; height: auto;" />
+                    </div>
                     <h1 style="color: #7c3aed;">Session Ended</h1>
                     <p>Your 24-hour crisis moderation session for <strong>${familyName}</strong> has ended.</p>
                     <p>The assigned moderator has been removed from your family group.</p>
