@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      activation_code_access_log: {
+        Row: {
+          access_type: string
+          accessed_at: string
+          accessed_by: string
+          code_id: string | null
+          id: string
+          ip_address: string | null
+        }
+        Insert: {
+          access_type?: string
+          accessed_at?: string
+          accessed_by: string
+          code_id?: string | null
+          id?: string
+          ip_address?: string | null
+        }
+        Update: {
+          access_type?: string
+          accessed_at?: string
+          accessed_by?: string
+          code_id?: string | null
+          id?: string
+          ip_address?: string | null
+        }
+        Relationships: []
+      }
       activation_code_audit_log: {
         Row: {
           action: string
