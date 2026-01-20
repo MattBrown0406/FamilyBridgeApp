@@ -87,7 +87,8 @@ const handler = async (req: Request): Promise<Response> => {
           
           <div style="text-align: center; padding: 20px; color: #888; font-size: 14px;">
             <p>This invitation was sent by ${organizationName}.</p>
-            <p>If you have any questions, please contact your family coordinator.</p>
+            <p style="margin-bottom: 5px; margin-top: 20px;">Thank you,</p>
+            <p style="font-weight: bold; margin-top: 0;">Matt Brown, Creator of Family Bridge</p>
           </div>
         </body>
         </html>

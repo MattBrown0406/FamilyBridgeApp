@@ -190,9 +190,8 @@ const handler = async (req: Request): Promise<Response> => {
               
               <p>Please log in to FamilyBridge to view the family and provide support.</p>
               
-              <p style="color: #6b7280; font-size: 14px; margin-top: 30px;">
-                This is an automated notification from FamilyBridge.
-              </p>
+              <p style="margin-top: 30px; margin-bottom: 5px;">Thank you,</p>
+              <p style="font-weight: bold; margin-top: 0;">Matt Brown, Creator of Family Bridge</p>
             </div>
           `,
         });

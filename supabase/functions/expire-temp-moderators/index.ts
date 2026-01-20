@@ -142,10 +142,8 @@ const handler = async (req: Request): Promise<Response> => {
                     <h1 style="color: #7c3aed;">Session Ended</h1>
                     <p>Your 24-hour crisis moderation session for <strong>${familyName}</strong> has ended.</p>
                     <p>You have been automatically removed from the family group.</p>
-                    <p>Thank you for your service.</p>
-                    <p style="color: #6b7280; font-size: 14px; margin-top: 30px;">
-                      This is an automated notification from FamilyBridge.
-                    </p>
+                    <p style="margin-top: 30px; margin-bottom: 5px;">Thank you,</p>
+                    <p style="font-weight: bold; margin-top: 0;">Matt Brown, Creator of Family Bridge</p>
                   </div>
                 `,
               });
@@ -167,9 +165,8 @@ const handler = async (req: Request): Promise<Response> => {
                       <p>You can purchase additional crisis moderation days for $150 each directly in the FamilyBridge app.</p>
                     </div>
                     
-                    <p style="color: #6b7280; font-size: 14px; margin-top: 30px;">
-                      This is an automated notification from FamilyBridge.
-                    </p>
+                    <p style="margin-top: 30px; margin-bottom: 5px;">Thank you,</p>
+                    <p style="font-weight: bold; margin-top: 0;">Matt Brown, Creator of Family Bridge</p>
                   </div>
                 `,
               });
