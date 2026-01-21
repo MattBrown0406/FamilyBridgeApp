@@ -20,7 +20,7 @@ const SobrietyBadge = ({ familyId }: { familyId: string }) => {
     <div className="flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 rounded-full border border-primary/20">
       <Flame className="h-4 w-4 text-primary" />
       <span className="font-bold text-primary">{daysCount}</span>
-      <span className="text-xs text-muted-foreground hidden sm:inline">days</span>
+      <span className="text-xs text-muted-foreground">days sober</span>
     </div>
   );
 };

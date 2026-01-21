@@ -290,7 +290,7 @@ const DemoFamily = () => {
               <div className="flex items-center gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 bg-primary/10 rounded-full border border-primary/20">
                 <Flame className="h-3 w-3 sm:h-4 sm:w-4 text-primary" />
                 <span className="font-bold text-primary text-xs sm:text-sm">{currentFamily.sobriety.daysCount}</span>
-                <span className="text-[10px] sm:text-xs text-muted-foreground hidden sm:inline">days</span>
+                <span className="text-[10px] sm:text-xs text-muted-foreground">days sober</span>
               </div>
               
               {selectedFamily === 'davis' && (
@@ -1268,7 +1268,7 @@ const DemoFamily = () => {
                         {selectedFamily === 'johnson' ? (
                           <Badge variant="secondary" className="bg-green-100 text-green-700 border-green-200 text-[10px] sm:text-xs">
                             <TrendingUp className="h-3 w-3 mr-1" />
-                            Day 47
+                            Day {currentFamily.sobriety.daysCount}
                           </Badge>
                         ) : (
                           <Badge variant="destructive" className="text-[10px] sm:text-xs">
@@ -1308,10 +1308,10 @@ const DemoFamily = () => {
                               <CheckCircle className="h-6 w-6 sm:h-8 sm:w-8 text-green-600" />
                             </div>
                             <div>
-                              <h3 className="text-base sm:text-lg font-semibold text-green-800">Recovery Stability Emerging</h3>
+                              <h3 className="text-base sm:text-lg font-semibold text-green-800">Strong Recovery Foundation</h3>
                               <p className="text-xs sm:text-sm text-green-700 mt-1">
-                                Michael has reached <strong>47 days sober</strong> with consistent meeting attendance and family support. 
-                                The 30-90 day window is critical for establishing lasting patterns - the Johnson family is navigating it well.
+                                Michael has reached <strong>{currentFamily.sobriety.daysCount} days sober</strong> after completing 30 days of treatment and 90 days of sober living. 
+                                He's now in the aftercare phase, maintaining all his recovery practices while living independently.
                               </p>
                             </div>
                           </div>
