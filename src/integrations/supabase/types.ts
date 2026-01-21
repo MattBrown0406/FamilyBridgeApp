@@ -505,7 +505,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
-          account_number: string
+          account_number?: string
           archived_at?: string | null
           archived_by?: string | null
           avatar_url?: string | null
