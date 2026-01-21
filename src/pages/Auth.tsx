@@ -21,18 +21,26 @@ const authSchema = z.object({
 
 const Auth = () => {
   const [searchParams] = useSearchParams();
-  const initialMode = searchParams.get('mode') === 'signup' ? 'signup' : 'signin';
+  const initialMode = searchParams.get('mode') === 'signup' 
+    ? 'signup' 
+    : searchParams.get('mode') === 'forgot' 
+    ? 'forgot' 
+    : searchParams.get('mode') === 'reset'
+    ? 'reset'
+    : 'signin';
   const familyInviteCode = searchParams.get('familyInvite');
   
-  const [mode, setMode] = useState<'signin' | 'signup'>(initialMode);
+  const [mode, setMode] = useState<'signin' | 'signup' | 'forgot' | 'reset'>(initialMode);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isJoiningFamily, setIsJoiningFamily] = useState(false);
+  const [resetEmailSent, setResetEmailSent] = useState(false);
 
-  const { signIn, signUp, user, loading } = useAuth();
+  const { signIn, signUp, user, loading, resetPassword, updatePassword } = useAuth();
   const { 
     isAvailable: biometricAvailable, 
     hasStoredCredentials, 
@@ -132,6 +140,14 @@ const Auth = () => {
     try {
       if (mode === 'signup') {
         authSchema.parse({ email, password, fullName });
+      } else if (mode === 'forgot') {
+        z.string().email('Please enter a valid email address').parse(email);
+      } else if (mode === 'reset') {
+        if (password !== confirmPassword) {
+          setErrors({ confirmPassword: 'Passwords do not match' });
+          return false;
+        }
+        z.string().min(6, 'Password must be at least 6 characters').parse(password);
       } else {
         authSchema.omit({ fullName: true }).parse({ email, password });
       }
@@ -143,6 +159,8 @@ const Auth = () => {
         err.errors.forEach((error) => {
           if (error.path[0]) {
             newErrors[error.path[0] as string] = error.message;
+          } else {
+            newErrors['email'] = error.message;
           }
         });
         setErrors(newErrors);
@@ -180,7 +198,39 @@ const Auth = () => {
     setIsLoading(true);
 
     try {
-      if (mode === 'signup') {
+      if (mode === 'forgot') {
+        const { error } = await resetPassword(email);
+        if (error) {
+          toast({
+            title: 'Failed to send reset email',
+            description: error.message,
+            variant: 'destructive',
+          });
+        } else {
+          setResetEmailSent(true);
+          toast({
+            title: 'Reset email sent',
+            description: 'Check your inbox for a link to reset your password.',
+          });
+        }
+      } else if (mode === 'reset') {
+        const { error } = await updatePassword(password);
+        if (error) {
+          toast({
+            title: 'Failed to update password',
+            description: error.message,
+            variant: 'destructive',
+          });
+        } else {
+          toast({
+            title: 'Password updated',
+            description: 'Your password has been changed. You can now sign in.',
+          });
+          setMode('signin');
+          setPassword('');
+          setConfirmPassword('');
+        }
+      } else if (mode === 'signup') {
         const { error } = await signUp(email, password, fullName);
         if (error) {
           if (error.message.includes('already registered')) {
@@ -246,7 +296,7 @@ const Auth = () => {
   return (
     <div className="min-h-screen flex items-center justify-center gradient-hero p-3 sm:p-4">
       <SEOHead
-        title={mode === 'signin' ? 'Sign In' : 'Create Account'}
+        title={mode === 'signin' ? 'Sign In' : mode === 'signup' ? 'Create Account' : mode === 'forgot' ? 'Reset Password' : 'Set New Password'}
         description="Sign in or create an account to access FamilyBridge. Connect with your family and support loved ones in recovery."
         canonicalPath="/auth"
         noIndex={true}
@@ -261,7 +311,7 @@ const Auth = () => {
             <span className="text-xl sm:text-2xl font-display font-bold text-foreground">FamilyBridge</span>
           </div>
           <p className="text-sm sm:text-base text-muted-foreground">
-            {mode === 'signin' ? 'Welcome back' : familyInviteCode ? 'Create your account to join the family' : 'Start your recovery journey'}
+            {mode === 'signin' ? 'Welcome back' : mode === 'forgot' ? 'Reset your password' : mode === 'reset' ? 'Create a new password' : familyInviteCode ? 'Create your account to join the family' : 'Start your recovery journey'}
           </p>
           {familyInviteCode && mode === 'signup' && (
             <p className="text-sm text-primary mt-2">
@@ -273,11 +323,15 @@ const Auth = () => {
         <Card className="shadow-elevated border-0">
           <CardHeader className="space-y-1 pb-3 sm:pb-4 px-4 sm:px-6">
             <CardTitle className="text-xl sm:text-2xl font-display">
-              {mode === 'signin' ? 'Sign In' : 'Create Account'}
+              {mode === 'signin' ? 'Sign In' : mode === 'signup' ? 'Create Account' : mode === 'forgot' ? 'Reset Password' : 'Set New Password'}
             </CardTitle>
             <CardDescription className="text-sm">
               {mode === 'signin'
                 ? 'Enter your credentials to access your family groups'
+                : mode === 'forgot'
+                ? "Enter your email and we'll send you a reset link"
+                : mode === 'reset'
+                ? 'Enter your new password below'
                 : 'Create an account to connect with your family'}
             </CardDescription>
           </CardHeader>
@@ -307,84 +361,161 @@ const Auth = () => {
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {mode === 'signup' && (
-                <div className="space-y-2">
-                  <Label htmlFor="fullName">Full Name</Label>
-                  <Input
-                    id="fullName"
-                    type="text"
-                    placeholder="John Smith"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    className={errors.fullName ? 'border-destructive' : ''}
-                  />
-                  {errors.fullName && (
-                    <p className="text-sm text-destructive">{errors.fullName}</p>
-                  )}
+            {/* Forgot Password - Success Message */}
+            {mode === 'forgot' && resetEmailSent ? (
+              <div className="text-center space-y-4">
+                <div className="p-4 bg-primary/10 rounded-lg">
+                  <p className="text-sm text-foreground">
+                    We've sent a password reset link to <strong>{email}</strong>. Check your inbox and follow the link to reset your password.
+                  </p>
                 </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMode('signin');
+                    setResetEmailSent(false);
+                    setEmail('');
+                  }}
+                  className="text-sm text-primary hover:underline"
+                >
+                  Back to Sign In
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="space-y-4">
+                {mode === 'signup' && (
+                  <div className="space-y-2">
+                    <Label htmlFor="fullName">Full Name</Label>
+                    <Input
+                      id="fullName"
+                      type="text"
+                      placeholder="John Smith"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      className={errors.fullName ? 'border-destructive' : ''}
+                    />
+                    {errors.fullName && (
+                      <p className="text-sm text-destructive">{errors.fullName}</p>
+                    )}
+                  </div>
+                )}
+                
+                {/* Email field - show for signin, signup, forgot */}
+                {(mode === 'signin' || mode === 'signup' || mode === 'forgot') && (
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="you@example.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className={errors.email ? 'border-destructive' : ''}
+                    />
+                    {errors.email && (
+                      <p className="text-sm text-destructive">{errors.email}</p>
+                    )}
+                  </div>
+                )}
+                
+                {/* Password field - show for signin, signup, reset */}
+                {(mode === 'signin' || mode === 'signup' || mode === 'reset') && (
+                  <div className="space-y-2">
+                    <Label htmlFor="password">{mode === 'reset' ? 'New Password' : 'Password'}</Label>
+                    <Input
+                      id="password"
+                      type="password"
+                      placeholder="••••••••"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className={errors.password ? 'border-destructive' : ''}
+                    />
+                    {errors.password && (
+                      <p className="text-sm text-destructive">{errors.password}</p>
+                    )}
+                  </div>
+                )}
+
+                {/* Confirm Password field - show for reset only */}
+                {mode === 'reset' && (
+                  <div className="space-y-2">
+                    <Label htmlFor="confirmPassword">Confirm New Password</Label>
+                    <Input
+                      id="confirmPassword"
+                      type="password"
+                      placeholder="••••••••"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className={errors.confirmPassword ? 'border-destructive' : ''}
+                    />
+                    {errors.confirmPassword && (
+                      <p className="text-sm text-destructive">{errors.confirmPassword}</p>
+                    )}
+                  </div>
+                )}
+
+                <Button type="submit" className="w-full" size="lg" disabled={isLoading || isJoiningFamily}>
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      {mode === 'signin' ? 'Signing in...' : mode === 'forgot' ? 'Sending...' : mode === 'reset' ? 'Updating...' : 'Creating account...'}
+                    </>
+                  ) : isJoiningFamily ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Joining family...
+                    </>
+                  ) : (
+                    mode === 'signin' ? 'Sign In' 
+                    : mode === 'forgot' ? 'Send Reset Link'
+                    : mode === 'reset' ? 'Update Password'
+                    : familyInviteCode ? 'Create Account & Join Family' : 'Create Account'
+                  )}
+                </Button>
+              </form>
+            )}
+
+            <div className="mt-6 text-center space-y-2">
+              {mode === 'signin' && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMode('forgot');
+                    setErrors({});
+                  }}
+                  className="text-sm text-muted-foreground hover:text-primary hover:underline block w-full"
+                >
+                  Forgot your password?
+                </button>
               )}
               
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="you@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className={errors.email ? 'border-destructive' : ''}
-                />
-                {errors.email && (
-                  <p className="text-sm text-destructive">{errors.email}</p>
-                )}
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className={errors.password ? 'border-destructive' : ''}
-                />
-                {errors.password && (
-                  <p className="text-sm text-destructive">{errors.password}</p>
-                )}
-              </div>
+              {(mode === 'signin' || mode === 'signup') && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMode(mode === 'signin' ? 'signup' : 'signin');
+                    setErrors({});
+                  }}
+                  className="text-sm text-primary hover:underline"
+                >
+                  {mode === 'signin'
+                    ? "Don't have an account? Sign up"
+                    : 'Already have an account? Sign in'}
+                </button>
+              )}
 
-              <Button type="submit" className="w-full" size="lg" disabled={isLoading || isJoiningFamily}>
-                {isLoading ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    {mode === 'signin' ? 'Signing in...' : 'Creating account...'}
-                  </>
-                ) : isJoiningFamily ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Joining family...
-                  </>
-                ) : (
-                  mode === 'signin' ? 'Sign In' : familyInviteCode ? 'Create Account & Join Family' : 'Create Account'
-                )}
-              </Button>
-            </form>
-
-            <div className="mt-6 text-center">
-              <button
-                type="button"
-                onClick={() => {
-                  setMode(mode === 'signin' ? 'signup' : 'signin');
-                  setErrors({});
-                }}
-                className="text-sm text-primary hover:underline"
-              >
-                {mode === 'signin'
-                  ? "Don't have an account? Sign up"
-                  : 'Already have an account? Sign in'}
-              </button>
+              {(mode === 'forgot' || mode === 'reset') && !resetEmailSent && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMode('signin');
+                    setErrors({});
+                  }}
+                  className="text-sm text-primary hover:underline"
+                >
+                  Back to Sign In
+                </button>
+              )}
             </div>
           </CardContent>
         </Card>
