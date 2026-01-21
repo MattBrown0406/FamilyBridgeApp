@@ -2599,7 +2599,7 @@ const FamilyChat = () => {
                 <div className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 bg-primary/10 rounded-full border border-primary/20">
                   <Flame className="h-3 w-3 sm:h-4 sm:w-4 text-primary" />
                   <span className="font-bold text-primary text-xs sm:text-sm">{headerDaysCount}</span>
-                  <span className="text-[10px] sm:text-xs text-muted-foreground hidden sm:inline">days</span>
+                  <span className="text-[10px] sm:text-xs text-muted-foreground">days sober</span>
                 </div>
               )}
               
