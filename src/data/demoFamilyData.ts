@@ -14,7 +14,8 @@ const formatDateTime = (date: Date) => format(date, 'MMM d \'at\' h:mm a');
 const now = new Date();
 
 // ============================================================================
-// JOHNSON FAMILY - Positive Recovery Journey (47 days sober)
+// JOHNSON FAMILY - Positive Recovery Journey (125 days sober)
+// 30 days inpatient treatment + 90 days sober living + 5 days aftercare
 // ============================================================================
 
 export const JOHNSON_MEMBERS = [
@@ -29,7 +30,7 @@ export const JOHNSON_MEMBERS = [
     paymentInfo: {
       paypal: 'michael.johnson@email.com',
       venmo: '@MichaelJ-Recovery',
-      cashapp: '$MichaelJohnson47'
+      cashapp: '$MichaelJohnson125'
     }
   },
   { id: '3', name: 'David Johnson', role: 'member', relationship: 'Sibling', initials: 'DJ' },
@@ -37,11 +38,11 @@ export const JOHNSON_MEMBERS = [
   { id: '5', name: 'Robert Johnson', role: 'member', relationship: 'Grandparent', initials: 'RJ' },
 ];
 
-// 10 days of messages for Johnson family
+// 10 days of messages for Johnson family (125 days sober - post treatment + sober living)
 export const JOHNSON_MESSAGES = [
   // Day 10 ago
-  { id: '1', sender: 'Michael Johnson', senderId: '2', content: 'Day 37 today. Feeling grateful for all of you. 🙏', time: formatTime(subDays(now, 10)), date: formatRelativeDate(subDays(now, 10)) },
-  { id: '2', sender: 'Sarah Johnson', senderId: '1', content: 'So proud of you, son! One day at a time.', time: formatTime(subDays(now, 10)), date: formatRelativeDate(subDays(now, 10)) },
+  { id: '1', sender: 'Michael Johnson', senderId: '2', content: 'Day 115 today. Can\'t believe how far we\'ve come as a family. 🙏', time: formatTime(subDays(now, 10)), date: formatRelativeDate(subDays(now, 10)) },
+  { id: '2', sender: 'Sarah Johnson', senderId: '1', content: 'So proud of you, son! The hard work in treatment and sober living really paid off.', time: formatTime(subDays(now, 10)), date: formatRelativeDate(subDays(now, 10)) },
   
   // Day 9 ago
   { id: '3', sender: 'Michael Johnson', senderId: '2', content: '🙏 **Checked into Recovery Meeting**\n\nI\'m attending: AA - Morning Serenity Group\n📍 St. Mark\'s Church, 123 Main St\n⏰ Checkout expected at 9:00 AM', time: '7:45 AM', date: formatRelativeDate(subDays(now, 9)) },
@@ -54,19 +55,19 @@ export const JOHNSON_MESSAGES = [
   { id: '8', sender: 'Robert Johnson', senderId: '5', content: 'I\'ll pledge $35 towards this.', time: '11:15 AM', date: formatRelativeDate(subDays(now, 8)) },
   
   // Day 7 ago  
-  { id: '9', sender: 'Matt Brown', senderId: '0', content: 'Family, great work this week! Michael is showing consistent progress. Let\'s keep supporting each other.', time: '3:00 PM', date: formatRelativeDate(subDays(now, 7)) },
-  { id: '10', sender: 'Sarah Johnson', senderId: '1', content: 'Thank you Matt. Having you as our moderator has made such a difference.', time: '3:15 PM', date: formatRelativeDate(subDays(now, 7)) },
+  { id: '9', sender: 'Matt Brown', senderId: '0', content: 'Family, Michael just passed 4 months! This is a huge milestone. The transition from sober living has been smooth.', time: '3:00 PM', date: formatRelativeDate(subDays(now, 7)) },
+  { id: '10', sender: 'Sarah Johnson', senderId: '1', content: 'Thank you Matt. Having you guide us through the treatment and sober living phases made such a difference.', time: '3:15 PM', date: formatRelativeDate(subDays(now, 7)) },
   
   // Day 6 ago
   { id: '11', sender: 'Michael Johnson', senderId: '2', content: '🙏 **Checked into Therapy**\n\nI\'m attending: Therapy Session with Dr. Smith\n📍 Wellness Center, Suite 200\n⏰ Checkout expected at 11:00 AM', time: '10:00 AM', date: formatRelativeDate(subDays(now, 6)) },
   { id: '12', sender: 'Michael Johnson', senderId: '2', content: '✅ **Checked out of Therapy**\n\nCompleted: Therapy Session\nDuration: 58 minutes', time: '10:58 AM', date: formatRelativeDate(subDays(now, 6)) },
-  { id: '13', sender: 'Michael Johnson', senderId: '2', content: 'Good session today. Working through some stuff about trust and rebuilding relationships.', time: '11:05 AM', date: formatRelativeDate(subDays(now, 6)) },
-  { id: '14', sender: 'Emily Johnson', senderId: '4', content: '❤️ That takes courage. We\'re here for you.', time: '11:20 AM', date: formatRelativeDate(subDays(now, 6)) },
+  { id: '13', sender: 'Michael Johnson', senderId: '2', content: 'Good session today. Dr. Smith said my progress since leaving sober living has been really strong.', time: '11:05 AM', date: formatRelativeDate(subDays(now, 6)) },
+  { id: '14', sender: 'Emily Johnson', senderId: '4', content: '❤️ You\'ve worked so hard for this. We\'re all so proud.', time: '11:20 AM', date: formatRelativeDate(subDays(now, 6)) },
   
   // Day 5 ago
   { id: '15', sender: 'Michael Johnson', senderId: '2', content: '🙏 **Checked into Recovery Meeting**\n\nI\'m attending: AA - Evening Serenity Group\n📍 St. Mark\'s Church, 123 Main St\n⏰ Checkout expected at 8:00 PM', time: '6:45 PM', date: formatRelativeDate(subDays(now, 5)) },
   { id: '16', sender: 'Michael Johnson', senderId: '2', content: '✅ **Checked out of Meeting**\n\nCompleted: AA - Evening Serenity Group\nDuration: 1 hour 20 minutes', time: '8:05 PM', date: formatRelativeDate(subDays(now, 5)) },
-  { id: '17', sender: 'Robert Johnson', senderId: '5', content: 'Day 42! Almost to 6 weeks. Very proud, grandson.', time: '8:30 PM', date: formatRelativeDate(subDays(now, 5)) },
+  { id: '17', sender: 'Robert Johnson', senderId: '5', content: 'Day 120! Four months strong. Very proud, grandson.', time: '8:30 PM', date: formatRelativeDate(subDays(now, 5)) },
   
   // Day 4 ago
   { id: '18', sender: 'Michael Johnson', senderId: '2', content: '💰 **Financial Request** from Michael Johnson\n\n**Amount:** $25.00\n**Reason:** Prescription pickup - anxiety medication\n\nPlease vote on this request!', time: '2:00 PM', date: formatRelativeDate(subDays(now, 4)) },
@@ -74,26 +75,26 @@ export const JOHNSON_MESSAGES = [
   { id: '20', sender: 'Michael Johnson', senderId: '2', content: 'Thanks mom. I uploaded the pharmacy receipt.', time: '2:20 PM', date: formatRelativeDate(subDays(now, 4)) },
   
   // Day 3 ago
-  { id: '21', sender: 'David Johnson', senderId: '3', content: 'Hey Michael, want to grab coffee this weekend? Just hang out like old times.', time: '9:00 AM', date: formatRelativeDate(subDays(now, 3)) },
-  { id: '22', sender: 'Michael Johnson', senderId: '2', content: 'I\'d love that, bro. It means a lot that you\'re reaching out.', time: '9:15 AM', date: formatRelativeDate(subDays(now, 3)) },
+  { id: '21', sender: 'David Johnson', senderId: '3', content: 'Hey Michael, want to grab coffee this weekend? Like we used to before everything.', time: '9:00 AM', date: formatRelativeDate(subDays(now, 3)) },
+  { id: '22', sender: 'Michael Johnson', senderId: '2', content: 'I\'d love that, bro. It\'s been amazing rebuilding our relationship over these past 4 months.', time: '9:15 AM', date: formatRelativeDate(subDays(now, 3)) },
   { id: '23', sender: 'Michael Johnson', senderId: '2', content: '🙏 **Checked into Recovery Meeting**\n\nI\'m attending: AA - Morning Serenity Group\n📍 St. Mark\'s Church, 123 Main St\n⏰ Checkout expected at 9:00 AM', time: '7:45 AM', date: formatRelativeDate(subDays(now, 3)) },
   
   // Day 2 ago
-  { id: '24', sender: 'Michael Johnson', senderId: '2', content: 'Day 45! 🎉 Feeling stronger every day.', time: '8:00 AM', date: formatRelativeDate(subDays(now, 2)) },
-  { id: '25', sender: 'Matt Brown', senderId: '0', content: 'Congratulations Michael! The consistency you\'re showing is exactly what builds long-term recovery. Keep it up!', time: '8:30 AM', date: formatRelativeDate(subDays(now, 2)) },
+  { id: '24', sender: 'Michael Johnson', senderId: '2', content: 'Day 123! 🎉 Still going strong. The foundation from treatment and sober living really helped.', time: '8:00 AM', date: formatRelativeDate(subDays(now, 2)) },
+  { id: '25', sender: 'Matt Brown', senderId: '0', content: 'Michael, your consistency since completing sober living has been exceptional. You\'re building real, sustainable recovery.', time: '8:30 AM', date: formatRelativeDate(subDays(now, 2)) },
   { id: '26', sender: 'Michael Johnson', senderId: '2', content: '🙏 **Checked into Therapy**\n\nI\'m attending: Group Therapy Session\n📍 Recovery Center, Room 3\n⏰ Checkout expected at 3:00 PM', time: '1:45 PM', date: formatRelativeDate(subDays(now, 2)) },
   
   // Yesterday
   { id: '27', sender: 'Michael Johnson', senderId: '2', content: '💰 **Financial Request** from Michael Johnson\n\n**Amount:** $147.23\n**Reason:** Electric bill - City Power & Light (Account #4521-7890-3336)\n\nPlease vote on this request and pledge to help if you can!', time: '2:30 PM', date: 'Yesterday' },
   { id: '28', sender: 'Sarah Johnson', senderId: '1', content: 'Approved. I\'ll pledge $75.', time: '2:45 PM', date: 'Yesterday' },
   { id: '29', sender: 'Robert Johnson', senderId: '5', content: 'I\'ll cover the remaining $72.23.', time: '3:00 PM', date: 'Yesterday' },
-  { id: '30', sender: 'Emily Johnson', senderId: '4', content: '46 days! You\'re doing amazing! 💪', time: '6:00 PM', date: 'Yesterday' },
+  { id: '30', sender: 'Emily Johnson', senderId: '4', content: '124 days! Over 4 months! You\'re doing amazing! 💪', time: '6:00 PM', date: 'Yesterday' },
   
   // Today
-  { id: '31', sender: 'Michael Johnson', senderId: '2', content: 'Good morning everyone! Day 47 today. Going to my morning meeting.', time: '7:00 AM', date: 'Today' },
+  { id: '31', sender: 'Michael Johnson', senderId: '2', content: 'Good morning everyone! Day 125 today. Going to my morning meeting.', time: '7:00 AM', date: 'Today' },
   { id: '32', sender: 'Michael Johnson', senderId: '2', content: '🙏 **Checked into Recovery Meeting**\n\nI\'m attending: AA - Morning Serenity Group\n📍 St. Mark\'s Church, 123 Main St\n⏰ Checkout expected at 9:00 AM', time: '7:45 AM', date: 'Today' },
-  { id: '33', sender: 'Sarah Johnson', senderId: '1', content: 'Have a great meeting, sweetie! ❤️', time: '7:50 AM', date: 'Today' },
-  { id: '34', sender: 'David Johnson', senderId: '3', content: 'Proud of you bro!', time: '8:00 AM', date: 'Today' },
+  { id: '33', sender: 'Sarah Johnson', senderId: '1', content: 'Have a great meeting, sweetie! 125 days! ❤️', time: '7:50 AM', date: 'Today' },
+  { id: '34', sender: 'David Johnson', senderId: '3', content: 'Proud of you bro! 4 months and counting!', time: '8:00 AM', date: 'Today' },
 ];
 
 export const JOHNSON_FINANCIAL_REQUESTS = [
@@ -284,8 +285,8 @@ export const JOHNSON_CHECKINS = [
 export const JOHNSON_SOBRIETY = {
   userId: '2',
   userName: 'Michael Johnson',
-  startDate: subDays(now, 47),
-  daysCount: 47,
+  startDate: subDays(now, 125),
+  daysCount: 125,
   isActive: true,
   resetCount: 0,
   milestones: [
@@ -293,8 +294,10 @@ export const JOHNSON_SOBRIETY = {
     { days: 7, achieved: true, celebratedByFamily: true },
     { days: 14, achieved: true, celebratedByFamily: true },
     { days: 30, achieved: true, celebratedByFamily: true },
+    { days: 60, achieved: true, celebratedByFamily: true },
+    { days: 90, achieved: true, celebratedByFamily: true },
   ],
-  nextMilestone: 60
+  nextMilestone: 180
 };
 
 export const JOHNSON_EMOTIONAL_CHECKINS = [
@@ -336,29 +339,29 @@ export const JOHNSON_COMMON_GOALS = [
   { key: 'attend_support', name: 'Attend Support Groups (Al-Anon, etc.)', completed: false },
 ];
 
-// FIIS Analysis for Johnson Family - Positive Recovery at 47 Days
+// FIIS Analysis for Johnson Family - Positive Recovery at 125 Days (post treatment + sober living)
 export const JOHNSON_FIIS_ANALYSIS = {
-  what_seeing: "I'm observing a family system that is showing strong signs of early recovery stability at Day 47. Michael is demonstrating consistent engagement with his recovery program, and the family is maintaining unified support. The presence of a professional moderator (Matt Brown) is helping keep communication healthy and boundaries clear. I see evidence that the family's chosen values of Honesty & Transparency and Accountability Without Shame are being lived out in daily interactions.",
+  what_seeing: "I'm observing a family system that has successfully navigated the critical early recovery period and is now thriving at Day 125. Michael completed a 30-day inpatient treatment program followed by 90 days of sober living, and has now been maintaining his recovery independently for 5 days. The family has maintained unified support throughout this entire journey. The presence of a professional moderator (Matt Brown) has been instrumental in guiding the family through treatment, sober living transitions, and now the aftercare phase. The family's chosen values of Honesty & Transparency and Accountability Without Shame are deeply embedded in their interactions.",
   pattern_signals: [
     {
       signal_type: 'progress',
-      description: 'Michael has maintained 47 consecutive days of sobriety with consistent meeting attendance (averaging 4-5 meetings per week). Therapy sessions are being attended regularly. This consistency at the 6-week mark is a positive indicator of emerging stability.',
-      confidence: 'high'
+      description: 'Michael has maintained 125 consecutive days of sobriety through treatment, sober living, and now independent living. His meeting attendance remains consistent (averaging 4-5 meetings per week). Therapy sessions continue regularly. This stability at the 4-month mark indicates strong foundation for long-term recovery.',
+      confidence: 'very_high'
     },
     {
       signal_type: 'family_unity',
-      description: 'All family members have acknowledged and are honoring the established boundaries. Financial requests align with agreed-upon guidelines (essential bills only). No evidence of secret communications or boundary violations.',
+      description: 'All family members have acknowledged and are honoring the established boundaries throughout the entire treatment journey. Financial requests align with agreed-upon guidelines (essential bills only). No evidence of secret communications or boundary violations.',
       confidence: 'very_high'
     },
     {
       signal_type: 'healthy_communication',
-      description: 'Chat messages show supportive, encouraging language without enabling. Family celebrates milestones while maintaining realistic expectations. No toxic positivity or minimizing of the recovery journey.',
-      confidence: 'high'
+      description: 'Chat messages show supportive, encouraging language without enabling. Family celebrates milestones (30 days, 60 days, 90 days, 120 days) while maintaining realistic expectations. Communication has matured over 4 months.',
+      confidence: 'very_high'
     },
     {
       signal_type: 'accountability_working',
-      description: 'Michael is proactively checking in to meetings and communicating his plans. Financial requests include proper documentation. The family is practicing accountability without shame, per their stated values.',
-      confidence: 'high'
+      description: 'Michael has transitioned from structured sober living to independent living while maintaining all accountability practices. Financial requests include proper documentation. The aftercare plan is being followed diligently.',
+      confidence: 'very_high'
     },
     {
       signal_type: 'attention_needed',
@@ -366,12 +369,12 @@ export const JOHNSON_FIIS_ANALYSIS = {
       confidence: 'moderate'
     },
   ],
-  contextual_framing: "Day 47 represents a significant milestone. Research shows that the 30-90 day window is critical for establishing new patterns. The Johnson family is doing many things right: unified approach, professional support, clear boundaries, and values-driven decisions. The one area needing attention is the family's own recovery work through Al-Anon or similar support groups.",
+  contextual_framing: "Day 125 represents a major achievement. Michael has successfully completed the structured phases of recovery (treatment + sober living) and is now in the aftercare phase. Research shows that individuals who complete this full continuum of care have significantly better outcomes. The Johnson family is a model example of how to support recovery: unified approach, professional support, clear boundaries, and values-driven decisions throughout the journey.",
   recommendations: [
     {
-      title: "Maintain the Winning Formula",
-      description: "Continue the current approach: consistent meeting attendance, transparent financial requests with documentation, and open family communication. What you're doing is working.",
-      related_to: "Values: Honesty & Transparency"
+      title: "Celebrate This Major Transition",
+      description: "Michael has successfully completed sober living and transitioned to independent living. This is a huge accomplishment. Consider planning a meaningful family celebration for the 6-month milestone coming up.",
+      related_to: "Values: Accountability and Repair Without Shame"
     },
     {
       title: "Family Meeting Check-In This Week",
@@ -379,26 +382,27 @@ export const JOHNSON_FIIS_ANALYSIS = {
       related_to: "Goal: Attend Support Groups"
     },
     {
-      title: "Plan for Day 60 Milestone",
-      description: "Begin discussing as a family how you'll celebrate the upcoming 60-day milestone in healthy ways. Having something to look forward to supports motivation.",
+      title: "Plan for 6-Month Milestone",
+      description: "The 180-day milestone is approaching. Begin discussing as a family how you'll celebrate this significant achievement in healthy ways.",
       related_to: "Boundary: 3 meetings per week"
     }
   ],
   clarifying_questions: [
-    "Has the family discussed what healthy celebration looks like for the upcoming 60-day milestone?",
-    "Are family members experiencing any compassion fatigue or feeling like they need additional support?",
-    "Has Michael shared what aspects of his recovery program are feeling most helpful right now?"
+    "How is Michael adjusting to independent living after the structure of sober living?",
+    "Are family members noticing any changes in Michael's routine or mood since the transition?",
+    "Has the family discussed the aftercare plan and everyone's role in supporting it?"
   ],
   what_to_watch: [
     "Family support group attendance - this week's missed meeting shouldn't become a pattern",
-    "Signs of complacency around Day 60-90",
-    "Michael's stress levels as he takes on more responsibilities"
+    "Any signs of complacency now that the 'structured' phase is complete",
+    "Michael's stress levels as he adjusts to fully independent living"
   ],
   strengths: [
+    { area: 'Completed Continuum of Care', detail: 'Treatment + sober living + aftercare' },
     { area: 'Professional Moderation', detail: 'Matt Brown provides objective oversight' },
-    { area: 'Unified Family Response', detail: 'All family members aligned on boundaries' },
+    { area: 'Unified Family Response', detail: 'All family members aligned on boundaries for 4+ months' },
     { area: 'Transparent Finances', detail: 'Requests include documentation' },
-    { area: 'Consistent Recovery Work', detail: 'Michael averaging 4-5 meetings per week' }
+    { area: 'Consistent Recovery Work', detail: 'Michael averaging 4-5 meetings per week for 125 days' }
   ]
 };
 
