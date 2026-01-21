@@ -586,7 +586,14 @@ const Demo = () => {
                     size="lg"
                     onClick={() => navigate('/provider-purchase')}
                   >
-                    Purchase License
+                    For Providers
+                  </Button>
+                  <Button 
+                    variant="secondary" 
+                    size="lg"
+                    onClick={() => navigate('/family-purchase')}
+                  >
+                    For Families
                   </Button>
                   <Button 
                     variant="outline" 
