@@ -20,7 +20,7 @@ import {
   ExternalLink, CreditCard, CheckCircle2, Paperclip, Image, HandCoins, Trash2, Pencil,
   Target, ShieldCheck, Plus, CheckCircle, MessageSquare, FlaskConical, ChevronDown, Sparkles,
   Brain, Search, Calendar, ChevronLeft, ChevronRight, Archive, Heart, Clock, TrendingUp, Camera, Upload,
-  Flame, ClipboardList, Stethoscope, Copy
+  Flame, ClipboardList, Stethoscope, Copy, Mail, UserPlus
 } from 'lucide-react';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -389,6 +389,12 @@ const FamilyChat = () => {
   const [membersSheetOpen, setMembersSheetOpen] = useState(false);
   const [familyInviteCode, setFamilyInviteCode] = useState<string | null>(null);
   const [copiedInviteCode, setCopiedInviteCode] = useState(false);
+  
+  // Send invite state
+  const [showSendInviteDialog, setShowSendInviteDialog] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [inviteName, setInviteName] = useState('');
+  const [isSendingInvite, setIsSendingInvite] = useState(false);
   // Weekly archive state - week starts Sunday at midnight
   const [selectedWeekStart, setSelectedWeekStart] = useState<Date>(() => 
     startOfWeek(new Date(), { weekStartsOn: 0 }) // 0 = Sunday
@@ -811,6 +817,51 @@ const FamilyChat = () => {
         description: 'Failed to update private messaging permissions.',
         variant: 'destructive',
       });
+    }
+  };
+
+  const sendInviteEmail = async () => {
+    if (!inviteEmail.trim() || !inviteName.trim() || !familyInviteCode || !family) {
+      toast({
+        title: 'Missing information',
+        description: 'Please enter both name and email.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsSendingInvite(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('send-family-invite', {
+        body: {
+          recipientEmail: inviteEmail.trim(),
+          recipientName: inviteName.trim(),
+          familyName: family.name,
+          inviteCode: familyInviteCode,
+          organizationName: organization?.name || 'FamilyBridge',
+          organizationLogo: organization?.logo_url || null,
+        },
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: 'Invitation sent!',
+        description: `An invite email has been sent to ${inviteEmail.trim()}.`,
+      });
+      
+      setInviteEmail('');
+      setInviteName('');
+      setShowSendInviteDialog(false);
+    } catch (error) {
+      console.error('Error sending invite:', error);
+      toast({
+        title: 'Failed to send invite',
+        description: 'Please try again or share the invite code manually.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSendingInvite(false);
     }
   };
 
@@ -4766,20 +4817,82 @@ const FamilyChat = () => {
               </div>
             )}
 
-            {/* Invite Professional Section - For moderators and admins */}
+            {/* Invite Members Section - For moderators and admins */}
             {isAdminOrModerator && familyInviteCode && (
               <div className="space-y-3">
                 <h3 className="font-medium text-foreground flex items-center gap-2">
-                  <Stethoscope className="h-4 w-4 text-primary" />
-                  Invite Professionals
+                  <UserPlus className="h-4 w-4 text-primary" />
+                  Invite New Members
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  Add therapists, case managers, or treatment center staff to support the family during treatment and aftercare planning.
+                  Add family members, therapists, or case managers to your group.
                 </p>
+                
+                {/* Send Invite by Email */}
+                <Dialog open={showSendInviteDialog} onOpenChange={setShowSendInviteDialog}>
+                  <DialogTrigger asChild>
+                    <Button className="w-full gap-2" variant="default">
+                      <Mail className="h-4 w-4" />
+                      Send Invite by Email
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Send Family Invitation</DialogTitle>
+                      <DialogDescription>
+                        Enter the person's details and we'll send them an email with instructions to join {family?.name}.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4 py-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="inviteName">Name</Label>
+                        <Input
+                          id="inviteName"
+                          placeholder="John Smith"
+                          value={inviteName}
+                          onChange={(e) => setInviteName(e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="inviteEmail">Email</Label>
+                        <Input
+                          id="inviteEmail"
+                          type="email"
+                          placeholder="john@example.com"
+                          value={inviteEmail}
+                          onChange={(e) => setInviteEmail(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    <div className="flex justify-end gap-2">
+                      <Button variant="outline" onClick={() => setShowSendInviteDialog(false)}>
+                        Cancel
+                      </Button>
+                      <Button 
+                        onClick={sendInviteEmail} 
+                        disabled={isSendingInvite || !inviteEmail.trim() || !inviteName.trim()}
+                      >
+                        {isSendingInvite ? (
+                          <>
+                            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                            Sending...
+                          </>
+                        ) : (
+                          <>
+                            <Send className="h-4 w-4 mr-2" />
+                            Send Invitation
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+
+                {/* Manual Invite Code */}
                 <div className="bg-secondary/50 rounded-lg p-3 space-y-2">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-xs text-muted-foreground">Invite Code</p>
+                      <p className="text-xs text-muted-foreground">Or share code manually</p>
                       <code className="text-sm font-mono bg-background px-2 py-1 rounded inline-block">
                         {familyInviteCode}
                       </code>
@@ -4811,9 +4924,6 @@ const FamilyChat = () => {
                       )}
                     </Button>
                   </div>
-                  <p className="text-xs text-muted-foreground">
-                    Share this code with therapists or case managers. After joining, you can assign them the appropriate role.
-                  </p>
                 </div>
               </div>
             )}

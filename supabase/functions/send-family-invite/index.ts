@@ -35,8 +35,8 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    const appUrl = Deno.env.get("SUPABASE_URL")?.replace(".supabase.co", ".lovable.app") || "https://familybridge.app";
-    const joinUrl = `${appUrl}/family-purchase?inviteCode=${encodeURIComponent(inviteCode)}`;
+    const appUrl = 'https://familybridgeapp.com';
+    const joinUrl = `${appUrl}/auth?mode=signup&familyInvite=${encodeURIComponent(inviteCode)}`;
 
     const emailResponse = await resend.emails.send({
       from: `${organizationName} <noreply@familybridgeapp.com>`,
