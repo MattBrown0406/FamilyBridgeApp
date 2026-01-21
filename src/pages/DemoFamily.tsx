@@ -42,6 +42,9 @@ import {
   Crown,
   LifeBuoy,
   Brain,
+  Home,
+  Building2,
+  Heart,
   Eye,
   RefreshCw,
   Minus,
@@ -104,6 +107,8 @@ import {
   DAVIS_EMOTIONAL_CHECKINS,
   DAVIS_LIQUOR_LICENSE_WARNINGS,
   DAVIS_FIIS_ANALYSIS,
+  JOHNSON_AFTERCARE_PLAN,
+  DAVIS_AFTERCARE_PLAN,
 } from '@/data/demoFamilyData';
 
 interface DemoBranding {
@@ -144,6 +149,7 @@ const DemoFamily = () => {
     sobriety: JOHNSON_SOBRIETY,
     emotionalCheckins: JOHNSON_EMOTIONAL_CHECKINS,
     liquorLicenseWarnings: [] as typeof DAVIS_LIQUOR_LICENSE_WARNINGS,
+    aftercarePlan: JOHNSON_AFTERCARE_PLAN,
   } : {
     name: 'The Davis Family',
     description: 'Private Family • Crisis Mode',
@@ -159,6 +165,7 @@ const DemoFamily = () => {
     sobriety: DAVIS_SOBRIETY,
     emotionalCheckins: DAVIS_EMOTIONAL_CHECKINS,
     liquorLicenseWarnings: DAVIS_LIQUOR_LICENSE_WARNINGS,
+    aftercarePlan: DAVIS_AFTERCARE_PLAN,
   };
   
   const [messages, setMessages] = useState(currentFamily.messages);
@@ -407,7 +414,7 @@ const DemoFamily = () => {
         <div className="max-w-5xl mx-auto">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             {/* Mobile: Use grid for better spacing, Desktop: flex row */}
-            <TabsList className="grid grid-cols-6 md:grid-cols-7 h-auto gap-0.5 w-full mb-2 sm:mb-4 shrink-0 bg-card/50 backdrop-blur-sm border border-border/50 p-0.5 sm:p-1.5 rounded-lg sm:rounded-xl shadow-soft">
+            <TabsList className="grid grid-cols-7 md:grid-cols-8 h-auto gap-0.5 w-full mb-2 sm:mb-4 shrink-0 bg-card/50 backdrop-blur-sm border border-border/50 p-0.5 sm:p-1.5 rounded-lg sm:rounded-xl shadow-soft">
               <TabsTrigger 
                 value="messages" 
                 className="flex items-center justify-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-1.5 sm:py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
@@ -460,8 +467,15 @@ const DemoFamily = () => {
                 <Brain className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                 <span className="hidden md:inline text-xs">FIIS</span>
                 {selectedFamily === 'davis' && (
-                  <span className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 h-2.5 w-2.5 sm:h-3 sm:w-3 bg-red-500 rounded-full animate-pulse border-2 border-card" />
+                  <span className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 h-2.5 w-2.5 sm:h-3 sm:w-3 bg-destructive rounded-full animate-pulse border-2 border-card" />
                 )}
+              </TabsTrigger>
+              <TabsTrigger 
+                value="aftercare"
+                className="relative flex items-center justify-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-1.5 sm:py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
+              >
+                <Home className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                <span className="hidden md:inline text-xs">Aftercare</span>
               </TabsTrigger>
             </TabsList>
 
@@ -1582,6 +1596,143 @@ const DemoFamily = () => {
                   </div>
                 </CardContent>
               </Card>
+            </TabsContent>
+
+            {/* Aftercare Tab */}
+            <TabsContent value="aftercare" className="animate-fade-in">
+              <div className="space-y-4">
+                {/* Header */}
+                <Card className="overflow-hidden">
+                  <div className="h-1 bg-gradient-to-r from-primary via-primary/80 to-primary/60" />
+                  <CardHeader className="pb-3">
+                    <CardTitle className="flex flex-wrap items-center gap-2 text-base sm:text-lg">
+                      <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center shrink-0">
+                        <Home className="h-4 w-4 text-primary" />
+                      </div>
+                      <span>Aftercare Plan</span>
+                      {currentFamily.aftercarePlan && (
+                        <Badge variant="default" className="text-xs">Active</Badge>
+                      )}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-xs sm:text-sm text-muted-foreground">
+                      Treatment discharge recommendations and ongoing care plans to support long-term recovery.
+                    </p>
+                  </CardContent>
+                </Card>
+
+                {currentFamily.aftercarePlan ? (
+                  <>
+                    {/* Plan Info */}
+                    <Card className="border-primary/20 bg-gradient-to-r from-primary/5 to-transparent">
+                      <CardContent className="pt-4 sm:pt-6">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 mb-4">
+                          <div className="h-12 w-12 sm:h-16 sm:w-16 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                            <Home className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
+                          </div>
+                          <div>
+                            <h3 className="text-base sm:text-lg font-semibold">{currentFamily.aftercarePlan.targetUser}'s Aftercare Plan</h3>
+                            <p className="text-xs sm:text-sm text-muted-foreground">
+                              Created by {currentFamily.aftercarePlan.createdBy} on {currentFamily.aftercarePlan.createdAt}
+                            </p>
+                          </div>
+                        </div>
+                        {currentFamily.aftercarePlan.notes && (
+                          <p className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-lg">
+                            {currentFamily.aftercarePlan.notes}
+                          </p>
+                        )}
+                      </CardContent>
+                    </Card>
+
+                    {/* Recommendations */}
+                    <div className="space-y-3">
+                      {currentFamily.aftercarePlan.recommendations.map((rec) => {
+                        const icons: Record<string, typeof Home> = {
+                          sober_living: Home,
+                          iop: Building2,
+                          meeting_attendance: Users,
+                          individual_therapy: Brain,
+                          couples_therapy: Heart,
+                          family_therapy: Users,
+                          medication_compliance: FlaskConical,
+                          other: Calendar,
+                        };
+                        const IconComponent = icons[rec.type] || Calendar;
+                        
+                        return (
+                          <Card key={rec.id} className={`overflow-hidden transition-all ${rec.isCompleted ? 'bg-green-50/50 border-green-200' : ''}`}>
+                            <CardContent className="pt-4">
+                              <div className="flex items-start gap-4">
+                                <div className={`h-10 w-10 sm:h-12 sm:w-12 rounded-xl flex items-center justify-center shrink-0 ${
+                                  rec.isCompleted 
+                                    ? 'bg-green-100' 
+                                    : 'bg-primary/10'
+                                }`}>
+                                  {rec.isCompleted ? (
+                                    <CheckCircle className="h-5 w-5 sm:h-6 sm:w-6 text-green-600" />
+                                  ) : (
+                                    <IconComponent className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
+                                  )}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex flex-wrap items-center gap-2 mb-1">
+                                    <h4 className="font-semibold text-sm sm:text-base">{rec.title}</h4>
+                                    {rec.isCompleted && (
+                                      <Badge variant="secondary" className="bg-green-100 text-green-700 border-green-200 text-xs">
+                                        <Check className="h-3 w-3 mr-1" />
+                                        Completed {rec.completedAt}
+                                      </Badge>
+                                    )}
+                                  </div>
+                                  {rec.description && (
+                                    <p className="text-xs sm:text-sm text-muted-foreground mb-2">{rec.description}</p>
+                                  )}
+                                  <div className="flex flex-wrap gap-2 text-xs">
+                                    {rec.facilityName && (
+                                      <Badge variant="outline" className="bg-background">
+                                        📍 {rec.facilityName}
+                                      </Badge>
+                                    )}
+                                    {rec.duration && (
+                                      <Badge variant="outline" className="bg-background">
+                                        ⏱️ {rec.duration}
+                                      </Badge>
+                                    )}
+                                    {rec.frequency && (
+                                      <Badge variant="outline" className="bg-background">
+                                        📅 {rec.frequency}
+                                      </Badge>
+                                    )}
+                                    {rec.therapyType && (
+                                      <Badge variant="outline" className="bg-background">
+                                        🧠 {rec.therapyType}
+                                      </Badge>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        );
+                      })}
+                    </div>
+                  </>
+                ) : (
+                  /* Empty state for Davis family */
+                  <Card className="border-dashed">
+                    <CardContent className="flex flex-col items-center justify-center py-12">
+                      <Home className="h-12 w-12 text-muted-foreground mb-4" />
+                      <h3 className="font-semibold text-lg mb-2">No Aftercare Plan</h3>
+                      <p className="text-muted-foreground text-center text-sm max-w-md">
+                        No aftercare plan has been created for this family yet. 
+                        {selectedFamily === 'davis' && ' A professional moderator can create one when the recovering member completes treatment.'}
+                      </p>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
             </TabsContent>
 
           </Tabs>
