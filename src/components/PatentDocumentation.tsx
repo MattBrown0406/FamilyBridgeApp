@@ -818,36 +818,511 @@ export const PatentDocumentation = () => {
   }, []);
 
   const handlePrint = () => {
-    // Before printing, expand all textareas to show full content
-    const textareas = document.querySelectorAll('textarea');
-    const originalStyles: { el: HTMLTextAreaElement; height: string; overflow: string }[] = [];
-    
-    textareas.forEach((textarea) => {
-      const el = textarea as HTMLTextAreaElement;
-      // Store original styles
-      originalStyles.push({
-        el,
-        height: el.style.height,
-        overflow: el.style.overflow
-      });
-      // Expand to show all content
-      el.style.height = 'auto';
-      el.style.height = el.scrollHeight + 'px';
-      el.style.overflow = 'visible';
-    });
-    
-    // Use setTimeout to ensure styles are applied before print dialog
-    setTimeout(() => {
-      window.print();
-      
-      // Restore original styles after print dialog closes
-      setTimeout(() => {
-        originalStyles.forEach(({ el, height, overflow }) => {
-          el.style.height = height;
-          el.style.overflow = overflow;
+    // Generate a clean, formatted PDF document
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      toast.error('Please allow popups to generate the PDF');
+      return;
+    }
+
+    const formatDate = (dateStr: string) => {
+      try {
+        return new Date(dateStr).toLocaleDateString('en-US', { 
+          year: 'numeric', month: 'long', day: 'numeric' 
         });
-      }, 100);
-    }, 100);
+      } catch {
+        return dateStr;
+      }
+    };
+
+    const escapeHtml = (text: string) => {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    };
+
+    const formatMultilineText = (text: string) => {
+      return escapeHtml(text).replace(/\n/g, '<br>');
+    };
+
+    const inventorsList = disclosure.inventors.map((inv, idx) => `
+      <div class="inventor-block">
+        <h4>Inventor ${idx + 1}</h4>
+        <table class="inventor-table">
+          <tr><td class="label">Name:</td><td>${escapeHtml(inv.name)}</td></tr>
+          <tr><td class="label">Address:</td><td>${escapeHtml(inv.address)}</td></tr>
+          <tr><td class="label">Citizenship:</td><td>${escapeHtml(inv.citizenship)}</td></tr>
+          <tr><td class="label">Email:</td><td>${escapeHtml(inv.email)}</td></tr>
+        </table>
+      </div>
+    `).join('');
+
+    const documentContent = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>FIIS Patent Technical Specification</title>
+  <style>
+    @page {
+      margin: 0.75in;
+      size: letter;
+    }
+    
+    * {
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Times New Roman', Times, serif;
+      font-size: 12pt;
+      line-height: 1.5;
+      color: #000;
+      max-width: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    
+    h1 {
+      font-size: 18pt;
+      text-align: center;
+      margin-bottom: 24pt;
+      border-bottom: 2px solid #000;
+      padding-bottom: 12pt;
+    }
+    
+    h2 {
+      font-size: 14pt;
+      margin-top: 24pt;
+      margin-bottom: 12pt;
+      border-bottom: 1px solid #666;
+      padding-bottom: 6pt;
+      page-break-after: avoid;
+    }
+    
+    h3 {
+      font-size: 12pt;
+      font-weight: bold;
+      margin-top: 18pt;
+      margin-bottom: 8pt;
+      page-break-after: avoid;
+    }
+    
+    h4 {
+      font-size: 11pt;
+      font-weight: bold;
+      margin-top: 12pt;
+      margin-bottom: 6pt;
+    }
+    
+    p, li {
+      margin-bottom: 8pt;
+      text-align: justify;
+    }
+    
+    ul, ol {
+      margin-left: 24pt;
+      margin-bottom: 12pt;
+    }
+    
+    .section {
+      margin-bottom: 24pt;
+      page-break-inside: avoid;
+    }
+    
+    .content-block {
+      background: #f9f9f9;
+      border: 1px solid #ddd;
+      padding: 12pt;
+      margin: 12pt 0;
+      white-space: pre-wrap;
+      font-family: 'Courier New', monospace;
+      font-size: 10pt;
+      line-height: 1.4;
+      page-break-inside: avoid;
+    }
+    
+    .inventor-block {
+      margin-bottom: 16pt;
+      padding: 12pt;
+      border: 1px solid #ccc;
+      page-break-inside: avoid;
+    }
+    
+    .inventor-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    .inventor-table td {
+      padding: 4pt 8pt;
+      vertical-align: top;
+    }
+    
+    .inventor-table .label {
+      font-weight: bold;
+      width: 100pt;
+    }
+    
+    .date-row {
+      display: flex;
+      gap: 48pt;
+      margin: 12pt 0;
+    }
+    
+    .date-item {
+      flex: 1;
+    }
+    
+    .date-label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 4pt;
+    }
+    
+    .claim {
+      margin: 16pt 0;
+      padding: 12pt;
+      border-left: 3px solid #333;
+      background: #fafafa;
+      page-break-inside: avoid;
+    }
+    
+    .claim-title {
+      font-weight: bold;
+      margin-bottom: 8pt;
+    }
+    
+    table.comparison {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12pt 0;
+      font-size: 10pt;
+    }
+    
+    table.comparison th,
+    table.comparison td {
+      border: 1px solid #333;
+      padding: 8pt;
+      text-align: left;
+      vertical-align: top;
+    }
+    
+    table.comparison th {
+      background: #e0e0e0;
+      font-weight: bold;
+    }
+    
+    .header-info {
+      text-align: center;
+      margin-bottom: 24pt;
+    }
+    
+    .confidential {
+      text-align: center;
+      font-weight: bold;
+      font-size: 10pt;
+      border: 2px solid #000;
+      padding: 8pt;
+      margin-bottom: 24pt;
+    }
+    
+    .page-break {
+      page-break-before: always;
+    }
+    
+    .toc {
+      margin: 24pt 0;
+    }
+    
+    .toc-item {
+      margin: 6pt 0;
+    }
+    
+    pre {
+      background: #f5f5f5;
+      border: 1px solid #ddd;
+      padding: 12pt;
+      font-size: 9pt;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      page-break-inside: avoid;
+    }
+    
+    .footer-note {
+      font-size: 9pt;
+      font-style: italic;
+      text-align: center;
+      margin-top: 24pt;
+      padding-top: 12pt;
+      border-top: 1px solid #ccc;
+    }
+  </style>
+</head>
+<body>
+  <div class="confidential">
+    CONFIDENTIAL - PATENT APPLICATION MATERIALS<br>
+    FOR ATTORNEY-CLIENT PRIVILEGED USE
+  </div>
+
+  <h1>PATENT TECHNICAL SPECIFICATION<br>
+  <span style="font-size: 14pt; font-weight: normal;">Family Intervention Intelligence System (FIIS)</span></h1>
+  
+  <div class="header-info">
+    <p><strong>Document Generated:</strong> ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+    <p><strong>Application:</strong> FamilyBridge™</p>
+  </div>
+
+  <div class="toc">
+    <h2>Table of Contents</h2>
+    <div class="toc-item">1. Invention Disclosure Information</div>
+    <div class="toc-item">2. Abstract & Technical Field</div>
+    <div class="toc-item">3. Prior Art Analysis</div>
+    <div class="toc-item">4. Business Context</div>
+    <div class="toc-item">5. Development Timeline</div>
+    <div class="toc-item">6. Patent Claims</div>
+    <div class="toc-item">7. Prior Art Differentiation</div>
+  </div>
+
+  <div class="page-break"></div>
+
+  <h2>1. Invention Disclosure Information</h2>
+  
+  <div class="section">
+    <h3>1.1 Inventors</h3>
+    ${inventorsList}
+  </div>
+
+  <div class="section">
+    <h3>1.2 Key Dates</h3>
+    <table class="inventor-table">
+      <tr>
+        <td class="label">Date of Conception:</td>
+        <td>${formatDate(disclosure.dateOfConception)}</td>
+      </tr>
+      <tr>
+        <td class="label">Date First Disclosed:</td>
+        <td>${formatDate(disclosure.dateFirstDisclosed)}</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="page-break"></div>
+
+  <h2>2. Abstract & Technical Field</h2>
+  
+  <div class="section">
+    <h3>Patent Title</h3>
+    <p><strong>System and Method for Artificial Intelligence-Driven Family Behavioral Pattern Analysis and Intervention Support in Addiction Recovery Contexts</strong></p>
+  </div>
+
+  <div class="section">
+    <h3>Abstract</h3>
+    <p>A computer-implemented system and method for analyzing family behavioral patterns using artificial intelligence to support intervention strategies in addiction and behavioral health recovery contexts. The system aggregates multi-source family interaction data including meeting attendance, communication patterns, financial requests, and geographic check-ins, processes this data through a specialized AI pattern recognition engine trained on family dynamics and addiction recovery principles, and generates actionable insights including pattern signals, contextual framing, clarifying questions for family members, and items to watch. The system further calculates a family health status indicator and provides real-time notifications for critical pattern changes.</p>
+  </div>
+
+  <div class="section">
+    <h3>Technical Field</h3>
+    <p>This invention relates to artificial intelligence systems for behavioral analysis, specifically to systems and methods for analyzing family interaction patterns to support intervention strategies in addiction recovery and behavioral health contexts.</p>
+  </div>
+
+  <div class="section">
+    <h3>Problems Solved</h3>
+    <ul>
+      <li><strong>Fragmented Data Problem:</strong> Family members observing concerning behaviors lack a unified system to aggregate and analyze their observations alongside objective behavioral data.</li>
+      <li><strong>Pattern Recognition Gap:</strong> Subtle behavioral changes that may indicate relapse risk or recovery progress are difficult for untrained family members to identify and interpret.</li>
+      <li><strong>Intervention Timing:</strong> Families often intervene too late or inappropriately due to lack of objective data and professional-grade analysis tools.</li>
+      <li><strong>Communication Barriers:</strong> Family members struggle to discuss concerns objectively without triggering defensive responses from the recovering individual.</li>
+    </ul>
+  </div>
+
+  <div class="page-break"></div>
+
+  <h2>3. Prior Art Analysis</h2>
+
+  <div class="section">
+    <h3>3.1 Prior Art Notes</h3>
+    <div class="content-block">${formatMultilineText(disclosure.priorArtNotes)}</div>
+  </div>
+
+  <div class="section">
+    <h3>3.2 Competing Products Analysis</h3>
+    <div class="content-block">${formatMultilineText(disclosure.competingProducts)}</div>
+  </div>
+
+  <div class="section">
+    <h3>3.3 Academic Research</h3>
+    <div class="content-block">${formatMultilineText(disclosure.academicPapers)}</div>
+  </div>
+
+  <div class="section">
+    <h3>3.4 Existing Patents</h3>
+    <div class="content-block">${formatMultilineText(disclosure.existingPatents)}</div>
+  </div>
+
+  <div class="page-break"></div>
+
+  <h2>4. Business Context</h2>
+
+  <div class="section">
+    <h3>4.1 Commercial Plans</h3>
+    <div class="content-block">${formatMultilineText(disclosure.commercialPlans)}</div>
+  </div>
+
+  <div class="section">
+    <h3>4.2 Target Market</h3>
+    <div class="content-block">${formatMultilineText(disclosure.targetMarket)}</div>
+  </div>
+
+  <div class="section">
+    <h3>4.3 Revenue Model</h3>
+    <div class="content-block">${formatMultilineText(disclosure.revenueModel)}</div>
+  </div>
+
+  <div class="page-break"></div>
+
+  <h2>5. Development Timeline</h2>
+
+  <div class="section">
+    <div class="content-block">${formatMultilineText(disclosure.developmentNotes)}</div>
+  </div>
+
+  <div class="page-break"></div>
+
+  <h2>6. Patent Claims</h2>
+
+  <p><em>Note: These draft claims are for patent attorney review and refinement. Final claim language should be prepared by qualified patent counsel.</em></p>
+
+  <div class="claim">
+    <div class="claim-title">Claim 1: Core System (Independent)</div>
+    <p>A computer-implemented system for analyzing family behavioral patterns comprising: a data aggregation module configured to collect and normalize behavioral data from multiple sources including meeting attendance records, communication logs, financial transaction requests, and geographic check-in data; a pattern recognition engine utilizing a large language model trained on family dynamics and addiction recovery principles; a signal classification system that categorizes detected patterns into severity levels; and an insight generation module that produces actionable recommendations for family members.</p>
+  </div>
+
+  <div class="claim">
+    <div class="claim-title">Claim 2: Analysis Method (Independent)</div>
+    <p>A method for generating family intervention insights comprising the steps of: receiving user-submitted observations and system-tracked behavioral events; aggregating said observations and events into a unified context object; generating a structured prompt incorporating domain-specific analysis criteria; processing said prompt through an artificial intelligence model configured to output structured pattern analysis; parsing said output to extract pattern signals, contextual framing, clarifying questions, and watch items; and storing said analysis results for subsequent retrieval and notification triggering.</p>
+  </div>
+
+  <div class="claim">
+    <div class="claim-title">Claim 3: Health Status Calculation (Dependent on Claim 1)</div>
+    <p>The system of Claim 1, further comprising a health status calculation module configured to: retrieve behavioral metrics from a predetermined time period; apply weighted scoring to each metric category including meeting attendance, communication sentiment, financial patterns, and compliance indicators; combine weighted scores to produce a composite health score; map said composite score to a categorical status level; generate a human-readable status reason; and trigger appropriate notifications based on status changes.</p>
+  </div>
+
+  <div class="claim">
+    <div class="claim-title">Claim 4: Real-Time Processing (Dependent on Claim 1)</div>
+    <p>The system of Claim 1, further comprising a real-time event processing subsystem including: database triggers configured to invoke serverless functions upon data insertion; an event aggregation service that collects related events within a configurable time window; a pattern analysis queue that processes aggregated events through the AI engine; and a real-time subscription system that pushes analysis results to connected clients.</p>
+  </div>
+
+  <div class="claim">
+    <div class="claim-title">Claim 5: Notification Orchestration (Dependent on Claim 1)</div>
+    <p>The system of Claim 1, further comprising a notification orchestration subsystem including: rule evaluation logic that assesses pattern analysis results against configurable thresholds; user preference management for notification channel selection; urgency-based routing that directs notifications to appropriate delivery channels; and engagement tracking that monitors notification effectiveness.</p>
+  </div>
+
+  <div class="claim">
+    <div class="claim-title">Claim 6: Privacy-Preserving Architecture (Dependent on Claim 1)</div>
+    <p>The system of Claim 1, further comprising a privacy-preserving data architecture including: row-level security policies that restrict data access to authorized family members; encrypted storage for sensitive observation content; audit logging for all data access operations; and role-based access control distinguishing between family members, moderators, and system administrators.</p>
+  </div>
+
+  <div class="claim">
+    <div class="claim-title">Claim 7: Liquor License Proximity Detection (Dependent on Claim 1)</div>
+    <p>The system of Claim 1, further comprising a location-based risk detection module configured to: receive geographic coordinates from user check-in events; query a database of active liquor license locations; calculate proximity between user location and licensed establishments; generate automated alerts to designated family members when proximity thresholds are exceeded; and log location events with associated risk indicators for subsequent pattern analysis.</p>
+  </div>
+
+  <div class="claim">
+    <div class="claim-title">Claim 8: Meeting Verification System (Dependent on Claim 1)</div>
+    <p>The system of Claim 1, further comprising a meeting attendance verification module configured to: integrate with external meeting finder APIs to retrieve scheduled recovery meetings; capture user check-in with geographic coordinates and timestamp; verify proximity to known meeting locations; calculate expected checkout time based on meeting duration; monitor for timely checkout completion; and generate notifications for missed or overdue checkouts.</p>
+  </div>
+
+  <div class="claim">
+    <div class="claim-title">Claim 9: Family Financial Request Workflow (Dependent on Claim 1)</div>
+    <p>The system of Claim 1, further comprising a financial request management module configured to: receive financial assistance requests from designated family members; capture supporting documentation including receipts and bills; route requests to authorized family approvers; implement voting workflows for request approval; track pledge commitments from multiple family members; facilitate secure payment information exchange; and analyze request patterns as behavioral signals for the pattern recognition engine.</p>
+  </div>
+
+  <div class="claim">
+    <div class="claim-title">Claim 10: Professional Moderator Integration (Dependent on Claim 1)</div>
+    <p>The system of Claim 1, further comprising a professional moderator integration module configured to: enable assignment of licensed counselors or intervention specialists to family groups; provide moderator-specific dashboards with multi-family management capabilities; exclude moderator communications from behavioral pattern analysis to maintain objectivity; support temporary moderator assignments with automatic expiration; and maintain audit trails for all moderator actions and observations.</p>
+  </div>
+
+  <div class="claim">
+    <div class="claim-title">Claim 11: HIPAA Release Management (Dependent on Claim 1)</div>
+    <p>The system of Claim 1, further comprising a healthcare authorization management module configured to: present HIPAA release documentation to designated family members; capture digital signatures with timestamp, IP address, and user agent verification; store encrypted signature data; maintain comprehensive audit logs of all release accesses; and provide moderators and healthcare providers with verified release status for each family member.</p>
+  </div>
+
+  <div class="claim">
+    <div class="claim-title">Claim 12: Sobriety Milestone Celebration (Dependent on Claim 1)</div>
+    <p>The system of Claim 1, further comprising a sobriety tracking and celebration module configured to: track sobriety duration from a configurable start date; calculate milestone achievements at predetermined intervals; generate family-wide notifications upon milestone achievement; enable family members to submit celebratory messages and acknowledgments; support journey reset with historical tracking; and incorporate milestone data as positive behavioral signals in the pattern recognition engine.</p>
+  </div>
+
+  <div class="claim">
+    <div class="claim-title">Claim 13: Aftercare Plan Management (Dependent on Claim 1)</div>
+    <p>The system of Claim 1, further comprising an aftercare plan management module configured to: enable creation of structured aftercare recommendations by moderators or family members; categorize recommendations by type including therapy, meetings, sober living, and support groups; track completion status of individual recommendations; integrate aftercare compliance as behavioral signals for the pattern recognition engine; and generate alerts for overdue or incomplete aftercare tasks.</p>
+  </div>
+
+  <div class="claim">
+    <div class="claim-title">Claim 14: Multi-Tenant Provider Architecture (Independent)</div>
+    <p>A multi-tenant software platform for addiction recovery support comprising: an organization management layer enabling treatment providers to create branded instances; customizable branding including logos, colors, and subdomains for each organization; hierarchical user management with organization administrators, staff, and family members; cross-organization isolation of family data with row-level security; consolidated analytics dashboards for organization-level outcome tracking; and the family intervention intelligence system of Claim 1 deployed within each organization context.</p>
+  </div>
+
+  <div class="page-break"></div>
+
+  <h2>7. Prior Art Differentiation</h2>
+
+  <table class="comparison">
+    <thead>
+      <tr>
+        <th>Aspect</th>
+        <th>Prior Art</th>
+        <th>FIIS Innovation</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Data Sources</strong></td>
+        <td>Single-source (e.g., only messaging OR only location)</td>
+        <td>Multi-source integration (meetings, messages, finances, location, observations)</td>
+      </tr>
+      <tr>
+        <td><strong>Analysis Approach</strong></td>
+        <td>Rule-based or simple ML classification</td>
+        <td>LLM-powered contextual analysis with domain-specific prompting</td>
+      </tr>
+      <tr>
+        <td><strong>Output Format</strong></td>
+        <td>Alerts or scores only</td>
+        <td>Structured insights: signals, framing, questions, watch items</td>
+      </tr>
+      <tr>
+        <td><strong>Domain Focus</strong></td>
+        <td>General family or individual health</td>
+        <td>Addiction recovery and intervention-specific</td>
+      </tr>
+      <tr>
+        <td><strong>User Interaction</strong></td>
+        <td>Passive monitoring</td>
+        <td>Active observation input with AI-guided questioning</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="footer-note">
+    This document was generated from FamilyBridge™ Patent Documentation System.<br>
+    All technical specifications reflect the current implementation as of the document generation date.<br>
+    © ${new Date().getFullYear()} FamilyBridge. Confidential and Proprietary.
+  </div>
+
+</body>
+</html>
+    `;
+
+    printWindow.document.write(documentContent);
+    printWindow.document.close();
+    
+    // Wait for content to load, then trigger print
+    printWindow.onload = () => {
+      setTimeout(() => {
+        printWindow.print();
+      }, 250);
+    };
   };
 
   const saveDisclosure = () => {
