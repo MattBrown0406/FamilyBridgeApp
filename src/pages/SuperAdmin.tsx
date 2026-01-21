@@ -1309,7 +1309,7 @@ const SuperAdmin = () => {
                     <div className="space-y-2 text-sm">
                       <p className="flex items-center gap-2 text-muted-foreground">
                         <Globe className="h-4 w-4" />
-                        {orgDetails.organization.subdomain}.familybridge.app
+                        {orgDetails.organization.subdomain}.familybridgeapp.com
                       </p>
                       {orgDetails.organization.support_email && (
                         <p className="flex items-center gap-2 text-muted-foreground">
@@ -1571,7 +1571,7 @@ const SuperAdmin = () => {
                   value={providerForm.subdomain}
                   onChange={(e) => setProviderForm({ ...providerForm, subdomain: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '') })}
                 />
-                <span className="text-xs text-muted-foreground whitespace-nowrap">.familybridge.app</span>
+                <span className="text-xs text-muted-foreground whitespace-nowrap">.familybridgeapp.com</span>
               </div>
             </div>
             <div>
