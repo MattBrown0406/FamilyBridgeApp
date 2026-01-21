@@ -1006,7 +1006,7 @@ const SuperAdmin = () => {
                             displayRoles.push({ label: 'Super Admin', variant: 'destructive' });
                           }
                           if (u.org_roles?.includes('owner')) {
-                            displayRoles.push({ label: 'Provider Owner', variant: 'default', className: 'bg-violet-600' });
+                            displayRoles.push({ label: 'Provider Admin', variant: 'default', className: 'bg-violet-600' });
                           }
                           if (u.org_roles?.includes('admin')) {
                             displayRoles.push({ label: 'Provider Admin', variant: 'default', className: 'bg-violet-500' });
