@@ -392,8 +392,9 @@ const FamilyChat = () => {
   
   // Send invite state
   const [showSendInviteDialog, setShowSendInviteDialog] = useState(false);
-  const [inviteEmail, setInviteEmail] = useState('');
-  const [inviteName, setInviteName] = useState('');
+  const [inviteRecipients, setInviteRecipients] = useState<{ id: string; name: string; email: string }[]>([
+    { id: crypto.randomUUID(), name: '', email: '' }
+  ]);
   const [isSendingInvite, setIsSendingInvite] = useState(false);
   // Weekly archive state - week starts Sunday at midnight
   const [selectedWeekStart, setSelectedWeekStart] = useState<Date>(() => 
@@ -820,43 +821,94 @@ const FamilyChat = () => {
     }
   };
 
-  const sendInviteEmail = async () => {
-    if (!inviteEmail.trim() || !inviteName.trim() || !familyInviteCode || !family) {
+  const addInviteRecipient = () => {
+    setInviteRecipients(prev => [...prev, { id: crypto.randomUUID(), name: '', email: '' }]);
+  };
+
+  const removeInviteRecipient = (id: string) => {
+    if (inviteRecipients.length > 1) {
+      setInviteRecipients(prev => prev.filter(r => r.id !== id));
+    }
+  };
+
+  const updateInviteRecipient = (id: string, field: 'name' | 'email', value: string) => {
+    setInviteRecipients(prev => prev.map(r => 
+      r.id === id ? { ...r, [field]: value } : r
+    ));
+  };
+
+  const sendInviteEmails = async () => {
+    const validRecipients = inviteRecipients.filter(r => r.name.trim() && r.email.trim());
+    
+    if (validRecipients.length === 0 || !familyInviteCode || !family) {
       toast({
         title: 'Missing information',
-        description: 'Please enter both name and email.',
+        description: 'Please enter at least one name and email.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const invalidEmails = validRecipients.filter(r => !emailRegex.test(r.email.trim()));
+    if (invalidEmails.length > 0) {
+      toast({
+        title: 'Invalid email',
+        description: `Please check the email for: ${invalidEmails.map(r => r.name || 'unnamed').join(', ')}`,
         variant: 'destructive',
       });
       return;
     }
 
     setIsSendingInvite(true);
+    let successCount = 0;
+    let failCount = 0;
+
     try {
-      const { data, error } = await supabase.functions.invoke('send-family-invite', {
-        body: {
-          recipientEmail: inviteEmail.trim(),
-          recipientName: inviteName.trim(),
-          familyName: family.name,
-          inviteCode: familyInviteCode,
-          organizationName: organization?.name || 'FamilyBridge',
-          organizationLogo: organization?.logo_url || null,
-        },
-      });
+      for (const recipient of validRecipients) {
+        try {
+          const { error } = await supabase.functions.invoke('send-family-invite', {
+            body: {
+              recipientEmail: recipient.email.trim(),
+              recipientName: recipient.name.trim(),
+              familyName: family.name,
+              inviteCode: familyInviteCode,
+              organizationName: organization?.name || 'FamilyBridge',
+              organizationLogo: organization?.logo_url || null,
+            },
+          });
 
-      if (error) throw error;
+          if (error) {
+            failCount++;
+          } else {
+            successCount++;
+          }
+        } catch {
+          failCount++;
+        }
+      }
 
-      toast({
-        title: 'Invitation sent!',
-        description: `An invite email has been sent to ${inviteEmail.trim()}.`,
-      });
+      if (successCount > 0) {
+        toast({
+          title: 'Invitations sent!',
+          description: `${successCount} invitation${successCount > 1 ? 's' : ''} sent successfully.${failCount > 0 ? ` ${failCount} failed.` : ''}`,
+        });
+      } else {
+        toast({
+          title: 'Failed to send invites',
+          description: 'Please try again or share the invite code manually.',
+          variant: 'destructive',
+        });
+      }
       
-      setInviteEmail('');
-      setInviteName('');
+      // Reset form
+      setInviteRecipients([{ id: crypto.randomUUID(), name: '', email: '' }]);
       setShowSendInviteDialog(false);
     } catch (error) {
-      console.error('Error sending invite:', error);
+      console.error('Error sending invites:', error);
       toast({
-        title: 'Failed to send invite',
+        title: 'Failed to send invites',
         description: 'Please try again or share the invite code manually.',
         variant: 'destructive',
       });
@@ -4836,41 +4888,80 @@ const FamilyChat = () => {
                       Send Invite by Email
                     </Button>
                   </DialogTrigger>
-                  <DialogContent>
+                  <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
                     <DialogHeader>
-                      <DialogTitle>Send Family Invitation</DialogTitle>
+                      <DialogTitle>Send Family Invitations</DialogTitle>
                       <DialogDescription>
-                        Enter the person's details and we'll send them an email with instructions to join {family?.name}.
+                        Enter details for the people you want to invite to {family?.name}.
                       </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4 py-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="inviteName">Name</Label>
-                        <Input
-                          id="inviteName"
-                          placeholder="John Smith"
-                          value={inviteName}
-                          onChange={(e) => setInviteName(e.target.value)}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="inviteEmail">Email</Label>
-                        <Input
-                          id="inviteEmail"
-                          type="email"
-                          placeholder="john@example.com"
-                          value={inviteEmail}
-                          onChange={(e) => setInviteEmail(e.target.value)}
-                        />
-                      </div>
+                      <ScrollArea className="max-h-[300px] pr-4">
+                        <div className="space-y-4">
+                          {inviteRecipients.map((recipient, index) => (
+                            <div key={recipient.id} className="space-y-3 p-3 bg-secondary/30 rounded-lg relative">
+                              <div className="flex items-center justify-between">
+                                <span className="text-sm font-medium text-muted-foreground">
+                                  Person {index + 1}
+                                </span>
+                                {inviteRecipients.length > 1 && (
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => removeInviteRecipient(recipient.id)}
+                                    className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive"
+                                  >
+                                    <X className="h-4 w-4" />
+                                  </Button>
+                                )}
+                              </div>
+                              <div className="grid grid-cols-2 gap-2">
+                                <div className="space-y-1">
+                                  <Label className="text-xs">Name</Label>
+                                  <Input
+                                    placeholder="John Smith"
+                                    value={recipient.name}
+                                    onChange={(e) => updateInviteRecipient(recipient.id, 'name', e.target.value)}
+                                  />
+                                </div>
+                                <div className="space-y-1">
+                                  <Label className="text-xs">Email</Label>
+                                  <Input
+                                    type="email"
+                                    placeholder="john@example.com"
+                                    value={recipient.email}
+                                    onChange={(e) => updateInviteRecipient(recipient.id, 'email', e.target.value)}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </ScrollArea>
+                      
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={addInviteRecipient}
+                        className="w-full gap-2"
+                      >
+                        <Plus className="h-4 w-4" />
+                        Add Another Person
+                      </Button>
                     </div>
                     <div className="flex justify-end gap-2">
-                      <Button variant="outline" onClick={() => setShowSendInviteDialog(false)}>
+                      <Button 
+                        variant="outline" 
+                        onClick={() => {
+                          setShowSendInviteDialog(false);
+                          setInviteRecipients([{ id: crypto.randomUUID(), name: '', email: '' }]);
+                        }}
+                      >
                         Cancel
                       </Button>
                       <Button 
-                        onClick={sendInviteEmail} 
-                        disabled={isSendingInvite || !inviteEmail.trim() || !inviteName.trim()}
+                        onClick={sendInviteEmails} 
+                        disabled={isSendingInvite || !inviteRecipients.some(r => r.name.trim() && r.email.trim())}
                       >
                         {isSendingInvite ? (
                           <>
@@ -4880,7 +4971,9 @@ const FamilyChat = () => {
                         ) : (
                           <>
                             <Send className="h-4 w-4 mr-2" />
-                            Send Invitation
+                            Send {inviteRecipients.filter(r => r.name.trim() && r.email.trim()).length > 1 
+                              ? `${inviteRecipients.filter(r => r.name.trim() && r.email.trim()).length} Invitations` 
+                              : 'Invitation'}
                           </>
                         )}
                       </Button>
