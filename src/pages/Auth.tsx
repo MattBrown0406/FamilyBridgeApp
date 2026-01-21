@@ -76,8 +76,8 @@ const Auth = () => {
           title: 'Welcome to the family!',
           description: `You've joined ${data.family.name}. Redirecting to your family group...`,
         });
-        // Navigate to the family chat
-        navigate('/family-chat');
+        // Navigate to the dashboard where the user can see their family groups
+        navigate('/dashboard');
         return true;
       } else {
         throw new Error(data?.error || 'Failed to join family');
@@ -114,12 +114,12 @@ const Auth = () => {
         // User is an organization member - redirect to moderator dashboard
         navigate('/moderator-dashboard');
       } else {
-        // Regular user - redirect to family chat
-        navigate('/family-chat');
+        // Regular user - redirect to dashboard
+        navigate('/dashboard');
       }
     } catch (error) {
       console.error('Error checking user role:', error);
-      navigate('/family-chat');
+      navigate('/dashboard');
     }
   };
 

@@ -47,7 +47,7 @@ const SignHIPAA = () => {
   }
 
   const handleComplete = () => {
-    navigate('/family-chat');
+    navigate(`/family/${familyId}`);
   };
 
   const handleCancel = () => {
