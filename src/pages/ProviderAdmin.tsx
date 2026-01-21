@@ -1203,7 +1203,7 @@ const ProviderAdmin = () => {
                       )}
                       <div className="min-w-0">
                         <p className="font-medium text-foreground text-sm sm:text-base truncate">{org.name}</p>
-                        <p className="text-[10px] sm:text-xs text-muted-foreground truncate">{org.subdomain}.familybridge.app</p>
+                        <p className="text-[10px] sm:text-xs text-muted-foreground truncate">{org.subdomain}.familybridgeapp.com</p>
                       </div>
                     </div>
                   </CardContent>
