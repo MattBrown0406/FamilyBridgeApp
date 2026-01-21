@@ -875,7 +875,7 @@ const ProviderAdmin = () => {
                     value={newOrg.subdomain}
                     onChange={(e) => setNewOrg({ ...newOrg, subdomain: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '') })}
                   />
-                  <span className="text-muted-foreground text-sm whitespace-nowrap">.familybridge.app</span>
+                  <span className="text-muted-foreground text-sm whitespace-nowrap">.familybridgeapp.com</span>
                 </div>
                 <p className="text-xs text-muted-foreground">
                   Your clients will access the app at this address
