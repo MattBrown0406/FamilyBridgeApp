@@ -2029,6 +2029,46 @@ export const PatentDocumentation = () => {
             display: block !important;
             height: auto !important;
           }
+          
+          /* Make all text fields fully visible when printing */
+          input, textarea {
+            border: none !important;
+            background: transparent !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            height: auto !important;
+            min-height: auto !important;
+            overflow: visible !important;
+            resize: none !important;
+            white-space: pre-wrap !important;
+            word-wrap: break-word !important;
+          }
+          
+          textarea {
+            height: auto !important;
+            min-height: 0 !important;
+            max-height: none !important;
+          }
+          
+          /* Expand all content areas */
+          .min-h-\\[60px\\], .min-h-\\[80px\\], .min-h-\\[100px\\], .min-h-\\[120px\\] {
+            min-height: 0 !important;
+            height: auto !important;
+          }
+          
+          /* Show full content in scroll areas */
+          [data-radix-scroll-area-viewport] {
+            height: auto !important;
+            max-height: none !important;
+            overflow: visible !important;
+          }
+          
+          /* Remove scroll area constraints */
+          .h-\\[calc\\(100vh-300px\\)\\] {
+            height: auto !important;
+            max-height: none !important;
+            overflow: visible !important;
+          }
         }
       `}</style>
     </div>
