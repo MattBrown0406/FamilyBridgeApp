@@ -171,8 +171,29 @@ serve(async (req) => {
       });
     }
 
-    // If user is 'recovering', set role to 'recovering', otherwise 'member'
-    const memberRole = relationshipType === 'recovering' ? 'recovering' : 'member';
+    // Check if this is the first member joining (they become admin for direct subscriptions)
+    const { count: memberCount, error: countError } = await supabaseAdmin
+      .from("family_members")
+      .select("id", { count: "exact", head: true })
+      .eq("family_id", family.id);
+
+    if (countError) {
+      console.log("Error counting members:", countError);
+    }
+
+    // Determine role:
+    // - First member of a non-provider family becomes admin
+    // - Otherwise: recovering → recovering, others → member
+    let memberRole: string;
+    
+    if (memberCount === 0 && !familyDetails?.organization_id) {
+      // First member of direct subscription family becomes admin
+      memberRole = 'admin';
+    } else if (relationshipType === 'recovering') {
+      memberRole = 'recovering';
+    } else {
+      memberRole = 'member';
+    }
 
     const { error: joinError } = await supabaseAdmin
       .from("family_members")
