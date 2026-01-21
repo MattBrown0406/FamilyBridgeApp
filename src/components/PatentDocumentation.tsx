@@ -818,7 +818,36 @@ export const PatentDocumentation = () => {
   }, []);
 
   const handlePrint = () => {
-    window.print();
+    // Before printing, expand all textareas to show full content
+    const textareas = document.querySelectorAll('textarea');
+    const originalStyles: { el: HTMLTextAreaElement; height: string; overflow: string }[] = [];
+    
+    textareas.forEach((textarea) => {
+      const el = textarea as HTMLTextAreaElement;
+      // Store original styles
+      originalStyles.push({
+        el,
+        height: el.style.height,
+        overflow: el.style.overflow
+      });
+      // Expand to show all content
+      el.style.height = 'auto';
+      el.style.height = el.scrollHeight + 'px';
+      el.style.overflow = 'visible';
+    });
+    
+    // Use setTimeout to ensure styles are applied before print dialog
+    setTimeout(() => {
+      window.print();
+      
+      // Restore original styles after print dialog closes
+      setTimeout(() => {
+        originalStyles.forEach(({ el, height, overflow }) => {
+          el.style.height = height;
+          el.style.overflow = overflow;
+        });
+      }, 100);
+    }, 100);
   };
 
   const saveDisclosure = () => {
@@ -2000,7 +2029,7 @@ export const PatentDocumentation = () => {
         </div>
       </ScrollArea>
 
-      {/* Print Styles */}
+      {/* Print Styles - Use class-based approach for reliable PDF export */}
       <style>{`
         @media print {
           body {
@@ -2025,48 +2054,72 @@ export const PatentDocumentation = () => {
             page-break-before: always;
           }
           
+          /* Force all collapsibles open */
           [data-state="closed"] > [data-radix-collapsible-content] {
             display: block !important;
             height: auto !important;
           }
           
-          /* Make all text fields fully visible when printing */
-          input, textarea {
-            border: none !important;
-            background: transparent !important;
-            padding: 0 !important;
-            margin: 0 !important;
+          /* CRITICAL: Make ALL text inputs and textareas fully visible */
+          input[type="text"],
+          input[type="email"],
+          input[type="date"],
+          textarea {
+            border: 1px solid #ccc !important;
+            background: white !important;
+            padding: 8px !important;
             height: auto !important;
             min-height: auto !important;
+            max-height: none !important;
             overflow: visible !important;
-            resize: none !important;
-            white-space: pre-wrap !important;
+            overflow-wrap: break-word !important;
             word-wrap: break-word !important;
+            white-space: pre-wrap !important;
+            resize: none !important;
+            display: block !important;
+            width: 100% !important;
+            -webkit-appearance: none !important;
+            -moz-appearance: none !important;
+            appearance: none !important;
+            field-sizing: content !important;
           }
           
+          /* Specific fix for textareas - force content-based height */
           textarea {
             height: auto !important;
-            min-height: 0 !important;
-            max-height: none !important;
+            min-height: fit-content !important;
+            overflow: visible !important;
+            /* Fallback for browsers that don't support field-sizing */
+            min-height: max-content !important;
           }
           
-          /* Expand all content areas */
-          .min-h-\\[60px\\], .min-h-\\[80px\\], .min-h-\\[100px\\], .min-h-\\[120px\\] {
-            min-height: 0 !important;
-            height: auto !important;
-          }
-          
-          /* Show full content in scroll areas */
-          [data-radix-scroll-area-viewport] {
+          /* Remove all scroll containers */
+          [data-radix-scroll-area-viewport],
+          [data-radix-scroll-area-root] {
             height: auto !important;
             max-height: none !important;
             overflow: visible !important;
+            display: block !important;
           }
           
-          /* Remove scroll area constraints */
-          .h-\\[calc\\(100vh-300px\\)\\] {
+          /* Override any fixed height classes */
+          [class*="h-["],
+          [class*="min-h-["],
+          [class*="max-h-["] {
             height: auto !important;
+            min-height: auto !important;
             max-height: none !important;
+          }
+          
+          /* Ensure cards expand to fit content */
+          .card, [class*="Card"] {
+            break-inside: avoid;
+            page-break-inside: avoid;
+          }
+          
+          /* Make sure the main container expands */
+          .patent-documentation-content {
+            height: auto !important;
             overflow: visible !important;
           }
         }
