@@ -88,6 +88,16 @@ export const useSuperAdmin = () => {
     setError(null);
     
     try {
+      // Ensure we have a valid session before calling the function
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError || !sessionData.session) {
+        // Try to refresh the session
+        const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
+        if (refreshError || !refreshData.session) {
+          throw new Error('No valid session');
+        }
+      }
+      
       const { data, error } = await supabase.functions.invoke('get-admin-stats');
       
       if (error) {
