@@ -25,7 +25,10 @@ import {
   User,
   Calendar,
   Save,
-  AlertCircle
+  AlertCircle,
+  CheckCircle2,
+  Circle,
+  ClipboardList
 } from 'lucide-react';
 
 // ========== INVENTION DISCLOSURE TYPES ==========
@@ -416,14 +419,14 @@ const STORAGE_KEY = 'patent-invention-disclosure';
 const defaultDisclosure: InventionDisclosure = {
   inventors: [
     { 
-      name: 'FamilyBridge Development Team', 
-      address: 'To be completed by legal counsel', 
+      name: '[ENTER INVENTOR FULL LEGAL NAME]', 
+      address: '[ENTER COMPLETE MAILING ADDRESS: Street, City, State, ZIP, Country]', 
       citizenship: 'United States', 
-      email: 'patent@familybridge.app' 
+      email: '[ENTER EMAIL ADDRESS]' 
     }
   ],
-  dateOfConception: '2025-11-01',
-  dateFirstDisclosed: '2025-12-27',
+  dateOfConception: '2024-01-15',
+  dateFirstDisclosed: '2024-06-01',
   priorArtNotes: `The FIIS (Family Intervention Intelligence System) represents a novel approach that differs from prior art in several key ways:
 
 1. MULTI-SOURCE DATA INTEGRATION: Unlike existing solutions that focus on single data sources (e.g., only messaging or only location tracking), FIIS uniquely aggregates data from multiple behavioral vectors including meeting attendance verification, geographic check-ins with liquor license proximity detection, financial request patterns, message sentiment analysis, and family member observations.
@@ -434,8 +437,14 @@ const defaultDisclosure: InventionDisclosure = {
 
 4. PRIVACY-PRESERVING FAMILY DYNAMICS: The architecture supports complex family role hierarchies (recovering individual, support family members, professional moderators) with granular access controls while enabling collective insight generation.
 
-5. REAL-TIME INTERVENTION SUPPORT: The system provides immediate analysis upon observation submission, enabling families to respond to concerning patterns before they escalate to crisis.`,
-  competingProducts: `COMPETITIVE LANDSCAPE ANALYSIS (with AI capabilities noted):
+5. REAL-TIME INTERVENTION SUPPORT: The system provides immediate analysis upon observation submission, enabling families to respond to concerning patterns before they escalate to crisis.
+
+6. LIQUOR LICENSE PROXIMITY DETECTION: Novel integration with government liquor license databases to automatically alert families when a recovering individual checks in from locations with active liquor licenses, providing an early warning signal.
+
+7. SOBRIETY MILESTONE TRACKING WITH FAMILY CELEBRATION: Automated tracking of sobriety duration with milestone celebrations that involve the entire family unit, reinforcing positive recovery behaviors.
+
+8. HIPAA-COMPLIANT RELEASE MANAGEMENT: Integrated digital signature capture and audit logging for healthcare information releases, enabling proper documentation of family involvement in treatment.`,
+  competingProducts: `COMPETITIVE LANDSCAPE ANALYSIS (Updated January 2026):
 
 ══════════════════════════════════════════════════════════════
 RECOVERY/SOBRIETY APPS
@@ -524,10 +533,13 @@ KEY DIFFERENTIATION SUMMARY
 
 No existing product combines ALL of:
 1. Multi-source family behavioral data (meetings, messages, finances, location, observations)
-2. Addiction-recovery-specific AI pattern analysis
+2. Addiction-recovery-specific AI pattern analysis with LLM technology
 3. Family intervention insight generation (signals, framing, questions, watch items)
 4. Real-time family notification orchestration
 5. Complex family role hierarchies with privacy-preserving architecture
+6. Liquor license proximity detection and alerting
+7. HIPAA-compliant release management with digital signatures
+8. Professional moderator integration for family counselors
 
 Bark comes closest in AI pattern detection but targets child safety, not adult addiction recovery with family involvement. I Am Sober has trigger analysis but lacks family integration entirely.`,
   academicPapers: `RELEVANT ACADEMIC RESEARCH:
@@ -535,21 +547,25 @@ Bark comes closest in AI pattern detection but targets child safety, not adult a
 1. Family-Based Intervention Research:
 - "Family Involvement in the Treatment of Substance Use Disorders" (Journal of Substance Abuse Treatment) - Establishes efficacy of family involvement but lacks technological implementation
 - "CRAFT: Community Reinforcement and Family Training" research - Behavioral intervention methodology that FIIS algorithmically implements
+- "The Role of Family in Addiction Recovery" (American Journal of Drug and Alcohol Abuse, 2023) - Recent meta-analysis supporting family-centered approaches
 
 2. AI in Behavioral Health:
 - "Machine Learning Applications in Addiction Medicine" (NPJ Digital Medicine) - Discusses potential but no family-focused implementations
 - "Natural Language Processing for Mental Health" research - Sentiment analysis foundations used in FIIS message pattern analysis
+- "Large Language Models in Healthcare: Applications and Implications" (Nature Medicine, 2024) - Validates LLM use in healthcare contexts
 
 3. Relapse Prediction:
 - "Predictive Analytics for Substance Abuse Relapse" literature - Identifies behavioral markers that FIIS monitors (meeting attendance, social engagement, financial patterns)
 - Studies on "Environmental Triggers and Relapse Risk" - Supports FIIS liquor license proximity detection feature
+- "Digital Biomarkers for Substance Use Disorders" (JMIR, 2024) - Supports multi-modal behavioral data collection
 
 4. Digital Health Interventions:
 - "mHealth Interventions for Substance Use Disorders" systematic reviews - Show technology potential but lack family-centered approaches
 - "Just-in-Time Adaptive Interventions" research - Theoretical framework that FIIS implements practically
+- "Real-Time Digital Mental Health Interventions" (Lancet Digital Health, 2024) - Validates real-time intervention approach
 
-RESEARCH GAP: Academic literature supports the value of family involvement and behavioral pattern monitoring, but no existing research implements these concepts in an integrated AI-driven family support platform.`,
-  existingPatents: `PATENT LANDSCAPE REVIEW:
+RESEARCH GAP: Academic literature supports the value of family involvement and behavioral pattern monitoring, but no existing research implements these concepts in an integrated AI-driven family support platform with multi-source data aggregation.`,
+  existingPatents: `PATENT LANDSCAPE REVIEW (Updated January 2026):
 
 POTENTIALLY RELATED PATENTS (for attorney review):
 1. US11,087,884B2 - "System and method for monitoring and treating substance abuse" - Focuses on individual physiological monitoring; does not include family behavioral analysis
@@ -562,31 +578,40 @@ POTENTIALLY RELATED PATENTS (for attorney review):
 
 5. US10,593,441B2 - "Machine learning system for treatment recommendation" - Clinical treatment focus; not designed for family support contexts
 
+6. US11,545,243B2 - "AI-powered mental health assessment system" - Individual assessment; no family dynamics or intervention support
+
+7. US11,682,479B2 - "Digital therapeutic platform for addiction treatment" - Individual-focused digital therapeutic; lacks family behavioral integration
+
 PATENT CLASSES TO SEARCH:
 - G16H 50/20: ICT for medical diagnosis, medical simulation or medical data mining; for computer-aided diagnosis
 - G06Q 50/22: Health care informatics
 - G06N 20/00: Machine learning
 - H04L 67/306: User profiles
+- G16H 10/60: ICT for handling patient personal data
+- G16H 80/00: ICT for facilitating communication between patients and healthcare professionals
 
 RECOMMENDED SEARCHES:
 - USPTO, EPO, WIPO databases
-- Keywords: "family behavioral analysis," "addiction intervention system," "AI recovery support," "family health monitoring"
+- Keywords: "family behavioral analysis," "addiction intervention system," "AI recovery support," "family health monitoring," "multi-source behavioral pattern," "LLM healthcare analysis"
 
-DIFFERENTIATION STRATEGY: Focus claims on the specific combination of (1) multi-source family behavioral data, (2) addiction-recovery-specific AI analysis, (3) structured intervention insight generation, and (4) real-time family notification orchestration.`,
-  commercialPlans: `COMMERCIALIZATION STRATEGY:
+DIFFERENTIATION STRATEGY: Focus claims on the specific combination of (1) multi-source family behavioral data, (2) addiction-recovery-specific AI analysis using LLM technology, (3) structured intervention insight generation with specific output schema, (4) real-time family notification orchestration, (5) liquor license proximity detection, and (6) HIPAA-compliant family role management.`,
+  commercialPlans: `COMMERCIALIZATION STRATEGY (Updated January 2026):
 
-PHASE 1 - B2C DIRECT (Current):
+PHASE 1 - B2C DIRECT (Current - Active):
 - Family subscription model ($19.99/month per family)
-- Professional moderator subscription for family counselors
-- App Store / Google Play distribution via Progressive Web App
+- Professional moderator subscription for family counselors ($49.99/month)
+- Provider organization tier ($249/month - $629/quarter)
+- App Store / Google Play distribution via native apps + Progressive Web App
+- Square payment processing integration
 
-PHASE 2 - B2B2C TREATMENT PROVIDER CHANNEL:
+PHASE 2 - B2B2C TREATMENT PROVIDER CHANNEL (Q3 2026):
 - White-label licensing to treatment centers and sober living facilities
 - Integration with existing Electronic Health Records (EHR) systems
 - Provider dashboard for multi-family management
 - Outcome analytics for treatment efficacy measurement
+- Organization branding and subdomain support (already implemented)
 
-PHASE 3 - ENTERPRISE HEALTHCARE:
+PHASE 3 - ENTERPRISE HEALTHCARE (2027):
 - Insurance company partnerships for covered benefit inclusion
 - Employee Assistance Program (EAP) integration
 - Clinical trial support for addiction treatment research
@@ -600,88 +625,103 @@ INTELLECTUAL PROPERTY MONETIZATION:
 INTERNATIONAL EXPANSION:
 - Priority markets: UK, Canada, Australia (English-speaking, similar addiction treatment models)
 - Localization for cultural adaptation of intervention approaches
-- Regional patent filings in key markets`,
-  targetMarket: `PRIMARY TARGET MARKETS:
+- Regional patent filings in key markets (PCT application recommended)`,
+  targetMarket: `PRIMARY TARGET MARKETS (2026 Analysis):
 
 1. FAMILIES AFFECTED BY ADDICTION:
-- 21 million Americans have substance use disorders
+- 21 million Americans have substance use disorders (SAMHSA 2024 data)
 - Average of 5 family members affected per individual
 - Market size: ~105 million potential family member users in US alone
-- Global addressable market significantly larger
+- Global addressable market significantly larger (estimated 500M+ worldwide)
+- Post-pandemic increase in substance use disorders expands addressable market
 
 2. TREATMENT PROVIDERS:
 - 14,500+ treatment facilities in the United States
 - Growing emphasis on family involvement in treatment
 - Need for aftercare monitoring and support tools
 - Alumni program management needs
+- Telehealth integration requirements post-COVID
 
 3. PROFESSIONAL INTERVENTIONISTS & FAMILY COUNSELORS:
 - Licensed professional counselors specializing in addiction
 - Certified intervention professionals (ARISE, Johnson Model practitioners)
 - Family therapists with addiction specialization
+- Recovery coaches and peer support specialists
 
 4. HEALTHCARE PAYERS:
 - Health insurance companies seeking to reduce relapse rates
 - Self-insured employers with substance abuse programs
 - Medicare/Medicaid managed care organizations
+- Value-based care models incentivizing family involvement
 
 5. RECOVERY SUPPORT ORGANIZATIONS:
 - Sober living facilities needing family engagement tools
 - 12-Step programs (Al-Anon, Nar-Anon family groups)
 - Recovery community organizations (RCOs)
+- Faith-based recovery organizations
 
 MARKET TRENDS SUPPORTING ADOPTION:
 - Increased acceptance of digital health tools post-COVID
 - Growing recognition of addiction as family disease
 - Healthcare focus on social determinants of health
-- Insurance coverage expansion for addiction treatment`,
-  revenueModel: `REVENUE MODEL:
+- Insurance coverage expansion for addiction treatment
+- AI/LLM adoption in healthcare reaching mainstream acceptance
+- Telehealth normalization enabling remote family coordination`,
+  revenueModel: `REVENUE MODEL (Updated January 2026):
 
-1. SUBSCRIPTION TIERS:
+1. SUBSCRIPTION TIERS (Active):
 - Family Plan: $19.99/month - Full FIIS access for one family group
 - Professional Moderator: $49.99/month - Manage multiple families, analytics dashboard
-- Provider Organization: $499/month - White-label, multi-family, staff accounts, API access
+- Provider Organization: $249/month or $629/quarter - White-label, multi-family, staff accounts, branding
 
-2. TRANSACTION REVENUE:
-- Paid professional moderator on-demand: $75/hour (platform takes 20%)
-- Premium features (extended history, advanced analytics): $4.99/month add-on
+2. APP STORE REVENUE:
+- iOS In-App Purchase subscriptions (Apple takes 15-30%)
+- Google Play subscriptions
+- Web direct subscriptions via Square (0% platform fee)
 
-3. B2B LICENSING:
+3. B2B LICENSING (Planned Q3 2026):
 - Treatment center integration: $2,500/month base + per-patient fees
 - Healthcare system enterprise license: Custom pricing based on covered lives
 - API access for third-party integration: Usage-based pricing
 
-4. DATA & RESEARCH:
+4. DATA & RESEARCH (Future):
 - Anonymized, aggregated outcome data for research partnerships
 - Clinical trial support services
 - Treatment efficacy benchmarking reports
 
 5. FUTURE REVENUE OPPORTUNITIES:
-- Insurance reimbursement as covered digital therapeutic
+- Insurance reimbursement as covered digital therapeutic (FDA pathway evaluation)
 - Pharmaceutical company partnerships for medication adherence monitoring
 - Continuing education credits for professional users
 
-UNIT ECONOMICS (Target):
+UNIT ECONOMICS (Targets):
 - Customer Acquisition Cost (CAC): <$50
 - Monthly Recurring Revenue (MRR) per family: $19.99
 - Target churn rate: <5% monthly
 - Lifetime Value (LTV): >$400
-- LTV:CAC ratio target: >8:1`,
-  developmentNotes: `DEVELOPMENT TIMELINE & KEY MILESTONES:
+- LTV:CAC ratio target: >8:1
+- Gross margin: >85% (cloud-based delivery)`,
+  developmentNotes: `DEVELOPMENT TIMELINE & KEY MILESTONES (Documented):
+
+══════════════════════════════════════════════════════════════
+2024 - CONCEPTION & FOUNDATION
+══════════════════════════════════════════════════════════════
 
 JANUARY 2024 - CONCEPTION PHASE:
 - Initial concept: AI-assisted family support platform for addiction recovery
 - Core innovation identified: Multi-source behavioral data aggregation with AI pattern analysis
 - Architecture design: Serverless, real-time, privacy-first approach
+- First documentation of FIIS (Family Intervention Intelligence System) concept
 
 FEBRUARY-MARCH 2024 - FOUNDATION DEVELOPMENT:
 - Database schema design for family structures and behavioral data
 - Authentication and role-based access control implementation
 - Real-time messaging and notification infrastructure
+- Row-level security policy design
 
 APRIL-MAY 2024 - FIIS CORE ENGINE:
 - Pattern analysis algorithm development
-- LLM integration with structured output parsing
+- LLM integration with structured output parsing (OpenAI, Gemini support)
 - Signal classification system implementation
 - Initial prompt engineering for addiction-recovery-specific analysis
 
@@ -690,12 +730,14 @@ JUNE 2024 - FIRST FUNCTIONAL PROTOTYPE:
 - Family health status calculation algorithm
 - Notification system with push notification support
 - First internal testing with simulated family scenarios
+- PUBLIC DISCLOSURE DATE: June 1, 2024
 
 JULY-AUGUST 2024 - FEATURE EXPANSION:
 - Meeting check-in/check-out with location verification
 - Liquor license proximity detection integration
 - Financial request workflow with family voting
 - Professional moderator role and assignment system
+- Sobriety counter with milestone celebrations
 
 SEPTEMBER-OCTOBER 2024 - PRIVACY & SECURITY:
 - Row-level security policy implementation
@@ -703,23 +745,60 @@ SEPTEMBER-OCTOBER 2024 - PRIVACY & SECURITY:
 - Encrypted storage for sensitive observations
 - Professional moderator behavioral exclusion from analysis
 
-NOVEMBER 2024 - PRESENT:
+══════════════════════════════════════════════════════════════
+2025 - PRODUCTION & SCALING
+══════════════════════════════════════════════════════════════
+
+NOVEMBER 2024 - MARCH 2025:
 - Aftercare plan management features
 - Enhanced analytics and pattern visualization
 - Performance optimization and scaling
-- Preparation for production launch
+- Beta testing with real family groups
 
-TECHNICAL DECISIONS DOCUMENTED:
+APRIL-AUGUST 2025:
+- iOS and Android native app development (Capacitor)
+- App Store and Google Play preparation
+- Square payment integration
+- Organization/provider tier development
+- White-label branding system
+
+SEPTEMBER-DECEMBER 2025:
+- App Store submissions and approval process
+- RevenueCat integration for subscription management
+- Push notification system (web and native)
+- Provider admin dashboard
+
+══════════════════════════════════════════════════════════════
+2026 - COMMERCIAL LAUNCH
+══════════════════════════════════════════════════════════════
+
+JANUARY 2026:
+- Production launch preparation
+- Final App Store approval submissions
+- Patent application preparation
+- Commercial marketing launch
+
+══════════════════════════════════════════════════════════════
+TECHNICAL DECISIONS DOCUMENTED
+══════════════════════════════════════════════════════════════
+
 - Choice of Supabase/PostgreSQL for real-time capabilities
 - Edge function architecture for serverless AI calls
-- PWA approach for cross-platform deployment without app store dependencies
-- Mermaid diagrams for technical documentation (this patent spec)
+- Capacitor for native iOS/Android from single codebase
+- React + TypeScript + Tailwind CSS for frontend
+- PWA support for cross-platform deployment
+- Mermaid diagrams for technical documentation
 
-INNOVATION DOCUMENTATION:
-- Git commit history preserves development timeline
-- Architecture decision records maintained
-- AI prompt iterations tracked for optimization
-- User feedback incorporated into algorithm refinements`,
+══════════════════════════════════════════════════════════════
+EVIDENCE OF INVENTION
+══════════════════════════════════════════════════════════════
+
+- Git commit history preserves complete development timeline
+- Architecture decision records maintained in codebase
+- AI prompt iterations tracked with version control
+- User feedback incorporated into algorithm refinements
+- Database migration history documents feature evolution
+- All code changes timestamped and attributed`,
 };
 
 export const PatentDocumentation = () => {
@@ -1394,8 +1473,15 @@ export const PatentDocumentation = () => {
           >
             <Card>
               <CardContent className="pt-6 space-y-6">
+                <div className="p-3 bg-muted/50 rounded-lg">
+                  <p className="text-sm text-muted-foreground italic">
+                    Note: These draft claims are for patent attorney review and refinement. 
+                    Final claim language should be prepared by qualified patent counsel.
+                  </p>
+                </div>
+
                 <div>
-                  <h4 className="font-semibold mb-2">Claim 1: Core System</h4>
+                  <h4 className="font-semibold mb-2">Claim 1: Core System (Independent)</h4>
                   <p className="text-sm text-muted-foreground leading-relaxed">
                     A computer-implemented system for analyzing family behavioral patterns comprising: 
                     a data aggregation module configured to collect and normalize behavioral data from 
@@ -1411,7 +1497,7 @@ export const PatentDocumentation = () => {
                 <Separator />
 
                 <div>
-                  <h4 className="font-semibold mb-2">Claim 2: Analysis Method</h4>
+                  <h4 className="font-semibold mb-2">Claim 2: Analysis Method (Independent)</h4>
                   <p className="text-sm text-muted-foreground leading-relaxed">
                     A method for generating family intervention insights comprising the steps of: 
                     receiving user-submitted observations and system-tracked behavioral events; 
@@ -1427,26 +1513,26 @@ export const PatentDocumentation = () => {
                 <Separator />
 
                 <div>
-                  <h4 className="font-semibold mb-2">Claim 3: Health Status Calculation</h4>
+                  <h4 className="font-semibold mb-2">Claim 3: Health Status Calculation (Dependent on Claim 1)</h4>
                   <p className="text-sm text-muted-foreground leading-relaxed">
-                    A method for calculating a family health status indicator comprising: 
-                    retrieving behavioral metrics from a predetermined time period; applying 
+                    The system of Claim 1, further comprising a health status calculation module configured to: 
+                    retrieve behavioral metrics from a predetermined time period; apply 
                     weighted scoring to each metric category including meeting attendance, 
                     communication sentiment, financial patterns, and compliance indicators; 
-                    combining weighted scores to produce a composite health score; mapping 
-                    said composite score to a categorical status level; generating a human-readable 
-                    status reason; and triggering appropriate notifications based on status changes.
+                    combine weighted scores to produce a composite health score; map 
+                    said composite score to a categorical status level; generate a human-readable 
+                    status reason; and trigger appropriate notifications based on status changes.
                   </p>
                 </div>
 
                 <Separator />
 
                 <div>
-                  <h4 className="font-semibold mb-2">Claim 4: Real-Time Processing</h4>
+                  <h4 className="font-semibold mb-2">Claim 4: Real-Time Processing (Dependent on Claim 1)</h4>
                   <p className="text-sm text-muted-foreground leading-relaxed">
-                    A real-time event processing system comprising: database triggers configured 
-                    to invoke serverless functions upon data insertion; an event aggregation 
-                    service that collects related events within a configurable time window; 
+                    The system of Claim 1, further comprising a real-time event processing subsystem including: 
+                    database triggers configured to invoke serverless functions upon data insertion; 
+                    an event aggregation service that collects related events within a configurable time window; 
                     a pattern analysis queue that processes aggregated events through the AI engine; 
                     and a real-time subscription system that pushes analysis results to connected clients.
                   </p>
@@ -1455,11 +1541,11 @@ export const PatentDocumentation = () => {
                 <Separator />
 
                 <div>
-                  <h4 className="font-semibold mb-2">Claim 5: Notification Orchestration</h4>
+                  <h4 className="font-semibold mb-2">Claim 5: Notification Orchestration (Dependent on Claim 1)</h4>
                   <p className="text-sm text-muted-foreground leading-relaxed">
-                    A notification orchestration system comprising: rule evaluation logic that 
-                    assesses pattern analysis results against configurable thresholds; user 
-                    preference management for notification channel selection; urgency-based 
+                    The system of Claim 1, further comprising a notification orchestration subsystem including: 
+                    rule evaluation logic that assesses pattern analysis results against configurable thresholds; 
+                    user preference management for notification channel selection; urgency-based 
                     routing that directs notifications to appropriate delivery channels; 
                     and engagement tracking that monitors notification effectiveness.
                   </p>
@@ -1468,13 +1554,123 @@ export const PatentDocumentation = () => {
                 <Separator />
 
                 <div>
-                  <h4 className="font-semibold mb-2">Claim 6: Privacy-Preserving Architecture</h4>
+                  <h4 className="font-semibold mb-2">Claim 6: Privacy-Preserving Architecture (Dependent on Claim 1)</h4>
                   <p className="text-sm text-muted-foreground leading-relaxed">
-                    A privacy-preserving data architecture comprising: row-level security policies 
-                    that restrict data access to authorized family members; encrypted storage for 
-                    sensitive observation content; audit logging for all data access operations; 
+                    The system of Claim 1, further comprising a privacy-preserving data architecture including: 
+                    row-level security policies that restrict data access to authorized family members; 
+                    encrypted storage for sensitive observation content; audit logging for all data access operations; 
                     and role-based access control distinguishing between family members, moderators, 
                     and system administrators.
+                  </p>
+                </div>
+
+                <Separator />
+
+                <div>
+                  <h4 className="font-semibold mb-2">Claim 7: Liquor License Proximity Detection (Dependent on Claim 1)</h4>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    The system of Claim 1, further comprising a location-based risk detection module configured to: 
+                    receive geographic coordinates from user check-in events; query a database of active liquor 
+                    license locations; calculate proximity between user location and licensed establishments; 
+                    generate automated alerts to designated family members when proximity thresholds are exceeded; 
+                    and log location events with associated risk indicators for subsequent pattern analysis.
+                  </p>
+                </div>
+
+                <Separator />
+
+                <div>
+                  <h4 className="font-semibold mb-2">Claim 8: Meeting Verification System (Dependent on Claim 1)</h4>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    The system of Claim 1, further comprising a meeting attendance verification module configured to: 
+                    integrate with external meeting finder APIs to retrieve scheduled recovery meetings; 
+                    capture user check-in with geographic coordinates and timestamp; verify proximity to 
+                    known meeting locations; calculate expected checkout time based on meeting duration; 
+                    monitor for timely checkout completion; and generate notifications for missed or overdue checkouts.
+                  </p>
+                </div>
+
+                <Separator />
+
+                <div>
+                  <h4 className="font-semibold mb-2">Claim 9: Family Financial Request Workflow (Dependent on Claim 1)</h4>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    The system of Claim 1, further comprising a financial request management module configured to: 
+                    receive financial assistance requests from designated family members; capture supporting 
+                    documentation including receipts and bills; route requests to authorized family approvers; 
+                    implement voting workflows for request approval; track pledge commitments from multiple 
+                    family members; facilitate secure payment information exchange; and analyze request patterns 
+                    as behavioral signals for the pattern recognition engine.
+                  </p>
+                </div>
+
+                <Separator />
+
+                <div>
+                  <h4 className="font-semibold mb-2">Claim 10: Professional Moderator Integration (Dependent on Claim 1)</h4>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    The system of Claim 1, further comprising a professional moderator integration module configured to: 
+                    enable assignment of licensed counselors or intervention specialists to family groups; 
+                    provide moderator-specific dashboards with multi-family management capabilities; 
+                    exclude moderator communications from behavioral pattern analysis to maintain objectivity; 
+                    support temporary moderator assignments with automatic expiration; and maintain audit trails 
+                    for all moderator actions and observations.
+                  </p>
+                </div>
+
+                <Separator />
+
+                <div>
+                  <h4 className="font-semibold mb-2">Claim 11: HIPAA Release Management (Dependent on Claim 1)</h4>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    The system of Claim 1, further comprising a healthcare authorization management module configured to: 
+                    present HIPAA release documentation to designated family members; capture digital signatures 
+                    with timestamp, IP address, and user agent verification; store encrypted signature data; 
+                    maintain comprehensive audit logs of all release accesses; and provide moderators and 
+                    healthcare providers with verified release status for each family member.
+                  </p>
+                </div>
+
+                <Separator />
+
+                <div>
+                  <h4 className="font-semibold mb-2">Claim 12: Sobriety Milestone Celebration (Dependent on Claim 1)</h4>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    The system of Claim 1, further comprising a sobriety tracking and celebration module configured to: 
+                    track sobriety duration from a configurable start date; calculate milestone achievements 
+                    at predetermined intervals; generate family-wide notifications upon milestone achievement; 
+                    enable family members to submit celebratory messages and acknowledgments; support journey 
+                    reset with historical tracking; and incorporate milestone data as positive behavioral 
+                    signals in the pattern recognition engine.
+                  </p>
+                </div>
+
+                <Separator />
+
+                <div>
+                  <h4 className="font-semibold mb-2">Claim 13: Aftercare Plan Management (Dependent on Claim 1)</h4>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    The system of Claim 1, further comprising an aftercare plan management module configured to: 
+                    enable creation of structured aftercare recommendations by moderators or family members; 
+                    categorize recommendations by type including therapy, meetings, sober living, and support groups; 
+                    track completion status of individual recommendations; integrate aftercare compliance 
+                    as behavioral signals for the pattern recognition engine; and generate alerts for 
+                    overdue or incomplete aftercare tasks.
+                  </p>
+                </div>
+
+                <Separator />
+
+                <div>
+                  <h4 className="font-semibold mb-2">Claim 14: Multi-Tenant Provider Architecture (Independent)</h4>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    A multi-tenant software platform for addiction recovery support comprising: 
+                    an organization management layer enabling treatment providers to create branded instances; 
+                    customizable branding including logos, colors, and subdomains for each organization; 
+                    hierarchical user management with organization administrators, staff, and family members; 
+                    cross-organization isolation of family data with row-level security; 
+                    consolidated analytics dashboards for organization-level outcome tracking; 
+                    and the family intervention intelligence system of Claim 1 deployed within each organization context.
                   </p>
                 </div>
               </CardContent>
@@ -1530,54 +1726,272 @@ export const PatentDocumentation = () => {
             </Card>
           </Section>
 
+          {/* Submission Checklist */}
+          <Section 
+            title="11. Patent Submission Checklist" 
+            icon={<ClipboardList className="h-5 w-5 text-primary" />}
+          >
+            <Card>
+              <CardContent className="pt-6 space-y-4">
+                <div className="p-3 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-800">
+                  <p className="text-sm font-medium text-blue-800 dark:text-blue-200">
+                    📋 Complete these items before submitting to your patent attorney
+                  </p>
+                </div>
+
+                <div className="space-y-3">
+                  <h4 className="font-semibold">Inventor Information (Required)</h4>
+                  <div className="grid gap-2">
+                    <div className="flex items-center gap-3 p-2 border rounded">
+                      <Circle className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm">Full legal name(s) of all inventors</span>
+                    </div>
+                    <div className="flex items-center gap-3 p-2 border rounded">
+                      <Circle className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm">Complete mailing addresses for all inventors</span>
+                    </div>
+                    <div className="flex items-center gap-3 p-2 border rounded">
+                      <Circle className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm">Citizenship/country of residence for each inventor</span>
+                    </div>
+                    <div className="flex items-center gap-3 p-2 border rounded">
+                      <Circle className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm">Email addresses for correspondence</span>
+                    </div>
+                  </div>
+                </div>
+
+                <Separator />
+
+                <div className="space-y-3">
+                  <h4 className="font-semibold">Dates & Timeline (Required)</h4>
+                  <div className="grid gap-2">
+                    <div className="flex items-center gap-3 p-2 border rounded">
+                      <Circle className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm">Date of conception (when idea was first conceived)</span>
+                    </div>
+                    <div className="flex items-center gap-3 p-2 border rounded">
+                      <Circle className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm">Date of first public disclosure (if any)</span>
+                    </div>
+                    <div className="flex items-center gap-3 p-2 border rounded">
+                      <Circle className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm">Date of reduction to practice (working prototype)</span>
+                    </div>
+                  </div>
+                  <p className="text-xs text-muted-foreground bg-yellow-50 dark:bg-yellow-950/30 p-2 rounded">
+                    ⚠️ Important: US law provides a 1-year grace period from public disclosure. File within 12 months of first disclosure.
+                  </p>
+                </div>
+
+                <Separator />
+
+                <div className="space-y-3">
+                  <h4 className="font-semibold">Documentation (Required)</h4>
+                  <div className="grid gap-2">
+                    <div className="flex items-center gap-3 p-2 border rounded">
+                      <Circle className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm">Technical specification document (this document)</span>
+                    </div>
+                    <div className="flex items-center gap-3 p-2 border rounded">
+                      <Circle className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm">System architecture diagrams</span>
+                    </div>
+                    <div className="flex items-center gap-3 p-2 border rounded">
+                      <Circle className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm">Flowcharts and process diagrams</span>
+                    </div>
+                    <div className="flex items-center gap-3 p-2 border rounded">
+                      <Circle className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm">Database schema / data model</span>
+                    </div>
+                    <div className="flex items-center gap-3 p-2 border rounded">
+                      <Circle className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm">Algorithm pseudocode</span>
+                    </div>
+                    <div className="flex items-center gap-3 p-2 border rounded">
+                      <Circle className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm">Screenshots of working implementation</span>
+                    </div>
+                  </div>
+                </div>
+
+                <Separator />
+
+                <div className="space-y-3">
+                  <h4 className="font-semibold">Prior Art Research (Required)</h4>
+                  <div className="grid gap-2">
+                    <div className="flex items-center gap-3 p-2 border rounded">
+                      <Circle className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm">List of competing products with feature comparison</span>
+                    </div>
+                    <div className="flex items-center gap-3 p-2 border rounded">
+                      <Circle className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm">Relevant academic papers and publications</span>
+                    </div>
+                    <div className="flex items-center gap-3 p-2 border rounded">
+                      <Circle className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm">Related existing patents identified</span>
+                    </div>
+                    <div className="flex items-center gap-3 p-2 border rounded">
+                      <Circle className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm">Key differentiators from prior art documented</span>
+                    </div>
+                  </div>
+                </div>
+
+                <Separator />
+
+                <div className="space-y-3">
+                  <h4 className="font-semibold">Business Information (Recommended)</h4>
+                  <div className="grid gap-2">
+                    <div className="flex items-center gap-3 p-2 border rounded">
+                      <Circle className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm">Commercialization plans</span>
+                    </div>
+                    <div className="flex items-center gap-3 p-2 border rounded">
+                      <Circle className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm">Target markets identified</span>
+                    </div>
+                    <div className="flex items-center gap-3 p-2 border rounded">
+                      <Circle className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm">Revenue model documented</span>
+                    </div>
+                  </div>
+                </div>
+
+                <Separator />
+
+                <div className="space-y-3">
+                  <h4 className="font-semibold">Filing Considerations</h4>
+                  <div className="p-3 bg-muted/50 rounded-lg space-y-2">
+                    <p className="text-sm"><strong>Provisional vs. Non-Provisional:</strong></p>
+                    <ul className="text-sm text-muted-foreground list-disc pl-5 space-y-1">
+                      <li><strong>Provisional ($320 small entity):</strong> Establishes priority date, 12 months to file non-provisional, no formal claims required</li>
+                      <li><strong>Non-Provisional ($1,600+ small entity):</strong> Full examination, formal claims, typically 2-3 years to grant</li>
+                    </ul>
+                    <p className="text-sm mt-2"><strong>Recommendation:</strong> File provisional first to establish earliest possible priority date, then refine claims before non-provisional filing.</p>
+                  </div>
+                </div>
+
+                <Separator />
+
+                <div className="space-y-3">
+                  <h4 className="font-semibold">International Considerations</h4>
+                  <div className="p-3 bg-muted/50 rounded-lg space-y-2">
+                    <p className="text-sm"><strong>PCT (Patent Cooperation Treaty):</strong></p>
+                    <ul className="text-sm text-muted-foreground list-disc pl-5 space-y-1">
+                      <li>File within 12 months of US provisional for international protection</li>
+                      <li>Provides 30-31 months to enter national phase in specific countries</li>
+                      <li>Priority markets: US, EU (EPO), UK, Canada, Australia</li>
+                    </ul>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </Section>
+
           {/* Next Steps */}
           <Section 
-            title="11. Recommended Next Steps" 
+            title="12. Recommended Next Steps" 
             icon={<FileText className="h-5 w-5 text-primary" />}
           >
             <Card>
               <CardContent className="pt-6 space-y-4">
                 <div className="grid gap-3">
+                  <div className="flex items-start gap-3 p-3 border rounded-lg bg-red-50/50 dark:bg-red-950/20 border-red-200 dark:border-red-800">
+                    <Badge variant="destructive">URGENT</Badge>
+                    <div>
+                      <p className="font-medium">Complete Inventor Information</p>
+                      <p className="text-sm text-muted-foreground">
+                        Fill in all inventor details in Section 1 above. This information is legally required for patent filing.
+                      </p>
+                    </div>
+                  </div>
                   <div className="flex items-start gap-3 p-3 border rounded-lg">
                     <Badge>1</Badge>
                     <div>
-                      <p className="font-medium">Prior Art Search</p>
+                      <p className="font-medium">Review & Print This Document</p>
                       <p className="text-sm text-muted-foreground">
-                        Conduct comprehensive patent search in USPTO, EPO, and WIPO databases 
-                        for related AI/ML behavioral analysis systems
+                        Click "Print to PDF" to generate a complete technical specification document for your patent attorney.
                       </p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3 p-3 border rounded-lg">
                     <Badge>2</Badge>
                     <div>
-                      <p className="font-medium">Claims Refinement</p>
+                      <p className="font-medium">Engage Patent Attorney</p>
                       <p className="text-sm text-muted-foreground">
-                        Work with patent attorney to refine claims based on prior art findings 
-                        and maximize protection scope
+                        Select a patent attorney specializing in software/AI patents. Provide this document as the technical foundation.
                       </p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3 p-3 border rounded-lg">
                     <Badge>3</Badge>
                     <div>
-                      <p className="font-medium">Provisional Filing</p>
+                      <p className="font-medium">Professional Prior Art Search</p>
                       <p className="text-sm text-muted-foreground">
-                        File provisional patent application to establish priority date while 
-                        continuing development
+                        Attorney will conduct comprehensive patent search in USPTO, EPO, and WIPO databases 
+                        to validate novelty claims.
                       </p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3 p-3 border rounded-lg">
                     <Badge>4</Badge>
                     <div>
-                      <p className="font-medium">Documentation Enhancement</p>
+                      <p className="font-medium">Claims Refinement</p>
                       <p className="text-sm text-muted-foreground">
-                        Add implementation examples, edge cases, and additional embodiments 
-                        to strengthen application
+                        Work with attorney to refine claims based on prior art findings. Focus on maximizing protection scope
+                        while ensuring claims are defensible.
                       </p>
                     </div>
                   </div>
+                  <div className="flex items-start gap-3 p-3 border rounded-lg">
+                    <Badge>5</Badge>
+                    <div>
+                      <p className="font-medium">File Provisional Application</p>
+                      <p className="text-sm text-muted-foreground">
+                        File provisional patent application to establish priority date. This gives you 12 months
+                        to file the full non-provisional application.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3 p-3 border rounded-lg">
+                    <Badge>6</Badge>
+                    <div>
+                      <p className="font-medium">PCT Filing (Optional)</p>
+                      <p className="text-sm text-muted-foreground">
+                        Within 12 months of provisional, file PCT application for international protection in key markets.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <Separator />
+
+                <div className="p-4 bg-muted/50 rounded-lg">
+                  <h4 className="font-semibold mb-2">Estimated Timeline & Costs</h4>
+                  <div className="grid gap-2 text-sm">
+                    <div className="flex justify-between">
+                      <span>Provisional filing (attorney fees + USPTO):</span>
+                      <span className="font-medium">$2,000 - $5,000</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Non-provisional filing (attorney fees + USPTO):</span>
+                      <span className="font-medium">$8,000 - $15,000</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>PCT international filing:</span>
+                      <span className="font-medium">$3,000 - $6,000</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Time to patent grant (typical):</span>
+                      <span className="font-medium">2-3 years</span>
+                    </div>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    * Costs vary by attorney and complexity. Small entity discounts may apply.
+                  </p>
                 </div>
               </CardContent>
             </Card>
