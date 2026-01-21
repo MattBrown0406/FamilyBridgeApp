@@ -42,7 +42,8 @@ import {
   ChevronRight,
   Copy,
   ScrollText,
-  Archive
+  Archive,
+  KeyRound
 } from 'lucide-react';
 import { PatentDocumentation } from '@/components/PatentDocumentation';
 import { ArchivedFamiliesPanel } from '@/components/ArchivedFamiliesPanel';
@@ -227,6 +228,9 @@ const SuperAdmin = () => {
   const [providerForm, setProviderForm] = useState({ name: '', subdomain: '', support_email: '', phone: '', website_url: '' });
   const [familyForm, setFamilyForm] = useState({ name: '', description: '', organization_id: '' });
 
+  // Password reset state
+  const [isSendingPasswordReset, setIsSendingPasswordReset] = useState(false);
+
   const copyInviteCode = (code: string, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
     navigator.clipboard.writeText(code);
@@ -314,6 +318,34 @@ const SuperAdmin = () => {
       console.error('Error fetching user details:', err);
     } finally {
       setIsLoadingDetails(false);
+    }
+  };
+
+  const handleSendPasswordReset = async (userId: string, email: string) => {
+    setIsSendingPasswordReset(true);
+    try {
+      const headers = await getAuthHeaders();
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-password-reset`,
+        {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ userId }),
+        }
+      );
+      
+      const result = await response.json();
+      
+      if (response.ok && result.success) {
+        toast.success(`Password reset email sent to ${email}`);
+      } else {
+        throw new Error(result.error || 'Failed to send password reset');
+      }
+    } catch (err: any) {
+      console.error('Error sending password reset:', err);
+      toast.error(err.message || 'Failed to send password reset email');
+    } finally {
+      setIsSendingPasswordReset(false);
     }
   };
 
@@ -1392,7 +1424,20 @@ const SuperAdmin = () => {
                 {userDetails?.profile?.full_name || 'User Details'}
               </span>
               {userDetails && !isEditing && (
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap">
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    onClick={() => handleSendPasswordReset(userDetails.profile.id, userDetails.email)}
+                    disabled={isSendingPasswordReset}
+                  >
+                    {isSendingPasswordReset ? (
+                      <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
+                    ) : (
+                      <KeyRound className="h-3.5 w-3.5 mr-1.5" />
+                    )}
+                    Reset Password
+                  </Button>
                   <Button size="sm" variant="outline" onClick={() => setIsEditing(true)}>
                     <Pencil className="h-3.5 w-3.5 mr-1.5" /> Edit
                   </Button>
