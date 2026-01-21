@@ -81,10 +81,13 @@ serve(async (req) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-
+    // For direct family subscriptions (no organization), creator is admin
+    // For provider-created families, creator is moderator (overseeing the family)
+    const creatorRole = organizationId ? "moderator" : "admin";
+    
     const { error: memberError } = await supabaseAdmin
       .from("family_members")
-      .insert({ family_id: family.id, user_id: userId, role: "moderator" });
+      .insert({ family_id: family.id, user_id: userId, role: creatorRole });
 
     if (memberError) {
       console.log("family_members insert error", memberError);
