@@ -115,6 +115,9 @@ const ProviderAdmin = () => {
   const [leadMemberEmail, setLeadMemberEmail] = useState('');
   const [selectedModeratorForFamily, setSelectedModeratorForFamily] = useState<string>('');
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
+  const [editingFamilyModerator, setEditingFamilyModerator] = useState<string | null>(null);
+  const [selectedNewModerator, setSelectedNewModerator] = useState<string>('');
+  const [isChangingModerator, setIsChangingModerator] = useState(false);
   
   // Moderator management state
   const [orgModerators, setOrgModerators] = useState<any[]>([]);
@@ -203,7 +206,7 @@ const ProviderAdmin = () => {
     }
   };
 
-  // Fetch families for the selected organization
+  // Fetch families for the selected organization (including assigned moderator)
   const fetchOrgFamilies = async (orgId: string) => {
     setIsLoadingFamilies(true);
     try {
@@ -211,10 +214,52 @@ const ProviderAdmin = () => {
         .from('families')
         .select('*, family_invite_codes(invite_code)')
         .eq('organization_id', orgId)
+        .eq('is_archived', false)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setOrgFamilies(data || []);
+      
+      // Fetch moderators for each family
+      if (data && data.length > 0) {
+        const familyIds = data.map(f => f.id);
+        const { data: familyModerators, error: modError } = await supabase
+          .from('family_members')
+          .select('family_id, user_id')
+          .in('family_id', familyIds)
+          .eq('role', 'moderator');
+        
+        if (!modError && familyModerators) {
+          // Get profiles for moderators
+          const moderatorUserIds = [...new Set(familyModerators.map(fm => fm.user_id))];
+          let moderatorProfiles: Array<{ id: string; full_name: string }> = [];
+          
+          if (moderatorUserIds.length > 0) {
+            try {
+              moderatorProfiles = await fetchProfilesByIds(moderatorUserIds);
+            } catch (err) {
+              console.error('Error fetching moderator profiles:', err);
+            }
+          }
+          
+          // Attach moderator info to each family
+          const familiesWithModerators = data.map(family => {
+            const moderator = familyModerators.find(fm => fm.family_id === family.id);
+            const moderatorProfile = moderator 
+              ? moderatorProfiles.find(p => p.id === moderator.user_id)
+              : null;
+            return {
+              ...family,
+              assigned_moderator_id: moderator?.user_id || null,
+              assigned_moderator_name: moderatorProfile?.full_name || null,
+            };
+          });
+          setOrgFamilies(familiesWithModerators);
+        } else {
+          setOrgFamilies(data || []);
+        }
+      } else {
+        setOrgFamilies(data || []);
+      }
     } catch (err) {
       console.error('Error fetching families:', err);
       toast({ title: 'Error', description: 'Failed to load families', variant: 'destructive' });
@@ -342,6 +387,44 @@ const ProviderAdmin = () => {
       setTimeout(() => setCopiedCode(null), 2000);
     } catch (err) {
       toast({ title: 'Error', description: 'Failed to copy code', variant: 'destructive' });
+    }
+  };
+
+  // Change moderator assignment for a family
+  const handleChangeModeratorAssignment = async (familyId: string, newModeratorUserId: string) => {
+    if (!newModeratorUserId || !selectedOrg) return;
+    
+    setIsChangingModerator(true);
+    try {
+      // Remove current moderator(s) from the family
+      const { error: removeError } = await supabase
+        .from('family_members')
+        .delete()
+        .eq('family_id', familyId)
+        .eq('role', 'moderator');
+      
+      if (removeError) throw removeError;
+      
+      // Add new moderator
+      const { error: addError } = await supabase
+        .from('family_members')
+        .insert({
+          family_id: familyId,
+          user_id: newModeratorUserId,
+          role: 'moderator'
+        });
+      
+      if (addError) throw addError;
+      
+      toast({ title: 'Success', description: 'Moderator assignment updated' });
+      setEditingFamilyModerator(null);
+      setSelectedNewModerator('');
+      await Promise.all([fetchOrgFamilies(selectedOrg), fetchOrgModerators(selectedOrg)]);
+    } catch (err: any) {
+      console.error('Error changing moderator:', err);
+      toast({ title: 'Error', description: err.message || 'Failed to change moderator', variant: 'destructive' });
+    } finally {
+      setIsChangingModerator(false);
     }
   };
 
@@ -1702,6 +1785,73 @@ const ProviderAdmin = () => {
                                     Created {new Date(family.created_at).toLocaleDateString()}
                                   </p>
                                 </div>
+                                
+                                {/* Moderator Assignment */}
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <div className="flex items-center gap-2">
+                                    <Shield className="h-4 w-4 text-primary" />
+                                    <span className="text-sm text-muted-foreground">Moderator:</span>
+                                    {editingFamilyModerator === family.id ? (
+                                      <div className="flex items-center gap-2">
+                                        <select
+                                          value={selectedNewModerator}
+                                          onChange={(e) => setSelectedNewModerator(e.target.value)}
+                                          className="h-8 px-2 rounded-md border border-input bg-background text-sm"
+                                          disabled={isChangingModerator}
+                                        >
+                                          <option value="">Select moderator...</option>
+                                          {orgModerators.map((mod) => (
+                                            <option key={mod.id} value={mod.user_id}>
+                                              {mod.profiles?.full_name || 'Unknown'} ({moderatorFamilyCounts[mod.user_id] || 0} families)
+                                            </option>
+                                          ))}
+                                        </select>
+                                        <Button
+                                          variant="ghost"
+                                          size="sm"
+                                          onClick={() => handleChangeModeratorAssignment(family.id, selectedNewModerator)}
+                                          disabled={!selectedNewModerator || isChangingModerator}
+                                        >
+                                          {isChangingModerator ? (
+                                            <Loader2 className="h-4 w-4 animate-spin" />
+                                          ) : (
+                                            <Check className="h-4 w-4 text-primary" />
+                                          )}
+                                        </Button>
+                                        <Button
+                                          variant="ghost"
+                                          size="sm"
+                                          onClick={() => {
+                                            setEditingFamilyModerator(null);
+                                            setSelectedNewModerator('');
+                                          }}
+                                          disabled={isChangingModerator}
+                                        >
+                                          Cancel
+                                        </Button>
+                                      </div>
+                                    ) : (
+                                      <div className="flex items-center gap-2">
+                                        <span className="text-sm font-medium">
+                                          {family.assigned_moderator_name || 'Unassigned'}
+                                        </span>
+                                        {orgModerators.length > 1 && (
+                                          <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() => {
+                                              setEditingFamilyModerator(family.id);
+                                              setSelectedNewModerator(family.assigned_moderator_id || '');
+                                            }}
+                                          >
+                                            <Pencil className="h-3 w-3" />
+                                          </Button>
+                                        )}
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                                
                                 <div className="flex flex-wrap items-center gap-2">
                                   {inviteCode && (
                                     <div className="flex items-center gap-2 flex-wrap">
@@ -1717,7 +1867,7 @@ const ProviderAdmin = () => {
                                         onClick={() => handleCopyCode(inviteCode)}
                                       >
                                         {copiedCode === inviteCode ? (
-                                          <Check className="h-4 w-4 text-green-500" />
+                                          <Check className="h-4 w-4 text-primary" />
                                         ) : (
                                           <Copy className="h-4 w-4" />
                                         )}
