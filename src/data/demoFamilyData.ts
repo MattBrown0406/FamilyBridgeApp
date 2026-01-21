@@ -727,9 +727,14 @@ export const DAVIS_FIIS_ANALYSIS = {
       related_to: "Enabling Pattern"
     },
     {
-      title: "Consider Professional Intervention",
-      description: "Given the severity of the situation - fake check-ins, active use, fractured family response - a professional intervention may be necessary.",
-      related_to: "Family Crisis"
+      title: "Connect with a Professional Interventionist",
+      description: "Based on the patterns observed—inconsistent meeting attendance, fake check-ins, active use at a bar, and a fractured family response—Ashley's current level of care is not meeting her needs. A professional interventionist can help unite the family (especially addressing Richard's enabling) and facilitate Ashley's transition to a higher level of care such as inpatient treatment or a structured sober living environment. The current approach of outpatient meetings is insufficient given the severity of the situation.",
+      related_to: "Higher Level of Care Needed"
+    },
+    {
+      title: "Establish Unified Consequences",
+      description: "The family must agree on clear consequences if Ashley continues to fake check-ins or if Richard continues enabling outside the app. Without unified action, recovery cannot progress.",
+      related_to: "Family Unity"
     }
   ],
   clarifying_questions: [
