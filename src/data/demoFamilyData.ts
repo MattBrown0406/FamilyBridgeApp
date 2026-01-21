@@ -772,3 +772,94 @@ export const DAVIS_FIIS_ANALYSIS = {
     { area: 'FIIS Alerts Working', detail: 'Liquor license detection caught the bar check-in' }
   ]
 };
+
+// ============================================================================
+// AFTERCARE PLANS
+// ============================================================================
+
+export const JOHNSON_AFTERCARE_PLAN = {
+  id: 'demo-johnson-plan-1',
+  targetUser: 'Michael Johnson',
+  targetUserId: '2',
+  createdBy: 'Matt Brown',
+  createdAt: format(subDays(now, 14), 'MMM d, yyyy'),
+  isActive: true,
+  notes: 'Discharge recommendations from Serenity Springs Treatment Center. Michael completed 28-day inpatient program and is transitioning to outpatient care. Strong foundation established - focus on maintaining structure and building community support.',
+  recommendations: [
+    {
+      id: 'rec-1',
+      type: 'sober_living',
+      title: 'Sober Living Residence',
+      description: 'Transitional housing with 24/7 support and structured environment',
+      facilityName: 'New Beginnings Sober Living',
+      duration: '90 days',
+      frequency: null,
+      therapyType: null,
+      isCompleted: true,
+      completedAt: format(subDays(now, 7), 'MMM d'),
+    },
+    {
+      id: 'rec-2',
+      type: 'iop',
+      title: 'Intensive Outpatient Program (IOP)',
+      description: '3-hour group sessions with individual counseling',
+      facilityName: 'Recovery Solutions Center',
+      duration: '60 days',
+      frequency: '3x per week',
+      therapyType: null,
+      isCompleted: false,
+      completedAt: null,
+    },
+    {
+      id: 'rec-3',
+      type: 'meeting_attendance',
+      title: 'AA Meeting Attendance',
+      description: '12-step recovery meetings with sponsor connection',
+      facilityName: null,
+      duration: 'Ongoing',
+      frequency: 'Daily for 90 days',
+      therapyType: null,
+      isCompleted: false,
+      completedAt: null,
+    },
+    {
+      id: 'rec-4',
+      type: 'individual_therapy',
+      title: 'Individual Therapy - Michael',
+      description: 'Weekly sessions to address underlying trauma and develop coping strategies',
+      facilityName: 'Dr. Sarah Thompson, LCSW',
+      duration: '6 months',
+      frequency: 'Weekly',
+      therapyType: 'CBT (Cognitive Behavioral Therapy)',
+      isCompleted: false,
+      completedAt: null,
+    },
+    {
+      id: 'rec-5',
+      type: 'family_therapy',
+      title: 'Family Therapy Sessions',
+      description: 'Whole family sessions to rebuild trust and improve communication',
+      facilityName: 'Family Healing Center',
+      duration: '3 months',
+      frequency: 'Bi-weekly',
+      therapyType: 'Structural Family Therapy',
+      isCompleted: false,
+      completedAt: null,
+    },
+    {
+      id: 'rec-6',
+      type: 'medication_compliance',
+      title: 'Medication Management',
+      description: 'Continue prescribed anxiety medication with regular psychiatric check-ins',
+      facilityName: 'Dr. Michael Chen, MD',
+      duration: 'Ongoing',
+      frequency: 'Monthly check-ins',
+      therapyType: null,
+      isCompleted: false,
+      completedAt: null,
+    },
+  ]
+};
+
+// Davis family has no aftercare plan (showing empty state)
+export const DAVIS_AFTERCARE_PLAN = null;
