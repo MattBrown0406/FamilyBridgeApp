@@ -96,7 +96,14 @@
         "email": "matt@freedominterventions.com",
         "contactType": "customer support",
         "availableLanguage": "English"
-      }
+      },
+      "knowsAbout": [
+        "Addiction Recovery",
+        "Family Support",
+        "Recovery Programs",
+        "Sober Living",
+        "Intervention Services"
+      ]
     }
     </script>
 
@@ -113,6 +120,130 @@
         "target": "https://familybridgeapp.lovable.app/meetings?q={search_term_string}",
         "query-input": "required name=search_term_string"
       }
+    }
+    </script>
+
+    <!-- JSON-LD Structured Data - FAQPage for AEO -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What is FamilyBridge?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "FamilyBridge is a recovery support app that helps families communicate with loved ones in addiction recovery. It uses AI-powered pattern detection to identify warning signs early, provides transparent financial request management, and includes verified meeting check-ins for accountability."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How does FamilyBridge help families with addiction recovery?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "FamilyBridge helps families by providing AI-powered pattern intelligence to detect concerning behaviors early, real-time chat moderation to keep conversations constructive, transparent financial request systems with family voting, GPS-verified meeting check-ins, and tools for setting healthy boundaries."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How much does FamilyBridge cost?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "FamilyBridge costs $19.99 per month for families. There is also a Provider subscription at $99.99 per month for treatment centers and recovery professionals who want to manage multiple families with custom branding."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What is FIIS in FamilyBridge?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "FIIS (Family Intervention Intelligence System) is FamilyBridge's patent-pending AI technology that analyzes family interactions, check-in patterns, financial requests, and communication tone to identify concerning patterns early and provide actionable insights to families and providers."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can treatment centers use FamilyBridge?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes, treatment centers, sober living facilities, and recovery professionals can use FamilyBridge's Provider subscription to create their own branded organization, onboard unlimited families, access AI-generated insights, and provide better guidance during family communications."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How does meeting check-in verification work?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "FamilyBridge uses GPS location verification when a person in recovery checks into an AA, NA, or other recovery meeting. The app verifies the location, records the time, and notifies family members. AI tracks attendance patterns to celebrate consistency or flag missed meetings."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is FamilyBridge HIPAA compliant?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "FamilyBridge takes privacy seriously. For families working with providers, the app includes HIPAA release forms that family members can sign digitally. All data is encrypted and access is controlled through role-based permissions."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How does the financial request feature work?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "The person in recovery can submit financial requests through the app. Family members receive notifications and can vote to approve or decline. The AI monitors request patterns to flag potential red flags like unusual frequency or amounts, helping families maintain healthy boundaries around money."
+          }
+        }
+      ]
+    }
+    </script>
+
+    <!-- JSON-LD Structured Data - Speakable for Voice Search -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "FamilyBridge - Recovery Support for Families",
+      "speakable": {
+        "@type": "SpeakableSpecification",
+        "cssSelector": ["h1", ".hero-description", ".faq-answer"]
+      },
+      "url": "https://familybridgeapp.lovable.app"
+    }
+    </script>
+
+    <!-- JSON-LD Structured Data - HowTo for common tasks -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "HowTo",
+      "name": "How to support a family member in addiction recovery",
+      "description": "Steps to use FamilyBridge for supporting a loved one through addiction recovery",
+      "step": [
+        {
+          "@type": "HowToStep",
+          "position": 1,
+          "name": "Create your family group",
+          "text": "Sign up for FamilyBridge and create a private family group. Invite family members and your loved one in recovery."
+        },
+        {
+          "@type": "HowToStep",
+          "position": 2,
+          "name": "Set up accountability tools",
+          "text": "Enable meeting check-ins so your loved one can verify attendance at AA, NA, or other recovery meetings."
+        },
+        {
+          "@type": "HowToStep",
+          "position": 3,
+          "name": "Configure financial boundaries",
+          "text": "Set up the financial request system so money requests go through family voting instead of direct asks."
+        },
+        {
+          "@type": "HowToStep",
+          "position": 4,
+          "name": "Monitor AI insights",
+          "text": "Review the FIIS dashboard to see AI-detected patterns, emotional trends, and early warning signs."
+        }
+      ]
     }
     </script>
   </head>

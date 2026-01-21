@@ -138,11 +138,85 @@ export const createOrganizationSchema = () => ({
   name: 'FamilyBridge',
   url: 'https://familybridgeapp.lovable.app',
   logo: 'https://familybridgeapp.lovable.app/favicon.png',
-  description: 'FamilyBridge helps families support loved ones in recovery with transparent communication, financial coordination, and accountability tools.',
+  description: 'FamilyBridge helps families support loved ones in recovery with AI-powered pattern detection, transparent communication, financial coordination, and accountability tools.',
   contactPoint: {
     '@type': 'ContactPoint',
     email: 'matt@freedominterventions.com',
     contactType: 'customer support',
   },
+  knowsAbout: [
+    'Addiction Recovery',
+    'Family Support', 
+    'Recovery Programs',
+    'Sober Living',
+    'Intervention Services',
+  ],
   sameAs: [],
+});
+
+// AEO-optimized product schema
+export const createProductSchema = (product: {
+  name: string;
+  description: string;
+  price: string;
+  priceCurrency?: string;
+}) => ({
+  '@context': 'https://schema.org',
+  '@type': 'Product',
+  name: product.name,
+  description: product.description,
+  brand: {
+    '@type': 'Brand',
+    name: 'FamilyBridge',
+  },
+  offers: {
+    '@type': 'Offer',
+    price: product.price,
+    priceCurrency: product.priceCurrency || 'USD',
+    availability: 'https://schema.org/InStock',
+    seller: {
+      '@type': 'Organization',
+      name: 'FamilyBridge',
+    },
+  },
+});
+
+// AEO-optimized service schema for providers
+export const createServiceSchema = () => ({
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  name: 'FamilyBridge Provider Platform',
+  description: 'White-label recovery support platform for treatment centers, sober living facilities, and recovery professionals.',
+  provider: {
+    '@type': 'Organization',
+    name: 'FamilyBridge',
+  },
+  serviceType: 'Recovery Support Software',
+  areaServed: 'United States',
+  hasOfferCatalog: {
+    '@type': 'OfferCatalog',
+    name: 'Provider Subscriptions',
+    itemListElement: [
+      {
+        '@type': 'Offer',
+        itemOffered: {
+          '@type': 'Service',
+          name: 'Provider Monthly Subscription',
+          description: 'Create branded organization, unlimited families, AI insights',
+        },
+        price: '99.99',
+        priceCurrency: 'USD',
+      },
+    ],
+  },
+});
+
+// Speakable schema for voice search optimization
+export const createSpeakableSchema = (selectors: string[]) => ({
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  speakable: {
+    '@type': 'SpeakableSpecification',
+    cssSelector: selectors,
+  },
 });
