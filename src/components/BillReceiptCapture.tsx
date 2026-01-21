@@ -241,6 +241,24 @@ export const BillReceiptCapture = ({
 
   // Start camera stream (for in-browser camera)
   const startCamera = async () => {
+    // On iOS/iPadOS, always use the native file input with capture attribute
+    // This is more reliable and avoids crashes with getUserMedia on some devices
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+                  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    
+    if (isIOS) {
+      // Use native camera picker which is more reliable on iOS/iPadOS
+      cameraInputRef.current?.click();
+      return;
+    }
+
+    // Check if getUserMedia is available
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      console.log('getUserMedia not supported, falling back to file input');
+      cameraInputRef.current?.click();
+      return;
+    }
+
     try {
       const mediaStream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: 'environment' } // Use back camera
