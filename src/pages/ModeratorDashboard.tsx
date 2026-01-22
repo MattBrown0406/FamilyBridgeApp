@@ -239,10 +239,14 @@ const ModeratorDashboard = () => {
 
     setIsCreating(true);
     try {
+      // Auto-assign to moderator's organization if they belong to one
+      const organizationId = organizations.length > 0 ? organizations[0].id : null;
+      
       const { data, error } = await supabase.functions.invoke('create-family', {
         body: {
           name: newFamilyName.trim(),
           description: newFamilyDescription.trim() || null,
+          organization_id: organizationId,
         },
       });
 
