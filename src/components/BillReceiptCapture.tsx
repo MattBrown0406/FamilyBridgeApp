@@ -570,7 +570,7 @@ export const BillReceiptCapture = ({
           type="button"
           variant="outline"
           className="flex flex-col items-center py-4 h-auto"
-          onClick={() => cameraInputRef.current?.click()}
+          onClick={startCamera}
         >
           <Camera className="h-6 w-6 mb-1 text-primary" />
           <span className="text-xs">Take Photo</span>
