@@ -181,12 +181,37 @@ serve(async (req) => {
       console.log("Error counting members:", countError);
     }
 
+    // Check for a pending invite role for this user's email
+    let pendingRole: string | null = null;
+    const { data: pendingInvite } = await supabaseAdmin
+      .from("pending_invite_roles")
+      .select("id, intended_role")
+      .eq("invite_code", inviteCode)
+      .eq("email", userData.user.email?.toLowerCase())
+      .is("used_at", null)
+      .maybeSingle();
+
+    if (pendingInvite) {
+      pendingRole = pendingInvite.intended_role;
+      console.log("Found pending role assignment:", pendingRole, "for email:", userData.user.email);
+      
+      // Mark the pending invite as used
+      await supabaseAdmin
+        .from("pending_invite_roles")
+        .update({ used_at: new Date().toISOString() })
+        .eq("id", pendingInvite.id);
+    }
+
     // Determine role:
-    // - First member of a non-provider family becomes admin
-    // - Otherwise: recovering → recovering, others → member
+    // 1. If pending invite role exists, use that
+    // 2. First member of a non-provider family becomes admin
+    // 3. Otherwise: recovering → recovering, others → member
     let memberRole: string;
     
-    if (memberCount === 0 && !familyDetails?.organization_id) {
+    if (pendingRole) {
+      // Use the pre-assigned role from the invitation
+      memberRole = pendingRole;
+    } else if (memberCount === 0 && !familyDetails?.organization_id) {
       // First member of direct subscription family becomes admin
       memberRole = 'admin';
     } else if (relationshipType === 'recovering') {
@@ -194,6 +219,8 @@ serve(async (req) => {
     } else {
       memberRole = 'member';
     }
+
+    console.log("Assigning role:", memberRole, "to user:", userId);
 
     const { error: joinError } = await supabaseAdmin
       .from("family_members")

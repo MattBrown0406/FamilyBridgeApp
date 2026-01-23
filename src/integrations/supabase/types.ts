@@ -1864,6 +1864,47 @@ export type Database = {
         }
         Relationships: []
       }
+      pending_invite_roles: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          email: string
+          family_id: string
+          id: string
+          intended_role: string
+          invite_code: string
+          used_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          email: string
+          family_id: string
+          id?: string
+          intended_role?: string
+          invite_code: string
+          used_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          email?: string
+          family_id?: string
+          id?: string
+          intended_role?: string
+          invite_code?: string
+          used_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pending_invite_roles_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       premium_waitlist: {
         Row: {
           created_at: string
