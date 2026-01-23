@@ -392,8 +392,8 @@ const FamilyChat = () => {
   
   // Send invite state
   const [showSendInviteDialog, setShowSendInviteDialog] = useState(false);
-  const [inviteRecipients, setInviteRecipients] = useState<{ id: string; name: string; email: string }[]>([
-    { id: crypto.randomUUID(), name: '', email: '' }
+  const [inviteRecipients, setInviteRecipients] = useState<{ id: string; name: string; email: string; role: string }[]>([
+    { id: crypto.randomUUID(), name: '', email: '', role: 'member' }
   ]);
   const [isSendingInvite, setIsSendingInvite] = useState(false);
   // Weekly archive state - week starts Sunday at midnight
@@ -822,7 +822,7 @@ const FamilyChat = () => {
   };
 
   const addInviteRecipient = () => {
-    setInviteRecipients(prev => [...prev, { id: crypto.randomUUID(), name: '', email: '' }]);
+    setInviteRecipients(prev => [...prev, { id: crypto.randomUUID(), name: '', email: '', role: 'member' }]);
   };
 
   const removeInviteRecipient = (id: string) => {
@@ -831,11 +831,18 @@ const FamilyChat = () => {
     }
   };
 
-  const updateInviteRecipient = (id: string, field: 'name' | 'email', value: string) => {
+  const updateInviteRecipient = (id: string, field: 'name' | 'email' | 'role', value: string) => {
     setInviteRecipients(prev => prev.map(r => 
       r.id === id ? { ...r, [field]: value } : r
     ));
   };
+
+  const INVITE_ROLE_OPTIONS = [
+    { value: 'member', label: 'Family Member' },
+    { value: 'recovering', label: 'Person in Recovery' },
+    { value: 'moderator', label: 'Moderator' },
+    { value: 'admin', label: 'Admin' },
+  ];
 
   const sendInviteEmails = async () => {
     const validRecipients = inviteRecipients.filter(r => r.name.trim() && r.email.trim());
@@ -876,6 +883,8 @@ const FamilyChat = () => {
               inviteCode: familyInviteCode,
               organizationName: organization?.name || 'FamilyBridge',
               organizationLogo: organization?.logo_url || null,
+              intendedRole: recipient.role,
+              familyId: family.id,
             },
           });
 
@@ -903,7 +912,7 @@ const FamilyChat = () => {
       }
       
       // Reset form
-      setInviteRecipients([{ id: crypto.randomUUID(), name: '', email: '' }]);
+      setInviteRecipients([{ id: crypto.randomUUID(), name: '', email: '', role: 'member' }]);
       setShowSendInviteDialog(false);
     } catch (error) {
       console.error('Error sending invites:', error);
@@ -4888,20 +4897,20 @@ const FamilyChat = () => {
                       Send Invite by Email
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
+                  <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
                     <DialogHeader>
                       <DialogTitle>Send Family Invitations</DialogTitle>
                       <DialogDescription>
-                        Enter details for the people you want to invite to {family?.name}.
+                        Add as many people as you'd like to invite to {family?.name}. Assign their role to determine their permissions.
                       </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4 py-4">
-                      <ScrollArea className="max-h-[300px] pr-4">
-                        <div className="space-y-4">
+                      <ScrollArea className="max-h-[400px] pr-4">
+                        <div className="space-y-3">
                           {inviteRecipients.map((recipient, index) => (
-                            <div key={recipient.id} className="space-y-3 p-3 bg-secondary/30 rounded-lg relative">
-                              <div className="flex items-center justify-between">
-                                <span className="text-sm font-medium text-muted-foreground">
+                            <div key={recipient.id} className="p-4 bg-secondary/30 rounded-lg border border-border/50">
+                              <div className="flex items-center justify-between mb-3">
+                                <span className="text-sm font-medium text-foreground">
                                   Person {index + 1}
                                 </span>
                                 {inviteRecipients.length > 1 && (
@@ -4909,29 +4918,47 @@ const FamilyChat = () => {
                                     variant="ghost"
                                     size="sm"
                                     onClick={() => removeInviteRecipient(recipient.id)}
-                                    className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive"
+                                    className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive"
                                   >
                                     <X className="h-4 w-4" />
                                   </Button>
                                 )}
                               </div>
-                              <div className="grid grid-cols-2 gap-2">
-                                <div className="space-y-1">
-                                  <Label className="text-xs">Name</Label>
+                              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                <div className="space-y-1.5">
+                                  <Label className="text-xs font-medium">Name</Label>
                                   <Input
                                     placeholder="John Smith"
                                     value={recipient.name}
                                     onChange={(e) => updateInviteRecipient(recipient.id, 'name', e.target.value)}
                                   />
                                 </div>
-                                <div className="space-y-1">
-                                  <Label className="text-xs">Email</Label>
+                                <div className="space-y-1.5">
+                                  <Label className="text-xs font-medium">Email</Label>
                                   <Input
                                     type="email"
                                     placeholder="john@example.com"
                                     value={recipient.email}
                                     onChange={(e) => updateInviteRecipient(recipient.id, 'email', e.target.value)}
                                   />
+                                </div>
+                                <div className="space-y-1.5">
+                                  <Label className="text-xs font-medium">Role</Label>
+                                  <Select
+                                    value={recipient.role}
+                                    onValueChange={(value) => updateInviteRecipient(recipient.id, 'role', value)}
+                                  >
+                                    <SelectTrigger className="w-full bg-background">
+                                      <SelectValue placeholder="Select role" />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-background border z-50">
+                                      {INVITE_ROLE_OPTIONS.map((option) => (
+                                        <SelectItem key={option.value} value={option.value}>
+                                          {option.label}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
                                 </div>
                               </div>
                             </div>
@@ -4949,12 +4976,12 @@ const FamilyChat = () => {
                         Add Another Person
                       </Button>
                     </div>
-                    <div className="flex justify-end gap-2">
+                    <div className="flex justify-end gap-3 pt-2 border-t">
                       <Button 
                         variant="outline" 
                         onClick={() => {
                           setShowSendInviteDialog(false);
-                          setInviteRecipients([{ id: crypto.randomUUID(), name: '', email: '' }]);
+                          setInviteRecipients([{ id: crypto.randomUUID(), name: '', email: '', role: 'member' }]);
                         }}
                       >
                         Cancel
@@ -4962,15 +4989,16 @@ const FamilyChat = () => {
                       <Button 
                         onClick={sendInviteEmails} 
                         disabled={isSendingInvite || !inviteRecipients.some(r => r.name.trim() && r.email.trim())}
+                        className="gap-2"
                       >
                         {isSendingInvite ? (
                           <>
-                            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                            <Loader2 className="h-4 w-4 animate-spin" />
                             Sending...
                           </>
                         ) : (
                           <>
-                            <Send className="h-4 w-4 mr-2" />
+                            <Send className="h-4 w-4" />
                             Send {inviteRecipients.filter(r => r.name.trim() && r.email.trim()).length > 1 
                               ? `${inviteRecipients.filter(r => r.name.trim() && r.email.trim()).length} Invitations` 
                               : 'Invitation'}

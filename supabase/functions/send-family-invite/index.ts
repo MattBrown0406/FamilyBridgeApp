@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "https://esm.sh/resend@2.0.0";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.89.0";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
@@ -17,7 +18,16 @@ interface SendFamilyInviteRequest {
   organizationName: string;
   creatorName?: string;
   organizationLogo?: string;
+  intendedRole?: string;
+  familyId?: string;
 }
+
+const ROLE_LABELS: Record<string, string> = {
+  member: 'Family Member',
+  recovering: 'Person in Recovery',
+  moderator: 'Moderator',
+  admin: 'Admin',
+};
 
 const handler = async (req: Request): Promise<Response> => {
   // Handle CORS preflight requests
@@ -26,7 +36,17 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { recipientEmail, recipientName, familyName, inviteCode, organizationName, creatorName, organizationLogo }: SendFamilyInviteRequest = await req.json();
+    const { 
+      recipientEmail, 
+      recipientName, 
+      familyName, 
+      inviteCode, 
+      organizationName, 
+      creatorName, 
+      organizationLogo,
+      intendedRole,
+      familyId
+    }: SendFamilyInviteRequest = await req.json();
 
     if (!recipientEmail || !recipientName || !familyName || !inviteCode) {
       return new Response(
@@ -35,8 +55,41 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
+    // Store pending invite role if familyId and intendedRole are provided
+    if (familyId && intendedRole) {
+      const url = Deno.env.get("SUPABASE_URL");
+      const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+      
+      if (url && serviceKey) {
+        const supabaseAdmin = createClient(url, serviceKey);
+        
+        // Upsert the pending invite role
+        const { error: upsertError } = await supabaseAdmin
+          .from("pending_invite_roles")
+          .upsert({
+            family_id: familyId,
+            invite_code: inviteCode.toLowerCase(),
+            email: recipientEmail.toLowerCase().trim(),
+            intended_role: intendedRole,
+            used_at: null,
+          }, {
+            onConflict: 'family_id,email',
+            ignoreDuplicates: false,
+          });
+        
+        if (upsertError) {
+          console.error("Error storing pending invite role:", upsertError);
+          // Continue with email - role assignment is not critical for invite
+        } else {
+          console.log(`Stored pending role ${intendedRole} for ${recipientEmail}`);
+        }
+      }
+    }
+
     const appUrl = 'https://familybridgeapp.com';
     const joinUrl = `${appUrl}/auth?mode=signup&familyInvite=${encodeURIComponent(inviteCode)}`;
+    
+    const roleLabel = intendedRole ? ROLE_LABELS[intendedRole] || intendedRole : 'Family Member';
 
     const emailResponse = await resend.emails.send({
       from: `${organizationName} <noreply@familybridgeapp.com>`,
@@ -59,13 +112,14 @@ const handler = async (req: Request): Promise<Response> => {
           <div style="background: #f8f9fa; border-radius: 12px; padding: 30px; margin-bottom: 20px;">
             <h2 style="margin-top: 0; color: #333;">Hello ${recipientName},</h2>
             
-            <p>You have been invited to join <strong>${familyName}</strong> on FamilyBridge, a secure platform for family recovery support.</p>
+            <p>You have been invited to join <strong>${familyName}</strong> on FamilyBridge as a <strong>${roleLabel}</strong>.</p>
             
             <p>${organizationName} has set up a family group for you. To get started, use the invite code below:</p>
             
             <div style="background: #fff; border: 2px dashed #2d7d6f; border-radius: 8px; padding: 20px; text-align: center; margin: 25px 0;">
               <p style="margin: 0 0 10px 0; color: #666; font-size: 14px;">Your Invite Code</p>
               <p style="margin: 0; font-size: 28px; font-weight: bold; font-family: monospace; letter-spacing: 2px; color: #2d7d6f;">${inviteCode}</p>
+              <p style="margin: 10px 0 0 0; font-size: 13px; color: #888;">Your Role: <strong style="color: #2d7d6f;">${roleLabel}</strong></p>
             </div>
             
             <p style="text-align: center;">
