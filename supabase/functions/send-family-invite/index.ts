@@ -25,6 +25,14 @@ interface SendFamilyInviteRequest {
 const ROLE_LABELS: Record<string, string> = {
   member: 'Family Member',
   recovering: 'Person in Recovery',
+  dad: 'Dad',
+  mom: 'Mom',
+  husband: 'Husband',
+  wife: 'Wife',
+  brother: 'Brother',
+  sister: 'Sister',
+  friend: 'Friend',
+  employer: 'Employer',
   moderator: 'Moderator',
   admin: 'Admin',
 };
