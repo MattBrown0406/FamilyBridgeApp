@@ -840,6 +840,14 @@ const FamilyChat = () => {
   const INVITE_ROLE_OPTIONS = [
     { value: 'member', label: 'Family Member' },
     { value: 'recovering', label: 'Person in Recovery' },
+    { value: 'dad', label: 'Dad' },
+    { value: 'mom', label: 'Mom' },
+    { value: 'husband', label: 'Husband' },
+    { value: 'wife', label: 'Wife' },
+    { value: 'brother', label: 'Brother' },
+    { value: 'sister', label: 'Sister' },
+    { value: 'friend', label: 'Friend' },
+    { value: 'employer', label: 'Employer' },
     { value: 'moderator', label: 'Moderator' },
     { value: 'admin', label: 'Admin' },
   ];
