@@ -2644,31 +2644,31 @@ export type Database = {
       }
       payment_info_masked: {
         Row: {
-          cashapp_username: string | null
           created_at: string | null
+          has_cashapp: boolean | null
+          has_paypal: boolean | null
+          has_venmo: boolean | null
           id: string | null
-          paypal_username: string | null
           updated_at: string | null
           user_id: string | null
-          venmo_username: string | null
         }
         Insert: {
-          cashapp_username?: never
           created_at?: string | null
+          has_cashapp?: never
+          has_paypal?: never
+          has_venmo?: never
           id?: string | null
-          paypal_username?: never
           updated_at?: string | null
           user_id?: string | null
-          venmo_username?: never
         }
         Update: {
-          cashapp_username?: never
           created_at?: string | null
+          has_cashapp?: never
+          has_paypal?: never
+          has_venmo?: never
           id?: string | null
-          paypal_username?: never
           updated_at?: string | null
           user_id?: string | null
-          venmo_username?: never
         }
         Relationships: []
       }
