@@ -392,8 +392,8 @@ const FamilyChat = () => {
   
   // Send invite state
   const [showSendInviteDialog, setShowSendInviteDialog] = useState(false);
-  const [inviteRecipients, setInviteRecipients] = useState<{ id: string; name: string; email: string; role: string }[]>([
-    { id: crypto.randomUUID(), name: '', email: '', role: 'member' }
+  const [inviteRecipients, setInviteRecipients] = useState<{ id: string; name: string; email: string; phone: string; contactMethod: 'email' | 'sms'; role: string }[]>([
+    { id: crypto.randomUUID(), name: '', email: '', phone: '', contactMethod: 'email', role: 'member' }
   ]);
   const [isSendingInvite, setIsSendingInvite] = useState(false);
   // Weekly archive state - week starts Sunday at midnight
@@ -822,7 +822,7 @@ const FamilyChat = () => {
   };
 
   const addInviteRecipient = () => {
-    setInviteRecipients(prev => [...prev, { id: crypto.randomUUID(), name: '', email: '', role: 'member' }]);
+    setInviteRecipients(prev => [...prev, { id: crypto.randomUUID(), name: '', email: '', phone: '', contactMethod: 'email', role: 'member' }]);
   };
 
   const removeInviteRecipient = (id: string) => {
@@ -831,7 +831,7 @@ const FamilyChat = () => {
     }
   };
 
-  const updateInviteRecipient = (id: string, field: 'name' | 'email' | 'role', value: string) => {
+  const updateInviteRecipient = (id: string, field: 'name' | 'email' | 'phone' | 'contactMethod' | 'role', value: string) => {
     setInviteRecipients(prev => prev.map(r => 
       r.id === id ? { ...r, [field]: value } : r
     ));
@@ -852,25 +852,45 @@ const FamilyChat = () => {
     { value: 'admin', label: 'Admin' },
   ];
 
-  const sendInviteEmails = async () => {
-    const validRecipients = inviteRecipients.filter(r => r.name.trim() && r.email.trim());
+  const sendInvites = async () => {
+    // Validate recipients based on their contact method
+    const validRecipients = inviteRecipients.filter(r => {
+      if (!r.name.trim()) return false;
+      if (r.contactMethod === 'email') return r.email.trim();
+      if (r.contactMethod === 'sms') return r.phone.trim();
+      return false;
+    });
     
     if (validRecipients.length === 0 || !familyInviteCode || !family) {
       toast({
         title: 'Missing information',
-        description: 'Please enter at least one name and email.',
+        description: 'Please enter at least one name and contact info.',
         variant: 'destructive',
       });
       return;
     }
 
-    // Basic email validation
+    // Validate emails
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const invalidEmails = validRecipients.filter(r => !emailRegex.test(r.email.trim()));
+    const emailRecipients = validRecipients.filter(r => r.contactMethod === 'email');
+    const invalidEmails = emailRecipients.filter(r => !emailRegex.test(r.email.trim()));
     if (invalidEmails.length > 0) {
       toast({
         title: 'Invalid email',
         description: `Please check the email for: ${invalidEmails.map(r => r.name || 'unnamed').join(', ')}`,
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Validate phone numbers (basic check for at least 10 digits)
+    const phoneRegex = /^\+?[\d\s\-().]{10,}$/;
+    const smsRecipients = validRecipients.filter(r => r.contactMethod === 'sms');
+    const invalidPhones = smsRecipients.filter(r => !phoneRegex.test(r.phone.trim()));
+    if (invalidPhones.length > 0) {
+      toast({
+        title: 'Invalid phone number',
+        description: `Please check the phone number for: ${invalidPhones.map(r => r.name || 'unnamed').join(', ')}`,
         variant: 'destructive',
       });
       return;
@@ -883,23 +903,43 @@ const FamilyChat = () => {
     try {
       for (const recipient of validRecipients) {
         try {
-          const { error } = await supabase.functions.invoke('send-family-invite', {
-            body: {
-              recipientEmail: recipient.email.trim(),
-              recipientName: recipient.name.trim(),
-              familyName: family.name,
-              inviteCode: familyInviteCode,
-              organizationName: organization?.name || 'FamilyBridge',
-              organizationLogo: organization?.logo_url || null,
-              intendedRole: recipient.role,
-              familyId: family.id,
-            },
-          });
+          if (recipient.contactMethod === 'email') {
+            const { error } = await supabase.functions.invoke('send-family-invite', {
+              body: {
+                recipientEmail: recipient.email.trim(),
+                recipientName: recipient.name.trim(),
+                familyName: family.name,
+                inviteCode: familyInviteCode,
+                organizationName: organization?.name || 'FamilyBridge',
+                organizationLogo: organization?.logo_url || null,
+                intendedRole: recipient.role,
+                familyId: family.id,
+              },
+            });
 
-          if (error) {
-            failCount++;
-          } else {
-            successCount++;
+            if (error) {
+              failCount++;
+            } else {
+              successCount++;
+            }
+          } else if (recipient.contactMethod === 'sms') {
+            const { error } = await supabase.functions.invoke('send-family-invite-sms', {
+              body: {
+                recipientPhone: recipient.phone.trim(),
+                recipientName: recipient.name.trim(),
+                familyName: family.name,
+                inviteCode: familyInviteCode,
+                organizationName: organization?.name || 'FamilyBridge',
+                intendedRole: recipient.role,
+                familyId: family.id,
+              },
+            });
+
+            if (error) {
+              failCount++;
+            } else {
+              successCount++;
+            }
           }
         } catch {
           failCount++;
@@ -920,7 +960,7 @@ const FamilyChat = () => {
       }
       
       // Reset form
-      setInviteRecipients([{ id: crypto.randomUUID(), name: '', email: '', role: 'member' }]);
+      setInviteRecipients([{ id: crypto.randomUUID(), name: '', email: '', phone: '', contactMethod: 'email', role: 'member' }]);
       setShowSendInviteDialog(false);
     } catch (error) {
       console.error('Error sending invites:', error);
@@ -4932,7 +4972,7 @@ const FamilyChat = () => {
                                   </Button>
                                 )}
                               </div>
-                              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                                 <div className="space-y-1.5">
                                   <Label className="text-xs font-medium">Name</Label>
                                   <Input
@@ -4942,14 +4982,51 @@ const FamilyChat = () => {
                                   />
                                 </div>
                                 <div className="space-y-1.5">
-                                  <Label className="text-xs font-medium">Email</Label>
-                                  <Input
-                                    type="email"
-                                    placeholder="john@example.com"
-                                    value={recipient.email}
-                                    onChange={(e) => updateInviteRecipient(recipient.id, 'email', e.target.value)}
-                                  />
+                                  <Label className="text-xs font-medium">Invite Via</Label>
+                                  <Select
+                                    value={recipient.contactMethod}
+                                    onValueChange={(value) => updateInviteRecipient(recipient.id, 'contactMethod', value)}
+                                  >
+                                    <SelectTrigger className="w-full bg-background">
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-background border z-50">
+                                      <SelectItem value="email">
+                                        <span className="flex items-center gap-2">
+                                          <Mail className="h-3 w-3" />
+                                          Email
+                                        </span>
+                                      </SelectItem>
+                                      <SelectItem value="sms">
+                                        <span className="flex items-center gap-2">
+                                          <MessageSquare className="h-3 w-3" />
+                                          Text Message
+                                        </span>
+                                      </SelectItem>
+                                    </SelectContent>
+                                  </Select>
                                 </div>
+                                {recipient.contactMethod === 'email' ? (
+                                  <div className="space-y-1.5">
+                                    <Label className="text-xs font-medium">Email</Label>
+                                    <Input
+                                      type="email"
+                                      placeholder="john@example.com"
+                                      value={recipient.email}
+                                      onChange={(e) => updateInviteRecipient(recipient.id, 'email', e.target.value)}
+                                    />
+                                  </div>
+                                ) : (
+                                  <div className="space-y-1.5">
+                                    <Label className="text-xs font-medium">Phone Number</Label>
+                                    <Input
+                                      type="tel"
+                                      placeholder="+1 (555) 123-4567"
+                                      value={recipient.phone}
+                                      onChange={(e) => updateInviteRecipient(recipient.id, 'phone', e.target.value)}
+                                    />
+                                  </div>
+                                )}
                                 <div className="space-y-1.5">
                                   <Label className="text-xs font-medium">Role</Label>
                                   <Select
@@ -4989,14 +5066,14 @@ const FamilyChat = () => {
                         variant="outline" 
                         onClick={() => {
                           setShowSendInviteDialog(false);
-                          setInviteRecipients([{ id: crypto.randomUUID(), name: '', email: '', role: 'member' }]);
+                          setInviteRecipients([{ id: crypto.randomUUID(), name: '', email: '', phone: '', contactMethod: 'email', role: 'member' }]);
                         }}
                       >
                         Cancel
                       </Button>
                       <Button 
-                        onClick={sendInviteEmails} 
-                        disabled={isSendingInvite || !inviteRecipients.some(r => r.name.trim() && r.email.trim())}
+                        onClick={sendInvites} 
+                        disabled={isSendingInvite || !inviteRecipients.some(r => r.name.trim() && (r.contactMethod === 'email' ? r.email.trim() : r.phone.trim()))}
                         className="gap-2"
                       >
                         {isSendingInvite ? (
