@@ -334,6 +334,69 @@ export type Database = {
           },
         ]
       }
+      care_phases: {
+        Row: {
+          created_at: string
+          created_by: string
+          ended_at: string | null
+          facility_name: string | null
+          family_id: string
+          id: string
+          is_current: boolean
+          notes: string | null
+          organization_id: string | null
+          phase_type: Database["public"]["Enums"]["care_phase_type"]
+          started_at: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          ended_at?: string | null
+          facility_name?: string | null
+          family_id: string
+          id?: string
+          is_current?: boolean
+          notes?: string | null
+          organization_id?: string | null
+          phase_type: Database["public"]["Enums"]["care_phase_type"]
+          started_at?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          ended_at?: string | null
+          facility_name?: string | null
+          family_id?: string
+          id?: string
+          is_current?: boolean
+          notes?: string | null
+          organization_id?: string | null
+          phase_type?: Database["public"]["Enums"]["care_phase_type"]
+          started_at?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "care_phases_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "care_phases_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       daily_emotional_checkins: {
         Row: {
           bypass_inferred_state: string | null
@@ -2140,6 +2203,149 @@ export type Database = {
           },
         ]
       }
+      provider_handoffs: {
+        Row: {
+          accepted_at: string | null
+          accepted_by: string | null
+          completed_at: string | null
+          created_at: string
+          family_id: string
+          from_organization_id: string
+          handoff_notes: string | null
+          id: string
+          initiated_at: string
+          initiated_by: string
+          receiving_provider_notes: string | null
+          sobriety_days_at_handoff: number
+          status: Database["public"]["Enums"]["handoff_status"]
+          to_organization_id: string
+          transition_summary_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          accepted_by?: string | null
+          completed_at?: string | null
+          created_at?: string
+          family_id: string
+          from_organization_id: string
+          handoff_notes?: string | null
+          id?: string
+          initiated_at?: string
+          initiated_by: string
+          receiving_provider_notes?: string | null
+          sobriety_days_at_handoff?: number
+          status?: Database["public"]["Enums"]["handoff_status"]
+          to_organization_id: string
+          transition_summary_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          accepted_at?: string | null
+          accepted_by?: string | null
+          completed_at?: string | null
+          created_at?: string
+          family_id?: string
+          from_organization_id?: string
+          handoff_notes?: string | null
+          id?: string
+          initiated_at?: string
+          initiated_by?: string
+          receiving_provider_notes?: string | null
+          sobriety_days_at_handoff?: number
+          status?: Database["public"]["Enums"]["handoff_status"]
+          to_organization_id?: string
+          transition_summary_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_handoffs_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provider_handoffs_from_organization_id_fkey"
+            columns: ["from_organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provider_handoffs_to_organization_id_fkey"
+            columns: ["to_organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provider_handoffs_transition_summary_id_fkey"
+            columns: ["transition_summary_id"]
+            isOneToOne: false
+            referencedRelation: "transition_summaries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      provider_sobriety_visibility: {
+        Row: {
+          can_see_milestones: boolean
+          can_see_sobriety_days: boolean
+          expires_at: string | null
+          family_id: string
+          granted_at: string
+          granted_by: string
+          id: string
+          notes: string | null
+          organization_id: string
+          user_id: string
+        }
+        Insert: {
+          can_see_milestones?: boolean
+          can_see_sobriety_days?: boolean
+          expires_at?: string | null
+          family_id: string
+          granted_at?: string
+          granted_by: string
+          id?: string
+          notes?: string | null
+          organization_id: string
+          user_id: string
+        }
+        Update: {
+          can_see_milestones?: boolean
+          can_see_sobriety_days?: boolean
+          expires_at?: string | null
+          family_id?: string
+          granted_at?: string
+          granted_by?: string
+          id?: string
+          notes?: string | null
+          organization_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_sobriety_visibility_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provider_sobriety_visibility_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       push_subscriptions: {
         Row: {
           auth: string
@@ -2343,6 +2549,103 @@ export type Database = {
             columns: ["family_id"]
             isOneToOne: false
             referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      transition_summaries: {
+        Row: {
+          aftercare_recommendations: string[] | null
+          areas_for_continued_focus: string[] | null
+          created_at: string
+          created_by: string
+          family_id: string
+          from_organization_id: string | null
+          from_phase: Database["public"]["Enums"]["care_phase_type"]
+          id: string
+          is_shared_with_next_provider: boolean
+          medications_notes: string | null
+          milestones_achieved: string[] | null
+          protective_factors: string[] | null
+          risk_factors: string[] | null
+          sobriety_days_at_transition: number
+          strengths_identified: string[] | null
+          support_system_notes: string | null
+          to_organization_id: string | null
+          to_phase: Database["public"]["Enums"]["care_phase_type"]
+          total_reset_count: number
+          transition_readiness_score: number | null
+          treatment_progress_summary: string | null
+          user_id: string
+        }
+        Insert: {
+          aftercare_recommendations?: string[] | null
+          areas_for_continued_focus?: string[] | null
+          created_at?: string
+          created_by: string
+          family_id: string
+          from_organization_id?: string | null
+          from_phase: Database["public"]["Enums"]["care_phase_type"]
+          id?: string
+          is_shared_with_next_provider?: boolean
+          medications_notes?: string | null
+          milestones_achieved?: string[] | null
+          protective_factors?: string[] | null
+          risk_factors?: string[] | null
+          sobriety_days_at_transition?: number
+          strengths_identified?: string[] | null
+          support_system_notes?: string | null
+          to_organization_id?: string | null
+          to_phase: Database["public"]["Enums"]["care_phase_type"]
+          total_reset_count?: number
+          transition_readiness_score?: number | null
+          treatment_progress_summary?: string | null
+          user_id: string
+        }
+        Update: {
+          aftercare_recommendations?: string[] | null
+          areas_for_continued_focus?: string[] | null
+          created_at?: string
+          created_by?: string
+          family_id?: string
+          from_organization_id?: string | null
+          from_phase?: Database["public"]["Enums"]["care_phase_type"]
+          id?: string
+          is_shared_with_next_provider?: boolean
+          medications_notes?: string | null
+          milestones_achieved?: string[] | null
+          protective_factors?: string[] | null
+          risk_factors?: string[] | null
+          sobriety_days_at_transition?: number
+          strengths_identified?: string[] | null
+          support_system_notes?: string | null
+          to_organization_id?: string | null
+          to_phase?: Database["public"]["Enums"]["care_phase_type"]
+          total_reset_count?: number
+          transition_readiness_score?: number | null
+          treatment_progress_summary?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transition_summaries_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transition_summaries_from_organization_id_fkey"
+            columns: ["from_organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transition_summaries_to_organization_id_fkey"
+            columns: ["to_organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
         ]
@@ -2855,6 +3158,10 @@ export type Database = {
           used_at: string
         }[]
       }
+      has_sobriety_visibility: {
+        Args: { _family_id: string; _org_id: string; _user_id: string }
+        Returns: boolean
+      }
       is_family_admin_or_moderator: {
         Args: { _family_id: string; _user_id: string }
         Returns: boolean
@@ -2873,6 +3180,10 @@ export type Database = {
       }
       is_in_same_family: {
         Args: { _other_user_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_managing_org_member: {
+        Args: { _family_id: string; _user_id: string }
         Returns: boolean
       }
       is_moderator_of_family_member: {
@@ -2908,6 +3219,14 @@ export type Database = {
       }
     }
     Enums: {
+      care_phase_type:
+        | "detox"
+        | "residential_treatment"
+        | "partial_hospitalization"
+        | "intensive_outpatient"
+        | "outpatient"
+        | "sober_living"
+        | "independent"
       family_role:
         | "member"
         | "recovering"
@@ -2918,6 +3237,12 @@ export type Database = {
         | "sober_living_manager"
         | "program_admin"
         | "interventionist"
+      handoff_status:
+        | "pending"
+        | "accepted"
+        | "declined"
+        | "completed"
+        | "cancelled"
       meeting_type:
         | "AA"
         | "Al-Anon"
@@ -3084,6 +3409,15 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      care_phase_type: [
+        "detox",
+        "residential_treatment",
+        "partial_hospitalization",
+        "intensive_outpatient",
+        "outpatient",
+        "sober_living",
+        "independent",
+      ],
       family_role: [
         "member",
         "recovering",
@@ -3094,6 +3428,13 @@ export const Constants = {
         "sober_living_manager",
         "program_admin",
         "interventionist",
+      ],
+      handoff_status: [
+        "pending",
+        "accepted",
+        "declined",
+        "completed",
+        "cancelled",
       ],
       meeting_type: [
         "AA",
