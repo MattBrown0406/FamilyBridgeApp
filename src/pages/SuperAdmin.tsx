@@ -1055,6 +1055,22 @@ const SuperAdmin = () => {
                           if (u.family_roles?.includes('recovering')) {
                             displayRoles.push({ label: 'Recovering', variant: 'secondary', className: 'bg-amber-100 text-amber-800 border-amber-300' });
                           }
+                          // Provider roles in families
+                          if (u.family_roles?.includes('therapist')) {
+                            displayRoles.push({ label: 'Therapist', variant: 'secondary', className: 'bg-teal-100 text-teal-800 border-teal-300' });
+                          }
+                          if (u.family_roles?.includes('case_manager')) {
+                            displayRoles.push({ label: 'Case Manager', variant: 'secondary', className: 'bg-cyan-100 text-cyan-800 border-cyan-300' });
+                          }
+                          if (u.family_roles?.includes('sober_living_manager')) {
+                            displayRoles.push({ label: 'Sober Living Manager', variant: 'secondary', className: 'bg-indigo-100 text-indigo-800 border-indigo-300' });
+                          }
+                          if (u.family_roles?.includes('interventionist')) {
+                            displayRoles.push({ label: 'Interventionist', variant: 'secondary', className: 'bg-purple-100 text-purple-800 border-purple-300' });
+                          }
+                          if (u.family_roles?.includes('program_admin')) {
+                            displayRoles.push({ label: 'Program Admin', variant: 'secondary', className: 'bg-fuchsia-100 text-fuchsia-800 border-fuchsia-300' });
+                          }
                           if (u.family_roles?.includes('member') && !displayRoles.some(r => r.label === 'Recovering')) {
                             displayRoles.push({ label: 'Family Member', variant: 'outline' });
                           }
