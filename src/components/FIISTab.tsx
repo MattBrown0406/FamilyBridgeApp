@@ -34,7 +34,11 @@ import {
   Shield,
   Heart,
   UserPlus,
+  Target,
+  TrendingUp as ArrowUp,
+  TrendingDown as ArrowDown,
 } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
 import { format, formatDistanceToNow } from "date-fns";
 
 interface FIISTabProps {
@@ -70,6 +74,7 @@ interface PatternSignal {
   occurrences?: number;
   confidence: string;
   priority?: string;
+  one_year_impact?: "supports_goal" | "neutral" | "threatens_goal";
 }
 
 interface AnonymizedPattern {
@@ -84,6 +89,22 @@ interface AnonymizedPattern {
   member_label: string;
 }
 
+interface PredictiveIndicator {
+  indicator_type: "positive" | "negative" | "neutral";
+  indicator: string;
+  impact_level: "minor" | "moderate" | "significant";
+  recommendation: string;
+}
+
+interface OneYearGoal {
+  current_days: number;
+  days_remaining: number;
+  progress_percentage: number;
+  current_phase: string;
+  likelihood_assessment: string;
+  likelihood_reasoning?: string;
+}
+
 interface PatternAnalysis {
   what_seeing: string;
   pattern_signals: PatternSignal[];
@@ -95,6 +116,14 @@ interface PatternAnalysis {
   recommend_professional?: boolean;
   professional_recommendation_reason?: string;
   positive_reinforcement?: string[];
+  // New one-year goal fields
+  one_year_goal?: OneYearGoal;
+  one_year_likelihood?: string;
+  one_year_likelihood_reasoning?: string;
+  predictive_indicators?: PredictiveIndicator[];
+  goal_focused_suggestions?: string[];
+  behaviors_to_reinforce?: string[];
+  behaviors_to_address?: string[];
 }
 
 const OBSERVATION_TYPES = [
@@ -672,6 +701,158 @@ export function FIISTab({ familyId, members, excludeUserIds = [], onView, isMode
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
+            {/* One-Year Goal Progress Section */}
+            {analysis.one_year_goal && analysis.one_year_goal.current_days > 0 && (
+              <div className="p-4 rounded-lg bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20">
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="text-sm font-semibold flex items-center gap-2 text-primary">
+                    <Target className="h-4 w-4" />
+                    One-Year Goal Progress
+                  </h4>
+                  <Badge 
+                    variant={
+                      analysis.one_year_likelihood === "very_likely" || analysis.one_year_likelihood === "likely" 
+                        ? "default" 
+                        : analysis.one_year_likelihood === "at_risk" || analysis.one_year_likelihood === "critical_risk"
+                        ? "destructive"
+                        : "secondary"
+                    }
+                    className="capitalize"
+                  >
+                    {analysis.one_year_likelihood?.replace(/_/g, " ") || "Assessing..."}
+                  </Badge>
+                </div>
+                
+                <div className="space-y-3">
+                  <div>
+                    <div className="flex justify-between text-xs text-muted-foreground mb-1">
+                      <span>Day {analysis.one_year_goal.current_days} of 365</span>
+                      <span>{analysis.one_year_goal.progress_percentage}% Complete</span>
+                    </div>
+                    <Progress value={analysis.one_year_goal.progress_percentage} className="h-3" />
+                  </div>
+                  
+                  <div className="flex flex-wrap gap-3 text-xs">
+                    <div className="flex items-center gap-1 px-2 py-1 bg-background rounded-md border">
+                      <span className="font-medium">{analysis.one_year_goal.current_days}</span>
+                      <span className="text-muted-foreground">days sober</span>
+                    </div>
+                    {analysis.one_year_goal.days_remaining > 0 && (
+                      <div className="flex items-center gap-1 px-2 py-1 bg-background rounded-md border">
+                        <span className="font-medium">{analysis.one_year_goal.days_remaining}</span>
+                        <span className="text-muted-foreground">days to one year</span>
+                      </div>
+                    )}
+                    <div className="flex items-center gap-1 px-2 py-1 bg-background rounded-md border">
+                      <span className="text-muted-foreground">{analysis.one_year_goal.current_phase}</span>
+                    </div>
+                  </div>
+                  
+                  {analysis.one_year_likelihood_reasoning && (
+                    <p className="text-xs text-muted-foreground mt-2">
+                      {analysis.one_year_likelihood_reasoning}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Predictive Indicators */}
+            {analysis.predictive_indicators && analysis.predictive_indicators.length > 0 && (
+              <div className="space-y-2">
+                <h4 className="text-sm font-medium flex items-center gap-2">
+                  <Activity className="h-4 w-4 text-muted-foreground" />
+                  Predictive Indicators
+                </h4>
+                <div className="grid gap-2">
+                  {analysis.predictive_indicators.map((indicator, i) => (
+                    <div
+                      key={i}
+                      className={`p-3 rounded-lg border ${
+                        indicator.indicator_type === "positive"
+                          ? "bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-800"
+                          : indicator.indicator_type === "negative"
+                          ? "bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-800"
+                          : "bg-muted/50 border-border"
+                      }`}
+                    >
+                      <div className="flex items-start gap-2">
+                        {indicator.indicator_type === "positive" ? (
+                          <ArrowUp className="h-4 w-4 text-green-600 mt-0.5 shrink-0" />
+                        ) : indicator.indicator_type === "negative" ? (
+                          <ArrowDown className="h-4 w-4 text-red-600 mt-0.5 shrink-0" />
+                        ) : (
+                          <Minus className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className={`text-sm font-medium ${
+                              indicator.indicator_type === "positive" 
+                                ? "text-green-700 dark:text-green-400"
+                                : indicator.indicator_type === "negative"
+                                ? "text-red-700 dark:text-red-400"
+                                : ""
+                            }`}>
+                              {indicator.indicator}
+                            </span>
+                            <Badge variant="outline" className="text-[10px] capitalize">
+                              {indicator.impact_level} impact
+                            </Badge>
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-1">{indicator.recommendation}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Goal-Focused Suggestions */}
+            {analysis.goal_focused_suggestions && analysis.goal_focused_suggestions.length > 0 && (
+              <div className="p-4 rounded-lg bg-primary/5 border border-primary/20">
+                <h4 className="text-sm font-medium mb-2 flex items-center gap-2 text-primary">
+                  <Target className="h-4 w-4" />
+                  Suggestions to Reach One Year
+                </h4>
+                <ul className="list-disc list-inside space-y-1">
+                  {analysis.goal_focused_suggestions.map((suggestion, i) => (
+                    <li key={i} className="text-sm">{suggestion}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Behaviors to Reinforce */}
+            {analysis.behaviors_to_reinforce && analysis.behaviors_to_reinforce.length > 0 && (
+              <div className="p-4 rounded-lg bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800">
+                <h4 className="text-sm font-medium mb-2 text-green-800 dark:text-green-300 flex items-center gap-2">
+                  <CheckCircle className="h-4 w-4" />
+                  Behaviors Supporting One-Year Goal
+                </h4>
+                <ul className="list-disc list-inside space-y-1">
+                  {analysis.behaviors_to_reinforce.map((item, i) => (
+                    <li key={i} className="text-sm text-green-700 dark:text-green-400">{item}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Behaviors to Address */}
+            {analysis.behaviors_to_address && analysis.behaviors_to_address.length > 0 && (
+              <div className="p-4 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800">
+                <h4 className="text-sm font-medium mb-2 text-amber-800 dark:text-amber-300 flex items-center gap-2">
+                  <AlertTriangle className="h-4 w-4" />
+                  Behaviors Needing Attention
+                </h4>
+                <ul className="list-disc list-inside space-y-1">
+                  {analysis.behaviors_to_address.map((item, i) => (
+                    <li key={i} className="text-sm text-amber-700 dark:text-amber-400">{item}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
             {/* Professional Moderator Recommendation */}
             {analysis.recommend_professional && (
               <div className="p-4 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800">
@@ -681,7 +862,7 @@ export function FIISTab({ familyId, members, excludeUserIds = [], onView, isMode
                 </h4>
                 <p className="text-sm text-red-700 dark:text-red-400 mb-3">
                   {analysis.professional_recommendation_reason || 
-                    "Inviting a professional moderator is not a sign of failure. It is often the most effective way to preserve relationships, restore clarity, and reduce long-term harm."}
+                    "Inviting a professional moderator is not a sign of failure. It is often the most effective way to protect the path to one year, preserve relationships, restore clarity, and reduce long-term harm."}
                 </p>
                 <Button 
                   variant="outline" 
@@ -694,8 +875,8 @@ export function FIISTab({ familyId, members, excludeUserIds = [], onView, isMode
               </div>
             )}
 
-            {/* Positive Reinforcement */}
-            {analysis.positive_reinforcement && analysis.positive_reinforcement.length > 0 && (
+            {/* Positive Reinforcement (legacy support) */}
+            {analysis.positive_reinforcement && analysis.positive_reinforcement.length > 0 && !analysis.behaviors_to_reinforce?.length && (
               <div className="p-4 rounded-lg bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800">
                 <h4 className="text-sm font-medium mb-2 text-green-800 dark:text-green-300 flex items-center gap-2">
                   <Heart className="h-4 w-4" />
