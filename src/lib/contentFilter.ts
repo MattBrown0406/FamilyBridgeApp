@@ -1,46 +1,99 @@
 // Profanity and abuse detection utility
-// This is a basic filter - in production, consider using a more robust API
+// This filter uses safe-word lists to prevent false positives (the "Scunthorpe problem")
 
-// Words that should only match as standalone words (not within other words)
-const profanityList = [
-  'fuck', 'shit', 'damn', 'bitch', 'bastard', 'crap', 'piss', 
-  'dick', 'cock', 'pussy', 'slut', 'whore', 'fag', 'retard', 'cunt',
+// Words that are unambiguous and unlikely to appear within safe words
+const unambiguousProfanity = [
+  'fuck', 'shit', 'bitch', 'bastard', 'piss', 'slut', 'whore', 
   'asshole', 'bullshit', 'motherfucker', 'nigger', 'nigga'
 ];
 
-// Common words that contain "ass" but are NOT profanity - used to prevent false positives
-const safeWordsContainingAss = [
-  'class', 'classic', 'classical', 'classification', 'classified', 'classify',
-  'pass', 'passed', 'passing', 'passage', 'passenger', 'password', 'passport',
-  'mass', 'massive', 'massage', 'masses',
-  'bass', 'bassist',
-  'grass', 'grassy',
-  'glass', 'glasses', 'glassy',
-  'brass', 'brassy',
-  'assist', 'assistant', 'assistance', 'assisted',
-  'assign', 'assigned', 'assignment', 'assigns',
-  'assess', 'assessed', 'assessment', 'assessor',
-  'asset', 'assets',
-  'assume', 'assumed', 'assumes', 'assuming', 'assumption',
-  'assure', 'assured', 'assures', 'assurance',
-  'assault', 'assaulted', 'assaults',
-  'assemble', 'assembled', 'assembly',
-  'assert', 'asserted', 'assertion', 'assertive',
-  'associate', 'associated', 'association', 'associates',
-  'cassette', 'cassava',
-  'hassle', 'hassled',
-  'lasso', 'lassoed',
-  'tassel', 'tassels',
-  'compass', 'compasses',
-  'embarrass', 'embarrassed', 'embarrassing', 'embarrassment',
-  'harass', 'harassed', 'harassment', 'harassing',
-  'amass', 'amassed',
-  'surpass', 'surpassed', 'surpasses',
-  'bypass', 'bypassed', 'bypasses',
-  'trespass', 'trespassed', 'trespassing',
-  'impasse',
-  'morass',
-  'carcass', 'carcasses'
+// Words that commonly appear within legitimate words - need special handling
+// Format: { word, safeWords[] } - if the content contains a safeWord, don't flag the profanity within it
+const contextualProfanity: { word: string; safeWords: string[] }[] = [
+  {
+    word: 'ass',
+    safeWords: [
+      // class family
+      'class', 'classic', 'classical', 'classification', 'classified', 'classify', 'classmate', 'classroom', 'classy', 'declassify', 'outclass', 'underclass', 'subclass', 'superclass', 'masterclass', 'workingclass', 'middleclass', 'upperclass', 'lowerclass', 'firstclass', 'worldclass',
+      // pass family
+      'pass', 'passed', 'passing', 'passage', 'passenger', 'password', 'passport', 'bypass', 'bypassed', 'bypasses', 'surpass', 'surpassed', 'surpasses', 'trespass', 'trespassed', 'trespassing', 'overpass', 'underpass', 'impasse', 'passable', 'impassable', 'passerby', 'passway', 'passthrough',
+      // mass family
+      'mass', 'massive', 'massage', 'masses', 'amass', 'amassed', 'biomass', 'landmass',
+      // bass/grass/glass/brass family
+      'bass', 'bassist', 'seabass', 'grass', 'grassy', 'bluegrass', 'grassland', 'grasshopper', 'glass', 'glasses', 'glassy', 'fiberglass', 'hourglass', 'eyeglass', 'sunglasses', 'looking-glass', 'brass', 'brassy', 'brassiere',
+      // assist family
+      'assist', 'assistant', 'assistance', 'assisted', 'assisting', 'unassisted',
+      // assign family
+      'assign', 'assigned', 'assignment', 'assigns', 'reassign', 'reassigned', 'unassigned',
+      // assess family
+      'assess', 'assessed', 'assessment', 'assessor', 'reassess', 'reassessed',
+      // asset family
+      'asset', 'assets',
+      // assume family
+      'assume', 'assumed', 'assumes', 'assuming', 'assumption', 'presumption',
+      // assure family
+      'assure', 'assured', 'assures', 'assurance', 'reassure', 'reassured', 'reassurance',
+      // assault family (still negative but legitimate word)
+      'assault', 'assaulted', 'assaults', 'assaulting',
+      // assemble family
+      'assemble', 'assembled', 'assembly', 'assembler', 'reassemble', 'disassemble',
+      // assert family
+      'assert', 'asserted', 'assertion', 'assertive', 'reassert',
+      // associate family
+      'associate', 'associated', 'association', 'associates', 'disassociate',
+      // other safe words
+      'cassette', 'cassava', 'casserole', 'hassle', 'hassled', 'lasso', 'lassoed', 'tassel', 'tassels', 'compass', 'compasses', 'embarrass', 'embarrassed', 'embarrassing', 'embarrassment', 'harass', 'harassed', 'harassment', 'harassing', 'morass', 'carcass', 'carcasses', 'molasses', 'sassy', 'sassafras', 'embassy', 'ambassador', 'canvass', 'canvassed'
+    ]
+  },
+  {
+    word: 'crap',
+    safeWords: [
+      'scrap', 'scrappy', 'scrapbook', 'scraps', 'scrapped', 'scrapping', 'scrapyard', 'scrapheap', 'scraper', 'scraped', 'scraping', 'skyscraper'
+    ]
+  },
+  {
+    word: 'dick',
+    safeWords: [
+      // Names
+      'dickens', 'dickensian', 'dickinson', 'dickenson', 'frederick', 'benedick', 'brodick',
+      // Other words
+      'dickcissel', // a bird
+      'medick', 'verdict'
+    ]
+  },
+  {
+    word: 'cock',
+    safeWords: [
+      'peacock', 'peacocks', 'cocktail', 'cocktails', 'cockatoo', 'cockatoos', 'cockpit', 'cockpits', 'hancock', 'weathercock', 'cockle', 'cockles', 'poppycock', 'cocky', 'cocked', 'cocking', 'cockerel', 'cockatiel', 'cockade', 'cockcrow', 'cockleshell', 'gamecock', 'stopcock', 'woodcock', 'shuttlecock', 'haycock', 'petcock', 'babcock', 'hitchcock', 'alcock', 'adcock', 'laycock', 'pocock', 'leacock', 'heathcock'
+    ]
+  },
+  {
+    word: 'cunt',
+    safeWords: [
+      // The famous "Scunthorpe problem" - town in England
+      'scunthorpe'
+    ]
+  },
+  {
+    word: 'damn',
+    safeWords: [
+      // Names containing damn
+      'amsterdam', 'rotterdam', 'potsdam', 'macadam', 'tarmacadam', 'adam', 'madam', 'madame'
+    ]
+  },
+  {
+    word: 'fag',
+    safeWords: [
+      'fagin', // Character name
+      'fagot', 'fagots', // Bundle of sticks (archaic)
+    ]
+  },
+  {
+    word: 'retard',
+    safeWords: [
+      'retardant', 'retardants', 'retarder', 'retarders', 'fire-retardant', 'flame-retardant', 'fireretardant', 'flameretardant'
+    ]
+  }
 ];
 
 const abusivePatterns = [
@@ -64,26 +117,30 @@ interface FilterResult {
 }
 
 /**
- * Check if "ass" appears as actual profanity vs. part of a safe word
+ * Check if a profanity word appears as actual profanity vs. part of a safe word
  */
-function containsStandaloneAss(content: string): boolean {
+function containsStandaloneProfanity(content: string, word: string, safeWords: string[]): boolean {
   const lowerContent = content.toLowerCase();
   
-  // Check if any safe word containing "ass" is present
-  for (const safeWord of safeWordsContainingAss) {
-    if (lowerContent.includes(safeWord)) {
-      // Temporarily remove the safe word to check for other instances
-      const withoutSafeWord = lowerContent.replace(new RegExp(safeWord, 'gi'), '___');
-      // If "ass" still appears after removing safe words, it might be standalone
-      if (!withoutSafeWord.includes('ass')) {
-        return false; // Only safe word instances found
-      }
+  // First check if the word even appears
+  if (!lowerContent.includes(word)) {
+    return false;
+  }
+  
+  // Create a working copy to remove safe words from
+  let workingContent = lowerContent;
+  
+  // Remove all instances of safe words (replace with underscores to preserve positions)
+  for (const safeWord of safeWords) {
+    const safeWordLower = safeWord.toLowerCase();
+    if (workingContent.includes(safeWordLower)) {
+      workingContent = workingContent.split(safeWordLower).join('_'.repeat(safeWordLower.length));
     }
   }
   
-  // Check for standalone "ass" using word boundaries
-  const standaloneRegex = /\bass\b/gi;
-  return standaloneRegex.test(content);
+  // Now check if the profanity word still appears as a standalone word
+  const standaloneRegex = new RegExp(`\\b${word}\\b`, 'gi');
+  return standaloneRegex.test(workingContent);
 }
 
 export function filterContent(content: string): FilterResult {
@@ -92,8 +149,8 @@ export function filterContent(content: string): FilterResult {
   const flaggedWords: string[] = [];
   let wasAbusive = false;
 
-  // Check for standard profanity (word boundary matching)
-  profanityList.forEach(word => {
+  // Check for unambiguous profanity (word boundary matching)
+  unambiguousProfanity.forEach(word => {
     const regex = new RegExp(`\\b${word}\\b`, 'gi');
     if (regex.test(filteredContent)) {
       flaggedWords.push(word);
@@ -101,12 +158,15 @@ export function filterContent(content: string): FilterResult {
     }
   });
 
-  // Special handling for "ass" to avoid false positives like "class", "pass", etc.
-  if (containsStandaloneAss(content)) {
-    flaggedWords.push('ass');
-    // Only replace standalone instances
-    filteredContent = filteredContent.replace(/\bass\b/gi, '***');
-  }
+  // Check for contextual profanity with safe-word filtering
+  contextualProfanity.forEach(({ word, safeWords }) => {
+    if (containsStandaloneProfanity(content, word, safeWords)) {
+      flaggedWords.push(word);
+      // Only replace standalone instances, preserving safe words
+      const regex = new RegExp(`\\b${word}\\b`, 'gi');
+      filteredContent = filteredContent.replace(regex, '*'.repeat(word.length));
+    }
+  });
 
   // Check for abusive patterns
   abusivePatterns.forEach(pattern => {
@@ -126,16 +186,18 @@ export function filterContent(content: string): FilterResult {
 }
 
 export function containsProfanity(content: string): boolean {
-  // Check standard profanity list
-  const hasStandardProfanity = profanityList.some(word => {
+  // Check unambiguous profanity list
+  const hasUnambiguous = unambiguousProfanity.some(word => {
     const regex = new RegExp(`\\b${word}\\b`, 'gi');
     return regex.test(content);
   });
   
-  if (hasStandardProfanity) return true;
+  if (hasUnambiguous) return true;
   
-  // Check for standalone "ass"
-  return containsStandaloneAss(content);
+  // Check contextual profanity with safe-word filtering
+  return contextualProfanity.some(({ word, safeWords }) => 
+    containsStandaloneProfanity(content, word, safeWords)
+  );
 }
 
 export function containsAbusiveLanguage(content: string): boolean {
