@@ -37,6 +37,11 @@ import {
   Target,
   TrendingUp as ArrowUp,
   TrendingDown as ArrowDown,
+  BarChart3,
+  ClipboardCheck,
+  Gauge,
+  ArrowRight,
+  Zap,
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { format, formatDistanceToNow } from "date-fns";
@@ -105,6 +110,33 @@ interface OneYearGoal {
   likelihood_reasoning?: string;
 }
 
+interface RiskTrajectory {
+  direction: "improving" | "stable" | "declining";
+  trend_description: string;
+  contributing_factors: string[];
+  projected_outcome: string;
+}
+
+interface ComplianceTrends {
+  overall_compliance: "excellent" | "good" | "moderate" | "poor" | "critical";
+  meeting_attendance: "consistent" | "mostly_consistent" | "inconsistent" | "declining" | "absent";
+  check_in_reliability: "reliable" | "mostly_reliable" | "inconsistent" | "unreliable";
+  boundary_adherence: "strong" | "good" | "mixed" | "weak" | "none";
+  financial_transparency: "transparent" | "mostly_transparent" | "selective" | "opaque";
+  trend_direction: "improving" | "stable" | "declining";
+  compliance_notes?: string;
+}
+
+interface TransitionReadiness {
+  readiness_level: "not_ready" | "early_preparation" | "preparing" | "nearly_ready" | "ready";
+  current_phase_mastery: number;
+  strengths_demonstrated: string[];
+  areas_needing_development: string[];
+  recommended_focus: string[];
+  estimated_readiness_timeline?: string;
+  transition_risks?: string[];
+}
+
 interface PatternAnalysis {
   what_seeing: string;
   pattern_signals: PatternSignal[];
@@ -116,7 +148,7 @@ interface PatternAnalysis {
   recommend_professional?: boolean;
   professional_recommendation_reason?: string;
   positive_reinforcement?: string[];
-  // New one-year goal fields
+  // One-year goal fields
   one_year_goal?: OneYearGoal;
   one_year_likelihood?: string;
   one_year_likelihood_reasoning?: string;
@@ -124,6 +156,10 @@ interface PatternAnalysis {
   goal_focused_suggestions?: string[];
   behaviors_to_reinforce?: string[];
   behaviors_to_address?: string[];
+  // New trajectory and readiness fields
+  risk_trajectory?: RiskTrajectory;
+  compliance_trends?: ComplianceTrends;
+  transition_readiness?: TransitionReadiness;
 }
 
 const OBSERVATION_TYPES = [
@@ -850,6 +886,231 @@ export function FIISTab({ familyId, members, excludeUserIds = [], onView, isMode
                     <li key={i} className="text-sm text-amber-700 dark:text-amber-400">{item}</li>
                   ))}
                 </ul>
+              </div>
+            )}
+
+            {/* Risk Trajectory */}
+            {analysis.risk_trajectory && (
+              <div className="p-4 rounded-lg bg-muted/50 border border-border">
+                <h4 className="text-sm font-medium mb-3 flex items-center gap-2">
+                  <BarChart3 className="h-4 w-4 text-muted-foreground" />
+                  Risk Trajectory
+                  <Badge
+                    variant={
+                      analysis.risk_trajectory.direction === "improving"
+                        ? "default"
+                        : analysis.risk_trajectory.direction === "declining"
+                        ? "destructive"
+                        : "secondary"
+                    }
+                    className="ml-auto capitalize"
+                  >
+                    {analysis.risk_trajectory.direction === "improving" && <ArrowDown className="h-3 w-3 mr-1" />}
+                    {analysis.risk_trajectory.direction === "declining" && <ArrowUp className="h-3 w-3 mr-1" />}
+                    {analysis.risk_trajectory.direction === "stable" && <Minus className="h-3 w-3 mr-1" />}
+                    {analysis.risk_trajectory.direction}
+                  </Badge>
+                </h4>
+                <p className="text-sm mb-3">{analysis.risk_trajectory.trend_description}</p>
+                {analysis.risk_trajectory.contributing_factors.length > 0 && (
+                  <div className="mb-3">
+                    <p className="text-xs font-medium text-muted-foreground mb-1">Contributing Factors:</p>
+                    <div className="flex flex-wrap gap-1">
+                      {analysis.risk_trajectory.contributing_factors.map((factor, i) => (
+                        <Badge key={i} variant="outline" className="text-xs">
+                          {factor}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                <div className="p-2 rounded bg-background border">
+                  <p className="text-xs text-muted-foreground">
+                    <span className="font-medium">Projected Outcome:</span> {analysis.risk_trajectory.projected_outcome}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Compliance Trends */}
+            {analysis.compliance_trends && (
+              <div className="p-4 rounded-lg bg-muted/50 border border-border">
+                <h4 className="text-sm font-medium mb-3 flex items-center gap-2">
+                  <ClipboardCheck className="h-4 w-4 text-muted-foreground" />
+                  Compliance Trends
+                  <Badge
+                    variant={
+                      analysis.compliance_trends.overall_compliance === "excellent" || analysis.compliance_trends.overall_compliance === "good"
+                        ? "default"
+                        : analysis.compliance_trends.overall_compliance === "poor" || analysis.compliance_trends.overall_compliance === "critical"
+                        ? "destructive"
+                        : "secondary"
+                    }
+                    className="ml-auto capitalize"
+                  >
+                    {analysis.compliance_trends.overall_compliance}
+                  </Badge>
+                </h4>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-3">
+                  <div className="p-2 rounded bg-background border text-center">
+                    <p className="text-[10px] uppercase tracking-wide text-muted-foreground mb-1">Meetings</p>
+                    <p className={`text-xs font-medium capitalize ${
+                      analysis.compliance_trends.meeting_attendance === "consistent" ? "text-green-600" :
+                      analysis.compliance_trends.meeting_attendance === "absent" || analysis.compliance_trends.meeting_attendance === "declining" ? "text-red-600" :
+                      "text-amber-600"
+                    }`}>
+                      {analysis.compliance_trends.meeting_attendance.replace(/_/g, " ")}
+                    </p>
+                  </div>
+                  <div className="p-2 rounded bg-background border text-center">
+                    <p className="text-[10px] uppercase tracking-wide text-muted-foreground mb-1">Check-ins</p>
+                    <p className={`text-xs font-medium capitalize ${
+                      analysis.compliance_trends.check_in_reliability === "reliable" ? "text-green-600" :
+                      analysis.compliance_trends.check_in_reliability === "unreliable" ? "text-red-600" :
+                      "text-amber-600"
+                    }`}>
+                      {analysis.compliance_trends.check_in_reliability.replace(/_/g, " ")}
+                    </p>
+                  </div>
+                  <div className="p-2 rounded bg-background border text-center">
+                    <p className="text-[10px] uppercase tracking-wide text-muted-foreground mb-1">Boundaries</p>
+                    <p className={`text-xs font-medium capitalize ${
+                      analysis.compliance_trends.boundary_adherence === "strong" || analysis.compliance_trends.boundary_adherence === "good" ? "text-green-600" :
+                      analysis.compliance_trends.boundary_adherence === "weak" || analysis.compliance_trends.boundary_adherence === "none" ? "text-red-600" :
+                      "text-amber-600"
+                    }`}>
+                      {analysis.compliance_trends.boundary_adherence}
+                    </p>
+                  </div>
+                  <div className="p-2 rounded bg-background border text-center">
+                    <p className="text-[10px] uppercase tracking-wide text-muted-foreground mb-1">Finances</p>
+                    <p className={`text-xs font-medium capitalize ${
+                      analysis.compliance_trends.financial_transparency === "transparent" ? "text-green-600" :
+                      analysis.compliance_trends.financial_transparency === "opaque" ? "text-red-600" :
+                      "text-amber-600"
+                    }`}>
+                      {analysis.compliance_trends.financial_transparency.replace(/_/g, " ")}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 text-xs">
+                  <span className="text-muted-foreground">Overall Trend:</span>
+                  <Badge
+                    variant={
+                      analysis.compliance_trends.trend_direction === "improving" ? "default" :
+                      analysis.compliance_trends.trend_direction === "declining" ? "destructive" :
+                      "secondary"
+                    }
+                    className="capitalize"
+                  >
+                    {analysis.compliance_trends.trend_direction === "improving" && <ArrowUp className="h-3 w-3 mr-1" />}
+                    {analysis.compliance_trends.trend_direction === "declining" && <ArrowDown className="h-3 w-3 mr-1" />}
+                    {analysis.compliance_trends.trend_direction === "stable" && <Minus className="h-3 w-3 mr-1" />}
+                    {analysis.compliance_trends.trend_direction}
+                  </Badge>
+                </div>
+                {analysis.compliance_trends.compliance_notes && (
+                  <p className="text-xs text-muted-foreground mt-2">{analysis.compliance_trends.compliance_notes}</p>
+                )}
+              </div>
+            )}
+
+            {/* Transition Readiness */}
+            {analysis.transition_readiness && (
+              <div className="p-4 rounded-lg bg-muted/50 border border-border">
+                <h4 className="text-sm font-medium mb-3 flex items-center gap-2">
+                  <Gauge className="h-4 w-4 text-muted-foreground" />
+                  Transition Readiness
+                  <Badge
+                    variant={
+                      analysis.transition_readiness.readiness_level === "ready" || analysis.transition_readiness.readiness_level === "nearly_ready"
+                        ? "default"
+                        : analysis.transition_readiness.readiness_level === "not_ready"
+                        ? "destructive"
+                        : "secondary"
+                    }
+                    className="ml-auto capitalize"
+                  >
+                    {analysis.transition_readiness.readiness_level.replace(/_/g, " ")}
+                  </Badge>
+                </h4>
+                
+                {/* Phase Mastery Progress */}
+                <div className="mb-4">
+                  <div className="flex justify-between text-xs mb-1">
+                    <span className="text-muted-foreground">Current Phase Mastery</span>
+                    <span className="font-medium">{analysis.transition_readiness.current_phase_mastery}%</span>
+                  </div>
+                  <Progress value={analysis.transition_readiness.current_phase_mastery} className="h-2" />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                  {/* Strengths */}
+                  {analysis.transition_readiness.strengths_demonstrated.length > 0 && (
+                    <div className="p-2 rounded bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800">
+                      <p className="text-xs font-medium text-green-700 dark:text-green-400 mb-1 flex items-center gap-1">
+                        <CheckCircle className="h-3 w-3" /> Strengths Demonstrated
+                      </p>
+                      <ul className="list-disc list-inside text-xs text-green-600 dark:text-green-500 space-y-0.5">
+                        {analysis.transition_readiness.strengths_demonstrated.map((strength, i) => (
+                          <li key={i}>{strength}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Areas to Develop */}
+                  {analysis.transition_readiness.areas_needing_development.length > 0 && (
+                    <div className="p-2 rounded bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800">
+                      <p className="text-xs font-medium text-amber-700 dark:text-amber-400 mb-1 flex items-center gap-1">
+                        <Zap className="h-3 w-3" /> Areas for Growth
+                      </p>
+                      <ul className="list-disc list-inside text-xs text-amber-600 dark:text-amber-500 space-y-0.5">
+                        {analysis.transition_readiness.areas_needing_development.map((area, i) => (
+                          <li key={i}>{area}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+
+                {/* Recommended Focus */}
+                {analysis.transition_readiness.recommended_focus.length > 0 && (
+                  <div className="p-2 rounded bg-primary/5 border border-primary/20 mb-3">
+                    <p className="text-xs font-medium text-primary mb-1 flex items-center gap-1">
+                      <ArrowRight className="h-3 w-3" /> Recommended Focus
+                    </p>
+                    <ul className="list-disc list-inside text-xs space-y-0.5">
+                      {analysis.transition_readiness.recommended_focus.map((focus, i) => (
+                        <li key={i}>{focus}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                <div className="flex flex-wrap gap-3 text-xs">
+                  {analysis.transition_readiness.estimated_readiness_timeline && (
+                    <div className="flex items-center gap-1 px-2 py-1 bg-background rounded-md border">
+                      <Clock className="h-3 w-3 text-muted-foreground" />
+                      <span className="text-muted-foreground">Est. Timeline:</span>
+                      <span className="font-medium">{analysis.transition_readiness.estimated_readiness_timeline}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Transition Risks */}
+                {analysis.transition_readiness.transition_risks && analysis.transition_readiness.transition_risks.length > 0 && (
+                  <div className="mt-3 p-2 rounded bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800">
+                    <p className="text-xs font-medium text-red-700 dark:text-red-400 mb-1 flex items-center gap-1">
+                      <AlertTriangle className="h-3 w-3" /> Transition Risks
+                    </p>
+                    <ul className="list-disc list-inside text-xs text-red-600 dark:text-red-500 space-y-0.5">
+                      {analysis.transition_readiness.transition_risks.map((risk, i) => (
+                        <li key={i}>{risk}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
             )}
 

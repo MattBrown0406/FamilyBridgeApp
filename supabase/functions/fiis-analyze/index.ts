@@ -561,6 +561,105 @@ SOBRIETY JOURNEY STATUS:
                     items: { type: "string" },
                     description: "Behaviors that need attention to stay on track to one year",
                   },
+                  risk_trajectory: {
+                    type: "object",
+                    properties: {
+                      direction: { 
+                        type: "string", 
+                        enum: ["improving", "stable", "declining"],
+                        description: "Overall direction of risk over time"
+                      },
+                      trend_description: { type: "string", description: "Narrative of how risk has changed over the observation period" },
+                      contributing_factors: {
+                        type: "array",
+                        items: { type: "string" },
+                        description: "Key factors driving the risk trajectory"
+                      },
+                      projected_outcome: { type: "string", description: "Where current trajectory leads if unchanged" },
+                    },
+                    required: ["direction", "trend_description", "contributing_factors", "projected_outcome"],
+                    description: "Analysis of how risk levels are changing over time",
+                  },
+                  compliance_trends: {
+                    type: "object",
+                    properties: {
+                      overall_compliance: { 
+                        type: "string", 
+                        enum: ["excellent", "good", "moderate", "poor", "critical"],
+                        description: "Overall level of compliance with recovery program requirements"
+                      },
+                      meeting_attendance: { 
+                        type: "string", 
+                        enum: ["consistent", "mostly_consistent", "inconsistent", "declining", "absent"],
+                        description: "Trend in meeting/appointment attendance"
+                      },
+                      check_in_reliability: { 
+                        type: "string", 
+                        enum: ["reliable", "mostly_reliable", "inconsistent", "unreliable"],
+                        description: "Reliability of check-ins and check-outs"
+                      },
+                      boundary_adherence: { 
+                        type: "string", 
+                        enum: ["strong", "good", "mixed", "weak", "none"],
+                        description: "How well boundaries are being respected"
+                      },
+                      financial_transparency: { 
+                        type: "string", 
+                        enum: ["transparent", "mostly_transparent", "selective", "opaque"],
+                        description: "Level of financial transparency in requests and reporting"
+                      },
+                      trend_direction: { 
+                        type: "string", 
+                        enum: ["improving", "stable", "declining"],
+                        description: "Overall direction of compliance trends"
+                      },
+                      compliance_notes: { type: "string", description: "Additional context about compliance patterns" },
+                    },
+                    required: ["overall_compliance", "meeting_attendance", "check_in_reliability", "boundary_adherence", "financial_transparency", "trend_direction"],
+                    description: "Analysis of compliance with recovery program requirements and expectations",
+                  },
+                  transition_readiness: {
+                    type: "object",
+                    properties: {
+                      readiness_level: { 
+                        type: "string", 
+                        enum: ["not_ready", "early_preparation", "preparing", "nearly_ready", "ready"],
+                        description: "How ready the individual is for the next recovery phase"
+                      },
+                      current_phase_mastery: { 
+                        type: "number", 
+                        minimum: 0, 
+                        maximum: 100,
+                        description: "Percentage of current phase skills/milestones demonstrated"
+                      },
+                      strengths_demonstrated: {
+                        type: "array",
+                        items: { type: "string" },
+                        description: "Recovery strengths being consistently demonstrated"
+                      },
+                      areas_needing_development: {
+                        type: "array",
+                        items: { type: "string" },
+                        description: "Areas that need more development before transition"
+                      },
+                      recommended_focus: {
+                        type: "array",
+                        items: { type: "string" },
+                        description: "What to focus on to prepare for next phase"
+                      },
+                      estimated_readiness_timeline: { 
+                        type: "string", 
+                        description: "Estimated time until ready for next phase transition (e.g., '2-4 weeks', '1-2 months')"
+                      },
+                      transition_risks: {
+                        type: "array",
+                        items: { type: "string" },
+                        description: "Risks that could impact successful transition"
+                      },
+                    },
+                    required: ["readiness_level", "current_phase_mastery", "strengths_demonstrated", "areas_needing_development", "recommended_focus"],
+                    description: "Assessment of readiness to transition to the next phase of recovery",
+                  },
                   clarifying_questions: {
                     type: "array",
                     items: { type: "string" },
@@ -597,6 +696,9 @@ SOBRIETY JOURNEY STATUS:
                   "goal_focused_suggestions",
                   "behaviors_to_reinforce",
                   "behaviors_to_address",
+                  "risk_trajectory",
+                  "compliance_trends",
+                  "transition_readiness",
                   "clarifying_questions", 
                   "what_to_watch", 
                   "recommend_professional"
