@@ -2109,6 +2109,25 @@ const FamilyChat = () => {
 
       if (error) throw error;
 
+      // Send push notifications to other family members
+      const otherMemberIds = members
+        .filter(m => m.user_id !== user?.id)
+        .map(m => m.user_id);
+      
+      if (otherMemberIds.length > 0) {
+        const currentMember = members.find(m => m.user_id === user?.id);
+        const senderName = currentMember?.full_name || 'A family member';
+        supabase.functions.invoke('send-push-notification', {
+          body: {
+            user_ids: otherMemberIds,
+            title: `New message from ${senderName}`,
+            body: newMessage.trim().substring(0, 100),
+            type: 'message',
+            data: { family_id: familyId }
+          }
+        }).catch(err => console.error('Push notification error:', err));
+      }
+
       setNewMessage('');
       setWarningCount(0); // Reset warnings on successful send
     } catch (error) {
