@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Table,
   TableBody,
@@ -28,6 +30,8 @@ import {
   ArrowDown,
   Minus,
   Clock,
+  Lock,
+  ShieldAlert,
 } from "lucide-react";
 import { subMonths, differenceInDays } from "date-fns";
 
@@ -95,17 +99,59 @@ export const ProviderOutcomeReports = ({
   organizationId,
   organizationName,
 }: ProviderOutcomeReportsProps) => {
+  const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
   const [metrics, setMetrics] = useState<OutcomeMetrics | null>(null);
   const [clientOutcomes, setClientOutcomes] = useState<ClientOutcome[]>([]);
   const [phaseStats, setPhaseStats] = useState<PhaseStats[]>([]);
   const [dateRange, setDateRange] = useState<"30d" | "90d" | "1y" | "all">("90d");
+  const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+
+  // Check if user is authorized to view this organization's success score
+  useEffect(() => {
+    const checkAuthorization = async () => {
+      if (!user || !organizationId) {
+        setIsAuthorized(false);
+        return;
+      }
+
+      try {
+        // Check if user is a super admin
+        const { data: superAdminCheck } = await supabase.rpc('is_super_admin', { 
+          _user_id: user.id 
+        });
+        
+        if (superAdminCheck) {
+          setIsSuperAdmin(true);
+          setIsAuthorized(true);
+          return;
+        }
+
+        // Check if user is an admin/owner of THIS organization
+        const { data: orgMember } = await supabase
+          .from('organization_members')
+          .select('role')
+          .eq('organization_id', organizationId)
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        const isOrgAdmin = orgMember?.role === 'owner' || orgMember?.role === 'admin';
+        setIsAuthorized(isOrgAdmin);
+      } catch (error) {
+        console.error('Error checking authorization:', error);
+        setIsAuthorized(false);
+      }
+    };
+
+    checkAuthorization();
+  }, [user, organizationId]);
 
   useEffect(() => {
-    if (organizationId) {
+    if (organizationId && isAuthorized) {
       fetchOutcomeData();
     }
-  }, [organizationId, dateRange]);
+  }, [organizationId, dateRange, isAuthorized]);
 
   const getDateFilter = () => {
     const now = new Date();
@@ -464,6 +510,35 @@ export const ProviderOutcomeReports = ({
       </Card>
     );
   };
+
+  // Show loading state while checking authorization
+  if (isAuthorized === null) {
+    return (
+      <div className="space-y-4">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {[1, 2, 3, 4].map((i) => (
+            <Skeleton key={i} className="h-32" />
+          ))}
+        </div>
+        <Skeleton className="h-64" />
+      </div>
+    );
+  }
+
+  // Show access denied if not authorized
+  if (!isAuthorized) {
+    return (
+      <Alert variant="destructive" className="border-destructive/50">
+        <ShieldAlert className="h-4 w-4" />
+        <AlertDescription className="flex items-center gap-2">
+          <Lock className="h-4 w-4" />
+          <span>
+            <strong>Access Restricted:</strong> Provider Success Scores are only visible to the organization's administrators and super admins.
+          </span>
+        </AlertDescription>
+      </Alert>
+    );
+  }
 
   if (isLoading) {
     return (
