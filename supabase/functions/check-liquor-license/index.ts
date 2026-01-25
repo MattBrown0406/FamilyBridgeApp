@@ -97,6 +97,43 @@ const LIQUOR_STORE_KEYWORDS = [
   'spirits',
 ];
 
+// Keywords for adult entertainment establishments
+const ADULT_ENTERTAINMENT_KEYWORDS = [
+  'strip club',
+  'stripclub',
+  'gentlemen\'s club',
+  'gentlemens club',
+  'gentleman\'s club',
+  'gentlemans club',
+  'adult entertainment',
+  'adult store',
+  'adult shop',
+  'adult video',
+  'adult bookstore',
+  'adult book store',
+  'xxx',
+  'topless',
+  'exotic dance',
+  'exotic dancer',
+  'showgirls',
+  'show girls',
+  'cabaret',
+  'burlesque',
+  'lingerie modeling',
+  'fantasy',
+  'spearmint rhino',
+  'deja vu',
+  'scores',
+  'sapphire',
+  'hustler',
+  'penthouse',
+  'treasures',
+  'platinum plus',
+  'gold club',
+  'diamond club',
+  'velvet',
+];
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -145,16 +182,28 @@ serve(async (req) => {
       );
     }
 
-    // Check each place for liquor-related indicators
-    const liquorRelatedPlaces: Array<{ name: string; type: string; reason: string; category: 'bar' | 'liquor_store' | 'thc_dispensary' }> = [];
+    // Check each place for concerning indicators
+    const flaggedPlaces: Array<{ name: string; type: string; reason: string; category: 'bar' | 'liquor_store' | 'thc_dispensary' | 'adult_entertainment' }> = [];
 
     for (const place of data.results || []) {
       const placeName = place.name?.toLowerCase() || '';
       
-      // Check for THC dispensary first (more specific)
+      // Check for adult entertainment first (highest priority for safety)
+      const matchingAdultKeyword = ADULT_ENTERTAINMENT_KEYWORDS.find(keyword => placeName.includes(keyword.toLowerCase()));
+      if (matchingAdultKeyword) {
+        flaggedPlaces.push({
+          name: place.name,
+          type: 'adult_entertainment',
+          reason: `Adult entertainment: ${matchingAdultKeyword}`,
+          category: 'adult_entertainment',
+        });
+        continue;
+      }
+      
+      // Check for THC dispensary
       const matchingTHCKeyword = THC_KEYWORDS.find(keyword => placeName.includes(keyword.toLowerCase()));
       if (matchingTHCKeyword) {
-        liquorRelatedPlaces.push({
+        flaggedPlaces.push({
           name: place.name,
           type: 'thc_dispensary',
           reason: `THC/Cannabis: ${matchingTHCKeyword}`,
@@ -167,7 +216,7 @@ serve(async (req) => {
       const isLiquorStoreType = place.types?.includes('liquor_store');
       const matchingLiquorStoreKeyword = LIQUOR_STORE_KEYWORDS.find(keyword => placeName.includes(keyword.toLowerCase()));
       if (isLiquorStoreType || matchingLiquorStoreKeyword) {
-        liquorRelatedPlaces.push({
+        flaggedPlaces.push({
           name: place.name,
           type: 'liquor_store',
           reason: isLiquorStoreType ? 'Place type: liquor_store' : `Liquor store: ${matchingLiquorStoreKeyword}`,
@@ -179,7 +228,7 @@ serve(async (req) => {
       // Check if any of the place types indicate alcohol venue (bar, club, etc.)
       const matchingType = place.types?.find(type => LIQUOR_RELATED_TYPES.includes(type) && type !== 'liquor_store');
       if (matchingType) {
-        liquorRelatedPlaces.push({
+        flaggedPlaces.push({
           name: place.name,
           type: matchingType,
           reason: `Place type: ${matchingType}`,
@@ -191,7 +240,7 @@ serve(async (req) => {
       // Check if the place name contains liquor-related keywords (bars, etc.)
       const matchingKeyword = LIQUOR_KEYWORDS.find(keyword => placeName.includes(keyword));
       if (matchingKeyword) {
-        liquorRelatedPlaces.push({
+        flaggedPlaces.push({
           name: place.name,
           type: 'keyword_match',
           reason: `Name contains: ${matchingKeyword}`,
@@ -200,18 +249,19 @@ serve(async (req) => {
       }
     }
 
-    const hasLiquorLicense = liquorRelatedPlaces.length > 0;
-    const hasTHCDispensary = liquorRelatedPlaces.some(p => p.category === 'thc_dispensary');
-    const hasLiquorStore = liquorRelatedPlaces.some(p => p.category === 'liquor_store');
-    const hasBar = liquorRelatedPlaces.some(p => p.category === 'bar');
+    const hasLiquorLicense = flaggedPlaces.length > 0;
+    const hasTHCDispensary = flaggedPlaces.some(p => p.category === 'thc_dispensary');
+    const hasLiquorStore = flaggedPlaces.some(p => p.category === 'liquor_store');
+    const hasBar = flaggedPlaces.some(p => p.category === 'bar');
+    const hasAdultEntertainment = flaggedPlaces.some(p => p.category === 'adult_entertainment');
     
-    const confidence = liquorRelatedPlaces.some(p => LIQUOR_RELATED_TYPES.includes(p.type) || p.category === 'thc_dispensary') 
+    const confidence = flaggedPlaces.some(p => LIQUOR_RELATED_TYPES.includes(p.type) || p.category === 'thc_dispensary' || p.category === 'adult_entertainment') 
       ? 'high' 
-      : liquorRelatedPlaces.length > 0 
+      : flaggedPlaces.length > 0 
         ? 'medium' 
         : 'none';
 
-    console.log(`Location check result: ${hasLiquorLicense ? 'FOUND' : 'NOT FOUND'}, confidence: ${confidence}, THC: ${hasTHCDispensary}, Liquor Store: ${hasLiquorStore}, Bar: ${hasBar}`);
+    console.log(`Location check result: ${hasLiquorLicense ? 'FOUND' : 'NOT FOUND'}, confidence: ${confidence}, THC: ${hasTHCDispensary}, Liquor Store: ${hasLiquorStore}, Bar: ${hasBar}, Adult: ${hasAdultEntertainment}`);
 
     return new Response(
       JSON.stringify({
@@ -219,8 +269,9 @@ serve(async (req) => {
         hasTHCDispensary,
         hasLiquorStore,
         hasBar,
+        hasAdultEntertainment,
         confidence,
-        places: liquorRelatedPlaces,
+        places: flaggedPlaces,
         totalPlacesChecked: data.results?.length || 0,
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
