@@ -35,6 +35,12 @@ const ROLE_LABELS: Record<string, string> = {
   employer: 'Employer',
   moderator: 'Moderator',
   admin: 'Admin',
+  // Provider roles
+  therapist: 'Therapist',
+  case_manager: 'Case Manager',
+  sober_living_manager: 'Sober Living Manager',
+  interventionist: 'Interventionist',
+  program_admin: 'Program Admin',
 };
 
 const handler = async (req: Request): Promise<Response> => {

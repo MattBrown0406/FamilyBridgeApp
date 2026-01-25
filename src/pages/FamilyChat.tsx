@@ -850,6 +850,12 @@ const FamilyChat = () => {
     { value: 'employer', label: 'Employer' },
     { value: 'moderator', label: 'Moderator' },
     { value: 'admin', label: 'Admin' },
+    // Provider roles
+    { value: 'therapist', label: 'Therapist' },
+    { value: 'case_manager', label: 'Case Manager' },
+    { value: 'sober_living_manager', label: 'Sober Living Manager' },
+    { value: 'interventionist', label: 'Interventionist' },
+    { value: 'program_admin', label: 'Program Admin' },
   ];
 
   const sendInvites = async () => {
@@ -5390,11 +5396,14 @@ const FamilyChat = () => {
                     {isFamilyCreator && <SelectItem value="admin">Admin</SelectItem>}
                     <SelectItem value="therapist">Therapist</SelectItem>
                     <SelectItem value="case_manager">Case Manager</SelectItem>
+                    <SelectItem value="sober_living_manager">Sober Living Manager</SelectItem>
+                    <SelectItem value="interventionist">Interventionist</SelectItem>
+                    <SelectItem value="program_admin">Program Admin</SelectItem>
                   </SelectContent>
                 </Select>
                 <p className="text-xs text-muted-foreground">
-                  {editRole === 'therapist' || editRole === 'case_manager' 
-                    ? 'Therapists and Case Managers can view family communications and participate in aftercare planning.'
+                  {['therapist', 'case_manager', 'sober_living_manager', 'interventionist', 'program_admin'].includes(editRole)
+                    ? 'Provider roles can view family communications and participate in care coordination.'
                     : 'Admins can approve boundaries, manage values & goals, and help moderate the family.'}
                 </p>
               </div>

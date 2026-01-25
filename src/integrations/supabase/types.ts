@@ -2915,6 +2915,9 @@ export type Database = {
         | "admin"
         | "therapist"
         | "case_manager"
+        | "sober_living_manager"
+        | "program_admin"
+        | "interventionist"
       meeting_type:
         | "AA"
         | "Al-Anon"
@@ -3088,6 +3091,9 @@ export const Constants = {
         "admin",
         "therapist",
         "case_manager",
+        "sober_living_manager",
+        "program_admin",
+        "interventionist",
       ],
       meeting_type: [
         "AA",
