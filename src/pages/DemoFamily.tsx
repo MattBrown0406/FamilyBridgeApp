@@ -230,7 +230,7 @@ const DemoFamily = () => {
                   className="h-8 w-8 sm:h-10 sm:w-10 rounded-xl flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 relative shrink-0"
                   style={{ 
                     background: branding 
-                      ? `linear-gradient(135deg, ${branding.primaryColor}, ${branding.primaryColor}cc)` 
+                      ? `linear-gradient(135deg, hsl(${branding.primaryColor}), hsl(${branding.primaryColor} / 0.8))` 
                       : selectedFamily === 'davis' 
                         ? 'linear-gradient(135deg, hsl(var(--destructive)), hsl(var(--destructive) / 0.8))'
                         : 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary) / 0.8))'

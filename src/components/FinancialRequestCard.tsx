@@ -110,7 +110,7 @@ const DemoPendingActions: React.FC<{ branding?: { primaryColor?: string } }> = (
       <Button 
         size="sm" 
         className="flex-1 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
-        style={branding?.primaryColor ? { background: `linear-gradient(135deg, ${branding.primaryColor}, ${branding.primaryColor}cc)` } : undefined}
+        style={branding?.primaryColor ? { background: `linear-gradient(135deg, hsl(${branding.primaryColor}), hsl(${branding.primaryColor} / 0.8))` } : undefined}
       >
         <ThumbsUp className="h-3 w-3 mr-1" />
         Approve
