@@ -3162,6 +3162,10 @@ export type Database = {
         Args: { _family_id: string; _org_id: string; _user_id: string }
         Returns: boolean
       }
+      is_conversation_participant: {
+        Args: { _conversation_id: string; _user_id: string }
+        Returns: boolean
+      }
       is_family_admin_or_moderator: {
         Args: { _family_id: string; _user_id: string }
         Returns: boolean
