@@ -31,8 +31,9 @@ interface LiquorCheckResult {
   hasTHCDispensary?: boolean;
   hasLiquorStore?: boolean;
   hasBar?: boolean;
+  hasAdultEntertainment?: boolean;
   confidence: string;
-  places: Array<{ name: string; type: string; reason: string; category?: 'bar' | 'liquor_store' | 'thc_dispensary' }>;
+  places: Array<{ name: string; type: string; reason: string; category?: 'bar' | 'liquor_store' | 'thc_dispensary' | 'adult_entertainment' }>;
 }
 
 interface MeetingCheckinProps {
@@ -257,8 +258,26 @@ export const MeetingCheckin = ({ familyId, onCheckinComplete, capturedLocation }
                 </div>
               )}
 
-              {liquorCheck?.hasLiquorLicense && (
+              {(liquorCheck?.hasLiquorLicense || liquorCheck?.hasAdultEntertainment) && (
                 <div className="space-y-2">
+                  {/* Adult Entertainment Alert */}
+                  {liquorCheck.hasAdultEntertainment && (
+                    <div className="flex items-start gap-2 p-3 bg-pink-500/10 border border-pink-500/20 rounded-lg">
+                      <AlertTriangle className="h-5 w-5 text-pink-600 shrink-0 mt-0.5" />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <p className="text-sm font-medium text-pink-600">Adult Entertainment Detected</p>
+                          <Badge className="text-xs bg-pink-500/20 text-pink-700 border-pink-500/30">
+                            {liquorCheck.confidence === 'high' ? 'High Confidence' : 'Possible Match'}
+                          </Badge>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Nearby: {liquorCheck.places.filter(p => p.category === 'adult_entertainment').map(p => p.name).join(', ')}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
                   {/* THC Dispensary Alert */}
                   {liquorCheck.hasTHCDispensary && (
                     <div className="flex items-start gap-2 p-3 bg-orange-500/10 border border-orange-500/20 rounded-lg">
