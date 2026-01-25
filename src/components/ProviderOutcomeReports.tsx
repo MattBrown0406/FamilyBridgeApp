@@ -48,6 +48,7 @@ interface OutcomeMetrics {
   handoffsInitiated: number;
   handoffsReceived: number;
   handoffsCompleted: number;
+  successScore: number;
 }
 
 interface ClientOutcome {
@@ -148,6 +149,7 @@ export const ProviderOutcomeReports = ({
           handoffsInitiated: 0,
           handoffsReceived: 0,
           handoffsCompleted: 0,
+          successScore: 0,
         });
         setClientOutcomes([]);
         setPhaseStats([]);
@@ -318,6 +320,25 @@ export const ProviderOutcomeReports = ({
         (h) => h.status === "completed"
       ).length || 0;
 
+      // Calculate Provider Success Score (1-10)
+      // Weighted formula:
+      // - Sobriety Stability (25%): Higher is better
+      // - Progression Rate (25%): Higher is better  
+      // - Regression Rate (20%): Lower is better (inverted)
+      // - Reset Rate (15%): Lower is better (inverted)
+      // - Completion Rate (15%): Higher is better
+      const stabilityScore = (sobrietyStabilityRate / 100) * 2.5;
+      const progressionScore = (progressionRate / 100) * 2.5;
+      const regressionScore = ((100 - regressionRate) / 100) * 2.0;
+      const resetScore = ((100 - resetRate) / 100) * 1.5;
+      const completionScore = (completionRate / 100) * 1.5;
+      
+      const rawSuccessScore = stabilityScore + progressionScore + regressionScore + resetScore + completionScore;
+      // Ensure score is between 1-10, with minimum of 1 if there are clients
+      const successScore = totalClients > 0 
+        ? Math.max(1, Math.min(10, Math.round(rawSuccessScore * 10) / 10))
+        : 0;
+
       setMetrics({
         totalClients,
         totalHandoffs: handoffs?.length || 0,
@@ -330,6 +351,7 @@ export const ProviderOutcomeReports = ({
         handoffsInitiated,
         handoffsReceived,
         handoffsCompleted,
+        successScore,
       });
 
       setClientOutcomes(clientOutcomesList);
@@ -456,8 +478,97 @@ export const ProviderOutcomeReports = ({
     );
   }
 
+  const getScoreColor = (score: number) => {
+    if (score >= 8) return "text-green-600";
+    if (score >= 6) return "text-amber-600";
+    if (score >= 4) return "text-orange-600";
+    return "text-red-600";
+  };
+
+  const getScoreLabel = (score: number) => {
+    if (score >= 9) return "Exceptional";
+    if (score >= 8) return "Excellent";
+    if (score >= 7) return "Very Good";
+    if (score >= 6) return "Good";
+    if (score >= 5) return "Average";
+    if (score >= 4) return "Below Average";
+    if (score >= 3) return "Needs Improvement";
+    return "Critical";
+  };
+
+  const getScoreBgColor = (score: number) => {
+    if (score >= 8) return "bg-green-50 border-green-200";
+    if (score >= 6) return "bg-amber-50 border-amber-200";
+    if (score >= 4) return "bg-orange-50 border-orange-200";
+    return "bg-red-50 border-red-200";
+  };
+
   return (
     <div className="space-y-6">
+      {/* Provider Success Score - Prominent Display */}
+      <Card className={`border-2 ${getScoreBgColor(metrics?.successScore || 0)}`}>
+        <CardContent className="pt-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className={`text-5xl font-bold ${getScoreColor(metrics?.successScore || 0)}`}>
+                {metrics?.successScore || 0}
+                <span className="text-2xl text-muted-foreground">/10</span>
+              </div>
+              <div>
+                <h3 className="text-xl font-semibold">Provider Success Score</h3>
+                <p className="text-muted-foreground">
+                  {getScoreLabel(metrics?.successScore || 0)} • {organizationName}
+                </p>
+              </div>
+            </div>
+            <div className="text-right">
+              <Badge 
+                variant="outline" 
+                className={`text-lg px-3 py-1 ${getScoreColor(metrics?.successScore || 0)} border-current`}
+              >
+                <Target className="h-4 w-4 mr-1" />
+                {getScoreLabel(metrics?.successScore || 0)}
+              </Badge>
+              <p className="text-xs text-muted-foreground mt-2">
+                Based on sobriety stability, progression, and retention
+              </p>
+            </div>
+          </div>
+          
+          {/* Score Breakdown */}
+          <div className="mt-4 pt-4 border-t">
+            <p className="text-sm font-medium text-muted-foreground mb-2">Score Components</p>
+            <div className="grid grid-cols-5 gap-2 text-center text-xs">
+              <div>
+                <div className="font-semibold">{metrics?.sobrietyStabilityRate || 0}%</div>
+                <div className="text-muted-foreground">Sobriety Stability</div>
+                <div className="text-muted-foreground/70">(25% weight)</div>
+              </div>
+              <div>
+                <div className="font-semibold">{metrics?.progressionRate || 0}%</div>
+                <div className="text-muted-foreground">Progression</div>
+                <div className="text-muted-foreground/70">(25% weight)</div>
+              </div>
+              <div>
+                <div className="font-semibold">{metrics?.regressionRate || 0}%</div>
+                <div className="text-muted-foreground">Regression</div>
+                <div className="text-muted-foreground/70">(20% weight)</div>
+              </div>
+              <div>
+                <div className="font-semibold">{metrics?.resetRate || 0}%</div>
+                <div className="text-muted-foreground">Reset Rate</div>
+                <div className="text-muted-foreground/70">(15% weight)</div>
+              </div>
+              <div>
+                <div className="font-semibold">{metrics?.completionRate || 0}%</div>
+                <div className="text-muted-foreground">Completion</div>
+                <div className="text-muted-foreground/70">(15% weight)</div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Date Range Filter */}
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold flex items-center gap-2">
