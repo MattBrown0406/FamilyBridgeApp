@@ -12,12 +12,13 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Users, LogOut, Loader2, ArrowRight, Home, Building2, Shield, Plus, Copy, Archive, HelpCircle } from 'lucide-react';
+import { Users, LogOut, Loader2, ArrowRight, Home, Building2, Shield, Plus, Copy, Archive, HelpCircle, ArrowRightLeft } from 'lucide-react';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 import { NotificationBell } from '@/components/NotificationBell';
 import { AdminBreadcrumbs } from '@/components/AdminBreadcrumbs';
 import { FamilyHealthBadge } from '@/components/FamilyHealthBadge';
 import { BroadcastMessage } from '@/components/BroadcastMessage';
+import { FamilyHandoffDialog } from '@/components/FamilyHandoffDialog';
 
 type HealthStatus = 'crisis' | 'concern' | 'tension' | 'stable' | 'improving';
 
@@ -63,6 +64,7 @@ interface AssignedFamily {
   name: string;
   description: string | null;
   member_count: number;
+  organization_id: string | null;
   organization_name: string;
   invite_code: string | null;
   health_status: HealthStatus | null;
@@ -181,6 +183,7 @@ const ModeratorDashboard = () => {
             name: fm.families.name,
             description: fm.families.description,
             member_count: countResult.count || 0,
+            organization_id: fm.families.organization_id || null,
             organization_name: fm.families.organizations?.name || 'Independent',
             invite_code: codeResult.data || null,
             health_status: (healthResult.data?.status as HealthStatus) || null,
@@ -547,6 +550,28 @@ const ModeratorDashboard = () => {
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
+                        {/* Handoff Button */}
+                        {family.organization_id && (
+                          <FamilyHandoffDialog
+                            familyId={family.id}
+                            familyName={family.name}
+                            currentOrgId={family.organization_id}
+                            currentOrgName={family.organization_name}
+                            onSuccess={fetchModeratorData}
+                            trigger={
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={(e) => e.stopPropagation()}
+                                className="text-muted-foreground hover:text-primary"
+                                title="Handoff to another provider"
+                              >
+                                <ArrowRightLeft className="h-4 w-4" />
+                              </Button>
+                            }
+                          />
+                        )}
+                        {/* Archive Button */}
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
                             <Button 
@@ -555,6 +580,7 @@ const ModeratorDashboard = () => {
                               onClick={(e) => e.stopPropagation()}
                               disabled={isArchiving && archivingFamilyId === family.id}
                               className="text-muted-foreground hover:text-destructive"
+                              title="Archive family"
                             >
                               {isArchiving && archivingFamilyId === family.id ? (
                                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -579,7 +605,7 @@ const ModeratorDashboard = () => {
                             </AlertDialogFooter>
                           </AlertDialogContent>
                         </AlertDialog>
-                        <Button 
+                        <Button
                           variant="ghost" 
                           size="sm"
                           onClick={() => navigate(`/family/${family.id}`)}
