@@ -18,7 +18,6 @@ import {
   TrendingUp,
   TrendingDown,
   ArrowRightLeft,
-  Calendar,
   CheckCircle2,
   AlertTriangle,
   Users,
@@ -30,7 +29,7 @@ import {
   Minus,
   Clock,
 } from "lucide-react";
-import { format, subMonths, differenceInDays } from "date-fns";
+import { subMonths, differenceInDays } from "date-fns";
 
 interface ProviderOutcomeReportsProps {
   organizationId: string;
