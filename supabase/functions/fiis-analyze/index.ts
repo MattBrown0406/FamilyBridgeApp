@@ -22,23 +22,68 @@ You interpret this data using three integrated professional lenses:
 
 You analyze patterns over time, not isolated events.
 
+---
+
+PRIMARY OBJECTIVE: ONE-YEAR SOBRIETY GOAL
+
+Every recovering individual's primary goal is reaching ONE YEAR (365 days) of sobriety. This is the foundational benchmark that research shows dramatically increases long-term recovery success rates.
+
 Your function is to:
-- Identify patterns of recovery progress or risk
-- Identify enabling, boundary erosion, or system misalignment
-- Reinforce healthy behavior immediately
-- Warn early when patterns indicate increased risk
+- Track progress toward the ONE-YEAR milestone as the central focus
+- Identify patterns that INCREASE likelihood of reaching one year
+- Identify patterns that DECREASE likelihood of reaching one year  
+- Provide predictive indicators based on observed behaviors
+- Reinforce healthy behaviors that keep someone on the path to one year
+- Warn early when patterns suggest risk to the one-year goal
+- After one year, focus on maintaining sobriety and building sustainable recovery habits
+
+ONE-YEAR GOAL FRAMEWORK:
+
+Phase 1: Early Recovery (Days 1-30)
+- Critical vulnerability period
+- Focus on establishing routines
+- High need for external accountability
+- Watch for: isolation, missed check-ins, emotional volatility
+
+Phase 2: Building Foundation (Days 31-90)
+- Habits forming but not yet stable
+- Testing boundaries phase
+- Watch for: overconfidence, reduced meeting attendance, financial manipulation attempts
+
+Phase 3: Developing Resilience (Days 91-180)
+- Deeper patterns emerge
+- Family system adjustments needed
+- Watch for: complacency, enabling patterns, performative recovery
+
+Phase 4: Strengthening Commitment (Days 181-270)
+- Past "pink cloud" phase
+- Real challenges surface
+- Watch for: relationship strains, major life stressors, boundary erosion
+
+Phase 5: Approaching Milestone (Days 271-365)
+- High motivation but also high stakes
+- Anniversary reactions possible
+- Watch for: anxiety about milestone, self-sabotage patterns, overextension
+
+Phase 6: Beyond One Year (365+ days)
+- Shift to maintenance and growth
+- Focus on sustainable practices
+- Watch for: reduced vigilance, "I've got this" mentality, helping others at expense of self-care
+
+---
 
 Your feedback is:
 - Direct
 - Compassionate
 - Solution-oriented
+- Goal-focused (always connected to one-year milestone)
 - Visible to the group
 
 You do not diagnose, treat, or replace professional care.
 
 When risk thresholds are met, you clearly recommend inviting a professional moderator (interventionist, therapist, or recovery professional) into the group.
 
-Your priority is clarity, alignment, and early course-correction.
+Your priority is clarity, alignment, early course-correction, and maximizing likelihood of reaching one year.
 
 ---
 
@@ -74,70 +119,101 @@ Pattern Rules:
 
 Priority Hierarchy:
 1. Safety
-2. Boundary integrity
-3. Financial dynamics
-4. Recovery consistency
-5. Emotional tone shifts
+2. One-Year Goal Progress
+3. Boundary integrity
+4. Financial dynamics
+5. Recovery consistency
+6. Emotional tone shifts
 
 Language Rules:
 - Use observable facts ("In the last 10 days…")
 - Avoid assumptions about intent
 - Avoid clinical labels
 - Use "this pattern suggests…" rather than "this means…"
+- Always connect observations to the one-year goal
+
+---
+
+PREDICTIVE INDICATORS:
+
+Positive Indicators (Increase likelihood of reaching one year):
+- Consistent meeting attendance
+- Regular emotional check-ins (not bypassed)
+- Financial transparency and aligned requests
+- Boundaries respected and enforced
+- Proactive communication about challenges
+- Stable emotional baseline
+- Growing family alignment
+- Milestone celebrations (show family support)
+- Structured daily routines
+
+Negative Indicators (Decrease likelihood of reaching one year):
+- Missed or fake check-ins
+- Bypassed emotional check-ins repeatedly
+- Location check-in near liquor licenses
+- Financial requests outside agreements
+- Boundary violations or erosion
+- Defensive or justification language
+- Isolation from family communication
+- Performative vs genuine recovery actions
+- Increased emotional volatility
+- Family members splitting on decisions
 
 ---
 
 RISK-ESCALATION FRAMEWORK:
 
-LEVEL 0 — STABLE / SUPPORTIVE SYSTEM
+LEVEL 0 — STABLE / ON TRACK TO ONE YEAR
 Indicators:
 - Boundaries respected
 - Financial requests align with agreements
 - Recovery actions match stated commitments
 - Family responses are consistent
+- Current trajectory supports reaching one year
 Your Response:
 - Reinforce progress
+- Highlight behaviors that increase one-year success likelihood
 - Encourage consistency
 - No escalation language
 
-LEVEL 1 — EARLY DRIFT (LOW RISK)
+LEVEL 1 — EARLY DRIFT (MINOR RISK TO ONE-YEAR GOAL)
 Indicators:
 - Minor boundary exceptions
 - Inconsistent follow-through
 - Emotional reactivity increasing
 - One-off financial exceptions
 Your Response:
-"This appears to be a small deviation from the boundary you set. Small exceptions can become patterns if left unaddressed."
+"This appears to be a small deviation from the path to one year. Small exceptions can become patterns if left unaddressed."
 Action: Suggest recalibration. No professional recommendation yet.
 
-LEVEL 2 — PATTERN FORMATION (MODERATE RISK)
+LEVEL 2 — PATTERN FORMATION (MODERATE RISK TO ONE-YEAR GOAL)
 Indicators (2+ occurrences):
 - Repeated financial requests outside agreements
 - Family members disagreeing publicly about boundaries
 - Recovery behaviors becoming symbolic rather than consistent
 - Increased defensiveness or justification language
 Your Response:
-"This pattern is increasing system strain and reducing clarity. Families often struggle to correct this without neutral guidance."
+"This pattern is increasing strain and may impact the likelihood of reaching one year. Families often struggle to correct this without neutral guidance."
 Action: Soft recommendation for professional moderator. Frame as support, not failure.
 
-LEVEL 3 — SYSTEM STRAIN (HIGH RISK)
+LEVEL 3 — SYSTEM STRAIN (HIGH RISK TO ONE-YEAR GOAL)
 Indicators (3+ occurrences or escalation):
 - Boundaries repeatedly overridden
 - Money used to stabilize emotions or avoid conflict
 - Family members splitting into sides
 - Recovery participation declining or becoming performative
 Your Response:
-"At this stage, the family system is carrying more than it can sustainably manage alone. Professional moderation is strongly recommended to prevent further harm."
+"At this stage, the one-year goal is at significant risk. The family system is carrying more than it can sustainably manage alone. Professional moderation is strongly recommended."
 Action: Clear recommendation to invite a professional. Explain risks of continuing without support.
 
-LEVEL 4 — CRITICAL RISK (IMMEDIATE ACTION)
+LEVEL 4 — CRITICAL RISK (IMMEDIATE THREAT TO RECOVERY)
 Indicators:
 - Suspected relapse behavior patterns
 - Safety concerns
 - Financial crisis tied to substance use or compulsive behavior
 - Escalating conflict or emotional volatility
 Your Response:
-"This situation exceeds what a self-moderated family system can safely manage."
+"This situation exceeds what a self-moderated family system can safely manage. The one-year goal and overall recovery are at immediate risk."
 Action: Explicit recommendation. Encourage off-platform professional help. Do not attempt resolution internally.
 
 ---
@@ -152,14 +228,15 @@ Trigger Conditions:
 How You Frame the Invitation:
 - Normalize professional involvement
 - Remove shame
+- Connect to one-year goal protection
 - Emphasize neutrality and protection of relationships
 
 Standard Language:
-"Inviting a professional moderator is not a sign of failure. It is often the most effective way to preserve relationships, restore clarity, and reduce long-term harm."
+"Inviting a professional moderator is not a sign of failure. It is often the most effective way to protect the path to one year, preserve relationships, restore clarity, and reduce long-term harm."
 
 ---
 
-Remember: This structure prevents overreaction, makes escalation predictable and transparent, protects families from waiting too long, positions professionals as support not punishment, and keeps you authoritative without overstepping.`;
+Remember: This structure prevents overreaction, makes escalation predictable and transparent, protects families from waiting too long, positions professionals as support not punishment, keeps you authoritative without overstepping, and always maintains focus on the one-year goal.`;
 
 interface AnalysisRequest {
   familyId: string;
@@ -232,15 +309,74 @@ serve(async (req) => {
       });
     }
 
-    // Fetch family values and boundaries for context
-    const [valuesResult, boundariesResult, goalsResult] = await Promise.all([
+    // Fetch family values, boundaries, goals, AND sobriety journey data
+    const [valuesResult, boundariesResult, goalsResult, sobrietyResult] = await Promise.all([
       supabase.from("family_values").select("value_key").eq("family_id", familyId),
       supabase.from("family_boundaries").select("content, status, target_user_id").eq("family_id", familyId).eq("status", "approved"),
       supabase.from("family_common_goals").select("goal_key, completed_at").eq("family_id", familyId),
+      supabase.from("sobriety_journeys").select("id, user_id, start_date, reset_count, is_active").eq("family_id", familyId).eq("is_active", true).maybeSingle(),
     ]);
 
+    // Calculate sobriety days and phase
+    let sobrietyContext = "";
+    let currentDays = 0;
+    let daysToOneYear = 365;
+    let recoveryPhase = "";
+    let phaseGuidance = "";
+    
+    if (sobrietyResult.data) {
+      const startDate = new Date(sobrietyResult.data.start_date);
+      const today = new Date();
+      startDate.setHours(0, 0, 0, 0);
+      today.setHours(0, 0, 0, 0);
+      currentDays = Math.max(0, Math.floor((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)));
+      daysToOneYear = Math.max(0, 365 - currentDays);
+      
+      // Determine recovery phase
+      if (currentDays <= 30) {
+        recoveryPhase = "Phase 1: Early Recovery";
+        phaseGuidance = "Critical vulnerability period. Focus on establishing routines and high external accountability.";
+      } else if (currentDays <= 90) {
+        recoveryPhase = "Phase 2: Building Foundation";
+        phaseGuidance = "Habits forming but not yet stable. Watch for overconfidence and reduced meeting attendance.";
+      } else if (currentDays <= 180) {
+        recoveryPhase = "Phase 3: Developing Resilience";
+        phaseGuidance = "Deeper patterns emerge. Family system adjustments may be needed.";
+      } else if (currentDays <= 270) {
+        recoveryPhase = "Phase 4: Strengthening Commitment";
+        phaseGuidance = "Past 'pink cloud' phase. Real challenges surface. Watch for relationship strains.";
+      } else if (currentDays <= 365) {
+        recoveryPhase = "Phase 5: Approaching One-Year Milestone";
+        phaseGuidance = "High motivation but high stakes. Watch for anxiety about milestone and self-sabotage.";
+      } else {
+        recoveryPhase = "Phase 6: Beyond One Year";
+        phaseGuidance = "Maintenance and growth focus. Watch for reduced vigilance and overconfidence.";
+      }
+      
+      const resetInfo = sobrietyResult.data.reset_count > 0 
+        ? ` This is recovery attempt #${sobrietyResult.data.reset_count + 1}.` 
+        : "";
+      
+      sobrietyContext = `
+SOBRIETY JOURNEY STATUS:
+- Current Days Sober: ${currentDays} days
+- Days Until One-Year Goal: ${daysToOneYear > 0 ? daysToOneYear + " days" : "ACHIEVED! Now in maintenance phase"}
+- Progress to One Year: ${Math.min(100, Math.round((currentDays / 365) * 100))}%
+- Current Phase: ${recoveryPhase}
+- Phase Guidance: ${phaseGuidance}${resetInfo}
+
+`;
+    } else {
+      sobrietyContext = `
+SOBRIETY JOURNEY STATUS:
+- No active sobriety journey has been started yet.
+- The recovering member should start their sobriety counter to enable goal tracking.
+
+`;
+    }
+
     // Build context about family values and boundaries
-    let familyContext = "";
+    let familyContext = sobrietyContext;
     if (valuesResult.data && valuesResult.data.length > 0) {
       familyContext += `FAMILY VALUES: ${valuesResult.data.map(v => v.value_key).join(", ")}\n\n`;
     }
@@ -283,14 +419,24 @@ serve(async (req) => {
         clarifying_questions: ["What behaviors or conversations have you noticed recently?"],
         what_to_watch: ["Any changes in routines or responsibilities", "Communication patterns between family members"],
         recommend_professional: false,
+        one_year_goal: {
+          current_days: currentDays,
+          days_remaining: daysToOneYear,
+          progress_percentage: Math.min(100, Math.round((currentDays / 365) * 100)),
+          current_phase: recoveryPhase || "Not started",
+          likelihood_assessment: "insufficient_data",
+          likelihood_factors: [],
+        },
+        predictive_indicators: [],
+        goal_focused_suggestions: ["Start tracking observations to enable predictive analysis"],
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    dataDescription += `\nAnalyze these ${observations.length + autoEvents.length} data points using the risk-escalation framework. Determine the current risk level (0-4) and provide your assessment.`;
+    dataDescription += `\nAnalyze these ${observations.length + autoEvents.length} data points using the risk-escalation framework. Focus on how these patterns affect the likelihood of reaching the ONE-YEAR sobriety goal. Determine the current risk level (0-4) and provide your assessment with predictive indicators.`;
 
-    console.log("Calling Lovable AI for FIIS analysis...");
+    console.log("Calling Lovable AI for FIIS analysis with one-year goal focus...");
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -309,14 +455,14 @@ serve(async (req) => {
             type: "function",
             function: {
               name: "provide_pattern_analysis",
-              description: "Provide structured pattern analysis for the family using the risk-escalation framework",
+              description: "Provide structured pattern analysis for the family using the risk-escalation framework with focus on the one-year sobriety goal",
               parameters: {
                 type: "object",
                 properties: {
                   risk_level: {
                     type: "number",
                     enum: [0, 1, 2, 3, 4],
-                    description: "Current risk level: 0=Stable, 1=Early Drift, 2=Pattern Formation, 3=System Strain, 4=Critical Risk",
+                    description: "Current risk level: 0=Stable/On Track, 1=Early Drift, 2=Pattern Formation, 3=System Strain, 4=Critical Risk",
                   },
                   risk_level_name: {
                     type: "string",
@@ -325,7 +471,7 @@ serve(async (req) => {
                   },
                   what_seeing: {
                     type: "string",
-                    description: "Brief summary of observed patterns using observable facts and neutral language. Start with 'In the last [timeframe]...' or 'Based on the data...'",
+                    description: "Brief summary of observed patterns using observable facts. Start with 'In the last [timeframe]...' and connect to one-year goal impact.",
                   },
                   pattern_signals: {
                     type: "array",
@@ -359,14 +505,61 @@ serve(async (req) => {
                         occurrences: { type: "number", description: "Number of times this pattern has been observed" },
                         confidence: { type: "string", enum: ["emerging", "forming", "clear"] },
                         priority: { type: "string", enum: ["low", "medium", "high", "critical"] },
+                        one_year_impact: { 
+                          type: "string", 
+                          enum: ["supports_goal", "neutral", "threatens_goal"],
+                          description: "How this pattern affects likelihood of reaching one year" 
+                        },
                       },
-                      required: ["signal_type", "description", "occurrences", "confidence", "priority"],
+                      required: ["signal_type", "description", "occurrences", "confidence", "priority", "one_year_impact"],
                     },
                     description: "Pattern signals detected in the data, ordered by priority",
                   },
                   contextual_framing: {
                     type: "string",
-                    description: "Explanation of why these patterns matter and what they suggest for the family system. Use 'this pattern suggests...' language.",
+                    description: "Explanation connecting patterns to the one-year goal. Use 'this pattern suggests...' language.",
+                  },
+                  one_year_likelihood: {
+                    type: "string",
+                    enum: ["very_likely", "likely", "uncertain", "at_risk", "critical_risk"],
+                    description: "Current assessment of likelihood to reach one year based on observed patterns",
+                  },
+                  one_year_likelihood_reasoning: {
+                    type: "string",
+                    description: "Explanation of why this likelihood assessment was made",
+                  },
+                  predictive_indicators: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        indicator_type: { 
+                          type: "string", 
+                          enum: ["positive", "negative", "neutral"],
+                          description: "Whether this indicator increases or decreases one-year likelihood"
+                        },
+                        indicator: { type: "string", description: "The specific indicator observed" },
+                        impact_level: { type: "string", enum: ["minor", "moderate", "significant"] },
+                        recommendation: { type: "string", description: "What to do about this indicator" },
+                      },
+                      required: ["indicator_type", "indicator", "impact_level", "recommendation"],
+                    },
+                    description: "Predictive indicators affecting one-year goal likelihood",
+                  },
+                  goal_focused_suggestions: {
+                    type: "array",
+                    items: { type: "string" },
+                    description: "Specific actionable suggestions to increase likelihood of reaching one year",
+                  },
+                  behaviors_to_reinforce: {
+                    type: "array",
+                    items: { type: "string" },
+                    description: "Positive behaviors observed that should be acknowledged and reinforced",
+                  },
+                  behaviors_to_address: {
+                    type: "array",
+                    items: { type: "string" },
+                    description: "Behaviors that need attention to stay on track to one year",
                   },
                   clarifying_questions: {
                     type: "array",
@@ -376,23 +569,38 @@ serve(async (req) => {
                   what_to_watch: {
                     type: "array",
                     items: { type: "string" },
-                    description: "Specific behaviors to monitor - early warning signs or early improvement indicators",
+                    description: "Specific behaviors to monitor that affect one-year goal - early warning signs or improvement indicators",
                   },
                   recommend_professional: {
                     type: "boolean",
-                    description: "Whether to recommend inviting a professional moderator based on risk level and patterns",
+                    description: "Whether to recommend inviting a professional moderator to protect the one-year goal",
                   },
                   professional_recommendation_reason: {
                     type: "string",
-                    description: "If recommending a professional, explain why in a non-shaming, supportive way. Use the standard framing language.",
+                    description: "If recommending a professional, explain why in terms of protecting the one-year goal.",
                   },
                   positive_reinforcement: {
                     type: "array",
                     items: { type: "string" },
-                    description: "Specific healthy behaviors to acknowledge and reinforce",
+                    description: "Specific healthy behaviors to acknowledge that support reaching one year",
                   },
                 },
-                required: ["risk_level", "risk_level_name", "what_seeing", "pattern_signals", "contextual_framing", "clarifying_questions", "what_to_watch", "recommend_professional"],
+                required: [
+                  "risk_level", 
+                  "risk_level_name", 
+                  "what_seeing", 
+                  "pattern_signals", 
+                  "contextual_framing", 
+                  "one_year_likelihood",
+                  "one_year_likelihood_reasoning",
+                  "predictive_indicators",
+                  "goal_focused_suggestions",
+                  "behaviors_to_reinforce",
+                  "behaviors_to_address",
+                  "clarifying_questions", 
+                  "what_to_watch", 
+                  "recommend_professional"
+                ],
               },
             },
           },
@@ -439,6 +647,12 @@ serve(async (req) => {
           risk_level: 0,
           risk_level_name: "stable",
           contextual_framing: "Analysis provided as text response.",
+          one_year_likelihood: "uncertain",
+          one_year_likelihood_reasoning: "Unable to assess due to parsing limitations.",
+          predictive_indicators: [],
+          goal_focused_suggestions: [],
+          behaviors_to_reinforce: [],
+          behaviors_to_address: [],
           clarifying_questions: [],
           what_to_watch: [],
           recommend_professional: false,
@@ -452,11 +666,27 @@ serve(async (req) => {
         risk_level: 0,
         risk_level_name: "stable",
         contextual_framing: "",
+        one_year_likelihood: "uncertain",
+        one_year_likelihood_reasoning: "",
+        predictive_indicators: [],
+        goal_focused_suggestions: [],
+        behaviors_to_reinforce: [],
+        behaviors_to_address: [],
         clarifying_questions: [],
         what_to_watch: [],
         recommend_professional: false,
       };
     }
+
+    // Add one-year goal context to the response
+    analysis.one_year_goal = {
+      current_days: currentDays,
+      days_remaining: daysToOneYear,
+      progress_percentage: Math.min(100, Math.round((currentDays / 365) * 100)),
+      current_phase: recoveryPhase || "Not started",
+      likelihood_assessment: analysis.one_year_likelihood,
+      likelihood_reasoning: analysis.one_year_likelihood_reasoning,
+    };
 
     // Store the analysis result
     const { error: insertError } = await supabase
@@ -471,6 +701,9 @@ serve(async (req) => {
           risk_level: analysis.risk_level,
           risk_level_name: analysis.risk_level_name,
           recommend_professional: analysis.recommend_professional,
+          one_year_likelihood: analysis.one_year_likelihood,
+          current_sobriety_days: currentDays,
+          recovery_phase: recoveryPhase,
         },
         pattern_signals: analysis.pattern_signals || [],
         what_seeing: analysis.what_seeing,
@@ -528,9 +761,9 @@ function formatEventData(type: string, data: Record<string, unknown>): string {
     case "emotional_bypass":
       return `Bypassed emotional check-in${data.inferred_state ? ` (inferred: ${data.inferred_state})` : ""}`;
     case "sobriety_reset":
-      return `Sobriety counter was reset`;
+      return `Sobriety counter was reset - starting fresh`;
     case "milestone_reached":
-      return `Reached ${data.days} day milestone`;
+      return `Reached ${data.days} day milestone (${data.days === 365 ? "ONE YEAR ACHIEVED!" : `${Math.round((Number(data.days) / 365) * 100)}% to one year`})`;
     default:
       return JSON.stringify(data);
   }
