@@ -42,6 +42,7 @@ import {
   Gauge,
   ArrowRight,
   Zap,
+  Stethoscope,
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { format, formatDistanceToNow } from "date-fns";
@@ -137,6 +138,25 @@ interface TransitionReadiness {
   transition_risks?: string[];
 }
 
+interface ProviderClinicalAlert {
+  alert_category: 
+    | "boundary_consistency"
+    | "help_seeking_latency"
+    | "intervention_pressure"
+    | "accountability_trend"
+    | "engagement_pattern"
+    | "family_alignment"
+    | "communication_quality"
+    | "financial_pattern";
+  metric_description: string;
+  trend_direction: "improving" | "stable" | "declining";
+  percentage_change?: number;
+  time_period?: string;
+  clinical_implication: string;
+  suggested_intervention: string;
+  urgency: "routine_review" | "attention_needed" | "priority_action";
+}
+
 interface PatternAnalysis {
   what_seeing: string;
   pattern_signals: PatternSignal[];
@@ -160,6 +180,8 @@ interface PatternAnalysis {
   risk_trajectory?: RiskTrajectory;
   compliance_trends?: ComplianceTrends;
   transition_readiness?: TransitionReadiness;
+  // Provider-only alerts
+  provider_clinical_alerts?: ProviderClinicalAlert[];
 }
 
 const OBSERVATION_TYPES = [
@@ -1111,6 +1133,102 @@ export function FIISTab({ familyId, members, excludeUserIds = [], onView, isMode
                     </ul>
                   </div>
                 )}
+              </div>
+            )}
+
+            {/* Provider Clinical Alerts - Only visible to moderators */}
+            {isModerator && analysis.provider_clinical_alerts && analysis.provider_clinical_alerts.length > 0 && (
+              <div className="p-4 rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border border-blue-200 dark:border-blue-800">
+                <h4 className="text-sm font-semibold mb-3 flex items-center gap-2 text-blue-800 dark:text-blue-300">
+                  <Stethoscope className="h-4 w-4" />
+                  Clinical Insights
+                  <Badge variant="outline" className="ml-auto text-[10px] border-blue-300 dark:border-blue-700 text-blue-600 dark:text-blue-400">
+                    Provider Only
+                  </Badge>
+                </h4>
+                <p className="text-xs text-blue-600 dark:text-blue-400 mb-3">
+                  Non-alarmist, data-driven observations for clinical adjustment and family coaching.
+                </p>
+                <div className="space-y-3">
+                  {analysis.provider_clinical_alerts.map((alert, i) => (
+                    <div
+                      key={i}
+                      className={`p-3 rounded-lg border bg-background ${
+                        alert.urgency === "priority_action"
+                          ? "border-amber-300 dark:border-amber-700"
+                          : alert.urgency === "attention_needed"
+                          ? "border-blue-300 dark:border-blue-700"
+                          : "border-border"
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <Badge
+                            variant="outline"
+                            className={`text-[10px] capitalize ${
+                              alert.trend_direction === "improving"
+                                ? "border-green-300 text-green-700 dark:border-green-700 dark:text-green-400"
+                                : alert.trend_direction === "declining"
+                                ? "border-red-300 text-red-700 dark:border-red-700 dark:text-red-400"
+                                : "border-muted-foreground/30"
+                            }`}
+                          >
+                            {alert.trend_direction === "improving" && <ArrowUp className="h-2.5 w-2.5 mr-1" />}
+                            {alert.trend_direction === "declining" && <ArrowDown className="h-2.5 w-2.5 mr-1" />}
+                            {alert.trend_direction === "stable" && <Minus className="h-2.5 w-2.5 mr-1" />}
+                            {alert.trend_direction}
+                          </Badge>
+                          <Badge variant="secondary" className="text-[10px] capitalize">
+                            {alert.alert_category.replace(/_/g, " ")}
+                          </Badge>
+                          {alert.time_period && (
+                            <span className="text-[10px] text-muted-foreground">
+                              {alert.time_period}
+                            </span>
+                          )}
+                        </div>
+                        <Badge
+                          variant={
+                            alert.urgency === "priority_action"
+                              ? "destructive"
+                              : alert.urgency === "attention_needed"
+                              ? "default"
+                              : "secondary"
+                          }
+                          className="text-[10px] capitalize shrink-0"
+                        >
+                          {alert.urgency.replace(/_/g, " ")}
+                        </Badge>
+                      </div>
+                      
+                      <p className="text-sm font-medium mb-2">
+                        {alert.metric_description}
+                        {alert.percentage_change !== undefined && (
+                          <span className={`ml-1 ${
+                            alert.percentage_change > 0 
+                              ? "text-green-600 dark:text-green-400" 
+                              : alert.percentage_change < 0 
+                              ? "text-red-600 dark:text-red-400"
+                              : ""
+                          }`}>
+                            ({alert.percentage_change > 0 ? "+" : ""}{alert.percentage_change}%)
+                          </span>
+                        )}
+                      </p>
+                      
+                      <div className="grid gap-2 text-xs">
+                        <div className="p-2 rounded bg-muted/50">
+                          <span className="text-muted-foreground font-medium">Clinical Implication: </span>
+                          <span>{alert.clinical_implication}</span>
+                        </div>
+                        <div className="p-2 rounded bg-blue-50 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900">
+                          <span className="text-blue-700 dark:text-blue-400 font-medium">Suggested Intervention: </span>
+                          <span className="text-blue-600 dark:text-blue-300">{alert.suggested_intervention}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
 

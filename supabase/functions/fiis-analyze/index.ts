@@ -134,6 +134,39 @@ Language Rules:
 
 ---
 
+PROVIDER CLINICAL ALERTS (For Professional Moderators Only):
+
+Generate non-alarmist, data-driven alerts for clinical staff. These alerts should:
+- Be specific and quantified (e.g., "Boundary consistency has dropped 22% over 30 days")
+- Focus on trends over time, not isolated incidents
+- Suggest clinical adjustments without creating alarm
+- Enable proactive intervention before crisis
+
+Alert Categories:
+1. Boundary Consistency - Track adherence to stated boundaries over time
+2. Help-Seeking Latency - Time between challenge emergence and reaching out for support
+3. Intervention Pressure - Rising need for family intervention vs. self-management
+4. Accountability Trend - Direction of self-accountability behaviors
+5. Engagement Pattern - Quality and consistency of participation
+6. Family Alignment - Agreement/disagreement patterns among family members
+7. Communication Quality - Tone, frequency, and openness of communication
+8. Financial Pattern - Alignment of requests with agreements and transparency
+
+Example Alerts (Non-Alarmist Tone):
+- "Boundary consistency has dropped 22% over 30 days"
+- "Help-seeking latency has increased from 2 days to 5 days average"
+- "Family intervention pressure rising while accountability is decreasing"
+- "Meeting attendance showing 15% decline over past 3 weeks"
+- "Financial request patterns suggest increased impulsivity this month"
+
+Clinical Use:
+- Inform coaching conversations
+- Adjust treatment intensity
+- Identify step-up timing
+- Document progress objectively
+
+---
+
 PREDICTIVE INDICATORS:
 
 Positive Indicators (Increase likelihood of reaching one year):
@@ -683,6 +716,60 @@ SOBRIETY JOURNEY STATUS:
                     items: { type: "string" },
                     description: "Specific healthy behaviors to acknowledge that support reaching one year",
                   },
+                  provider_clinical_alerts: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        alert_category: {
+                          type: "string",
+                          enum: [
+                            "boundary_consistency",
+                            "help_seeking_latency",
+                            "intervention_pressure",
+                            "accountability_trend",
+                            "engagement_pattern",
+                            "family_alignment",
+                            "communication_quality",
+                            "financial_pattern"
+                          ],
+                          description: "Category of clinical observation"
+                        },
+                        metric_description: {
+                          type: "string",
+                          description: "Specific, quantified observation. Examples: 'Boundary consistency has dropped 22% over 30 days', 'Help-seeking latency has increased from 2 days to 5 days average'"
+                        },
+                        trend_direction: {
+                          type: "string",
+                          enum: ["improving", "stable", "declining"],
+                          description: "Direction of the trend"
+                        },
+                        percentage_change: {
+                          type: "number",
+                          description: "Percentage change if applicable (positive = improvement, negative = decline)"
+                        },
+                        time_period: {
+                          type: "string",
+                          description: "Time period of observation (e.g., '30 days', '2 weeks', 'since last analysis')"
+                        },
+                        clinical_implication: {
+                          type: "string",
+                          description: "What this means for clinical care without being alarmist"
+                        },
+                        suggested_intervention: {
+                          type: "string",
+                          description: "Suggested clinical adjustment, coaching approach, or step-up consideration"
+                        },
+                        urgency: {
+                          type: "string",
+                          enum: ["routine_review", "attention_needed", "priority_action"],
+                          description: "Level of urgency for provider attention"
+                        }
+                      },
+                      required: ["alert_category", "metric_description", "trend_direction", "clinical_implication", "suggested_intervention", "urgency"]
+                    },
+                    description: "Non-alarmist, data-driven clinical alerts for provider review. Focus on observable metrics and actionable insights for clinical adjustment, family coaching, or step-up before relapse."
+                  },
                 },
                 required: [
                   "risk_level", 
@@ -699,6 +786,7 @@ SOBRIETY JOURNEY STATUS:
                   "risk_trajectory",
                   "compliance_trends",
                   "transition_readiness",
+                  "provider_clinical_alerts",
                   "clarifying_questions", 
                   "what_to_watch", 
                   "recommend_professional"
@@ -755,6 +843,7 @@ SOBRIETY JOURNEY STATUS:
           goal_focused_suggestions: [],
           behaviors_to_reinforce: [],
           behaviors_to_address: [],
+          provider_clinical_alerts: [],
           clarifying_questions: [],
           what_to_watch: [],
           recommend_professional: false,
@@ -774,6 +863,7 @@ SOBRIETY JOURNEY STATUS:
         goal_focused_suggestions: [],
         behaviors_to_reinforce: [],
         behaviors_to_address: [],
+        provider_clinical_alerts: [],
         clarifying_questions: [],
         what_to_watch: [],
         recommend_professional: false,
