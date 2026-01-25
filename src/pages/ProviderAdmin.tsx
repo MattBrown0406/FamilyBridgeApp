@@ -36,10 +36,13 @@ import {
   Trash2,
   Archive,
   HelpCircle,
+  ArrowRightLeft,
 } from 'lucide-react';
 import { ArchivedFamiliesPanel } from '@/components/ArchivedFamiliesPanel';
 import { BroadcastMessage } from '@/components/BroadcastMessage';
 import { ProviderAdminSupport } from '@/components/ProviderAdminSupport';
+import { FamilyHandoffDialog } from '@/components/FamilyHandoffDialog';
+import { ProviderOutcomeReports } from '@/components/ProviderOutcomeReports';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 
 // Helper to convert hex to HSL string
@@ -1623,16 +1626,21 @@ const ProviderAdmin = () => {
                 <TabsContent value="analytics">
                   <Card className="border-primary/20">
                     <CardHeader className="bg-primary/5 rounded-t-lg">
-                      <CardTitle className="text-primary">Analytics Dashboard</CardTitle>
+                      <CardTitle className="text-primary flex items-center gap-2">
+                        <BarChart3 className="h-5 w-5" />
+                        Outcome Reports
+                      </CardTitle>
                       <CardDescription>
-                        Track engagement and usage across your platform
+                        Track client outcomes and provider accountability metrics
                       </CardDescription>
                     </CardHeader>
-                    <CardContent>
-                      <p className="text-muted-foreground text-center py-8">
-                        Analytics dashboard coming soon. You'll see metrics like active families, 
-                        meeting check-ins, messages sent, and more.
-                      </p>
+                    <CardContent className="pt-6">
+                      {selectedOrg && currentOrg && (
+                        <ProviderOutcomeReports
+                          organizationId={selectedOrg}
+                          organizationName={currentOrg.name}
+                        />
+                      )}
                     </CardContent>
                   </Card>
                 </TabsContent>
@@ -1874,6 +1882,25 @@ const ProviderAdmin = () => {
                                       </Button>
                                     </div>
                                   )}
+                                  {/* Handoff Button */}
+                                  <FamilyHandoffDialog
+                                    familyId={family.id}
+                                    familyName={family.name}
+                                    currentOrgId={selectedOrg}
+                                    currentOrgName={currentOrg?.name || ''}
+                                    onSuccess={() => fetchOrgFamilies(selectedOrg)}
+                                    trigger={
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="gap-1"
+                                        title="Handoff to another provider"
+                                      >
+                                        <ArrowRightLeft className="h-4 w-4" />
+                                        Handoff
+                                      </Button>
+                                    }
+                                  />
                                   <Button
                                     variant="outline"
                                     size="sm"
