@@ -28,8 +28,11 @@ const MEETING_TYPES = [
 
 interface LiquorCheckResult {
   hasLiquorLicense: boolean;
+  hasTHCDispensary?: boolean;
+  hasLiquorStore?: boolean;
+  hasBar?: boolean;
   confidence: string;
-  places: Array<{ name: string; type: string; reason: string }>;
+  places: Array<{ name: string; type: string; reason: string; category?: 'bar' | 'liquor_store' | 'thc_dispensary' }>;
 }
 
 interface MeetingCheckinProps {
@@ -255,22 +258,64 @@ export const MeetingCheckin = ({ familyId, onCheckinComplete, capturedLocation }
               )}
 
               {liquorCheck?.hasLiquorLicense && (
-                <div className="flex items-start gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
-                  <AlertTriangle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <p className="text-sm font-medium text-destructive">Liquor License Detected</p>
-                      <Badge variant="destructive" className="text-xs">
-                        {liquorCheck.confidence === 'high' ? 'High Confidence' : 'Possible Match'}
-                      </Badge>
+                <div className="space-y-2">
+                  {/* THC Dispensary Alert */}
+                  {liquorCheck.hasTHCDispensary && (
+                    <div className="flex items-start gap-2 p-3 bg-orange-500/10 border border-orange-500/20 rounded-lg">
+                      <AlertTriangle className="h-5 w-5 text-orange-600 shrink-0 mt-0.5" />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <p className="text-sm font-medium text-orange-600">THC Dispensary Detected</p>
+                          <Badge className="text-xs bg-orange-500/20 text-orange-700 border-orange-500/30">
+                            {liquorCheck.confidence === 'high' ? 'High Confidence' : 'Possible Match'}
+                          </Badge>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Nearby: {liquorCheck.places.filter(p => p.category === 'thc_dispensary').map(p => p.name).join(', ')}
+                        </p>
+                      </div>
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Nearby: {liquorCheck.places.map(p => p.name).join(', ')}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Moderators will be notified of this check-in location.
-                    </p>
-                  </div>
+                  )}
+
+                  {/* Liquor Store Alert */}
+                  {liquorCheck.hasLiquorStore && (
+                    <div className="flex items-start gap-2 p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+                      <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <p className="text-sm font-medium text-amber-600">Liquor Store Detected</p>
+                          <Badge className="text-xs bg-amber-500/20 text-amber-700 border-amber-500/30">
+                            {liquorCheck.confidence === 'high' ? 'High Confidence' : 'Possible Match'}
+                          </Badge>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Nearby: {liquorCheck.places.filter(p => p.category === 'liquor_store').map(p => p.name).join(', ')}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Bar/Club Alert */}
+                  {liquorCheck.hasBar && (
+                    <div className="flex items-start gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
+                      <AlertTriangle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <p className="text-sm font-medium text-destructive">Bar/Club Detected</p>
+                          <Badge variant="destructive" className="text-xs">
+                            {liquorCheck.confidence === 'high' ? 'High Confidence' : 'Possible Match'}
+                          </Badge>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Nearby: {liquorCheck.places.filter(p => p.category === 'bar').map(p => p.name).join(', ')}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  <p className="text-xs text-muted-foreground">
+                    Moderators will be notified of this check-in location.
+                  </p>
                 </div>
               )}
             </div>

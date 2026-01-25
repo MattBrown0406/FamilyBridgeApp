@@ -42,6 +42,61 @@ const LIQUOR_KEYWORDS = [
   'saloon',
 ];
 
+// Keywords for THC/cannabis dispensaries
+const THC_KEYWORDS = [
+  'dispensary',
+  'cannabis',
+  'marijuana',
+  'thc',
+  'weed',
+  'hemp',
+  'cbd',
+  '420',
+  'greenleaf',
+  'green leaf',
+  'medmen',
+  'curaleaf',
+  'trulieve',
+  'surterra',
+  'fluent',
+  'liberty health',
+  'vidacann',
+  'rise',
+  'zen leaf',
+  'the botanist',
+  'harvest',
+  'columbia care',
+  'cresco',
+  'verano',
+  'grassroots',
+  'cookies',
+  'stiiizy',
+  'med men',
+];
+
+// Keywords specifically for liquor stores (retail)
+const LIQUOR_STORE_KEYWORDS = [
+  'liquor store',
+  'wine & spirits',
+  'wine and spirits',
+  'abc store',
+  'package store',
+  'bottle shop',
+  'total wine',
+  'bevmo',
+  'specs',
+  'spec\'s',
+  'binny\'s',
+  'binnys',
+  'wine warehouse',
+  'liquor warehouse',
+  'discount liquor',
+  'liquor mart',
+  'liquor depot',
+  'liquor barn',
+  'spirits',
+];
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -91,44 +146,79 @@ serve(async (req) => {
     }
 
     // Check each place for liquor-related indicators
-    const liquorRelatedPlaces: Array<{ name: string; type: string; reason: string }> = [];
+    const liquorRelatedPlaces: Array<{ name: string; type: string; reason: string; category: 'bar' | 'liquor_store' | 'thc_dispensary' }> = [];
 
     for (const place of data.results || []) {
-      // Check if any of the place types indicate alcohol
-      const matchingType = place.types?.find(type => LIQUOR_RELATED_TYPES.includes(type));
+      const placeName = place.name?.toLowerCase() || '';
+      
+      // Check for THC dispensary first (more specific)
+      const matchingTHCKeyword = THC_KEYWORDS.find(keyword => placeName.includes(keyword.toLowerCase()));
+      if (matchingTHCKeyword) {
+        liquorRelatedPlaces.push({
+          name: place.name,
+          type: 'thc_dispensary',
+          reason: `THC/Cannabis: ${matchingTHCKeyword}`,
+          category: 'thc_dispensary',
+        });
+        continue;
+      }
+      
+      // Check for liquor store (retail)
+      const isLiquorStoreType = place.types?.includes('liquor_store');
+      const matchingLiquorStoreKeyword = LIQUOR_STORE_KEYWORDS.find(keyword => placeName.includes(keyword.toLowerCase()));
+      if (isLiquorStoreType || matchingLiquorStoreKeyword) {
+        liquorRelatedPlaces.push({
+          name: place.name,
+          type: 'liquor_store',
+          reason: isLiquorStoreType ? 'Place type: liquor_store' : `Liquor store: ${matchingLiquorStoreKeyword}`,
+          category: 'liquor_store',
+        });
+        continue;
+      }
+      
+      // Check if any of the place types indicate alcohol venue (bar, club, etc.)
+      const matchingType = place.types?.find(type => LIQUOR_RELATED_TYPES.includes(type) && type !== 'liquor_store');
       if (matchingType) {
         liquorRelatedPlaces.push({
           name: place.name,
           type: matchingType,
           reason: `Place type: ${matchingType}`,
+          category: 'bar',
         });
         continue;
       }
 
-      // Check if the place name contains liquor-related keywords
-      const placeName = place.name?.toLowerCase() || '';
+      // Check if the place name contains liquor-related keywords (bars, etc.)
       const matchingKeyword = LIQUOR_KEYWORDS.find(keyword => placeName.includes(keyword));
       if (matchingKeyword) {
         liquorRelatedPlaces.push({
           name: place.name,
           type: 'keyword_match',
           reason: `Name contains: ${matchingKeyword}`,
+          category: 'bar',
         });
       }
     }
 
     const hasLiquorLicense = liquorRelatedPlaces.length > 0;
-    const confidence = liquorRelatedPlaces.some(p => LIQUOR_RELATED_TYPES.includes(p.type)) 
+    const hasTHCDispensary = liquorRelatedPlaces.some(p => p.category === 'thc_dispensary');
+    const hasLiquorStore = liquorRelatedPlaces.some(p => p.category === 'liquor_store');
+    const hasBar = liquorRelatedPlaces.some(p => p.category === 'bar');
+    
+    const confidence = liquorRelatedPlaces.some(p => LIQUOR_RELATED_TYPES.includes(p.type) || p.category === 'thc_dispensary') 
       ? 'high' 
       : liquorRelatedPlaces.length > 0 
         ? 'medium' 
         : 'none';
 
-    console.log(`Liquor license check result: ${hasLiquorLicense ? 'FOUND' : 'NOT FOUND'}, confidence: ${confidence}`);
+    console.log(`Location check result: ${hasLiquorLicense ? 'FOUND' : 'NOT FOUND'}, confidence: ${confidence}, THC: ${hasTHCDispensary}, Liquor Store: ${hasLiquorStore}, Bar: ${hasBar}`);
 
     return new Response(
       JSON.stringify({
         hasLiquorLicense,
+        hasTHCDispensary,
+        hasLiquorStore,
+        hasBar,
         confidence,
         places: liquorRelatedPlaces,
         totalPlacesChecked: data.results?.length || 0,
