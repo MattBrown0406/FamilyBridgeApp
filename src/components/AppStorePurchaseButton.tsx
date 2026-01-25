@@ -30,7 +30,8 @@ export function AppStorePurchaseButton({
   children,
 }: AppStorePurchaseButtonProps) {
   const [isProcessing, setIsProcessing] = useState(false);
-  const { purchaseProduct, isLoading, isInitialized, error, getProduct } = usePurchases();
+  const [retryCount, setRetryCount] = useState(0);
+  const { purchaseProduct, isLoading, isInitialized, error, getProduct, initialize } = usePurchases();
   const { isIOS, isAndroid, isNative } = usePlatform();
 
   const handlePurchase = async () => {
@@ -44,9 +45,26 @@ export function AppStorePurchaseButton({
       return;
     }
 
+    // If not initialized, try to reinitialize before giving up
     if (!isInitialized) {
-      toast.error("Purchase system is not ready. Please try again.");
-      return;
+      if (retryCount < 2) {
+        toast.info("Connecting to purchase system...");
+        setRetryCount(prev => prev + 1);
+        try {
+          await initialize();
+          // Check again after initialization attempt
+          if (!isInitialized) {
+            toast.error("Unable to connect to purchase system. Please restart the app and try again.");
+            return;
+          }
+        } catch (e) {
+          toast.error("Purchase system unavailable. Please check your internet connection and restart the app.");
+          return;
+        }
+      } else {
+        toast.error("Purchase system is not available. Please restart the app or contact support.");
+        return;
+      }
     }
 
     setIsProcessing(true);
@@ -75,12 +93,23 @@ export function AppStorePurchaseButton({
   const displayPrice = storeProduct?.priceString;
 
   const Icon = platform === "apple" ? AppleLogo : GooglePlayLogo;
-  const buttonText = platform === "apple" 
-    ? `Subscribe with Apple${displayPrice ? ` (${displayPrice})` : ""}` 
-    : `Subscribe with Google Play${displayPrice ? ` (${displayPrice})` : ""}`;
+  
+  // Show initialization status in button text
+  const getButtonText = () => {
+    if (isLoading) return "Loading...";
+    if (!isInitialized && error) return "Retry Connection";
+    if (!isInitialized) return "Connecting...";
+    const priceText = displayPrice ? ` (${displayPrice})` : "";
+    return platform === "apple" 
+      ? `Subscribe with Apple${priceText}` 
+      : `Subscribe with Google Play${priceText}`;
+  };
 
-  // Show appropriate state
-  const isButtonDisabled = disabled || isLoading || isProcessing || !email || !isInitialized;
+  const buttonText = getButtonText();
+
+  // Button is only disabled if we're actively loading/processing, no email, or explicitly disabled
+  // Allow clicks when not initialized so user can trigger retry
+  const isButtonDisabled = disabled || isLoading || isProcessing || !email;
 
   return (
     <Button

@@ -2590,6 +2590,7 @@ const FamilyChat = () => {
             <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
               {/* Family Avatar with upload capability for admins */}
               <div className="relative shrink-0 group/avatar">
+                {/* Hidden file input for gallery selection */}
                 <input
                   ref={avatarInputRef}
                   type="file"
@@ -2598,12 +2599,30 @@ const FamilyChat = () => {
                   className="hidden"
                   id="family-avatar-upload"
                 />
+                {/* Hidden file input with capture attribute for iOS/iPadOS camera - prevents crashes */}
+                <input
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  onChange={handleAvatarUpload}
+                  className="hidden"
+                  id="family-avatar-camera-upload"
+                />
                 <button 
                   className="h-10 w-10 sm:h-12 sm:w-12 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg hover:shadow-xl transition-all overflow-hidden relative"
                   onClick={(e) => {
                     if (isAdminOrModerator) {
                       e.stopPropagation();
-                      avatarInputRef.current?.click();
+                      // On iOS/iPadOS, use the native file picker with capture attribute to avoid crashes
+                      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+                                    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+                      if (isIOS) {
+                        // Use native camera picker which is more reliable on iOS/iPadOS
+                        const cameraInput = document.getElementById('family-avatar-camera-upload') as HTMLInputElement;
+                        cameraInput?.click();
+                      } else {
+                        avatarInputRef.current?.click();
+                      }
                     } else {
                       setMembersSheetOpen(true);
                     }
