@@ -2964,7 +2964,7 @@ const FamilyChat = () => {
                             className="text-xs text-white font-medium"
                             style={
                               organization?.primary_color
-                                ? { background: `linear-gradient(135deg, ${organization.primary_color}, ${organization.primary_color}cc)` }
+                                ? { background: `linear-gradient(135deg, hsl(${organization.primary_color}), hsl(${organization.primary_color} / 0.8))` }
                                 : { background: 'linear-gradient(135deg, hsl(var(--primary) / 0.8), hsl(var(--accent) / 0.8))' }
                             }
                           >
@@ -2992,7 +2992,7 @@ const FamilyChat = () => {
                             style={
                               msg.sender_id === user?.id
                                 ? organization?.primary_color
-                                  ? { background: `linear-gradient(135deg, ${organization.primary_color}, ${organization.primary_color}dd)` }
+                                  ? { background: `linear-gradient(135deg, hsl(${organization.primary_color}), hsl(${organization.primary_color} / 0.85))` }
                                   : { background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary) / 0.9))' }
                                 : undefined
                             }
