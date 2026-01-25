@@ -19,13 +19,13 @@ const now = new Date();
 // ============================================================================
 
 export const JOHNSON_MEMBERS = [
-  { id: '0', name: 'Matt Brown', role: 'moderator', relationship: 'Case Manager', initials: 'MB' },
-  { id: '1', name: 'Sarah Johnson', role: 'admin', relationship: 'Parent', initials: 'SJ' },
+  { id: '0', name: 'Matt Brown', role: 'moderator', relationship: 'Case Manager', initials: 'MB', providerRole: 'case_manager' },
+  { id: '1', name: 'Sarah Johnson', role: 'admin', relationship: 'Parent (Mom)', initials: 'SJ' },
   { 
     id: '2', 
     name: 'Michael Johnson', 
     role: 'recovering', 
-    relationship: 'Recovering', 
+    relationship: 'Person in Recovery', 
     initials: 'MJ',
     paymentInfo: {
       paypal: 'michael.johnson@email.com',
@@ -33,9 +33,10 @@ export const JOHNSON_MEMBERS = [
       cashapp: '$MichaelJohnson125'
     }
   },
-  { id: '3', name: 'David Johnson', role: 'member', relationship: 'Sibling', initials: 'DJ' },
-  { id: '4', name: 'Emily Johnson', role: 'member', relationship: 'Spouse', initials: 'EJ' },
-  { id: '5', name: 'Robert Johnson', role: 'member', relationship: 'Grandparent', initials: 'RJ' },
+  { id: '3', name: 'David Johnson', role: 'member', relationship: 'Brother', initials: 'DJ' },
+  { id: '4', name: 'Emily Johnson', role: 'member', relationship: 'Wife', initials: 'EJ' },
+  { id: '5', name: 'Robert Johnson', role: 'member', relationship: 'Grandfather', initials: 'RJ' },
+  { id: '6', name: 'Dr. Sarah Thompson', role: 'provider', relationship: 'Therapist', initials: 'ST', providerRole: 'therapist' },
 ];
 
 // 10 days of messages for Johnson family (125 days sober - post treatment + sober living)
@@ -346,30 +347,126 @@ export const JOHNSON_FIIS_ANALYSIS = {
     {
       signal_type: 'progress',
       description: 'Michael has maintained 125 consecutive days of sobriety through treatment, sober living, and now independent living. His meeting attendance remains consistent (averaging 4-5 meetings per week). Therapy sessions continue regularly. This stability at the 4-month mark indicates strong foundation for long-term recovery.',
-      confidence: 'very_high'
+      confidence: 'very_high',
+      one_year_impact: 'supports_goal' as const
     },
     {
       signal_type: 'family_unity',
       description: 'All family members have acknowledged and are honoring the established boundaries throughout the entire treatment journey. Financial requests align with agreed-upon guidelines (essential bills only). No evidence of secret communications or boundary violations.',
-      confidence: 'very_high'
+      confidence: 'very_high',
+      one_year_impact: 'supports_goal' as const
     },
     {
       signal_type: 'healthy_communication',
       description: 'Chat messages show supportive, encouraging language without enabling. Family celebrates milestones (30 days, 60 days, 90 days, 120 days) while maintaining realistic expectations. Communication has matured over 4 months.',
-      confidence: 'very_high'
+      confidence: 'very_high',
+      one_year_impact: 'supports_goal' as const
     },
     {
       signal_type: 'accountability_working',
       description: 'Michael has transitioned from structured sober living to independent living while maintaining all accountability practices. Financial requests include proper documentation. The aftercare plan is being followed diligently.',
-      confidence: 'very_high'
+      confidence: 'very_high',
+      one_year_impact: 'supports_goal' as const
     },
     {
       signal_type: 'attention_needed',
       description: 'Family has not logged a support group meeting (Al-Anon, etc.) this week. The family commitment was that ALL members would attend weekly meetings alongside Michael. This is worth addressing.',
-      confidence: 'moderate'
+      confidence: 'moderate',
+      one_year_impact: 'neutral' as const
     },
   ],
   contextual_framing: "Day 125 represents a major achievement. Michael has successfully completed the structured phases of recovery (treatment + sober living) and is now in the aftercare phase. Research shows that individuals who complete this full continuum of care have significantly better outcomes. The Johnson family is a model example of how to support recovery: unified approach, professional support, clear boundaries, and values-driven decisions throughout the journey.",
+  // One-Year Goal Tracking
+  one_year_goal: {
+    current_days: 125,
+    days_remaining: 240,
+    progress_percentage: 34,
+    current_phase: 'Building Resilience',
+    likelihood_assessment: 'very_likely',
+    likelihood_reasoning: 'Strong compliance, family unity, and professional support indicate high probability of achieving the one-year milestone.'
+  },
+  predictive_indicators: [
+    {
+      indicator_type: 'positive' as const,
+      indicator: 'Completed full continuum of care (treatment + sober living)',
+      impact_level: 'significant' as const,
+      recommendation: 'Continue following aftercare plan recommendations'
+    },
+    {
+      indicator_type: 'positive' as const,
+      indicator: 'Professional moderator actively engaged',
+      impact_level: 'significant' as const,
+      recommendation: 'Maintain regular check-ins with care team'
+    },
+    {
+      indicator_type: 'positive' as const,
+      indicator: 'Meeting attendance 4-5x weekly for 125 days',
+      impact_level: 'significant' as const,
+      recommendation: 'Continue current meeting schedule'
+    },
+    {
+      indicator_type: 'neutral' as const,
+      indicator: 'Family support group attendance declined this week',
+      impact_level: 'minor' as const,
+      recommendation: 'Schedule family Al-Anon meeting together'
+    }
+  ],
+  risk_trajectory: {
+    direction: 'improving' as const,
+    trend_description: 'Consistent improvement over 4 months with successful care phase transitions',
+    contributing_factors: ['Strong family support', 'Professional guidance', 'Regular therapy', 'Meeting attendance'],
+    projected_outcome: 'High likelihood of sustained recovery and successful one-year milestone achievement'
+  },
+  compliance_trends: {
+    overall_compliance: 'excellent' as const,
+    meeting_attendance: 'consistent' as const,
+    check_in_reliability: 'reliable' as const,
+    boundary_adherence: 'strong' as const,
+    financial_transparency: 'transparent' as const,
+    trend_direction: 'stable' as const,
+    compliance_notes: 'Michael has maintained exemplary compliance throughout treatment, sober living, and independent living phases.'
+  },
+  transition_readiness: {
+    readiness_level: 'ready' as const,
+    current_phase_mastery: 95,
+    strengths_demonstrated: ['Consistent meeting attendance', 'Financial transparency', 'Open communication', 'Therapy engagement'],
+    areas_needing_development: ['Family support group participation'],
+    recommended_focus: ['Maintain current routines', 'Plan for 6-month celebration'],
+    estimated_readiness_timeline: 'Currently in independent living - transitioned successfully'
+  },
+  // Provider Clinical Alerts (for moderators/admins)
+  provider_clinical_alerts: [
+    {
+      alert_category: 'boundary_consistency' as const,
+      metric_description: 'Family boundary adherence maintained at 100%',
+      trend_direction: 'stable' as const,
+      percentage_change: 0,
+      time_period: '30 days',
+      clinical_implication: 'Strong family unity indicates healthy recovery environment',
+      suggested_intervention: 'Continue current approach; acknowledge family effort',
+      urgency: 'routine_review' as const
+    },
+    {
+      alert_category: 'engagement_pattern' as const,
+      metric_description: 'Family support group attendance dropped from weekly to none',
+      trend_direction: 'declining' as const,
+      percentage_change: -100,
+      time_period: '7 days',
+      clinical_implication: 'Family may be becoming complacent after successful transition',
+      suggested_intervention: 'Remind family of importance of their own recovery work',
+      urgency: 'attention_needed' as const
+    },
+    {
+      alert_category: 'accountability_trend' as const,
+      metric_description: 'Check-in reliability at 98% over past month',
+      trend_direction: 'stable' as const,
+      percentage_change: 2,
+      time_period: '30 days',
+      clinical_implication: 'Strong accountability practices well-established',
+      suggested_intervention: 'Begin discussing graduated independence at 6-month mark',
+      urgency: 'routine_review' as const
+    }
+  ],
   recommendations: [
     {
       title: "Celebrate This Major Transition",
@@ -412,13 +509,13 @@ export const JOHNSON_FIIS_ANALYSIS = {
 // ============================================================================
 
 export const DAVIS_MEMBERS = [
-  { id: '1', name: 'Richard Davis', role: 'admin', relationship: 'Parent (Dad)', initials: 'RD' },
-  { id: '2', name: 'Karen Davis', role: 'member', relationship: 'Parent (Mom)', initials: 'KD' },
+  { id: '1', name: 'Richard Davis', role: 'admin', relationship: 'Dad', initials: 'RD' },
+  { id: '2', name: 'Karen Davis', role: 'member', relationship: 'Mom', initials: 'KD' },
   { 
     id: '3', 
     name: 'Ashley Davis', 
     role: 'recovering', 
-    relationship: 'Recovering (Daughter)', 
+    relationship: 'Person in Recovery', 
     initials: 'AD',
     paymentInfo: {
       paypal: 'ashley.davis@email.com',
@@ -426,8 +523,8 @@ export const DAVIS_MEMBERS = [
       cashapp: '$AshleyDavis22'
     }
   },
-  { id: '4', name: 'Brandon Davis', role: 'member', relationship: 'Sibling (Brother)', initials: 'BD' },
-  { id: '5', name: 'Grandma Rose', role: 'member', relationship: 'Grandparent', initials: 'GR' },
+  { id: '4', name: 'Brandon Davis', role: 'member', relationship: 'Brother', initials: 'BD' },
+  { id: '5', name: 'Grandma Rose', role: 'member', relationship: 'Grandmother', initials: 'GR' },
 ];
 
 // 10 days of messages for Davis family showing dysfunction
@@ -691,30 +788,137 @@ export const DAVIS_FIIS_ANALYSIS = {
     {
       signal_type: 'liquor_license_violation',
       description: 'CRITICAL: Ashley checked into a "meeting" at 456 Oak Ave, which the system identified as The Oak Tavern - a bar with an active liquor license. She checked out after only 15 minutes. This strongly suggests active use, not meeting attendance.',
-      confidence: 'very_high'
+      confidence: 'very_high',
+      one_year_impact: 'threatens_goal' as const
     },
     {
       signal_type: 'escalation',
       description: 'Financial requests increasing in frequency (6 in past month) with increasingly creative justifications. Each denial leads to emotional manipulation attempts.',
-      confidence: 'high'
+      confidence: 'high',
+      one_year_impact: 'threatens_goal' as const
     },
     {
       signal_type: 'enabling',
       description: 'Richard (Dad) has voted to approve 100% of requests despite family consensus to deny. Evidence of $400 given outside the app. Pattern indicates codependency.',
-      confidence: 'very_high'
+      confidence: 'very_high',
+      one_year_impact: 'threatens_goal' as const
     },
     {
       signal_type: 'manipulation',
       description: 'Ashley uses guilt ("I haven\'t eaten"), victimhood ("everyone is against me"), and triangulation (going to Dad privately) to circumvent boundaries.',
-      confidence: 'high'
+      confidence: 'high',
+      one_year_impact: 'threatens_goal' as const
     },
     {
       signal_type: 'regression',
       description: 'No legitimate meeting attendance in 3 weeks. Therapy sessions missed. The only "check-in" was at a bar. Recovery trajectory is severely negative.',
-      confidence: 'very_high'
+      confidence: 'very_high',
+      one_year_impact: 'threatens_goal' as const
     },
   ],
   contextual_framing: "This family is at a critical juncture. The enabling pattern from Richard is preventing the natural consequences that often motivate change. The recent liquor license warning is a serious red flag that should not be ignored. Without unified family action, Ashley has no incentive to engage in recovery.",
+  // One-Year Goal Tracking
+  one_year_goal: {
+    current_days: 3,
+    days_remaining: 362,
+    progress_percentage: 1,
+    current_phase: 'Pre-Recovery Crisis',
+    likelihood_assessment: 'at_risk',
+    likelihood_reasoning: 'Multiple critical indicators suggest active use. Without intervention, one-year goal is not achievable on current trajectory.'
+  },
+  predictive_indicators: [
+    {
+      indicator_type: 'negative' as const,
+      indicator: 'Fake meeting check-in at bar location',
+      impact_level: 'significant' as const,
+      recommendation: 'Address liquor license violation immediately with family'
+    },
+    {
+      indicator_type: 'negative' as const,
+      indicator: 'Family member (Richard) actively enabling outside app',
+      impact_level: 'significant' as const,
+      recommendation: 'Richard must attend Al-Anon and commit to unified approach'
+    },
+    {
+      indicator_type: 'negative' as const,
+      indicator: 'No legitimate meeting attendance in 3 weeks',
+      impact_level: 'significant' as const,
+      recommendation: 'Higher level of care likely needed'
+    },
+    {
+      indicator_type: 'negative' as const,
+      indicator: 'Escalating manipulation patterns',
+      impact_level: 'moderate' as const,
+      recommendation: 'Consider professional intervention'
+    }
+  ],
+  risk_trajectory: {
+    direction: 'declining' as const,
+    trend_description: 'Rapid decline over past 3 weeks with evidence of active use',
+    contributing_factors: ['Enabling parent', 'Fake check-ins', 'Boundary violations', 'No professional support'],
+    projected_outcome: 'Without intervention, likely escalation to health or legal crisis'
+  },
+  compliance_trends: {
+    overall_compliance: 'critical' as const,
+    meeting_attendance: 'absent' as const,
+    check_in_reliability: 'unreliable' as const,
+    boundary_adherence: 'none' as const,
+    financial_transparency: 'opaque' as const,
+    trend_direction: 'declining' as const,
+    compliance_notes: 'Ashley has not demonstrated genuine recovery engagement in 3 weeks. Check-ins are falsified.'
+  },
+  transition_readiness: {
+    readiness_level: 'not_ready' as const,
+    current_phase_mastery: 5,
+    strengths_demonstrated: [],
+    areas_needing_development: ['Honest engagement', 'Meeting attendance', 'Financial transparency', 'Accepting accountability'],
+    recommended_focus: ['Professional intervention', 'Higher level of care evaluation', 'Family unification'],
+    estimated_readiness_timeline: 'Not applicable until genuine recovery engagement begins',
+    transition_risks: ['Active use', 'Enabling system', 'No professional support']
+  },
+  // Provider Clinical Alerts
+  provider_clinical_alerts: [
+    {
+      alert_category: 'boundary_consistency' as const,
+      metric_description: 'Boundary adherence dropped to 25% (1 of 4 family members compliant)',
+      trend_direction: 'declining' as const,
+      percentage_change: -75,
+      time_period: '30 days',
+      clinical_implication: 'Fractured family system is enabling continued use',
+      suggested_intervention: 'Family intervention to address enabling; may need professional interventionist',
+      urgency: 'priority_action' as const
+    },
+    {
+      alert_category: 'help_seeking_latency' as const,
+      metric_description: 'No genuine help-seeking behavior observed in 21 days',
+      trend_direction: 'declining' as const,
+      percentage_change: -100,
+      time_period: '21 days',
+      clinical_implication: 'Individual is not in recovery mode; likely in active use',
+      suggested_intervention: 'Evaluate for higher level of care; potential crisis intervention needed',
+      urgency: 'priority_action' as const
+    },
+    {
+      alert_category: 'intervention_pressure' as const,
+      metric_description: 'Family conflict increasing as enabling continues',
+      trend_direction: 'declining' as const,
+      percentage_change: 40,
+      time_period: '14 days',
+      clinical_implication: 'Family system is fracturing; Richard vs rest of family',
+      suggested_intervention: 'Unified family meeting with professional facilitator',
+      urgency: 'priority_action' as const
+    },
+    {
+      alert_category: 'accountability_trend' as const,
+      metric_description: 'Check-in reliability at 0% (fake check-ins detected)',
+      trend_direction: 'declining' as const,
+      percentage_change: -100,
+      time_period: '21 days',
+      clinical_implication: 'Complete lack of accountability; active deception',
+      suggested_intervention: 'Address fake check-in directly; consider supervised living',
+      urgency: 'priority_action' as const
+    }
+  ],
   recommendations: [
     {
       title: "Address the Bar Incident Directly",
@@ -872,3 +1076,53 @@ export const JOHNSON_AFTERCARE_PLAN = {
 
 // Davis family has no aftercare plan (showing empty state)
 export const DAVIS_AFTERCARE_PLAN = null;
+
+// ============================================================================
+// CARE PHASES - Tracking treatment progression
+// ============================================================================
+
+export const JOHNSON_CARE_PHASES = [
+  {
+    id: 'phase-1',
+    phase_type: 'detox',
+    facility_name: 'Serenity Springs Detox Center',
+    started_at: format(subDays(now, 130), 'yyyy-MM-dd'),
+    ended_at: format(subDays(now, 125), 'yyyy-MM-dd'),
+    is_current: false,
+    notes: 'Medical detox completed successfully. No complications.',
+    days_in_phase: 5
+  },
+  {
+    id: 'phase-2',
+    phase_type: 'treatment',
+    facility_name: 'Serenity Springs Treatment Center',
+    started_at: format(subDays(now, 125), 'yyyy-MM-dd'),
+    ended_at: format(subDays(now, 97), 'yyyy-MM-dd'),
+    is_current: false,
+    notes: 'Completed 28-day inpatient program. Engaged well in group therapy and individual sessions.',
+    days_in_phase: 28
+  },
+  {
+    id: 'phase-3',
+    phase_type: 'sober_living',
+    facility_name: 'New Beginnings Sober Living',
+    started_at: format(subDays(now, 97), 'yyyy-MM-dd'),
+    ended_at: format(subDays(now, 7), 'yyyy-MM-dd'),
+    is_current: false,
+    notes: 'Excellent progress in structured environment. Built strong foundation for independent living.',
+    days_in_phase: 90
+  },
+  {
+    id: 'phase-4',
+    phase_type: 'independent',
+    facility_name: null,
+    started_at: format(subDays(now, 7), 'yyyy-MM-dd'),
+    ended_at: null,
+    is_current: true,
+    notes: 'Transitioned to independent living. Following aftercare plan with continued meeting attendance and therapy.',
+    days_in_phase: 7
+  }
+];
+
+// Davis family has no care phases - not in structured treatment
+export const DAVIS_CARE_PHASES: typeof JOHNSON_CARE_PHASES = [];

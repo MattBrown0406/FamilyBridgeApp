@@ -96,6 +96,8 @@ import {
   JOHNSON_SOBRIETY,
   JOHNSON_EMOTIONAL_CHECKINS,
   JOHNSON_FIIS_ANALYSIS,
+  JOHNSON_AFTERCARE_PLAN,
+  JOHNSON_CARE_PHASES,
   DAVIS_MEMBERS,
   DAVIS_MESSAGES,
   DAVIS_FINANCIAL_REQUESTS,
@@ -107,8 +109,8 @@ import {
   DAVIS_EMOTIONAL_CHECKINS,
   DAVIS_LIQUOR_LICENSE_WARNINGS,
   DAVIS_FIIS_ANALYSIS,
-  JOHNSON_AFTERCARE_PLAN,
   DAVIS_AFTERCARE_PLAN,
+  DAVIS_CARE_PHASES,
 } from '@/data/demoFamilyData';
 
 interface DemoBranding {
@@ -150,6 +152,7 @@ const DemoFamily = () => {
     emotionalCheckins: JOHNSON_EMOTIONAL_CHECKINS,
     liquorLicenseWarnings: [] as typeof DAVIS_LIQUOR_LICENSE_WARNINGS,
     aftercarePlan: JOHNSON_AFTERCARE_PLAN,
+    carePhases: JOHNSON_CARE_PHASES,
   } : {
     name: 'The Davis Family',
     description: 'Private Family • Crisis Mode',
@@ -166,6 +169,7 @@ const DemoFamily = () => {
     emotionalCheckins: DAVIS_EMOTIONAL_CHECKINS,
     liquorLicenseWarnings: DAVIS_LIQUOR_LICENSE_WARNINGS,
     aftercarePlan: DAVIS_AFTERCARE_PLAN,
+    carePhases: DAVIS_CARE_PHASES,
   };
   
   const [messages, setMessages] = useState(currentFamily.messages);
