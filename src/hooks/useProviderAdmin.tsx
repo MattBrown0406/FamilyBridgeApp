@@ -66,10 +66,10 @@ export const useProviderAdmin = () => {
         return;
       }
 
-      // Get the organizations
+      // Get the organizations - use the member view which masks sensitive contact info for non-admins
       const orgIds = memberships.map(m => m.organization_id);
       const { data: orgs, error: orgError } = await supabase
-        .from('organizations')
+        .from('organizations_member_view')
         .select('*')
         .in('id', orgIds);
 
