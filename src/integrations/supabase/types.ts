@@ -2238,6 +2238,90 @@ export type Database = {
           },
         ]
       }
+      provider_conversation_participants: {
+        Row: {
+          conversation_id: string
+          id: string
+          joined_at: string
+          user_id: string
+        }
+        Insert: {
+          conversation_id: string
+          id?: string
+          joined_at?: string
+          user_id: string
+        }
+        Update: {
+          conversation_id?: string
+          id?: string
+          joined_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_conversation_participants_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "provider_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      provider_conversations: {
+        Row: {
+          created_at: string
+          created_by: string
+          family_id: string | null
+          id: string
+          is_direct_message: boolean
+          name: string | null
+          organization_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          family_id?: string | null
+          id?: string
+          is_direct_message?: boolean
+          name?: string | null
+          organization_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          family_id?: string | null
+          id?: string
+          is_direct_message?: boolean
+          name?: string | null
+          organization_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_conversations_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provider_conversations_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provider_conversations_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations_member_view"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       provider_handoffs: {
         Row: {
           accepted_at: string | null
@@ -2337,6 +2421,108 @@ export type Database = {
             columns: ["transition_summary_id"]
             isOneToOne: false
             referencedRelation: "transition_summaries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      provider_messages: {
+        Row: {
+          content: string
+          conversation_id: string
+          created_at: string
+          id: string
+          sender_id: string
+        }
+        Insert: {
+          content: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          sender_id: string
+        }
+        Update: {
+          content?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "provider_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      provider_notes: {
+        Row: {
+          author_id: string
+          confidence_level: Database["public"]["Enums"]["provider_note_confidence"]
+          content: string
+          created_at: string
+          family_id: string | null
+          id: string
+          include_in_ai_analysis: boolean
+          note_type: Database["public"]["Enums"]["provider_note_type"]
+          organization_id: string
+          time_horizon: Database["public"]["Enums"]["provider_note_horizon"]
+          title: string
+          updated_at: string
+          visibility: Database["public"]["Enums"]["provider_note_visibility"]
+        }
+        Insert: {
+          author_id: string
+          confidence_level?: Database["public"]["Enums"]["provider_note_confidence"]
+          content: string
+          created_at?: string
+          family_id?: string | null
+          id?: string
+          include_in_ai_analysis?: boolean
+          note_type?: Database["public"]["Enums"]["provider_note_type"]
+          organization_id: string
+          time_horizon?: Database["public"]["Enums"]["provider_note_horizon"]
+          title: string
+          updated_at?: string
+          visibility?: Database["public"]["Enums"]["provider_note_visibility"]
+        }
+        Update: {
+          author_id?: string
+          confidence_level?: Database["public"]["Enums"]["provider_note_confidence"]
+          content?: string
+          created_at?: string
+          family_id?: string | null
+          id?: string
+          include_in_ai_analysis?: boolean
+          note_type?: Database["public"]["Enums"]["provider_note_type"]
+          organization_id?: string
+          time_horizon?: Database["public"]["Enums"]["provider_note_horizon"]
+          title?: string
+          updated_at?: string
+          visibility?: Database["public"]["Enums"]["provider_note_visibility"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_notes_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provider_notes_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provider_notes_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations_member_view"
             referencedColumns: ["id"]
           },
         ]
@@ -3345,6 +3531,10 @@ export type Database = {
         Args: { _family_id: string; _user_id: string }
         Returns: boolean
       }
+      is_provider_conversation_participant: {
+        Args: { _conversation_id: string; _user_id: string }
+        Returns: boolean
+      }
       is_super_admin: { Args: { _user_id: string }; Returns: boolean }
       request_has_no_votes: { Args: { _request_id: string }; Returns: boolean }
       shares_family_with: {
@@ -3411,6 +3601,10 @@ export type Database = {
         | "Friendly Gathering"
         | "Group Event"
         | "Family Event"
+      provider_note_confidence: "low" | "moderate" | "high"
+      provider_note_horizon: "immediate" | "emerging" | "longitudinal"
+      provider_note_type: "observation" | "concern" | "hypothesis" | "action"
+      provider_note_visibility: "internal_only" | "shareable_summary"
       provider_role: "owner" | "admin" | "staff"
       relationship_type:
         | "recovering"
@@ -3605,6 +3799,10 @@ export const Constants = {
         "Group Event",
         "Family Event",
       ],
+      provider_note_confidence: ["low", "moderate", "high"],
+      provider_note_horizon: ["immediate", "emerging", "longitudinal"],
+      provider_note_type: ["observation", "concern", "hypothesis", "action"],
+      provider_note_visibility: ["internal_only", "shareable_summary"],
       provider_role: ["owner", "admin", "staff"],
       relationship_type: [
         "recovering",

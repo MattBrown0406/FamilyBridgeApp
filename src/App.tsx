@@ -15,6 +15,7 @@ import EnablingExercise from "./pages/EnablingExercise";
 import Subscription from "./pages/Subscription";
 import ProviderAdmin from "./pages/ProviderAdmin";
 import ProviderPurchase from "./pages/ProviderPurchase";
+import ProviderWorkspace from "./pages/ProviderWorkspace";
 import FamilyPurchase from "./pages/FamilyPurchase";
 import FamilySetup from "./pages/FamilySetup";
 import ModeratorPurchase from "./pages/ModeratorPurchase";
@@ -50,6 +51,7 @@ const App = () => (
               <Route path="/enabling-exercise" element={<EnablingExercise />} />
               <Route path="/subscription" element={<Subscription />} />
               <Route path="/provider-admin" element={<ProviderAdmin />} />
+              <Route path="/provider-workspace" element={<ProviderWorkspace />} />
               <Route path="/provider-purchase" element={<ProviderPurchase />} />
               <Route path="/family-purchase" element={<FamilyPurchase />} />
               <Route path="/family-setup" element={<FamilySetup />} />
