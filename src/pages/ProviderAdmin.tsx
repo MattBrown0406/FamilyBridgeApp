@@ -37,12 +37,15 @@ import {
   Archive,
   HelpCircle,
   ArrowRightLeft,
+  FileText,
 } from 'lucide-react';
 import { ArchivedFamiliesPanel } from '@/components/ArchivedFamiliesPanel';
 import { BroadcastMessage } from '@/components/BroadcastMessage';
 import { ProviderAdminSupport } from '@/components/ProviderAdminSupport';
 import { FamilyHandoffDialog } from '@/components/FamilyHandoffDialog';
 import { ProviderOutcomeReports } from '@/components/ProviderOutcomeReports';
+import { ProviderNotesPanel } from '@/components/ProviderNotesPanel';
+import { ProviderMessaging } from '@/components/ProviderMessaging';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 
 // Helper to convert hex to HSL string
@@ -1244,6 +1247,10 @@ const ProviderAdmin = () => {
                     <Archive className="h-4 w-4" />
                     <span className="hidden sm:inline text-xs">Archived</span>
                   </TabsTrigger>
+                  <TabsTrigger value="teamnotes" className="flex-1 min-w-[60px] flex items-center justify-center gap-1 px-2 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                    <FileText className="h-4 w-4" />
+                    <span className="hidden sm:inline text-xs">Team Notes</span>
+                  </TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="branding" className="space-y-6">
@@ -1927,6 +1934,48 @@ const ProviderAdmin = () => {
                       if (selectedOrg) fetchOrgFamilies(selectedOrg);
                     }} 
                   />
+                </TabsContent>
+
+                <TabsContent value="teamnotes" className="space-y-6">
+                  <Card className="border-primary/20">
+                    <CardHeader className="bg-primary/5 rounded-t-lg">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <CardTitle className="text-lg text-primary flex items-center gap-2">
+                            <FileText className="h-5 w-5" />
+                            Team Notes & Messaging
+                          </CardTitle>
+                          <CardDescription>
+                            Private clinical notes and team conversations - not visible to families
+                          </CardDescription>
+                        </div>
+                        <Button variant="outline" onClick={() => navigate('/provider-workspace')}>
+                          Open Full Workspace
+                        </Button>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                      <div className="space-y-4">
+                        <h4 className="font-medium">Clinical Notes</h4>
+                        <ProviderNotesPanel 
+                          organizationId={selectedOrg}
+                          families={orgFamilies.map(f => ({ id: f.id, name: f.name }))}
+                        />
+                      </div>
+                      <div className="border-t pt-6">
+                        <h4 className="font-medium mb-4">Team Messaging</h4>
+                        <ProviderMessaging 
+                          organizationId={selectedOrg}
+                          orgMembers={orgModerators.map(m => ({
+                            user_id: m.user_id,
+                            full_name: m.profiles?.full_name || 'Unknown',
+                            avatar_url: m.profiles?.avatar_url,
+                            role: m.role,
+                          }))}
+                        />
+                      </div>
+                    </CardContent>
+                  </Card>
                 </TabsContent>
               </Tabs>
             ) : (
