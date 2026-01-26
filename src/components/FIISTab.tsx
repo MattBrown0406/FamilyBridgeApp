@@ -46,6 +46,7 @@ import {
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { format, formatDistanceToNow } from "date-fns";
+import { RecoveryTrajectoryPanel } from "@/components/RecoveryTrajectoryPanel";
 
 interface FIISTabProps {
   familyId: string;
@@ -690,6 +691,26 @@ export function FIISTab({ familyId, members, excludeUserIds = [], onView, isMode
           )}
         </CardContent>
       </Card>
+
+      {/* Recovery Trajectory Panel */}
+      {(observations.length > 0 || autoEvents.length > 0) && (
+        <RecoveryTrajectoryPanel 
+          data={{
+            observations: observations.map(o => ({
+              occurred_at: o.occurred_at,
+              observation_type: o.observation_type,
+            })),
+            autoEvents: autoEvents.map(e => ({
+              occurred_at: e.occurred_at,
+              event_type: e.event_type,
+              event_data: e.event_data,
+            })),
+            riskTrajectory: analysis?.risk_trajectory,
+          }}
+          analysisRiskLevel={analysis?.risk_level}
+          analysisRiskLevelName={analysis?.risk_level_name}
+        />
+      )}
 
       {/* New Observation Form */}
       {showForm && (
