@@ -503,6 +503,114 @@ export const JOHNSON_FIIS_ANALYSIS = {
   ]
 };
 
+// Johnson family FIIS observations for Recovery Trajectory Panel
+export const JOHNSON_FIIS_OBSERVATIONS = [
+  {
+    id: 'obs-j1',
+    user_id: '2',
+    observation_type: 'calm_period',
+    content: 'Family dinner went smoothly. Michael shared about his progress in therapy. Everyone was supportive.',
+    occurred_at: format(subDays(now, 8), 'yyyy-MM-dd\'T\'HH:mm:ss'),
+    created_at: format(subDays(now, 8), 'yyyy-MM-dd\'T\'HH:mm:ss'),
+    user_name: 'Sarah Johnson'
+  },
+  {
+    id: 'obs-j2',
+    user_id: '2',
+    observation_type: 'boundary',
+    content: 'Michael respected the boundary about checking in before going to new locations. No issues.',
+    occurred_at: format(subDays(now, 6), 'yyyy-MM-dd\'T\'HH:mm:ss'),
+    created_at: format(subDays(now, 6), 'yyyy-MM-dd\'T\'HH:mm:ss'),
+    user_name: 'David Johnson'
+  },
+  {
+    id: 'obs-j3',
+    user_id: '2',
+    observation_type: 'decision',
+    content: 'Michael made a healthy decision to skip a party where there would be drinking. Called his sponsor instead.',
+    occurred_at: format(subDays(now, 4), 'yyyy-MM-dd\'T\'HH:mm:ss'),
+    created_at: format(subDays(now, 4), 'yyyy-MM-dd\'T\'HH:mm:ss'),
+    user_name: 'Emily Johnson'
+  },
+  {
+    id: 'obs-j4',
+    user_id: '2',
+    observation_type: 'calm_period',
+    content: 'Great week overall. Michael has been consistent with meetings and therapy.',
+    occurred_at: format(subDays(now, 2), 'yyyy-MM-dd\'T\'HH:mm:ss'),
+    created_at: format(subDays(now, 2), 'yyyy-MM-dd\'T\'HH:mm:ss'),
+    user_name: 'Matt Brown'
+  },
+];
+
+// Johnson family auto events for Recovery Trajectory Panel
+export const JOHNSON_FIIS_AUTO_EVENTS = [
+  {
+    id: 'event-j1',
+    user_id: '2',
+    event_type: 'meeting_checkin',
+    event_data: { meeting_type: 'AA', meeting_name: 'Morning Serenity Group' },
+    occurred_at: format(subDays(now, 9), 'yyyy-MM-dd\'T\'HH:mm:ss'),
+    user_name: 'Michael Johnson'
+  },
+  {
+    id: 'event-j2',
+    user_id: '2',
+    event_type: 'meeting_checkout',
+    event_data: { meeting_type: 'AA', meeting_name: 'Morning Serenity Group', duration_minutes: 75 },
+    occurred_at: format(subDays(now, 9), 'yyyy-MM-dd\'T\'HH:mm:ss'),
+    user_name: 'Michael Johnson'
+  },
+  {
+    id: 'event-j3',
+    user_id: '2',
+    event_type: 'meeting_checkin',
+    event_data: { meeting_type: 'Therapy', meeting_name: 'Individual Session' },
+    occurred_at: format(subDays(now, 6), 'yyyy-MM-dd\'T\'HH:mm:ss'),
+    user_name: 'Michael Johnson'
+  },
+  {
+    id: 'event-j4',
+    user_id: '2',
+    event_type: 'meeting_checkout',
+    event_data: { meeting_type: 'Therapy', meeting_name: 'Individual Session', duration_minutes: 58 },
+    occurred_at: format(subDays(now, 6), 'yyyy-MM-dd\'T\'HH:mm:ss'),
+    user_name: 'Michael Johnson'
+  },
+  {
+    id: 'event-j5',
+    user_id: '2',
+    event_type: 'meeting_checkin',
+    event_data: { meeting_type: 'AA', meeting_name: 'Evening Serenity Group' },
+    occurred_at: format(subDays(now, 5), 'yyyy-MM-dd\'T\'HH:mm:ss'),
+    user_name: 'Michael Johnson'
+  },
+  {
+    id: 'event-j6',
+    user_id: '2',
+    event_type: 'meeting_checkout',
+    event_data: { meeting_type: 'AA', meeting_name: 'Evening Serenity Group', duration_minutes: 80 },
+    occurred_at: format(subDays(now, 5), 'yyyy-MM-dd\'T\'HH:mm:ss'),
+    user_name: 'Michael Johnson'
+  },
+  {
+    id: 'event-j7',
+    user_id: '2',
+    event_type: 'financial_approved',
+    event_data: { amount: 147.23, reason: 'Electric bill' },
+    occurred_at: format(subDays(now, 1), 'yyyy-MM-dd\'T\'HH:mm:ss'),
+    user_name: 'Michael Johnson'
+  },
+  {
+    id: 'event-j8',
+    user_id: '2',
+    event_type: 'meeting_checkin',
+    event_data: { meeting_type: 'AA', meeting_name: 'Morning Serenity Group' },
+    occurred_at: format(subHours(now, 2), 'yyyy-MM-dd\'T\'HH:mm:ss'),
+    user_name: 'Michael Johnson'
+  },
+];
+
 
 // ============================================================================
 // DAVIS FAMILY - Active Addiction Crisis (3 days since last meeting)
@@ -985,6 +1093,98 @@ export const DAVIS_FIIS_ANALYSIS = {
     { area: 'FIIS Alerts Working', detail: 'Liquor license detection caught the bar check-in' }
   ]
 };
+
+// Davis family FIIS observations for Recovery Trajectory Panel
+export const DAVIS_FIIS_OBSERVATIONS = [
+  {
+    id: 'obs-d1',
+    user_id: '3',
+    observation_type: 'concern',
+    content: 'Ashley missed therapy again. Third time this month. Making excuses about phone chargers.',
+    occurred_at: format(subDays(now, 10), 'yyyy-MM-dd\'T\'HH:mm:ss'),
+    created_at: format(subDays(now, 10), 'yyyy-MM-dd\'T\'HH:mm:ss'),
+    user_name: 'Karen Davis'
+  },
+  {
+    id: 'obs-d2',
+    user_id: '3',
+    observation_type: 'boundary_failure',
+    content: 'Richard gave Ashley $400 outside the app despite family agreement.',
+    occurred_at: format(subDays(now, 7), 'yyyy-MM-dd\'T\'HH:mm:ss'),
+    created_at: format(subDays(now, 7), 'yyyy-MM-dd\'T\'HH:mm:ss'),
+    user_name: 'Brandon Davis'
+  },
+  {
+    id: 'obs-d3',
+    user_id: '3',
+    observation_type: 'concern',
+    content: 'Ashley checked into what she claimed was an NA meeting but location was The Oak Tavern.',
+    occurred_at: format(subDays(now, 5), 'yyyy-MM-dd\'T\'HH:mm:ss'),
+    created_at: format(subDays(now, 5), 'yyyy-MM-dd\'T\'HH:mm:ss'),
+    user_name: 'Brandon Davis'
+  },
+  {
+    id: 'obs-d4',
+    user_id: '3',
+    observation_type: 'consequence',
+    content: 'Family confronted Ashley about bar check-in. She became defensive and blamed everyone.',
+    occurred_at: format(subDays(now, 4), 'yyyy-MM-dd\'T\'HH:mm:ss'),
+    created_at: format(subDays(now, 4), 'yyyy-MM-dd\'T\'HH:mm:ss'),
+    user_name: 'Grandma Rose'
+  },
+];
+
+// Davis family auto events for Recovery Trajectory Panel
+export const DAVIS_FIIS_AUTO_EVENTS = [
+  {
+    id: 'event-d1',
+    user_id: '3',
+    event_type: 'financial_rejected',
+    event_data: { amount: 300, reason: 'Pay back friend' },
+    occurred_at: format(subDays(now, 9), 'yyyy-MM-dd\'T\'HH:mm:ss'),
+    user_name: 'Ashley Davis'
+  },
+  {
+    id: 'event-d2',
+    user_id: '3',
+    event_type: 'meeting_checkin',
+    event_data: { meeting_type: 'NA', meeting_name: 'Evening Hope Group' },
+    occurred_at: format(subDays(now, 5), 'yyyy-MM-dd\'T\'HH:mm:ss'),
+    user_name: 'Ashley Davis'
+  },
+  {
+    id: 'event-d3',
+    user_id: '3',
+    event_type: 'overdue_checkout',
+    event_data: { meeting_type: 'NA', meeting_name: 'Evening Hope Group', location: 'The Oak Tavern' },
+    occurred_at: format(subDays(now, 5), 'yyyy-MM-dd\'T\'HH:mm:ss'),
+    user_name: 'Ashley Davis'
+  },
+  {
+    id: 'event-d4',
+    user_id: '3',
+    event_type: 'financial_rejected',
+    event_data: { amount: 85, reason: 'Gas for friend car' },
+    occurred_at: format(subDays(now, 7), 'yyyy-MM-dd\'T\'HH:mm:ss'),
+    user_name: 'Ashley Davis'
+  },
+  {
+    id: 'event-d5',
+    user_id: '3',
+    event_type: 'boundary_violation',
+    event_data: { description: 'Father gave money outside app' },
+    occurred_at: format(subDays(now, 7), 'yyyy-MM-dd\'T\'HH:mm:ss'),
+    user_name: 'Richard Davis'
+  },
+  {
+    id: 'event-d6',
+    user_id: '3',
+    event_type: 'location_declined',
+    event_data: { reason: 'Did not respond to location request' },
+    occurred_at: format(subDays(now, 3), 'yyyy-MM-dd\'T\'HH:mm:ss'),
+    user_name: 'Ashley Davis'
+  },
+];
 
 // ============================================================================
 // AFTERCARE PLANS
