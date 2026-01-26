@@ -332,6 +332,13 @@ export type Database = {
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "broadcast_messages_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations_member_view"
+            referencedColumns: ["id"]
+          },
         ]
       }
       care_phases: {
@@ -393,6 +400,13 @@ export type Database = {
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "care_phases_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations_member_view"
             referencedColumns: ["id"]
           },
         ]
@@ -603,6 +617,13 @@ export type Database = {
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "families_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations_member_view"
             referencedColumns: ["id"]
           },
         ]
@@ -1657,6 +1678,13 @@ export type Database = {
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "organization_members_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations_member_view"
+            referencedColumns: ["id"]
+          },
         ]
       }
       organizations: {
@@ -2201,6 +2229,13 @@ export type Database = {
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "provider_admin_requests_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations_member_view"
+            referencedColumns: ["id"]
+          },
         ]
       }
       provider_handoffs: {
@@ -2277,10 +2312,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "provider_handoffs_from_organization_id_fkey"
+            columns: ["from_organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations_member_view"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "provider_handoffs_to_organization_id_fkey"
             columns: ["to_organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provider_handoffs_to_organization_id_fkey"
+            columns: ["to_organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations_member_view"
             referencedColumns: ["id"]
           },
           {
@@ -2342,6 +2391,13 @@ export type Database = {
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provider_sobriety_visibility_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations_member_view"
             referencedColumns: ["id"]
           },
         ]
@@ -2642,10 +2698,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "transition_summaries_from_organization_id_fkey"
+            columns: ["from_organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations_member_view"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "transition_summaries_to_organization_id_fkey"
             columns: ["to_organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transition_summaries_to_organization_id_fkey"
+            columns: ["to_organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations_member_view"
             referencedColumns: ["id"]
           },
         ]
@@ -2944,6 +3014,75 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      organizations_member_view: {
+        Row: {
+          accent_color: string | null
+          background_color: string | null
+          body_font: string | null
+          created_at: string | null
+          created_by: string | null
+          favicon_url: string | null
+          foreground_color: string | null
+          heading_font: string | null
+          id: string | null
+          logo_url: string | null
+          name: string | null
+          phone: string | null
+          primary_color: string | null
+          primary_foreground_color: string | null
+          secondary_color: string | null
+          subdomain: string | null
+          support_email: string | null
+          tagline: string | null
+          updated_at: string | null
+          website_url: string | null
+        }
+        Insert: {
+          accent_color?: string | null
+          background_color?: string | null
+          body_font?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          favicon_url?: string | null
+          foreground_color?: string | null
+          heading_font?: string | null
+          id?: string | null
+          logo_url?: string | null
+          name?: string | null
+          phone?: never
+          primary_color?: string | null
+          primary_foreground_color?: string | null
+          secondary_color?: string | null
+          subdomain?: string | null
+          support_email?: never
+          tagline?: string | null
+          updated_at?: string | null
+          website_url?: never
+        }
+        Update: {
+          accent_color?: string | null
+          background_color?: string | null
+          body_font?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          favicon_url?: string | null
+          foreground_color?: string | null
+          heading_font?: string | null
+          id?: string | null
+          logo_url?: string | null
+          name?: string | null
+          phone?: never
+          primary_color?: string | null
+          primary_foreground_color?: string | null
+          secondary_color?: string | null
+          subdomain?: string | null
+          support_email?: never
+          tagline?: string | null
+          updated_at?: string | null
+          website_url?: never
+        }
+        Relationships: []
       }
       payment_info_masked: {
         Row: {
