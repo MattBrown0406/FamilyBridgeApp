@@ -111,6 +111,21 @@ import {
   DAVIS_FIIS_ANALYSIS,
   DAVIS_AFTERCARE_PLAN,
   DAVIS_CARE_PHASES,
+  MITCHELL_MEMBERS,
+  MITCHELL_MESSAGES,
+  MITCHELL_FINANCIAL_REQUESTS,
+  MITCHELL_CHECKINS,
+  MITCHELL_BOUNDARIES,
+  MITCHELL_VALUES,
+  MITCHELL_COMMON_GOALS,
+  MITCHELL_SOBRIETY,
+  MITCHELL_EMOTIONAL_CHECKINS,
+  MITCHELL_FIIS_ANALYSIS,
+  MITCHELL_AFTERCARE_PLAN,
+  MITCHELL_CARE_PHASES,
+  MITCHELL_LOCATION_REQUESTS,
+  MITCHELL_FIIS_OBSERVATIONS,
+  MITCHELL_FIIS_AUTO_EVENTS,
 } from '@/data/demoFamilyData';
 
 interface DemoBranding {
@@ -120,7 +135,78 @@ interface DemoBranding {
   name: string;
 }
 
-type FamilyType = 'johnson' | 'davis';
+type FamilyType = 'johnson' | 'davis' | 'mitchell';
+
+const getFamilyData = (family: FamilyType) => {
+  switch (family) {
+    case 'johnson':
+      return {
+        name: 'The Johnson Family',
+        description: 'Professional Moderator • Positive Recovery (125 Days)',
+        members: JOHNSON_MEMBERS,
+        messages: JOHNSON_MESSAGES,
+        financialRequests: JOHNSON_FINANCIAL_REQUESTS,
+        checkins: JOHNSON_CHECKINS,
+        boundaries: JOHNSON_BOUNDARIES,
+        values: JOHNSON_VALUES,
+        commonGoals: JOHNSON_COMMON_GOALS,
+        hasOrganization: true,
+        fiisAnalysis: JOHNSON_FIIS_ANALYSIS,
+        sobriety: JOHNSON_SOBRIETY,
+        emotionalCheckins: JOHNSON_EMOTIONAL_CHECKINS,
+        liquorLicenseWarnings: [] as typeof DAVIS_LIQUOR_LICENSE_WARNINGS,
+        aftercarePlan: JOHNSON_AFTERCARE_PLAN,
+        carePhases: JOHNSON_CARE_PHASES,
+        locationRequests: [],
+        fiisObservations: [],
+        fiisAutoEvents: [],
+      };
+    case 'davis':
+      return {
+        name: 'The Davis Family',
+        description: 'Private Family • Crisis Mode',
+        members: DAVIS_MEMBERS,
+        messages: DAVIS_MESSAGES,
+        financialRequests: DAVIS_FINANCIAL_REQUESTS,
+        checkins: DAVIS_CHECKINS,
+        boundaries: DAVIS_BOUNDARIES,
+        values: DAVIS_VALUES,
+        commonGoals: DAVIS_COMMON_GOALS,
+        hasOrganization: false,
+        fiisAnalysis: DAVIS_FIIS_ANALYSIS,
+        sobriety: DAVIS_SOBRIETY,
+        emotionalCheckins: DAVIS_EMOTIONAL_CHECKINS,
+        liquorLicenseWarnings: DAVIS_LIQUOR_LICENSE_WARNINGS,
+        aftercarePlan: DAVIS_AFTERCARE_PLAN,
+        carePhases: DAVIS_CARE_PHASES,
+        locationRequests: [],
+        fiisObservations: [],
+        fiisAutoEvents: [],
+      };
+    case 'mitchell':
+      return {
+        name: 'The Mitchell Family',
+        description: 'In Treatment • Post-Intervention (26 Days)',
+        members: MITCHELL_MEMBERS,
+        messages: MITCHELL_MESSAGES,
+        financialRequests: MITCHELL_FINANCIAL_REQUESTS,
+        checkins: MITCHELL_CHECKINS,
+        boundaries: MITCHELL_BOUNDARIES,
+        values: MITCHELL_VALUES,
+        commonGoals: MITCHELL_COMMON_GOALS,
+        hasOrganization: true,
+        fiisAnalysis: MITCHELL_FIIS_ANALYSIS,
+        sobriety: MITCHELL_SOBRIETY,
+        emotionalCheckins: MITCHELL_EMOTIONAL_CHECKINS,
+        liquorLicenseWarnings: [] as typeof DAVIS_LIQUOR_LICENSE_WARNINGS,
+        aftercarePlan: MITCHELL_AFTERCARE_PLAN,
+        carePhases: MITCHELL_CARE_PHASES,
+        locationRequests: MITCHELL_LOCATION_REQUESTS,
+        fiisObservations: MITCHELL_FIIS_OBSERVATIONS,
+        fiisAutoEvents: MITCHELL_FIIS_AUTO_EVENTS,
+      };
+  }
+};
 
 const DemoFamily = () => {
   const navigate = useNavigate();
@@ -136,49 +222,14 @@ const DemoFamily = () => {
   const [selectedFamily, setSelectedFamily] = useState<FamilyType>('johnson');
   
   // Get current family data based on selection
-  const currentFamily = selectedFamily === 'johnson' ? {
-    name: 'The Johnson Family',
-    description: 'Professional Moderator • Positive Recovery',
-    members: JOHNSON_MEMBERS,
-    messages: JOHNSON_MESSAGES,
-    financialRequests: JOHNSON_FINANCIAL_REQUESTS,
-    checkins: JOHNSON_CHECKINS,
-    boundaries: JOHNSON_BOUNDARIES,
-    values: JOHNSON_VALUES,
-    commonGoals: JOHNSON_COMMON_GOALS,
-    hasOrganization: true,
-    fiisAnalysis: JOHNSON_FIIS_ANALYSIS,
-    sobriety: JOHNSON_SOBRIETY,
-    emotionalCheckins: JOHNSON_EMOTIONAL_CHECKINS,
-    liquorLicenseWarnings: [] as typeof DAVIS_LIQUOR_LICENSE_WARNINGS,
-    aftercarePlan: JOHNSON_AFTERCARE_PLAN,
-    carePhases: JOHNSON_CARE_PHASES,
-  } : {
-    name: 'The Davis Family',
-    description: 'Private Family • Crisis Mode',
-    members: DAVIS_MEMBERS,
-    messages: DAVIS_MESSAGES,
-    financialRequests: DAVIS_FINANCIAL_REQUESTS,
-    checkins: DAVIS_CHECKINS,
-    boundaries: DAVIS_BOUNDARIES,
-    values: DAVIS_VALUES,
-    commonGoals: DAVIS_COMMON_GOALS,
-    hasOrganization: false,
-    fiisAnalysis: DAVIS_FIIS_ANALYSIS,
-    sobriety: DAVIS_SOBRIETY,
-    emotionalCheckins: DAVIS_EMOTIONAL_CHECKINS,
-    liquorLicenseWarnings: DAVIS_LIQUOR_LICENSE_WARNINGS,
-    aftercarePlan: DAVIS_AFTERCARE_PLAN,
-    carePhases: DAVIS_CARE_PHASES,
-  };
+  const currentFamily = getFamilyData(selectedFamily);
   
   const [messages, setMessages] = useState(currentFamily.messages);
   
   // Update messages when family changes
   const handleFamilyChange = (family: FamilyType) => {
     setSelectedFamily(family);
-    const familyData = family === 'johnson' ? JOHNSON_MESSAGES : DAVIS_MESSAGES;
-    setMessages(familyData);
+    setMessages(getFamilyData(family).messages);
     setActiveTab('messages');
   };
 

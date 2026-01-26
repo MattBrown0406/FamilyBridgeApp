@@ -1126,3 +1126,716 @@ export const JOHNSON_CARE_PHASES = [
 
 // Davis family has no care phases - not in structured treatment
 export const DAVIS_CARE_PHASES: typeof JOHNSON_CARE_PHASES = [];
+
+// ============================================================================
+// MITCHELL FAMILY - Currently in Treatment (26 days sober, 20 days into 45-day stay)
+// Intervention by Freedom Interventions, handoff to Recovery Partners
+// ============================================================================
+
+export const MITCHELL_MEMBERS = [
+  { id: '0', name: 'Matt Sullivan', role: 'moderator', relationship: 'Interventionist', initials: 'MS', providerRole: 'interventionist' },
+  { id: '1', name: 'Patricia Mitchell', role: 'admin', relationship: 'Parent (Mom)', initials: 'PM' },
+  { id: '2', name: 'Robert Mitchell', role: 'member', relationship: 'Parent (Dad)', initials: 'RM' },
+  { 
+    id: '3', 
+    name: 'Tyler Mitchell', 
+    role: 'recovering', 
+    relationship: 'Person in Recovery', 
+    initials: 'TM',
+    age: 27,
+    paymentInfo: {
+      paypal: 'tyler.mitchell@email.com',
+      venmo: '@TylerM-Recovery',
+      cashapp: '$TylerMitchell27'
+    }
+  },
+  { id: '4', name: 'Jessica Mitchell', role: 'member', relationship: 'Older Sister', initials: 'JM' },
+  { id: '5', name: 'Kevin Mitchell', role: 'member', relationship: 'Older Brother', initials: 'KM' },
+  { id: '6', name: 'Dr. Amanda Chen', role: 'provider', relationship: 'Therapist', initials: 'AC', providerRole: 'therapist' },
+];
+
+// Timeline: 
+// Day 30 ago - Intervention
+// Day 26 ago - Tyler agrees to treatment (4 days after intervention)
+// Day 26 ago - Started detox at Recovery Partners
+// Day 20 ago - Completed detox, started residential treatment (6 days detox)
+// Currently - Day 20 of 45-day residential treatment
+
+export const MITCHELL_MESSAGES = [
+  // Day 30 ago - Intervention Day
+  { id: '1', sender: 'Matt Sullivan', senderId: '0', content: '📢 **Welcome to FamilyBridge**\n\nPatricia and Robert, thank you for reaching out to Freedom Interventions. This platform will help us coordinate as a unified family. I\'ve added everyone to the group. Remember - Tyler will only see messages after he joins, and blocked on other channels, this becomes his only way to communicate with the family.', time: '9:00 AM', date: formatRelativeDate(subDays(now, 30)) },
+  { id: '2', sender: 'Patricia Mitchell', senderId: '1', content: 'Thank you Matt. This is the hardest thing we\'ve ever had to do. I blocked Tyler on my phone, Facebook, and email like you asked. It felt horrible.', time: '9:15 AM', date: formatRelativeDate(subDays(now, 30)) },
+  { id: '3', sender: 'Robert Mitchell', senderId: '2', content: 'I did the same. Changed the garage code too since he has a key. Matt, are we really doing the right thing?', time: '9:20 AM', date: formatRelativeDate(subDays(now, 30)) },
+  { id: '4', sender: 'Matt Sullivan', senderId: '0', content: 'This is exactly right. By consolidating all communication here, Tyler will understand the family is unified. He can\'t go around to different people to get different answers. This IS love - the hardest kind.', time: '9:25 AM', date: formatRelativeDate(subDays(now, 30)) },
+  { id: '5', sender: 'Jessica Mitchell', senderId: '4', content: 'I blocked him too. He\'s going to be so angry. He already texted me 5 times this morning.', time: '10:00 AM', date: formatRelativeDate(subDays(now, 30)) },
+  { id: '6', sender: 'Kevin Mitchell', senderId: '5', content: 'Same here. He called me looking for money. I didn\'t answer. I feel sick about this but I know it\'s necessary.', time: '10:30 AM', date: formatRelativeDate(subDays(now, 30)) },
+  { id: '7', sender: 'Matt Sullivan', senderId: '0', content: 'The intervention is set for 2PM today. Everyone please be at Robert and Patricia\'s house by 1:30PM. We\'ll go over the final script together.', time: '11:00 AM', date: formatRelativeDate(subDays(now, 30)) },
+  { id: '8', sender: 'Patricia Mitchell', senderId: '1', content: 'We told Tyler we\'re having a family lunch. He said he\'d come.', time: '11:15 AM', date: formatRelativeDate(subDays(now, 30)) },
+  { id: '9', sender: 'Matt Sullivan', senderId: '0', content: '📢 **Intervention Update**\n\nThe intervention was conducted. Tyler is very angry but is staying at the house tonight. He has not agreed to treatment yet. Keep communication through this app only. If he reaches out on blocked channels, do not respond.', time: '5:00 PM', date: formatRelativeDate(subDays(now, 30)) },
+  { id: '10', sender: 'Jessica Mitchell', senderId: '4', content: 'He\'s been trying to call me from the house phone. It\'s so hard not to answer.', time: '6:30 PM', date: formatRelativeDate(subDays(now, 30)) },
+  { id: '11', sender: 'Matt Sullivan', senderId: '0', content: 'Don\'t answer. He needs to understand that THIS app is the only channel for family communication now. If you give him an alternative, he\'ll exploit it.', time: '6:35 PM', date: formatRelativeDate(subDays(now, 30)) },
+
+  // Day 29 ago - Day 1 after intervention
+  { id: '12', sender: 'Tyler Mitchell', senderId: '3', content: 'I can\'t believe you\'re all doing this to me. I don\'t have a problem. Why won\'t anyone answer my calls?!', time: '8:00 AM', date: formatRelativeDate(subDays(now, 29)) },
+  { id: '13', sender: 'Matt Sullivan', senderId: '0', content: 'Tyler, welcome to the app. The family is here because they love you. We\'re all ready to listen.', time: '8:05 AM', date: formatRelativeDate(subDays(now, 29)) },
+  { id: '14', sender: 'Tyler Mitchell', senderId: '3', content: 'This is insane. You\'ve all blocked me everywhere. This is the only way I can even talk to my own family!', time: '8:10 AM', date: formatRelativeDate(subDays(now, 29)) },
+  { id: '15', sender: 'Patricia Mitchell', senderId: '1', content: 'Tyler, we love you. But we can\'t watch you kill yourself anymore. This app keeps us all on the same page.', time: '8:30 AM', date: formatRelativeDate(subDays(now, 29)) },
+  { id: '16', sender: 'Robert Mitchell', senderId: '2', content: 'Son, we\'re unified on this. The treatment bed at Recovery Partners is still available.', time: '8:45 AM', date: formatRelativeDate(subDays(now, 29)) },
+  { id: '17', sender: 'Tyler Mitchell', senderId: '3', content: 'I don\'t need treatment! I just need you all to stop ganging up on me!', time: '9:00 AM', date: formatRelativeDate(subDays(now, 29)) },
+  { id: '18', sender: 'Kevin Mitchell', senderId: '5', content: 'Tyler, I love you bro. But I can\'t keep lending you money that never comes back. Mom found needles in your old room.', time: '10:00 AM', date: formatRelativeDate(subDays(now, 29)) },
+  { id: '19', sender: 'Tyler Mitchell', senderId: '3', content: '💰 **Financial Request** from Tyler Mitchell\n\n**Amount:** $200\n**Reason:** I need to pay rent or I\'ll be homeless\n\nPlease vote on this request!', time: '2:00 PM', date: formatRelativeDate(subDays(now, 29)) },
+  { id: '20', sender: 'Matt Sullivan', senderId: '0', content: 'Tyler, the family has agreed that financial support is available - for treatment only. If you go to treatment today, all your expenses will be covered.', time: '2:10 PM', date: formatRelativeDate(subDays(now, 29)) },
+  { id: '21', sender: 'Tyler Mitchell', senderId: '3', content: 'So you\'ll let me be homeless? Some family you are.', time: '2:30 PM', date: formatRelativeDate(subDays(now, 29)) },
+  { id: '22', sender: 'Jessica Mitchell', senderId: '4', content: 'Tyler, your landlord called Mom. You haven\'t lived there in 3 months. Where is the money really going?', time: '3:00 PM', date: formatRelativeDate(subDays(now, 29)) },
+
+  // Day 28 ago - Day 2 after intervention  
+  { id: '23', sender: 'Tyler Mitchell', senderId: '3', content: 'I\'m staying with a friend. I don\'t need your help.', time: '10:00 AM', date: formatRelativeDate(subDays(now, 28)) },
+  { id: '24', sender: 'Patricia Mitchell', senderId: '1', content: 'We love you Tyler. The offer for treatment is still open. Matt is here if you want to talk.', time: '10:30 AM', date: formatRelativeDate(subDays(now, 28)) },
+  { id: '25', sender: 'Tyler Mitchell', senderId: '3', content: '💰 **Financial Request** from Tyler Mitchell\n\n**Amount:** $50\n**Reason:** Need gas to get to a job interview\n\nPlease vote on this request!', time: '4:00 PM', date: formatRelativeDate(subDays(now, 28)) },
+  { id: '26', sender: 'Robert Mitchell', senderId: '2', content: 'I voted to deny. Tyler, we\'re not funding anything except recovery. That\'s the boundary.', time: '4:15 PM', date: formatRelativeDate(subDays(now, 28)) },
+  { id: '27', sender: 'Kevin Mitchell', senderId: '5', content: 'Denied. Same reason. We love you but we can\'t enable this anymore.', time: '4:30 PM', date: formatRelativeDate(subDays(now, 28)) },
+
+  // Day 27 ago - Day 3 after intervention
+  { id: '28', sender: 'Tyler Mitchell', senderId: '3', content: 'Mom, please. I know you understand. Can you just send me $100? Just between us?', time: '8:00 AM', date: formatRelativeDate(subDays(now, 27)) },
+  { id: '29', sender: 'Patricia Mitchell', senderId: '1', content: 'Tyler, there is no "just between us" anymore. Everything is here in the app where everyone can see it. That\'s the new rule. I love you, but no.', time: '8:30 AM', date: formatRelativeDate(subDays(now, 27)) },
+  { id: '30', sender: 'Matt Sullivan', senderId: '0', content: 'Tyler, you\'re trying to triangulate - going to different family members hoping for different answers. That\'s why we\'re all here together. The answer is unified: treatment, or nothing.', time: '9:00 AM', date: formatRelativeDate(subDays(now, 27)) },
+  { id: '31', sender: 'Tyler Mitchell', senderId: '3', content: 'This is so messed up. You\'re all ganging up on me.', time: '9:30 AM', date: formatRelativeDate(subDays(now, 27)) },
+  { id: '32', sender: 'Jessica Mitchell', senderId: '4', content: 'Tyler, remember when you missed my wedding because you were too high? I still forgave you. That\'s how much we love you. Please get help.', time: '11:00 AM', date: formatRelativeDate(subDays(now, 27)) },
+  { id: '33', sender: 'Kevin Mitchell', senderId: '5', content: 'And when you sold Dad\'s tools? He didn\'t call the police. We\'re not your enemies. We\'re the only ones who haven\'t given up.', time: '11:30 AM', date: formatRelativeDate(subDays(now, 27)) },
+
+  // Day 26 ago - Day 4 after intervention - TYLER AGREES
+  { id: '34', sender: 'Tyler Mitchell', senderId: '3', content: 'I can\'t do this anymore. I\'m sick. I feel terrible. Is the treatment offer still there?', time: '6:00 AM', date: formatRelativeDate(subDays(now, 26)) },
+  { id: '35', sender: 'Matt Sullivan', senderId: '0', content: 'Yes Tyler. The bed at Recovery Partners is ready. I\'ll pick you up in an hour. This is the bravest thing you\'ve ever done.', time: '6:05 AM', date: formatRelativeDate(subDays(now, 26)) },
+  { id: '36', sender: 'Patricia Mitchell', senderId: '1', content: 'Tyler, I\'m crying reading this. We love you so much. Thank you for choosing life. 🙏', time: '6:15 AM', date: formatRelativeDate(subDays(now, 26)) },
+  { id: '37', sender: 'Robert Mitchell', senderId: '2', content: 'Son, I\'m proud of you. This took real courage.', time: '6:20 AM', date: formatRelativeDate(subDays(now, 26)) },
+  { id: '38', sender: 'Jessica Mitchell', senderId: '4', content: 'Tyler! ❤️ We\'re all here for you. Every step of the way.', time: '6:30 AM', date: formatRelativeDate(subDays(now, 26)) },
+  { id: '39', sender: 'Kevin Mitchell', senderId: '5', content: 'Love you bro. You got this. 💪', time: '6:45 AM', date: formatRelativeDate(subDays(now, 26)) },
+  { id: '40', sender: 'Matt Sullivan', senderId: '0', content: '📢 **Treatment Admission Update**\n\nTyler has been admitted to Recovery Partners. He\'s in detox and won\'t have phone access for the first few days. I\'ll coordinate with their clinical team and keep you updated here.\n\nThis is a handoff moment - Recovery Partners will become the primary care provider. I\'ll remain on the case in a consulting role through FamilyBridge.', time: '10:00 AM', date: formatRelativeDate(subDays(now, 26)) },
+  { id: '41', sender: 'Dr. Amanda Chen', senderId: '6', content: 'Hello everyone, I\'m Dr. Chen, Tyler\'s primary therapist at Recovery Partners. Matt from Freedom Interventions briefed me on the situation. Tyler is doing well in detox - he\'s uncomfortable but safe. We\'ll start individual therapy sessions once he\'s stabilized.', time: '3:00 PM', date: formatRelativeDate(subDays(now, 26)) },
+
+  // Day 20 ago - Completed Detox
+  { id: '42', sender: 'Dr. Amanda Chen', senderId: '6', content: '📢 **Detox Completion Update**\n\nTyler has completed medical detox. He\'s physically stable and ready to begin the residential treatment phase. He\'s been sober for 6 days now. We\'ll start intensive therapy tomorrow.', time: '9:00 AM', date: formatRelativeDate(subDays(now, 20)) },
+  { id: '43', sender: 'Tyler Mitchell', senderId: '3', content: 'Hey everyone. They gave me back my phone. I feel... different. Like I can actually think clearly for the first time in years. I\'m sorry for what I said during the intervention.', time: '10:00 AM', date: formatRelativeDate(subDays(now, 20)) },
+  { id: '44', sender: 'Patricia Mitchell', senderId: '1', content: 'Tyler! It\'s so good to hear from you. We forgive you. We\'re just happy you\'re safe and getting help. ❤️', time: '10:15 AM', date: formatRelativeDate(subDays(now, 20)) },
+
+  // Day 15 ago - Progress in treatment
+  { id: '45', sender: 'Dr. Amanda Chen', senderId: '6', content: 'Quick update: Tyler has been actively participating in group therapy. He\'s starting to open up about some underlying trauma. This is very positive progress.', time: '2:00 PM', date: formatRelativeDate(subDays(now, 15)) },
+  { id: '46', sender: 'Tyler Mitchell', senderId: '3', content: 'Had a really hard therapy session today. I never realized how much anger I was carrying from when you and Dad split up, Mom. I took it out on everyone with drugs.', time: '5:00 PM', date: formatRelativeDate(subDays(now, 15)) },
+  { id: '47', sender: 'Patricia Mitchell', senderId: '1', content: 'Oh honey. The divorce was hard on all of us. I\'m so sorry you carried that alone. We should have gotten you help back then.', time: '5:30 PM', date: formatRelativeDate(subDays(now, 15)) },
+  { id: '48', sender: 'Robert Mitchell', senderId: '2', content: 'I wish I\'d been more present for you kids after that. I was dealing with my own stuff and I failed you.', time: '6:00 PM', date: formatRelativeDate(subDays(now, 15)) },
+  { id: '49', sender: 'Tyler Mitchell', senderId: '3', content: 'Dr. Chen says the family is going to heal together. That\'s what this is about.', time: '6:30 PM', date: formatRelativeDate(subDays(now, 15)) },
+
+  // Day 10 ago - Location check-in
+  { id: '50', sender: 'Tyler Mitchell', senderId: '3', content: '🙏 **Checked into Recovery Meeting**\n\nI\'m attending: NA - In-House Meeting\n📍 Recovery Partners, Group Room B\n⏰ Checkout expected at 9:00 PM', time: '7:30 PM', date: formatRelativeDate(subDays(now, 10)) },
+  { id: '51', sender: 'Kevin Mitchell', senderId: '5', content: 'Keep it up Tyler! You\'re building something real.', time: '7:45 PM', date: formatRelativeDate(subDays(now, 10)) },
+  { id: '52', sender: 'Tyler Mitchell', senderId: '3', content: '✅ **Checked out of Meeting**\n\nCompleted: NA - In-House Meeting\nDuration: 1 hour 25 minutes', time: '8:55 PM', date: formatRelativeDate(subDays(now, 10)) },
+
+  // Day 7 ago - Starting to discuss aftercare
+  { id: '53', sender: 'Dr. Amanda Chen', senderId: '6', content: 'Family, Tyler is now halfway through his 45-day program. We\'re starting to discuss aftercare planning. I\'d like to schedule a family session next week to discuss options.', time: '11:00 AM', date: formatRelativeDate(subDays(now, 7)) },
+  { id: '54', sender: 'Matt Sullivan', senderId: '0', content: 'Excellent timing Dr. Chen. Based on my experience with the Mitchell family, I recommend we look at sober living options. Tyler will need structure after treatment.', time: '11:30 AM', date: formatRelativeDate(subDays(now, 7)) },
+  { id: '55', sender: 'Tyler Mitchell', senderId: '3', content: 'I was thinking I could just come home after treatment? I feel so much better now.', time: '12:00 PM', date: formatRelativeDate(subDays(now, 7)) },
+  { id: '56', sender: 'Dr. Amanda Chen', senderId: '6', content: 'Tyler, that feeling is wonderful, but research shows that going directly home without a step-down phase has a much higher relapse rate. We should discuss structured options.', time: '12:30 PM', date: formatRelativeDate(subDays(now, 7)) },
+  { id: '57', sender: 'Patricia Mitchell', senderId: '1', content: 'I agree with Dr. Chen. Tyler, we love you and want you home eventually, but we need to do this right.', time: '1:00 PM', date: formatRelativeDate(subDays(now, 7)) },
+
+  // Day 5 ago
+  { id: '58', sender: 'Tyler Mitchell', senderId: '3', content: '🙏 **Checked into Recovery Meeting**\n\nI\'m attending: AA - Morning Meditation Group\n📍 Recovery Partners, Chapel\n⏰ Checkout expected at 8:30 AM', time: '7:00 AM', date: formatRelativeDate(subDays(now, 5)) },
+  { id: '59', sender: 'Tyler Mitchell', senderId: '3', content: '✅ **Checked out of Meeting**\n\nCompleted: AA - Morning Meditation Group\nDuration: 1 hour 28 minutes', time: '8:28 AM', date: formatRelativeDate(subDays(now, 5)) },
+  { id: '60', sender: 'Tyler Mitchell', senderId: '3', content: 'Day 21! Three weeks sober. I actually feel things again - like real emotions, not just numbness or chaos.', time: '9:00 AM', date: formatRelativeDate(subDays(now, 5)) },
+  { id: '61', sender: 'Jessica Mitchell', senderId: '4', content: 'That\'s amazing Tyler! The old you is coming back. 💕', time: '9:30 AM', date: formatRelativeDate(subDays(now, 5)) },
+
+  // Day 3 ago - More boundary reinforcement  
+  { id: '62', sender: 'Tyler Mitchell', senderId: '3', content: 'I\'ve been thinking about after treatment. Can I stay with you Jess? Just for a month until I get on my feet?', time: '2:00 PM', date: formatRelativeDate(subDays(now, 3)) },
+  { id: '63', sender: 'Jessica Mitchell', senderId: '4', content: 'Tyler, I love you but we agreed as a family - sober living first. That\'s the boundary. It\'s not about trust, it\'s about giving you the best chance.', time: '2:30 PM', date: formatRelativeDate(subDays(now, 3)) },
+  { id: '64', sender: 'Matt Sullivan', senderId: '0', content: 'Jessica handled that perfectly. Tyler, the boundaries we set during the intervention are about love, not punishment. Sober living gives you a safety net.', time: '3:00 PM', date: formatRelativeDate(subDays(now, 3)) },
+  { id: '65', sender: 'Dr. Amanda Chen', senderId: '6', content: 'Tyler, we discussed this in session. The urge to "just go home" is normal, but your family is showing real love by holding the boundary.', time: '3:30 PM', date: formatRelativeDate(subDays(now, 3)) },
+  { id: '66', sender: 'Tyler Mitchell', senderId: '3', content: 'I know. You\'re all right. I just... miss normal life. But I guess I never had "normal" - I had chaos I was used to.', time: '4:00 PM', date: formatRelativeDate(subDays(now, 3)) },
+
+  // Yesterday
+  { id: '67', sender: 'Tyler Mitchell', senderId: '3', content: '🙏 **Checked into Recovery Meeting**\n\nI\'m attending: NA - Evening Group\n📍 Recovery Partners, Main Hall\n⏰ Checkout expected at 8:30 PM', time: '7:00 PM', date: 'Yesterday' },
+  { id: '68', sender: 'Tyler Mitchell', senderId: '3', content: '✅ **Checked out of Meeting**\n\nCompleted: NA - Evening Group\nDuration: 1 hour 32 minutes', time: '8:32 PM', date: 'Yesterday' },
+  { id: '69', sender: 'Robert Mitchell', senderId: '2', content: 'Consistent check-ins Tyler. I\'m impressed. This is the follow-through I\'ve been waiting to see from you.', time: '8:45 PM', date: 'Yesterday' },
+  { id: '70', sender: 'Tyler Mitchell', senderId: '3', content: 'Thanks Dad. I know I have a lot to prove. But I\'m actually doing it this time, not just talking about it.', time: '9:00 PM', date: 'Yesterday' },
+
+  // Today
+  { id: '71', sender: 'Tyler Mitchell', senderId: '3', content: 'Good morning everyone! Day 26 sober today. Day 20 in treatment. More than halfway through! 🙏', time: '7:00 AM', date: 'Today' },
+  { id: '72', sender: 'Patricia Mitchell', senderId: '1', content: 'So proud of you Tyler! Every day is a gift. ❤️', time: '7:15 AM', date: 'Today' },
+  { id: '73', sender: 'Tyler Mitchell', senderId: '3', content: '🙏 **Checked into Recovery Meeting**\n\nI\'m attending: AA - Morning Serenity\n📍 Recovery Partners, Chapel\n⏰ Checkout expected at 9:00 AM', time: '7:30 AM', date: 'Today' },
+  { id: '74', sender: 'Dr. Amanda Chen', senderId: '6', content: 'Family session scheduled for this Friday at 2PM to finalize aftercare planning. Tyler is ready to discuss sober living options constructively.', time: '10:00 AM', date: 'Today' },
+  { id: '75', sender: 'Matt Sullivan', senderId: '0', content: 'I\'ll join virtually. Great progress everyone. The work you did before Tyler agreed to treatment - the boundaries, the blocking, the unified front - that\'s what made this possible.', time: '10:30 AM', date: 'Today' },
+];
+
+export const MITCHELL_FINANCIAL_REQUESTS = [
+  { 
+    id: '1', 
+    requester: 'Tyler Mitchell', 
+    amount: 200, 
+    reason: 'I need to pay rent or I\'ll be homeless', 
+    status: 'denied',
+    attachmentUrl: null,
+    votes: { approve: 0, deny: 5 },
+    pledges: [],
+    createdAt: formatDateTime(subDays(now, 29)),
+    denialReason: 'Family agreed: financial support only for treatment. Tyler admitted to treatment 4 days later.'
+  },
+  { 
+    id: '2', 
+    requester: 'Tyler Mitchell', 
+    amount: 50, 
+    reason: 'Need gas to get to a job interview', 
+    status: 'denied',
+    attachmentUrl: null,
+    votes: { approve: 0, deny: 5 },
+    pledges: [],
+    createdAt: formatDateTime(subDays(now, 28)),
+    denialReason: 'Boundary enforced - funds only available for recovery path.'
+  },
+];
+
+export const MITCHELL_CHECKINS = [
+  // Today
+  { 
+    id: '1', 
+    user: 'Tyler Mitchell', 
+    type: 'AA', 
+    name: 'Morning Serenity',
+    location: 'Recovery Partners, Chapel',
+    checkinTime: '7:30 AM',
+    checkoutDue: '9:00 AM',
+    status: 'active',
+    date: 'Today'
+  },
+  // Yesterday
+  { 
+    id: '2', 
+    user: 'Tyler Mitchell', 
+    type: 'NA', 
+    name: 'Evening Group',
+    location: 'Recovery Partners, Main Hall',
+    checkinTime: '7:00 PM',
+    checkoutTime: '8:32 PM',
+    status: 'completed',
+    date: 'Yesterday'
+  },
+  // 5 days ago
+  { 
+    id: '3', 
+    user: 'Tyler Mitchell', 
+    type: 'AA', 
+    name: 'Morning Meditation Group',
+    location: 'Recovery Partners, Chapel',
+    checkinTime: '7:00 AM',
+    checkoutTime: '8:28 AM',
+    status: 'completed',
+    date: formatRelativeDate(subDays(now, 5))
+  },
+  // 10 days ago
+  { 
+    id: '4', 
+    user: 'Tyler Mitchell', 
+    type: 'NA', 
+    name: 'In-House Meeting',
+    location: 'Recovery Partners, Group Room B',
+    checkinTime: '7:30 PM',
+    checkoutTime: '8:55 PM',
+    status: 'completed',
+    date: formatRelativeDate(subDays(now, 10))
+  },
+  // 12 days ago
+  { 
+    id: '5', 
+    user: 'Tyler Mitchell', 
+    type: 'AA', 
+    name: 'Morning Group',
+    location: 'Recovery Partners, Chapel',
+    checkinTime: '7:00 AM',
+    checkoutTime: '8:30 AM',
+    status: 'completed',
+    date: formatRelativeDate(subDays(now, 12))
+  },
+  // 14 days ago
+  { 
+    id: '6', 
+    user: 'Tyler Mitchell', 
+    type: 'NA', 
+    name: 'Evening Reflection',
+    location: 'Recovery Partners, Main Hall',
+    checkinTime: '7:00 PM',
+    checkoutTime: '8:25 PM',
+    status: 'completed',
+    date: formatRelativeDate(subDays(now, 14))
+  },
+];
+
+export const MITCHELL_LOCATION_REQUESTS = [
+  {
+    id: '1',
+    requesterId: '1',
+    requesterName: 'Patricia Mitchell',
+    targetUserId: '3',
+    targetUserName: 'Tyler Mitchell',
+    status: 'completed',
+    requestedAt: formatDateTime(subDays(now, 8)),
+    respondedAt: formatDateTime(subDays(now, 8)),
+    latitude: 33.4484,
+    longitude: -112.0740,
+    locationAddress: 'Recovery Partners Treatment Center, 2500 E Camelback Rd, Phoenix, AZ',
+    requesterNote: 'Just checking in - making sure you\'re safe at treatment',
+    responseNote: 'Here at the center, just finished lunch!'
+  },
+  {
+    id: '2',
+    requesterId: '5',
+    requesterName: 'Kevin Mitchell',
+    targetUserId: '3',
+    targetUserName: 'Tyler Mitchell',
+    status: 'completed',
+    requestedAt: formatDateTime(subDays(now, 4)),
+    respondedAt: formatDateTime(subDays(now, 4)),
+    latitude: 33.4484,
+    longitude: -112.0740,
+    locationAddress: 'Recovery Partners Treatment Center, 2500 E Camelback Rd, Phoenix, AZ',
+    requesterNote: 'Hey bro - sending some love, wanted to see you\'re still there',
+    responseNote: 'Still here! About to go to group therapy'
+  },
+];
+
+export const MITCHELL_SOBRIETY = {
+  userId: '3',
+  userName: 'Tyler Mitchell',
+  startDate: subDays(now, 26),
+  daysCount: 26,
+  isActive: true,
+  resetCount: 0,
+  milestones: [
+    { days: 1, achieved: true, celebratedByFamily: true },
+    { days: 7, achieved: true, celebratedByFamily: true },
+    { days: 14, achieved: true, celebratedByFamily: true },
+  ],
+  nextMilestone: 30
+};
+
+export const MITCHELL_EMOTIONAL_CHECKINS = [
+  { date: 'Today', feeling: 'hopeful', user: 'Tyler Mitchell' },
+  { date: 'Yesterday', feeling: 'grateful', user: 'Tyler Mitchell' },
+  { date: formatRelativeDate(subDays(now, 2)), feeling: 'calm', user: 'Tyler Mitchell' },
+  { date: formatRelativeDate(subDays(now, 3)), feeling: 'anxious', user: 'Tyler Mitchell' }, // When asking to stay with Jess
+  { date: formatRelativeDate(subDays(now, 4)), feeling: 'hopeful', user: 'Tyler Mitchell' },
+  { date: formatRelativeDate(subDays(now, 5)), feeling: 'grateful', user: 'Tyler Mitchell' },
+  { date: formatRelativeDate(subDays(now, 6)), feeling: 'calm', user: 'Tyler Mitchell' },
+  { date: formatRelativeDate(subDays(now, 7)), feeling: 'motivated', user: 'Tyler Mitchell' },
+];
+
+export const MITCHELL_BOUNDARIES = [
+  {
+    id: '1',
+    content: 'Financial support is ONLY available for treatment and recovery-related expenses',
+    consequence: 'If Tyler requests money for anything else, we will all vote NO - no exceptions, no private arrangements.',
+    createdBy: 'Patricia Mitchell',
+    status: 'approved',
+    acknowledgments: ['Patricia Mitchell', 'Robert Mitchell', 'Jessica Mitchell', 'Kevin Mitchell', 'Tyler Mitchell'],
+  },
+  {
+    id: '2',
+    content: 'All family communication must happen through FamilyBridge - no private channels',
+    consequence: 'If Tyler tries to contact us outside the app, we will not respond. This prevents manipulation through triangulation.',
+    createdBy: 'Matt Sullivan',
+    status: 'approved',
+    acknowledgments: ['Patricia Mitchell', 'Robert Mitchell', 'Jessica Mitchell', 'Kevin Mitchell', 'Tyler Mitchell'],
+  },
+  {
+    id: '3',
+    content: 'Tyler must complete sober living after residential treatment before living with any family member',
+    consequence: 'If Tyler does not complete sober living, he cannot stay at any family member\'s home. This is non-negotiable for his safety.',
+    createdBy: 'Robert Mitchell',
+    targetUser: 'Tyler Mitchell',
+    status: 'approved',
+    acknowledgments: ['Patricia Mitchell', 'Robert Mitchell', 'Jessica Mitchell', 'Kevin Mitchell', 'Tyler Mitchell'],
+  },
+  {
+    id: '4',
+    content: 'Tyler must attend at least one recovery meeting per day while in treatment and aftercare',
+    consequence: 'If meeting attendance drops below daily, we will have a family meeting to discuss increased support or higher level of care.',
+    createdBy: 'Dr. Amanda Chen',
+    targetUser: 'Tyler Mitchell',
+    status: 'approved',
+    acknowledgments: ['Patricia Mitchell', 'Robert Mitchell', 'Jessica Mitchell', 'Kevin Mitchell', 'Tyler Mitchell'],
+  },
+];
+
+export const MITCHELL_VALUES = [
+  { key: 'unity', name: 'Family Unity & Unified Response' },
+  { key: 'tough_love', name: 'Tough Love with Clear Consequences' },
+  { key: 'transparency', name: 'Complete Transparency (No Secrets)' },
+];
+
+export const MITCHELL_COMMON_GOALS = [
+  { key: 'complete_treatment', name: 'Tyler completes 45-day residential program', completed: false },
+  { key: 'sober_living', name: 'Tyler transitions to sober living after treatment', completed: false },
+  { key: 'maintain_boundaries', name: 'All family members maintain unified boundaries', completed: true },
+  { key: 'family_therapy', name: 'Participate in family therapy sessions', completed: false },
+];
+
+// FIIS Analysis for Mitchell Family - In Treatment, Positive Trajectory
+export const MITCHELL_FIIS_ANALYSIS = {
+  what_seeing: "I'm observing a family system that successfully executed a professional intervention and is now 26 days into recovery. Tyler resisted for 4 days post-intervention but the family held their unified boundaries - refusing all communication outside the app, denying financial requests, and maintaining the treatment-or-nothing stance. This unified approach, supported by professional interventionist Matt Sullivan, created the conditions for Tyler's eventual decision to enter treatment. The handoff from Freedom Interventions to Recovery Partners has been smooth, with Dr. Chen now providing primary clinical oversight while Matt remains as a consulting presence.",
+  pattern_signals: [
+    {
+      signal_type: 'intervention_success',
+      description: 'The intervention succeeded because the family maintained total unity. Tyler\'s attempts to triangulate (asking Mom privately, asking to stay with sister) were consistently redirected to the group. The strategy of blocking all other communication channels was critical.',
+      confidence: 'very_high',
+      one_year_impact: 'supports_goal' as const
+    },
+    {
+      signal_type: 'treatment_engagement',
+      description: 'Tyler is actively participating in treatment with 26 days sober. He\'s attending daily meetings (100% compliance since entering treatment), engaging in individual and group therapy, and starting to process underlying trauma from his parents\' divorce.',
+      confidence: 'very_high',
+      one_year_impact: 'supports_goal' as const
+    },
+    {
+      signal_type: 'boundary_holding',
+      description: 'When Tyler asked to skip sober living and stay with Jessica, the entire family held the boundary. This is a critical test that the family passed - maintaining structure even when Tyler is doing well.',
+      confidence: 'very_high',
+      one_year_impact: 'supports_goal' as const
+    },
+    {
+      signal_type: 'provider_coordination',
+      description: 'Excellent handoff between Freedom Interventions and Recovery Partners. Matt Sullivan remains engaged while Dr. Chen leads clinical care. The family benefits from both professional perspectives.',
+      confidence: 'high',
+      one_year_impact: 'supports_goal' as const
+    },
+    {
+      signal_type: 'attention_needed',
+      description: 'Tyler is beginning to show "pink cloud" thinking - believing he\'s ready to go home after feeling better. While normal, this requires continued boundary enforcement to prevent premature transition.',
+      confidence: 'moderate',
+      one_year_impact: 'neutral' as const
+    },
+  ],
+  contextual_framing: "Day 26 in active treatment represents a critical period. The initial resistance (4 days post-intervention) was successfully overcome through family unity. Now the challenge shifts to maintaining boundaries while Tyler begins feeling better and may underestimate his need for continued structured care. The family's willingness to hold the sober living boundary, even when Tyler asked to skip it, is an excellent sign of their commitment to his long-term success rather than short-term comfort.",
+  // One-Year Goal Tracking
+  one_year_goal: {
+    current_days: 26,
+    days_remaining: 339,
+    progress_percentage: 7,
+    current_phase: 'Residential Treatment',
+    likelihood_assessment: 'likely',
+    likelihood_reasoning: 'Strong treatment engagement, unified family support, professional guidance from both interventionist and treatment team. Main risk is premature transition if boundaries aren\'t maintained.'
+  },
+  predictive_indicators: [
+    {
+      indicator_type: 'positive' as const,
+      indicator: 'Professional intervention with experienced team',
+      impact_level: 'significant' as const,
+      recommendation: 'Continue Matt Sullivan\'s involvement through aftercare planning'
+    },
+    {
+      indicator_type: 'positive' as const,
+      indicator: 'Family maintained complete unity through resistance phase',
+      impact_level: 'significant' as const,
+      recommendation: 'Acknowledge and reinforce family\'s difficult work'
+    },
+    {
+      indicator_type: 'positive' as const,
+      indicator: 'Daily meeting attendance in treatment',
+      impact_level: 'moderate' as const,
+      recommendation: 'Build on this foundation for aftercare planning'
+    },
+    {
+      indicator_type: 'neutral' as const,
+      indicator: 'Tyler showing early "pink cloud" symptoms',
+      impact_level: 'minor' as const,
+      recommendation: 'Continue education about importance of sober living transition'
+    }
+  ],
+  risk_trajectory: {
+    direction: 'improving' as const,
+    trend_description: 'Significant positive trajectory from active addiction to engaged treatment',
+    contributing_factors: ['Professional intervention', 'Unified family response', 'Full communication block', 'Strong clinical support'],
+    projected_outcome: 'High probability of completing treatment; aftercare compliance will determine long-term success'
+  },
+  compliance_trends: {
+    overall_compliance: 'excellent' as const,
+    meeting_attendance: 'consistent' as const,
+    check_in_reliability: 'reliable' as const,
+    boundary_adherence: 'strong' as const,
+    financial_transparency: 'transparent' as const,
+    trend_direction: 'improving' as const,
+    compliance_notes: 'Tyler has gone from complete resistance to excellent compliance. The structured treatment environment has helped establish healthy routines.'
+  },
+  transition_readiness: {
+    readiness_level: 'progressing' as const,
+    current_phase_mastery: 65,
+    strengths_demonstrated: ['Meeting attendance', 'Therapy engagement', 'Emotional processing', 'Accepting family boundaries'],
+    areas_needing_development: ['Independent coping skills', 'Relapse prevention planning', 'Building sober support network outside treatment'],
+    recommended_focus: ['Complete residential program', 'Identify sober living placement', 'Begin sponsor relationship'],
+    estimated_readiness_timeline: '25 days until residential completion, recommend 90+ days sober living'
+  },
+  // Provider Clinical Alerts
+  provider_clinical_alerts: [
+    {
+      alert_category: 'engagement_pattern' as const,
+      metric_description: 'Tyler\'s treatment engagement at 95% participation rate',
+      trend_direction: 'improving' as const,
+      percentage_change: 95,
+      time_period: '20 days in treatment',
+      clinical_implication: 'Strong early engagement predicts better outcomes',
+      suggested_intervention: 'Acknowledge progress while maintaining treatment structure',
+      urgency: 'routine_review' as const
+    },
+    {
+      alert_category: 'boundary_consistency' as const,
+      metric_description: 'Family boundary adherence at 100% through intervention and treatment',
+      trend_direction: 'stable' as const,
+      percentage_change: 0,
+      time_period: '26 days',
+      clinical_implication: 'Excellent family cohesion - critical success factor',
+      suggested_intervention: 'Prepare family for continued boundary work during transition',
+      urgency: 'routine_review' as const
+    },
+    {
+      alert_category: 'intervention_pressure' as const,
+      metric_description: 'Tyler testing sober living boundary ("Can I stay with Jess?")',
+      trend_direction: 'stable' as const,
+      percentage_change: 0,
+      time_period: '3 days ago',
+      clinical_implication: 'Normal boundary testing - family handled appropriately',
+      suggested_intervention: 'Reinforce in family session why sober living is non-negotiable',
+      urgency: 'attention_needed' as const
+    }
+  ],
+  recommendations: [
+    {
+      title: "Celebrate the Intervention Success",
+      description: "The family's unified approach during the intervention was textbook. The 4-day resistance period before Tyler agreed to treatment is actually typical - many interventions take days or weeks. Acknowledge how hard it was to block Tyler on all channels and hold firm.",
+      related_to: "Values: Family Unity"
+    },
+    {
+      title: "Continue Aftercare Planning",
+      description: "The family session scheduled for Friday is critical. Tyler is starting to hint at wanting to skip sober living. The family must present a unified front: completing sober living is the agreed boundary, and it's about giving him the best chance at long-term success.",
+      related_to: "Boundary: Sober living after treatment"
+    },
+    {
+      title: "Address Pink Cloud Gently",
+      description: "Tyler feeling 'so much better' at day 26 is wonderful but also dangerous. Gently remind him that the real test comes when he leaves the structured environment. Sober living provides that critical transition.",
+      related_to: "Goal: Complete 45-day program"
+    },
+    {
+      title: "Plan for 30-Day Milestone",
+      description: "The 30-day milestone is coming in 4 days. Plan a meaningful but recovery-focused celebration. This is a big moment for Tyler and the family.",
+      related_to: "Milestone: 30 days"
+    }
+  ],
+  clarifying_questions: [
+    "Has Tyler been connected with potential sponsors in the AA/NA community?",
+    "What sober living facilities are being considered for after treatment?",
+    "How are family members doing with their own self-care and Al-Anon attendance?",
+    "Is there a relapse prevention plan being developed with Dr. Chen?"
+  ],
+  what_to_watch: [
+    "Tyler's continued engagement as he approaches the end of residential treatment",
+    "Any attempts to negotiate around the sober living boundary",
+    "Family maintaining their own support (Al-Anon, etc.) to prevent burnout",
+    "Transition planning - ensuring placement is secured before discharge"
+  ],
+  strengths: [
+    { area: 'Professional Intervention', detail: 'Matt Sullivan guided family through textbook intervention' },
+    { area: 'Complete Communication Block', detail: 'All channels blocked - forced Tyler to engage through app only' },
+    { area: 'Unified Financial Boundary', detail: 'All requests denied except for treatment - no exceptions' },
+    { area: 'Smooth Provider Handoff', detail: 'Freedom Interventions to Recovery Partners transition well-coordinated' },
+    { area: 'Active Treatment Engagement', detail: 'Tyler at 95% participation, daily meetings, therapy engagement' }
+  ]
+};
+
+// Care Phases for Mitchell Family
+export const MITCHELL_CARE_PHASES = [
+  {
+    id: 'phase-1',
+    phase_type: 'detox',
+    facility_name: 'Recovery Partners - Detox Unit',
+    organization_name: 'Recovery Partners',
+    started_at: format(subDays(now, 26), 'yyyy-MM-dd'),
+    ended_at: format(subDays(now, 20), 'yyyy-MM-dd'),
+    is_current: false,
+    notes: 'Medical detox completed successfully. Tyler was uncomfortable but compliant. No medical complications.',
+    days_in_phase: 6
+  },
+  {
+    id: 'phase-2',
+    phase_type: 'residential_treatment',
+    facility_name: 'Recovery Partners - Residential',
+    organization_name: 'Recovery Partners',
+    started_at: format(subDays(now, 20), 'yyyy-MM-dd'),
+    ended_at: null,
+    is_current: true,
+    notes: 'Currently day 20 of 45-day residential program. Active participant in individual and group therapy. Processing childhood trauma related to parents\' divorce.',
+    days_in_phase: 20,
+    expected_completion: format(subDays(now, -25), 'yyyy-MM-dd') // 25 days remaining
+  }
+];
+
+// Provider Handoff record for Mitchell Family
+export const MITCHELL_PROVIDER_HANDOFF = {
+  id: 'handoff-1',
+  from_organization: 'Freedom Interventions',
+  to_organization: 'Recovery Partners',
+  status: 'completed',
+  initiated_at: format(subDays(now, 26), 'yyyy-MM-dd'),
+  completed_at: format(subDays(now, 26), 'yyyy-MM-dd'),
+  handoff_notes: 'Tyler Mitchell admitted following intervention. Family has been using FamilyBridge throughout - all members are aligned on boundaries. Tyler was resistant for 4 days post-intervention but agreed to treatment after family maintained unified front. Recommend continued professional moderation presence.',
+  sobriety_days_at_handoff: 0
+};
+
+// Aftercare Plan for Mitchell (being developed)
+export const MITCHELL_AFTERCARE_PLAN = {
+  id: 'demo-mitchell-plan-1',
+  targetUser: 'Tyler Mitchell',
+  targetUserId: '3',
+  createdBy: 'Dr. Amanda Chen',
+  createdAt: format(subDays(now, 7), 'MMM d, yyyy'),
+  isActive: true,
+  notes: 'Aftercare planning in progress. Tyler initially resisted sober living idea but family is holding boundary. Family session scheduled to finalize plan.',
+  recommendations: [
+    {
+      id: 'rec-1',
+      type: 'sober_living',
+      title: 'Sober Living Residence (PENDING SELECTION)',
+      description: 'Structured transitional housing with accountability and peer support',
+      facilityName: 'To be determined at family session',
+      duration: '90 days minimum',
+      frequency: null,
+      therapyType: null,
+      isCompleted: false,
+      completedAt: null,
+    },
+    {
+      id: 'rec-2',
+      type: 'iop',
+      title: 'Intensive Outpatient Program',
+      description: 'Step-down care after residential, 3-hour sessions with individual counseling',
+      facilityName: 'Recovery Partners Outpatient',
+      duration: '60-90 days',
+      frequency: '3x per week',
+      therapyType: null,
+      isCompleted: false,
+      completedAt: null,
+    },
+    {
+      id: 'rec-3',
+      type: 'meeting_attendance',
+      title: 'AA/NA Meeting Attendance',
+      description: 'Daily meetings during first 90 days of sober living, then weekly minimum',
+      facilityName: null,
+      duration: 'Ongoing',
+      frequency: 'Daily for 90 days, then 4x weekly',
+      therapyType: null,
+      isCompleted: false,
+      completedAt: null,
+    },
+    {
+      id: 'rec-4',
+      type: 'individual_therapy',
+      title: 'Individual Therapy',
+      description: 'Continue processing childhood trauma and developing coping skills',
+      facilityName: 'Dr. Amanda Chen or community referral',
+      duration: '12 months minimum',
+      frequency: 'Weekly',
+      therapyType: 'Trauma-Focused CBT',
+      isCompleted: false,
+      completedAt: null,
+    },
+    {
+      id: 'rec-5',
+      type: 'family_therapy',
+      title: 'Family Therapy Sessions',
+      description: 'Heal family relationships and address divorce trauma impact on all members',
+      facilityName: 'Recovery Partners Family Services',
+      duration: '6 months',
+      frequency: 'Bi-weekly',
+      therapyType: 'Structural Family Therapy',
+      isCompleted: false,
+      completedAt: null,
+    },
+  ]
+};
+
+// FIIS Observations for Mitchell - showing the trajectory
+export const MITCHELL_FIIS_OBSERVATIONS = [
+  {
+    id: 'obs-1',
+    user_id: '3',
+    observation_type: 'positive_behavior',
+    content: 'Tyler opened up in group therapy about how his parents\' divorce affected him. First time he\'s talked about this.',
+    occurred_at: format(subDays(now, 15), 'yyyy-MM-dd\'T\'HH:mm:ss'),
+    created_at: format(subDays(now, 15), 'yyyy-MM-dd\'T\'HH:mm:ss'),
+    user_name: 'Dr. Amanda Chen'
+  },
+  {
+    id: 'obs-2',
+    user_id: '3',
+    observation_type: 'boundary_test',
+    content: 'Tyler asked Jessica if he could skip sober living and stay with her. Family held boundary together.',
+    occurred_at: format(subDays(now, 3), 'yyyy-MM-dd\'T\'HH:mm:ss'),
+    created_at: format(subDays(now, 3), 'yyyy-MM-dd\'T\'HH:mm:ss'),
+    user_name: 'Matt Sullivan'
+  },
+  {
+    id: 'obs-3',
+    user_id: '3',
+    observation_type: 'progress_milestone',
+    content: 'Tyler acknowledged in session that blocking all communication channels was what finally made him realize the family was serious.',
+    occurred_at: format(subDays(now, 10), 'yyyy-MM-dd\'T\'HH:mm:ss'),
+    created_at: format(subDays(now, 10), 'yyyy-MM-dd\'T\'HH:mm:ss'),
+    user_name: 'Dr. Amanda Chen'
+  },
+];
+
+// FIIS Auto Events for Mitchell
+export const MITCHELL_FIIS_AUTO_EVENTS = [
+  {
+    id: 'event-1',
+    user_id: '3',
+    event_type: 'meeting_checkin',
+    event_data: { meeting_type: 'AA', meeting_name: 'Morning Serenity' },
+    occurred_at: format(subHours(now, 3), 'yyyy-MM-dd\'T\'HH:mm:ss'),
+    user_name: 'Tyler Mitchell'
+  },
+  {
+    id: 'event-2',
+    user_id: '3',
+    event_type: 'meeting_checkout',
+    event_data: { meeting_type: 'NA', meeting_name: 'Evening Group', duration_minutes: 92 },
+    occurred_at: format(subDays(now, 1), 'yyyy-MM-dd\'T\'HH:mm:ss'),
+    user_name: 'Tyler Mitchell'
+  },
+  {
+    id: 'event-3',
+    user_id: '3',
+    event_type: 'financial_request_denied',
+    event_data: { amount: 200, reason: 'rent' },
+    occurred_at: format(subDays(now, 29), 'yyyy-MM-dd\'T\'HH:mm:ss'),
+    user_name: 'Tyler Mitchell'
+  },
+  {
+    id: 'event-4',
+    user_id: '3',
+    event_type: 'financial_request_denied',
+    event_data: { amount: 50, reason: 'gas' },
+    occurred_at: format(subDays(now, 28), 'yyyy-MM-dd\'T\'HH:mm:ss'),
+    user_name: 'Tyler Mitchell'
+  },
+  {
+    id: 'event-5',
+    user_id: '3',
+    event_type: 'location_request_completed',
+    event_data: { requester: 'Patricia Mitchell', location: 'Recovery Partners' },
+    occurred_at: format(subDays(now, 8), 'yyyy-MM-dd\'T\'HH:mm:ss'),
+    user_name: 'Tyler Mitchell'
+  },
+  {
+    id: 'event-6',
+    user_id: '3',
+    event_type: 'location_request_completed',
+    event_data: { requester: 'Kevin Mitchell', location: 'Recovery Partners' },
+    occurred_at: format(subDays(now, 4), 'yyyy-MM-dd\'T\'HH:mm:ss'),
+    user_name: 'Tyler Mitchell'
+  },
+];
