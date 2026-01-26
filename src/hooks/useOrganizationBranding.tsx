@@ -73,37 +73,51 @@ export function useOrganizationBranding() {
     }
 
     try {
-      // Get the user's organization membership
+      // Get the user's organization membership first
       const { data: orgMember, error: memberError } = await supabase
         .from("organization_members")
-        .select(
-          `
-          organization_id,
-          organizations (
-            id,
-            name,
-            logo_url,
-            favicon_url,
-            primary_color,
-            primary_foreground_color,
-            secondary_color,
-            accent_color,
-            background_color,
-            foreground_color,
-            heading_font,
-            body_font
-          )
-        `
-        )
+        .select("organization_id")
         .eq("user_id", user.id)
         .limit(1)
         .maybeSingle();
 
       if (memberError) {
-        console.error("Error fetching organization branding:", memberError);
+        console.error("Error fetching organization membership:", memberError);
         setBranding(null);
-      } else if (orgMember?.organizations) {
-        const org = orgMember.organizations as any;
+        setIsLoading(false);
+        return;
+      }
+
+      if (!orgMember?.organization_id) {
+        setBranding(null);
+        setIsLoading(false);
+        return;
+      }
+
+      // Fetch organization branding directly from organizations table
+      const { data: org, error: orgError } = await supabase
+        .from("organizations")
+        .select(`
+          id,
+          name,
+          logo_url,
+          favicon_url,
+          primary_color,
+          primary_foreground_color,
+          secondary_color,
+          accent_color,
+          background_color,
+          foreground_color,
+          heading_font,
+          body_font
+        `)
+        .eq("id", orgMember.organization_id)
+        .single();
+
+      if (orgError) {
+        console.error("Error fetching organization branding:", orgError);
+        setBranding(null);
+      } else if (org) {
         setBranding({
           id: org.id,
           name: org.name,
