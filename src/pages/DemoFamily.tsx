@@ -306,7 +306,7 @@ const DemoFamily = () => {
                         <ChevronDown className="h-3 w-3 sm:h-4 sm:w-4 shrink-0" />
                       </button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="w-64">
+                    <DropdownMenuContent align="start" className="w-64 bg-background">
                       <DropdownMenuItem onClick={() => handleFamilyChange('johnson')} className="cursor-pointer">
                         <div className="flex items-center gap-3 py-1">
                           <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center">
@@ -326,6 +326,17 @@ const DemoFamily = () => {
                           <div>
                             <p className="font-medium">The Davis Family</p>
                             <p className="text-xs text-muted-foreground">Private Family • Crisis Mode</p>
+                          </div>
+                        </div>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleFamilyChange('mitchell')} className="cursor-pointer">
+                        <div className="flex items-center gap-3 py-1">
+                          <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-violet-500 to-violet-600 flex items-center justify-center">
+                            <Building2 className="h-4 w-4 text-white" />
+                          </div>
+                          <div>
+                            <p className="font-medium">The Mitchell Family</p>
+                            <p className="text-xs text-muted-foreground">In Treatment • Post-Intervention</p>
                           </div>
                         </div>
                       </DropdownMenuItem>
