@@ -11,14 +11,17 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { Users, LogOut, Loader2, ArrowRight, Home, Building2, Shield, Plus, Copy, Archive, HelpCircle, ArrowRightLeft } from 'lucide-react';
+import { Users, LogOut, Loader2, ArrowRight, Home, Building2, Shield, Plus, Copy, Archive, HelpCircle, ArrowRightLeft, FileText, MessageSquare } from 'lucide-react';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 import { NotificationBell } from '@/components/NotificationBell';
 import { AdminBreadcrumbs } from '@/components/AdminBreadcrumbs';
 import { FamilyHealthBadge } from '@/components/FamilyHealthBadge';
 import { BroadcastMessage } from '@/components/BroadcastMessage';
 import { FamilyHandoffDialog } from '@/components/FamilyHandoffDialog';
+import { ModeratorNotesPanel } from '@/components/ModeratorNotesPanel';
+import { ProviderMessaging } from '@/components/ProviderMessaging';
 
 type HealthStatus = 'crisis' | 'concern' | 'tension' | 'stable' | 'improving';
 
@@ -92,6 +95,7 @@ const ModeratorDashboard = () => {
   const [newFamilyDescription, setNewFamilyDescription] = useState('');
   const [isCreating, setIsCreating] = useState(false);
   const [archivingFamilyId, setArchivingFamilyId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState('families');
 
   // Apply organization branding when loaded
   useEffect(() => {
@@ -458,167 +462,242 @@ const ModeratorDashboard = () => {
             )}
           </div>
 
-          {/* Assigned Family Groups */}
-          <Card className="mb-6 border-primary/20">
-            <CardHeader className="bg-primary/5 rounded-t-lg">
-              <CardTitle className="flex items-center gap-2 text-primary">
-                <Users className="h-5 w-5" />
-                Your Assigned Family Groups
-              </CardTitle>
-              <CardDescription>
-                Family groups you are moderating ({assignedFamilies.length} total) - sorted by priority
-              </CardDescription>
-              {/* Legend */}
-              <div className="flex flex-wrap gap-3 mt-3 text-xs">
-                <div className="flex items-center gap-1.5">
-                  <div className="w-3 h-3 rounded-full bg-red-500" />
-                  <span className="text-muted-foreground">Critical</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <div className="w-3 h-3 rounded-full bg-orange-500" />
-                  <span className="text-muted-foreground">Concern</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <div className="w-3 h-3 rounded-full bg-amber-500" />
-                  <span className="text-muted-foreground">Tension</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <div className="w-3 h-3 rounded-full bg-green-500" />
-                  <span className="text-muted-foreground">Stable</span>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              {assignedFamilies.length === 0 ? (
-                <div className="text-center py-8">
-                  <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-foreground mb-2">
-                    No Family Groups Assigned
-                  </h3>
-                  <p className="text-muted-foreground">
-                    You haven't been assigned to any family groups yet. Contact your organization admin.
-                  </p>
-                </div>
-              ) : (
-                <div className="grid gap-4">
-                  {assignedFamilies.map((family) => (
-                    <div
-                      key={family.id}
-                      className={`flex items-center justify-between p-4 rounded-lg border border-l-4 ${getHealthBorderColor(family.health_status)} ${getHealthBgColor(family.health_status)} bg-card hover:shadow-md transition-shadow`}
-                    >
-                      <div 
-                        className="flex items-center gap-4 flex-1 cursor-pointer"
-                        onClick={() => navigate(`/family/${family.id}`)}
-                      >
-                        <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-                          <Users className="h-6 w-6 text-primary" />
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <h3 className="font-semibold text-foreground">{family.name}</h3>
-                            <FamilyHealthBadge familyId={family.id} />
-                          </div>
-                          {family.description && (
-                            <p className="text-sm text-muted-foreground line-clamp-1">
-                              {family.description}
-                            </p>
-                          )}
-                          <div className="flex items-center flex-wrap gap-3 mt-1">
-                            <span className="text-xs text-muted-foreground">
-                              {family.member_count} member{family.member_count !== 1 ? 's' : ''}
-                            </span>
-                            <span className="text-xs text-muted-foreground">•</span>
-                            <span className="text-xs text-primary">
-                              {family.organization_name}
-                            </span>
-                            {family.invite_code && (
-                              <>
+          {/* Tabs for Families, Notes, and Team Chat */}
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="families" className="flex items-center gap-2">
+                <Users className="h-4 w-4" />
+                <span className="hidden sm:inline">Families</span>
+              </TabsTrigger>
+              <TabsTrigger value="notes" className="flex items-center gap-2">
+                <FileText className="h-4 w-4" />
+                <span className="hidden sm:inline">Team Notes</span>
+              </TabsTrigger>
+              <TabsTrigger value="chat" className="flex items-center gap-2">
+                <MessageSquare className="h-4 w-4" />
+                <span className="hidden sm:inline">Team Chat</span>
+              </TabsTrigger>
+            </TabsList>
+
+            {/* Families Tab */}
+            <TabsContent value="families">
+              <Card className="border-primary/20">
+                <CardHeader className="bg-primary/5 rounded-t-lg">
+                  <CardTitle className="flex items-center gap-2 text-primary">
+                    <Users className="h-5 w-5" />
+                    Your Assigned Family Groups
+                  </CardTitle>
+                  <CardDescription>
+                    Family groups you are moderating ({assignedFamilies.length} total) - sorted by priority
+                  </CardDescription>
+                  {/* Legend */}
+                  <div className="flex flex-wrap gap-3 mt-3 text-xs">
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-3 h-3 rounded-full bg-destructive" />
+                      <span className="text-muted-foreground">Critical</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-3 h-3 rounded-full bg-orange-500" />
+                      <span className="text-muted-foreground">Concern</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-3 h-3 rounded-full bg-amber-500" />
+                      <span className="text-muted-foreground">Tension</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-3 h-3 rounded-full bg-green-500" />
+                      <span className="text-muted-foreground">Stable</span>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  {assignedFamilies.length === 0 ? (
+                    <div className="text-center py-8">
+                      <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                      <h3 className="text-lg font-semibold text-foreground mb-2">
+                        No Family Groups Assigned
+                      </h3>
+                      <p className="text-muted-foreground">
+                        You haven't been assigned to any family groups yet. Contact your organization admin.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="grid gap-4">
+                      {assignedFamilies.map((family) => (
+                        <div
+                          key={family.id}
+                          className={`flex items-center justify-between p-4 rounded-lg border border-l-4 ${getHealthBorderColor(family.health_status)} ${getHealthBgColor(family.health_status)} bg-card hover:shadow-md transition-shadow`}
+                        >
+                          <div 
+                            className="flex items-center gap-4 flex-1 cursor-pointer"
+                            onClick={() => navigate(`/family/${family.id}`)}
+                          >
+                            <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                              <Users className="h-6 w-6 text-primary" />
+                            </div>
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <h3 className="font-semibold text-foreground">{family.name}</h3>
+                                <FamilyHealthBadge familyId={family.id} />
+                              </div>
+                              {family.description && (
+                                <p className="text-sm text-muted-foreground line-clamp-1">
+                                  {family.description}
+                                </p>
+                              )}
+                              <div className="flex items-center flex-wrap gap-3 mt-1">
+                                <span className="text-xs text-muted-foreground">
+                                  {family.member_count} member{family.member_count !== 1 ? 's' : ''}
+                                </span>
                                 <span className="text-xs text-muted-foreground">•</span>
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    copyInviteCode(family.invite_code!);
-                                  }}
-                                  className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors"
-                                >
-                                  <Copy className="h-3 w-3" />
-                                  {family.invite_code}
-                                </button>
-                              </>
-                            )}
+                                <span className="text-xs text-primary">
+                                  {family.organization_name}
+                                </span>
+                                {family.invite_code && (
+                                  <>
+                                    <span className="text-xs text-muted-foreground">•</span>
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        copyInviteCode(family.invite_code!);
+                                      }}
+                                      className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors"
+                                    >
+                                      <Copy className="h-3 w-3" />
+                                      {family.invite_code}
+                                    </button>
+                                  </>
+                                )}
+                              </div>
+                            </div>
                           </div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {/* Handoff Button */}
-                        {family.organization_id && (
-                          <FamilyHandoffDialog
-                            familyId={family.id}
-                            familyName={family.name}
-                            currentOrgId={family.organization_id}
-                            currentOrgName={family.organization_name}
-                            onSuccess={fetchModeratorData}
-                            trigger={
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={(e) => e.stopPropagation()}
-                                className="text-muted-foreground hover:text-primary"
-                                title="Handoff to another provider"
-                              >
-                                <ArrowRightLeft className="h-4 w-4" />
-                              </Button>
-                            }
-                          />
-                        )}
-                        {/* Archive Button */}
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button 
+                          <div className="flex items-center gap-2">
+                            {/* Handoff Button */}
+                            {family.organization_id && (
+                              <FamilyHandoffDialog
+                                familyId={family.id}
+                                familyName={family.name}
+                                currentOrgId={family.organization_id}
+                                currentOrgName={family.organization_name}
+                                onSuccess={fetchModeratorData}
+                                trigger={
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="text-muted-foreground hover:text-primary"
+                                    title="Handoff to another provider"
+                                  >
+                                    <ArrowRightLeft className="h-4 w-4" />
+                                  </Button>
+                                }
+                              />
+                            )}
+                            {/* Archive Button */}
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm"
+                                  onClick={(e) => e.stopPropagation()}
+                                  disabled={isArchiving && archivingFamilyId === family.id}
+                                  className="text-muted-foreground hover:text-destructive"
+                                  title="Archive family"
+                                >
+                                  {isArchiving && archivingFamilyId === family.id ? (
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                  ) : (
+                                    <Archive className="h-4 w-4" />
+                                  )}
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Archive Family Group?</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    This will archive "{family.name}". The family will no longer appear in active lists, 
+                                    but can be reactivated by a provider admin or super admin.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction onClick={() => handleArchiveFamily(family.id, family.name)}>
+                                    Archive
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                            <Button
                               variant="ghost" 
                               size="sm"
-                              onClick={(e) => e.stopPropagation()}
-                              disabled={isArchiving && archivingFamilyId === family.id}
-                              className="text-muted-foreground hover:text-destructive"
-                              title="Archive family"
+                              onClick={() => navigate(`/family/${family.id}`)}
                             >
-                              {isArchiving && archivingFamilyId === family.id ? (
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                              ) : (
-                                <Archive className="h-4 w-4" />
-                              )}
+                              <ArrowRight className="h-4 w-4" />
                             </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Archive Family Group?</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                This will archive "{family.name}". The family will no longer appear in active lists, 
-                                but can be reactivated by a provider admin or super admin.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => handleArchiveFamily(family.id, family.name)}>
-                                Archive
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                        <Button
-                          variant="ghost" 
-                          size="sm"
-                          onClick={() => navigate(`/family/${family.id}`)}
-                        >
-                          <ArrowRight className="h-4 w-4" />
-                        </Button>
-                      </div>
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Team Notes Tab */}
+            <TabsContent value="notes">
+              <Card className="border-primary/20">
+                <CardHeader className="bg-primary/5 rounded-t-lg">
+                  <CardTitle className="flex items-center gap-2 text-primary">
+                    <FileText className="h-5 w-5" />
+                    Clinical Notes
+                  </CardTitle>
+                  <CardDescription>
+                    Private notes for your team about the families you moderate. These are not visible to family members.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="pt-6">
+                  <ModeratorNotesPanel 
+                    families={assignedFamilies.map(f => ({
+                      id: f.id,
+                      name: f.name,
+                      organization_id: f.organization_id,
+                    }))} 
+                  />
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Team Chat Tab */}
+            <TabsContent value="chat">
+              <Card className="border-primary/20">
+                <CardHeader className="bg-primary/5 rounded-t-lg">
+                  <CardTitle className="flex items-center gap-2 text-primary">
+                    <MessageSquare className="h-5 w-5" />
+                    Team Communication
+                  </CardTitle>
+                  <CardDescription>
+                    Private messaging with other moderators and provider admins. Not visible to family members.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="pt-6">
+                  {organizations.length > 0 ? (
+                    <ProviderMessaging organizationId={organizations[0].id} />
+                  ) : (
+                    <div className="text-center py-8">
+                      <MessageSquare className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                      <h3 className="text-lg font-semibold text-foreground mb-2">
+                        Team Chat Not Available
+                      </h3>
+                      <p className="text-muted-foreground">
+                        Team messaging requires being part of a provider organization. 
+                        Contact your administrator to join an organization.
+                      </p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
 
         </div>
       </main>

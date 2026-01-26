@@ -3507,6 +3507,10 @@ export type Database = {
         Args: { _family_id: string; _user_id: string }
         Returns: boolean
       }
+      is_family_moderator_or_org_member: {
+        Args: { _family_id: string; _user_id: string }
+        Returns: boolean
+      }
       is_in_same_family: {
         Args: { _other_user_id: string; _user_id: string }
         Returns: boolean
