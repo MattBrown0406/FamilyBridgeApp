@@ -83,6 +83,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { filterContent } from '@/lib/contentFilter';
+import { RecoveryTrajectoryPanel } from '@/components/RecoveryTrajectoryPanel';
 
 // Import comprehensive demo data
 import {
@@ -98,6 +99,8 @@ import {
   JOHNSON_FIIS_ANALYSIS,
   JOHNSON_AFTERCARE_PLAN,
   JOHNSON_CARE_PHASES,
+  JOHNSON_FIIS_OBSERVATIONS,
+  JOHNSON_FIIS_AUTO_EVENTS,
   DAVIS_MEMBERS,
   DAVIS_MESSAGES,
   DAVIS_FINANCIAL_REQUESTS,
@@ -111,6 +114,8 @@ import {
   DAVIS_FIIS_ANALYSIS,
   DAVIS_AFTERCARE_PLAN,
   DAVIS_CARE_PHASES,
+  DAVIS_FIIS_OBSERVATIONS,
+  DAVIS_FIIS_AUTO_EVENTS,
   MITCHELL_MEMBERS,
   MITCHELL_MESSAGES,
   MITCHELL_FINANCIAL_REQUESTS,
@@ -158,8 +163,8 @@ const getFamilyData = (family: FamilyType) => {
         aftercarePlan: JOHNSON_AFTERCARE_PLAN,
         carePhases: JOHNSON_CARE_PHASES,
         locationRequests: [],
-        fiisObservations: [],
-        fiisAutoEvents: [],
+        fiisObservations: JOHNSON_FIIS_OBSERVATIONS,
+        fiisAutoEvents: JOHNSON_FIIS_AUTO_EVENTS,
       };
     case 'davis':
       return {
@@ -180,8 +185,8 @@ const getFamilyData = (family: FamilyType) => {
         aftercarePlan: DAVIS_AFTERCARE_PLAN,
         carePhases: DAVIS_CARE_PHASES,
         locationRequests: [],
-        fiisObservations: [],
-        fiisAutoEvents: [],
+        fiisObservations: DAVIS_FIIS_OBSERVATIONS,
+        fiisAutoEvents: DAVIS_FIIS_AUTO_EVENTS,
       };
     case 'mitchell':
       return {
@@ -1362,6 +1367,23 @@ const DemoFamily = () => {
                     </p>
                   </CardContent>
                 </Card>
+
+                {/* Recovery Trajectory Panel */}
+                {(currentFamily.fiisObservations.length > 0 || currentFamily.fiisAutoEvents.length > 0) && (
+                  <RecoveryTrajectoryPanel 
+                    data={{
+                      observations: currentFamily.fiisObservations.map(o => ({
+                        occurred_at: o.occurred_at,
+                        observation_type: o.observation_type,
+                      })),
+                      autoEvents: currentFamily.fiisAutoEvents.map(e => ({
+                        occurred_at: e.occurred_at,
+                        event_type: e.event_type,
+                        event_data: e.event_data,
+                      })),
+                    }}
+                  />
+                )}
 
                 {currentFamily.fiisAnalysis && (
                   <>
