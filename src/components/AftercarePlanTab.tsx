@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { fetchProfilesByIds } from '@/lib/profileApi';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -145,6 +144,12 @@ export function AftercarePlanTab({ familyId, members, isModerator }: AftercarePl
   const [newRecTherapyType, setNewRecTherapyType] = useState('');
   const [isAddingRec, setIsAddingRec] = useState(false);
 
+  // Build a lookup map from the members prop for fast name resolution
+  const memberNamesMap = members.reduce((acc, m) => {
+    acc[m.user_id] = m.full_name;
+    return acc;
+  }, {} as Record<string, string>);
+
   useEffect(() => {
     fetchPlans();
   }, [familyId]);
@@ -152,47 +157,53 @@ export function AftercarePlanTab({ familyId, members, isModerator }: AftercarePl
   const fetchPlans = async () => {
     setIsLoading(true);
     try {
-      const { data: plansData, error: plansError } = await supabase
-        .from('aftercare_plans')
-        .select('*')
-        .eq('family_id', familyId)
-        .order('created_at', { ascending: false });
-
-      if (plansError) throw plansError;
-
-      // Fetch recommendations for all plans
-      const planIds = plansData?.map(p => p.id) || [];
-      let recommendations: AfterCareRecommendation[] = [];
-      
-      if (planIds.length > 0) {
-        const { data: recsData, error: recsError } = await supabase
+      // Fetch plans and recommendations in parallel for better performance
+      const [plansResult, recsResult] = await Promise.all([
+        supabase
+          .from('aftercare_plans')
+          .select('*')
+          .eq('family_id', familyId)
+          .order('created_at', { ascending: false }),
+        supabase
           .from('aftercare_recommendations')
           .select('*')
-          .in('plan_id', planIds)
-          .order('created_at', { ascending: true });
-        
-        if (recsError) throw recsError;
-        recommendations = recsData || [];
-      }
+          .order('created_at', { ascending: true })
+      ]);
 
-      // Get user names
+      if (plansResult.error) throw plansResult.error;
+
+      const plansData = plansResult.data || [];
+      const planIds = plansData.map(p => p.id);
+      
+      // Filter recommendations to only those belonging to our plans
+      const recommendations = (recsResult.data || []).filter(r => planIds.includes(r.plan_id));
+
+      // Get user IDs that need names
       const userIds = [...new Set([
-        ...(plansData?.map(p => p.target_user_id) || []),
-        ...(plansData?.map(p => p.created_by) || [])
+        ...plansData.map(p => p.target_user_id),
+        ...plansData.map(p => p.created_by)
       ])];
 
-      let userNames: Record<string, string> = {};
-      if (userIds.length > 0) {
-        const profilesData = await fetchProfilesByIds(userIds);
+      // Start with names from the members prop (already available, no network call)
+      const userNames: Record<string, string> = { ...memberNamesMap };
+      
+      // Find any user IDs not in our members map
+      const missingUserIds = userIds.filter(id => !userNames[id]);
+      
+      // Only fetch profiles for users not already known
+      if (missingUserIds.length > 0) {
+        const { data: profilesData } = await supabase
+          .from('profiles')
+          .select('id, full_name')
+          .in('id', missingUserIds);
 
-        userNames = (profilesData || []).reduce((acc, p) => {
-          acc[p.id] = p.full_name;
-          return acc;
-        }, {} as Record<string, string>);
+        (profilesData || []).forEach(p => {
+          userNames[p.id] = p.full_name;
+        });
       }
 
       // Combine data
-      const enrichedPlans: AftercarePlan[] = (plansData || []).map(plan => ({
+      const enrichedPlans: AftercarePlan[] = plansData.map(plan => ({
         ...plan,
         target_user_name: userNames[plan.target_user_id] || 'Unknown',
         creator_name: userNames[plan.created_by] || 'Unknown',
@@ -208,7 +219,7 @@ export function AftercarePlanTab({ familyId, members, isModerator }: AftercarePl
       console.error('Error fetching aftercare plans:', error);
       toast({
         title: 'Error',
-        description: 'Failed to load aftercare plans',
+        description: 'Failed to load aftercare plans. Please try again.',
         variant: 'destructive'
       });
     } finally {
