@@ -134,36 +134,69 @@ Language Rules:
 
 ---
 
-PROVIDER CLINICAL ALERTS (For Professional Moderators Only):
+PROVIDER CLINICAL INSIGHTS (For Professional Moderators Only):
 
-Generate non-alarmist, data-driven alerts for clinical staff. These alerts should:
-- Be specific and quantified (e.g., "Boundary consistency has dropped 22% over 30 days")
-- Focus on trends over time, not isolated incidents
-- Suggest clinical adjustments without creating alarm
-- Enable proactive intervention before crisis
+CORE DESIGN PRINCIPLES FOR PROVIDER PANEL:
 
-Alert Categories:
-1. Boundary Consistency - Track adherence to stated boundaries over time
-2. Help-Seeking Latency - Time between challenge emergence and reaching out for support
-3. Intervention Pressure - Rising need for family intervention vs. self-management
-4. Accountability Trend - Direction of self-accountability behaviors
-5. Engagement Pattern - Quality and consistency of participation
-6. Family Alignment - Agreement/disagreement patterns among family members
-7. Communication Quality - Tone, frequency, and openness of communication
-8. Financial Pattern - Alignment of requests with agreements and transparency
+1. PATTERN > EVENTS
+   - Always present trends and trajectories, never transcripts or individual messages
+   - Aggregate data over time periods (7 days, 30 days, since last analysis)
+   - Providers see pattern summaries, not raw content
+   - Example: "Check-in consistency: 85% → 67% over 30 days" NOT "Missed check-in on Tuesday"
 
-Example Alerts (Non-Alarmist Tone):
-- "Boundary consistency has dropped 22% over 30 days"
-- "Help-seeking latency has increased from 2 days to 5 days average"
-- "Family intervention pressure rising while accountability is decreasing"
-- "Meeting attendance showing 15% decline over past 3 weeks"
-- "Financial request patterns suggest increased impulsivity this month"
+2. SIGNAL > SENTIMENT  
+   - Focus on observable behavioral signals, not emotional interpretation
+   - No chat content, emotional language, or private communications
+   - Only structured metrics derived from actions (attendance, timing, frequency)
+   - Authorization required before including any message-derived data
+
+3. ACTIONABLE > INTERESTING
+   - Every insight must answer: "What should I do differently?"
+   - Lead with clinical consideration, not data observation
+   - Frame all metrics in terms of care adjustment decisions
+   - If an observation doesn't inform action, don't include it
+
+4. NON-PREDICTIVE LANGUAGE
+   - Use "trajectory" NOT "risk score" or "relapse probability"
+   - Use "direction" NOT "prediction" or "likelihood"
+   - Say "current path suggests" NOT "will lead to" or "predicts"
+   - Avoid percentages that imply prediction accuracy
+   - Frame as patterns requiring attention, not forecasts
+
+5. CLINICAL NEUTRALITY
+   - No diagnosing or labeling
+   - Recommendations framed as considerations, never orders
+   - Use "consider exploring" NOT "you should" or "must"
+   - Present options, not directives
+   - Respect provider clinical judgment
+
+Generate data-driven clinical insights following these principles:
+- Quantify observable behaviors (attendance rates, response latencies, consistency percentages)
+- Focus on trend direction and magnitude over time
+- Suggest care considerations without prescribing action
+- Enable proactive care adjustment before escalation
+
+Insight Categories:
+1. Boundary Consistency - Adherence pattern to stated boundaries over time
+2. Help-Seeking Latency - Time pattern between challenge emergence and reaching out
+3. Intervention Consideration - When external support may benefit the family
+4. Accountability Trajectory - Direction of self-accountability behaviors
+5. Engagement Pattern - Consistency and quality of participation
+6. Family Alignment - Agreement patterns among family members
+7. Communication Frequency - Regularity and openness of family communication
+8. Financial Transparency - Alignment of requests with stated agreements
+
+Example Insights (Clinically Neutral):
+- "Boundary consistency trajectory: declining 22% over 30 days. Consider exploring what factors may be contributing."
+- "Help-seeking latency trending upward (2→5 days avg). May warrant discussion about support accessibility."
+- "Meeting attendance pattern: 15% decline over 3 weeks. Consider whether schedule adjustments could help."
+- "Financial transparency trajectory stable. Current agreements appear well-understood."
 
 Clinical Use:
-- Inform coaching conversations
-- Adjust treatment intensity
-- Identify step-up timing
-- Document progress objectively
+- Inform clinical supervision discussions
+- Consider care intensity adjustments
+- Identify timing for additional support conversations
+- Document behavioral patterns objectively
 
 ---
 
@@ -716,59 +749,59 @@ SOBRIETY JOURNEY STATUS:
                     items: { type: "string" },
                     description: "Specific healthy behaviors to acknowledge that support reaching one year",
                   },
-                  provider_clinical_alerts: {
+                  provider_clinical_insights: {
                     type: "array",
                     items: {
                       type: "object",
                       properties: {
-                        alert_category: {
+                        insight_category: {
                           type: "string",
                           enum: [
                             "boundary_consistency",
                             "help_seeking_latency",
-                            "intervention_pressure",
-                            "accountability_trend",
+                            "intervention_consideration",
+                            "accountability_trajectory",
                             "engagement_pattern",
                             "family_alignment",
-                            "communication_quality",
-                            "financial_pattern"
+                            "communication_frequency",
+                            "financial_transparency"
                           ],
-                          description: "Category of clinical observation"
+                          description: "Category of clinical observation - focus on patterns over time"
                         },
-                        metric_description: {
+                        pattern_summary: {
                           type: "string",
-                          description: "Specific, quantified observation. Examples: 'Boundary consistency has dropped 22% over 30 days', 'Help-seeking latency has increased from 2 days to 5 days average'"
+                          description: "Observable behavioral pattern with trend data. Use trajectory language, NOT predictions. Example: 'Boundary consistency trajectory: declining 22% over 30 days' NOT 'Risk of relapse increasing'"
                         },
-                        trend_direction: {
+                        trajectory_direction: {
                           type: "string",
                           enum: ["improving", "stable", "declining"],
-                          description: "Direction of the trend"
+                          description: "Direction of the behavioral trajectory (NOT risk prediction)"
                         },
-                        percentage_change: {
+                        magnitude: {
                           type: "number",
-                          description: "Percentage change if applicable (positive = improvement, negative = decline)"
+                          description: "Percentage magnitude of change (positive = improvement direction, negative = declining direction)"
                         },
-                        time_period: {
+                        observation_period: {
                           type: "string",
-                          description: "Time period of observation (e.g., '30 days', '2 weeks', 'since last analysis')"
+                          description: "Time window for this observation (e.g., '30 days', '2 weeks', 'since last analysis')"
                         },
-                        clinical_implication: {
+                        clinical_consideration: {
                           type: "string",
-                          description: "What this means for clinical care without being alarmist"
+                          description: "What this pattern may warrant exploring. Use 'consider' and 'may' language. Never directive or diagnostic."
                         },
-                        suggested_intervention: {
+                        action_question: {
                           type: "string",
-                          description: "Suggested clinical adjustment, coaching approach, or step-up consideration"
+                          description: "Frame as a question for the provider: 'What adjustment to care approach might support...?' Always actionable, never prescriptive."
                         },
-                        urgency: {
+                        review_priority: {
                           type: "string",
-                          enum: ["routine_review", "attention_needed", "priority_action"],
-                          description: "Level of urgency for provider attention"
+                          enum: ["routine_monitoring", "warrants_discussion", "priority_review"],
+                          description: "Priority level for clinical review - NOT urgency or risk level"
                         }
                       },
-                      required: ["alert_category", "metric_description", "trend_direction", "clinical_implication", "suggested_intervention", "urgency"]
+                      required: ["insight_category", "pattern_summary", "trajectory_direction", "clinical_consideration", "action_question", "review_priority"]
                     },
-                    description: "Non-alarmist, data-driven clinical alerts for provider review. Focus on observable metrics and actionable insights for clinical adjustment, family coaching, or step-up before relapse."
+                    description: "Pattern-based clinical insights for provider review. MUST follow principles: Pattern>Events (trends not transcripts), Signal>Sentiment (no emotional content), Actionable>Interesting (every element answers 'what should I do differently?'), Non-Predictive (trajectory not risk), Clinical Neutrality (considerations not orders)."
                   },
                 },
                 required: [
@@ -786,7 +819,7 @@ SOBRIETY JOURNEY STATUS:
                   "risk_trajectory",
                   "compliance_trends",
                   "transition_readiness",
-                  "provider_clinical_alerts",
+                  "provider_clinical_insights",
                   "clarifying_questions", 
                   "what_to_watch", 
                   "recommend_professional"

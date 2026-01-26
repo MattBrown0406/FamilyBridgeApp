@@ -138,6 +138,26 @@ interface TransitionReadiness {
   transition_risks?: string[];
 }
 
+interface ProviderClinicalInsight {
+  insight_category: 
+    | "boundary_consistency"
+    | "help_seeking_latency"
+    | "intervention_consideration"
+    | "accountability_trajectory"
+    | "engagement_pattern"
+    | "family_alignment"
+    | "communication_frequency"
+    | "financial_transparency";
+  pattern_summary: string;
+  trajectory_direction: "improving" | "stable" | "declining";
+  magnitude?: number;
+  observation_period?: string;
+  clinical_consideration: string;
+  action_question: string;
+  review_priority: "routine_monitoring" | "warrants_discussion" | "priority_review";
+}
+
+// Legacy interface for backward compatibility
 interface ProviderClinicalAlert {
   alert_category: 
     | "boundary_consistency"
@@ -180,7 +200,8 @@ interface PatternAnalysis {
   risk_trajectory?: RiskTrajectory;
   compliance_trends?: ComplianceTrends;
   transition_readiness?: TransitionReadiness;
-  // Provider-only alerts
+  // Provider-only insights (new format) and legacy alerts
+  provider_clinical_insights?: ProviderClinicalInsight[];
   provider_clinical_alerts?: ProviderClinicalAlert[];
 }
 
@@ -1136,23 +1157,149 @@ export function FIISTab({ familyId, members, excludeUserIds = [], onView, isMode
               </div>
             )}
 
-            {/* Provider Clinical Alerts - Only visible to moderators */}
-            {isModerator && analysis.provider_clinical_alerts && analysis.provider_clinical_alerts.length > 0 && (
-              <div className="p-4 rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border border-blue-200 dark:border-blue-800">
-                <h4 className="text-sm font-semibold mb-3 flex items-center gap-2 text-blue-800 dark:text-blue-300">
-                  <Stethoscope className="h-4 w-4" />
-                  Clinical Insights
-                  <Badge variant="outline" className="ml-auto text-[10px] border-blue-300 dark:border-blue-700 text-blue-600 dark:text-blue-400">
-                    Provider Only
-                  </Badge>
-                </h4>
-                <p className="text-xs text-blue-600 dark:text-blue-400 mb-3">
-                  Non-alarmist, data-driven observations for clinical adjustment and family coaching.
-                </p>
+            {/* Provider Clinical Insights Panel - Only visible to moderators */}
+            {isModerator && (analysis.provider_clinical_insights?.length || analysis.provider_clinical_alerts?.length) ? (
+              <div className="p-4 rounded-lg bg-gradient-to-r from-slate-50 to-blue-50 dark:from-slate-950/30 dark:to-blue-950/30 border border-slate-200 dark:border-slate-800">
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="text-sm font-semibold flex items-center gap-2 text-slate-800 dark:text-slate-300">
+                    <Stethoscope className="h-4 w-4" />
+                    Clinical Insights
+                    <Badge variant="outline" className="ml-2 text-[10px] border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400">
+                      Provider Only
+                    </Badge>
+                  </h4>
+                </div>
+                
+                {/* Design Principles Banner */}
+                <div className="mb-4 p-3 rounded-lg bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700">
+                  <div className="grid grid-cols-2 md:grid-cols-5 gap-2 text-[10px] text-slate-600 dark:text-slate-400">
+                    <div className="flex items-center gap-1">
+                      <BarChart3 className="h-3 w-3" />
+                      <span className="font-medium">Pattern</span>
+                      <span className="text-slate-400">{">"}</span>
+                      <span>Events</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Activity className="h-3 w-3" />
+                      <span className="font-medium">Signal</span>
+                      <span className="text-slate-400">{">"}</span>
+                      <span>Sentiment</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Target className="h-3 w-3" />
+                      <span className="font-medium">Actionable</span>
+                      <span className="text-slate-400">{">"}</span>
+                      <span>Interesting</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <TrendingUp className="h-3 w-3" />
+                      <span>Trajectory-Based</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Shield className="h-3 w-3" />
+                      <span>Clinically Neutral</span>
+                    </div>
+                  </div>
+                </div>
+
                 <div className="space-y-3">
-                  {analysis.provider_clinical_alerts.map((alert, i) => (
+                  {/* New format: Clinical Insights */}
+                  {analysis.provider_clinical_insights?.map((insight, i) => (
                     <div
-                      key={i}
+                      key={`insight-${i}`}
+                      className={`p-3 rounded-lg border bg-background ${
+                        insight.review_priority === "priority_review"
+                          ? "border-amber-300 dark:border-amber-700"
+                          : insight.review_priority === "warrants_discussion"
+                          ? "border-blue-300 dark:border-blue-700"
+                          : "border-border"
+                      }`}
+                    >
+                      {/* Header row */}
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <Badge
+                            variant="outline"
+                            className={`text-[10px] capitalize ${
+                              insight.trajectory_direction === "improving"
+                                ? "border-green-300 text-green-700 dark:border-green-700 dark:text-green-400"
+                                : insight.trajectory_direction === "declining"
+                                ? "border-amber-300 text-amber-700 dark:border-amber-700 dark:text-amber-400"
+                                : "border-muted-foreground/30"
+                            }`}
+                          >
+                            {insight.trajectory_direction === "improving" && <ArrowUp className="h-2.5 w-2.5 mr-1" />}
+                            {insight.trajectory_direction === "declining" && <ArrowDown className="h-2.5 w-2.5 mr-1" />}
+                            {insight.trajectory_direction === "stable" && <Minus className="h-2.5 w-2.5 mr-1" />}
+                            {insight.trajectory_direction} trajectory
+                          </Badge>
+                          <Badge variant="secondary" className="text-[10px] capitalize">
+                            {insight.insight_category.replace(/_/g, " ")}
+                          </Badge>
+                          {insight.observation_period && (
+                            <span className="text-[10px] text-muted-foreground flex items-center gap-1">
+                              <Clock className="h-2.5 w-2.5" />
+                              {insight.observation_period}
+                            </span>
+                          )}
+                        </div>
+                        <Badge
+                          variant="secondary"
+                          className={`text-[10px] capitalize shrink-0 ${
+                            insight.review_priority === "priority_review"
+                              ? "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400"
+                              : insight.review_priority === "warrants_discussion"
+                              ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400"
+                              : ""
+                          }`}
+                        >
+                          {insight.review_priority.replace(/_/g, " ")}
+                        </Badge>
+                      </div>
+                      
+                      {/* Pattern Summary */}
+                      <p className="text-sm font-medium mb-2 flex items-start gap-2">
+                        <BarChart3 className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
+                        <span>
+                          {insight.pattern_summary}
+                          {insight.magnitude !== undefined && (
+                            <span className={`ml-1 text-xs ${
+                              insight.magnitude > 0 
+                                ? "text-green-600 dark:text-green-400" 
+                                : insight.magnitude < 0 
+                                ? "text-amber-600 dark:text-amber-400"
+                                : ""
+                            }`}>
+                              ({insight.magnitude > 0 ? "+" : ""}{insight.magnitude}%)
+                            </span>
+                          )}
+                        </span>
+                      </p>
+                      
+                      {/* Clinical Consideration & Action Question */}
+                      <div className="grid gap-2 text-xs">
+                        <div className="p-2 rounded bg-muted/50">
+                          <span className="text-muted-foreground font-medium flex items-center gap-1 mb-1">
+                            <Eye className="h-3 w-3" />
+                            Clinical Consideration:
+                          </span>
+                          <span>{insight.clinical_consideration}</span>
+                        </div>
+                        <div className="p-2 rounded bg-primary/5 border border-primary/10">
+                          <span className="text-primary font-medium flex items-center gap-1 mb-1">
+                            <Target className="h-3 w-3" />
+                            What might I do differently?
+                          </span>
+                          <span className="text-primary/80 italic">{insight.action_question}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+
+                  {/* Legacy format: Clinical Alerts (backward compatibility) */}
+                  {!analysis.provider_clinical_insights?.length && analysis.provider_clinical_alerts?.map((alert, i) => (
+                    <div
+                      key={`alert-${i}`}
                       className={`p-3 rounded-lg border bg-background ${
                         alert.urgency === "priority_action"
                           ? "border-amber-300 dark:border-amber-700"
@@ -1169,14 +1316,14 @@ export function FIISTab({ familyId, members, excludeUserIds = [], onView, isMode
                               alert.trend_direction === "improving"
                                 ? "border-green-300 text-green-700 dark:border-green-700 dark:text-green-400"
                                 : alert.trend_direction === "declining"
-                                ? "border-red-300 text-red-700 dark:border-red-700 dark:text-red-400"
+                                ? "border-amber-300 text-amber-700 dark:border-amber-700 dark:text-amber-400"
                                 : "border-muted-foreground/30"
                             }`}
                           >
                             {alert.trend_direction === "improving" && <ArrowUp className="h-2.5 w-2.5 mr-1" />}
                             {alert.trend_direction === "declining" && <ArrowDown className="h-2.5 w-2.5 mr-1" />}
                             {alert.trend_direction === "stable" && <Minus className="h-2.5 w-2.5 mr-1" />}
-                            {alert.trend_direction}
+                            {alert.trend_direction} trajectory
                           </Badge>
                           <Badge variant="secondary" className="text-[10px] capitalize">
                             {alert.alert_category.replace(/_/g, " ")}
@@ -1188,49 +1335,54 @@ export function FIISTab({ familyId, members, excludeUserIds = [], onView, isMode
                           )}
                         </div>
                         <Badge
-                          variant={
+                          variant="secondary"
+                          className={`text-[10px] capitalize shrink-0 ${
                             alert.urgency === "priority_action"
-                              ? "destructive"
+                              ? "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400"
                               : alert.urgency === "attention_needed"
-                              ? "default"
-                              : "secondary"
-                          }
-                          className="text-[10px] capitalize shrink-0"
+                              ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400"
+                              : ""
+                          }`}
                         >
-                          {alert.urgency.replace(/_/g, " ")}
+                          {alert.urgency === "priority_action" ? "priority review" : 
+                           alert.urgency === "attention_needed" ? "warrants discussion" : 
+                           "routine monitoring"}
                         </Badge>
                       </div>
                       
-                      <p className="text-sm font-medium mb-2">
-                        {alert.metric_description}
-                        {alert.percentage_change !== undefined && (
-                          <span className={`ml-1 ${
-                            alert.percentage_change > 0 
-                              ? "text-green-600 dark:text-green-400" 
-                              : alert.percentage_change < 0 
-                              ? "text-red-600 dark:text-red-400"
-                              : ""
-                          }`}>
-                            ({alert.percentage_change > 0 ? "+" : ""}{alert.percentage_change}%)
-                          </span>
-                        )}
+                      <p className="text-sm font-medium mb-2 flex items-start gap-2">
+                        <BarChart3 className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
+                        <span>
+                          {alert.metric_description}
+                          {alert.percentage_change !== undefined && (
+                            <span className={`ml-1 text-xs ${
+                              alert.percentage_change > 0 
+                                ? "text-green-600 dark:text-green-400" 
+                                : alert.percentage_change < 0 
+                                ? "text-amber-600 dark:text-amber-400"
+                                : ""
+                            }`}>
+                              ({alert.percentage_change > 0 ? "+" : ""}{alert.percentage_change}%)
+                            </span>
+                          )}
+                        </span>
                       </p>
                       
                       <div className="grid gap-2 text-xs">
                         <div className="p-2 rounded bg-muted/50">
-                          <span className="text-muted-foreground font-medium">Clinical Implication: </span>
+                          <span className="text-muted-foreground font-medium">Clinical Consideration: </span>
                           <span>{alert.clinical_implication}</span>
                         </div>
-                        <div className="p-2 rounded bg-blue-50 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900">
-                          <span className="text-blue-700 dark:text-blue-400 font-medium">Suggested Intervention: </span>
-                          <span className="text-blue-600 dark:text-blue-300">{alert.suggested_intervention}</span>
+                        <div className="p-2 rounded bg-primary/5 border border-primary/10">
+                          <span className="text-primary font-medium">What might I do differently? </span>
+                          <span className="text-primary/80 italic">{alert.suggested_intervention}</span>
                         </div>
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
-            )}
+            ) : null}
 
             {/* Professional Moderator Recommendation */}
             {analysis.recommend_professional && (
