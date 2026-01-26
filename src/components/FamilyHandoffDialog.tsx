@@ -19,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ArrowRightLeft, Loader2, Building2, Users } from "lucide-react";
+import { ArrowRightLeft, Loader2, Building2, Users, Home } from "lucide-react";
 
 interface FamilyHandoffDialogProps {
   familyId: string;
@@ -140,8 +140,8 @@ export const FamilyHandoffDialog = ({
 
       setRecoveringMembers(recoveringList);
       
-      // Auto-select if only one recovering member
-      if (recoveringList.length === 1) {
+      // Auto-select first recovering member (handoff is for the family, member is for tracking)
+      if (recoveringList.length > 0) {
         setSelectedUserId(recoveringList[0].userId);
       }
     } catch (error) {
@@ -159,10 +159,13 @@ export const FamilyHandoffDialog = ({
       return;
     }
 
-    if (!selectedUserId) {
+    // Auto-select first recovering member if not already selected
+    const userIdToUse = selectedUserId || (recoveringMembers.length > 0 ? recoveringMembers[0].userId : null);
+
+    if (!userIdToUse) {
       toast({
-        title: "Select Client",
-        description: "Please select the recovering individual to hand off",
+        title: "No Client Available",
+        description: "This family group has no recovering individuals to hand off",
         variant: "destructive",
       });
       return;
@@ -174,11 +177,11 @@ export const FamilyHandoffDialog = ({
       if (!user) throw new Error("Not authenticated");
 
       const selectedMember = recoveringMembers.find(
-        (m) => m.userId === selectedUserId
+        (m) => m.userId === userIdToUse
       );
 
       const { error } = await supabase.from("provider_handoffs").insert({
-        user_id: selectedUserId,
+        user_id: userIdToUse,
         family_id: familyId,
         from_organization_id: currentOrgId,
         to_organization_id: selectedOrgId,
@@ -231,11 +234,28 @@ export const FamilyHandoffDialog = ({
             Handoff to Another Provider
           </DialogTitle>
           <DialogDescription>
-            Transfer primary care responsibility for "{familyName}" to another organization as the client moves to their next level of care.
+            Transfer care responsibility for this family group to another provider organization. Handoffs can occur to any level of care (higher or lower).
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
+          {/* Family Group Being Handed Off */}
+          <div className="p-4 bg-primary/5 border border-primary/20 rounded-lg">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                <Home className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <p className="font-semibold text-foreground">{familyName}</p>
+                <p className="text-sm text-muted-foreground">
+                  {recoveringMembers.length > 0 
+                    ? `${recoveringMembers.map(m => m.fullName).join(', ')} (${recoveringMembers[0]?.sobrietyDays || 0} days sober)`
+                    : 'No recovering individuals assigned'}
+                </p>
+              </div>
+            </div>
+          </div>
+
           {/* Current Organization */}
           <div className="p-3 bg-muted/50 rounded-lg">
             <div className="flex items-center gap-2 text-sm">
@@ -245,36 +265,6 @@ export const FamilyHandoffDialog = ({
             </div>
           </div>
 
-          {/* Select Recovering Individual */}
-          {recoveringMembers.length > 0 && (
-            <div className="space-y-2">
-              <Label>Client to Hand Off</Label>
-              <Select value={selectedUserId} onValueChange={setSelectedUserId}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select recovering individual" />
-                </SelectTrigger>
-                <SelectContent>
-                  {recoveringMembers.map((member) => (
-                    <SelectItem key={member.userId} value={member.userId}>
-                      <div className="flex items-center gap-2">
-                        <Users className="h-4 w-4" />
-                        <span>{member.fullName}</span>
-                        <span className="text-xs text-muted-foreground">
-                          ({member.sobrietyDays} days)
-                        </span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
-
-          {recoveringMembers.length === 0 && (
-            <div className="p-4 text-center text-sm text-muted-foreground bg-muted/30 rounded-lg">
-              No recovering individuals found in this family group.
-            </div>
-          )}
 
           {/* Destination Organization */}
           <div className="space-y-2">
@@ -325,7 +315,7 @@ export const FamilyHandoffDialog = ({
           </Button>
           <Button
             onClick={handleInitiateHandoff}
-            disabled={isSubmitting || !selectedOrgId || !selectedUserId || organizations.length === 0}
+            disabled={isSubmitting || !selectedOrgId || recoveringMembers.length === 0 || organizations.length === 0}
           >
             {isSubmitting ? (
               <>
