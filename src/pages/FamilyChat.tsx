@@ -4486,7 +4486,7 @@ const FamilyChat = () => {
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="boundaryConsequence">Consequence if Violated</Label>
+                        <Label htmlFor="boundaryConsequence">Result if Violated</Label>
                         <Textarea
                           id="boundaryConsequence"
                           placeholder="What will happen if this boundary is violated? (e.g., 'Financial support will be suspended for 30 days')"
@@ -4624,7 +4624,7 @@ const FamilyChat = () => {
                                 <p className="text-sm">{boundary.content}</p>
                                 {boundary.consequence && (
                                   <p className="text-sm text-destructive/80 mt-2">
-                                    <strong>Consequence if violated:</strong> {boundary.consequence}
+                                    <strong>Result if violated:</strong> {boundary.consequence}
                                   </p>
                                 )}
                               </div>
@@ -5461,7 +5461,7 @@ const FamilyChat = () => {
               </div>
               {boundaryToAcknowledge.consequence && (
                 <div className="p-4 rounded-lg bg-destructive/10 border border-destructive/30">
-                  <p className="text-sm font-medium mb-2 text-destructive">Consequence if Violated:</p>
+                  <p className="text-sm font-medium mb-2 text-destructive">Result if Violated:</p>
                   <p className="text-sm">{boundaryToAcknowledge.consequence}</p>
                 </div>
               )}
@@ -5505,7 +5505,7 @@ const FamilyChat = () => {
               />
             </div>
             <div className="space-y-2">
-              <Label>Consequence if Violated</Label>
+              <Label>Result if Violated</Label>
               <Textarea
                 placeholder="What will happen if this boundary is violated?"
                 value={editBoundaryConsequence}
