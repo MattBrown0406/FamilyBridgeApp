@@ -13,7 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { Users, LogOut, Loader2, ArrowRight, Home, Building2, Shield, Plus, Copy, Archive, HelpCircle, ArrowRightLeft, FileText, MessageSquare, Brain } from 'lucide-react';
+import { Users, LogOut, Loader2, ArrowRight, Home, Building2, Shield, Plus, Copy, Archive, HelpCircle, ArrowRightLeft, FileText, MessageSquare, Brain, Target } from 'lucide-react';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 import { NotificationBell } from '@/components/NotificationBell';
 import { AdminBreadcrumbs } from '@/components/AdminBreadcrumbs';
@@ -23,6 +23,7 @@ import { FamilyHandoffDialog } from '@/components/FamilyHandoffDialog';
 import { ModeratorNotesPanel } from '@/components/ModeratorNotesPanel';
 import { ProviderMessaging } from '@/components/ProviderMessaging';
 import FIISModeratorChat from '@/components/FIISModeratorChat';
+import CRMDashboard from '@/components/CRMDashboard';
 
 type HealthStatus = 'crisis' | 'concern' | 'tension' | 'stable' | 'improving';
 
@@ -465,7 +466,7 @@ const ModeratorDashboard = () => {
 
           {/* Tabs for Families, Notes, and Team Chat */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className={`grid w-full ${organizations.length > 0 ? 'grid-cols-5' : 'grid-cols-4'}`}>
               <TabsTrigger value="families" className="flex items-center gap-2">
                 <Users className="h-4 w-4" />
                 <span className="hidden sm:inline">Families</span>
@@ -482,6 +483,12 @@ const ModeratorDashboard = () => {
                 <Brain className="h-4 w-4" />
                 <span className="hidden sm:inline">FIIS Chat</span>
               </TabsTrigger>
+              {organizations.length > 0 && (
+                <TabsTrigger value="crm" className="flex items-center gap-2">
+                  <Target className="h-4 w-4" />
+                  <span className="hidden sm:inline">CRM</span>
+                </TabsTrigger>
+              )}
             </TabsList>
 
             {/* Families Tab */}
@@ -726,6 +733,24 @@ const ModeratorDashboard = () => {
                 </CardContent>
               </Card>
             </TabsContent>
+
+            {/* CRM Tab - Only for organization members */}
+            {organizations.length > 0 && (
+              <TabsContent value="crm">
+                <CRMDashboard 
+                  organizationId={organizations[0].id}
+                  families={assignedFamilies.map(f => ({
+                    id: f.id,
+                    name: f.name,
+                  }))}
+                  orgMembers={[{
+                    user_id: user?.id || '',
+                    full_name: user?.user_metadata?.full_name || 'You',
+                    role: organizations[0].role,
+                  }]}
+                />
+              </TabsContent>
+            )}
           </Tabs>
 
         </div>
