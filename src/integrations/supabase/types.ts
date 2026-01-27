@@ -411,6 +411,334 @@ export type Database = {
           },
         ]
       }
+      crm_activities: {
+        Row: {
+          activity_type: string
+          created_at: string
+          description: string | null
+          family_id: string | null
+          id: string
+          lead_id: string | null
+          metadata: Json | null
+          occurred_at: string
+          organization_id: string
+          task_id: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          activity_type: string
+          created_at?: string
+          description?: string | null
+          family_id?: string | null
+          id?: string
+          lead_id?: string | null
+          metadata?: Json | null
+          occurred_at?: string
+          organization_id: string
+          task_id?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          activity_type?: string
+          created_at?: string
+          description?: string | null
+          family_id?: string | null
+          id?: string
+          lead_id?: string | null
+          metadata?: Json | null
+          occurred_at?: string
+          organization_id?: string
+          task_id?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_activities_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_activities_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "crm_leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_activities_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_activities_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations_member_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_activities_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "crm_tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_leads: {
+        Row: {
+          assigned_to: string | null
+          contact_email: string | null
+          contact_name: string
+          contact_phone: string | null
+          converted_at: string | null
+          converted_to_family_id: string | null
+          created_at: string
+          created_by: string
+          estimated_value: number | null
+          id: string
+          lost_reason: string | null
+          notes: string | null
+          organization_id: string
+          patient_age: string | null
+          patient_name: string | null
+          presenting_issue: string | null
+          priority: string | null
+          referral_notes: string | null
+          referral_source_id: string | null
+          stage: Database["public"]["Enums"]["crm_pipeline_stage"]
+          stage_entered_at: string
+          tags: string[] | null
+          updated_at: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          contact_email?: string | null
+          contact_name: string
+          contact_phone?: string | null
+          converted_at?: string | null
+          converted_to_family_id?: string | null
+          created_at?: string
+          created_by: string
+          estimated_value?: number | null
+          id?: string
+          lost_reason?: string | null
+          notes?: string | null
+          organization_id: string
+          patient_age?: string | null
+          patient_name?: string | null
+          presenting_issue?: string | null
+          priority?: string | null
+          referral_notes?: string | null
+          referral_source_id?: string | null
+          stage?: Database["public"]["Enums"]["crm_pipeline_stage"]
+          stage_entered_at?: string
+          tags?: string[] | null
+          updated_at?: string
+        }
+        Update: {
+          assigned_to?: string | null
+          contact_email?: string | null
+          contact_name?: string
+          contact_phone?: string | null
+          converted_at?: string | null
+          converted_to_family_id?: string | null
+          created_at?: string
+          created_by?: string
+          estimated_value?: number | null
+          id?: string
+          lost_reason?: string | null
+          notes?: string | null
+          organization_id?: string
+          patient_age?: string | null
+          patient_name?: string | null
+          presenting_issue?: string | null
+          priority?: string | null
+          referral_notes?: string | null
+          referral_source_id?: string | null
+          stage?: Database["public"]["Enums"]["crm_pipeline_stage"]
+          stage_entered_at?: string
+          tags?: string[] | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_leads_converted_to_family_id_fkey"
+            columns: ["converted_to_family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_leads_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_leads_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations_member_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_leads_referral_source_fkey"
+            columns: ["referral_source_id"]
+            isOneToOne: false
+            referencedRelation: "crm_referral_sources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_referral_sources: {
+        Row: {
+          contact_email: string | null
+          contact_name: string | null
+          contact_phone: string | null
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          notes: string | null
+          organization_id: string
+          source_type: string
+          updated_at: string
+        }
+        Insert: {
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          notes?: string | null
+          organization_id: string
+          source_type: string
+          updated_at?: string
+        }
+        Update: {
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          notes?: string | null
+          organization_id?: string
+          source_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_referral_sources_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_referral_sources_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations_member_view"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_tasks: {
+        Row: {
+          assigned_to: string | null
+          completed_at: string | null
+          created_at: string
+          created_by: string
+          description: string | null
+          due_date: string | null
+          family_id: string | null
+          id: string
+          lead_id: string | null
+          organization_id: string
+          priority: string | null
+          status: string
+          task_type: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          completed_at?: string | null
+          created_at?: string
+          created_by: string
+          description?: string | null
+          due_date?: string | null
+          family_id?: string | null
+          id?: string
+          lead_id?: string | null
+          organization_id: string
+          priority?: string | null
+          status?: string
+          task_type?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_to?: string | null
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          due_date?: string | null
+          family_id?: string | null
+          id?: string
+          lead_id?: string | null
+          organization_id?: string
+          priority?: string | null
+          status?: string
+          task_type?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_tasks_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_tasks_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "crm_leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_tasks_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_tasks_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations_member_view"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       daily_emotional_checkins: {
         Row: {
           bypass_inferred_state: string | null
@@ -3635,6 +3963,14 @@ export type Database = {
         | "outpatient"
         | "sober_living"
         | "independent"
+      crm_pipeline_stage:
+        | "lead"
+        | "contacted"
+        | "intake"
+        | "active"
+        | "aftercare"
+        | "alumni"
+        | "lost"
       family_role:
         | "member"
         | "recovering"
@@ -3829,6 +4165,15 @@ export const Constants = {
         "outpatient",
         "sober_living",
         "independent",
+      ],
+      crm_pipeline_stage: [
+        "lead",
+        "contacted",
+        "intake",
+        "active",
+        "aftercare",
+        "alumni",
+        "lost",
       ],
       family_role: [
         "member",
