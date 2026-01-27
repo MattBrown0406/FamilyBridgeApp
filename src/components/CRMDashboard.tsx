@@ -606,10 +606,10 @@ export function CRMDashboard({ organizationId, families, orgMembers }: CRMDashbo
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label>Related Lead</Label>
-                      <Select value={newTask.lead_id} onValueChange={(v) => setNewTask({ ...newTask, lead_id: v, family_id: '' })}>
+                      <Select value={newTask.lead_id || '_none'} onValueChange={(v) => setNewTask({ ...newTask, lead_id: v === '_none' ? '' : v, family_id: '' })}>
                         <SelectTrigger><SelectValue placeholder="Optional..." /></SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">None</SelectItem>
+                          <SelectItem value="_none">None</SelectItem>
                           {leads.map((lead) => (
                             <SelectItem key={lead.id} value={lead.id}>
                               {lead.contact_name}
@@ -620,10 +620,10 @@ export function CRMDashboard({ organizationId, families, orgMembers }: CRMDashbo
                     </div>
                     <div className="space-y-2">
                       <Label>Related Family</Label>
-                      <Select value={newTask.family_id} onValueChange={(v) => setNewTask({ ...newTask, family_id: v, lead_id: '' })}>
+                      <Select value={newTask.family_id || '_none'} onValueChange={(v) => setNewTask({ ...newTask, family_id: v === '_none' ? '' : v, lead_id: '' })}>
                         <SelectTrigger><SelectValue placeholder="Optional..." /></SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">None</SelectItem>
+                          <SelectItem value="_none">None</SelectItem>
                           {families.map((family) => (
                             <SelectItem key={family.id} value={family.id}>
                               {family.name}
@@ -720,10 +720,10 @@ export function CRMDashboard({ organizationId, families, orgMembers }: CRMDashbo
                   </div>
                   <div className="space-y-2">
                     <Label>Referral Source</Label>
-                    <Select value={newLead.referral_source_id} onValueChange={(v) => setNewLead({ ...newLead, referral_source_id: v })}>
+                    <Select value={newLead.referral_source_id || '_none'} onValueChange={(v) => setNewLead({ ...newLead, referral_source_id: v === '_none' ? '' : v })}>
                       <SelectTrigger><SelectValue placeholder="How did they find us?" /></SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">Unknown</SelectItem>
+                        <SelectItem value="_none">Unknown</SelectItem>
                         {referralSources.map((source) => (
                           <SelectItem key={source.id} value={source.id}>
                             {source.name} ({source.source_type})
