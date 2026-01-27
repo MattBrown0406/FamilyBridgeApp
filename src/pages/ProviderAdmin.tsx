@@ -38,6 +38,7 @@ import {
   HelpCircle,
   ArrowRightLeft,
   FileText,
+  Target,
 } from 'lucide-react';
 import { ArchivedFamiliesPanel } from '@/components/ArchivedFamiliesPanel';
 import { BroadcastMessage } from '@/components/BroadcastMessage';
@@ -46,6 +47,7 @@ import { FamilyHandoffDialog } from '@/components/FamilyHandoffDialog';
 import { ProviderOutcomeReports } from '@/components/ProviderOutcomeReports';
 import { ProviderNotesPanel } from '@/components/ProviderNotesPanel';
 import { ProviderMessaging } from '@/components/ProviderMessaging';
+import { CRMDashboard } from '@/components/CRMDashboard';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 
 // Helper to convert hex to HSL string
@@ -1251,6 +1253,10 @@ const ProviderAdmin = () => {
                     <FileText className="h-4 w-4" />
                     <span className="hidden sm:inline text-xs">Team Notes</span>
                   </TabsTrigger>
+                  <TabsTrigger value="crm" className="flex-1 min-w-[60px] flex items-center justify-center gap-1 px-2 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                    <Target className="h-4 w-4" />
+                    <span className="hidden sm:inline text-xs">CRM</span>
+                  </TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="branding" className="space-y-6">
@@ -1974,6 +1980,31 @@ const ProviderAdmin = () => {
                           }))}
                         />
                       </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="crm" className="space-y-6">
+                  <Card className="border-primary/20">
+                    <CardHeader className="bg-primary/5 rounded-t-lg">
+                      <CardTitle className="text-lg text-primary flex items-center gap-2">
+                        <Target className="h-5 w-5" />
+                        Customer Relationship Management
+                      </CardTitle>
+                      <CardDescription>
+                        Track leads, manage pipeline, assign tasks, and view analytics
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <CRMDashboard 
+                        organizationId={selectedOrg}
+                        families={orgFamilies.map(f => ({ id: f.id, name: f.name }))}
+                        orgMembers={orgModerators.map(m => ({
+                          user_id: m.user_id,
+                          full_name: m.profiles?.full_name || 'Unknown',
+                          role: m.role,
+                        }))}
+                      />
                     </CardContent>
                   </Card>
                 </TabsContent>
