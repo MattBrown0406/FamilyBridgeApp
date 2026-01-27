@@ -13,7 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { Users, LogOut, Loader2, ArrowRight, Home, Building2, Shield, Plus, Copy, Archive, HelpCircle, ArrowRightLeft, FileText, MessageSquare } from 'lucide-react';
+import { Users, LogOut, Loader2, ArrowRight, Home, Building2, Shield, Plus, Copy, Archive, HelpCircle, ArrowRightLeft, FileText, MessageSquare, Brain } from 'lucide-react';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 import { NotificationBell } from '@/components/NotificationBell';
 import { AdminBreadcrumbs } from '@/components/AdminBreadcrumbs';
@@ -22,6 +22,7 @@ import { BroadcastMessage } from '@/components/BroadcastMessage';
 import { FamilyHandoffDialog } from '@/components/FamilyHandoffDialog';
 import { ModeratorNotesPanel } from '@/components/ModeratorNotesPanel';
 import { ProviderMessaging } from '@/components/ProviderMessaging';
+import FIISModeratorChat from '@/components/FIISModeratorChat';
 
 type HealthStatus = 'crisis' | 'concern' | 'tension' | 'stable' | 'improving';
 
@@ -464,7 +465,7 @@ const ModeratorDashboard = () => {
 
           {/* Tabs for Families, Notes, and Team Chat */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="families" className="flex items-center gap-2">
                 <Users className="h-4 w-4" />
                 <span className="hidden sm:inline">Families</span>
@@ -476,6 +477,10 @@ const ModeratorDashboard = () => {
               <TabsTrigger value="chat" className="flex items-center gap-2">
                 <MessageSquare className="h-4 w-4" />
                 <span className="hidden sm:inline">Team Chat</span>
+              </TabsTrigger>
+              <TabsTrigger value="fiis-chat" className="flex items-center gap-2">
+                <Brain className="h-4 w-4" />
+                <span className="hidden sm:inline">FIIS Chat</span>
               </TabsTrigger>
             </TabsList>
 
@@ -694,6 +699,30 @@ const ModeratorDashboard = () => {
                       </p>
                     </div>
                   )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* FIIS Chat Tab */}
+            <TabsContent value="fiis-chat">
+              <Card className="border-primary/20">
+                <CardHeader className="bg-primary/5 rounded-t-lg">
+                  <CardTitle className="flex items-center gap-2 text-primary">
+                    <Brain className="h-5 w-5" />
+                    FIIS Communication Assistant
+                  </CardTitle>
+                  <CardDescription>
+                    Private AI consultation about family dynamics and communication strategies. Not included in FIIS analysis.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="pt-6">
+                  <FIISModeratorChat 
+                    families={assignedFamilies.map(f => ({
+                      id: f.id,
+                      name: f.name,
+                      organization_id: f.organization_id,
+                    }))} 
+                  />
                 </CardContent>
               </Card>
             </TabsContent>
