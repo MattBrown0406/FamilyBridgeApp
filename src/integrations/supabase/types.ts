@@ -3381,6 +3381,13 @@ export type Database = {
         }[]
       }
       get_family_invite_code: { Args: { _family_id: string }; Returns: string }
+      get_family_moderator_id: { Args: { _family_id: string }; Returns: string }
+      get_family_provider_admins: {
+        Args: { _family_id: string }
+        Returns: {
+          user_id: string
+        }[]
+      }
       get_hipaa_releases_for_family: {
         Args: { _family_id: string }
         Returns: {

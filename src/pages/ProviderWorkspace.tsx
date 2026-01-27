@@ -277,6 +277,7 @@ const ProviderWorkspace = () => {
                   <ProviderMessaging
                     organizationId={selectedOrgId}
                     orgMembers={orgMembers}
+                    families={families}
                   />
                 </CardContent>
               </Card>
