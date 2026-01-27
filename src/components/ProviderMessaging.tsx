@@ -12,6 +12,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from '@/components/ui/use-toast';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   MessageSquare,
   Plus,
@@ -20,6 +21,7 @@ import {
   User,
   Loader2,
   ArrowLeft,
+  Home,
 } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -27,6 +29,7 @@ interface Conversation {
   id: string;
   organization_id: string;
   family_id: string | null;
+  family_name?: string | null;
   name: string | null;
   is_direct_message: boolean;
   created_by: string;
@@ -54,12 +57,18 @@ interface OrgMember {
   role: string;
 }
 
+interface Family {
+  id: string;
+  name: string;
+}
+
 interface ProviderMessagingProps {
   organizationId: string;
   orgMembers?: OrgMember[];
+  families?: Family[];
 }
 
-export const ProviderMessaging = ({ organizationId, orgMembers = [] }: ProviderMessagingProps) => {
+export const ProviderMessaging = ({ organizationId, orgMembers = [], families = [] }: ProviderMessagingProps) => {
   const { user } = useAuth();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
@@ -76,6 +85,7 @@ export const ProviderMessaging = ({ organizationId, orgMembers = [] }: ProviderM
   const [newConversationName, setNewConversationName] = useState('');
   const [selectedParticipants, setSelectedParticipants] = useState<string[]>([]);
   const [isDirectMessage, setIsDirectMessage] = useState(false);
+  const [selectedFamilyForConv, setSelectedFamilyForConv] = useState<string | null>(null);
 
   useEffect(() => {
     if (organizationId) {
@@ -149,7 +159,7 @@ export const ProviderMessaging = ({ organizationId, orgMembers = [] }: ProviderM
 
       if (convsError) throw convsError;
 
-      // Fetch participants for each conversation
+      // Fetch participants and family names for each conversation
       const convsWithParticipants = await Promise.all((convs || []).map(async conv => {
         const { data: parts } = await supabase
           .from('provider_conversation_participants')
@@ -159,8 +169,16 @@ export const ProviderMessaging = ({ organizationId, orgMembers = [] }: ProviderM
         const userIds = parts?.map(p => p.user_id) || [];
         const profiles = await fetchProfilesByIds(userIds);
         
+        // Get family name if family_id exists
+        let familyName: string | null = null;
+        if (conv.family_id) {
+          const family = families.find(f => f.id === conv.family_id);
+          familyName = family?.name || null;
+        }
+        
         return {
           ...conv,
+          family_name: familyName,
           participants: profiles.map(p => ({
             user_id: p.id,
             full_name: p.full_name,
@@ -227,6 +245,7 @@ export const ProviderMessaging = ({ organizationId, orgMembers = [] }: ProviderM
         .from('provider_conversations')
         .insert({
           organization_id: organizationId,
+          family_id: selectedFamilyForConv || null,
           name: isDirectMessage ? null : newConversationName.trim(),
           is_direct_message: isDirectMessage && selectedParticipants.length === 1,
           created_by: user?.id,
@@ -252,6 +271,7 @@ export const ProviderMessaging = ({ organizationId, orgMembers = [] }: ProviderM
       setNewConversationName('');
       setSelectedParticipants([]);
       setIsDirectMessage(false);
+      setSelectedFamilyForConv(null);
       fetchConversations();
     } catch (err: any) {
       console.error('Error creating conversation:', err);
@@ -282,12 +302,60 @@ export const ProviderMessaging = ({ organizationId, orgMembers = [] }: ProviderM
         .update({ updated_at: new Date().toISOString() })
         .eq('id', selectedConversation.id);
 
+      // Send alerts to assigned moderator and provider admins if conversation has a family
+      if (selectedConversation.family_id) {
+        await sendFamilyAlerts(
+          selectedConversation.family_id,
+          selectedConversation.family_name || 'Family',
+          newMessage.trim()
+        );
+      }
+
       setNewMessage('');
     } catch (err: any) {
       console.error('Error sending message:', err);
       toast({ title: 'Error', description: err.message || 'Failed to send message', variant: 'destructive' });
     } finally {
       setIsSending(false);
+    }
+  };
+
+  const sendFamilyAlerts = async (familyId: string, familyName: string, messagePreview: string) => {
+    try {
+      // Get the assigned moderator
+      const { data: moderatorId } = await supabase.rpc('get_family_moderator_id', { _family_id: familyId });
+      
+      // Get provider admins
+      const { data: adminIds } = await supabase.rpc('get_family_provider_admins', { _family_id: familyId });
+      
+      // Collect alert recipients (exclude current user)
+      const alertRecipients = new Set<string>();
+      if (moderatorId && moderatorId !== user?.id) {
+        alertRecipients.add(moderatorId);
+      }
+      if (adminIds) {
+        for (const admin of adminIds) {
+          if (admin.user_id !== user?.id) {
+            alertRecipients.add(admin.user_id);
+          }
+        }
+      }
+
+      if (alertRecipients.size === 0) return;
+
+      // Create notifications for each recipient
+      const notifications = Array.from(alertRecipients).map(recipientId => ({
+        user_id: recipientId,
+        type: 'provider_message',
+        title: `Team message about ${familyName}`,
+        body: messagePreview.length > 100 ? messagePreview.substring(0, 100) + '...' : messagePreview,
+        related_id: selectedConversation?.id,
+      }));
+
+      await supabase.from('notifications').insert(notifications);
+    } catch (err) {
+      console.error('Error sending family alerts:', err);
+      // Don't fail the message send if alerts fail
     }
   };
 
@@ -312,16 +380,29 @@ export const ProviderMessaging = ({ organizationId, orgMembers = [] }: ProviderM
           <Button variant="ghost" size="icon" onClick={() => setSelectedConversation(null)}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-1">
             {selectedConversation.is_direct_message ? (
               <User className="h-5 w-5 text-muted-foreground" />
             ) : (
               <Users className="h-5 w-5 text-muted-foreground" />
             )}
-            <span className="font-medium">{getConversationDisplayName(selectedConversation)}</span>
+            <div className="min-w-0">
+              <span className="font-medium block truncate">{getConversationDisplayName(selectedConversation)}</span>
+              {selectedConversation.family_name && (
+                <span className="text-xs text-muted-foreground flex items-center gap-1">
+                  <Home className="h-3 w-3" />
+                  {selectedConversation.family_name}
+                </span>
+              )}
+            </div>
           </div>
+          {selectedConversation.family_name && (
+            <Badge variant="secondary" className="text-xs">
+              Alerts Active
+            </Badge>
+          )}
           {selectedConversation.participants && (
-            <Badge variant="outline" className="ml-auto">
+            <Badge variant="outline">
               {selectedConversation.participants.length} members
             </Badge>
           )}
@@ -451,6 +532,28 @@ export const ProviderMessaging = ({ organizationId, orgMembers = [] }: ProviderM
               )}
 
               <div className="space-y-2">
+                <Label>Family Context (Optional)</Label>
+                <Select
+                  value={selectedFamilyForConv || 'none'}
+                  onValueChange={(v) => setSelectedFamilyForConv(v === 'none' ? null : v)}
+                >
+                  <SelectTrigger>
+                    <Home className="h-4 w-4 mr-2" />
+                    <SelectValue placeholder="No family selected" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">No family - General discussion</SelectItem>
+                    {families.map(f => (
+                      <SelectItem key={f.id} value={f.id}>{f.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  Messages about a family will alert the assigned moderator and provider admins.
+                </p>
+              </div>
+
+              <div className="space-y-2">
                 <Label>Select Participants</Label>
                 <div className="border rounded-lg max-h-48 overflow-y-auto p-2 space-y-1">
                   {orgMembers.filter(m => m.user_id !== user?.id).map(member => (
@@ -540,9 +643,17 @@ export const ProviderMessaging = ({ organizationId, orgMembers = [] }: ProviderM
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-medium truncate">{getConversationDisplayName(conv)}</p>
-                    <p className="text-sm text-muted-foreground truncate">
-                      {conv.participants?.length || 0} members
-                    </p>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-muted-foreground">
+                        {conv.participants?.length || 0} members
+                      </span>
+                      {conv.family_name && (
+                        <Badge variant="secondary" className="text-xs">
+                          <Home className="h-3 w-3 mr-1" />
+                          {conv.family_name}
+                        </Badge>
+                      )}
+                    </div>
                   </div>
                   <span className="text-xs text-muted-foreground">
                     {format(new Date(conv.updated_at), 'MMM d')}
