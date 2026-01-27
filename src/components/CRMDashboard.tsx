@@ -152,6 +152,11 @@ export function CRMDashboard({ organizationId, families, orgMembers }: CRMDashbo
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [isLeadDetailOpen, setIsLeadDetailOpen] = useState(false);
+  const [isAddReferralSourceOpen, setIsAddReferralSourceOpen] = useState(false);
+  const [newReferralSource, setNewReferralSource] = useState({
+    name: '',
+    source_type: 'other',
+  });
 
   // Form states
   const [newLead, setNewLead] = useState({
@@ -317,6 +322,38 @@ export function CRMDashboard({ organizationId, families, orgMembers }: CRMDashbo
     } catch (err: any) {
       console.error('Error creating lead:', err);
       toast({ title: 'Error', description: err.message || 'Failed to create lead', variant: 'destructive' });
+    }
+  };
+
+  const handleCreateReferralSource = async () => {
+    if (!newReferralSource.name.trim()) {
+      toast({ title: 'Error', description: 'Source name is required', variant: 'destructive' });
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('crm_referral_sources')
+        .insert({
+          organization_id: organizationId,
+          name: newReferralSource.name,
+          source_type: newReferralSource.source_type,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      toast({ title: 'Success', description: 'Referral source created' });
+      
+      // Refresh referral sources and auto-select the new one
+      await fetchReferralSources();
+      setNewLead({ ...newLead, referral_source_id: data.id });
+      setNewReferralSource({ name: '', source_type: 'other' });
+      setIsAddReferralSourceOpen(false);
+    } catch (err: any) {
+      console.error('Error creating referral source:', err);
+      toast({ title: 'Error', description: err.message || 'Failed to create referral source', variant: 'destructive' });
     }
   };
 
@@ -720,7 +757,16 @@ export function CRMDashboard({ organizationId, families, orgMembers }: CRMDashbo
                   </div>
                   <div className="space-y-2">
                     <Label>Referral Source</Label>
-                    <Select value={newLead.referral_source_id || '_none'} onValueChange={(v) => setNewLead({ ...newLead, referral_source_id: v === '_none' ? '' : v })}>
+                    <Select 
+                      value={newLead.referral_source_id || '_none'} 
+                      onValueChange={(v) => {
+                        if (v === '_add_new') {
+                          setIsAddReferralSourceOpen(true);
+                        } else {
+                          setNewLead({ ...newLead, referral_source_id: v === '_none' ? '' : v });
+                        }
+                      }}
+                    >
                       <SelectTrigger><SelectValue placeholder="How did they find us?" /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="_none">Unknown</SelectItem>
@@ -729,6 +775,12 @@ export function CRMDashboard({ organizationId, families, orgMembers }: CRMDashbo
                             {source.name} ({source.source_type})
                           </SelectItem>
                         ))}
+                        <SelectItem value="_add_new" className="text-primary font-medium">
+                          <span className="flex items-center gap-2">
+                            <Plus className="h-4 w-4" />
+                            Add New Source...
+                          </span>
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -742,6 +794,53 @@ export function CRMDashboard({ organizationId, families, orgMembers }: CRMDashbo
                     />
                   </div>
                   <Button onClick={handleCreateLead} className="w-full">Add Lead</Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+
+            {/* Add Referral Source Dialog */}
+            <Dialog open={isAddReferralSourceOpen} onOpenChange={setIsAddReferralSourceOpen}>
+              <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                  <DialogTitle>Add New Referral Source</DialogTitle>
+                  <DialogDescription>
+                    Create a new referral source to track where leads come from.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Source Name *</Label>
+                    <Input
+                      value={newReferralSource.name}
+                      onChange={(e) => setNewReferralSource({ ...newReferralSource, name: e.target.value })}
+                      placeholder="e.g., Dr. Smith, Google Ads, Hospital..."
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Source Type</Label>
+                    <Select 
+                      value={newReferralSource.source_type} 
+                      onValueChange={(v) => setNewReferralSource({ ...newReferralSource, source_type: v })}
+                    >
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="professional">Professional Referral</SelectItem>
+                        <SelectItem value="marketing">Marketing/Advertising</SelectItem>
+                        <SelectItem value="personal">Personal/Word of Mouth</SelectItem>
+                        <SelectItem value="online">Online/Website</SelectItem>
+                        <SelectItem value="event">Event/Conference</SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex gap-2 pt-2">
+                    <Button variant="outline" onClick={() => setIsAddReferralSourceOpen(false)} className="flex-1">
+                      Cancel
+                    </Button>
+                    <Button onClick={handleCreateReferralSource} className="flex-1">
+                      Add Source
+                    </Button>
+                  </div>
                 </div>
               </DialogContent>
             </Dialog>
