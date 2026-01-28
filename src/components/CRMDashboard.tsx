@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { fetchProfilesByIds } from '@/lib/profileApi';
+import { formatPhoneNumber } from '@/lib/utils';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -1203,7 +1204,7 @@ export function CRMDashboard({ organizationId, organizationName, organizationLog
                     <div className="flex items-center gap-2 text-sm">
                       <Phone className="h-4 w-4 text-muted-foreground" />
                       <a href={`tel:${selectedLead.contact_phone}`} className="text-primary hover:underline">
-                        {selectedLead.contact_phone}
+                        {formatPhoneNumber(selectedLead.contact_phone)}
                       </a>
                     </div>
                   )}
