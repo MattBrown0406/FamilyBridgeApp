@@ -43,6 +43,8 @@ interface ProviderDocument {
   created_at: string;
   uploader_name?: string;
   family_name?: string;
+  source: 'provider' | 'family'; // Track document source
+  storage_bucket: string; // Track which bucket the file is in
 }
 
 interface Family {
@@ -111,19 +113,64 @@ export const ProviderDocumentsPanel = ({ organizationId, families }: ProviderDoc
   const fetchDocuments = async () => {
     setIsLoading(true);
     try {
-      const { data, error } = await supabase
+      // Fetch provider documents
+      const { data: providerDocs, error: providerError } = await supabase
         .from('provider_documents')
         .select('*')
         .eq('organization_id', organizationId)
         .order('created_at', { ascending: false });
       
-      if (error) throw error;
+      if (providerError) throw providerError;
 
-      if (data && data.length > 0) {
-        const uploaderIds = [...new Set(data.map(d => d.uploaded_by))];
+      // Get family IDs for this organization
+      const orgFamilyIds = families.filter(f => f.organization_id === organizationId).map(f => f.id);
+
+      // Fetch family documents for families in this organization
+      let familyDocs: any[] = [];
+      if (orgFamilyIds.length > 0) {
+        const { data: famDocs, error: famError } = await supabase
+          .from('family_documents')
+          .select('*')
+          .in('family_id', orgFamilyIds)
+          .order('created_at', { ascending: false });
+        
+        if (famError) console.warn('Error fetching family documents:', famError);
+        else familyDocs = famDocs || [];
+      }
+
+      // Combine and normalize documents
+      const allDocs = [
+        ...(providerDocs || []).map(doc => ({
+          ...doc,
+          source: 'provider' as const,
+          storage_bucket: 'provider-documents',
+        })),
+        ...familyDocs.map(doc => ({
+          id: doc.id,
+          organization_id: organizationId,
+          family_id: doc.family_id,
+          uploaded_by: doc.uploaded_by,
+          title: doc.title,
+          description: doc.description,
+          document_type: doc.document_type,
+          file_path: doc.file_path,
+          file_name: doc.file_name,
+          file_size: doc.file_size,
+          mime_type: doc.mime_type,
+          created_at: doc.created_at,
+          source: 'family' as const,
+          storage_bucket: 'family-documents',
+        })),
+      ];
+
+      // Sort by created_at descending
+      allDocs.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+      if (allDocs.length > 0) {
+        const uploaderIds = [...new Set(allDocs.map(d => d.uploaded_by))];
         const profiles = await fetchProfilesByIds(uploaderIds);
         
-        const docsWithNames = data.map(doc => ({
+        const docsWithNames = allDocs.map(doc => ({
           ...doc,
           uploader_name: profiles.find(p => p.id === doc.uploaded_by)?.full_name || 'Unknown',
           family_name: families.find(f => f.id === doc.family_id)?.name || 'Organization-wide',
@@ -223,7 +270,7 @@ export const ProviderDocumentsPanel = ({ organizationId, families }: ProviderDoc
     setDownloadingId(doc.id);
     try {
       const { data, error } = await supabase.storage
-        .from('provider-documents')
+        .from(doc.storage_bucket)
         .download(doc.file_path);
 
       if (error) throw error;
@@ -257,7 +304,7 @@ export const ProviderDocumentsPanel = ({ organizationId, families }: ProviderDoc
     
     try {
       const { data, error } = await supabase.storage
-        .from('provider-documents')
+        .from(doc.storage_bucket)
         .createSignedUrl(doc.file_path, 3600); // 1 hour expiry
 
       if (error) throw error;
@@ -270,12 +317,22 @@ export const ProviderDocumentsPanel = ({ organizationId, families }: ProviderDoc
     }
   };
 
-  const handleDelete = async (docId: string, filePath: string) => {
+  const handleDelete = async (doc: ProviderDocument) => {
+    // Only allow deleting provider documents - family docs should be managed from family dashboard
+    if (doc.source === 'family') {
+      toast({ 
+        title: 'Cannot Delete', 
+        description: 'Family-uploaded documents must be deleted from the family dashboard.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
     try {
       // Delete from storage
       const { error: storageError } = await supabase.storage
-        .from('provider-documents')
-        .remove([filePath]);
+        .from(doc.storage_bucket)
+        .remove([doc.file_path]);
 
       if (storageError) console.warn('Storage delete error:', storageError);
 
@@ -283,7 +340,7 @@ export const ProviderDocumentsPanel = ({ organizationId, families }: ProviderDoc
       const { error: dbError } = await supabase
         .from('provider_documents')
         .delete()
-        .eq('id', docId);
+        .eq('id', doc.id);
 
       if (dbError) throw dbError;
 
@@ -528,6 +585,12 @@ export const ProviderDocumentsPanel = ({ organizationId, families }: ProviderDoc
                                     Signed & Encrypted
                                   </span>
                                 )}
+                                {doc.source === 'family' && (
+                                  <Badge variant="secondary" className="text-xs gap-1">
+                                    <Users className="h-3 w-3" />
+                                    Family Upload
+                                  </Badge>
+                                )}
                               </div>
                               {doc.description && (
                                 <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{doc.description}</p>
@@ -572,7 +635,7 @@ export const ProviderDocumentsPanel = ({ organizationId, families }: ProviderDoc
                                     <AlertDialogFooter>
                                       <AlertDialogCancel>Cancel</AlertDialogCancel>
                                       <AlertDialogAction 
-                                        onClick={() => handleDelete(doc.id, doc.file_path)}
+                                        onClick={() => handleDelete(doc)}
                                         className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                                       >
                                         Delete
