@@ -89,6 +89,11 @@ export const MedicationTab = ({
   const { toast } = useToast();
   const { isNative } = usePlatform();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [showCameraPreview, setShowCameraPreview] = useState(false);
+  const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
   
   const [medications, setMedications] = useState<Medication[]>([]);
   const [todaysDoses, setTodaysDoses] = useState<MedicationDose[]>([]);
@@ -221,6 +226,9 @@ export const MedicationTab = ({
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Reset the input value so the same file can be selected again
+    e.target.value = '';
+
     const reader = new FileReader();
     reader.onload = async (event) => {
       const base64 = event.target?.result as string;
@@ -228,6 +236,80 @@ export const MedicationTab = ({
       await analyzeLabelImage(base64);
     };
     reader.readAsDataURL(file);
+  };
+
+  // Robust camera opening function with iOS/iPadOS fallback
+  const openCamera = async () => {
+    // Detect iOS/iPadOS - always use native file picker for reliability
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+                  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    
+    if (isIOS || isNative) {
+      // Use native camera picker which is more reliable on iOS/iPadOS and Capacitor
+      cameraInputRef.current?.click();
+      return;
+    }
+
+    // Check if getUserMedia is available
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      console.log('getUserMedia not supported, falling back to file input');
+      cameraInputRef.current?.click();
+      return;
+    }
+
+    try {
+      const mediaStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'environment' } // Use back camera for labels
+      });
+      setCameraStream(mediaStream);
+      setShowCameraPreview(true);
+      
+      // Wait for next tick to ensure video element is rendered
+      setTimeout(() => {
+        if (videoRef.current) {
+          videoRef.current.srcObject = mediaStream;
+        }
+      }, 100);
+    } catch (error) {
+      console.error('Camera access error:', error);
+      // Fallback to file input with capture attribute
+      cameraInputRef.current?.click();
+    }
+  };
+
+  // Stop camera stream
+  const stopCamera = () => {
+    if (cameraStream) {
+      cameraStream.getTracks().forEach(track => track.stop());
+      setCameraStream(null);
+    }
+    setShowCameraPreview(false);
+  };
+
+  // Capture photo from video stream
+  const captureFromVideo = () => {
+    if (videoRef.current && canvasRef.current) {
+      const video = videoRef.current;
+      const canvas = canvasRef.current;
+      const ctx = canvas.getContext('2d');
+
+      if (ctx && video.videoWidth > 0) {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        ctx.drawImage(video, 0, 0);
+
+        const base64 = canvas.toDataURL('image/jpeg', 0.9);
+        stopCamera();
+        setLabelImage(base64);
+        analyzeLabelImage(base64);
+      } else {
+        toast({
+          title: 'Capture failed',
+          description: 'Camera not ready. Please try again.',
+          variant: 'destructive'
+        });
+      }
+    }
   };
 
   const analyzeLabelImage = async (imageData: string) => {
@@ -659,7 +741,38 @@ export const MedicationTab = ({
                 <div>
                   <Label>Medication Label Photo</Label>
                   <div className="mt-2 flex flex-col items-center gap-2">
-                    {labelImage ? (
+                    {/* Camera Preview Mode */}
+                    {showCameraPreview ? (
+                      <div className="relative w-full">
+                        <video
+                          ref={videoRef}
+                          autoPlay
+                          playsInline
+                          muted
+                          className="w-full rounded-lg bg-muted"
+                        />
+                        <canvas ref={canvasRef} className="hidden" />
+                        <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-4">
+                          <Button
+                            type="button"
+                            variant="secondary"
+                            size="lg"
+                            onClick={stopCamera}
+                          >
+                            <X className="h-5 w-5 mr-1" />
+                            Cancel
+                          </Button>
+                          <Button
+                            type="button"
+                            size="lg"
+                            onClick={captureFromVideo}
+                          >
+                            <Camera className="h-5 w-5 mr-1" />
+                            Capture
+                          </Button>
+                        </div>
+                      </div>
+                    ) : labelImage ? (
                       <div className="relative w-full">
                         <img 
                           src={labelImage} 
@@ -683,22 +796,44 @@ export const MedicationTab = ({
                       </div>
                     ) : (
                       <Button
+                        type="button"
                         variant="outline"
                         className="w-full h-24 flex flex-col gap-2"
-                        onClick={() => fileInputRef.current?.click()}
+                        onClick={openCamera}
                       >
                         <Camera className="h-8 w-8" />
                         <span>Take Photo of Label</span>
                       </Button>
                     )}
+                    {/* Hidden file input for gallery selection */}
                     <input
                       ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleImageCapture}
+                    />
+                    {/* Hidden camera input for native camera capture (iOS/Android fallback) */}
+                    <input
+                      ref={cameraInputRef}
                       type="file"
                       accept="image/*"
                       capture="environment"
                       className="hidden"
                       onChange={handleImageCapture}
                     />
+                    {/* Option to select from gallery if camera not showing */}
+                    {!showCameraPreview && !labelImage && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="text-muted-foreground"
+                      >
+                        Or select from gallery
+                      </Button>
+                    )}
                   </div>
                 </div>
 
