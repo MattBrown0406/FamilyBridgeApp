@@ -13,7 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { Users, LogOut, Loader2, ArrowRight, Home, Building2, Shield, Plus, Copy, Archive, HelpCircle, ArrowRightLeft, FileText, MessageSquare, Brain, Target } from 'lucide-react';
+import { Users, LogOut, Loader2, ArrowRight, Home, Building2, Shield, Plus, Copy, Archive, HelpCircle, ArrowRightLeft, FileText, MessageSquare, Brain, Target, FolderOpen } from 'lucide-react';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 import { NotificationBell } from '@/components/NotificationBell';
 import { AdminBreadcrumbs } from '@/components/AdminBreadcrumbs';
@@ -24,6 +24,7 @@ import { ModeratorNotesPanel } from '@/components/ModeratorNotesPanel';
 import { ProviderMessaging } from '@/components/ProviderMessaging';
 import FIISModeratorChat from '@/components/FIISModeratorChat';
 import CRMDashboard from '@/components/CRMDashboard';
+import { ProviderDocumentsPanel } from '@/components/ProviderDocumentsPanel';
 
 type HealthStatus = 'crisis' | 'concern' | 'tension' | 'stable' | 'improving';
 
@@ -466,28 +467,34 @@ const ModeratorDashboard = () => {
 
           {/* Tabs for Families, Notes, and Team Chat */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-            <TabsList className={`grid w-full ${organizations.length > 0 ? 'grid-cols-5' : 'grid-cols-4'}`}>
+            <TabsList className={`grid w-full ${organizations.length > 0 ? 'grid-cols-6' : 'grid-cols-4'}`}>
               <TabsTrigger value="families" className="flex items-center gap-2">
                 <Users className="h-4 w-4" />
                 <span className="hidden sm:inline">Families</span>
               </TabsTrigger>
               <TabsTrigger value="notes" className="flex items-center gap-2">
                 <FileText className="h-4 w-4" />
-                <span className="hidden sm:inline">Team Notes</span>
+                <span className="hidden sm:inline">Notes</span>
               </TabsTrigger>
               <TabsTrigger value="chat" className="flex items-center gap-2">
                 <MessageSquare className="h-4 w-4" />
-                <span className="hidden sm:inline">Team Chat</span>
+                <span className="hidden sm:inline">Chat</span>
               </TabsTrigger>
               <TabsTrigger value="fiis-chat" className="flex items-center gap-2">
                 <Brain className="h-4 w-4" />
-                <span className="hidden sm:inline">FIIS Chat</span>
+                <span className="hidden sm:inline">FIIS</span>
               </TabsTrigger>
               {organizations.length > 0 && (
-                <TabsTrigger value="crm" className="flex items-center gap-2">
-                  <Target className="h-4 w-4" />
-                  <span className="hidden sm:inline">CRM</span>
-                </TabsTrigger>
+                <>
+                  <TabsTrigger value="documents" className="flex items-center gap-2">
+                    <FolderOpen className="h-4 w-4" />
+                    <span className="hidden sm:inline">Docs</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="crm" className="flex items-center gap-2">
+                    <Target className="h-4 w-4" />
+                    <span className="hidden sm:inline">CRM</span>
+                  </TabsTrigger>
+                </>
               )}
             </TabsList>
 
@@ -733,6 +740,33 @@ const ModeratorDashboard = () => {
                 </CardContent>
               </Card>
             </TabsContent>
+
+            {/* Documents Tab - Only for organization members */}
+            {organizations.length > 0 && (
+              <TabsContent value="documents">
+                <Card className="border-primary/20">
+                  <CardHeader className="bg-primary/5 rounded-t-lg">
+                    <CardTitle className="flex items-center gap-2 text-primary">
+                      <FolderOpen className="h-5 w-5" />
+                      Documents
+                    </CardTitle>
+                    <CardDescription>
+                      Upload and manage intervention letters, treatment plans, and other clinical documents.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-6">
+                    <ProviderDocumentsPanel 
+                      organizationId={organizations[0].id}
+                      families={assignedFamilies.map(f => ({
+                        id: f.id,
+                        name: f.name,
+                        organization_id: f.organization_id,
+                      }))}
+                    />
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            )}
 
             {/* CRM Tab - Only for organization members */}
             {organizations.length > 0 && (
