@@ -32,7 +32,11 @@ import {
   X,
   Edit2,
   Trash2,
-  Activity
+  Activity,
+  MessageSquare,
+  PhoneCall,
+  FileText,
+  Video
 } from 'lucide-react';
 import { format, formatDistanceToNow, isAfter, isBefore, addDays } from 'date-fns';
 
@@ -157,6 +161,14 @@ export function CRMDashboard({ organizationId, families, orgMembers }: CRMDashbo
     name: '',
     source_type: 'other',
   });
+  
+  // Contact logging state
+  const [newContact, setNewContact] = useState({
+    contact_type: 'call',
+    notes: '',
+  });
+  const [isLoggingContact, setIsLoggingContact] = useState(false);
+  const [leadActivities, setLeadActivities] = useState<CRMActivity[]>([]);
 
   // Form states
   const [newLead, setNewLead] = useState({
@@ -462,6 +474,68 @@ export function CRMDashboard({ organizationId, families, orgMembers }: CRMDashbo
       toast({ title: 'Error', description: 'Failed to complete task', variant: 'destructive' });
     }
   };
+
+  const fetchLeadActivities = async (leadId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('crm_activities')
+        .select('*')
+        .eq('lead_id', leadId)
+        .order('occurred_at', { ascending: false })
+        .limit(20);
+
+      if (error) throw error;
+      setLeadActivities((data as CRMActivity[]) || []);
+    } catch (err) {
+      console.error('Error fetching lead activities:', err);
+    }
+  };
+
+  const handleLogContact = async () => {
+    if (!selectedLead || !newContact.contact_type) return;
+
+    setIsLoggingContact(true);
+    try {
+      const contactTypeLabels: Record<string, string> = {
+        call: 'Phone call',
+        text: 'Text message',
+        email: 'Email sent',
+        meeting: 'Meeting',
+        voicemail: 'Left voicemail',
+        note: 'Note added',
+      };
+
+      const { error } = await supabase.from('crm_activities').insert({
+        organization_id: organizationId,
+        user_id: user?.id,
+        activity_type: newContact.contact_type,
+        title: contactTypeLabels[newContact.contact_type] || 'Contact logged',
+        description: newContact.notes || null,
+        lead_id: selectedLead.id,
+      });
+
+      if (error) throw error;
+
+      toast({ title: 'Success', description: 'Contact logged successfully' });
+      setNewContact({ contact_type: 'call', notes: '' });
+      fetchLeadActivities(selectedLead.id);
+      fetchActivities();
+    } catch (err: any) {
+      console.error('Error logging contact:', err);
+      toast({ title: 'Error', description: err.message || 'Failed to log contact', variant: 'destructive' });
+    } finally {
+      setIsLoggingContact(false);
+    }
+  };
+
+  // Effect to fetch lead activities when a lead is selected
+  useEffect(() => {
+    if (selectedLead && isLeadDetailOpen) {
+      fetchLeadActivities(selectedLead.id);
+    } else {
+      setLeadActivities([]);
+    }
+  }, [selectedLead, isLeadDetailOpen]);
 
   // Calculate analytics
   const pipelineStats = PIPELINE_STAGES.map(stage => ({
@@ -1128,7 +1202,7 @@ export function CRMDashboard({ organizationId, families, orgMembers }: CRMDashbo
 
       {/* Lead Detail Dialog */}
       <Dialog open={isLeadDetailOpen} onOpenChange={setIsLeadDetailOpen}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
           {selectedLead && (
             <>
               <DialogHeader>
@@ -1200,6 +1274,91 @@ export function CRMDashboard({ organizationId, families, orgMembers }: CRMDashbo
                   <div>
                     <Label className="text-xs text-muted-foreground">Notes</Label>
                     <p className="text-sm">{selectedLead.notes}</p>
+                  </div>
+                )}
+
+                {/* Log Contact Section */}
+                <div className="border-t pt-4">
+                  <Label className="text-sm font-medium mb-3 block">Log a Contact</Label>
+                  <div className="space-y-3">
+                    <div className="flex flex-wrap gap-2">
+                      {[
+                        { value: 'call', label: 'Call', icon: PhoneCall },
+                        { value: 'text', label: 'Text', icon: MessageSquare },
+                        { value: 'email', label: 'Email', icon: Mail },
+                        { value: 'meeting', label: 'Meeting', icon: Video },
+                        { value: 'voicemail', label: 'Voicemail', icon: Phone },
+                        { value: 'note', label: 'Note', icon: FileText },
+                      ].map(({ value, label, icon: Icon }) => (
+                        <Button
+                          key={value}
+                          type="button"
+                          variant={newContact.contact_type === value ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => setNewContact({ ...newContact, contact_type: value })}
+                          className="gap-1"
+                        >
+                          <Icon className="h-3 w-3" />
+                          {label}
+                        </Button>
+                      ))}
+                    </div>
+                    <Textarea
+                      placeholder="Add notes about this contact..."
+                      value={newContact.notes}
+                      onChange={(e) => setNewContact({ ...newContact, notes: e.target.value })}
+                      rows={2}
+                    />
+                    <Button 
+                      onClick={handleLogContact} 
+                      disabled={isLoggingContact}
+                      size="sm"
+                      className="w-full"
+                    >
+                      {isLoggingContact ? (
+                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                      ) : (
+                        <Plus className="h-4 w-4 mr-2" />
+                      )}
+                      Log Contact
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Contact History */}
+                {leadActivities.length > 0 && (
+                  <div className="border-t pt-4">
+                    <Label className="text-sm font-medium mb-3 block">Recent Activity</Label>
+                    <div className="space-y-2 max-h-48 overflow-y-auto">
+                      {leadActivities.map((activity) => {
+                        const activityIcons: Record<string, React.ReactNode> = {
+                          call: <PhoneCall className="h-3 w-3" />,
+                          text: <MessageSquare className="h-3 w-3" />,
+                          email: <Mail className="h-3 w-3" />,
+                          meeting: <Video className="h-3 w-3" />,
+                          voicemail: <Phone className="h-3 w-3" />,
+                          note: <FileText className="h-3 w-3" />,
+                          stage_change: <ArrowRight className="h-3 w-3" />,
+                          task_completed: <CheckCircle2 className="h-3 w-3" />,
+                        };
+                        return (
+                          <div key={activity.id} className="flex items-start gap-2 p-2 rounded-lg bg-muted/50 text-sm">
+                            <div className="p-1 rounded bg-background">
+                              {activityIcons[activity.activity_type] || <Activity className="h-3 w-3" />}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium text-xs">{activity.title}</p>
+                              {activity.description && (
+                                <p className="text-xs text-muted-foreground truncate">{activity.description}</p>
+                              )}
+                              <p className="text-xs text-muted-foreground mt-0.5">
+                                {formatDistanceToNow(new Date(activity.occurred_at), { addSuffix: true })}
+                              </p>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
                 )}
 
