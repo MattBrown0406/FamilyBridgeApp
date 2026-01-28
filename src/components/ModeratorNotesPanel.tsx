@@ -266,11 +266,11 @@ export const ModeratorNotesPanel = ({ families }: ModeratorNotesPanelProps) => {
     return true;
   });
 
-  const NoteForm = ({ note, setNote, isEdit = false }: { 
-    note: typeof newNote | ProviderNote; 
-    setNote: (note: any) => void;
-    isEdit?: boolean;
-  }) => (
+  const renderNoteForm = (
+    note: typeof newNote | ProviderNote,
+    setNote: (note: any) => void,
+    isEdit = false,
+  ) => (
     <div className="space-y-4">
       {!isEdit && (
         <div className="space-y-2">
@@ -448,7 +448,7 @@ export const ModeratorNotesPanel = ({ families }: ModeratorNotesPanelProps) => {
                 Add a new observation, concern, hypothesis, or action item for your team.
               </DialogDescription>
             </DialogHeader>
-            <NoteForm note={newNote} setNote={setNewNote} />
+            {renderNoteForm(newNote, setNewNote)}
             <div className="flex justify-end gap-2 mt-4">
               <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>Cancel</Button>
               <Button onClick={handleCreateNote} disabled={isSubmitting}>
@@ -466,7 +466,7 @@ export const ModeratorNotesPanel = ({ families }: ModeratorNotesPanelProps) => {
           <DialogHeader>
             <DialogTitle>Edit Note</DialogTitle>
           </DialogHeader>
-          {editingNote && <NoteForm note={editingNote} setNote={setEditingNote} isEdit />}
+          {editingNote && renderNoteForm(editingNote, setEditingNote, true)}
           <div className="flex justify-end gap-2 mt-4">
             <Button variant="outline" onClick={() => setEditingNote(null)}>Cancel</Button>
             <Button onClick={handleUpdateNote} disabled={isSubmitting}>
