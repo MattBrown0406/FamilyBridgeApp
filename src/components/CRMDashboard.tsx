@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { fetchProfilesByIds } from '@/lib/profileApi';
@@ -36,9 +36,12 @@ import {
   MessageSquare,
   PhoneCall,
   FileText,
-  Video
+  Video,
+  LayoutGrid,
+  Target
 } from 'lucide-react';
 import { format, formatDistanceToNow, isAfter, isBefore, addDays } from 'date-fns';
+import { CRMKanbanBoard, CRMActivityTimeline, CRMAnalyticsDashboard, CRMLeadScoring, calculateLeadScore } from './crm';
 
 type PipelineStage = 'lead' | 'contacted' | 'intake' | 'active' | 'aftercare' | 'alumni' | 'lost';
 type TaskStatus = 'pending' | 'in_progress' | 'completed' | 'cancelled';
@@ -667,10 +670,18 @@ export function CRMDashboard({ organizationId, organizationName, organizationLog
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <div className="flex items-center justify-between gap-4 flex-wrap">
-          <TabsList>
+          <TabsList className="flex-wrap h-auto gap-1">
+            <TabsTrigger value="kanban" className="gap-2">
+              <LayoutGrid className="h-4 w-4" />
+              Kanban
+            </TabsTrigger>
             <TabsTrigger value="pipeline" className="gap-2">
               <ArrowRight className="h-4 w-4" />
-              Pipeline
+              List
+            </TabsTrigger>
+            <TabsTrigger value="scoring" className="gap-2">
+              <Target className="h-4 w-4" />
+              Scoring
             </TabsTrigger>
             <TabsTrigger value="tasks" className="gap-2">
               <ClipboardList className="h-4 w-4" />
@@ -972,7 +983,20 @@ export function CRMDashboard({ organizationId, organizationName, organizationLog
           </div>
         </div>
 
-        {/* Pipeline View */}
+        {/* Kanban View - NEW */}
+        <TabsContent value="kanban" className="mt-4">
+          <CRMKanbanBoard
+            leads={leads}
+            onLeadClick={(lead) => {
+              setSelectedLead(lead);
+              setIsLeadDetailOpen(true);
+            }}
+            onStageChange={handleUpdateLeadStage}
+            calculateLeadScore={(lead) => calculateLeadScore(lead, activities, tasks).score}
+          />
+        </TabsContent>
+
+        {/* Pipeline List View */}
         <TabsContent value="pipeline" className="mt-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-4">
             {PIPELINE_STAGES.map((stage) => {
@@ -1027,6 +1051,32 @@ export function CRMDashboard({ organizationId, organizationName, organizationLog
               );
             })}
           </div>
+        </TabsContent>
+
+        {/* Lead Scoring View - NEW */}
+        <TabsContent value="scoring" className="mt-4">
+          <CRMLeadScoring
+            leads={leads}
+            tasks={tasks}
+            activities={activities}
+            onLeadClick={(lead) => {
+              setSelectedLead(lead);
+              setIsLeadDetailOpen(true);
+            }}
+            onQuickAction={(leadId, action) => {
+              const lead = leads.find(l => l.id === leadId);
+              if (!lead) return;
+              
+              if (action === 'call' && lead.contact_phone) {
+                window.open(`tel:${lead.contact_phone}`, '_blank');
+              } else if (action === 'email' && lead.contact_email) {
+                window.open(`mailto:${lead.contact_email}`, '_blank');
+              } else if (action === 'task') {
+                setNewTask({ ...newTask, lead_id: leadId });
+                setIsAddTaskOpen(true);
+              }
+            }}
+          />
         </TabsContent>
 
         {/* Tasks View */}
@@ -1104,147 +1154,24 @@ export function CRMDashboard({ organizationId, organizationName, organizationLog
           </Card>
         </TabsContent>
 
-        {/* Activity Feed */}
+        {/* Activity Feed - Enhanced */}
         <TabsContent value="activity" className="mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Recent Activity</CardTitle>
-              <CardDescription>Latest CRM activities across your organization</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {activities.map((activity) => {
-                  const lead = leads.find(l => l.id === activity.lead_id);
-                  const family = families.find(f => f.id === activity.family_id);
-                  return (
-                    <div key={activity.id} className="flex items-start gap-3 pb-4 border-b last:border-0">
-                      <div className={`p-2 rounded-full ${
-                        activity.activity_type === 'stage_change' ? 'bg-blue-100' :
-                        activity.activity_type === 'task_completed' ? 'bg-green-100' :
-                        activity.activity_type === 'call' ? 'bg-yellow-100' :
-                        'bg-slate-100'
-                      }`}>
-                        {activity.activity_type === 'call' ? <Phone className="h-4 w-4" /> :
-                         activity.activity_type === 'email' ? <Mail className="h-4 w-4" /> :
-                         activity.activity_type === 'task_completed' ? <CheckCircle2 className="h-4 w-4" /> :
-                         <Activity className="h-4 w-4" />}
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-sm font-medium">{activity.title}</p>
-                        {activity.description && (
-                          <p className="text-sm text-muted-foreground">{activity.description}</p>
-                        )}
-                        <div className="flex items-center gap-2 mt-1">
-                          {lead && (
-                            <Badge variant="outline" className="text-xs">
-                              {lead.contact_name}
-                            </Badge>
-                          )}
-                          {family && (
-                            <Badge variant="outline" className="text-xs">
-                              {family.name}
-                            </Badge>
-                          )}
-                          <span className="text-xs text-muted-foreground">
-                            {formatDistanceToNow(new Date(activity.occurred_at), { addSuffix: true })}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-                {activities.length === 0 && (
-                  <p className="text-muted-foreground text-center py-8">
-                    No recent activity
-                  </p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+          <CRMActivityTimeline
+            activities={activities}
+            leads={leads}
+            families={families}
+            userProfiles={userProfiles}
+          />
         </TabsContent>
 
-        {/* Analytics */}
-        <TabsContent value="analytics" className="mt-4 space-y-4">
-          <div className="grid md:grid-cols-2 gap-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Pipeline Overview</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {pipelineStats.map((stage) => (
-                    <div key={stage.value} className="flex items-center gap-3">
-                      <div className={`w-3 h-3 rounded-full ${stage.color}`} />
-                      <span className="flex-1 text-sm">{stage.label}</span>
-                      <span className="font-semibold">{stage.count}</span>
-                      <div className="w-24 h-2 bg-muted rounded-full overflow-hidden">
-                        <div 
-                          className={`h-full ${stage.color}`}
-                          style={{ width: `${leads.length > 0 ? (stage.count / leads.length) * 100 : 0}%` }}
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Key Metrics</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Total Leads</span>
-                    <span className="text-2xl font-bold">{leads.length}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Active Families</span>
-                    <span className="text-2xl font-bold">{families.length}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Conversion Rate</span>
-                    <span className="text-2xl font-bold">{conversionRate}%</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Tasks Completed (All Time)</span>
-                    <span className="text-2xl font-bold">
-                      {tasks.filter(t => t.status === 'completed').length}
-                    </span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Referral Source Performance</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {referralSources.length > 0 ? (
-                <div className="space-y-3">
-                  {referralSources.map((source) => {
-                    const sourceLeads = leads.filter(l => l.referral_source_id === source.id);
-                    const converted = sourceLeads.filter(l => l.converted_to_family_id).length;
-                    return (
-                      <div key={source.id} className="flex items-center gap-3">
-                        <Building2 className="h-4 w-4 text-muted-foreground" />
-                        <span className="flex-1 text-sm">{source.name}</span>
-                        <Badge variant="secondary">{sourceLeads.length} leads</Badge>
-                        <Badge variant="outline">{converted} converted</Badge>
-                      </div>
-                    );
-                  })}
-                </div>
-              ) : (
-                <p className="text-muted-foreground text-center py-4">
-                  No referral sources configured yet
-                </p>
-              )}
-            </CardContent>
-          </Card>
+        {/* Analytics - Enhanced */}
+        <TabsContent value="analytics" className="mt-4">
+          <CRMAnalyticsDashboard
+            leads={leads}
+            tasks={tasks}
+            referralSources={referralSources}
+            familyCount={families.length}
+          />
         </TabsContent>
       </Tabs>
 
