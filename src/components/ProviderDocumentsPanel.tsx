@@ -23,6 +23,8 @@ import {
   Filter,
   Plus,
   Eye,
+  Shield,
+  Users,
 } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -209,6 +211,15 @@ export const ProviderDocumentsPanel = ({ organizationId, families }: ProviderDoc
   };
 
   const handleDownload = async (doc: ProviderDocument) => {
+    // Check if this is a HIPAA release (virtual file - cannot be downloaded directly)
+    if (doc.file_path.startsWith('hipaa_releases/')) {
+      toast({ 
+        title: 'HIPAA Release', 
+        description: 'HIPAA releases are stored securely and cannot be downloaded directly. Contact support if you need a copy.',
+      });
+      return;
+    }
+    
     setDownloadingId(doc.id);
     try {
       const { data, error } = await supabase.storage
@@ -235,6 +246,15 @@ export const ProviderDocumentsPanel = ({ organizationId, families }: ProviderDoc
   };
 
   const handleView = async (doc: ProviderDocument) => {
+    // Check if this is a HIPAA release (virtual file)
+    if (doc.file_path.startsWith('hipaa_releases/')) {
+      toast({ 
+        title: 'HIPAA Release', 
+        description: 'This is a signed HIPAA release. The signature is encrypted and stored securely.',
+      });
+      return;
+    }
+    
     try {
       const { data, error } = await supabase.storage
         .from('provider-documents')
@@ -284,6 +304,27 @@ export const ProviderDocumentsPanel = ({ organizationId, families }: ProviderDoc
     }
     return true;
   });
+
+  // Group documents by family
+  const groupedDocuments = filteredDocuments.reduce((acc, doc) => {
+    const groupKey = doc.family_id || 'org-wide';
+    const groupName = doc.family_name || 'Organization-wide';
+    if (!acc[groupKey]) {
+      acc[groupKey] = { name: groupName, documents: [] };
+    }
+    acc[groupKey].documents.push(doc);
+    return acc;
+  }, {} as Record<string, { name: string; documents: ProviderDocument[] }>);
+
+  // Sort groups: org-wide first, then alphabetically by family name
+  const sortedGroups = Object.entries(groupedDocuments).sort(([keyA, groupA], [keyB, groupB]) => {
+    if (keyA === 'org-wide') return -1;
+    if (keyB === 'org-wide') return 1;
+    return groupA.name.localeCompare(groupB.name);
+  });
+
+  // Check if document is a HIPAA release (virtual file)
+  const isHipaaRelease = (doc: ProviderDocument) => doc.file_path.startsWith('hipaa_releases/');
 
   return (
     <div className="space-y-4">
@@ -449,88 +490,107 @@ export const ProviderDocumentsPanel = ({ organizationId, families }: ProviderDoc
           </CardContent>
         </Card>
       ) : (
-        <div className="space-y-3">
-          {filteredDocuments.map(doc => {
-            const FileIcon = getFileIcon(doc.mime_type);
-            
-            return (
-              <Card key={doc.id} className="hover:shadow-md transition-shadow">
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex items-start gap-3 flex-1 min-w-0">
-                      <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                        <FileIcon className="h-5 w-5 text-primary" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-medium truncate">{doc.title}</h4>
-                        <div className="flex flex-wrap items-center gap-2 mt-1">
-                          <Badge variant="outline" className="text-xs">
-                            {documentTypeLabels[doc.document_type] || doc.document_type}
-                          </Badge>
-                          {doc.family_name && (
-                            <Badge variant="secondary" className="text-xs">
-                              {doc.family_name}
-                            </Badge>
-                          )}
-                          <span className="text-xs text-muted-foreground">
-                            {formatFileSize(doc.file_size)}
-                          </span>
+        <div className="space-y-6">
+          {sortedGroups.map(([groupKey, group]) => (
+            <div key={groupKey} className="space-y-3">
+              <div className="flex items-center gap-2 pb-2 border-b">
+                <Users className="h-4 w-4 text-muted-foreground" />
+                <h3 className="font-medium text-sm text-muted-foreground">{group.name}</h3>
+                <Badge variant="secondary" className="text-xs">{group.documents.length}</Badge>
+              </div>
+              
+              <div className="space-y-3">
+                {group.documents.map(doc => {
+                  const isHipaa = isHipaaRelease(doc);
+                  const FileIcon = isHipaa ? Shield : getFileIcon(doc.mime_type);
+                  
+                  return (
+                    <Card key={doc.id} className="hover:shadow-md transition-shadow">
+                      <CardContent className="p-4">
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex items-start gap-3 flex-1 min-w-0">
+                            <div className={`h-10 w-10 rounded-lg flex items-center justify-center flex-shrink-0 ${isHipaa ? 'bg-accent' : 'bg-primary/10'}`}>
+                              <FileIcon className={`h-5 w-5 ${isHipaa ? 'text-accent-foreground' : 'text-primary'}`} />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="font-medium truncate">{doc.title}</h4>
+                              <div className="flex flex-wrap items-center gap-2 mt-1">
+                                <Badge variant={isHipaa ? 'default' : 'outline'} className="text-xs">
+                                  {documentTypeLabels[doc.document_type] || doc.document_type}
+                                </Badge>
+                                {!isHipaa && doc.file_size && (
+                                  <span className="text-xs text-muted-foreground">
+                                    {formatFileSize(doc.file_size)}
+                                  </span>
+                                )}
+                                {isHipaa && (
+                                  <span className="text-xs text-primary font-medium">
+                                    Signed & Encrypted
+                                  </span>
+                                )}
+                              </div>
+                              {doc.description && (
+                                <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{doc.description}</p>
+                              )}
+                              <p className="text-xs text-muted-foreground mt-2">
+                                {isHipaa ? 'Signed' : 'Uploaded'} by {doc.uploader_name} • {format(new Date(doc.created_at), 'MMM d, yyyy')}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-1 flex-shrink-0">
+                            <Button variant="ghost" size="icon" onClick={() => handleView(doc)} title={isHipaa ? "View Info" : "View"}>
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            {!isHipaa && (
+                              <>
+                                <Button 
+                                  variant="ghost" 
+                                  size="icon" 
+                                  onClick={() => handleDownload(doc)} 
+                                  disabled={downloadingId === doc.id}
+                                  title="Download"
+                                >
+                                  {downloadingId === doc.id ? (
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                  ) : (
+                                    <Download className="h-4 w-4" />
+                                  )}
+                                </Button>
+                                <AlertDialog>
+                                  <AlertDialogTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive" title="Delete">
+                                      <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                  </AlertDialogTrigger>
+                                  <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                      <AlertDialogTitle>Delete Document?</AlertDialogTitle>
+                                      <AlertDialogDescription>
+                                        This will permanently delete "{doc.title}". This action cannot be undone.
+                                      </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                      <AlertDialogAction 
+                                        onClick={() => handleDelete(doc.id, doc.file_path)}
+                                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                      >
+                                        Delete
+                                      </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                  </AlertDialogContent>
+                                </AlertDialog>
+                              </>
+                            )}
+                          </div>
                         </div>
-                        {doc.description && (
-                          <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{doc.description}</p>
-                        )}
-                        <p className="text-xs text-muted-foreground mt-2">
-                          Uploaded by {doc.uploader_name} • {format(new Date(doc.created_at), 'MMM d, yyyy')}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-1 flex-shrink-0">
-                      <Button variant="ghost" size="icon" onClick={() => handleView(doc)} title="View">
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        onClick={() => handleDownload(doc)} 
-                        disabled={downloadingId === doc.id}
-                        title="Download"
-                      >
-                        {downloadingId === doc.id ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                          <Download className="h-4 w-4" />
-                        )}
-                      </Button>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive" title="Delete">
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Delete Document?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              This will permanently delete "{doc.title}". This action cannot be undone.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction 
-                              onClick={() => handleDelete(doc.id, doc.file_path)}
-                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                            >
-                              Delete
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>
