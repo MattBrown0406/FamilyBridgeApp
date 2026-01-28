@@ -375,12 +375,13 @@ serve(async (req) => {
       });
     }
 
-    // Fetch family values, boundaries, goals, AND sobriety journey data
-    const [valuesResult, boundariesResult, goalsResult, sobrietyResult] = await Promise.all([
+    // Fetch family values, boundaries, goals, sobriety journey, AND medication compliance data
+    const [valuesResult, boundariesResult, goalsResult, sobrietyResult, medicationComplianceResult] = await Promise.all([
       supabase.from("family_values").select("value_key").eq("family_id", familyId),
       supabase.from("family_boundaries").select("content, status, target_user_id").eq("family_id", familyId).eq("status", "approved"),
       supabase.from("family_common_goals").select("goal_key, completed_at").eq("family_id", familyId),
       supabase.from("sobriety_journeys").select("id, user_id, start_date, reset_count, is_active").eq("family_id", familyId).eq("is_active", true).maybeSingle(),
+      supabase.rpc("get_medication_compliance_summary", { _family_id: familyId, _days: 7 }),
     ]);
 
     // Calculate sobriety days and phase
@@ -451,6 +452,29 @@ SOBRIETY JOURNEY STATUS:
     }
     if (goalsResult.data && goalsResult.data.length > 0) {
       familyContext += `FAMILY GOALS: ${goalsResult.data.map(g => `${g.goal_key}${g.completed_at ? " (completed)" : ""}`).join(", ")}\n\n`;
+    }
+    
+    // Add medication compliance context
+    if (medicationComplianceResult.data && medicationComplianceResult.data.length > 0) {
+      const medData = medicationComplianceResult.data[0];
+      if (medData.medications_count > 0) {
+        familyContext += `MEDICATION COMPLIANCE (Last 7 Days):
+- Active Medications: ${medData.medications_count}
+- Scheduled Doses: ${medData.total_scheduled}
+- Doses Taken: ${medData.total_taken}
+- Doses Skipped: ${medData.total_skipped}
+- Doses Missed: ${medData.total_missed}
+- Compliance Rate: ${medData.compliance_rate !== null ? medData.compliance_rate + '%' : 'N/A'}
+- Unacknowledged Alerts: ${medData.recent_alerts}
+
+MEDICATION COMPLIANCE INTERPRETATION:
+- Compliance rates below 80% indicate a pattern that may impact recovery
+- Multiple missed doses suggest possible avoidance or schedule difficulties
+- Skipped doses with documented reasons are less concerning than missed doses
+- Medication adherence is a KEY predictor of treatment success and one-year goal
+
+`;
+      }
     }
 
     // Build the analysis prompt

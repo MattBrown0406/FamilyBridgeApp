@@ -20,7 +20,7 @@ import {
   ExternalLink, CreditCard, CheckCircle2, Paperclip, Image, HandCoins, Trash2, Pencil,
   Target, ShieldCheck, Plus, CheckCircle, MessageSquare, FlaskConical, ChevronDown, Sparkles,
   Brain, Search, Calendar, ChevronLeft, ChevronRight, Archive, Heart, Clock, TrendingUp, Camera, Upload,
-  Flame, ClipboardList, Stethoscope, Copy, Mail, UserPlus
+  Flame, ClipboardList, Stethoscope, Copy, Mail, UserPlus, Pill
 } from 'lucide-react';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -75,6 +75,7 @@ import { DailyEmotionalCheckin } from '@/components/DailyEmotionalCheckin';
 import { EmotionalToneIndicator } from '@/components/EmotionalToneIndicator';
 import { AdminBreadcrumbs } from '@/components/AdminBreadcrumbs';
 import { AftercarePlanTab } from '@/components/AftercarePlanTab';
+import { MedicationTab } from '@/components/MedicationTab';
 
 const REQUEST_REASONS = [
   'Electric',
@@ -2792,6 +2793,13 @@ const FamilyChat = () => {
               <FlaskConical className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               <span className="hidden md:inline text-xs">Tests</span>
             </TabsTrigger>
+            <TabsTrigger 
+              value="medications" 
+              className="flex items-center justify-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-1.5 sm:py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
+            >
+              <Pill className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              <span className="hidden md:inline text-xs">Meds</span>
+            </TabsTrigger>
             {currentUserRole !== 'recovering' && (
               <TabsTrigger 
                 value="fiis" 
@@ -4851,6 +4859,17 @@ const FamilyChat = () => {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Medications Tab */}
+          <TabsContent value="medications" className="mt-0 space-y-4 overflow-auto">
+            <MedicationTab
+              familyId={familyId!}
+              currentUserId={user?.id || ''}
+              isAdminOrModerator={isAdminOrModerator}
+              recoveringMemberId={members.find(m => m.role === 'recovering')?.user_id}
+              members={members.map(m => ({ user_id: m.user_id, full_name: m.full_name, role: m.role }))}
+            />
           </TabsContent>
 
           {/* Aftercare Plans Tab */}
