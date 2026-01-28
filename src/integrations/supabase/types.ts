@@ -492,6 +492,69 @@ export type Database = {
           },
         ]
       }
+      crm_integrations: {
+        Row: {
+          access_token_encrypted: string | null
+          created_at: string
+          external_email: string | null
+          id: string
+          is_connected: boolean
+          last_sync_at: string | null
+          organization_id: string
+          provider: Database["public"]["Enums"]["integration_provider"]
+          refresh_token_encrypted: string | null
+          scopes: string[] | null
+          token_expires_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          access_token_encrypted?: string | null
+          created_at?: string
+          external_email?: string | null
+          id?: string
+          is_connected?: boolean
+          last_sync_at?: string | null
+          organization_id: string
+          provider: Database["public"]["Enums"]["integration_provider"]
+          refresh_token_encrypted?: string | null
+          scopes?: string[] | null
+          token_expires_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          access_token_encrypted?: string | null
+          created_at?: string
+          external_email?: string | null
+          id?: string
+          is_connected?: boolean
+          last_sync_at?: string | null
+          organization_id?: string
+          provider?: Database["public"]["Enums"]["integration_provider"]
+          refresh_token_encrypted?: string | null
+          scopes?: string[] | null
+          token_expires_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_integrations_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_integrations_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations_member_view"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       crm_leads: {
         Row: {
           assigned_to: string | null
@@ -652,6 +715,50 @@ export type Database = {
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations_member_view"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_sync_log: {
+        Row: {
+          entity_id: string | null
+          entity_type: string
+          error_message: string | null
+          external_id: string | null
+          id: string
+          integration_id: string
+          status: string
+          sync_type: string
+          synced_at: string
+        }
+        Insert: {
+          entity_id?: string | null
+          entity_type: string
+          error_message?: string | null
+          external_id?: string | null
+          id?: string
+          integration_id: string
+          status?: string
+          sync_type: string
+          synced_at?: string
+        }
+        Update: {
+          entity_id?: string | null
+          entity_type?: string
+          error_message?: string | null
+          external_id?: string | null
+          id?: string
+          integration_id?: string
+          status?: string
+          sync_type?: string
+          synced_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_sync_log_integration_id_fkey"
+            columns: ["integration_id"]
+            isOneToOne: false
+            referencedRelation: "crm_integrations"
             referencedColumns: ["id"]
           },
         ]
@@ -4279,6 +4386,7 @@ export type Database = {
         | "declined"
         | "completed"
         | "cancelled"
+      integration_provider: "google" | "microsoft"
       meeting_type:
         | "AA"
         | "Al-Anon"
@@ -4485,6 +4593,7 @@ export const Constants = {
         "completed",
         "cancelled",
       ],
+      integration_provider: ["google", "microsoft"],
       meeting_type: [
         "AA",
         "Al-Anon",
