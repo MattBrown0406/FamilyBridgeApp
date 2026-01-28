@@ -739,6 +739,8 @@ const ModeratorDashboard = () => {
               <TabsContent value="crm">
                 <CRMDashboard 
                   organizationId={organizations[0].id}
+                  organizationName={organizations[0].name}
+                  organizationLogo={branding?.logo_url}
                   families={assignedFamilies.map(f => ({
                     id: f.id,
                     name: f.name,

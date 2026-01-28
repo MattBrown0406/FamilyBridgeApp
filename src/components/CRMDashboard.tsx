@@ -120,6 +120,8 @@ interface OrgMember {
 
 interface CRMDashboardProps {
   organizationId: string;
+  organizationName: string;
+  organizationLogo?: string;
   families: Family[];
   orgMembers: OrgMember[];
 }
@@ -141,7 +143,7 @@ const PRIORITY_COLORS: Record<Priority, string> = {
   urgent: 'bg-red-100 text-red-700',
 };
 
-export function CRMDashboard({ organizationId, families, orgMembers }: CRMDashboardProps) {
+export function CRMDashboard({ organizationId, organizationName, organizationLogo, families, orgMembers }: CRMDashboardProps) {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('pipeline');
   const [leads, setLeads] = useState<Lead[]>([]);
@@ -370,6 +372,52 @@ export function CRMDashboard({ organizationId, families, orgMembers }: CRMDashbo
   };
 
   const handleUpdateLeadStage = async (leadId: string, newStage: PipelineStage) => {
+    const lead = leads.find(l => l.id === leadId);
+    
+    // If moving to "active" and lead hasn't been converted yet, trigger conversion
+    if (newStage === 'active' && lead && !lead.converted_to_family_id) {
+      try {
+        const { data: session } = await supabase.auth.getSession();
+        if (!session?.session?.access_token) {
+          toast({ title: 'Error', description: 'Not authenticated', variant: 'destructive' });
+          return;
+        }
+
+        const response = await supabase.functions.invoke('convert-lead-to-family', {
+          body: {
+            leadId,
+            organizationId,
+            organizationName,
+            organizationLogo,
+            creatorName: user?.user_metadata?.full_name || undefined,
+          },
+        });
+
+        if (response.error) {
+          throw new Error(response.error.message || 'Failed to convert lead');
+        }
+
+        const result = response.data;
+        toast({ 
+          title: 'Lead Converted', 
+          description: result.message || 'Family created and onboarding email sent' 
+        });
+        
+        // Close the lead detail dialog if open
+        setIsLeadDetailOpen(false);
+        setSelectedLead(null);
+        
+        fetchLeads();
+        fetchActivities();
+        return;
+      } catch (err: any) {
+        console.error('Error converting lead:', err);
+        toast({ title: 'Error', description: err.message || 'Failed to convert lead to family', variant: 'destructive' });
+        return;
+      }
+    }
+    
+    // Standard stage update for non-active stages or already converted leads
     try {
       const { error } = await supabase
         .from('crm_leads')

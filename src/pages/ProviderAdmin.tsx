@@ -1998,6 +1998,8 @@ const ProviderAdmin = () => {
                     <CardContent>
                       <CRMDashboard 
                         organizationId={selectedOrg}
+                        organizationName={currentOrg?.name || ''}
+                        organizationLogo={currentOrg?.logo_url}
                         families={orgFamilies.map(f => ({ id: f.id, name: f.name }))}
                         orgMembers={orgModerators.map(m => ({
                           user_id: m.user_id,
