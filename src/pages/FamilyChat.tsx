@@ -2743,7 +2743,7 @@ const FamilyChat = () => {
       {/* Main Content */}
       <main className="flex-1 container mx-auto px-1.5 sm:px-4 py-1.5 sm:py-4 overflow-hidden">
         <Tabs defaultValue="messages" className="h-full flex flex-col">
-          <TabsList className="grid grid-cols-7 md:grid-cols-8 h-auto gap-0.5 w-full mb-2 sm:mb-4 shrink-0 bg-card/50 backdrop-blur-sm border border-border/50 p-0.5 sm:p-1.5 rounded-lg sm:rounded-xl shadow-soft">
+          <TabsList className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-9 h-auto gap-1 w-full mb-2 sm:mb-4 shrink-0 bg-card/50 backdrop-blur-sm border border-border/50 p-1 sm:p-1.5 rounded-lg sm:rounded-xl shadow-soft">
             <TabsTrigger 
               value="messages" 
               className="flex items-center justify-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-1.5 sm:py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
@@ -2788,7 +2788,7 @@ const FamilyChat = () => {
             </TabsTrigger>
             <TabsTrigger 
               value="test-results" 
-              className="hidden md:flex items-center justify-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-1.5 sm:py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
+              className="flex items-center justify-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-1.5 sm:py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
             >
               <FlaskConical className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               <span className="hidden md:inline text-xs">Tests</span>
