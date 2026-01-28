@@ -1154,6 +1154,65 @@ export type Database = {
           },
         ]
       }
+      family_documents: {
+        Row: {
+          boundaries_extracted: number | null
+          created_at: string
+          description: string | null
+          document_type: string
+          family_id: string
+          fiis_analyzed: boolean | null
+          fiis_analyzed_at: string | null
+          file_name: string
+          file_path: string
+          file_size: number | null
+          id: string
+          mime_type: string | null
+          title: string
+          uploaded_by: string
+        }
+        Insert: {
+          boundaries_extracted?: number | null
+          created_at?: string
+          description?: string | null
+          document_type?: string
+          family_id: string
+          fiis_analyzed?: boolean | null
+          fiis_analyzed_at?: string | null
+          file_name: string
+          file_path: string
+          file_size?: number | null
+          id?: string
+          mime_type?: string | null
+          title: string
+          uploaded_by: string
+        }
+        Update: {
+          boundaries_extracted?: number | null
+          created_at?: string
+          description?: string | null
+          document_type?: string
+          family_id?: string
+          fiis_analyzed?: boolean | null
+          fiis_analyzed_at?: string | null
+          file_name?: string
+          file_path?: string
+          file_size?: number | null
+          id?: string
+          mime_type?: string | null
+          title?: string
+          uploaded_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "family_documents_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       family_goals: {
         Row: {
           completed_at: string | null

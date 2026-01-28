@@ -98,3 +98,6 @@ verify_jwt = false
 
 [functions.finalize-family-purchase]
 verify_jwt = false
+
+[functions.analyze-intervention-letter]
+verify_jwt = false
