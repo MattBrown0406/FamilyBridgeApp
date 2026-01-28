@@ -162,6 +162,16 @@ export function CRMDashboard({ organizationId, organizationName, organizationLog
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [isLeadDetailOpen, setIsLeadDetailOpen] = useState(false);
+  const [isEditingLead, setIsEditingLead] = useState(false);
+  const [editLeadData, setEditLeadData] = useState<{
+    contact_name: string;
+    contact_email: string;
+    contact_phone: string;
+    patient_name: string;
+    presenting_issue: string;
+    priority: Priority;
+    notes: string;
+  } | null>(null);
   const [isAddReferralSourceOpen, setIsAddReferralSourceOpen] = useState(false);
   const [newReferralSource, setNewReferralSource] = useState({
     name: '',
@@ -341,6 +351,83 @@ export function CRMDashboard({ organizationId, organizationName, organizationLog
       console.error('Error creating lead:', err);
       toast({ title: 'Error', description: err.message || 'Failed to create lead', variant: 'destructive' });
     }
+  };
+
+  const handleUpdateLead = async () => {
+    if (!selectedLead || !editLeadData) return;
+    
+    if (!editLeadData.contact_name.trim()) {
+      toast({ title: 'Error', description: 'Contact name is required', variant: 'destructive' });
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('crm_leads')
+        .update({
+          contact_name: editLeadData.contact_name,
+          contact_email: editLeadData.contact_email || null,
+          contact_phone: editLeadData.contact_phone || null,
+          patient_name: editLeadData.patient_name || null,
+          presenting_issue: editLeadData.presenting_issue || null,
+          priority: editLeadData.priority,
+          notes: editLeadData.notes || null,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', selectedLead.id);
+
+      if (error) throw error;
+
+      // Log activity
+      await supabase.from('crm_activities').insert({
+        organization_id: organizationId,
+        user_id: user?.id,
+        activity_type: 'note',
+        title: 'Lead updated',
+        lead_id: selectedLead.id,
+      });
+
+      toast({ title: 'Success', description: 'Lead updated successfully' });
+      setIsEditingLead(false);
+      setEditLeadData(null);
+      fetchLeads();
+      fetchActivities();
+      
+      // Update selectedLead with new data
+      setSelectedLead({
+        ...selectedLead,
+        contact_name: editLeadData.contact_name,
+        contact_email: editLeadData.contact_email || null,
+        contact_phone: editLeadData.contact_phone || null,
+        patient_name: editLeadData.patient_name || null,
+        presenting_issue: editLeadData.presenting_issue || null,
+        priority: editLeadData.priority,
+        notes: editLeadData.notes || null,
+      });
+    } catch (err: any) {
+      console.error('Error updating lead:', err);
+      toast({ title: 'Error', description: err.message || 'Failed to update lead', variant: 'destructive' });
+    }
+  };
+
+  const startEditingLead = () => {
+    if (selectedLead) {
+      setEditLeadData({
+        contact_name: selectedLead.contact_name,
+        contact_email: selectedLead.contact_email || '',
+        contact_phone: selectedLead.contact_phone || '',
+        patient_name: selectedLead.patient_name || '',
+        presenting_issue: selectedLead.presenting_issue || '',
+        priority: selectedLead.priority,
+        notes: selectedLead.notes || '',
+      });
+      setIsEditingLead(true);
+    }
+  };
+
+  const cancelEditingLead = () => {
+    setIsEditingLead(false);
+    setEditLeadData(null);
   };
 
   const handleCreateReferralSource = async () => {
@@ -1177,170 +1264,276 @@ export function CRMDashboard({ organizationId, organizationName, organizationLog
       </Tabs>
 
       {/* Lead Detail Dialog */}
-      <Dialog open={isLeadDetailOpen} onOpenChange={setIsLeadDetailOpen}>
+      <Dialog open={isLeadDetailOpen} onOpenChange={(open) => {
+        setIsLeadDetailOpen(open);
+        if (!open) {
+          setIsEditingLead(false);
+          setEditLeadData(null);
+        }
+      }}>
         <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
           {selectedLead && (
             <>
               <DialogHeader>
-                <DialogTitle className="flex items-center gap-2">
-                  {selectedLead.contact_name}
-                  <Badge className={PRIORITY_COLORS[selectedLead.priority]}>
-                    {selectedLead.priority}
-                  </Badge>
+                <DialogTitle className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    {isEditingLead && editLeadData ? (
+                      <Input
+                        value={editLeadData.contact_name}
+                        onChange={(e) => setEditLeadData({ ...editLeadData, contact_name: e.target.value })}
+                        className="font-semibold"
+                        placeholder="Contact name"
+                      />
+                    ) : (
+                      <>
+                        {selectedLead.contact_name}
+                        <Badge className={PRIORITY_COLORS[selectedLead.priority]}>
+                          {selectedLead.priority}
+                        </Badge>
+                      </>
+                    )}
+                  </div>
+                  {!isEditingLead && (
+                    <Button variant="ghost" size="sm" onClick={startEditingLead}>
+                      <Edit2 className="h-4 w-4" />
+                    </Button>
+                  )}
                 </DialogTitle>
-                <DialogDescription>Lead details and stage management</DialogDescription>
+                <DialogDescription>
+                  {isEditingLead ? 'Edit lead information' : 'Lead details and stage management'}
+                </DialogDescription>
               </DialogHeader>
               <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  {selectedLead.contact_email && (
-                    <div className="flex items-center gap-2 text-sm">
-                      <Mail className="h-4 w-4 text-muted-foreground" />
-                      <a href={`mailto:${selectedLead.contact_email}`} className="text-primary hover:underline">
-                        {selectedLead.contact_email}
-                      </a>
-                    </div>
-                  )}
-                  {selectedLead.contact_phone && (
-                    <div className="flex items-center gap-2 text-sm">
-                      <Phone className="h-4 w-4 text-muted-foreground" />
-                      <a href={`tel:${selectedLead.contact_phone}`} className="text-primary hover:underline">
-                        {formatPhoneNumber(selectedLead.contact_phone)}
-                      </a>
-                    </div>
-                  )}
-                </div>
-
-                {selectedLead.patient_name && (
-                  <div>
-                    <Label className="text-xs text-muted-foreground">Patient/Loved One</Label>
-                    <p className="text-sm">{selectedLead.patient_name}</p>
-                  </div>
-                )}
-
-                {selectedLead.presenting_issue && (
-                  <div>
-                    <Label className="text-xs text-muted-foreground">Presenting Issue</Label>
-                    <p className="text-sm">{selectedLead.presenting_issue}</p>
-                  </div>
-                )}
-
-                <div>
-                  <Label className="text-xs text-muted-foreground mb-2 block">Current Stage</Label>
-                  <Select 
-                    value={selectedLead.stage} 
-                    onValueChange={(v: PipelineStage) => handleUpdateLeadStage(selectedLead.id, v)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {PIPELINE_STAGES.map((stage) => (
-                        <SelectItem key={stage.value} value={stage.value}>
-                          <div className="flex items-center gap-2">
-                            <div className={`w-2 h-2 rounded-full ${stage.color}`} />
-                            {stage.label}
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {selectedLead.notes && (
-                  <div>
-                    <Label className="text-xs text-muted-foreground">Notes</Label>
-                    <p className="text-sm">{selectedLead.notes}</p>
-                  </div>
-                )}
-
-                {/* Log Contact Section */}
-                <div className="border-t pt-4">
-                  <Label className="text-sm font-medium mb-3 block">Log a Contact</Label>
-                  <div className="space-y-3">
-                    <div className="flex flex-wrap gap-2">
-                      {[
-                        { value: 'call', label: 'Call', icon: PhoneCall },
-                        { value: 'text', label: 'Text', icon: MessageSquare },
-                        { value: 'email', label: 'Email', icon: Mail },
-                        { value: 'meeting', label: 'Meeting', icon: Video },
-                        { value: 'voicemail', label: 'Voicemail', icon: Phone },
-                        { value: 'note', label: 'Note', icon: FileText },
-                      ].map(({ value, label, icon: Icon }) => (
-                        <Button
-                          key={value}
-                          type="button"
-                          variant={newContact.contact_type === value ? 'default' : 'outline'}
-                          size="sm"
-                          onClick={() => setNewContact({ ...newContact, contact_type: value })}
-                          className="gap-1"
+                {isEditingLead && editLeadData ? (
+                  /* Edit Mode */
+                  <>
+                    <div className="space-y-3">
+                      <div>
+                        <Label>Email</Label>
+                        <Input
+                          type="email"
+                          value={editLeadData.contact_email}
+                          onChange={(e) => setEditLeadData({ ...editLeadData, contact_email: e.target.value })}
+                          placeholder="email@example.com"
+                        />
+                      </div>
+                      <div>
+                        <Label>Phone</Label>
+                        <Input
+                          type="tel"
+                          value={editLeadData.contact_phone}
+                          onChange={(e) => setEditLeadData({ ...editLeadData, contact_phone: e.target.value })}
+                          placeholder="(555) 123-4567"
+                        />
+                      </div>
+                      <div>
+                        <Label>Patient/Loved One Name</Label>
+                        <Input
+                          value={editLeadData.patient_name}
+                          onChange={(e) => setEditLeadData({ ...editLeadData, patient_name: e.target.value })}
+                          placeholder="Patient name"
+                        />
+                      </div>
+                      <div>
+                        <Label>Presenting Issue</Label>
+                        <Textarea
+                          value={editLeadData.presenting_issue}
+                          onChange={(e) => setEditLeadData({ ...editLeadData, presenting_issue: e.target.value })}
+                          placeholder="Describe the presenting issue..."
+                          rows={2}
+                        />
+                      </div>
+                      <div>
+                        <Label>Priority</Label>
+                        <Select
+                          value={editLeadData.priority}
+                          onValueChange={(v: Priority) => setEditLeadData({ ...editLeadData, priority: v })}
                         >
-                          <Icon className="h-3 w-3" />
-                          {label}
-                        </Button>
-                      ))}
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="low">Low</SelectItem>
+                            <SelectItem value="medium">Medium</SelectItem>
+                            <SelectItem value="high">High</SelectItem>
+                            <SelectItem value="urgent">Urgent</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label>Notes</Label>
+                        <Textarea
+                          value={editLeadData.notes}
+                          onChange={(e) => setEditLeadData({ ...editLeadData, notes: e.target.value })}
+                          placeholder="Additional notes..."
+                          rows={3}
+                        />
+                      </div>
                     </div>
-                    <Textarea
-                      placeholder="Add notes about this contact..."
-                      value={newContact.notes}
-                      onChange={(e) => setNewContact({ ...newContact, notes: e.target.value })}
-                      rows={2}
-                    />
-                    <Button 
-                      onClick={handleLogContact} 
-                      disabled={isLoggingContact}
-                      size="sm"
-                      className="w-full"
-                    >
-                      {isLoggingContact ? (
-                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                      ) : (
-                        <Plus className="h-4 w-4 mr-2" />
+                    <div className="flex gap-2 pt-2">
+                      <Button variant="outline" onClick={cancelEditingLead} className="flex-1">
+                        Cancel
+                      </Button>
+                      <Button onClick={handleUpdateLead} className="flex-1">
+                        Save Changes
+                      </Button>
+                    </div>
+                  </>
+                ) : (
+                  /* View Mode */
+                  <>
+                    <div className="grid grid-cols-2 gap-4">
+                      {selectedLead.contact_email && (
+                        <div className="flex items-center gap-2 text-sm">
+                          <Mail className="h-4 w-4 text-muted-foreground" />
+                          <a href={`mailto:${selectedLead.contact_email}`} className="text-primary hover:underline">
+                            {selectedLead.contact_email}
+                          </a>
+                        </div>
                       )}
-                      Log Contact
-                    </Button>
-                  </div>
-                </div>
-
-                {/* Contact History */}
-                {leadActivities.length > 0 && (
-                  <div className="border-t pt-4">
-                    <Label className="text-sm font-medium mb-3 block">Recent Activity</Label>
-                    <div className="space-y-2 max-h-48 overflow-y-auto">
-                      {leadActivities.map((activity) => {
-                        const activityIcons: Record<string, React.ReactNode> = {
-                          call: <PhoneCall className="h-3 w-3" />,
-                          text: <MessageSquare className="h-3 w-3" />,
-                          email: <Mail className="h-3 w-3" />,
-                          meeting: <Video className="h-3 w-3" />,
-                          voicemail: <Phone className="h-3 w-3" />,
-                          note: <FileText className="h-3 w-3" />,
-                          stage_change: <ArrowRight className="h-3 w-3" />,
-                          task_completed: <CheckCircle2 className="h-3 w-3" />,
-                        };
-                        return (
-                          <div key={activity.id} className="flex items-start gap-2 p-2 rounded-lg bg-muted/50 text-sm">
-                            <div className="p-1 rounded bg-background">
-                              {activityIcons[activity.activity_type] || <Activity className="h-3 w-3" />}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="font-medium text-xs">{activity.title}</p>
-                              {activity.description && (
-                                <p className="text-xs text-muted-foreground truncate">{activity.description}</p>
-                              )}
-                              <p className="text-xs text-muted-foreground mt-0.5">
-                                {formatDistanceToNow(new Date(activity.occurred_at), { addSuffix: true })}
-                              </p>
-                            </div>
-                          </div>
-                        );
-                      })}
+                      {selectedLead.contact_phone && (
+                        <div className="flex items-center gap-2 text-sm">
+                          <Phone className="h-4 w-4 text-muted-foreground" />
+                          <a href={`tel:${selectedLead.contact_phone}`} className="text-primary hover:underline">
+                            {formatPhoneNumber(selectedLead.contact_phone)}
+                          </a>
+                        </div>
+                      )}
                     </div>
-                  </div>
-                )}
 
-                <div className="text-xs text-muted-foreground">
-                  Created {format(new Date(selectedLead.created_at), 'PPp')}
-                </div>
+                    {selectedLead.patient_name && (
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Patient/Loved One</Label>
+                        <p className="text-sm">{selectedLead.patient_name}</p>
+                      </div>
+                    )}
+
+                    {selectedLead.presenting_issue && (
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Presenting Issue</Label>
+                        <p className="text-sm">{selectedLead.presenting_issue}</p>
+                      </div>
+                    )}
+
+                    <div>
+                      <Label className="text-xs text-muted-foreground mb-2 block">Current Stage</Label>
+                      <Select 
+                        value={selectedLead.stage} 
+                        onValueChange={(v: PipelineStage) => handleUpdateLeadStage(selectedLead.id, v)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {PIPELINE_STAGES.map((stage) => (
+                            <SelectItem key={stage.value} value={stage.value}>
+                              <div className="flex items-center gap-2">
+                                <div className={`w-2 h-2 rounded-full ${stage.color}`} />
+                                {stage.label}
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {selectedLead.notes && (
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Notes</Label>
+                        <p className="text-sm">{selectedLead.notes}</p>
+                      </div>
+                    )}
+
+                    {/* Log Contact Section */}
+                    <div className="border-t pt-4">
+                      <Label className="text-sm font-medium mb-3 block">Log a Contact</Label>
+                      <div className="space-y-3">
+                        <div className="flex flex-wrap gap-2">
+                          {[
+                            { value: 'call', label: 'Call', icon: PhoneCall },
+                            { value: 'text', label: 'Text', icon: MessageSquare },
+                            { value: 'email', label: 'Email', icon: Mail },
+                            { value: 'meeting', label: 'Meeting', icon: Video },
+                            { value: 'voicemail', label: 'Voicemail', icon: Phone },
+                            { value: 'note', label: 'Note', icon: FileText },
+                          ].map(({ value, label, icon: Icon }) => (
+                            <Button
+                              key={value}
+                              type="button"
+                              variant={newContact.contact_type === value ? 'default' : 'outline'}
+                              size="sm"
+                              onClick={() => setNewContact({ ...newContact, contact_type: value })}
+                              className="gap-1"
+                            >
+                              <Icon className="h-3 w-3" />
+                              {label}
+                            </Button>
+                          ))}
+                        </div>
+                        <Textarea
+                          placeholder="Add notes about this contact..."
+                          value={newContact.notes}
+                          onChange={(e) => setNewContact({ ...newContact, notes: e.target.value })}
+                          rows={2}
+                        />
+                        <Button 
+                          onClick={handleLogContact} 
+                          disabled={isLoggingContact}
+                          size="sm"
+                          className="w-full"
+                        >
+                          {isLoggingContact ? (
+                            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                          ) : (
+                            <Plus className="h-4 w-4 mr-2" />
+                          )}
+                          Log Contact
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* Contact History */}
+                    {leadActivities.length > 0 && (
+                      <div className="border-t pt-4">
+                        <Label className="text-sm font-medium mb-3 block">Recent Activity</Label>
+                        <div className="space-y-2 max-h-48 overflow-y-auto">
+                          {leadActivities.map((activity) => {
+                            const activityIcons: Record<string, React.ReactNode> = {
+                              call: <PhoneCall className="h-3 w-3" />,
+                              text: <MessageSquare className="h-3 w-3" />,
+                              email: <Mail className="h-3 w-3" />,
+                              meeting: <Video className="h-3 w-3" />,
+                              voicemail: <Phone className="h-3 w-3" />,
+                              note: <FileText className="h-3 w-3" />,
+                              stage_change: <ArrowRight className="h-3 w-3" />,
+                              task_completed: <CheckCircle2 className="h-3 w-3" />,
+                            };
+                            return (
+                              <div key={activity.id} className="flex items-start gap-2 p-2 rounded-lg bg-muted/50 text-sm">
+                                <div className="p-1 rounded bg-background">
+                                  {activityIcons[activity.activity_type] || <Activity className="h-3 w-3" />}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="font-medium text-xs">{activity.title}</p>
+                                  {activity.description && (
+                                    <p className="text-xs text-muted-foreground truncate">{activity.description}</p>
+                                  )}
+                                  <p className="text-xs text-muted-foreground mt-0.5">
+                                    {formatDistanceToNow(new Date(activity.occurred_at), { addSuffix: true })}
+                                  </p>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="text-xs text-muted-foreground">
+                      Created {format(new Date(selectedLead.created_at), 'PPp')}
+                    </div>
+                  </>
+                )}
               </div>
             </>
           )}
