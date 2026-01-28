@@ -20,7 +20,7 @@ import {
   ExternalLink, CreditCard, CheckCircle2, Paperclip, Image, HandCoins, Trash2, Pencil,
   Target, ShieldCheck, Plus, CheckCircle, MessageSquare, FlaskConical, ChevronDown, Sparkles,
   Brain, Search, Calendar, ChevronLeft, ChevronRight, Archive, Heart, Clock, TrendingUp, Camera, Upload,
-  Flame, ClipboardList, Stethoscope, Copy, Mail, UserPlus, Pill
+  Flame, ClipboardList, Stethoscope, Copy, Mail, UserPlus, Pill, FolderOpen
 } from 'lucide-react';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -76,6 +76,7 @@ import { EmotionalToneIndicator } from '@/components/EmotionalToneIndicator';
 import { AdminBreadcrumbs } from '@/components/AdminBreadcrumbs';
 import { AftercarePlanTab } from '@/components/AftercarePlanTab';
 import { MedicationTab } from '@/components/MedicationTab';
+import { FamilyDocumentsTab } from '@/components/FamilyDocumentsTab';
 
 const REQUEST_REASONS = [
   'Electric',
@@ -2743,7 +2744,7 @@ const FamilyChat = () => {
       {/* Main Content */}
       <main className="flex-1 container mx-auto px-1.5 sm:px-4 py-1.5 sm:py-4 overflow-hidden">
         <Tabs defaultValue="messages" className="h-full flex flex-col">
-          <TabsList className="grid grid-cols-5 md:grid-cols-9 grid-rows-2 md:grid-rows-1 h-auto gap-1.5 w-full mb-2 sm:mb-4 shrink-0 bg-card/50 backdrop-blur-sm border border-border/50 p-1.5 sm:p-2 rounded-lg sm:rounded-xl shadow-soft">
+          <TabsList className="grid grid-cols-5 md:grid-cols-10 grid-rows-2 md:grid-rows-1 h-auto gap-1.5 w-full mb-2 sm:mb-4 shrink-0 bg-card/50 backdrop-blur-sm border border-border/50 p-1.5 sm:p-2 rounded-lg sm:rounded-xl shadow-soft">
             <TabsTrigger 
               value="messages" 
               className="flex items-center justify-center gap-1 px-2 py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
@@ -2799,6 +2800,13 @@ const FamilyChat = () => {
             >
               <Pill className="h-4 w-4" />
               <span className="hidden md:inline text-xs">Meds</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="docs" 
+              className="flex items-center justify-center gap-1 px-2 py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
+            >
+              <FolderOpen className="h-4 w-4" />
+              <span className="hidden md:inline text-xs">Docs</span>
             </TabsTrigger>
             {currentUserRole !== 'recovering' && (
               <TabsTrigger 
@@ -4872,7 +4880,14 @@ const FamilyChat = () => {
             />
           </TabsContent>
 
-          {/* Aftercare Plans Tab */}
+          {/* Documents Tab */}
+          <TabsContent value="docs" className="mt-0 space-y-4 overflow-auto">
+            <FamilyDocumentsTab
+              familyId={familyId!}
+              userRole={currentUserRole}
+            />
+          </TabsContent>
+
           <TabsContent value="aftercare" className="mt-0 space-y-4 overflow-auto">
             <AftercarePlanTab
               familyId={familyId!}
