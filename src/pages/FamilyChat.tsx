@@ -2743,72 +2743,72 @@ const FamilyChat = () => {
       {/* Main Content */}
       <main className="flex-1 container mx-auto px-1.5 sm:px-4 py-1.5 sm:py-4 overflow-hidden">
         <Tabs defaultValue="messages" className="h-full flex flex-col">
-          <TabsList className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-9 h-auto gap-1 w-full mb-2 sm:mb-4 shrink-0 bg-card/50 backdrop-blur-sm border border-border/50 p-1 sm:p-1.5 rounded-lg sm:rounded-xl shadow-soft">
+          <TabsList className="flex flex-wrap justify-evenly h-auto gap-1 w-full mb-2 sm:mb-4 shrink-0 bg-card/50 backdrop-blur-sm border border-border/50 p-1.5 sm:p-2 rounded-lg sm:rounded-xl shadow-soft">
             <TabsTrigger 
               value="messages" 
-              className="flex items-center justify-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-1.5 sm:py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
+              className="flex-1 min-w-[calc(20%-4px)] sm:min-w-0 sm:flex-initial flex items-center justify-center gap-0.5 sm:gap-1 px-2 sm:px-3 py-2 sm:py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
             >
-              <MessageCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              <MessageCircle className="h-4 w-4 sm:h-4 sm:w-4" />
               <span className="hidden md:inline text-xs">Chat</span>
             </TabsTrigger>
             <TabsTrigger 
               value="checkin" 
-              className="flex items-center justify-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-1.5 sm:py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
+              className="flex-1 min-w-[calc(20%-4px)] sm:min-w-0 sm:flex-initial flex items-center justify-center gap-0.5 sm:gap-1 px-2 sm:px-3 py-2 sm:py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
             >
-              <MapPin className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              <MapPin className="h-4 w-4 sm:h-4 sm:w-4" />
               <span className="hidden md:inline text-xs">Check-in</span>
             </TabsTrigger>
             <TabsTrigger 
               value="financial" 
-              className="flex items-center justify-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-1.5 sm:py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
+              className="flex-1 min-w-[calc(20%-4px)] sm:min-w-0 sm:flex-initial flex items-center justify-center gap-0.5 sm:gap-1 px-2 sm:px-3 py-2 sm:py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
             >
-              <DollarSign className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              <DollarSign className="h-4 w-4 sm:h-4 sm:w-4" />
               <span className="hidden md:inline text-xs">Financial</span>
             </TabsTrigger>
             <TabsTrigger 
               value="values" 
-              className="flex items-center justify-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-1.5 sm:py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
+              className="flex-1 min-w-[calc(20%-4px)] sm:min-w-0 sm:flex-initial flex items-center justify-center gap-0.5 sm:gap-1 px-2 sm:px-3 py-2 sm:py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
             >
-              <Target className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              <Target className="h-4 w-4 sm:h-4 sm:w-4" />
               <span className="hidden md:inline text-xs">Goals</span>
             </TabsTrigger>
             <TabsTrigger 
               value="boundaries" 
-              className="flex items-center justify-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-1.5 sm:py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
+              className="flex-1 min-w-[calc(20%-4px)] sm:min-w-0 sm:flex-initial flex items-center justify-center gap-0.5 sm:gap-1 px-2 sm:px-3 py-2 sm:py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
             >
-              <ShieldCheck className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              <ShieldCheck className="h-4 w-4 sm:h-4 sm:w-4" />
               <span className="hidden md:inline text-xs">Boundaries</span>
             </TabsTrigger>
             <TabsTrigger 
               value="aftercare" 
-              className="flex items-center justify-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-1.5 sm:py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
+              className="flex-1 min-w-[calc(20%-4px)] sm:min-w-0 sm:flex-initial flex items-center justify-center gap-0.5 sm:gap-1 px-2 sm:px-3 py-2 sm:py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
             >
-              <ClipboardList className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              <ClipboardList className="h-4 w-4 sm:h-4 sm:w-4" />
               <span className="hidden md:inline text-xs">Aftercare</span>
             </TabsTrigger>
             <TabsTrigger 
               value="test-results" 
-              className="flex items-center justify-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-1.5 sm:py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
+              className="flex-1 min-w-[calc(20%-4px)] sm:min-w-0 sm:flex-initial flex items-center justify-center gap-0.5 sm:gap-1 px-2 sm:px-3 py-2 sm:py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
             >
-              <FlaskConical className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              <FlaskConical className="h-4 w-4 sm:h-4 sm:w-4" />
               <span className="hidden md:inline text-xs">Tests</span>
             </TabsTrigger>
             <TabsTrigger 
               value="medications" 
-              className="flex items-center justify-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-1.5 sm:py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
+              className="flex-1 min-w-[calc(20%-4px)] sm:min-w-0 sm:flex-initial flex items-center justify-center gap-0.5 sm:gap-1 px-2 sm:px-3 py-2 sm:py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
             >
-              <Pill className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              <Pill className="h-4 w-4 sm:h-4 sm:w-4" />
               <span className="hidden md:inline text-xs">Meds</span>
             </TabsTrigger>
             {currentUserRole !== 'recovering' && (
               <TabsTrigger 
                 value="fiis" 
-                className="relative flex items-center justify-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-1.5 sm:py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
+                className="relative flex-1 min-w-[calc(20%-4px)] sm:min-w-0 sm:flex-initial flex items-center justify-center gap-0.5 sm:gap-1 px-2 sm:px-3 py-2 sm:py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
               >
-                <Brain className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                <Brain className="h-4 w-4 sm:h-4 sm:w-4" />
                 <span className="hidden md:inline text-xs">FIIS</span>
                 {hasNewAnalysis && (
-                  <span className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 h-2.5 w-2.5 sm:h-3 sm:w-3 bg-red-500 rounded-full animate-pulse border-2 border-card" />
+                  <span className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 h-2.5 w-2.5 sm:h-3 sm:w-3 bg-destructive rounded-full animate-pulse border-2 border-card" />
                 )}
               </TabsTrigger>
             )}
