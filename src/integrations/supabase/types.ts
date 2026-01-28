@@ -1846,6 +1846,213 @@ export type Database = {
           },
         ]
       }
+      medication_alerts: {
+        Row: {
+          acknowledged_at: string | null
+          acknowledged_by: string | null
+          alert_type: string
+          created_at: string
+          dose_id: string | null
+          family_id: string
+          id: string
+          medication_id: string
+          message: string
+          user_id: string
+        }
+        Insert: {
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
+          alert_type: string
+          created_at?: string
+          dose_id?: string | null
+          family_id: string
+          id?: string
+          medication_id: string
+          message: string
+          user_id: string
+        }
+        Update: {
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
+          alert_type?: string
+          created_at?: string
+          dose_id?: string | null
+          family_id?: string
+          id?: string
+          medication_id?: string
+          message?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "medication_alerts_dose_id_fkey"
+            columns: ["dose_id"]
+            isOneToOne: false
+            referencedRelation: "medication_doses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "medication_alerts_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "medication_alerts_medication_id_fkey"
+            columns: ["medication_id"]
+            isOneToOne: false
+            referencedRelation: "medications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      medication_doses: {
+        Row: {
+          confirmed_by: string | null
+          created_at: string
+          family_id: string
+          id: string
+          medication_id: string
+          overdue_alert_sent: boolean | null
+          reminder_sent_at: string | null
+          scheduled_at: string
+          scheduled_time: string | null
+          skip_reason: string | null
+          skipped: boolean | null
+          taken_at: string | null
+          user_id: string
+        }
+        Insert: {
+          confirmed_by?: string | null
+          created_at?: string
+          family_id: string
+          id?: string
+          medication_id: string
+          overdue_alert_sent?: boolean | null
+          reminder_sent_at?: string | null
+          scheduled_at: string
+          scheduled_time?: string | null
+          skip_reason?: string | null
+          skipped?: boolean | null
+          taken_at?: string | null
+          user_id: string
+        }
+        Update: {
+          confirmed_by?: string | null
+          created_at?: string
+          family_id?: string
+          id?: string
+          medication_id?: string
+          overdue_alert_sent?: boolean | null
+          reminder_sent_at?: string | null
+          scheduled_at?: string
+          scheduled_time?: string | null
+          skip_reason?: string | null
+          skipped?: boolean | null
+          taken_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "medication_doses_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "medication_doses_medication_id_fkey"
+            columns: ["medication_id"]
+            isOneToOne: false
+            referencedRelation: "medications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      medications: {
+        Row: {
+          created_at: string
+          created_by: string
+          discontinued_at: string | null
+          discontinued_reason: string | null
+          doctor_name: string | null
+          doctor_phone: string | null
+          dosage: string | null
+          family_id: string
+          frequency: string | null
+          id: string
+          instructions: string | null
+          is_active: boolean | null
+          label_image_url: string | null
+          last_refill_date: string | null
+          medication_name: string
+          pharmacy_name: string | null
+          pharmacy_phone: string | null
+          refills_remaining: number | null
+          specific_times: string[] | null
+          times_per_day: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          discontinued_at?: string | null
+          discontinued_reason?: string | null
+          doctor_name?: string | null
+          doctor_phone?: string | null
+          dosage?: string | null
+          family_id: string
+          frequency?: string | null
+          id?: string
+          instructions?: string | null
+          is_active?: boolean | null
+          label_image_url?: string | null
+          last_refill_date?: string | null
+          medication_name: string
+          pharmacy_name?: string | null
+          pharmacy_phone?: string | null
+          refills_remaining?: number | null
+          specific_times?: string[] | null
+          times_per_day?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          discontinued_at?: string | null
+          discontinued_reason?: string | null
+          doctor_name?: string | null
+          doctor_phone?: string | null
+          dosage?: string | null
+          family_id?: string
+          frequency?: string | null
+          id?: string
+          instructions?: string | null
+          is_active?: boolean | null
+          label_image_url?: string | null
+          last_refill_date?: string | null
+          medication_name?: string
+          pharmacy_name?: string | null
+          pharmacy_phone?: string | null
+          refills_remaining?: number | null
+          specific_times?: string[] | null
+          times_per_day?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "medications_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       meeting_checkins: {
         Row: {
           checked_in_at: string
@@ -3744,6 +3951,7 @@ export type Database = {
         Args: { _code_id: string }
         Returns: boolean
       }
+      check_missed_medication_doses: { Args: never; Returns: undefined }
       check_overdue_checkouts: { Args: never; Returns: undefined }
       check_payment_info_access_rate: { Args: never; Returns: boolean }
       decrypt_payment_field: {
@@ -3754,6 +3962,10 @@ export type Database = {
       encrypt_payment_field: { Args: { plain_text: string }; Returns: string }
       encrypt_sensitive: { Args: { plain_text: string }; Returns: string }
       generate_activation_code: { Args: never; Returns: string }
+      generate_medication_doses_for_day: {
+        Args: { _medication_id: string; _target_date?: string }
+        Returns: undefined
+      }
       generate_payment_access_token: {
         Args: { _request_id: string }
         Returns: string
@@ -3794,6 +4006,18 @@ export type Database = {
         }[]
       }
       get_hipaa_signature: { Args: { _release_id: string }; Returns: string }
+      get_medication_compliance_summary: {
+        Args: { _days?: number; _family_id: string }
+        Returns: {
+          compliance_rate: number
+          medications_count: number
+          recent_alerts: number
+          total_missed: number
+          total_scheduled: number
+          total_skipped: number
+          total_taken: number
+        }[]
+      }
       get_my_hipaa_release: {
         Args: { _family_id: string }
         Returns: {
