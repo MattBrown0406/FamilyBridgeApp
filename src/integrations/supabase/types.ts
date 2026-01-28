@@ -3505,6 +3505,70 @@ export type Database = {
           },
         ]
       }
+      transition_summary_consents: {
+        Row: {
+          consent_recorded_by: string
+          consented_at: string
+          consented_via: string
+          created_at: string
+          id: string
+          notes: string | null
+          organization_id: string
+          revoked_at: string | null
+          revoked_by: string | null
+          transition_summary_id: string
+          user_id: string
+        }
+        Insert: {
+          consent_recorded_by: string
+          consented_at?: string
+          consented_via?: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          organization_id: string
+          revoked_at?: string | null
+          revoked_by?: string | null
+          transition_summary_id: string
+          user_id: string
+        }
+        Update: {
+          consent_recorded_by?: string
+          consented_at?: string
+          consented_via?: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          organization_id?: string
+          revoked_at?: string | null
+          revoked_by?: string | null
+          transition_summary_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transition_summary_consents_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transition_summary_consents_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations_member_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transition_summary_consents_transition_summary_id_fkey"
+            columns: ["transition_summary_id"]
+            isOneToOne: false
+            referencedRelation: "transition_summaries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       activation_codes_admin_view: {
