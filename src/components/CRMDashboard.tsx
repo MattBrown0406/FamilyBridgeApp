@@ -824,11 +824,14 @@ export function CRMDashboard({ organizationId, families, orgMembers }: CRMDashbo
                     >
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="professional">Professional Referral</SelectItem>
-                        <SelectItem value="marketing">Marketing/Advertising</SelectItem>
-                        <SelectItem value="personal">Personal/Word of Mouth</SelectItem>
-                        <SelectItem value="online">Online/Website</SelectItem>
-                        <SelectItem value="event">Event/Conference</SelectItem>
+                        <SelectItem value="hospital">Hospital</SelectItem>
+                        <SelectItem value="therapist">Therapist</SelectItem>
+                        <SelectItem value="physician">Physician</SelectItem>
+                        <SelectItem value="insurance">Insurance</SelectItem>
+                        <SelectItem value="website">Website</SelectItem>
+                        <SelectItem value="social_media">Social Media</SelectItem>
+                        <SelectItem value="referral">Referral</SelectItem>
+                        <SelectItem value="alumni">Alumni</SelectItem>
                         <SelectItem value="other">Other</SelectItem>
                       </SelectContent>
                     </Select>
