@@ -671,9 +671,9 @@ export function CRMDashboard({ organizationId, organizationName, organizationLog
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <div className="flex items-center justify-between gap-4 flex-wrap">
           <TabsList className="flex-wrap h-auto gap-1">
-            <TabsTrigger value="kanban" className="gap-2">
+            <TabsTrigger value="stage-view" className="gap-2">
               <LayoutGrid className="h-4 w-4" />
-              Kanban
+              Stage View
             </TabsTrigger>
             <TabsTrigger value="pipeline" className="gap-2">
               <ArrowRight className="h-4 w-4" />
@@ -983,8 +983,8 @@ export function CRMDashboard({ organizationId, organizationName, organizationLog
           </div>
         </div>
 
-        {/* Kanban View - NEW */}
-        <TabsContent value="kanban" className="mt-4">
+        {/* Stage View */}
+        <TabsContent value="stage-view" className="mt-4">
           <CRMKanbanBoard
             leads={leads}
             onLeadClick={(lead) => {
