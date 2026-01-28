@@ -253,16 +253,12 @@ export const ProviderNotesPanel = ({ organizationId, families = [], selectedFami
     return true;
   });
 
-  const NoteForm = ({ note, setNote, isEdit = false }: { 
-    note: typeof newNote | ProviderNote; 
-    setNote: (note: any) => void;
-    isEdit?: boolean;
-  }) => (
+  const renderNoteForm = (note: typeof newNote | ProviderNote, setNote: (note: any) => void, isEdit = false) => (
     <div className="space-y-4">
       {!selectedFamilyId && !isEdit && (
         <div className="space-y-2">
           <Label>Family (Optional)</Label>
-          <Select value={note.family_id || ''} onValueChange={(v) => setNote({ ...note, family_id: v })}>
+          <Select value={(note as typeof newNote).family_id || ''} onValueChange={(v) => setNote({ ...note, family_id: v })}>
             <SelectTrigger>
               <SelectValue placeholder="Organization-wide note" />
             </SelectTrigger>
@@ -418,7 +414,7 @@ export const ProviderNotesPanel = ({ organizationId, families = [], selectedFami
                 Add a new observation, concern, hypothesis, or action item for your team.
               </DialogDescription>
             </DialogHeader>
-            <NoteForm note={newNote} setNote={setNewNote} />
+            {renderNoteForm(newNote, setNewNote)}
             <div className="flex justify-end gap-2 mt-4">
               <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>Cancel</Button>
               <Button onClick={handleCreateNote} disabled={isSubmitting}>
@@ -537,7 +533,7 @@ export const ProviderNotesPanel = ({ organizationId, families = [], selectedFami
           </DialogHeader>
           {editingNote && (
             <>
-              <NoteForm note={editingNote} setNote={setEditingNote} isEdit />
+              {renderNoteForm(editingNote, setEditingNote, true)}
               <div className="flex justify-end gap-2 mt-4">
                 <Button variant="outline" onClick={() => setEditingNote(null)}>Cancel</Button>
                 <Button onClick={handleUpdateNote} disabled={isSubmitting}>
