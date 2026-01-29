@@ -101,3 +101,6 @@ verify_jwt = false
 
 [functions.analyze-intervention-letter]
 verify_jwt = false
+
+[functions.send-family-invite-sms]
+verify_jwt = false
