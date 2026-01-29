@@ -6,7 +6,7 @@ import { useProviderAdmin } from '@/hooks/useProviderAdmin';
 import { BrandedHeader } from '@/components/BrandedHeader';
 import { BrandedFooter } from '@/components/BrandedFooter';
 import { SEOHead, createOrganizationSchema } from '@/components/SEOHead';
-import { Shield, Users, DollarSign, MessageCircle, Eye, MapPin, ArrowRight, HelpCircle, Building2, Check, Play, LogOut, Brain, Sparkles, TrendingUp, MessageSquareWarning, Heart, ChevronDown, FileText, Pill, GitBranch, Activity } from 'lucide-react';
+import { Shield, Users, DollarSign, MessageCircle, Eye, MapPin, ArrowRight, HelpCircle, Building2, Check, Play, LogOut, Brain, Sparkles, TrendingUp, MessageSquareWarning, Heart, ChevronDown, FileText, Pill, GitBranch, Activity, Vote, Clock } from 'lucide-react';
 import { RecoveryIcon } from '@/components/icons/RecoveryIcon';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 
@@ -28,42 +28,59 @@ const Index = () => {
     {
       icon: Brain,
       title: 'FIIS Recovery Intelligence',
-      description: 'Our Family Intervention Intelligence System analyzes emotional patterns, family dynamics, and behavioral signals to surface recovery insights before they become crises.',
+      description: 'AI analyzes emotional patterns and behavioral signals to surface recovery insights before crises.',
       highlight: true,
       gradient: 'from-violet-500 to-purple-600',
       badge: 'Patent Pending',
-    },
-    {
-      icon: FileText,
-      title: 'Smart Document Analysis',
-      description: 'Upload intervention letters and FIIS automatically extracts boundaries, consequences, and commitments—creating actionable items for moderator review.',
-      highlight: true,
-      gradient: 'from-rose-500 to-pink-600',
+      forProvider: true,
     },
     {
       icon: Activity,
       title: 'Recovery Trajectory Tracking',
-      description: 'Visual progress tracking toward the critical 1-year sobriety milestone. See stability trends, phase progression, and inflection points at a glance.',
+      description: 'Visual progress tracking toward the 1-year sobriety milestone with phase progression.',
       highlight: true,
       gradient: 'from-emerald-500 to-teal-600',
     },
     {
-      icon: GitBranch,
-      title: 'Care Transition Management',
-      description: 'Seamlessly hand off families between providers—from detox to residential to sober living. Track outcomes with provider success scoring.',
-      gradient: 'from-blue-500 to-cyan-600',
+      icon: FileText,
+      title: 'Smart Document Analysis',
+      description: 'FIIS automatically extracts boundaries and commitments from intervention letters.',
+      highlight: true,
+      gradient: 'from-rose-500 to-pink-600',
+      forProvider: true,
     },
     {
       icon: Pill,
       title: 'Medication Compliance',
-      description: 'AI-powered label scanning auto-populates medication details. Track doses, send reminders, and alert family members to missed medications.',
+      description: 'AI label scanning, dose tracking, and family alerts for missed medications.',
       highlight: true,
       gradient: 'from-amber-500 to-orange-600',
     },
     {
+      icon: MapPin,
+      title: 'Meeting Check-Ins',
+      description: 'GPS-verified recovery meeting attendance with automatic family notifications.',
+      gradient: 'from-blue-500 to-cyan-600',
+      forFamily: true,
+    },
+    {
+      icon: Vote,
+      title: 'Financial Coordination',
+      description: 'Family voting on financial requests with receipt uploads and pledge tracking.',
+      gradient: 'from-indigo-500 to-violet-600',
+      forFamily: true,
+    },
+    {
+      icon: GitBranch,
+      title: 'Care Transitions',
+      description: 'Seamless handoffs between providers with outcome tracking and success scoring.',
+      gradient: 'from-cyan-500 to-blue-600',
+      forProvider: true,
+    },
+    {
       icon: MessageSquareWarning,
-      title: 'Secure Family Communication',
-      description: 'Real-time AI moderation filters harmful language while emotional tone analysis helps families understand communication patterns over time.',
+      title: 'Secure Communication',
+      description: 'Real-time AI moderation with emotional tone analysis across conversations.',
       gradient: 'from-primary to-accent',
     },
   ];
@@ -230,45 +247,57 @@ const Index = () => {
             <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Recovery</span>
           </h2>
           <p className="text-sm sm:text-lg text-muted-foreground max-w-2xl mx-auto px-2">
-            AI-powered clinical insights help families and providers track progress, identify patterns, and coordinate care across the recovery journey.
+            AI-powered clinical insights for families and providers across the recovery journey.
           </p>
         </div>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6 max-w-6xl mx-auto">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 max-w-6xl mx-auto">
           {features.map((feature, index) => (
             <div
               key={feature.title}
-              className="group relative rounded-xl sm:rounded-2xl p-4 sm:p-6 bg-card/80 backdrop-blur-sm border border-border/50 shadow-card hover:shadow-elevated transition-all duration-500 hover:-translate-y-2 animate-fade-in overflow-hidden"
-              style={{ animationDelay: `${index * 100}ms` }}
+              className="group relative rounded-lg sm:rounded-xl p-3 sm:p-4 bg-card/80 backdrop-blur-sm border border-border/50 shadow-card hover:shadow-elevated transition-all duration-300 hover:-translate-y-1 animate-fade-in overflow-hidden"
+              style={{ animationDelay: `${index * 50}ms` }}
             >
               {/* Gradient overlay on hover */}
-              <div className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-500`} />
+              <div className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-300`} />
               
-              {/* Icon */}
-              <div className={`relative w-11 h-11 sm:w-14 sm:h-14 rounded-lg sm:rounded-xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center mb-4 sm:mb-5 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
-                <feature.icon className="h-5 w-5 sm:h-7 sm:w-7 text-white" />
-              </div>
-              
-              <div className="relative">
-                <div className="flex items-center flex-wrap gap-2 mb-2 sm:mb-3">
-                  <h3 className="text-lg sm:text-xl font-display font-semibold text-foreground">
+              {/* Header with icon and badges */}
+              <div className="flex items-start gap-2 sm:gap-3 mb-2 sm:mb-3 relative">
+                <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-gradient-to-br ${feature.gradient} flex items-center justify-center shadow-md group-hover:scale-105 transition-transform duration-300 flex-shrink-0`}>
+                  <feature.icon className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-sm sm:text-base font-display font-semibold text-foreground leading-tight">
                     {feature.title}
                   </h3>
-                  {feature.badge && (
-                    <span className="text-[10px] sm:text-xs bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-600 dark:text-amber-400 px-2 py-0.5 rounded-full font-medium border border-amber-500/20">
-                      {feature.badge}
-                    </span>
-                  )}
-                  {feature.highlight && !feature.badge && (
-                    <span className="text-xs bg-gradient-to-r from-violet-500/20 to-purple-500/20 text-violet-600 dark:text-violet-400 px-2.5 py-1 rounded-full font-medium border border-violet-500/20">
-                      AI
-                    </span>
-                  )}
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {feature.badge && (
+                      <span className="text-[9px] sm:text-[10px] bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-600 dark:text-amber-400 px-1.5 py-0.5 rounded-full font-medium border border-amber-500/20">
+                        {feature.badge}
+                      </span>
+                    )}
+                    {feature.highlight && !feature.badge && (
+                      <span className="text-[9px] sm:text-[10px] bg-gradient-to-r from-violet-500/20 to-purple-500/20 text-violet-600 dark:text-violet-400 px-1.5 py-0.5 rounded-full font-medium border border-violet-500/20">
+                        AI
+                      </span>
+                    )}
+                    {feature.forFamily && (
+                      <span className="text-[9px] sm:text-[10px] bg-gradient-to-r from-emerald-500/20 to-teal-500/20 text-emerald-600 dark:text-emerald-400 px-1.5 py-0.5 rounded-full font-medium border border-emerald-500/20">
+                        Family
+                      </span>
+                    )}
+                    {feature.forProvider && (
+                      <span className="text-[9px] sm:text-[10px] bg-gradient-to-r from-blue-500/20 to-cyan-500/20 text-blue-600 dark:text-blue-400 px-1.5 py-0.5 rounded-full font-medium border border-blue-500/20">
+                        Provider
+                      </span>
+                    )}
+                  </div>
                 </div>
-                <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
-                  {feature.description}
-                </p>
               </div>
+              
+              <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed relative">
+                {feature.description}
+              </p>
             </div>
           ))}
         </div>
