@@ -293,7 +293,7 @@ const DEMO_CLINICAL_NOTES = [
     id: 'cn-5',
     family: 'Davis Family',
     member: 'Ashley Davis',
-    author: 'Freedom Interventions Consult',
+    author: 'Hope Harbor Interventions Consult',
     note_type: 'concern',
     confidence: 'very_high',
     time_horizon: 'immediate',
@@ -324,7 +324,7 @@ const DEMO_FIIS_INTERACTIONS = [
   {
     id: 'fi-3',
     family: 'Davis Family',
-    moderator: 'Freedom Interventions Consult',
+    moderator: 'Hope Harbor Interventions Consult',
     query: 'Richard is still giving money outside the app. How do I address this with the family?',
     response: 'Richard\'s enabling is a critical barrier to Ashley\'s recovery. Approach: 1) Don\'t shame him - he\'s acting from love, just misdirected. 2) Frame it clinically: "When we give money outside agreed boundaries, we\'re helping the addiction, not Ashley." 3) Share the bar check-in data - concrete evidence of active use. 4) Consider whether Richard needs individual support (Al-Anon or codependency counseling) before Ashley can succeed.',
     timestamp: format(subDays(now, 4), 'MMM d, yyyy h:mm a')

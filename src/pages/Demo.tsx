@@ -466,7 +466,7 @@ const Demo = () => {
               <CardContent className="space-y-6">
                 <div className="grid md:grid-cols-2 gap-6">
                   <div className="space-y-4">
-                    <h4 className="font-medium text-lg">Freedom Interventions Demo</h4>
+                    <h4 className="font-medium text-lg">Hope Harbor Interventions Demo</h4>
                     <p className="text-sm text-muted-foreground">
                       See how professional recovery organizations manage leads, coordinate care across families, 
                       and leverage AI-powered insights to improve outcomes.
@@ -500,7 +500,7 @@ const Demo = () => {
                         <Building2 className="h-6 w-6 text-white" />
                       </div>
                       <div>
-                        <h4 className="font-semibold">Freedom Interventions</h4>
+                        <h4 className="font-semibold">Hope Harbor Interventions</h4>
                         <p className="text-xs text-muted-foreground">Demo Organization</p>
                       </div>
                     </div>
