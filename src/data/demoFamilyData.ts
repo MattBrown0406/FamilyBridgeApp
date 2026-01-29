@@ -1354,6 +1354,199 @@ export const MITCHELL_MEMBERS = [
   { id: '6', name: 'Dr. Amanda Chen', role: 'provider', relationship: 'Therapist', initials: 'AC', providerRole: 'therapist' },
 ];
 
+// Intervention Letters for Mitchell Family
+export const MITCHELL_INTERVENTION_LETTERS = [
+  {
+    id: 'letter-1',
+    author: 'Patricia Mitchell',
+    authorId: '1',
+    relationship: 'Mom',
+    title: 'Mom\'s Intervention Letter',
+    content: `Dear Tyler,
+
+I love you more than words can express. You are my youngest child, and from the moment you were born, I knew you were special. You had this light in your eyes, this curiosity about the world that made everyone around you smile.
+
+I've watched that light dim over the past three years. I've watched you become someone I don't recognize. I've found needles in your room. I've lied to grandma about where you are. I've called hospitals at 3 AM because I didn't know if you were alive.
+
+I can't do this anymore, Tyler. Not because I don't love you, but because I love you too much to watch you die.
+
+My boundaries:
+- I will no longer give you money for any reason outside of this app
+- I will not answer calls or texts outside of FamilyBridge - this is our only communication channel
+- You cannot come to the house unless you are in active recovery
+- If you use again after treatment, I will not bail you out or cover for you
+
+This isn't punishment. This is me finally loving you enough to let you face the consequences of your choices. I believe in you. I believe recovery is possible. I will be here every step of the way - but only if you're walking toward health.
+
+Please accept the help being offered today.
+
+I love you forever,
+Mom`,
+    createdAt: format(subDays(now, 30), 'MMM d, yyyy'),
+    documentType: 'intervention_letter',
+    fiisAnalyzed: true,
+    boundariesExtracted: 4
+  },
+  {
+    id: 'letter-2',
+    author: 'Robert Mitchell',
+    authorId: '2',
+    relationship: 'Dad',
+    title: 'Dad\'s Intervention Letter',
+    content: `Tyler,
+
+Your mother and I divorced when you were 12. I know that hurt you. I know you blamed yourself, even though it was never your fault. I wasn't the father you needed during those years. I was too focused on my own pain to see yours.
+
+I'm sorry, son. I'm sorry I wasn't there. I'm sorry I didn't see the signs earlier. But I see them now, and I refuse to look away any longer.
+
+I've enabled you, Tyler. Every time I slipped you money "between us," I was helping you kill yourself. I see that now. Matt helped me understand that what I thought was love was actually making things worse.
+
+Here are my commitments:
+- No more private money - all financial help goes through FamilyBridge where the whole family can see it
+- I will attend Al-Anon meetings to work on my own recovery from codependency
+- I will hold the boundaries the family agrees to, even when it's hard
+- I will not provide housing unless you complete treatment and sober living
+
+I failed you once by not being present. I won't fail you again by enabling your addiction. You're stronger than you know. Let us help you find that strength.
+
+Dad`,
+    createdAt: format(subDays(now, 30), 'MMM d, yyyy'),
+    documentType: 'intervention_letter',
+    fiisAnalyzed: true,
+    boundariesExtracted: 4
+  },
+  {
+    id: 'letter-3',
+    author: 'Jessica Mitchell',
+    authorId: '4',
+    relationship: 'Sister',
+    title: 'Jessica\'s Intervention Letter',
+    content: `Hey little bro,
+
+Remember when we used to build blanket forts in the living room? You'd make me be the dragon, and you'd be the knight saving the princess. You were always the hero in every game.
+
+You're still that person, Tyler. He's still in there. But right now, the addiction is winning, and I need my brother back.
+
+You missed my wedding. You were supposed to be a groomsman, but you were too high to show up. I cried that day - not because you weren't there, but because I knew what that meant about how sick you are.
+
+My boundaries:
+- You cannot stay at my house - not even for one night
+- I will not lend you money or lie for you to Mom and Dad
+- All our communication will be through this app so the family stays united
+- I will not attend family events with you if you're actively using
+
+But Tyler, here's what I WILL do:
+- I will visit you in treatment
+- I will be your biggest cheerleader in recovery
+- I will help you rebuild your life when you're ready
+
+Choose life, Tyler. Choose us.
+
+Love always,
+Jess`,
+    createdAt: format(subDays(now, 30), 'MMM d, yyyy'),
+    documentType: 'intervention_letter',
+    fiisAnalyzed: true,
+    boundariesExtracted: 4
+  },
+  {
+    id: 'letter-4',
+    author: 'Kevin Mitchell',
+    authorId: '5',
+    relationship: 'Brother',
+    title: 'Kevin\'s Intervention Letter',
+    content: `Tyler,
+
+Man, this is hard to write. You're my baby brother, and I've always tried to protect you. But I can't protect you from yourself.
+
+I found out you sold Dad's tools. You know - the ones grandpa gave him? He didn't call the police because we love you. But that was rock bottom for me. That's when I knew we had to do something.
+
+I've given you probably $2,000 over the past year. "Gas money." "Food." I knew what it was really for, but I convinced myself I was helping. I wasn't helping - I was killing you.
+
+My commitments:
+- No more money. Period. Not one dollar outside of what the family approves together.
+- I'm blocking you on my phone. The only way we talk is here, where everyone can see.
+- If you complete treatment AND sober living, I'll help you find a job at my company
+- I'll go to family therapy to repair our relationship
+
+Tyler, you can beat this. But you can't do it alone, and you can't do it the way you've been trying. Let us help you the right way this time.
+
+Your brother,
+Kevin`,
+    createdAt: format(subDays(now, 30), 'MMM d, yyyy'),
+    documentType: 'intervention_letter',
+    fiisAnalyzed: true,
+    boundariesExtracted: 4
+  }
+];
+
+// Mitchell Family Documents (including intervention letters)
+export const MITCHELL_DOCUMENTS = [
+  ...MITCHELL_INTERVENTION_LETTERS.map(letter => ({
+    id: letter.id,
+    title: letter.title,
+    document_type: letter.documentType,
+    file_name: `${letter.title.replace(/'/g, '').replace(/\s+/g, '-').toLowerCase()}.pdf`,
+    uploaded_by: letter.author,
+    uploaded_by_id: letter.authorId,
+    created_at: letter.createdAt,
+    description: `Intervention letter from ${letter.relationship}`,
+    fiis_analyzed: letter.fiisAnalyzed,
+    boundaries_extracted: letter.boundariesExtracted,
+    content: letter.content
+  })),
+  {
+    id: 'doc-5',
+    title: 'Recovery Partners Admission Agreement',
+    document_type: 'treatment_agreement',
+    file_name: 'recovery-partners-admission.pdf',
+    uploaded_by: 'Matt Sullivan',
+    uploaded_by_id: '0',
+    created_at: format(subDays(now, 26), 'MMM d, yyyy'),
+    description: 'Signed treatment admission agreement for 45-day residential program'
+  }
+];
+
+// Mitchell Family Medications
+export const MITCHELL_MEDICATIONS = [
+  {
+    id: 'med-1',
+    name: 'Suboxone (Buprenorphine/Naloxone)',
+    dosage: '8mg/2mg',
+    frequency: 'Once daily, morning',
+    prescriber: 'Dr. James Wilson, MD',
+    purpose: 'Medication-assisted treatment for opioid use disorder',
+    started_at: format(subDays(now, 20), 'yyyy-MM-dd'),
+    is_active: true,
+    specific_times: ['08:00'],
+    notes: 'Administered by nursing staff at treatment facility'
+  },
+  {
+    id: 'med-2',
+    name: 'Zoloft (Sertraline)',
+    dosage: '50mg',
+    frequency: 'Once daily, evening',
+    prescriber: 'Dr. Amanda Chen',
+    purpose: 'Depression and anxiety',
+    started_at: format(subDays(now, 18), 'yyyy-MM-dd'),
+    is_active: true,
+    specific_times: ['20:00'],
+    notes: 'Started after initial stabilization in treatment'
+  },
+  {
+    id: 'med-3',
+    name: 'Trazodone',
+    dosage: '50mg',
+    frequency: 'As needed for sleep',
+    prescriber: 'Dr. James Wilson, MD',
+    purpose: 'Sleep aid during early recovery',
+    started_at: format(subDays(now, 24), 'yyyy-MM-dd'),
+    is_active: true,
+    specific_times: [],
+    notes: 'PRN - not exceeding once per night'
+  }
+];
+
 // Timeline: 
 // Day 30 ago - Intervention
 // Day 26 ago - Tyler agrees to treatment (4 days after intervention)
@@ -1626,33 +1819,104 @@ export const MITCHELL_EMOTIONAL_CHECKINS = [
 ];
 
 export const MITCHELL_BOUNDARIES = [
+  // Boundaries extracted from intervention letters
   {
     id: '1',
-    content: 'Financial support is ONLY available for treatment and recovery-related expenses',
-    consequence: 'If Tyler requests money for anything else, we will all vote NO - no exceptions, no private arrangements.',
+    content: 'No money will be given for any reason outside of this app',
+    consequence: 'If Tyler requests money outside FamilyBridge, we will not respond. This is unified - no private arrangements.',
     createdBy: 'Patricia Mitchell',
+    sourceDocument: 'Mom\'s Intervention Letter',
     status: 'approved',
     acknowledgments: ['Patricia Mitchell', 'Robert Mitchell', 'Jessica Mitchell', 'Kevin Mitchell', 'Tyler Mitchell'],
   },
   {
     id: '2',
-    content: 'All family communication must happen through FamilyBridge - no private channels',
-    consequence: 'If Tyler tries to contact us outside the app, we will not respond. This prevents manipulation through triangulation.',
-    createdBy: 'Matt Sullivan',
-    status: 'approved',
-    acknowledgments: ['Patricia Mitchell', 'Robert Mitchell', 'Jessica Mitchell', 'Kevin Mitchell', 'Tyler Mitchell'],
-  },
-  {
-    id: '3',
-    content: 'Tyler must complete sober living after residential treatment before living with any family member',
-    consequence: 'If Tyler does not complete sober living, he cannot stay at any family member\'s home. This is non-negotiable for his safety.',
-    createdBy: 'Robert Mitchell',
+    content: 'Tyler cannot come to Mom\'s house unless he is in active recovery',
+    consequence: 'If Tyler shows up while not in recovery, he will not be allowed in. No exceptions.',
+    createdBy: 'Patricia Mitchell',
+    sourceDocument: 'Mom\'s Intervention Letter',
     targetUser: 'Tyler Mitchell',
     status: 'approved',
     acknowledgments: ['Patricia Mitchell', 'Robert Mitchell', 'Jessica Mitchell', 'Kevin Mitchell', 'Tyler Mitchell'],
   },
   {
+    id: '3',
+    content: 'All family communication must happen through FamilyBridge only',
+    consequence: 'If Tyler tries to contact us outside the app (calls, texts, social media), we will not respond. This prevents manipulation.',
+    createdBy: 'Patricia Mitchell',
+    sourceDocument: 'Mom\'s Intervention Letter',
+    status: 'approved',
+    acknowledgments: ['Patricia Mitchell', 'Robert Mitchell', 'Jessica Mitchell', 'Kevin Mitchell', 'Tyler Mitchell'],
+  },
+  {
     id: '4',
+    content: 'No private money - all financial help goes through FamilyBridge where everyone can see',
+    consequence: 'Any family member who gives money outside the app is enabling Tyler\'s addiction and hurting his recovery.',
+    createdBy: 'Robert Mitchell',
+    sourceDocument: 'Dad\'s Intervention Letter',
+    status: 'approved',
+    acknowledgments: ['Patricia Mitchell', 'Robert Mitchell', 'Jessica Mitchell', 'Kevin Mitchell', 'Tyler Mitchell'],
+  },
+  {
+    id: '5',
+    content: 'Robert will attend Al-Anon meetings to address codependency',
+    consequence: 'Robert cannot claim to be helping Tyler if he is not working on his own recovery from enabling.',
+    createdBy: 'Robert Mitchell',
+    sourceDocument: 'Dad\'s Intervention Letter',
+    targetUser: 'Robert Mitchell',
+    status: 'approved',
+    acknowledgments: ['Patricia Mitchell', 'Robert Mitchell', 'Jessica Mitchell', 'Kevin Mitchell'],
+  },
+  {
+    id: '6',
+    content: 'Tyler must complete treatment AND sober living before living with any family member',
+    consequence: 'If Tyler does not complete both, he cannot stay at any family home. This is non-negotiable for his safety.',
+    createdBy: 'Robert Mitchell',
+    sourceDocument: 'Dad\'s Intervention Letter',
+    targetUser: 'Tyler Mitchell',
+    status: 'approved',
+    acknowledgments: ['Patricia Mitchell', 'Robert Mitchell', 'Jessica Mitchell', 'Kevin Mitchell', 'Tyler Mitchell'],
+  },
+  {
+    id: '7',
+    content: 'Tyler cannot stay at Jessica\'s house - not even for one night',
+    consequence: 'Jessica will not provide housing as it would bypass the sober living requirement.',
+    createdBy: 'Jessica Mitchell',
+    sourceDocument: 'Jessica\'s Intervention Letter',
+    targetUser: 'Tyler Mitchell',
+    status: 'approved',
+    acknowledgments: ['Patricia Mitchell', 'Robert Mitchell', 'Jessica Mitchell', 'Kevin Mitchell', 'Tyler Mitchell'],
+  },
+  {
+    id: '8',
+    content: 'No lending money or lying to Mom and Dad for Tyler',
+    consequence: 'Any attempt to get siblings to circumvent parental boundaries will be reported to the full family.',
+    createdBy: 'Jessica Mitchell',
+    sourceDocument: 'Jessica\'s Intervention Letter',
+    status: 'approved',
+    acknowledgments: ['Patricia Mitchell', 'Robert Mitchell', 'Jessica Mitchell', 'Kevin Mitchell', 'Tyler Mitchell'],
+  },
+  {
+    id: '9',
+    content: 'No money outside of what the family approves together - not one dollar',
+    consequence: 'Kevin will not provide any private financial support. All requests go through FamilyBridge.',
+    createdBy: 'Kevin Mitchell',
+    sourceDocument: 'Kevin\'s Intervention Letter',
+    status: 'approved',
+    acknowledgments: ['Patricia Mitchell', 'Robert Mitchell', 'Jessica Mitchell', 'Kevin Mitchell', 'Tyler Mitchell'],
+  },
+  {
+    id: '10',
+    content: 'Kevin will help Tyler find a job at his company - but only after completing treatment AND sober living',
+    consequence: 'The job opportunity is contingent on demonstrated recovery. Skip sober living = no job help.',
+    createdBy: 'Kevin Mitchell',
+    sourceDocument: 'Kevin\'s Intervention Letter',
+    targetUser: 'Tyler Mitchell',
+    status: 'approved',
+    acknowledgments: ['Patricia Mitchell', 'Robert Mitchell', 'Jessica Mitchell', 'Kevin Mitchell', 'Tyler Mitchell'],
+  },
+  {
+    id: '11',
     content: 'Tyler must attend at least one recovery meeting per day while in treatment and aftercare',
     consequence: 'If meeting attendance drops below daily, we will have a family meeting to discuss increased support or higher level of care.',
     createdBy: 'Dr. Amanda Chen',

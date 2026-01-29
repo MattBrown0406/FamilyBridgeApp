@@ -22,6 +22,7 @@ import ModeratorPurchase from "./pages/ModeratorPurchase";
 import SuperAdmin from "./pages/SuperAdmin";
 import Demo from "./pages/Demo";
 import DemoFamily from "./pages/DemoFamily";
+import DemoProvider from "./pages/DemoProvider";
 import Support from "./pages/Support";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
@@ -59,6 +60,7 @@ const App = () => (
               <Route path="/super-admin" element={<SuperAdmin />} />
               <Route path="/demo" element={<Demo />} />
               <Route path="/demo/family" element={<DemoFamily />} />
+              <Route path="/demo/provider" element={<DemoProvider />} />
               <Route path="/support" element={<Support />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="/terms" element={<TermsOfService />} />
