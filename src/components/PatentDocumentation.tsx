@@ -419,7 +419,7 @@ const STORAGE_KEY = 'patent-invention-disclosure';
 const defaultDisclosure: InventionDisclosure = {
   inventors: [
     { 
-      name: 'Matthew Grammer', 
+      name: 'Matthew Brown', 
       address: 'Freedom Interventions, United States', 
       citizenship: 'United States', 
       email: 'matt@freedominterventions.com' 
