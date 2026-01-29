@@ -384,6 +384,225 @@ const DIAGRAM_NOTIFICATION_SYSTEM = `flowchart TD
     M --> N
     N --> O`;
 
+// ========== USER JOURNEY DIAGRAMS ==========
+
+const DIAGRAM_FAMILY_MEMBER_JOURNEY = `flowchart TD
+    subgraph "Onboarding"
+        A[📱 Download App] --> B[🔐 Create Account]
+        B --> C[📧 Receive Family Invite]
+        C --> D[👥 Join Family Group]
+        D --> E[📋 Sign HIPAA Release]
+    end
+
+    subgraph "Daily Engagement"
+        E --> F[💬 Family Chat]
+        E --> G[📅 Meeting Check-ins]
+        E --> H[😊 Daily Emotional Check-in]
+        E --> I[💰 Financial Requests]
+    end
+
+    subgraph "Ongoing Support"
+        F --> J[📖 View Shared Boundaries]
+        G --> K[✅ Verify Attendance]
+        H --> L[📊 Track Patterns]
+        I --> M[🗳️ Vote on Requests]
+    end
+
+    subgraph "Insights & Growth"
+        J --> N[🎯 FIIS Pattern Analysis]
+        K --> N
+        L --> N
+        M --> N
+        N --> O[💡 Receive Actionable Insights]
+        O --> P[🎉 Celebrate Milestones]
+    end`;
+
+const DIAGRAM_RECOVERING_INDIVIDUAL_JOURNEY = `flowchart TD
+    subgraph "Getting Started"
+        A[📱 Join Family Group] --> B[📋 Accept Boundaries]
+        B --> C[🎯 Set Sobriety Date]
+        C --> D[💊 Add Medications]
+    end
+
+    subgraph "Daily Routine"
+        D --> E[📅 Check into Meetings]
+        D --> F[😊 Daily Emotional Check-in]
+        D --> G[💊 Log Medication Doses]
+        D --> H[💬 Family Communication]
+    end
+
+    subgraph "Accountability"
+        E --> I[📍 Location Verification]
+        F --> J[📊 Mood Tracking]
+        G --> K[✅ Compliance Tracking]
+        H --> L[🤝 Support Network]
+    end
+
+    subgraph "Recovery Progress"
+        I --> M[🏆 Milestone Celebrations]
+        J --> M
+        K --> M
+        L --> M
+        M --> N[📈 365-Day Goal Tracking]
+        N --> O[🌟 Recovery Success]
+    end`;
+
+const DIAGRAM_MODERATOR_JOURNEY = `flowchart TD
+    subgraph "Assignment"
+        A[🏢 Organization Admin] --> B[📋 Assign to Family]
+        B --> C[🔔 Receive Notification]
+        C --> D[👁️ Access Family Dashboard]
+    end
+
+    subgraph "Daily Oversight"
+        D --> E[💬 Monitor Family Chat]
+        D --> F[📊 Review FIIS Insights]
+        D --> G[📍 Check Location Alerts]
+        D --> H[💊 Monitor Medication Compliance]
+    end
+
+    subgraph "Clinical Tools"
+        E --> I[📝 Add Clinical Notes]
+        F --> J[🤖 AI-Assisted Analysis]
+        G --> K[🍺 Liquor License Alerts]
+        H --> L[⏰ Refill Reminders]
+    end
+
+    subgraph "Care Coordination"
+        I --> M[👥 Provider Messaging]
+        J --> M
+        K --> M
+        L --> M
+        M --> N[🔄 Care Transitions]
+        N --> O[📈 Outcome Reports]
+    end`;
+
+const DIAGRAM_PROVIDER_ADMIN_JOURNEY = `flowchart TD
+    subgraph "Organization Setup"
+        A[🏢 Create Organization] --> B[🎨 Configure Branding]
+        B --> C[👥 Invite Staff Members]
+        C --> D[📋 Assign Roles]
+    end
+
+    subgraph "Family Management"
+        D --> E[➕ Create Family Groups]
+        E --> F[👤 Assign Moderators]
+        F --> G[📧 Send Family Invites]
+        G --> H[📊 Monitor All Families]
+    end
+
+    subgraph "Clinical Oversight"
+        H --> I[📈 Provider Dashboard]
+        I --> J[📝 Clinical Notes]
+        I --> K[💬 Team Messaging]
+        I --> L[🔄 Care Transitions]
+    end
+
+    subgraph "Analytics & Outcomes"
+        J --> M[📊 Outcome Reports]
+        K --> M
+        L --> M
+        M --> N[🏆 Success Metrics]
+        N --> O[📈 CRM Analytics]
+    end`;
+
+// ========== MARKETING DIAGRAMS ==========
+
+const DIAGRAM_VALUE_PROPOSITION = `graph LR
+    subgraph "The Problem"
+        P1[😰 Families Feel Helpless]
+        P2[📞 Poor Communication]
+        P3[❓ No Visibility into Recovery]
+        P4[🔄 Scattered Care Providers]
+    end
+
+    subgraph "FamilyBridge Solution"
+        S1[🤖 AI-Powered Insights]
+        S2[💬 Unified Communication]
+        S3[📊 Real-time Tracking]
+        S4[🔄 Coordinated Care]
+    end
+
+    subgraph "The Outcome"
+        O1[💪 Empowered Families]
+        O2[🎯 Better Outcomes]
+        O3[📈 Data-Driven Decisions]
+        O4[🏆 Recovery Success]
+    end
+
+    P1 --> S1
+    P2 --> S2
+    P3 --> S3
+    P4 --> S4
+
+    S1 --> O1
+    S2 --> O2
+    S3 --> O3
+    S4 --> O4`;
+
+const DIAGRAM_USER_ECOSYSTEM = `graph TD
+    subgraph "Core Users"
+        U1[👨‍👩‍👧‍👦 Families<br/>Parents, Siblings, Spouses]
+        U2[🧘 Recovering Individuals<br/>Adults in Recovery]
+        U3[👨‍⚕️ Professional Moderators<br/>Interventionists, Counselors]
+    end
+
+    subgraph "Provider Organizations"
+        O1[🏥 Treatment Centers]
+        O2[🏠 Sober Living Homes]
+        O3[🧠 Therapists & Counselors]
+        O4[👥 Intervention Companies]
+    end
+
+    subgraph "FamilyBridge Platform"
+        FB[🌉 FamilyBridge<br/>Connecting Recovery<br/>Ecosystems]
+    end
+
+    U1 <--> FB
+    U2 <--> FB
+    U3 <--> FB
+
+    O1 <--> FB
+    O2 <--> FB
+    O3 <--> FB
+    O4 <--> FB
+
+    U3 -.-> O1
+    U3 -.-> O2
+    U3 -.-> O3
+    U3 -.-> O4`;
+
+const DIAGRAM_COMPETITIVE_ADVANTAGE = `graph TD
+    subgraph "Unique Differentiators"
+        D1[🤖 FIIS AI Engine<br/>Patent Pending]
+        D2[👨‍👩‍👧 Family-Centric Design<br/>Not Individual-Only]
+        D3[🔄 Care Coordination<br/>Provider Handoffs]
+        D4[📊 Outcome Tracking<br/>Success Metrics]
+        D5[🍺 Liquor License Alerts<br/>Location Intelligence]
+    end
+
+    subgraph "Competitor Gaps"
+        C1[❌ I Am Sober<br/>Individual only]
+        C2[❌ Life360<br/>No clinical features]
+        C3[❌ Bark<br/>Youth focused]
+        C4[❌ Soberlink<br/>Hardware dependent]
+    end
+
+    subgraph "Market Position"
+        M1[🎯 Only Platform for<br/>Family + Provider + AI<br/>in Recovery Space]
+    end
+
+    D1 --> M1
+    D2 --> M1
+    D3 --> M1
+    D4 --> M1
+    D5 --> M1
+
+    C1 -.->|Gap| D2
+    C2 -.->|Gap| D1
+    C3 -.->|Gap| D2
+    C4 -.->|Gap| D3`;
+
 // ========== COMPONENT ==========
 
 interface SectionProps {
@@ -2018,9 +2237,123 @@ export const PatentDocumentation = () => {
             </Card>
           </Section>
 
+          {/* User Journeys */}
+          <Section 
+            title="9. User Journey Flowcharts" 
+            icon={<User className="h-5 w-5 text-primary" />}
+          >
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Family Member Journey</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    How family members onboard, engage daily, and receive insights to support their loved one's recovery.
+                  </p>
+                  <div className="bg-muted/30 rounded-lg p-4 overflow-x-auto">
+                    <MermaidDiagram chart={DIAGRAM_FAMILY_MEMBER_JOURNEY} />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Recovering Individual Journey</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    The path from joining a family group through daily accountability to celebrating recovery milestones.
+                  </p>
+                  <div className="bg-muted/30 rounded-lg p-4 overflow-x-auto">
+                    <MermaidDiagram chart={DIAGRAM_RECOVERING_INDIVIDUAL_JOURNEY} />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Professional Moderator Journey</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    How moderators are assigned, monitor families, use clinical tools, and coordinate care.
+                  </p>
+                  <div className="bg-muted/30 rounded-lg p-4 overflow-x-auto">
+                    <MermaidDiagram chart={DIAGRAM_MODERATOR_JOURNEY} />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Provider Admin Journey</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Organization setup, family management, clinical oversight, and outcome analytics.
+                  </p>
+                  <div className="bg-muted/30 rounded-lg p-4 overflow-x-auto">
+                    <MermaidDiagram chart={DIAGRAM_PROVIDER_ADMIN_JOURNEY} />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </Section>
+
+          {/* Market Positioning */}
+          <Section 
+            title="10. Market Positioning & Competitive Analysis" 
+            icon={<Layers className="h-5 w-5 text-primary" />}
+          >
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Value Proposition</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    How FamilyBridge solves key problems in recovery support.
+                  </p>
+                  <div className="bg-muted/30 rounded-lg p-4 overflow-x-auto">
+                    <MermaidDiagram chart={DIAGRAM_VALUE_PROPOSITION} />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">User Ecosystem</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    The interconnected network of families, recovering individuals, and providers.
+                  </p>
+                  <div className="bg-muted/30 rounded-lg p-4 overflow-x-auto">
+                    <MermaidDiagram chart={DIAGRAM_USER_ECOSYSTEM} />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Competitive Advantage</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Unique differentiators that position FamilyBridge ahead of alternatives.
+                  </p>
+                  <div className="bg-muted/30 rounded-lg p-4 overflow-x-auto">
+                    <MermaidDiagram chart={DIAGRAM_COMPETITIVE_ADVANTAGE} />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </Section>
+
           {/* Claims */}
           <Section 
-            title="9. Patent Claims" 
+            title="11. Patent Claims" 
             icon={<FileText className="h-5 w-5 text-primary" />}
           >
             <Card>
@@ -2231,7 +2564,7 @@ export const PatentDocumentation = () => {
 
           {/* Prior Art Differentiation */}
           <Section 
-            title="10. Prior Art Differentiation" 
+            title="12. Prior Art Differentiation" 
             icon={<Shield className="h-5 w-5 text-primary" />}
           >
             <Card>
@@ -2280,7 +2613,7 @@ export const PatentDocumentation = () => {
 
           {/* Submission Checklist */}
           <Section 
-            title="11. Patent Submission Checklist" 
+            title="13. Patent Submission Checklist" 
             icon={<ClipboardList className="h-5 w-5 text-primary" />}
           >
             <Card>
@@ -2445,7 +2778,7 @@ export const PatentDocumentation = () => {
 
           {/* Next Steps */}
           <Section 
-            title="12. Recommended Next Steps" 
+            title="14. Recommended Next Steps" 
             icon={<FileText className="h-5 w-5 text-primary" />}
           >
             <Card>
