@@ -378,7 +378,7 @@ const DemoProvider = () => {
                   <Building2 className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <h1 className="font-semibold text-foreground">Freedom Interventions</h1>
+                  <h1 className="font-semibold text-foreground">Hope Harbor Interventions</h1>
                   <p className="text-xs text-muted-foreground">Provider Dashboard Demo</p>
                 </div>
               </div>
