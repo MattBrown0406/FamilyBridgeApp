@@ -46,6 +46,14 @@ import { toast } from 'sonner';
 
 const now = new Date();
 
+// Demo Referral Sources
+const DEMO_REFERRAL_SOURCES = [
+  { id: 'ref-1', name: 'Hope Harbor Interventions', type: 'intervention_company', contact: 'David Martinez' },
+  { id: 'ref-2', name: 'City General Hospital', type: 'hospital', contact: 'Dr. Sarah Kim' },
+  { id: 'ref-3', name: 'Self-Referral', type: 'website', contact: null },
+  { id: 'ref-4', name: 'Serenity Counseling Center', type: 'therapist', contact: 'Dr. Michelle Brooks' }
+];
+
 // Demo CRM Pipeline Data
 const DEMO_CRM_LEADS = [
   {
@@ -57,11 +65,12 @@ const DEMO_CRM_LEADS = [
     patient_age: '24',
     stage: 'new',
     presenting_issue: 'Opioid dependency, recent overdose scare',
-    notes: 'Referred by City General Hospital ER. Son was brought in after suspected overdose. Mother is desperate for help.',
+    notes: 'Referred by Hope Harbor Interventions. Son was brought to ER after suspected overdose. Mother is desperate for help. David Martinez did initial consult.',
     created_at: format(subHours(now, 4), 'yyyy-MM-dd HH:mm'),
     priority: 'high',
-    estimated_value: 15000,
-    tags: ['urgent', 'hospital-referral']
+    estimated_value: 9500,
+    referral_source: 'Hope Harbor Interventions',
+    tags: ['urgent', 'intervention-referral']
   },
   {
     id: 'lead-2',
@@ -72,11 +81,12 @@ const DEMO_CRM_LEADS = [
     patient_age: '19',
     stage: 'contacted',
     presenting_issue: 'College student, alcohol and benzodiazepine abuse',
-    notes: 'Father called after getting call from university. Daughter was placed on academic probation. Scheduled initial consultation for tomorrow.',
+    notes: 'Referred by Hope Harbor Interventions after family consultation. Father called after getting call from university. Daughter was placed on academic probation.',
     created_at: format(subDays(now, 2), 'yyyy-MM-dd HH:mm'),
     priority: 'medium',
-    estimated_value: 12000,
-    tags: ['college-student']
+    estimated_value: 8500,
+    referral_source: 'Hope Harbor Interventions',
+    tags: ['college-student', 'intervention-referral']
   },
   {
     id: 'lead-3',
@@ -87,10 +97,11 @@ const DEMO_CRM_LEADS = [
     patient_age: '35',
     stage: 'qualified',
     presenting_issue: 'Alcohol dependency, seeking help voluntarily',
-    notes: 'Self-referral. Has tried AA but struggles with consistency. Looking for more structured support. Very motivated.',
+    notes: 'Self-referral via website. Has tried AA but struggles with consistency. Looking for more structured support. Very motivated.',
     created_at: format(subDays(now, 5), 'yyyy-MM-dd HH:mm'),
     priority: 'medium',
-    estimated_value: 8000,
+    estimated_value: 7500,
+    referral_source: 'Self-Referral',
     tags: ['self-referral', 'motivated']
   },
   {
@@ -102,10 +113,11 @@ const DEMO_CRM_LEADS = [
     patient_age: '28',
     stage: 'proposal',
     presenting_issue: 'Methamphetamine addiction, lost job, estranged from family',
-    notes: 'Parents attended our family education workshop. Ready to proceed with intervention. Scheduling for next week.',
+    notes: 'Referred by Hope Harbor Interventions. Parents attended family education workshop. Ready to proceed with intervention. Scheduling for next week.',
     created_at: format(subDays(now, 8), 'yyyy-MM-dd HH:mm'),
     priority: 'high',
-    estimated_value: 20000,
+    estimated_value: 10000,
+    referral_source: 'Hope Harbor Interventions',
     tags: ['intervention-scheduled']
   },
   {
@@ -117,11 +129,44 @@ const DEMO_CRM_LEADS = [
     patient_age: '27',
     stage: 'active',
     presenting_issue: 'Heroin/opioid addiction, in treatment',
-    notes: 'Intervention completed successfully. Tyler is now at Recovery Partners. Transitioned to FamilyBridge for ongoing support.',
+    notes: 'Referred by Hope Harbor Interventions. Intervention completed successfully. Tyler is now at Recovery Partners. Transitioned to FamilyBridge for ongoing support.',
     created_at: format(subDays(now, 35), 'yyyy-MM-dd HH:mm'),
     priority: 'medium',
-    estimated_value: 18000,
+    estimated_value: 9000,
+    referral_source: 'Hope Harbor Interventions',
     tags: ['converted', 'active-client']
+  },
+  {
+    id: 'lead-6',
+    contact_name: 'Robert & Nancy Clark',
+    contact_email: 'clarkfamily@email.com',
+    contact_phone: '(555) 678-9012',
+    patient_name: 'Daniel Clark',
+    patient_age: '31',
+    stage: 'new',
+    presenting_issue: 'Cocaine and alcohol abuse, gambling debts',
+    notes: 'Referred by City General Hospital social worker after ER visit for chest pains linked to substance use. Family unaware of gambling issue.',
+    created_at: format(subHours(now, 12), 'yyyy-MM-dd HH:mm'),
+    priority: 'high',
+    estimated_value: 8750,
+    referral_source: 'City General Hospital',
+    tags: ['hospital-referral', 'dual-diagnosis']
+  },
+  {
+    id: 'lead-7',
+    contact_name: 'Angela Foster',
+    contact_email: 'afoster@email.com',
+    contact_phone: '(555) 789-0123',
+    patient_name: 'Kevin Foster',
+    patient_age: '22',
+    stage: 'contacted',
+    presenting_issue: 'Prescription painkiller addiction after sports injury',
+    notes: 'Referred by Dr. Michelle Brooks at Serenity Counseling. Kevin has been seeing therapist but not disclosing full extent of use to family.',
+    created_at: format(subDays(now, 3), 'yyyy-MM-dd HH:mm'),
+    priority: 'medium',
+    estimated_value: 7850,
+    referral_source: 'Serenity Counseling Center',
+    tags: ['therapist-referral', 'young-adult']
   }
 ];
 
