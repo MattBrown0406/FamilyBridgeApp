@@ -1,6 +1,36 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Playfair+Display:wght@400;500;600;700&display=swap');
 
 @tailwind base;
+
+/* Print styles for Mermaid diagrams */
+@media print {
+  .mermaid-diagram {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    overflow: visible !important;
+  }
+  
+  .mermaid-diagram svg {
+    max-width: 100% !important;
+    height: auto !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    print-color-adjust: exact !important;
+    -webkit-print-color-adjust: exact !important;
+  }
+  
+  .mermaid-svg-container {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+  
+  .mermaid-svg-container * {
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+}
 @tailwind components;
 @tailwind utilities;
 
