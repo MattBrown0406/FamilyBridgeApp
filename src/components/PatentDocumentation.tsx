@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { MermaidDiagram } from './MermaidDiagram';
+import mermaid from 'mermaid';
 import { toast } from 'sonner';
 import { 
   Printer, 
@@ -1059,13 +1060,62 @@ export const PatentDocumentation = () => {
     }
   }, []);
 
-  const handlePrint = () => {
+  const handlePrint = async () => {
     // Generate a clean, formatted PDF document
     const printWindow = window.open('', '_blank');
     if (!printWindow) {
       toast.error('Please allow popups to generate the PDF');
       return;
     }
+
+    // Pre-render Mermaid diagrams to inline SVG so they reliably appear in the print window.
+    // (The print window does not run the React MermaidDiagram render lifecycle.)
+    const diagramsForPrint: Array<{ title: string; chart: string }> = [
+      { title: 'System Architecture', chart: DIAGRAM_SYSTEM_ARCHITECTURE },
+      { title: 'Pattern Analysis Flow', chart: DIAGRAM_PATTERN_ANALYSIS },
+      { title: 'Data Model (ERD)', chart: DIAGRAM_DATA_MODEL },
+      { title: 'Signal Classification', chart: DIAGRAM_SIGNAL_CLASSIFICATION },
+      { title: 'Family Health Calculation', chart: DIAGRAM_HEALTH_CALCULATION },
+      { title: 'Real-time Events Sequence', chart: DIAGRAM_REALTIME_EVENTS },
+      { title: 'Notification System', chart: DIAGRAM_NOTIFICATION_SYSTEM },
+      { title: 'Family Member Journey', chart: DIAGRAM_FAMILY_MEMBER_JOURNEY },
+      { title: 'Recovering Individual Journey', chart: DIAGRAM_RECOVERING_INDIVIDUAL_JOURNEY },
+      { title: 'Moderator Journey', chart: DIAGRAM_MODERATOR_JOURNEY },
+      { title: 'Provider Admin Journey', chart: DIAGRAM_PROVIDER_ADMIN_JOURNEY },
+      // Market/positioning diagrams (kept here if present in the doc UI)
+      { title: 'Value Proposition', chart: DIAGRAM_VALUE_PROPOSITION },
+      { title: 'User Ecosystem', chart: DIAGRAM_USER_ECOSYSTEM },
+      { title: 'Competitive Advantage', chart: DIAGRAM_COMPETITIVE_ADVANTAGE },
+    ];
+
+    const diagramHtmlBlocks = await Promise.all(
+      diagramsForPrint.map(async (d, index) => {
+        try {
+          const id = `print-mermaid-${Date.now()}-${index}-${Math.random().toString(36).slice(2)}`;
+          const { svg } = await mermaid.render(id, d.chart);
+          return `
+            <div class="diagram-block">
+              <h3 class="diagram-title">${d.title}</h3>
+              <div class="diagram-svg">${svg}</div>
+            </div>
+          `;
+        } catch (e) {
+          return `
+            <div class="diagram-block">
+              <h3 class="diagram-title">${d.title}</h3>
+              <div class="diagram-error">(Diagram failed to render for print)</div>
+            </div>
+          `;
+        }
+      })
+    );
+
+    const diagramsSectionHtml = `
+      <div class="page-break"></div>
+      <h2>8. Technical Diagrams</h2>
+      <p class="diagram-note">Note: Diagrams are embedded as inline SVG for print/PDF reliability.</p>
+      ${diagramHtmlBlocks.join('')}
+    `;
 
     const formatDate = (dateStr: string) => {
       try {
@@ -1289,6 +1339,43 @@ export const PatentDocumentation = () => {
       overflow-x: auto;
       white-space: pre-wrap;
       page-break-inside: avoid;
+    }
+
+    .diagram-note {
+      font-size: 10pt;
+      font-style: italic;
+      margin: 6pt 0 18pt;
+    }
+
+    .diagram-block {
+      margin: 18pt 0;
+      page-break-inside: avoid;
+    }
+
+    .diagram-title {
+      font-size: 12pt;
+      font-weight: bold;
+      margin: 0 0 8pt;
+    }
+
+    .diagram-svg {
+      border: 1px solid #ddd;
+      padding: 10pt;
+      background: #fff;
+      overflow: visible;
+    }
+
+    .diagram-svg svg {
+      max-width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .diagram-error {
+      font-size: 10pt;
+      color: #a00;
+      border: 1px dashed #a00;
+      padding: 10pt;
     }
     
     .footer-note {
@@ -1570,6 +1657,8 @@ export const PatentDocumentation = () => {
       </tr>
     </tbody>
   </table>
+
+  ${diagramsSectionHtml}
 
   <div class="footer-note">
     This document was generated from FamilyBridge™ Patent Documentation System.<br>
