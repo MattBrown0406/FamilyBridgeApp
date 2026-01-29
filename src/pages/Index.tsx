@@ -237,10 +237,13 @@ const Index = () => {
       {/* Features Grid */}
       <section className="container mx-auto px-2 sm:px-4 py-6 sm:py-14 relative">
         <div className="text-center mb-5 sm:mb-10">
-          <div className="inline-flex items-center gap-1.5 sm:gap-2 bg-gradient-to-r from-violet-500/10 to-purple-500/10 backdrop-blur-sm border border-violet-500/20 text-violet-600 dark:text-violet-400 px-3 sm:px-5 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium mb-2 sm:mb-4">
-            <Brain className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-            <span className="hidden xs:inline">Family Intervention Intelligence System</span>
-            <span className="xs:hidden">FIIS Technology</span>
+          <div className="inline-flex flex-col items-center bg-gradient-to-r from-violet-500/10 to-purple-500/10 backdrop-blur-sm border border-violet-500/20 text-violet-600 dark:text-violet-400 px-4 sm:px-6 py-2 sm:py-3 rounded-2xl text-xs sm:text-sm font-medium mb-2 sm:mb-4">
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <Brain className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              <span className="hidden xs:inline">Family Intervention Intelligence System</span>
+              <span className="xs:hidden">FIIS Technology</span>
+            </div>
+            <span className="text-[10px] sm:text-xs text-violet-500/70 dark:text-violet-400/70 mt-0.5">Patent Pending</span>
           </div>
           <h2 className="text-xl xs:text-2xl sm:text-3xl md:text-5xl font-display font-bold text-foreground mb-2 sm:mb-3 px-1">
             Intelligent Tools for{' '}
