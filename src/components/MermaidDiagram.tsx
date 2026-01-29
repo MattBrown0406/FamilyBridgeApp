@@ -136,13 +136,16 @@ export const MermaidDiagram = ({ chart, className = '' }: MermaidDiagramProps) =
   return (
     <div 
       ref={containerRef} 
-      className={`mermaid-diagram overflow-x-auto ${className} ${isRendering ? 'min-h-[100px] flex items-center justify-center' : ''}`}
+      className={`mermaid-diagram overflow-x-auto print:overflow-visible print:break-inside-avoid ${className} ${isRendering ? 'min-h-[100px] flex items-center justify-center print:min-h-0' : ''}`}
     >
       {isRendering ? (
-        <div className="text-sm text-muted-foreground animate-pulse">Loading diagram...</div>
+        <div className="text-sm text-muted-foreground animate-pulse print:hidden">Loading diagram...</div>
       ) : svgContent ? (
         // Use dangerouslySetInnerHTML with React's control instead of direct DOM manipulation
-        <div dangerouslySetInnerHTML={{ __html: svgContent }} />
+        <div 
+          className="mermaid-svg-container print:block print:!visible print:!opacity-100"
+          dangerouslySetInnerHTML={{ __html: svgContent }} 
+        />
       ) : null}
     </div>
   );
