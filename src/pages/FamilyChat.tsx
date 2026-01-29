@@ -5019,8 +5019,8 @@ const FamilyChat = () => {
                 <Dialog open={showSendInviteDialog} onOpenChange={setShowSendInviteDialog}>
                   <DialogTrigger asChild>
                     <Button className="w-full gap-2" variant="default">
-                      <Mail className="h-4 w-4" />
-                      Send Invite by Email
+                      <UserPlus className="h-4 w-4" />
+                      Invite New Group Member
                     </Button>
                   </DialogTrigger>
                   <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
