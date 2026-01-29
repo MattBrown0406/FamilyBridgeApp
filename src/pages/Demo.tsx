@@ -257,11 +257,16 @@ const Demo = () => {
 
       {/* Demo Sections */}
       <Tabs defaultValue="branding" className="container mx-auto px-3 sm:px-4 pb-8 sm:pb-12">
-        <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-3 mb-6 sm:mb-8 h-12 sm:h-14 p-1 sm:p-1.5 bg-primary/10 border border-primary/20 rounded-xl shadow-md">
+        <TabsList className="grid w-full max-w-3xl mx-auto grid-cols-4 mb-6 sm:mb-8 h-12 sm:h-14 p-1 sm:p-1.5 bg-primary/10 border border-primary/20 rounded-xl shadow-md">
           <TabsTrigger value="branding" className="h-full text-xs sm:text-base font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg rounded-lg transition-all flex flex-col sm:flex-row items-center gap-0.5 sm:gap-2 px-1 sm:px-3">
             <Palette className="h-4 w-4 sm:h-5 sm:w-5" />
-            <span className="hidden sm:inline">Recovery Providers</span>
+            <span className="hidden sm:inline">Providers</span>
             <span className="sm:hidden text-[10px] leading-tight text-center">Providers</span>
+          </TabsTrigger>
+          <TabsTrigger value="provider-demo" className="h-full text-xs sm:text-base font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg rounded-lg transition-all flex flex-col sm:flex-row items-center gap-0.5 sm:gap-2 px-1 sm:px-3">
+            <Building2 className="h-4 w-4 sm:h-5 sm:w-5" />
+            <span className="hidden sm:inline">Provider Demo</span>
+            <span className="sm:hidden text-[10px] leading-tight text-center">Provider</span>
           </TabsTrigger>
           <TabsTrigger value="family" className="h-full text-xs sm:text-base font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg rounded-lg transition-all flex flex-col sm:flex-row items-center gap-0.5 sm:gap-2 px-1 sm:px-3">
             <Users className="h-4 w-4 sm:h-5 sm:w-5" />
