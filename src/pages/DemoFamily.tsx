@@ -56,7 +56,8 @@ import {
   Flame,
   Pill,
   FolderOpen,
-  ClipboardList
+  ClipboardList,
+  Plus
 } from 'lucide-react';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 import { format } from 'date-fns';
@@ -1931,73 +1932,201 @@ const DemoFamily = () => {
 
             {/* Medications Tab */}
             <TabsContent value="medications" className="animate-fade-in">
-              <Card className="overflow-hidden border-0 shadow-lg">
-                <div className={`h-1 ${selectedFamily === 'davis' ? 'bg-gradient-to-r from-destructive via-destructive/80 to-destructive/60' : 'bg-gradient-to-r from-primary via-primary/80 to-primary/60'}`} />
-                <CardHeader className="pb-3">
-                  <CardTitle className="flex flex-wrap items-center gap-2 text-base sm:text-lg">
-                    <div className={`h-8 w-8 rounded-lg ${selectedFamily === 'davis' ? 'bg-gradient-to-br from-destructive/20 to-destructive/10' : 'bg-gradient-to-br from-primary/20 to-primary/10'} flex items-center justify-center shrink-0`}>
-                      <Pill className={`h-4 w-4 ${selectedFamily === 'davis' ? 'text-destructive' : 'text-primary'}`} />
+              <div className="space-y-4">
+                {/* Today's Medications - Doses Card */}
+                <Card className="border-0 shadow-lg overflow-hidden">
+                  <div className="h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500" />
+                  <CardHeader className="pb-2">
+                    <CardTitle className="flex items-center gap-2">
+                      <Clock className="h-5 w-5 text-primary" />
+                      Today's Medications
+                    </CardTitle>
+                    <p className="text-sm text-muted-foreground">
+                      {format(new Date(), 'EEEE, MMMM d, yyyy')}
+                    </p>
+                  </CardHeader>
+                  <CardContent>
+                    {(() => {
+                      // Generate demo doses based on family
+                      const demoDoses = selectedFamily === 'johnson' ? [
+                        { id: 'd1', medName: 'Wellbutrin (Bupropion)', dosage: '150mg XL', time: '08:00', status: 'completed', takenAt: '8:02 AM' }
+                      ] : selectedFamily === 'davis' ? [
+                        { id: 'd1', medName: 'Antabuse (Disulfiram)', dosage: '250mg', time: '09:00', status: 'overdue', takenAt: null },
+                        { id: 'd2', medName: 'Lexapro (Escitalopram)', dosage: '10mg', time: '20:00', status: 'upcoming', takenAt: null }
+                      ] : [
+                        { id: 'd1', medName: 'Suboxone (Buprenorphine/Naloxone)', dosage: '8mg/2mg', time: '07:00', status: 'completed', takenAt: '7:05 AM' },
+                        { id: 'd2', medName: 'Zoloft (Sertraline)', dosage: '100mg', time: '08:00', status: 'completed', takenAt: '8:10 AM' },
+                        { id: 'd3', medName: 'Trazodone', dosage: '50mg', time: '21:00', status: 'upcoming', takenAt: null }
+                      ];
+
+                      const overdueDoses = demoDoses.filter(d => d.status === 'overdue');
+                      const upcomingDoses = demoDoses.filter(d => d.status === 'upcoming');
+                      const completedDoses = demoDoses.filter(d => d.status === 'completed');
+
+                      return (
+                        <div className="space-y-4">
+                          {/* Overdue/Needs Attention */}
+                          {overdueDoses.length > 0 && (
+                            <div>
+                              <h4 className="text-sm font-medium text-destructive mb-2 flex items-center gap-1">
+                                <AlertTriangle className="h-4 w-4" />
+                                Needs Attention ({overdueDoses.length})
+                              </h4>
+                              <div className="space-y-2">
+                                {overdueDoses.map(dose => (
+                                  <div key={dose.id} className="flex items-center justify-between p-3 rounded-lg bg-destructive/10 border border-destructive/20">
+                                    <div className="flex items-center gap-3">
+                                      <div className="h-10 w-10 rounded-full bg-destructive/20 flex items-center justify-center">
+                                        <Pill className="h-5 w-5 text-destructive" />
+                                      </div>
+                                      <div>
+                                        <p className="font-medium text-sm">{dose.medName}</p>
+                                        <p className="text-xs text-muted-foreground">{dose.dosage} • Scheduled: {dose.time}</p>
+                                      </div>
+                                    </div>
+                                    <div className="flex gap-2">
+                                      <Button size="sm" variant="outline" className="h-8 text-xs" onClick={() => toast.info('Demo: Skip dose')}>
+                                        <X className="h-3 w-3 mr-1" />
+                                        Skip
+                                      </Button>
+                                      <Button size="sm" className="h-8 text-xs bg-green-600 hover:bg-green-700" onClick={() => toast.success('Dose recorded!')}>
+                                        <Check className="h-3 w-3 mr-1" />
+                                        Taken
+                                      </Button>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Upcoming */}
+                          {upcomingDoses.length > 0 && (
+                            <div>
+                              <h4 className="text-sm font-medium text-muted-foreground mb-2">
+                                Upcoming ({upcomingDoses.length})
+                              </h4>
+                              <div className="space-y-2">
+                                {upcomingDoses.map(dose => (
+                                  <div key={dose.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border">
+                                    <div className="flex items-center gap-3">
+                                      <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                                        <Pill className="h-5 w-5 text-primary" />
+                                      </div>
+                                      <div>
+                                        <p className="font-medium text-sm">{dose.medName}</p>
+                                        <p className="text-xs text-muted-foreground">{dose.dosage} • Scheduled: {dose.time}</p>
+                                      </div>
+                                    </div>
+                                    <Button size="sm" variant="outline" className="h-8 text-xs" onClick={() => toast.success('Dose recorded!')}>
+                                      <Check className="h-3 w-3 mr-1" />
+                                      Mark Taken
+                                    </Button>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Completed */}
+                          {completedDoses.length > 0 && (
+                            <div>
+                              <h4 className="text-sm font-medium text-green-600 mb-2 flex items-center gap-1">
+                                <Check className="h-4 w-4" />
+                                Completed ({completedDoses.length})
+                              </h4>
+                              <div className="space-y-2">
+                                {completedDoses.map(dose => (
+                                  <div key={dose.id} className="flex items-center justify-between p-3 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
+                                    <div className="flex items-center gap-3">
+                                      <div className="h-10 w-10 rounded-full bg-green-100 dark:bg-green-800/50 flex items-center justify-center">
+                                        <CheckCircle className="h-5 w-5 text-green-600" />
+                                      </div>
+                                      <div>
+                                        <p className="font-medium text-sm">{dose.medName}</p>
+                                        <p className="text-xs text-muted-foreground">{dose.dosage} • Taken at {dose.takenAt}</p>
+                                      </div>
+                                    </div>
+                                    <Badge variant="secondary" className="bg-green-100 text-green-700 border-green-200">
+                                      <Check className="h-3 w-3 mr-1" />
+                                      Done
+                                    </Badge>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()}
+                  </CardContent>
+                </Card>
+
+                {/* Medications List */}
+                <Card className="border-0 shadow-lg overflow-hidden">
+                  <div className="h-1 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500" />
+                  <CardHeader className="flex flex-row items-center justify-between pb-2">
+                    <div>
+                      <CardTitle className="flex items-center gap-2">
+                        <Pill className="h-5 w-5 text-emerald-600" />
+                        Medications ({currentFamily.medications.length})
+                      </CardTitle>
+                      <p className="text-sm text-muted-foreground">Active prescriptions and supplements</p>
                     </div>
-                    <span>Medications</span>
-                    <Badge variant="secondary" className="text-xs">
-                      {currentFamily.medications.length} Active
-                    </Badge>
-                    {selectedFamily === 'davis' && (
-                      <Badge variant="destructive" className="text-xs ml-auto">
-                        <AlertTriangle className="h-3 w-3 mr-1" />
-                        Compliance Issues
-                      </Badge>
-                    )}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {currentFamily.medications.map((med) => (
-                      <div 
-                        key={med.id} 
-                        className={`p-4 rounded-lg border ${
-                          med.notes?.includes('COMPLIANCE') || med.notes?.includes('⚠️') 
-                            ? 'bg-destructive/5 border-destructive/30' 
-                            : 'bg-muted/30 border-border'
-                        }`}
-                      >
-                        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-2">
-                          <div>
-                            <h4 className="font-semibold text-sm sm:text-base">{med.name}</h4>
-                            <p className="text-xs text-muted-foreground">{med.dosage} • {med.frequency}</p>
+                    <Button size="sm" className="gap-1" onClick={() => toast.info('Demo: Add medication form would open')}>
+                      <Plus className="h-4 w-4" />
+                      Add
+                    </Button>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      {currentFamily.medications.map((med) => (
+                        <div 
+                          key={med.id} 
+                          className={`p-4 rounded-lg border ${
+                            med.notes?.includes('COMPLIANCE') || med.notes?.includes('⚠️') 
+                              ? 'bg-destructive/5 border-destructive/30' 
+                              : 'bg-muted/30 border-border'
+                          }`}
+                        >
+                          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-2">
+                            <div>
+                              <h4 className="font-semibold text-sm sm:text-base">{med.name}</h4>
+                              <p className="text-xs text-muted-foreground">{med.dosage} • {med.frequency}</p>
+                            </div>
+                            {med.is_active && (
+                              <Badge variant="outline" className="w-fit bg-green-50 text-green-700 border-green-200 text-xs">
+                                <CheckCircle className="h-3 w-3 mr-1" />
+                                Active
+                              </Badge>
+                            )}
                           </div>
-                          {med.is_active && (
-                            <Badge variant="outline" className="w-fit bg-green-50 text-green-700 border-green-200 text-xs">
-                              <CheckCircle className="h-3 w-3 mr-1" />
-                              Active
-                            </Badge>
-                          )}
-                        </div>
-                        <p className="text-xs text-muted-foreground mb-2">{med.purpose}</p>
-                        <div className="flex flex-wrap gap-2 text-xs">
-                          <Badge variant="outline" className="bg-background">
-                            👨‍⚕️ {med.prescriber}
-                          </Badge>
-                          {med.specific_times && med.specific_times.length > 0 && (
+                          <p className="text-xs text-muted-foreground mb-2">{med.purpose}</p>
+                          <div className="flex flex-wrap gap-2 text-xs">
                             <Badge variant="outline" className="bg-background">
-                              ⏰ {med.specific_times.join(', ')}
+                              👨‍⚕️ {med.prescriber}
                             </Badge>
+                            {med.specific_times && med.specific_times.length > 0 && (
+                              <Badge variant="outline" className="bg-background">
+                                ⏰ {med.specific_times.join(', ')}
+                              </Badge>
+                            )}
+                          </div>
+                          {med.notes && (
+                            <p className={`mt-2 text-xs p-2 rounded ${
+                              med.notes.includes('⚠️') 
+                                ? 'bg-destructive/10 text-destructive' 
+                                : 'bg-muted text-muted-foreground'
+                            }`}>
+                              {med.notes}
+                            </p>
                           )}
                         </div>
-                        {med.notes && (
-                          <p className={`mt-2 text-xs p-2 rounded ${
-                            med.notes.includes('⚠️') 
-                              ? 'bg-destructive/10 text-destructive' 
-                              : 'bg-muted text-muted-foreground'
-                          }`}>
-                            {med.notes}
-                          </p>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             </TabsContent>
 
             {/* Documents Tab */}
