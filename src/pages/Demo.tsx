@@ -450,6 +450,77 @@ const Demo = () => {
           </div>
         </TabsContent>
 
+        {/* Provider Demo */}
+        <TabsContent value="provider-demo" className="space-y-8">
+          <div className="max-w-4xl mx-auto">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Building2 className="h-5 w-5" />
+                  Provider Dashboard Demo
+                </CardTitle>
+                <CardDescription>
+                  Experience the provider workspace with CRM pipeline, team communication, clinical notes, and FIIS AI
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <h4 className="font-medium text-lg">Freedom Interventions Demo</h4>
+                    <p className="text-sm text-muted-foreground">
+                      See how professional recovery organizations manage leads, coordinate care across families, 
+                      and leverage AI-powered insights to improve outcomes.
+                    </p>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex items-center gap-2">
+                        <Check className="h-4 w-4 text-green-600" />
+                        <span>CRM Pipeline with 5 leads across stages</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Check className="h-4 w-4 text-green-600" />
+                        <span>Team communication threads</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Check className="h-4 w-4 text-green-600" />
+                        <span>Clinical notes with AI inclusion</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Check className="h-4 w-4 text-green-600" />
+                        <span>FIIS AI interaction history</span>
+                      </div>
+                    </div>
+                    <Button onClick={() => navigate('/demo/provider')} className="w-full">
+                      <Play className="h-4 w-4 mr-2" />
+                      Enter Provider Demo
+                    </Button>
+                  </div>
+                  <div className="bg-gradient-to-br from-violet-50 to-purple-50 dark:from-violet-950/30 dark:to-purple-950/30 rounded-xl p-6 border border-violet-200 dark:border-violet-800">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
+                        <Building2 className="h-6 w-6 text-white" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold">Freedom Interventions</h4>
+                        <p className="text-xs text-muted-foreground">Demo Organization</p>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3 text-center">
+                      <div className="bg-white/50 dark:bg-white/10 rounded-lg p-3">
+                        <p className="text-2xl font-bold text-violet-600">5</p>
+                        <p className="text-xs text-muted-foreground">Active Leads</p>
+                      </div>
+                      <div className="bg-white/50 dark:bg-white/10 rounded-lg p-3">
+                        <p className="text-2xl font-bold text-violet-600">3</p>
+                        <p className="text-xs text-muted-foreground">Active Families</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
         {/* Family Demo */}
         <TabsContent value="family" className="space-y-8">
           <div className="max-w-4xl mx-auto">
