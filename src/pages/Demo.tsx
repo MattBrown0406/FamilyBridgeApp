@@ -24,7 +24,8 @@ import {
   Check,
   Play,
   Sparkles,
-  Loader2
+  Loader2,
+  Pill
 } from 'lucide-react';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 
@@ -167,34 +168,52 @@ const Demo = () => {
 
   const features = [
     {
-      icon: Palette,
-      title: 'Custom Branding',
-      description: 'Your logo, colors, and fonts throughout the app',
+      icon: Sparkles,
+      title: 'FIIS Recovery Intelligence',
+      description: 'AI-powered pattern recognition tracks recovery trajectory and provides clinical insights for providers.',
+      badge: 'AI',
     },
     {
-      icon: Users,
-      title: 'Unlimited Families',
-      description: 'Create and manage family groups for your clients. Assign moderator profiles from your team.',
+      icon: Pill,
+      title: 'Medication Compliance',
+      description: 'AI scans medication labels, tracks doses, and alerts family when medications are missed.',
+      badge: 'AI',
     },
     {
       icon: MessageCircle,
-      title: 'Moderated Chat',
-      description: 'Safe, filtered communication for families. No profane or abusive messages will be permitted into the chat.',
+      title: 'Secure Family Communication',
+      description: 'Safe, filtered messaging keeps families connected while blocking harmful content.',
+      badge: 'Family',
     },
     {
       icon: DollarSign,
-      title: 'Financial Transparency and Accountability',
-      description: 'Group-approved financial requests and accountability for the proper use of funds',
+      title: 'Financial Coordination',
+      description: 'Group-approved financial requests with voting, pledges, and accountability tracking.',
+      badge: 'Family',
     },
     {
       icon: MapPin,
-      title: 'Check-in System',
-      description: 'Meeting and location verification through the use of the phone\'s GPS function',
+      title: 'Meeting Check-ins',
+      description: 'GPS-verified meeting attendance with liquor license proximity warnings.',
+      badge: 'Family',
     },
     {
       icon: Shield,
-      title: 'Goals, Values & Boundary Setting',
-      description: 'Learn how to chart a course for success based on guiding principles specific to your family',
+      title: 'Boundary Management',
+      description: 'Smart document analysis extracts boundaries from intervention letters automatically.',
+      badge: 'AI',
+    },
+    {
+      icon: Building2,
+      title: 'Care Transition Management',
+      description: 'Track movement between intervention, treatment, IOP, and aftercare phases.',
+      badge: 'Provider',
+    },
+    {
+      icon: Users,
+      title: 'Provider Handoffs',
+      description: 'Seamless family transfers between organizations with clinical context preservation.',
+      badge: 'Provider',
     },
   ];
 
@@ -633,15 +652,27 @@ const Demo = () => {
         {/* Features */}
         <TabsContent value="features" className="space-y-8">
           <div className="max-w-4xl mx-auto">
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
               {features.map((feature, index) => (
-                <Card key={index}>
+                <Card key={index} className="relative">
                   <CardContent className="pt-6">
-                    <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
-                      <feature.icon className="h-6 w-6 text-primary" />
+                    {feature.badge && (
+                      <Badge 
+                        variant="secondary" 
+                        className={`absolute top-3 right-3 text-xs ${
+                          feature.badge === 'AI' ? 'bg-violet-100 text-violet-700 dark:bg-violet-900 dark:text-violet-300' :
+                          feature.badge === 'Provider' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300' :
+                          'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
+                        }`}
+                      >
+                        {feature.badge}
+                      </Badge>
+                    )}
+                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-3">
+                      <feature.icon className="h-5 w-5 text-primary" />
                     </div>
-                    <h4 className="font-medium mb-1">{feature.title}</h4>
-                    <p className="text-sm text-muted-foreground">{feature.description}</p>
+                    <h4 className="font-medium mb-1 text-sm">{feature.title}</h4>
+                    <p className="text-xs text-muted-foreground">{feature.description}</p>
                   </CardContent>
                 </Card>
               ))}
