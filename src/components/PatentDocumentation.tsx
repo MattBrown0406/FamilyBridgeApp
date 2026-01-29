@@ -429,7 +429,7 @@ const defaultDisclosure: InventionDisclosure = {
   dateFirstDisclosed: '2024-06-01',
   priorArtNotes: `The FIIS (Family Intervention Intelligence System) represents a novel approach that differs from prior art in several key ways:
 
-1. MULTI-SOURCE DATA INTEGRATION: Unlike existing solutions that focus on single data sources (e.g., only messaging or only location tracking), FIIS uniquely aggregates data from multiple behavioral vectors including meeting attendance verification, geographic check-ins with liquor license proximity detection, financial request patterns, message sentiment analysis, and family member observations.
+1. MULTI-SOURCE DATA INTEGRATION: Unlike existing solutions that focus on single data sources (e.g., only messaging or only location tracking), FIIS uniquely aggregates data from multiple behavioral vectors including meeting attendance verification, geographic check-ins with liquor license proximity detection, financial request patterns, message sentiment analysis, medication compliance tracking, and family member observations.
 
 2. DOMAIN-SPECIFIC AI PROMPTING: The system employs specialized prompt engineering trained on addiction recovery principles, family intervention strategies, and enabling behavior recognition - a combination not found in general behavioral analysis systems.
 
@@ -441,9 +441,17 @@ const defaultDisclosure: InventionDisclosure = {
 
 6. LIQUOR LICENSE PROXIMITY DETECTION: Novel integration with government liquor license databases to automatically alert families when a recovering individual checks in from locations with active liquor licenses, providing an early warning signal.
 
-7. SOBRIETY MILESTONE TRACKING WITH FAMILY CELEBRATION: Automated tracking of sobriety duration with milestone celebrations that involve the entire family unit, reinforcing positive recovery behaviors.
+7. SOBRIETY MILESTONE TRACKING WITH 365-DAY GOAL: Automated tracking of sobriety duration with a clinical focus on the critical one-year milestone, including phase progression (Early Recovery, Building Resilience, etc.) and family celebration features.
 
-8. HIPAA-COMPLIANT RELEASE MANAGEMENT: Integrated digital signature capture and audit logging for healthcare information releases, enabling proper documentation of family involvement in treatment.`,
+8. HIPAA-COMPLIANT RELEASE MANAGEMENT: Integrated digital signature capture and audit logging for healthcare information releases, enabling proper documentation of family involvement in treatment.
+
+9. AI-POWERED DOCUMENT ANALYSIS: Automatic extraction of boundaries, consequences, and commitments from uploaded intervention letters using natural language processing, creating actionable boundary records for moderator review.
+
+10. MEDICATION COMPLIANCE MONITORING: AI-powered medication label scanning that extracts pharmacy details, dosage information, and refill schedules, with dose tracking and family alerts for missed medications.
+
+11. CARE TRANSITION MANAGEMENT: Seamless provider handoff system for transferring family oversight between treatment levels (Detox, Residential, Sober Living, Independent) with outcome scoring and success metrics.
+
+12. RECOVERY TRAJECTORY VISUALIZATION: Qualitative graphing of recovery stability over time (Improving, Stable, Softening, Destabilizing) without numerical judgments, focusing on direction and patterns rather than scores.`,
   competingProducts: `COMPETITIVE LANDSCAPE ANALYSIS (Updated January 2026):
 
 ══════════════════════════════════════════════════════════════
@@ -532,7 +540,7 @@ KEY DIFFERENTIATION SUMMARY
 ══════════════════════════════════════════════════════════════
 
 No existing product combines ALL of:
-1. Multi-source family behavioral data (meetings, messages, finances, location, observations)
+1. Multi-source family behavioral data (meetings, messages, finances, location, observations, medications)
 2. Addiction-recovery-specific AI pattern analysis with LLM technology
 3. Family intervention insight generation (signals, framing, questions, watch items)
 4. Real-time family notification orchestration
@@ -540,6 +548,11 @@ No existing product combines ALL of:
 6. Liquor license proximity detection and alerting
 7. HIPAA-compliant release management with digital signatures
 8. Professional moderator integration for family counselors
+9. AI-powered intervention letter analysis with automatic boundary extraction
+10. Medication compliance monitoring with AI label scanning
+11. Care transition management with provider handoffs and outcome scoring
+12. Recovery trajectory visualization with 365-day milestone tracking
+13. Secure family document management with clinical document analysis
 
 Bark comes closest in AI pattern detection but targets child safety, not adult addiction recovery with family involvement. I Am Sober has trigger analysis but lacks family integration entirely.`,
   academicPapers: `RELEVANT ACADEMIC RESEARCH:
@@ -769,7 +782,7 @@ SEPTEMBER-DECEMBER 2025:
 - Provider admin dashboard
 
 ══════════════════════════════════════════════════════════════
-2026 - COMMERCIAL LAUNCH
+2026 - COMMERCIAL LAUNCH & ADVANCED FEATURES
 ══════════════════════════════════════════════════════════════
 
 JANUARY 2026:
@@ -777,6 +790,13 @@ JANUARY 2026:
 - Final App Store approval submissions
 - Patent application preparation
 - Commercial marketing launch
+- AI-powered intervention letter analysis with boundary extraction
+- Medication compliance monitoring with label scanning
+- Care transition management with provider handoffs
+- Recovery trajectory visualization (365-day goal tracking)
+- Family document management system
+- Provider outcome success scoring
+- Enhanced FIIS clinical insights for providers
 
 ══════════════════════════════════════════════════════════════
 TECHNICAL DECISIONS DOCUMENTED
@@ -788,6 +808,8 @@ TECHNICAL DECISIONS DOCUMENTED
 - React + TypeScript + Tailwind CSS for frontend
 - PWA support for cross-platform deployment
 - Mermaid diagrams for technical documentation
+- Lovable AI Gateway integration for multi-model support (Gemini, GPT)
+- Row-level security with security-invoker views for data privacy
 
 ══════════════════════════════════════════════════════════════
 EVIDENCE OF INVENTION
@@ -798,7 +820,8 @@ EVIDENCE OF INVENTION
 - AI prompt iterations tracked with version control
 - User feedback incorporated into algorithm refinements
 - Database migration history documents feature evolution
-- All code changes timestamped and attributed`,
+- All code changes timestamped and attributed
+- Security audit logs demonstrate HIPAA compliance implementation`,
 };
 
 export const PatentDocumentation = () => {
@@ -1080,7 +1103,7 @@ export const PatentDocumentation = () => {
     <div class="toc-item">3. Prior Art Analysis</div>
     <div class="toc-item">4. Business Context</div>
     <div class="toc-item">5. Development Timeline</div>
-    <div class="toc-item">6. Patent Claims</div>
+    <div class="toc-item">6. Patent Claims (19 Claims)</div>
     <div class="toc-item">7. Prior Art Differentiation</div>
   </div>
 
@@ -1263,6 +1286,31 @@ export const PatentDocumentation = () => {
     <p>A multi-tenant software platform for addiction recovery support comprising: an organization management layer enabling treatment providers to create branded instances; customizable branding including logos, colors, and subdomains for each organization; hierarchical user management with organization administrators, staff, and family members; cross-organization isolation of family data with row-level security; consolidated analytics dashboards for organization-level outcome tracking; and the family intervention intelligence system of Claim 1 deployed within each organization context.</p>
   </div>
 
+  <div class="claim">
+    <div class="claim-title">Claim 15: AI-Powered Document Analysis (Dependent on Claim 1)</div>
+    <p>The system of Claim 1, further comprising an intelligent document analysis module configured to: receive uploaded intervention letters, clinical documents, and family agreements; process document content through a large language model with domain-specific prompting; automatically extract stated boundaries, consequences, and target individuals; generate structured boundary records with pending status for moderator review; associate extracted boundaries with appropriate family members; and integrate document analysis results into the pattern recognition engine for comprehensive family assessment.</p>
+  </div>
+
+  <div class="claim">
+    <div class="claim-title">Claim 16: Medication Compliance Monitoring (Dependent on Claim 1)</div>
+    <p>The system of Claim 1, further comprising a medication compliance monitoring module configured to: capture images of medication bottle labels using device cameras; process images through an AI vision model to extract medication name, dosage, pharmacy details, prescribing physician information, and refill schedules; auto-populate medication records from extracted data; track scheduled doses with configurable reminder notifications; record dose compliance status including taken, skipped with reason, and missed; generate alerts to designated family members for missed medications; incorporate medication compliance patterns as behavioral signals in the pattern recognition engine.</p>
+  </div>
+
+  <div class="claim">
+    <div class="claim-title">Claim 17: Care Transition Management (Dependent on Claim 14)</div>
+    <p>The system of Claim 14, further comprising a care transition management module configured to: track recovery phases including Detox, Residential, Sober Living, and Independent living; facilitate handoff of family oversight between provider organizations; transfer clinical notes and behavioral history during transitions with appropriate access controls; calculate provider outcome success scores based on recovery progression, regression rates, and completion metrics; generate transition summary reports for receiving providers; maintain continuity of family engagement across care level changes.</p>
+  </div>
+
+  <div class="claim">
+    <div class="claim-title">Claim 18: Recovery Trajectory Visualization (Dependent on Claim 1)</div>
+    <p>The system of Claim 1, further comprising a recovery trajectory visualization module configured to: track progress toward a clinically-significant recovery milestone (365 days); calculate recovery phase progression through defined stages; generate qualitative trajectory indicators (Improving, Stable, Softening, Destabilizing) without numerical judgment; identify primary stabilizing factors from behavioral data; detect emerging friction points and potential warning signs; visualize recovery inflection points over time; provide clinical insights for provider review using non-predictive, non-diagnostic language.</p>
+  </div>
+
+  <div class="claim">
+    <div class="claim-title">Claim 19: Secure Family Document Management (Dependent on Claim 1)</div>
+    <p>The system of Claim 1, further comprising a family document management module configured to: provide secure document upload with encryption at rest; categorize documents by type including intervention letters, treatment agreements, and clinical records; integrate family-uploaded documents into provider dashboards with source attribution; trigger automatic AI analysis for intervention letters upon upload; maintain audit trails for document access and modifications; enforce role-based access controls distinguishing family member, moderator, and provider access levels.</p>
+  </div>
+
   <div class="page-break"></div>
 
   <h2>7. Prior Art Differentiation</h2>
@@ -1279,7 +1327,7 @@ export const PatentDocumentation = () => {
       <tr>
         <td><strong>Data Sources</strong></td>
         <td>Single-source (e.g., only messaging OR only location)</td>
-        <td>Multi-source integration (meetings, messages, finances, location, observations)</td>
+        <td>Multi-source integration (meetings, messages, finances, location, observations, medications, documents)</td>
       </tr>
       <tr>
         <td><strong>Analysis Approach</strong></td>
