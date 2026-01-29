@@ -6,7 +6,7 @@ import { useProviderAdmin } from '@/hooks/useProviderAdmin';
 import { BrandedHeader } from '@/components/BrandedHeader';
 import { BrandedFooter } from '@/components/BrandedFooter';
 import { SEOHead, createOrganizationSchema } from '@/components/SEOHead';
-import { Shield, Users, DollarSign, MessageCircle, Eye, MapPin, ArrowRight, HelpCircle, Building2, Check, Play, LogOut, Brain, Sparkles, TrendingUp, MessageSquareWarning, Heart, ChevronDown } from 'lucide-react';
+import { Shield, Users, DollarSign, MessageCircle, Eye, MapPin, ArrowRight, HelpCircle, Building2, Check, Play, LogOut, Brain, Sparkles, TrendingUp, MessageSquareWarning, Heart, ChevronDown, FileText, Pill, GitBranch, Activity } from 'lucide-react';
 import { RecoveryIcon } from '@/components/icons/RecoveryIcon';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 
@@ -27,49 +27,51 @@ const Index = () => {
   const features = [
     {
       icon: Brain,
-      title: 'AI Pattern Intelligence',
-      description: 'Our AI analyzes family interactions to identify concerning patterns early—helping you intervene before a crisis, not after.',
+      title: 'FIIS Recovery Intelligence',
+      description: 'Our Family Intervention Intelligence System analyzes emotional patterns, family dynamics, and behavioral signals to surface recovery insights before they become crises.',
       highlight: true,
       gradient: 'from-violet-500 to-purple-600',
+      badge: 'Patent Pending',
     },
     {
-      icon: MessageSquareWarning,
-      title: 'AI-Powered Chat Moderation',
-      description: 'Real-time AI filters harmful language and abuse, keeping conversations constructive. Toxic messages are caught before they cause damage.',
+      icon: FileText,
+      title: 'Smart Document Analysis',
+      description: 'Upload intervention letters and FIIS automatically extracts boundaries, consequences, and commitments—creating actionable items for moderator review.',
       highlight: true,
       gradient: 'from-rose-500 to-pink-600',
     },
     {
-      icon: Sparkles,
-      title: 'Smart Behavioral Insights',
-      description: 'AI tracks check-ins, financial requests, and communication patterns to surface early warning signs and positive trends automatically.',
+      icon: Activity,
+      title: 'Recovery Trajectory Tracking',
+      description: 'Visual progress tracking toward the critical 1-year sobriety milestone. See stability trends, phase progression, and inflection points at a glance.',
+      highlight: true,
+      gradient: 'from-emerald-500 to-teal-600',
+    },
+    {
+      icon: GitBranch,
+      title: 'Care Transition Management',
+      description: 'Seamlessly hand off families between providers—from detox to residential to sober living. Track outcomes with provider success scoring.',
+      gradient: 'from-blue-500 to-cyan-600',
+    },
+    {
+      icon: Pill,
+      title: 'Medication Compliance',
+      description: 'AI-powered label scanning auto-populates medication details. Track doses, send reminders, and alert family members to missed medications.',
       highlight: true,
       gradient: 'from-amber-500 to-orange-600',
     },
     {
-      icon: DollarSign,
-      title: 'Transparent Financial Requests',
-      description: 'No more money arguments. AI monitors request patterns for red flags while family voting ensures accountability.',
-      gradient: 'from-emerald-500 to-teal-600',
-    },
-    {
-      icon: MapPin,
-      title: 'Verified Meeting Check-Ins',
-      description: 'Location-verified recovery meeting attendance builds trust. AI tracks patterns to celebrate consistency or flag concerns.',
-      gradient: 'from-blue-500 to-cyan-600',
-    },
-    {
-      icon: Shield,
-      title: 'Professional Oversight Ready',
-      description: 'Professionals in private practice, treatment centers and recovery programs can access AI-generated insights to provide better guidance during difficult family conversations.',
+      icon: MessageSquareWarning,
+      title: 'Secure Family Communication',
+      description: 'Real-time AI moderation filters harmful language while emotional tone analysis helps families understand communication patterns over time.',
       gradient: 'from-primary to-accent',
     },
   ];
 
   const stats = [
-    { value: '24/7', label: 'AI Monitoring' },
-    { value: '100%', label: 'Private & Secure' },
-    { value: 'Real-time', label: 'Pattern Detection' },
+    { value: '365', label: 'Day Recovery Goal' },
+    { value: '24/7', label: 'FIIS Monitoring' },
+    { value: 'HIPAA', label: 'Compliant' },
   ];
 
   const appName = isWhiteLabeled && organization ? organization.name : 'FamilyBridge';
@@ -220,16 +222,15 @@ const Index = () => {
         <div className="text-center mb-5 sm:mb-10">
           <div className="inline-flex items-center gap-1.5 sm:gap-2 bg-gradient-to-r from-violet-500/10 to-purple-500/10 backdrop-blur-sm border border-violet-500/20 text-violet-600 dark:text-violet-400 px-3 sm:px-5 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium mb-2 sm:mb-4">
             <Brain className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-            <span className="hidden xs:inline">FIIS Powered by Advanced AI</span>
-            <span className="xs:hidden">AI-Powered FIIS</span>
-            <span className="text-violet-500/70 dark:text-violet-400/70 hidden sm:inline">(patent pending)</span>
+            <span className="hidden xs:inline">Family Intervention Intelligence System</span>
+            <span className="xs:hidden">FIIS Technology</span>
           </div>
           <h2 className="text-xl xs:text-2xl sm:text-3xl md:text-5xl font-display font-bold text-foreground mb-2 sm:mb-3 px-1">
             Intelligent Tools for{' '}
             <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Recovery</span>
           </h2>
           <p className="text-sm sm:text-lg text-muted-foreground max-w-2xl mx-auto px-2">
-            AI-powered insights help families catch warning signs early and celebrate progress together.
+            AI-powered clinical insights help families and providers track progress, identify patterns, and coordinate care across the recovery journey.
           </p>
         </div>
         
@@ -249,11 +250,16 @@ const Index = () => {
               </div>
               
               <div className="relative">
-                <div className="flex items-center gap-2 mb-2 sm:mb-3">
+                <div className="flex items-center flex-wrap gap-2 mb-2 sm:mb-3">
                   <h3 className="text-lg sm:text-xl font-display font-semibold text-foreground">
                     {feature.title}
                   </h3>
-                  {feature.highlight && (
+                  {feature.badge && (
+                    <span className="text-[10px] sm:text-xs bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-600 dark:text-amber-400 px-2 py-0.5 rounded-full font-medium border border-amber-500/20">
+                      {feature.badge}
+                    </span>
+                  )}
+                  {feature.highlight && !feature.badge && (
                     <span className="text-xs bg-gradient-to-r from-violet-500/20 to-purple-500/20 text-violet-600 dark:text-violet-400 px-2.5 py-1 rounded-full font-medium border border-violet-500/20">
                       AI
                     </span>
@@ -324,10 +330,10 @@ const Index = () => {
                 </p>
                 <ul className="grid grid-cols-1 xs:grid-cols-2 gap-1.5 sm:gap-3 mb-4 sm:mb-8">
                   {[
-                    'Create and manage your organization',
-                    'Onboard unlimited families',
-                    'Custom branding for your organization',
-                    'Access to all provider tools',
+                    'FIIS clinical insights dashboard',
+                    'Care transition & handoff management',
+                    'Provider outcome success scoring',
+                    'Custom branding & white-label',
                   ].map((item) => (
                     <li key={item} className="flex items-center gap-1.5 sm:gap-3 text-xs sm:text-base text-muted-foreground">
                       <div className="w-4 h-4 sm:w-6 sm:h-6 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
