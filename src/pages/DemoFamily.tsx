@@ -53,7 +53,10 @@ import {
   ChevronDown,
   Search,
   Wine,
-  Flame
+  Flame,
+  Pill,
+  FolderOpen,
+  ClipboardList
 } from 'lucide-react';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 import { format } from 'date-fns';
@@ -101,6 +104,8 @@ import {
   JOHNSON_CARE_PHASES,
   JOHNSON_FIIS_OBSERVATIONS,
   JOHNSON_FIIS_AUTO_EVENTS,
+  JOHNSON_MEDICATIONS,
+  JOHNSON_DOCUMENTS,
   DAVIS_MEMBERS,
   DAVIS_MESSAGES,
   DAVIS_FINANCIAL_REQUESTS,
@@ -116,6 +121,8 @@ import {
   DAVIS_CARE_PHASES,
   DAVIS_FIIS_OBSERVATIONS,
   DAVIS_FIIS_AUTO_EVENTS,
+  DAVIS_MEDICATIONS,
+  DAVIS_DOCUMENTS,
   MITCHELL_MEMBERS,
   MITCHELL_MESSAGES,
   MITCHELL_FINANCIAL_REQUESTS,
@@ -131,6 +138,9 @@ import {
   MITCHELL_LOCATION_REQUESTS,
   MITCHELL_FIIS_OBSERVATIONS,
   MITCHELL_FIIS_AUTO_EVENTS,
+  MITCHELL_MEDICATIONS,
+  MITCHELL_DOCUMENTS,
+  MITCHELL_INTERVENTION_LETTERS,
 } from '@/data/demoFamilyData';
 
 interface DemoBranding {
@@ -165,6 +175,9 @@ const getFamilyData = (family: FamilyType) => {
         locationRequests: [],
         fiisObservations: JOHNSON_FIIS_OBSERVATIONS,
         fiisAutoEvents: JOHNSON_FIIS_AUTO_EVENTS,
+        medications: JOHNSON_MEDICATIONS,
+        documents: JOHNSON_DOCUMENTS,
+        interventionLetters: [],
       };
     case 'davis':
       return {
@@ -187,6 +200,9 @@ const getFamilyData = (family: FamilyType) => {
         locationRequests: [],
         fiisObservations: DAVIS_FIIS_OBSERVATIONS,
         fiisAutoEvents: DAVIS_FIIS_AUTO_EVENTS,
+        medications: DAVIS_MEDICATIONS,
+        documents: DAVIS_DOCUMENTS,
+        interventionLetters: [],
       };
     case 'mitchell':
       return {
@@ -209,6 +225,9 @@ const getFamilyData = (family: FamilyType) => {
         locationRequests: MITCHELL_LOCATION_REQUESTS,
         fiisObservations: MITCHELL_FIIS_OBSERVATIONS,
         fiisAutoEvents: MITCHELL_FIIS_AUTO_EVENTS,
+        medications: MITCHELL_MEDICATIONS,
+        documents: MITCHELL_DOCUMENTS,
+        interventionLetters: MITCHELL_INTERVENTION_LETTERS,
       };
   }
 };
@@ -484,14 +503,14 @@ const DemoFamily = () => {
       <div className="container mx-auto px-1.5 sm:px-4 py-3 sm:py-6">
         <div className="max-w-5xl mx-auto">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            {/* Mobile: Use grid for better spacing, Desktop: flex row */}
-            <TabsList className="grid grid-cols-7 md:grid-cols-8 h-auto gap-0.5 w-full mb-2 sm:mb-4 shrink-0 bg-card/50 backdrop-blur-sm border border-border/50 p-0.5 sm:p-1.5 rounded-lg sm:rounded-xl shadow-soft">
+            {/* Mobile: Use grid for better spacing, Desktop: flex row - 10 tabs like live FamilyChat */}
+            <TabsList className="grid grid-cols-5 md:grid-cols-10 grid-rows-2 md:grid-rows-1 h-auto gap-0.5 w-full mb-2 sm:mb-4 shrink-0 bg-card/50 backdrop-blur-sm border border-border/50 p-0.5 sm:p-1.5 rounded-lg sm:rounded-xl shadow-soft">
               <TabsTrigger 
                 value="messages" 
                 className="flex items-center justify-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-1.5 sm:py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
               >
                 <MessageCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                <span className="hidden md:inline text-xs">Messages</span>
+                <span className="hidden md:inline text-xs">Chat</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="checkin" 
@@ -525,11 +544,38 @@ const DemoFamily = () => {
                 <span className="hidden md:inline text-xs">Boundaries</span>
               </TabsTrigger>
               <TabsTrigger 
+                value="aftercare"
+                className="flex items-center justify-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-1.5 sm:py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
+              >
+                <ClipboardList className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                <span className="hidden md:inline text-xs">Aftercare</span>
+              </TabsTrigger>
+              <TabsTrigger 
                 value="test-results"
-                className="hidden md:flex items-center justify-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-1.5 sm:py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
+                className="flex items-center justify-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-1.5 sm:py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
               >
                 <FlaskConical className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                 <span className="hidden md:inline text-xs">Tests</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="medications"
+                className="relative flex items-center justify-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-1.5 sm:py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
+              >
+                <Pill className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                <span className="hidden md:inline text-xs">Meds</span>
+                {selectedFamily === 'davis' && (
+                  <span className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 h-2.5 w-2.5 sm:h-3 sm:w-3 bg-destructive rounded-full animate-pulse border-2 border-card" />
+                )}
+              </TabsTrigger>
+              <TabsTrigger 
+                value="docs"
+                className="relative flex items-center justify-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-1.5 sm:py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
+              >
+                <FolderOpen className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                <span className="hidden md:inline text-xs">Docs</span>
+                {selectedFamily === 'mitchell' && currentFamily.interventionLetters.length > 0 && (
+                  <Badge className="absolute -top-1 -right-1 h-3.5 w-3.5 sm:h-4 sm:w-4 p-0 flex items-center justify-center text-[7px] sm:text-[8px] bg-violet-500">{currentFamily.interventionLetters.length}</Badge>
+                )}
               </TabsTrigger>
               <TabsTrigger 
                 value="fiis"
@@ -540,13 +586,6 @@ const DemoFamily = () => {
                 {selectedFamily === 'davis' && (
                   <span className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 h-2.5 w-2.5 sm:h-3 sm:w-3 bg-destructive rounded-full animate-pulse border-2 border-card" />
                 )}
-              </TabsTrigger>
-              <TabsTrigger 
-                value="aftercare"
-                className="relative flex items-center justify-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-1.5 sm:py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
-              >
-                <Home className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                <span className="hidden md:inline text-xs">Aftercare</span>
               </TabsTrigger>
             </TabsList>
 
@@ -1888,6 +1927,188 @@ const DemoFamily = () => {
                   </Card>
                 )}
               </div>
+            </TabsContent>
+
+            {/* Medications Tab */}
+            <TabsContent value="medications" className="animate-fade-in">
+              <Card className="overflow-hidden border-0 shadow-lg">
+                <div className={`h-1 ${selectedFamily === 'davis' ? 'bg-gradient-to-r from-destructive via-destructive/80 to-destructive/60' : 'bg-gradient-to-r from-primary via-primary/80 to-primary/60'}`} />
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex flex-wrap items-center gap-2 text-base sm:text-lg">
+                    <div className={`h-8 w-8 rounded-lg ${selectedFamily === 'davis' ? 'bg-gradient-to-br from-destructive/20 to-destructive/10' : 'bg-gradient-to-br from-primary/20 to-primary/10'} flex items-center justify-center shrink-0`}>
+                      <Pill className={`h-4 w-4 ${selectedFamily === 'davis' ? 'text-destructive' : 'text-primary'}`} />
+                    </div>
+                    <span>Medications</span>
+                    <Badge variant="secondary" className="text-xs">
+                      {currentFamily.medications.length} Active
+                    </Badge>
+                    {selectedFamily === 'davis' && (
+                      <Badge variant="destructive" className="text-xs ml-auto">
+                        <AlertTriangle className="h-3 w-3 mr-1" />
+                        Compliance Issues
+                      </Badge>
+                    )}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {currentFamily.medications.map((med) => (
+                      <div 
+                        key={med.id} 
+                        className={`p-4 rounded-lg border ${
+                          med.notes?.includes('COMPLIANCE') || med.notes?.includes('⚠️') 
+                            ? 'bg-destructive/5 border-destructive/30' 
+                            : 'bg-muted/30 border-border'
+                        }`}
+                      >
+                        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-2">
+                          <div>
+                            <h4 className="font-semibold text-sm sm:text-base">{med.name}</h4>
+                            <p className="text-xs text-muted-foreground">{med.dosage} • {med.frequency}</p>
+                          </div>
+                          {med.is_active && (
+                            <Badge variant="outline" className="w-fit bg-green-50 text-green-700 border-green-200 text-xs">
+                              <CheckCircle className="h-3 w-3 mr-1" />
+                              Active
+                            </Badge>
+                          )}
+                        </div>
+                        <p className="text-xs text-muted-foreground mb-2">{med.purpose}</p>
+                        <div className="flex flex-wrap gap-2 text-xs">
+                          <Badge variant="outline" className="bg-background">
+                            👨‍⚕️ {med.prescriber}
+                          </Badge>
+                          {med.specific_times && med.specific_times.length > 0 && (
+                            <Badge variant="outline" className="bg-background">
+                              ⏰ {med.specific_times.join(', ')}
+                            </Badge>
+                          )}
+                        </div>
+                        {med.notes && (
+                          <p className={`mt-2 text-xs p-2 rounded ${
+                            med.notes.includes('⚠️') 
+                              ? 'bg-destructive/10 text-destructive' 
+                              : 'bg-muted text-muted-foreground'
+                          }`}>
+                            {med.notes}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Documents Tab */}
+            <TabsContent value="docs" className="animate-fade-in">
+              <Card className="overflow-hidden border-0 shadow-lg">
+                <div className="h-1 bg-gradient-to-r from-violet-500 via-violet-400 to-violet-300" />
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex flex-wrap items-center gap-2 text-base sm:text-lg">
+                    <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-violet-500/20 to-violet-500/10 flex items-center justify-center shrink-0">
+                      <FolderOpen className="h-4 w-4 text-violet-600" />
+                    </div>
+                    <span>Documents</span>
+                    <Badge variant="secondary" className="text-xs">
+                      {currentFamily.documents.length} Files
+                    </Badge>
+                    {selectedFamily === 'mitchell' && currentFamily.interventionLetters.length > 0 && (
+                      <Badge className="text-xs ml-auto bg-violet-500 hover:bg-violet-600">
+                        {currentFamily.interventionLetters.length} Intervention Letters
+                      </Badge>
+                    )}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {/* Intervention Letters Section for Mitchell */}
+                  {selectedFamily === 'mitchell' && currentFamily.interventionLetters.length > 0 && (
+                    <div className="mb-6">
+                      <h4 className="font-semibold text-sm mb-3 flex items-center gap-2 text-violet-700">
+                        <Heart className="h-4 w-4" />
+                        Intervention Letters
+                      </h4>
+                      <Accordion type="single" collapsible className="space-y-2">
+                        {currentFamily.interventionLetters.map((letter) => (
+                          <AccordionItem 
+                            key={letter.id} 
+                            value={letter.id}
+                            className="border rounded-lg bg-violet-50/50 border-violet-200"
+                          >
+                            <AccordionTrigger className="px-4 py-3 hover:no-underline">
+                              <div className="flex items-center gap-3 text-left">
+                                <Avatar className="h-8 w-8 ring-2 ring-violet-200">
+                                  <AvatarFallback className="bg-violet-100 text-violet-700 text-xs">
+                                    {letter.author.split(' ').map(n => n[0]).join('')}
+                                  </AvatarFallback>
+                                </Avatar>
+                                <div>
+                                  <p className="font-medium text-sm">{letter.title}</p>
+                                  <p className="text-xs text-muted-foreground">{letter.relationship} • {letter.createdAt}</p>
+                                </div>
+                              </div>
+                            </AccordionTrigger>
+                            <AccordionContent className="px-4 pb-4">
+                              <div className="bg-white rounded-lg p-4 border border-violet-100">
+                                <pre className="whitespace-pre-wrap text-sm font-sans text-foreground leading-relaxed">
+                                  {letter.content}
+                                </pre>
+                              </div>
+                              <div className="flex flex-wrap gap-2 mt-3">
+                                <Badge variant="outline" className="text-xs bg-violet-100 border-violet-200 text-violet-700">
+                                  <Brain className="h-3 w-3 mr-1" />
+                                  FIIS Analyzed
+                                </Badge>
+                                <Badge variant="outline" className="text-xs bg-primary/10 border-primary/20 text-primary">
+                                  <ShieldCheck className="h-3 w-3 mr-1" />
+                                  {letter.boundariesExtracted} Boundaries Extracted
+                                </Badge>
+                              </div>
+                            </AccordionContent>
+                          </AccordionItem>
+                        ))}
+                      </Accordion>
+                    </div>
+                  )}
+
+                  {/* Other Documents */}
+                  <div className="space-y-2">
+                    {currentFamily.documents.filter(doc => doc.document_type !== 'intervention_letter').map((doc) => (
+                      <div 
+                        key={doc.id} 
+                        className={`p-4 rounded-lg border ${
+                          doc.description?.includes('⚠️') 
+                            ? 'bg-destructive/5 border-destructive/30' 
+                            : 'bg-muted/30 border-border hover:border-primary/30'
+                        } transition-colors cursor-pointer`}
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                            <FileText className="h-5 w-5 text-primary" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-semibold text-sm truncate">{doc.title}</h4>
+                            <p className="text-xs text-muted-foreground">{doc.file_name}</p>
+                            {doc.description && (
+                              <p className={`text-xs mt-1 ${doc.description.includes('⚠️') ? 'text-destructive' : 'text-muted-foreground'}`}>
+                                {doc.description}
+                              </p>
+                            )}
+                            <div className="flex flex-wrap gap-2 mt-2">
+                              <Badge variant="outline" className="text-xs bg-background">
+                                📤 {doc.uploaded_by}
+                              </Badge>
+                              <Badge variant="outline" className="text-xs bg-background">
+                                📅 {doc.created_at}
+                              </Badge>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
             </TabsContent>
 
           </Tabs>

@@ -2221,6 +2221,152 @@ export const MITCHELL_AFTERCARE_PLAN = {
   ]
 };
 
+// ============================================================================
+// JOHNSON FAMILY - Medications
+// ============================================================================
+
+export const JOHNSON_MEDICATIONS = [
+  {
+    id: 'jmed-1',
+    name: 'Naltrexone (Vivitrol)',
+    dosage: '380mg injection',
+    frequency: 'Monthly injection',
+    prescriber: 'Dr. Sarah Thompson',
+    purpose: 'Opioid/alcohol craving reduction',
+    started_at: format(subDays(now, 90), 'yyyy-MM-dd'),
+    is_active: true,
+    specific_times: [],
+    notes: 'Monthly injection administered at Recovery Center. Excellent compliance - 4 consecutive months.'
+  },
+  {
+    id: 'jmed-2',
+    name: 'Wellbutrin (Bupropion)',
+    dosage: '150mg XL',
+    frequency: 'Once daily, morning',
+    prescriber: 'Dr. Sarah Thompson',
+    purpose: 'Depression and smoking cessation support',
+    started_at: format(subDays(now, 100), 'yyyy-MM-dd'),
+    is_active: true,
+    specific_times: ['08:00'],
+    notes: 'Started during residential treatment. Good response, no side effects.'
+  }
+];
+
+// ============================================================================
+// JOHNSON FAMILY - Documents
+// ============================================================================
+
+export const JOHNSON_DOCUMENTS = [
+  {
+    id: 'jdoc-1',
+    title: 'Treatment Completion Certificate',
+    document_type: 'certificate',
+    file_name: 'treatment-completion-certificate.pdf',
+    uploaded_by: 'Matt Brown',
+    uploaded_by_id: '0',
+    created_at: format(subDays(now, 95), 'MMM d, yyyy'),
+    description: 'Certificate of completion for 30-day inpatient program at Serenity Springs'
+  },
+  {
+    id: 'jdoc-2',
+    title: 'Sober Living Agreement',
+    document_type: 'agreement',
+    file_name: 'sober-living-agreement.pdf',
+    uploaded_by: 'Michael Johnson',
+    uploaded_by_id: '2',
+    created_at: format(subDays(now, 95), 'MMM d, yyyy'),
+    description: 'Signed agreement for 90-day sober living residency at Recovery House'
+  },
+  {
+    id: 'jdoc-3',
+    title: 'Aftercare Plan',
+    document_type: 'treatment_plan',
+    file_name: 'aftercare-plan.pdf',
+    uploaded_by: 'Dr. Sarah Thompson',
+    uploaded_by_id: '6',
+    created_at: format(subDays(now, 5), 'MMM d, yyyy'),
+    description: 'Comprehensive aftercare plan with recovery milestones and ongoing support'
+  },
+  {
+    id: 'jdoc-4',
+    title: 'Discharge Summary',
+    document_type: 'medical_record',
+    file_name: 'sober-living-discharge.pdf',
+    uploaded_by: 'Matt Brown',
+    uploaded_by_id: '0',
+    created_at: format(subDays(now, 5), 'MMM d, yyyy'),
+    description: 'Successful completion of 90-day sober living program'
+  }
+];
+
+// ============================================================================
+// DAVIS FAMILY - Medications (she is NOT compliant)
+// ============================================================================
+
+export const DAVIS_MEDICATIONS = [
+  {
+    id: 'dmed-1',
+    name: 'Antabuse (Disulfiram)',
+    dosage: '250mg',
+    frequency: 'Once daily',
+    prescriber: 'Dr. Robert Miller',
+    purpose: 'Alcohol deterrent',
+    started_at: format(subDays(now, 45), 'yyyy-MM-dd'),
+    is_active: true,
+    specific_times: ['09:00'],
+    notes: '⚠️ COMPLIANCE CONCERN: Multiple missed doses in past 2 weeks. Last confirmed dose was 5 days ago.'
+  },
+  {
+    id: 'dmed-2',
+    name: 'Lexapro (Escitalopram)',
+    dosage: '10mg',
+    frequency: 'Once daily',
+    prescriber: 'Dr. Robert Miller',
+    purpose: 'Anxiety and depression',
+    started_at: format(subDays(now, 60), 'yyyy-MM-dd'),
+    is_active: true,
+    specific_times: ['20:00'],
+    notes: 'Self-reported compliance but no verification. Family suspects she is not taking consistently.'
+  }
+];
+
+// ============================================================================
+// DAVIS FAMILY - Documents
+// ============================================================================
+
+export const DAVIS_DOCUMENTS = [
+  {
+    id: 'ddoc-1',
+    title: 'Outpatient Treatment Agreement',
+    document_type: 'agreement',
+    file_name: 'outpatient-agreement.pdf',
+    uploaded_by: 'Richard Davis',
+    uploaded_by_id: '1',
+    created_at: format(subDays(now, 45), 'MMM d, yyyy'),
+    description: 'Agreement for IOP program - ⚠️ Ashley has missed 4 of last 7 sessions'
+  },
+  {
+    id: 'ddoc-2',
+    title: 'Family Boundaries Document',
+    document_type: 'boundaries',
+    file_name: 'family-boundaries.pdf',
+    uploaded_by: 'Susan Davis',
+    uploaded_by_id: '2',
+    created_at: format(subDays(now, 30), 'MMM d, yyyy'),
+    description: 'Written boundaries agreed upon by family (not being followed)'
+  },
+  {
+    id: 'ddoc-3',
+    title: 'AA Meeting Attendance Log',
+    document_type: 'attendance',
+    file_name: 'aa-attendance-log.pdf',
+    uploaded_by: 'Ashley Davis',
+    uploaded_by_id: '3',
+    created_at: format(subDays(now, 10), 'MMM d, yyyy'),
+    description: '⚠️ Last verified meeting was 12 days ago - GPS check-ins show bars, not meetings'
+  }
+];
+
 // FIIS Observations for Mitchell - showing the trajectory
 export const MITCHELL_FIIS_OBSERVATIONS = [
   {
