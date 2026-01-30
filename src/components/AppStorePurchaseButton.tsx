@@ -96,7 +96,12 @@ export function AppStorePurchaseButton({
   // Show initialization status in button text
   const getButtonText = () => {
     if (isLoading) return "Loading...";
-    if (!isInitialized && error) return "Retry Connection";
+    if (!isInitialized && error) {
+      if (/not linked|plugin/i.test(error) || /not implemented/i.test(error)) {
+        return "Purchase Setup Required";
+      }
+      return "Retry Connection";
+    }
     if (!isInitialized) return "Connecting...";
     const priceText = displayPrice ? ` (${displayPrice})` : "";
     return platform === "apple" 

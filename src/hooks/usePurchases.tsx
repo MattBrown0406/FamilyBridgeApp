@@ -49,6 +49,14 @@ interface PurchasesState {
 // Dynamic import for RevenueCat - only available on native platforms
 let Purchases: any = null;
 
+function isUnimplementedCapacitorPluginError(err: unknown): boolean {
+  const msg = err instanceof Error ? err.message : String(err);
+  return /not implemented/i.test(msg) && /Purchases\./i.test(msg);
+}
+
+const NATIVE_PLUGIN_SETUP_HINT =
+  "In-app purchases aren't available in this iOS build yet (native purchases plugin not linked). Rebuild the iOS app and run a Capacitor sync (npx cap sync ios), then ensure the RevenueCat Purchases plugin is added to the App target in Xcode.";
+
 export function usePurchases() {
   const [state, setState] = useState<PurchasesState>({
     isInitialized: false,
@@ -115,7 +123,13 @@ export function usePurchases() {
       return { success: true };
     } catch (error) {
       console.error("Failed to initialize RevenueCat:", error);
-      const message = error instanceof Error ? error.message : "Failed to initialize purchases";
+
+      const message = isUnimplementedCapacitorPluginError(error)
+        ? NATIVE_PLUGIN_SETUP_HINT
+        : error instanceof Error
+          ? error.message
+          : "Failed to initialize purchases";
+
       setState(prev => ({
         ...prev,
         isLoading: false,
@@ -215,6 +229,16 @@ export function usePurchases() {
       throw new Error(data.error || "Purchase verification failed");
     } catch (error: any) {
       console.error("Purchase error:", error);
+
+      if (isUnimplementedCapacitorPluginError(error)) {
+        setState(prev => ({
+          ...prev,
+          isLoading: false,
+          isInitialized: false,
+          error: NATIVE_PLUGIN_SETUP_HINT,
+        }));
+        return { success: false, error: NATIVE_PLUGIN_SETUP_HINT };
+      }
       
       // Handle specific RevenueCat errors
       const errorMessage = error.code === "PURCHASE_CANCELLED_ERROR"
@@ -248,6 +272,18 @@ export function usePurchases() {
       return customerInfo;
     } catch (error) {
       console.error("Restore error:", error);
+
+      if (isUnimplementedCapacitorPluginError(error)) {
+        setState(prev => ({
+          ...prev,
+          isLoading: false,
+          isInitialized: false,
+          error: NATIVE_PLUGIN_SETUP_HINT,
+        }));
+        toast.error(NATIVE_PLUGIN_SETUP_HINT);
+        return null;
+      }
+
       setState(prev => ({ ...prev, isLoading: false }));
       toast.error("Failed to restore purchases");
       return null;
