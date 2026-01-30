@@ -4358,6 +4358,7 @@ export type Database = {
       check_overdue_checkouts: { Args: never; Returns: undefined }
       check_payment_info_access_rate: { Args: never; Returns: boolean }
       cleanup_expired_sensitive_tokens: { Args: never; Returns: undefined }
+      cleanup_super_admin_rate_limits: { Args: never; Returns: undefined }
       decrypt_payment_field: {
         Args: { encrypted_text: string }
         Returns: string
@@ -4378,9 +4379,13 @@ export type Database = {
         Args: { _code_id: string }
         Returns: {
           code: string
+          created_at: string
           expires_at: string
+          id: string
           is_used: boolean
+          updated_at: string
           used_at: string
+          used_by: string
         }[]
       }
       get_anonymized_family_patterns: {
