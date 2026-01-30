@@ -4267,6 +4267,10 @@ export type Database = {
         Args: { _family_id: string; _user_id: string }
         Returns: boolean
       }
+      can_view_profile: {
+        Args: { _profile_id: string; _viewer_id: string }
+        Returns: boolean
+      }
       can_view_service_status: {
         Args: { _entity_id: string; _entity_type: string }
         Returns: boolean
