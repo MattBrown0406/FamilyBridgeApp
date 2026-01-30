@@ -158,11 +158,20 @@ export function usePurchases() {
     setState(prev => ({ ...prev, isLoading: true }));
 
     try {
-      // Make the purchase through RevenueCat
-      const result: PurchaseResult = await Purchases.purchaseProduct({
-        productIdentifier: productId,
+      // First get the store product, then make purchase with correct API
+      const { products } = await Purchases.getProducts({
+        productIdentifiers: [productId],
       });
-
+      
+      if (!products || products.length === 0) {
+        throw new Error("Product not found in store");
+      }
+      
+      // Make the purchase through RevenueCat using the correct v12+ API
+      const result: PurchaseResult = await Purchases.purchase({
+        aPackage: null,
+        product: products[0],
+      });
       console.log("Purchase successful:", result);
 
       // Get the transaction identifier
