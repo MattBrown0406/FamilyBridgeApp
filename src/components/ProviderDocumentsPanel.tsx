@@ -635,7 +635,10 @@ export const ProviderDocumentsPanel = ({ organizationId, families }: ProviderDoc
                                     <AlertDialogFooter>
                                       <AlertDialogCancel>Cancel</AlertDialogCancel>
                                       <AlertDialogAction 
-                                        onClick={() => handleDelete(doc)}
+                                        onClick={(e) => {
+                                          e.preventDefault();
+                                          handleDelete(doc);
+                                        }}
                                         className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                                       >
                                         Delete
