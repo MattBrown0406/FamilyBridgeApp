@@ -3809,7 +3809,7 @@ export type Database = {
     Views: {
       activation_codes_admin_view: {
         Row: {
-          code: string | null
+          code_masked: string | null
           created_at: string | null
           email_status: string | null
           expires_at: string | null
@@ -3823,7 +3823,7 @@ export type Database = {
           used_by: string | null
         }
         Insert: {
-          code?: string | null
+          code_masked?: never
           created_at?: string | null
           email_status?: never
           expires_at?: string | null
@@ -3837,7 +3837,7 @@ export type Database = {
           used_by?: string | null
         }
         Update: {
-          code?: string | null
+          code_masked?: never
           created_at?: string | null
           email_status?: never
           expires_at?: string | null
@@ -4269,6 +4269,15 @@ export type Database = {
       generate_payment_access_token: {
         Args: { _request_id: string }
         Returns: string
+      }
+      get_activation_code_secure: {
+        Args: { _code_id: string }
+        Returns: {
+          code: string
+          expires_at: string
+          is_used: boolean
+          used_at: string
+        }[]
       }
       get_anonymized_family_patterns: {
         Args: { _family_id: string }
