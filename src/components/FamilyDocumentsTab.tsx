@@ -503,7 +503,10 @@ export const FamilyDocumentsTab = ({ familyId, userRole }: FamilyDocumentsTabPro
                             <AlertDialogFooter>
                               <AlertDialogCancel>Cancel</AlertDialogCancel>
                               <AlertDialogAction 
-                                onClick={() => handleDelete(doc.id, doc.file_path)}
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  handleDelete(doc.id, doc.file_path);
+                                }}
                                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                               >
                                 Delete

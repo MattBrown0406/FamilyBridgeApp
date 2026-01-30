@@ -1590,7 +1590,10 @@ const SuperAdmin = () => {
           <AlertDialogFooter>
             <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
             <AlertDialogAction 
-              onClick={handleDelete} 
+              onClick={(e) => {
+                e.preventDefault();
+                handleDelete();
+              }} 
               disabled={isDeleting}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >

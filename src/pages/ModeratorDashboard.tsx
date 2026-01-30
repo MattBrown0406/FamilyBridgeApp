@@ -640,7 +640,10 @@ const ModeratorDashboard = () => {
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
                                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                  <AlertDialogAction onClick={() => handleArchiveFamily(family.id, family.name)}>
+                                  <AlertDialogAction onClick={(e) => {
+                                    e.preventDefault();
+                                    handleArchiveFamily(family.id, family.name);
+                                  }}>
                                     Archive
                                   </AlertDialogAction>
                                 </AlertDialogFooter>

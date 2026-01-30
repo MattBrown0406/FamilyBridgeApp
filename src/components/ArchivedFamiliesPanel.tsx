@@ -245,7 +245,10 @@ export const ArchivedFamiliesPanel = ({ organizationId, onReactivate }: Archived
                       </AlertDialogHeader>
                       <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => handleReactivate(family)}>
+                        <AlertDialogAction onClick={(e) => {
+                          e.preventDefault();
+                          handleReactivate(family);
+                        }}>
                           Reactivate
                         </AlertDialogAction>
                       </AlertDialogFooter>

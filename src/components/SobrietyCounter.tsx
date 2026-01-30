@@ -287,7 +287,10 @@ export const SobrietyCounter: React.FC<SobrietyCounterProps> = ({
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                       <AlertDialogCancel>Keep Going</AlertDialogCancel>
-                      <AlertDialogAction onClick={handleReset}>
+                      <AlertDialogAction onClick={(e) => {
+                        e.preventDefault();
+                        handleReset();
+                      }}>
                         Start Fresh
                       </AlertDialogAction>
                     </AlertDialogFooter>
