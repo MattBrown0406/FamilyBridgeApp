@@ -47,6 +47,7 @@ import {
 import { Progress } from "@/components/ui/progress";
 import { format, formatDistanceToNow } from "date-fns";
 import { RecoveryTrajectoryPanel } from "@/components/RecoveryTrajectoryPanel";
+import { PatternShiftAlerts } from "@/components/PatternShiftAlerts";
 
 interface FIISTabProps {
   familyId: string;
@@ -711,6 +712,9 @@ export function FIISTab({ familyId, members, excludeUserIds = [], onView, isMode
           analysisRiskLevelName={analysis?.risk_level_name}
         />
       )}
+
+      {/* Pattern Shift Alerts - Early warnings without alarmism */}
+      <PatternShiftAlerts familyId={familyId} isProvider={isModerator} />
 
       {/* New Observation Form */}
       {showForm && (
