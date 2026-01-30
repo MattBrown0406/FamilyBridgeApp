@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   ArrowRight,
   Building2,
@@ -15,11 +16,14 @@ import {
   Loader2,
   Plus,
   TrendingUp,
+  Shield,
+  Lock,
 } from "lucide-react";
 import { format } from "date-fns";
 import { CarePhaseManager } from "./CarePhaseManager";
 import { ProviderHandoffManager } from "./ProviderHandoffManager";
 import { TransitionSummaryForm } from "./TransitionSummaryForm";
+import { ReauthenticationDialog } from "./ReauthenticationDialog";
 
 interface CareTransitionsTabProps {
   familyId: string;
@@ -65,35 +69,69 @@ export function CareTransitionsTab({
   const [activeTab, setActiveTab] = useState("phases");
   const [showNewSummary, setShowNewSummary] = useState(false);
   const [summaries, setSummaries] = useState<TransitionSummary[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  
+  // Re-authentication state
+  const [showReauthDialog, setShowReauthDialog] = useState(false);
+  const [sensitiveAccessToken, setSensitiveAccessToken] = useState<string | null>(null);
+  const [hasRequestedAccess, setHasRequestedAccess] = useState(false);
 
   const canManage = isModerator || isOrgAdmin;
 
-  useEffect(() => {
-    if (recoveringUserId) {
-      fetchSummaries();
-    }
-  }, [familyId, recoveringUserId]);
-
-  const fetchSummaries = async () => {
+  // Fetch summaries using secure endpoint
+  const fetchSummaries = useCallback(async (accessToken: string) => {
     if (!recoveringUserId) return;
     
     setIsLoading(true);
     try {
-      const { data, error } = await supabase
-        .from("transition_summaries")
-        .select("id, from_phase, to_phase, sobriety_days_at_transition, treatment_progress_summary, strengths_identified, transition_readiness_score, created_at")
-        .eq("family_id", familyId)
-        .eq("user_id", recoveringUserId)
-        .order("created_at", { ascending: false });
+      const { data, error } = await supabase.functions.invoke("get-transition-summaries", {
+        body: { familyId, userId: recoveringUserId },
+        headers: {
+          "x-sensitive-access-token": accessToken,
+        },
+      });
 
-      if (error) throw error;
-      setSummaries(data || []);
+      if (error) {
+        if (error.message?.includes("REAUTH_REQUIRED")) {
+          setSensitiveAccessToken(null);
+          setHasRequestedAccess(false);
+          toast({
+            title: "Session Expired",
+            description: "Please verify your identity again to view this information.",
+            variant: "destructive",
+          });
+          return;
+        }
+        throw error;
+      }
+
+      setSummaries(data.summaries || []);
     } catch (error) {
       console.error("Error fetching summaries:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load transition summaries",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
+  }, [familyId, recoveringUserId, toast]);
+
+  // When access token is obtained, fetch summaries
+  useEffect(() => {
+    if (sensitiveAccessToken && activeTab === "summaries") {
+      fetchSummaries(sensitiveAccessToken);
+    }
+  }, [sensitiveAccessToken, activeTab, fetchSummaries]);
+
+  const handleRequestAccess = () => {
+    setShowReauthDialog(true);
+  };
+
+  const handleReauthSuccess = (token: string) => {
+    setSensitiveAccessToken(token);
+    setHasRequestedAccess(true);
   };
 
   if (!recoveringUserId) {
@@ -147,6 +185,15 @@ export function CareTransitionsTab({
         </TabsContent>
 
         <TabsContent value="summaries" className="mt-4">
+          {/* Re-authentication Dialog */}
+          <ReauthenticationDialog
+            open={showReauthDialog}
+            onOpenChange={setShowReauthDialog}
+            onSuccess={handleReauthSuccess}
+            title="Access Medical Records"
+            description="Transition summaries contain sensitive medical information. Please verify your identity to continue."
+          />
+
           {showNewSummary ? (
             <TransitionSummaryForm
               familyId={familyId}
@@ -155,10 +202,53 @@ export function CareTransitionsTab({
               resetCount={resetCount}
               onSuccess={() => {
                 setShowNewSummary(false);
-                fetchSummaries();
+                // After creating, user needs to re-authenticate to view
+                if (sensitiveAccessToken) {
+                  fetchSummaries(sensitiveAccessToken);
+                }
               }}
               onCancel={() => setShowNewSummary(false)}
             />
+          ) : !hasRequestedAccess ? (
+            // Show re-authentication gate
+            <Card className="border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/20">
+              <CardContent className="py-8 text-center space-y-4">
+                <div className="flex justify-center">
+                  <div className="p-4 rounded-full bg-amber-100 dark:bg-amber-900/50">
+                    <Shield className="h-8 w-8 text-amber-600" />
+                  </div>
+                </div>
+                <div>
+                  <h3 className="font-medium text-lg mb-2">Protected Medical Records</h3>
+                  <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                    Transition summaries contain sensitive treatment information including 
+                    medical notes, risk factors, and medication details. Additional verification 
+                    is required to access these records.
+                  </p>
+                </div>
+                <Alert className="max-w-md mx-auto bg-background">
+                  <Lock className="h-4 w-4" />
+                  <AlertDescription className="text-sm">
+                    You will be asked to re-enter your password. Access is logged for security purposes.
+                  </AlertDescription>
+                </Alert>
+                <Button onClick={handleRequestAccess} className="mt-4">
+                  <Shield className="h-4 w-4 mr-2" />
+                  Verify Identity to View
+                </Button>
+                {canManage && (
+                  <div className="pt-4 border-t mt-4">
+                    <Button variant="outline" onClick={() => setShowNewSummary(true)}>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Create New Summary
+                    </Button>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      Creating summaries does not require re-authentication
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           ) : (
             <div className="space-y-4">
               {canManage && (
