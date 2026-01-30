@@ -3744,9 +3744,11 @@ export type Database = {
       transition_summary_consents: {
         Row: {
           consent_recorded_by: string
+          consent_version: string | null
           consented_at: string
           consented_via: string
           created_at: string
+          full_name: string | null
           id: string
           notes: string | null
           organization_id: string
@@ -3756,14 +3758,18 @@ export type Database = {
           patient_user_agent: string | null
           revoked_at: string | null
           revoked_by: string | null
+          signature_data: string | null
+          signature_data_encrypted: string | null
           transition_summary_id: string
           user_id: string
         }
         Insert: {
           consent_recorded_by: string
+          consent_version?: string | null
           consented_at?: string
           consented_via?: string
           created_at?: string
+          full_name?: string | null
           id?: string
           notes?: string | null
           organization_id: string
@@ -3773,14 +3779,18 @@ export type Database = {
           patient_user_agent?: string | null
           revoked_at?: string | null
           revoked_by?: string | null
+          signature_data?: string | null
+          signature_data_encrypted?: string | null
           transition_summary_id: string
           user_id: string
         }
         Update: {
           consent_recorded_by?: string
+          consent_version?: string | null
           consented_at?: string
           consented_via?: string
           created_at?: string
+          full_name?: string | null
           id?: string
           notes?: string | null
           organization_id?: string
@@ -3790,6 +3800,8 @@ export type Database = {
           patient_user_agent?: string | null
           revoked_at?: string | null
           revoked_by?: string | null
+          signature_data?: string | null
+          signature_data_encrypted?: string | null
           transition_summary_id?: string
           user_id?: string
         }
@@ -4498,6 +4510,10 @@ export type Database = {
         Returns: string
       }
       request_has_no_votes: { Args: { _request_id: string }; Returns: boolean }
+      revoke_transition_consent: {
+        Args: { _consent_id: string; _reason?: string }
+        Returns: boolean
+      }
       shares_family_with: {
         Args: { _other_user_id: string; _user_id: string }
         Returns: boolean
@@ -4508,6 +4524,16 @@ export type Database = {
           _full_name: string
           _signature: string
           _user_agent?: string
+        }
+        Returns: string
+      }
+      sign_transition_consent: {
+        Args: {
+          _full_name: string
+          _notes?: string
+          _organization_id: string
+          _signature_data: string
+          _transition_summary_id: string
         }
         Returns: string
       }
