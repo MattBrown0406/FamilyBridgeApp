@@ -3750,6 +3750,10 @@ export type Database = {
           id: string
           notes: string | null
           organization_id: string
+          patient_acknowledged_at: string | null
+          patient_ip_address: string | null
+          patient_signature_hash: string | null
+          patient_user_agent: string | null
           revoked_at: string | null
           revoked_by: string | null
           transition_summary_id: string
@@ -3763,6 +3767,10 @@ export type Database = {
           id?: string
           notes?: string | null
           organization_id: string
+          patient_acknowledged_at?: string | null
+          patient_ip_address?: string | null
+          patient_signature_hash?: string | null
+          patient_user_agent?: string | null
           revoked_at?: string | null
           revoked_by?: string | null
           transition_summary_id: string
@@ -3776,6 +3784,10 @@ export type Database = {
           id?: string
           notes?: string | null
           organization_id?: string
+          patient_acknowledged_at?: string | null
+          patient_ip_address?: string | null
+          patient_signature_hash?: string | null
+          patient_user_agent?: string | null
           revoked_at?: string | null
           revoked_by?: string | null
           transition_summary_id?: string
@@ -4476,6 +4488,15 @@ export type Database = {
         Returns: boolean
       }
       is_super_admin: { Args: { _user_id: string }; Returns: boolean }
+      record_patient_consent: {
+        Args: {
+          _notes?: string
+          _organization_id: string
+          _signature_hash: string
+          _transition_summary_id: string
+        }
+        Returns: string
+      }
       request_has_no_votes: { Args: { _request_id: string }; Returns: boolean }
       shares_family_with: {
         Args: { _other_user_id: string; _user_id: string }
