@@ -51,10 +51,9 @@ export function AppStorePurchaseButton({
         toast.info("Connecting to purchase system...");
         setRetryCount(prev => prev + 1);
         try {
-          await initialize();
-          // Check again after initialization attempt
-          if (!isInitialized) {
-            toast.error("Unable to connect to purchase system. Please restart the app and try again.");
+          const init = await initialize();
+          if (!init.success) {
+            toast.error(init.error || "Unable to connect to purchase system. Please restart the app and try again.");
             return;
           }
         } catch (e) {

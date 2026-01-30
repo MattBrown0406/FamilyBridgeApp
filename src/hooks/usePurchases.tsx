@@ -61,10 +61,10 @@ export function usePurchases() {
   const isNative = Capacitor.isNativePlatform();
 
   // Initialize RevenueCat SDK
-  const initialize = useCallback(async () => {
+  const initialize = useCallback(async (): Promise<{ success: boolean; error?: string }> => {
     if (!isNative) {
       setState(prev => ({ ...prev, isLoading: false, isInitialized: true }));
-      return;
+      return { success: true };
     }
 
     try {
@@ -86,7 +86,7 @@ export function usePurchases() {
           isInitialized: false,
           error: "Purchase system not configured",
         }));
-        return;
+        return { success: false, error: "Purchase system not configured" };
       }
 
       // Configure RevenueCat
@@ -112,14 +112,17 @@ export function usePurchases() {
       });
 
       console.log("RevenueCat initialized successfully");
+      return { success: true };
     } catch (error) {
       console.error("Failed to initialize RevenueCat:", error);
+      const message = error instanceof Error ? error.message : "Failed to initialize purchases";
       setState(prev => ({
         ...prev,
         isLoading: false,
         isInitialized: false,
-        error: error instanceof Error ? error.message : "Failed to initialize purchases",
+        error: message,
       }));
+      return { success: false, error: message };
     }
   }, [isNative]);
 
