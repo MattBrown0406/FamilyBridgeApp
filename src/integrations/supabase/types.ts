@@ -3910,13 +3910,13 @@ export type Database = {
         Row: {
           code_masked: string | null
           created_at: string | null
-          email_status: string | null
           expires_at: string | null
+          has_email: string | null
+          has_purchase_ref: string | null
+          has_square_customer: string | null
+          has_subscription: string | null
           id: string | null
           is_used: boolean | null
-          purchase_ref_status: string | null
-          square_customer_status: string | null
-          square_subscription_status: string | null
           updated_at: string | null
           used_at: string | null
           used_by: string | null
@@ -3924,13 +3924,13 @@ export type Database = {
         Insert: {
           code_masked?: never
           created_at?: string | null
-          email_status?: never
           expires_at?: string | null
+          has_email?: never
+          has_purchase_ref?: never
+          has_square_customer?: never
+          has_subscription?: never
           id?: string | null
           is_used?: boolean | null
-          purchase_ref_status?: never
-          square_customer_status?: never
-          square_subscription_status?: never
           updated_at?: string | null
           used_at?: string | null
           used_by?: string | null
@@ -3938,13 +3938,13 @@ export type Database = {
         Update: {
           code_masked?: never
           created_at?: string | null
-          email_status?: never
           expires_at?: string | null
+          has_email?: never
+          has_purchase_ref?: never
+          has_square_customer?: never
+          has_subscription?: never
           id?: string | null
           is_used?: boolean | null
-          purchase_ref_status?: never
-          square_customer_status?: never
-          square_subscription_status?: never
           updated_at?: string | null
           used_at?: string | null
           used_by?: string | null
