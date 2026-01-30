@@ -326,7 +326,10 @@ export const ArchivedFamilyNotice = () => {
                       <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
                         <AlertDialogAction 
-                          onClick={() => handleReactivateAsIndependent(request.family_id, request.family_name)}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleReactivateAsIndependent(request.family_id, request.family_name);
+                          }}
                         >
                           Approve & Reactivate
                         </AlertDialogAction>
