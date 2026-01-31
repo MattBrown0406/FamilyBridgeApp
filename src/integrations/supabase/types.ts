@@ -1067,6 +1067,8 @@ export type Database = {
         Row: {
           approved_at: string | null
           approved_by: string | null
+          author_matched_user_id: string | null
+          author_name: string | null
           consequence: string | null
           content: string
           created_at: string
@@ -1081,6 +1083,8 @@ export type Database = {
         Insert: {
           approved_at?: string | null
           approved_by?: string | null
+          author_matched_user_id?: string | null
+          author_name?: string | null
           consequence?: string | null
           content: string
           created_at?: string
@@ -1095,6 +1099,8 @@ export type Database = {
         Update: {
           approved_at?: string | null
           approved_by?: string | null
+          author_matched_user_id?: string | null
+          author_name?: string | null
           consequence?: string | null
           content?: string
           created_at?: string
