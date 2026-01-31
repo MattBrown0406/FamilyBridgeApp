@@ -10,6 +10,7 @@ interface ExtractedBoundary {
   content: string;
   consequence: string | null;
   target_member_name: string | null;
+  author_name: string | null;
 }
 
 // Convert ArrayBuffer to Base64
@@ -251,20 +252,29 @@ serve(async (req) => {
     const systemPrompt = `You are an expert at analyzing intervention letters and extracting boundaries that families have set.
 
 An intervention letter typically contains:
+- A greeting or salutation (often "Dear [name]")
+- A signature at the end from the letter author
 - Expressions of love and concern
 - Specific boundaries the family member is committing to
 - Consequences if boundaries are violated
 
-Your task is to identify and extract ONLY the specific boundaries mentioned in the letter. A boundary is a clear statement about what the family member will or will not do/allow.
+Your task is to:
+1. Identify who WROTE this letter (look for signatures, "Love, [name]", "Sincerely, [name]", or opening statements like "I am your [relationship]")
+2. Extract ONLY the specific boundaries mentioned in the letter
+
+A boundary is a clear statement about what the family member will or will not do/allow.
 
 Examples of boundaries:
 - "I will no longer give you money for any reason"
 - "You cannot stay at our house if you are using"
 - "I will not answer the phone after 10pm"
 
-For each boundary, also extract:
-1. The consequence if violated (if mentioned)
-2. The target person's name if this boundary is specifically about one recovering member
+For each boundary, extract:
+1. The author's name (the person who wrote this boundary - from the letter signature or context)
+2. The consequence if violated (if mentioned)
+3. The target person's name if this boundary is specifically directed at one recovering member
+
+IMPORTANT: Each boundary should have the author_name of the person who WROTE the letter, not who it's addressed to.
 
 Family member names in this group: ${memberNames.join(", ")}
 
@@ -307,9 +317,13 @@ Respond with a JSON array of boundaries. If no clear boundaries are found, retur
                         target_member_name: { 
                           type: "string", 
                           description: "The name of the recovering member this boundary is specifically about (or null if general)" 
+                        },
+                        author_name: {
+                          type: "string",
+                          description: "The name of the person who WROTE this letter/boundary (from signature, closing, or context)"
                         }
                       },
-                      required: ["content"],
+                      required: ["content", "author_name"],
                       additionalProperties: false
                     }
                   }
@@ -369,7 +383,20 @@ Respond with a JSON array of boundaries. If no clear boundaries are found, retur
         }
       }
 
+      // Try to match the author to an existing family member
+      let authorMatchedUserId = null;
+      if (boundary.author_name) {
+        const matchedAuthor = profiles?.find(p => 
+          p.full_name?.toLowerCase().includes(boundary.author_name!.toLowerCase())
+        );
+        if (matchedAuthor) {
+          authorMatchedUserId = matchedAuthor.id;
+        }
+      }
+
       // Insert boundary with 'pending' status for moderator review
+      // The author_name field stores who wrote the boundary (from the letter)
+      // created_by is the user who uploaded/analyzed it
       const { error: insertError } = await supabase
         .from("family_boundaries")
         .insert({
@@ -378,6 +405,8 @@ Respond with a JSON array of boundaries. If no clear boundaries are found, retur
           content: boundary.content,
           consequence: boundary.consequence || null,
           target_user_id: targetUserId,
+          author_name: boundary.author_name || null,
+          author_matched_user_id: authorMatchedUserId,
           status: "pending" // Requires moderator approval
         });
 
