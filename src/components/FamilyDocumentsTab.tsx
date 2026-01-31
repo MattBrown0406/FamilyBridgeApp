@@ -268,15 +268,22 @@ export const FamilyDocumentsTab = ({ familyId, userRole }: FamilyDocumentsTabPro
 
       if (downloadError) throw downloadError;
 
-      // Read file content as text
-      const text = await fileData.text();
+      // Convert file to base64 for the edge function
+      const arrayBuffer = await fileData.arrayBuffer();
+      const bytes = new Uint8Array(arrayBuffer);
+      let binary = '';
+      for (let i = 0; i < bytes.length; i++) {
+        binary += String.fromCharCode(bytes[i]);
+      }
+      const base64 = btoa(binary);
 
-      // Call the analysis edge function
+      // Call the analysis edge function with base64 file bytes
       const { data, error } = await supabase.functions.invoke('analyze-intervention-letter', {
         body: {
           documentId: doc.id,
           familyId: familyId,
-          documentContent: text
+          fileBytes: base64,
+          mimeType: doc.mime_type
         }
       });
 

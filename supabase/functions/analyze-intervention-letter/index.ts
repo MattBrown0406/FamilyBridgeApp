@@ -12,17 +12,123 @@ interface ExtractedBoundary {
   target_member_name: string | null;
 }
 
+// Convert ArrayBuffer to Base64
+function arrayBufferToBase64(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer);
+  let binary = '';
+  for (let i = 0; i < bytes.length; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary);
+}
+
+// Extract text from PDF using Gemini Vision API (handles both digital and scanned PDFs)
+async function extractPdfText(pdfBytes: ArrayBuffer, apiKey: string): Promise<string> {
+  console.log("Extracting text from PDF using Gemini Vision...");
+  
+  const base64Pdf = arrayBufferToBase64(pdfBytes);
+  
+  const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model: "google/gemini-2.5-flash",
+      messages: [
+        {
+          role: "user",
+          content: [
+            {
+              type: "text",
+              text: "Extract ALL text from this document exactly as written. Return only the extracted text content, preserving the original formatting and structure. Do not summarize or modify the content."
+            },
+            {
+              type: "image_url",
+              image_url: {
+                url: `data:application/pdf;base64,${base64Pdf}`
+              }
+            }
+          ]
+        }
+      ],
+      max_tokens: 8000
+    }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error("PDF extraction error:", response.status, errorText);
+    throw new Error(`Failed to extract text from PDF: ${response.status}`);
+  }
+
+  const result = await response.json();
+  const extractedText = result.choices?.[0]?.message?.content || "";
+  
+  console.log(`Extracted ${extractedText.length} characters from PDF`);
+  return extractedText;
+}
+
+// Extract text from image files using Vision API
+async function extractImageText(imageBytes: ArrayBuffer, mimeType: string, apiKey: string): Promise<string> {
+  console.log("Extracting text from image using Gemini Vision...");
+  
+  const base64Image = arrayBufferToBase64(imageBytes);
+  
+  const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model: "google/gemini-2.5-flash",
+      messages: [
+        {
+          role: "user",
+          content: [
+            {
+              type: "text",
+              text: "Extract ALL text from this image exactly as written. Return only the extracted text content. Do not summarize or modify the content."
+            },
+            {
+              type: "image_url",
+              image_url: {
+                url: `data:${mimeType};base64,${base64Image}`
+              }
+            }
+          ]
+        }
+      ],
+      max_tokens: 8000
+    }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error("Image extraction error:", response.status, errorText);
+    throw new Error(`Failed to extract text from image: ${response.status}`);
+  }
+
+  const result = await response.json();
+  const extractedText = result.choices?.[0]?.message?.content || "";
+  
+  console.log(`Extracted ${extractedText.length} characters from image`);
+  return extractedText;
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { documentId, familyId, documentContent } = await req.json();
+    const { documentId, familyId, fileBytes, mimeType } = await req.json();
 
-    if (!documentId || !familyId || !documentContent) {
+    if (!documentId || !familyId) {
       return new Response(
-        JSON.stringify({ error: "Missing required fields: documentId, familyId, documentContent" }),
+        JSON.stringify({ error: "Missing required fields: documentId, familyId" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -87,6 +193,59 @@ serve(async (req) => {
       .in("id", memberIds);
 
     const memberNames = profiles?.map(p => p.full_name).filter(Boolean) || [];
+
+    // Extract document text based on file type
+    let documentContent: string;
+    
+    if (!fileBytes) {
+      return new Response(
+        JSON.stringify({ error: "No file content provided" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Decode base64 file bytes
+    const binaryString = atob(fileBytes);
+    const bytes = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
+    const arrayBuffer = bytes.buffer;
+
+    const normalizedMimeType = (mimeType || "").toLowerCase();
+    
+    if (normalizedMimeType === "application/pdf") {
+      // Use Vision API to extract text from PDF (handles scanned documents)
+      documentContent = await extractPdfText(arrayBuffer, LOVABLE_API_KEY);
+    } else if (normalizedMimeType.startsWith("image/")) {
+      // Use Vision API for images
+      documentContent = await extractImageText(arrayBuffer, normalizedMimeType, LOVABLE_API_KEY);
+    } else if (normalizedMimeType === "text/plain" || normalizedMimeType.includes("text")) {
+      // Plain text files
+      documentContent = new TextDecoder().decode(bytes);
+    } else {
+      // Try to read as text for other types (doc, docx may need special handling)
+      try {
+        documentContent = new TextDecoder().decode(bytes);
+        if (documentContent.length < 50 || !/[a-zA-Z]{3,}/.test(documentContent)) {
+          throw new Error("Content appears to be binary");
+        }
+      } catch {
+        return new Response(
+          JSON.stringify({ error: `Unsupported file type: ${mimeType}. Please upload PDF, image, or text files.` }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    }
+
+    if (!documentContent || documentContent.trim().length < 50) {
+      return new Response(
+        JSON.stringify({ error: "Could not extract sufficient text from the document. Please ensure the document contains readable text." }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    console.log(`Document content extracted: ${documentContent.substring(0, 200)}...`);
 
     // Call Lovable AI to extract boundaries
     const systemPrompt = `You are an expert at analyzing intervention letters and extracting boundaries that families have set.
@@ -193,6 +352,8 @@ Respond with a JSON array of boundaries. If no clear boundaries are found, retur
     const extractedData = JSON.parse(toolCall.function.arguments);
     const boundaries: ExtractedBoundary[] = extractedData.boundaries || [];
 
+    console.log(`Found ${boundaries.length} boundaries in document`);
+
     // Create boundaries in the database
     let boundariesCreated = 0;
     
@@ -236,6 +397,8 @@ Respond with a JSON array of boundaries. If no clear boundaries are found, retur
         boundaries_extracted: boundariesCreated
       })
       .eq("id", documentId);
+
+    console.log(`Analysis complete: ${boundariesCreated} boundaries created`);
 
     return new Response(
       JSON.stringify({
