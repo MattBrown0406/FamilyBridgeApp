@@ -99,18 +99,18 @@ export default function UpdatePayment() {
     return (
       <div className="min-h-screen flex flex-col bg-background">
         <BrandedHeader />
-        <main className="flex-1 container max-w-lg mx-auto px-4 py-12">
+        <main className="flex-1 container max-w-lg mx-auto px-3 sm:px-4 py-6 sm:py-12">
           <Card>
             <CardContent className="pt-6">
-              <div className="text-center space-y-4">
-                <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-                  <CheckCircle className="h-8 w-8 text-green-600" />
+              <div className="text-center space-y-3 sm:space-y-4">
+                <div className="mx-auto w-14 h-14 sm:w-16 sm:h-16 bg-green-100 rounded-full flex items-center justify-center">
+                  <CheckCircle className="h-7 w-7 sm:h-8 sm:w-8 text-green-600" />
                 </div>
-                <h2 className="text-2xl font-bold">Payment Updated!</h2>
-                <p className="text-muted-foreground">
+                <h2 className="text-xl sm:text-2xl font-bold">Payment Updated!</h2>
+                <p className="text-sm sm:text-base text-muted-foreground">
                   Your payment method has been successfully updated. Your subscription is now active.
                 </p>
-                <Button onClick={() => navigate("/dashboard")} className="mt-4">
+                <Button onClick={() => navigate("/dashboard")} className="mt-3 sm:mt-4">
                   Go to Dashboard
                 </Button>
               </div>
@@ -127,40 +127,40 @@ export default function UpdatePayment() {
     return (
       <div className="min-h-screen flex flex-col bg-background">
         <BrandedHeader />
-        <main className="flex-1 container max-w-lg mx-auto px-4 py-12">
+        <main className="flex-1 container max-w-lg mx-auto px-3 sm:px-4 py-6 sm:py-12">
           <Button
             variant="ghost"
             onClick={() => navigate(-1)}
-            className="mb-6 gap-2"
+            className="mb-4 sm:mb-6 gap-1 sm:gap-2 h-8 px-2 sm:px-3"
           >
             <ArrowLeft className="h-4 w-4" />
-            Back
+            <span className="hidden sm:inline">Back</span>
           </Button>
 
           <Card>
-            <CardHeader className="text-center">
-              <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-                <Smartphone className="h-6 w-6 text-primary" />
+            <CardHeader className="text-center px-4 sm:px-6">
+              <div className="mx-auto w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-full flex items-center justify-center mb-3 sm:mb-4">
+                <Smartphone className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
               </div>
-              <CardTitle>Manage Subscription</CardTitle>
-              <CardDescription>
+              <CardTitle className="text-lg sm:text-xl">Manage Subscription</CardTitle>
+              <CardDescription className="text-sm">
                 Your subscription is managed through the App Store
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-4 sm:space-y-6 px-4 sm:px-6">
               <Alert>
                 <Shield className="h-4 w-4" />
-                <AlertDescription>
+                <AlertDescription className="text-sm">
                   To update your payment method or manage your subscription, 
                   please use your device's Settings app.
                 </AlertDescription>
               </Alert>
 
-              <div className="space-y-4">
-                <p className="text-sm text-muted-foreground">
+              <div className="space-y-3 sm:space-y-4">
+                <p className="text-xs sm:text-sm text-muted-foreground">
                   <strong>To update your payment method:</strong>
                 </p>
-                <ol className="text-sm text-muted-foreground space-y-2 list-decimal list-inside">
+                <ol className="text-xs sm:text-sm text-muted-foreground space-y-1.5 sm:space-y-2 list-decimal list-inside">
                   <li>Open the <strong>Settings</strong> app on your device</li>
                   <li>Tap your <strong>Apple ID</strong> at the top</li>
                   <li>Tap <strong>Subscriptions</strong></li>
@@ -186,23 +186,23 @@ export default function UpdatePayment() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <BrandedHeader />
-      <main className="flex-1 container max-w-lg mx-auto px-4 py-12">
+      <main className="flex-1 container max-w-lg mx-auto px-3 sm:px-4 py-6 sm:py-12">
         <Button
           variant="ghost"
           onClick={() => navigate(-1)}
-          className="mb-6 gap-2"
+          className="mb-4 sm:mb-6 gap-1 sm:gap-2 h-8 px-2 sm:px-3"
         >
           <ArrowLeft className="h-4 w-4" />
-          Back
+          <span className="hidden sm:inline">Back</span>
         </Button>
 
         <Card>
-          <CardHeader className="text-center">
-            <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-              <CreditCard className="h-6 w-6 text-primary" />
+          <CardHeader className="text-center px-4 sm:px-6">
+            <div className="mx-auto w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-full flex items-center justify-center mb-3 sm:mb-4">
+              <CreditCard className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
             </div>
-            <CardTitle>Update Payment Method</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-lg sm:text-xl">Update Payment Method</CardTitle>
+            <CardDescription className="text-sm">
               {entityName ? (
                 <>Update the payment method for <strong>{entityName}</strong></>
               ) : (
@@ -210,17 +210,17 @@ export default function UpdatePayment() {
               )}
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-4 sm:space-y-6 px-4 sm:px-6">
             <Alert>
               <Shield className="h-4 w-4" />
-              <AlertDescription>
+              <AlertDescription className="text-sm">
                 Your payment information is processed securely through Square. 
                 We never store your full card details.
               </AlertDescription>
             </Alert>
 
-            <div className="space-y-4">
-              <p className="text-sm text-muted-foreground">
+            <div className="space-y-3 sm:space-y-4">
+              <p className="text-xs sm:text-sm text-muted-foreground">
                 Click the button below to securely update your payment method. 
                 You'll be redirected to our secure payment processor.
               </p>
@@ -246,8 +246,7 @@ export default function UpdatePayment() {
 
             <p className="text-xs text-center text-muted-foreground">
               By updating your payment method, you authorize us to charge your new card 
-              for your subscription. Your subscription will be immediately reactivated 
-              upon successful payment.
+              for your subscription.
             </p>
           </CardContent>
         </Card>
