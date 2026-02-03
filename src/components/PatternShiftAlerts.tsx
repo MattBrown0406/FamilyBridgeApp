@@ -105,28 +105,28 @@ function deriveAlertsFromPatterns(
   const alerts: PatternShiftAlert[] = [];
   const now = new Date();
 
-  // Check boundary consistency
+  // Check boundary consistency (compare to full history)
   if (complianceTrends?.boundary_adherence === "weak" || complianceTrends?.boundary_adherence === "mixed") {
     alerts.push({
       id: "boundary-drift-1",
       alert_type: "boundary_consistency_drift",
-      description: "Boundary adherence has shown variation compared to the established baseline.",
-      time_window: "Last 21 days",
-      comparison_baseline: "Previous 30-day average",
+      description: "Boundary adherence has shown variation compared to the historical baseline established since Day 1.",
+      time_window: "Full history analysis",
+      comparison_baseline: "Historical average since app start",
       discussion_prompt: "Consider exploring recent stressors that may be affecting follow-through on stated boundaries.",
       detected_at: now.toISOString(),
       magnitude: complianceTrends.boundary_adherence === "weak" ? "notable" : "moderate",
     });
   }
 
-  // Check meeting/schedule patterns
+  // Check meeting/schedule patterns (compare to full history)
   if (complianceTrends?.meeting_attendance === "inconsistent" || complianceTrends?.meeting_attendance === "declining") {
     alerts.push({
       id: "schedule-avoidance-1",
       alert_type: "schedule_avoidance",
-      description: "Scheduled engagement patterns have shifted from the typical pattern.",
-      time_window: "Last 14 days",
-      comparison_baseline: "First 30 days of observation",
+      description: "Scheduled engagement patterns have shifted from the typical pattern established over the family's journey.",
+      time_window: "Full history analysis",
+      comparison_baseline: "Historical attendance baseline",
       discussion_prompt: "It may be helpful to understand if there are practical barriers or emotional factors influencing attendance.",
       detected_at: now.toISOString(),
       magnitude: complianceTrends.meeting_attendance === "declining" ? "notable" : "moderate",
@@ -143,9 +143,9 @@ function deriveAlertsFromPatterns(
     alerts.push({
       id: "help-seeking-1",
       alert_type: "help_seeking_latency",
-      description: "Time between expressed need and reaching out for support has increased.",
-      time_window: "Last 7 days",
-      comparison_baseline: "Typical response pattern",
+      description: "Time between expressed need and reaching out for support has increased compared to historical patterns.",
+      time_window: "Recent activity vs full history",
+      comparison_baseline: "Historical response patterns",
       discussion_prompt: "Consider whether there are barriers—real or perceived—to asking for help when needed.",
       detected_at: now.toISOString(),
       magnitude: "moderate",
@@ -162,9 +162,9 @@ function deriveAlertsFromPatterns(
     alerts.push({
       id: "family-pressure-1",
       alert_type: "family_pressure_imbalance",
-      description: "Distribution of engagement and accountability across family members has shifted.",
-      time_window: "Last 14 days",
-      comparison_baseline: "Initial family engagement pattern",
+      description: "Distribution of engagement and accountability across family members has shifted from historical norms.",
+      time_window: "Full history analysis",
+      comparison_baseline: "Established family engagement pattern",
       discussion_prompt: "It may be worth discussing how responsibilities and support are being shared within the family unit.",
       detected_at: now.toISOString(),
       magnitude: familyPatterns.some(p => p.signal_type.includes("enabling")) ? "notable" : "minor",
@@ -176,8 +176,8 @@ function deriveAlertsFromPatterns(
     alerts.push({
       id: "engagement-decline-1",
       alert_type: "provider_disengagement",
-      description: "Overall engagement metrics have shifted compared to the established trajectory.",
-      time_window: "Last 21 days",
+      description: "Overall engagement metrics have declined compared to the established trajectory since app start.",
+      time_window: "Full history analysis",
       comparison_baseline: "Peak engagement period",
       discussion_prompt: "This may be a good time to revisit what was working well during higher engagement periods.",
       detected_at: now.toISOString(),
