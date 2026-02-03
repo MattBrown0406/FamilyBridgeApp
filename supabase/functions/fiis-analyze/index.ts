@@ -166,6 +166,8 @@ Pattern Rules:
   - A financial manipulation attempt
   - A safety risk
 - Otherwise, wait for pattern confirmation (minimum 2–3 instances)
+- For long-term patterns (60+ days), look for sustained behavioral trends
+- Compare recent behavior (7-30 days) against historical baseline (all time) to detect trajectory changes
 
 Priority Hierarchy:
 1. Safety
@@ -176,11 +178,35 @@ Priority Hierarchy:
 6. Emotional tone shifts
 
 Language Rules:
-- Use observable facts ("In the last 10 days…")
+- Use observable facts with complete historical context ("Over the past 90 days…", "Since starting the app…")
 - Avoid assumptions about intent
 - Avoid clinical labels
 - Use "this pattern suggests…" rather than "this means…"
 - Always connect observations to the one-year goal
+- Reference historical data when establishing baselines
+
+---
+
+LONG-TERM PATTERN ANALYSIS (CRITICAL - PERMANENT MEMORY):
+
+This system maintains COMPLETE historical memory. Data is NEVER discarded after any time period.
+- Analyze patterns from Day 1 of the family's app usage
+- Compare current behavior to historical baselines
+- Identify patterns that may take 60, 90, or 180+ days to establish
+- Track long-term progress toward one-year goal
+- Use entire history for trend detection and trajectory analysis
+
+Time Period Framework:
+- Recent (Last 7 days): Immediate behavioral signals
+- Short-term (Last 30 days): Emerging patterns and trends
+- Medium-term (Last 90 days): Established behavioral patterns
+- Long-term (All historical data): Baseline establishment and major trajectory shifts
+
+When analyzing patterns:
+- Always compare recent data to historical averages
+- Highlight significant deviations from established baselines
+- Recognize that some patterns require extended observation (60+ days) to confirm
+- Track progress from the family's first day of app usage
 
 ---
 
@@ -190,9 +216,9 @@ CORE DESIGN PRINCIPLES FOR PROVIDER PANEL:
 
 1. PATTERN > EVENTS
    - Always present trends and trajectories, never transcripts or individual messages
-   - Aggregate data over time periods (7 days, 30 days, since last analysis)
+   - Aggregate data over time periods (7 days, 30 days, 90 days, all time)
    - Providers see pattern summaries, not raw content
-   - Example: "Check-in consistency: 85% → 67% over 30 days" NOT "Missed check-in on Tuesday"
+   - Example: "Check-in consistency: 85% → 67% over 30 days (baseline: 92%)" NOT "Missed check-in on Tuesday"
 
 2. SIGNAL > SENTIMENT  
    - Focus on observable behavioral signals, not emotional interpretation
@@ -443,6 +469,7 @@ serve(async (req) => {
       meetingCheckinsResult,
       emotionalCheckinsResult,
       financialRequestsResult,
+      familyInfoResult,
     ] = await Promise.all([
       supabase.from("family_values").select("value_key").eq("family_id", familyId),
       supabase.from("family_boundaries").select("content, status, target_user_id").eq("family_id", familyId).eq("status", "approved"),
@@ -463,13 +490,11 @@ serve(async (req) => {
         .eq("include_in_ai_analysis", true)
         .order("created_at", { ascending: false })
         .limit(30),
-      // Recent messages for communication pattern analysis (last 14 days for better patterns)
+      // ALL messages for complete historical pattern analysis (no time limit - full memory)
       supabase.from("messages")
         .select("id, content, created_at, sender_id")
         .eq("family_id", familyId)
-        .gte("created_at", new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString())
-        .order("created_at", { ascending: false })
-        .limit(100),
+        .order("created_at", { ascending: false }),
       // Documents with analysis results
       supabase.from("family_documents")
         .select("id, title, document_type, fiis_analyzed, boundaries_extracted, created_at")
@@ -486,24 +511,26 @@ serve(async (req) => {
         .eq("family_id", familyId)
         .order("created_at", { ascending: false })
         .limit(20),
-      // Meeting check-ins (last 30 days)
+      // ALL meeting check-ins for complete attendance history (no time limit - full memory)
       supabase.from("meeting_checkins")
         .select("id, checked_in_at, checked_out_at, meeting_type, overdue_alert_sent")
         .eq("family_id", familyId)
-        .gte("checked_in_at", new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString())
         .order("checked_in_at", { ascending: false }),
-      // Emotional check-ins (last 30 days)
+      // ALL emotional check-ins for complete emotional history (no time limit - full memory)
       supabase.from("daily_emotional_checkins")
         .select("id, feeling, was_bypassed, check_in_date, bypass_inferred_state")
         .eq("family_id", familyId)
-        .gte("check_in_date", new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
         .order("check_in_date", { ascending: false }),
-      // Financial requests (last 60 days)
+      // ALL financial requests for complete financial history (no time limit - full memory)
       supabase.from("financial_requests")
         .select("id, amount, reason, status, created_at")
         .eq("family_id", familyId)
-        .gte("created_at", new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString())
         .order("created_at", { ascending: false }),
+      // Family creation date for progress measurement baseline
+      supabase.from("families")
+        .select("created_at, name")
+        .eq("id", familyId)
+        .single(),
     ]);
 
     // Calculate sobriety days and phase
@@ -564,8 +591,28 @@ SOBRIETY JOURNEY STATUS:
 `;
     }
 
+    // Calculate family journey duration (days since family started using app)
+    let familyJourneyDays = 0;
+    let familyJourneyContext = "";
+    if (familyInfoResult.data) {
+      const familyCreated = new Date(familyInfoResult.data.created_at);
+      const today = new Date();
+      familyCreated.setHours(0, 0, 0, 0);
+      today.setHours(0, 0, 0, 0);
+      familyJourneyDays = Math.max(0, Math.floor((today.getTime() - familyCreated.getTime()) / (1000 * 60 * 60 * 24)));
+      
+      familyJourneyContext = `
+FAMILY JOURNEY DURATION:
+- Days Using FamilyBridge: ${familyJourneyDays} days
+- Journey Started: ${familyCreated.toLocaleDateString()}
+- All historical data is preserved and analyzed for long-term pattern recognition
+- Progress is measured from Day 1 of app usage
+
+`;
+    }
+
     // Build context about family values and boundaries
-    let familyContext = sobrietyContext;
+    let familyContext = sobrietyContext + familyJourneyContext;
     if (valuesResult.data && valuesResult.data.length > 0) {
       familyContext += `FAMILY VALUES: ${valuesResult.data.map(v => v.value_key).join(", ")}\n\n`;
     }
@@ -713,12 +760,30 @@ PROVIDER NOTES INTERPRETATION:
         categoryMentions['moderator_flagged'] = customMentions;
       }
       
-      familyContext += `FAMILY COMMUNICATION PATTERNS (Last 14 Days):
-- Total Messages: ${totalMessages}
+      // Calculate time periods for trend analysis
+      const now = new Date();
+      const last7Days = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      const last30Days = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      const last90Days = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+      
+      const messagesLast7 = messages.filter(m => new Date(m.created_at) >= last7Days).length;
+      const messagesLast30 = messages.filter(m => new Date(m.created_at) >= last30Days).length;
+      const messagesLast90 = messages.filter(m => new Date(m.created_at) >= last90Days).length;
+      
+      // Calculate first message date for history depth
+      const oldestMessage = messages.length > 0 ? new Date(messages[messages.length - 1].created_at) : null;
+      const historyDepthDays = oldestMessage ? Math.floor((now.getTime() - oldestMessage.getTime()) / (1000 * 60 * 60 * 24)) : 0;
+      
+      familyContext += `FAMILY COMMUNICATION PATTERNS (Complete History - ${historyDepthDays} Days):
+- Total Messages (All Time): ${totalMessages}
+- Messages Last 7 Days: ${messagesLast7}
+- Messages Last 30 Days: ${messagesLast30}
+- Messages Last 90 Days: ${messagesLast90}
 - Active Participants: ${uniqueSenders}
 - Average Message Length: ${avgMessageLength} characters
+- History Depth: ${historyDepthDays} days of communication data
 
-Keyword Pattern Detection:
+Keyword Pattern Detection (Full History):
 ${Object.entries(categoryMentions).filter(([, count]) => count > 0).map(([cat, count]) => `- ${cat.replace(/_/g, ' ')}: ${count} mentions`).join('\n') || '- No significant patterns detected'}
 
 COMMUNICATION INTERPRETATION FRAMEWORK:
@@ -728,17 +793,33 @@ COMMUNICATION INTERPRETATION FRAMEWORK:
 - Triangulation = family systems dysfunction
 - Progress + accountability + proactive = strong protective factors
 - Crisis indicators require IMMEDIATE attention
+- Long-term patterns (60+ days) reveal sustained behaviors vs temporary fluctuations
 
 `;
     }
 
-    // Add EXPANDED meeting attendance patterns (30 days)
+    // Add COMPLETE meeting attendance patterns (full history)
     if (meetingCheckinsResult.data && meetingCheckinsResult.data.length > 0) {
       const checkins = meetingCheckinsResult.data;
       const totalCheckins = checkins.length;
       const completedCheckouts = checkins.filter((c: { checked_out_at?: string }) => c.checked_out_at).length;
       const overdueAlerts = checkins.filter((c: { overdue_alert_sent?: boolean }) => c.overdue_alert_sent).length;
       const checkoutRate = totalCheckins > 0 ? Math.round((completedCheckouts / totalCheckins) * 100) : 0;
+      
+      // Calculate time periods for trend analysis
+      const now = new Date();
+      const last7Days = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      const last30Days = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      const last90Days = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+      
+      const checkinsLast7 = checkins.filter((c: { checked_in_at: string }) => new Date(c.checked_in_at) >= last7Days).length;
+      const checkinsLast30 = checkins.filter((c: { checked_in_at: string }) => new Date(c.checked_in_at) >= last30Days).length;
+      const checkinsLast90 = checkins.filter((c: { checked_in_at: string }) => new Date(c.checked_in_at) >= last90Days).length;
+      
+      // Calculate first checkin for history depth
+      const oldestCheckin = checkins.length > 0 ? new Date(checkins[checkins.length - 1].checked_in_at) : null;
+      const historyDepthDays = oldestCheckin ? Math.floor((now.getTime() - oldestCheckin.getTime()) / (1000 * 60 * 60 * 24)) : 0;
+      const weeksOfHistory = Math.max(1, Math.ceil(historyDepthDays / 7));
       
       // Group by meeting type
       const meetingTypes: Record<string, number> = {};
@@ -747,29 +828,44 @@ COMMUNICATION INTERPRETATION FRAMEWORK:
         meetingTypes[type] = (meetingTypes[type] || 0) + 1;
       });
       
-      familyContext += `MEETING ATTENDANCE (Last 30 Days):
-- Total Check-ins: ${totalCheckins}
+      familyContext += `MEETING ATTENDANCE (Complete History - ${historyDepthDays} Days):
+- Total Check-ins (All Time): ${totalCheckins}
+- Check-ins Last 7 Days: ${checkinsLast7}
+- Check-ins Last 30 Days: ${checkinsLast30}
+- Check-ins Last 90 Days: ${checkinsLast90}
 - Completed Check-outs: ${completedCheckouts} (${checkoutRate}%)
-- Overdue/Missed Checkouts: ${overdueAlerts}
-- Weekly Average: ${(totalCheckins / 4).toFixed(1)} meetings/week
+- Overdue/Missed Checkouts (All Time): ${overdueAlerts}
+- Weekly Average (Full History): ${(totalCheckins / weeksOfHistory).toFixed(1)} meetings/week
+- Recent Weekly Average (Last 30 Days): ${(checkinsLast30 / Math.min(4, weeksOfHistory)).toFixed(1)} meetings/week
 
-Meeting Types: ${Object.entries(meetingTypes).map(([type, count]) => `${type}(${count})`).join(', ')}
+Meeting Types (All Time): ${Object.entries(meetingTypes).map(([type, count]) => `${type}(${count})`).join(', ')}
 
 ATTENDANCE INTERPRETATION:
 - 3+ meetings/week = strong protective factor for one-year goal
 - Declining attendance = Gorski warning sign #4 (behavior change)
+- Compare recent average to historical average for trend detection
 - Missed checkouts may indicate avoidance or dishonesty
-- AA/NA literature: consistent attendance is #1 predictor of success
+- Long-term consistency (90+ days) is more predictive than short-term spikes
 
 `;
     }
 
-    // Add EMOTIONAL CHECK-IN patterns (30 days)
+    // Add COMPLETE emotional check-in patterns (full history)
     if (emotionalCheckinsResult.data && emotionalCheckinsResult.data.length > 0) {
       const checkins = emotionalCheckinsResult.data;
       const totalCheckins = checkins.length;
       const bypassedCount = checkins.filter((c: { was_bypassed?: boolean }) => c.was_bypassed).length;
       const bypassRate = totalCheckins > 0 ? Math.round((bypassedCount / totalCheckins) * 100) : 0;
+      
+      // Calculate time periods
+      const now = new Date();
+      const last7Days = now.toISOString().split('T')[0];
+      const last30Days = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      const last90Days = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      
+      const checkinsLast7 = checkins.filter((c: { check_in_date: string }) => c.check_in_date >= new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]).length;
+      const checkinsLast30 = checkins.filter((c: { check_in_date: string }) => c.check_in_date >= last30Days).length;
+      const checkinsLast90 = checkins.filter((c: { check_in_date: string }) => c.check_in_date >= last90Days).length;
       
       // Feeling distribution
       const feelings: Record<string, number> = {};
@@ -781,22 +877,31 @@ ATTENDANCE INTERPRETATION:
       
       const negativeFeelings = ['awful', 'struggling', 'anxious', 'sad', 'angry', 'overwhelmed'];
       const negativeCount = checkins.filter((c: { feeling?: string }) => negativeFeelings.includes(c.feeling?.toLowerCase() || '')).length;
+      const negativeRate = totalCheckins > 0 ? Math.round((negativeCount / totalCheckins) * 100) : 0;
       
-      familyContext += `EMOTIONAL CHECK-INS (Last 30 Days):
-- Total Check-ins: ${totalCheckins}
-- Bypassed: ${bypassedCount} (${bypassRate}%)
-- Negative States: ${negativeCount}
+      // Calculate first checkin for history depth
+      const oldestCheckin = checkins.length > 0 ? checkins[checkins.length - 1].check_in_date : null;
+      const historyDepthDays = oldestCheckin ? Math.floor((now.getTime() - new Date(oldestCheckin).getTime()) / (1000 * 60 * 60 * 24)) : 0;
+      
+      familyContext += `EMOTIONAL CHECK-INS (Complete History - ${historyDepthDays} Days):
+- Total Check-ins (All Time): ${totalCheckins}
+- Check-ins Last 7 Days: ${checkinsLast7}
+- Check-ins Last 30 Days: ${checkinsLast30}
+- Check-ins Last 90 Days: ${checkinsLast90}
+- Bypassed (All Time): ${bypassedCount} (${bypassRate}%)
+- Negative States (All Time): ${negativeCount} (${negativeRate}%)
 - Feeling Distribution: ${Object.entries(feelings).slice(0, 5).map(([f, c]) => `${f}(${c})`).join(', ')}
 
 EMOTIONAL PATTERN INTERPRETATION:
 - High bypass rate (>30%) = avoidance of self-reflection (Gorski warning sign)
 - Sustained negative states = HALT pattern, intervention consideration
-- Sudden shift from positive to negative = trajectory change alert
+- Compare recent emotional states to historical baseline for trajectory
+- Long-term emotional patterns are more significant than daily fluctuations
 
 `;
     }
 
-    // Add FINANCIAL REQUEST patterns (60 days)
+    // Add COMPLETE financial request patterns (full history)
     if (financialRequestsResult.data && financialRequestsResult.data.length > 0) {
       const requests = financialRequestsResult.data;
       const totalRequests = requests.length;
@@ -804,17 +909,37 @@ EMOTIONAL PATTERN INTERPRETATION:
       const approvedRequests = requests.filter((r: { status?: string }) => r.status === 'approved').length;
       const deniedRequests = requests.filter((r: { status?: string }) => r.status === 'denied').length;
       
-      familyContext += `FINANCIAL REQUESTS (Last 60 Days):
-- Total Requests: ${totalRequests}
-- Total Amount: $${totalAmount}
-- Approved: ${approvedRequests}
-- Denied: ${deniedRequests}
+      // Calculate time periods
+      const now = new Date();
+      const last30Days = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      const last90Days = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+      
+      const requestsLast30 = requests.filter((r: { created_at: string }) => new Date(r.created_at) >= last30Days);
+      const requestsLast90 = requests.filter((r: { created_at: string }) => new Date(r.created_at) >= last90Days);
+      const amountLast30 = requestsLast30.reduce((sum: number, r: { amount?: number }) => sum + (r.amount || 0), 0);
+      const amountLast90 = requestsLast90.reduce((sum: number, r: { amount?: number }) => sum + (r.amount || 0), 0);
+      
+      // Calculate first request for history depth
+      const oldestRequest = requests.length > 0 ? new Date(requests[requests.length - 1].created_at) : null;
+      const historyDepthDays = oldestRequest ? Math.floor((now.getTime() - oldestRequest.getTime()) / (1000 * 60 * 60 * 24)) : 0;
+      
+      familyContext += `FINANCIAL REQUESTS (Complete History - ${historyDepthDays} Days):
+- Total Requests (All Time): ${totalRequests}
+- Requests Last 30 Days: ${requestsLast30.length}
+- Requests Last 90 Days: ${requestsLast90.length}
+- Total Amount (All Time): $${totalAmount}
+- Amount Last 30 Days: $${amountLast30}
+- Amount Last 90 Days: $${amountLast90}
+- Approved (All Time): ${approvedRequests}
+- Denied (All Time): ${deniedRequests}
 - Average Request: $${totalRequests > 0 ? Math.round(totalAmount / totalRequests) : 0}
 
 FINANCIAL PATTERN INTERPRETATION:
-- Progressive escalation (increasing amounts) = manipulation warning
+- Progressive escalation (increasing amounts over time) = manipulation warning
+- Compare recent request frequency to historical baseline
 - High denial rate = family setting boundaries appropriately
-- Frequency > 2/week = potential active use or compulsive behavior
+- Frequency > 2/week sustained = potential active use or compulsive behavior
+- Long-term financial patterns reveal underlying behavior trends
 
 `;
     }
