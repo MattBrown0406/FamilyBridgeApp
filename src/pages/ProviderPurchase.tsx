@@ -317,12 +317,12 @@ const ProviderPurchase = () => {
                   Provider Subscription
                 </CardTitle>
                 <CardDescription>
-                  Auto-renewable subscription · Cancel anytime
+                  {isNative && isIOS ? "Sign in to access your organization" : "Auto-renewable subscription · Cancel anytime"}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                {/* Platform-specific payment notice */}
-                {isNative && (
+                {/* Platform-specific payment notice - Only show on Android */}
+                {isNative && !isIOS && (
                   <div className="bg-muted/50 border rounded-lg p-3 text-center">
                     <div className="flex items-center justify-center gap-2 text-sm font-medium">
                       <paymentInfo.icon className="w-4 h-4" />
@@ -334,91 +334,95 @@ const ProviderPurchase = () => {
                   </div>
                 )}
 
-                {/* Billing Toggle */}
-                <div className="flex justify-center">
-                  <div className="inline-flex items-center bg-muted rounded-lg p-1">
-                    <button
-                      onClick={() => setBillingPeriod("monthly")}
-                      className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                        billingPeriod === "monthly"
-                          ? "bg-background shadow-sm text-foreground"
-                          : "text-muted-foreground hover:text-foreground"
-                      }`}
-                    >
-                      Monthly
-                    </button>
-                    <button
-                      onClick={() => setBillingPeriod("quarterly")}
-                      className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                        billingPeriod === "quarterly"
-                          ? "bg-background shadow-sm text-foreground"
-                          : "text-muted-foreground hover:text-foreground"
-                      }`}
-                    >
-                      Quarterly
-                    </button>
-                    {showAnnualOption && (
+                {/* Billing Toggle - Only show on non-iOS platforms */}
+                {!(isNative && isIOS) && (
+                  <div className="flex justify-center">
+                    <div className="inline-flex items-center bg-muted rounded-lg p-1">
                       <button
-                        onClick={() => setBillingPeriod("annual")}
+                        onClick={() => setBillingPeriod("monthly")}
                         className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                          billingPeriod === "annual"
+                          billingPeriod === "monthly"
                             ? "bg-background shadow-sm text-foreground"
                             : "text-muted-foreground hover:text-foreground"
                         }`}
                       >
-                        Annual
+                        Monthly
                       </button>
+                      <button
+                        onClick={() => setBillingPeriod("quarterly")}
+                        className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                          billingPeriod === "quarterly"
+                            ? "bg-background shadow-sm text-foreground"
+                            : "text-muted-foreground hover:text-foreground"
+                        }`}
+                      >
+                        Quarterly
+                      </button>
+                      {showAnnualOption && (
+                        <button
+                          onClick={() => setBillingPeriod("annual")}
+                          className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                            billingPeriod === "annual"
+                              ? "bg-background shadow-sm text-foreground"
+                              : "text-muted-foreground hover:text-foreground"
+                          }`}
+                        >
+                          Annual
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Pricing Display - Only show on non-iOS platforms */}
+                {!(isNative && isIOS) && (
+                  <div className="text-center py-4 bg-primary/5 rounded-lg border border-primary/10">
+                    <p className="text-xs text-muted-foreground mb-1">
+                      {billingPeriod === "monthly" ? "Monthly Subscription" : 
+                       billingPeriod === "quarterly" ? "Quarterly Subscription" : 
+                       "Annual Subscription"}
+                    </p>
+                    {billingPeriod === "monthly" ? (
+                      <>
+                        <div>
+                          <span className="text-4xl font-bold">${PRODUCTS.provider.monthly.price}</span>
+                          <span className="text-muted-foreground">/month</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-2">
+                          Billed monthly · Auto-renews until cancelled
+                        </p>
+                      </>
+                    ) : billingPeriod === "quarterly" ? (
+                      <div className="space-y-2">
+                        <div>
+                          <span className="text-4xl font-bold">${PRODUCTS.provider.quarterly.price}</span>
+                          <span className="text-muted-foreground">/quarter</span>
+                        </div>
+                        <div className="inline-flex items-center gap-2 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-3 py-1 rounded-full text-sm font-medium">
+                          <Check className="w-4 h-4" />
+                          4 payments = $2,516/year
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          Billed every 3 months · Auto-renews until cancelled
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        <div>
+                          <span className="text-4xl font-bold">${PRODUCTS.provider.annual.price.toLocaleString()}</span>
+                          <span className="text-muted-foreground">/year</span>
+                        </div>
+                        <div className="inline-flex items-center gap-2 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-3 py-1 rounded-full text-sm font-medium">
+                          <Check className="w-4 h-4" />
+                          Save $500/year (2 months free!)
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          Billed annually · Auto-renews until cancelled
+                        </p>
+                      </div>
                     )}
                   </div>
-                </div>
-
-                {/* Pricing Display - Clear subscription terms per Apple Guideline 3.1.2 */}
-                <div className="text-center py-4 bg-primary/5 rounded-lg border border-primary/10">
-                  <p className="text-xs text-muted-foreground mb-1">
-                    {billingPeriod === "monthly" ? "Monthly Subscription" : 
-                     billingPeriod === "quarterly" ? "Quarterly Subscription" : 
-                     "Annual Subscription"}
-                  </p>
-                  {billingPeriod === "monthly" ? (
-                    <>
-                      <div>
-                        <span className="text-4xl font-bold">${PRODUCTS.provider.monthly.price}</span>
-                        <span className="text-muted-foreground">/month</span>
-                      </div>
-                      <p className="text-xs text-muted-foreground mt-2">
-                        Billed monthly · Auto-renews until cancelled
-                      </p>
-                    </>
-                  ) : billingPeriod === "quarterly" ? (
-                    <div className="space-y-2">
-                      <div>
-                        <span className="text-4xl font-bold">${PRODUCTS.provider.quarterly.price}</span>
-                        <span className="text-muted-foreground">/quarter</span>
-                      </div>
-                      <div className="inline-flex items-center gap-2 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-3 py-1 rounded-full text-sm font-medium">
-                        <Check className="w-4 h-4" />
-                        4 payments = $2,516/year
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                        Billed every 3 months · Auto-renews until cancelled
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      <div>
-                        <span className="text-4xl font-bold">${PRODUCTS.provider.annual.price.toLocaleString()}</span>
-                        <span className="text-muted-foreground">/year</span>
-                      </div>
-                      <div className="inline-flex items-center gap-2 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-3 py-1 rounded-full text-sm font-medium">
-                        <Check className="w-4 h-4" />
-                        Save $500/year (2 months free!)
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                        Billed annually · Auto-renews until cancelled
-                      </p>
-                    </div>
-                  )}
-                </div>
+                )}
 
                 <div className="space-y-4">
                   <div className="space-y-2">
@@ -467,7 +471,12 @@ const ProviderPurchase = () => {
                   {/* Platform-specific purchase button */}
                   {isNative && isIOS ? (
                     <>
-                      {/* iOS App Store compliant: No purchase buttons, just sign-in for existing users */}
+                      {/* iOS App Store compliant: No purchase buttons or pricing, just sign-in */}
+                      <div className="text-center py-4 bg-muted/50 rounded-lg mb-4">
+                        <p className="text-sm text-muted-foreground">
+                          Already have an account? Sign in to access your organization.
+                        </p>
+                      </div>
                       <Button
                         onClick={() => navigate("/auth")}
                         className="w-full"
@@ -475,9 +484,6 @@ const ProviderPurchase = () => {
                       >
                         Sign In to Your Account
                       </Button>
-                      <p className="text-xs text-muted-foreground text-center">
-                        Already have an account? Sign in to access your organization.
-                      </p>
                     </>
                   ) : isNative ? (
                     <>

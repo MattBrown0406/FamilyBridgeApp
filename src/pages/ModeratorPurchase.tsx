@@ -249,8 +249,8 @@ export default function ModeratorPurchase() {
             {/* Purchase Card */}
             <Card>
               <CardHeader>
-              <CardTitle>Purchase 24-Hour Support</CardTitle>
-                <CardDescription>$150 per 24-hour session</CardDescription>
+              <CardTitle>{isNative && isIOS ? "24-Hour Support" : "Purchase 24-Hour Support"}</CardTitle>
+                <CardDescription>{isNative && isIOS ? "Professional crisis moderation" : "$150 per 24-hour session"}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
@@ -283,10 +283,10 @@ export default function ModeratorPurchase() {
 
                 {isNative && isIOS ? (
                   <>
-                    {/* iOS App Store compliant: No purchase buttons */}
+                    {/* iOS App Store compliant: No purchase buttons or pricing */}
                     <div className="text-center py-4 bg-muted/50 rounded-lg">
                       <p className="text-sm text-muted-foreground">
-                        Moderator support can be purchased through our website.
+                        This service is available through our website at familybridgeapp.com
                       </p>
                     </div>
                   </>
