@@ -72,10 +72,6 @@ const ProviderPurchase = () => {
     }
   };
 
-  const handleAppStorePurchaseSuccess = (transactionId: string, activationCode: string) => {
-    setGeneratedCode(activationCode);
-    toast.success("Purchase complete! Your activation code has been generated.");
-  };
 
   const handleApplyCoupon = async () => {
     if (!couponCode.trim()) {
@@ -477,56 +473,55 @@ const ProviderPurchase = () => {
 
                   {/* Platform-specific purchase button */}
                   {isNative ? (
-                    <AppStorePurchaseButton
-                      platform={paymentMethod as "apple" | "google"}
-                      productId={getProductIdForPurchase()}
-                      email={email}
-                      subscriptionType="provider"
-                      onSuccess={handleAppStorePurchaseSuccess}
-                      disabled={!email}
-                      className="w-full"
-                    >
-                      Subscribe Now
-                    </AppStorePurchaseButton>
+                    <>
+                      {/* Reader App Model: Direct to web checkout */}
+                      <AppStorePurchaseButton
+                        email={email}
+                        subscriptionType="provider"
+                        disabled={!email}
+                        className="w-full"
+                      >
+                        Subscribe on Web - ${billingPeriod === "monthly" ? PRODUCTS.provider.monthly.price : PRODUCTS.provider.quarterly.price}/{billingPeriod === "monthly" ? "mo" : "qtr"}
+                      </AppStorePurchaseButton>
+                      <p className="text-xs text-muted-foreground text-center">
+                        You'll be redirected to our secure web checkout to complete your purchase.
+                      </p>
+                      <RestorePurchasesButton 
+                        className="w-full" 
+                        onRestore={() => navigate("/auth")}
+                      />
+                    </>
                   ) : (
-                    <Button
-                      onClick={handleSquarePurchase}
-                      disabled={isLoading || !email}
-                      className="w-full"
-                      size="lg"
-                    >
-                      {isLoading ? "Processing..." : "Subscribe Now"}
-                    </Button>
+                    <>
+                      <Button
+                        onClick={handleSquarePurchase}
+                        disabled={isLoading || !email}
+                        className="w-full"
+                        size="lg"
+                      >
+                        {isLoading ? "Processing..." : "Subscribe Now"}
+                      </Button>
+                      {/* Subscription Disclosure */}
+                      <SubscriptionDisclosure
+                        subscriptionTitle={
+                          billingPeriod === "monthly" ? PRODUCTS.provider.monthly.displayName :
+                          billingPeriod === "quarterly" ? PRODUCTS.provider.quarterly.displayName :
+                          PRODUCTS.provider.annual.displayName
+                        }
+                        price={
+                          billingPeriod === "monthly" ? `$${PRODUCTS.provider.monthly.price}` :
+                          billingPeriod === "quarterly" ? `$${PRODUCTS.provider.quarterly.price}` :
+                          `$${PRODUCTS.provider.annual.price.toLocaleString()}`
+                        }
+                        period={
+                          billingPeriod === "monthly" ? "1 month auto-renewable subscription" :
+                          billingPeriod === "quarterly" ? "3 month auto-renewable subscription" :
+                          "1 year auto-renewable subscription"
+                        }
+                        isNative={isNative}
+                      />
+                    </>
                   )}
-
-                  {/* Apple-Compliant Subscription Disclosure - Guideline 3.1.2 */}
-                  <SubscriptionDisclosure
-                    subscriptionTitle={
-                      billingPeriod === "monthly" ? PRODUCTS.provider.monthly.displayName :
-                      billingPeriod === "quarterly" ? PRODUCTS.provider.quarterly.displayName :
-                      PRODUCTS.provider.annual.displayName
-                    }
-                    price={
-                      billingPeriod === "monthly" ? `$${PRODUCTS.provider.monthly.price}` :
-                      billingPeriod === "quarterly" ? `$${PRODUCTS.provider.quarterly.price}` :
-                      `$${PRODUCTS.provider.annual.price.toLocaleString()}`
-                    }
-                    period={
-                      billingPeriod === "monthly" ? "1 month auto-renewable subscription" :
-                      billingPeriod === "quarterly" ? "3 month auto-renewable subscription" :
-                      "1 year auto-renewable subscription"
-                    }
-                    isNative={isNative}
-                  />
-
-                  {/* Restore Purchases - Required by App Store */}
-                  <RestorePurchasesButton 
-                    className="w-full" 
-                    onRestore={() => {
-                      toast.success("Purchases restored! Redirecting...");
-                      navigate("/provider-admin");
-                    }}
-                  />
                 </div>
               </CardContent>
             </Card>

@@ -182,10 +182,6 @@ const FamilyPurchase = () => {
     }
   };
 
-  const handleAppStorePurchaseSuccess = (transactionId: string, inviteCode: string) => {
-    setGeneratedCode(inviteCode);
-    toast.success("Purchase complete! Your invite code has been generated.");
-  };
 
   const handleApplyCoupon = async () => {
     if (!couponCode.trim()) {
@@ -665,44 +661,43 @@ const FamilyPurchase = () => {
                   </div>
 
                   {isNative ? (
-                    <AppStorePurchaseButton
-                      platform={paymentMethod as "apple" | "google"}
-                      productId={PRODUCTS.family.monthly.id}
-                      email={email}
-                      couponCode={couponCode}
-                      onSuccess={handleAppStorePurchaseSuccess}
-                      disabled={!email}
-                      className="w-full"
-                    >
-                      Subscribe Now
-                    </AppStorePurchaseButton>
+                    <>
+                      {/* Reader App Model: Direct to web checkout */}
+                      <AppStorePurchaseButton
+                        email={email}
+                        subscriptionType="family"
+                        disabled={!email}
+                        className="w-full"
+                      >
+                        Subscribe on Web - ${PRODUCTS.family.monthly.price}/mo
+                      </AppStorePurchaseButton>
+                      <p className="text-xs text-muted-foreground text-center">
+                        You'll be redirected to our secure web checkout to complete your purchase.
+                      </p>
+                      <RestorePurchasesButton 
+                        className="w-full" 
+                        onRestore={() => navigate("/auth")}
+                      />
+                    </>
                   ) : (
-                    <Button
-                      onClick={handleSquarePurchase}
-                      disabled={isLoading || !email}
-                      className="w-full"
-                      size="lg"
-                    >
-                      {isLoading ? "Processing..." : "Subscribe Now"}
-                    </Button>
+                    <>
+                      <Button
+                        onClick={handleSquarePurchase}
+                        disabled={isLoading || !email}
+                        className="w-full"
+                        size="lg"
+                      >
+                        {isLoading ? "Processing..." : "Subscribe Now"}
+                      </Button>
+                      {/* Subscription Disclosure */}
+                      <SubscriptionDisclosure
+                        subscriptionTitle={PRODUCTS.family.monthly.displayName}
+                        price={`$${PRODUCTS.family.monthly.price}`}
+                        period="1 month auto-renewable subscription"
+                        isNative={isNative}
+                      />
+                    </>
                   )}
-
-                  {/* Apple-Compliant Subscription Disclosure - Guideline 3.1.2 */}
-                  <SubscriptionDisclosure
-                    subscriptionTitle={PRODUCTS.family.monthly.displayName}
-                    price={`$${PRODUCTS.family.monthly.price}`}
-                    period="1 month auto-renewable subscription"
-                    isNative={isNative}
-                  />
-
-                  {/* Restore Purchases - Required by App Store */}
-                  <RestorePurchasesButton 
-                    className="w-full" 
-                    onRestore={() => {
-                      toast.success("Purchases restored! Redirecting...");
-                      navigate("/family-setup");
-                    }}
-                  />
                 </div>
               </CardContent>
             </Card>

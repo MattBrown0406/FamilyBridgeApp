@@ -283,27 +283,18 @@ export default function ModeratorPurchase() {
 
                 {isNative ? (
                   <>
+                    {/* Reader App Model: Direct to web checkout */}
                     <AppStorePurchaseButton
-                      platform={paymentMethod as "apple" | "google"}
-                      productId={PRODUCTS.crisisModeration.daily.id}
                       email={email}
                       subscriptionType="family"
-                      onSuccess={(transactionId, inviteCode) => {
-                        toast.success("Purchase complete! A moderator will be assigned shortly.");
-                        navigate(`/family/${selectedFamily}`);
-                      }}
                       disabled={!selectedFamily || !email}
                       className="w-full"
                     >
-                      Purchase for ${PRODUCTS.crisisModeration.daily.price}
+                      Purchase on Web - ${PRODUCTS.crisisModeration.daily.price}
                     </AppStorePurchaseButton>
-                    <SubscriptionDisclosure
-                      subscriptionTitle={PRODUCTS.crisisModeration.daily.displayName}
-                      price={`$${PRODUCTS.crisisModeration.daily.price}`}
-                      period="One-time purchase for 24 hours"
-                      isNative={isNative}
-                      isOneTimePurchase={true}
-                    />
+                    <p className="text-xs text-muted-foreground text-center">
+                      You'll be redirected to our secure web checkout to complete your purchase.
+                    </p>
                   </>
                 ) : (
                   <>
