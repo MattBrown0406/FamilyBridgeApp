@@ -1444,6 +1444,84 @@ export type Database = {
           },
         ]
       }
+      fiis_analysis_feedback: {
+        Row: {
+          accuracy_rating: number | null
+          analysis_id: string | null
+          clinical_context: string | null
+          corrected_likelihood: string | null
+          corrected_risk_level: number | null
+          correction_reasoning: string
+          created_at: string
+          false_patterns: string[] | null
+          family_id: string
+          feedback_type: string
+          id: string
+          missed_patterns: string[] | null
+          moderator_id: string
+          original_likelihood: string | null
+          original_risk_level: number | null
+          original_what_seeing: string | null
+          recommended_keywords: string[] | null
+          updated_at: string
+        }
+        Insert: {
+          accuracy_rating?: number | null
+          analysis_id?: string | null
+          clinical_context?: string | null
+          corrected_likelihood?: string | null
+          corrected_risk_level?: number | null
+          correction_reasoning: string
+          created_at?: string
+          false_patterns?: string[] | null
+          family_id: string
+          feedback_type: string
+          id?: string
+          missed_patterns?: string[] | null
+          moderator_id: string
+          original_likelihood?: string | null
+          original_risk_level?: number | null
+          original_what_seeing?: string | null
+          recommended_keywords?: string[] | null
+          updated_at?: string
+        }
+        Update: {
+          accuracy_rating?: number | null
+          analysis_id?: string | null
+          clinical_context?: string | null
+          corrected_likelihood?: string | null
+          corrected_risk_level?: number | null
+          correction_reasoning?: string
+          created_at?: string
+          false_patterns?: string[] | null
+          family_id?: string
+          feedback_type?: string
+          id?: string
+          missed_patterns?: string[] | null
+          moderator_id?: string
+          original_likelihood?: string | null
+          original_risk_level?: number | null
+          original_what_seeing?: string | null
+          recommended_keywords?: string[] | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fiis_analysis_feedback_analysis_id_fkey"
+            columns: ["analysis_id"]
+            isOneToOne: false
+            referencedRelation: "fiis_pattern_analyses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fiis_analysis_feedback_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       fiis_auto_events: {
         Row: {
           created_at: string
@@ -1481,6 +1559,66 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      fiis_calibration_patterns: {
+        Row: {
+          clinical_notes: string | null
+          created_at: string
+          id: string
+          is_active: boolean | null
+          last_validated_at: string | null
+          minimum_occurrences: number | null
+          pattern_category: string
+          pattern_description: string
+          pattern_name: string
+          source_feedback_ids: string[] | null
+          suggested_response: string | null
+          suggested_risk_level: number | null
+          time_window_days: number | null
+          trigger_behaviors: string[]
+          trigger_keywords: string[]
+          updated_at: string
+          validated_by_moderators: number | null
+        }
+        Insert: {
+          clinical_notes?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          last_validated_at?: string | null
+          minimum_occurrences?: number | null
+          pattern_category: string
+          pattern_description: string
+          pattern_name: string
+          source_feedback_ids?: string[] | null
+          suggested_response?: string | null
+          suggested_risk_level?: number | null
+          time_window_days?: number | null
+          trigger_behaviors?: string[]
+          trigger_keywords?: string[]
+          updated_at?: string
+          validated_by_moderators?: number | null
+        }
+        Update: {
+          clinical_notes?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          last_validated_at?: string | null
+          minimum_occurrences?: number | null
+          pattern_category?: string
+          pattern_description?: string
+          pattern_name?: string
+          source_feedback_ids?: string[] | null
+          suggested_response?: string | null
+          suggested_risk_level?: number | null
+          time_window_days?: number | null
+          trigger_behaviors?: string[]
+          trigger_keywords?: string[]
+          updated_at?: string
+          validated_by_moderators?: number | null
+        }
+        Relationships: []
       }
       fiis_disclaimer_acknowledgments: {
         Row: {

@@ -49,6 +49,7 @@ import { format, formatDistanceToNow } from "date-fns";
 import { RecoveryTrajectoryPanel } from "@/components/RecoveryTrajectoryPanel";
 import { PatternShiftAlerts } from "@/components/PatternShiftAlerts";
 import { ContinuityTransitionPanel } from "@/components/ContinuityTransitionPanel";
+import { FIISFeedbackDialog } from "@/components/FIISFeedbackDialog";
 
 interface FIISTabProps {
   familyId: string;
@@ -784,27 +785,44 @@ export function FIISTab({ familyId, members, excludeUserIds = [], onView, isMode
       {analysis && (
         <Card className="border-violet-500/20">
           <CardHeader className="pb-3">
-            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-              <CardTitle className="text-base font-medium flex items-center gap-2">
-                <Brain className="h-4 w-4 text-violet-600" />
-                Pattern Analysis
-              </CardTitle>
-              {/* Risk Level Indicator */}
-              {analysis.risk_level_name && (
-                <div className={`px-3 py-1.5 rounded-lg border flex items-center gap-2 ${RISK_LEVEL_CONFIG[analysis.risk_level_name]?.bgColor || "bg-muted"}`}>
-                  {(() => {
-                    const config = RISK_LEVEL_CONFIG[analysis.risk_level_name || "stable"];
-                    const RiskIcon = config?.icon || Shield;
-                    return (
-                      <>
-                        <RiskIcon className={`h-4 w-4 ${config?.color || ""}`} />
-                        <span className={`text-sm font-medium ${config?.color || ""}`}>
-                          Level {analysis.risk_level}: {config?.label || analysis.risk_level_name}
-                        </span>
-                      </>
-                    );
-                  })()}
-                </div>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                <CardTitle className="text-base font-medium flex items-center gap-2">
+                  <Brain className="h-4 w-4 text-violet-600" />
+                  Pattern Analysis
+                </CardTitle>
+                {/* Risk Level Indicator */}
+                {analysis.risk_level_name && (
+                  <div className={`px-3 py-1.5 rounded-lg border flex items-center gap-2 ${RISK_LEVEL_CONFIG[analysis.risk_level_name]?.bgColor || "bg-muted"}`}>
+                    {(() => {
+                      const config = RISK_LEVEL_CONFIG[analysis.risk_level_name || "stable"];
+                      const RiskIcon = config?.icon || Shield;
+                      return (
+                        <>
+                          <RiskIcon className={`h-4 w-4 ${config?.color || ""}`} />
+                          <span className={`text-sm font-medium ${config?.color || ""}`}>
+                            Level {analysis.risk_level}: {config?.label || analysis.risk_level_name}
+                          </span>
+                        </>
+                      );
+                    })()}
+                  </div>
+                )}
+              </div>
+              {/* Moderator Feedback Button */}
+              {isModerator && (
+                <FIISFeedbackDialog
+                  familyId={familyId}
+                  originalRiskLevel={analysis.risk_level || 0}
+                  originalLikelihood={analysis.one_year_likelihood || "uncertain"}
+                  originalWhatSeeing={analysis.what_seeing || ""}
+                  onFeedbackSubmitted={() => {
+                    toast({
+                      title: "Thank you!",
+                      description: "Your feedback helps FIIS improve its analysis accuracy.",
+                    });
+                  }}
+                />
               )}
             </div>
           </CardHeader>
