@@ -13,7 +13,16 @@ const corsHeaders = {
 
 const FIIS_SYSTEM_PROMPT = `You are FIIS — a shared observer embedded inside a private family recovery system.
 
-You continuously observe family interactions, communications, financial exchanges, location check-ins, anonymous observations, and stated values and boundaries.
+You continuously observe:
+- Family interactions and chat communications (message patterns, tone, engagement frequency)
+- Financial exchanges and requests
+- Location check-ins and meeting attendance
+- Medication compliance and refill adherence
+- Aftercare plan progress (therapy, support groups, wellness activities)
+- Provider clinical notes (when marked for AI inclusion)
+- Uploaded documents (intervention letters, clinical assessments, care plans)
+- Manual observations from family members and moderators
+- Stated values and boundaries
 
 You interpret this data using three integrated professional lenses:
 1. An addiction-trained family therapist
@@ -375,13 +384,52 @@ serve(async (req) => {
       });
     }
 
-    // Fetch family values, boundaries, goals, sobriety journey, AND medication compliance data
-    const [valuesResult, boundariesResult, goalsResult, sobrietyResult, medicationComplianceResult] = await Promise.all([
+    // Fetch family values, boundaries, goals, sobriety journey, medication compliance, 
+    // aftercare plans, provider notes, recent messages, and documents
+    const [
+      valuesResult, 
+      boundariesResult, 
+      goalsResult, 
+      sobrietyResult, 
+      medicationComplianceResult,
+      aftercarePlansResult,
+      aftercareRecsResult,
+      providerNotesResult,
+      messagesResult,
+      documentsResult,
+    ] = await Promise.all([
       supabase.from("family_values").select("value_key").eq("family_id", familyId),
       supabase.from("family_boundaries").select("content, status, target_user_id").eq("family_id", familyId).eq("status", "approved"),
       supabase.from("family_common_goals").select("goal_key, completed_at").eq("family_id", familyId),
       supabase.from("sobriety_journeys").select("id, user_id, start_date, reset_count, is_active").eq("family_id", familyId).eq("is_active", true).maybeSingle(),
       supabase.rpc("get_medication_compliance_summary", { _family_id: familyId, _days: 7 }),
+      // Aftercare plans for this family
+      supabase.from("aftercare_plans").select("id, target_user_id, is_active, notes, created_at").eq("family_id", familyId).eq("is_active", true),
+      // Aftercare recommendations with completion status
+      supabase.from("aftercare_recommendations")
+        .select("id, plan_id, recommendation_type, title, is_completed, completed_at, frequency")
+        .order("created_at", { ascending: false })
+        .limit(100),
+      // Provider notes marked for AI inclusion (include_in_ai_analysis = true)
+      supabase.from("provider_notes")
+        .select("id, note_type, content, confidence_level, time_horizon, created_at")
+        .eq("family_id", familyId)
+        .eq("include_in_ai_analysis", true)
+        .order("created_at", { ascending: false })
+        .limit(30),
+      // Recent messages for communication pattern analysis (last 7 days, limited sample)
+      supabase.from("messages")
+        .select("id, content, created_at, sender_id")
+        .eq("family_id", familyId)
+        .gte("created_at", new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
+        .order("created_at", { ascending: false })
+        .limit(50),
+      // Documents with analysis results
+      supabase.from("family_documents")
+        .select("id, title, document_type, fiis_analyzed, boundaries_extracted, created_at")
+        .eq("family_id", familyId)
+        .order("created_at", { ascending: false })
+        .limit(20),
     ]);
 
     // Calculate sobriety days and phase
@@ -475,6 +523,139 @@ MEDICATION COMPLIANCE INTERPRETATION:
 
 `;
       }
+    }
+
+    // Add aftercare compliance context
+    if (aftercarePlansResult.data && aftercarePlansResult.data.length > 0) {
+      // Filter recommendations to those belonging to active plans
+      const activePlanIds = aftercarePlansResult.data.map(p => p.id);
+      const relevantRecs = (aftercareRecsResult.data || []).filter(r => activePlanIds.includes(r.plan_id));
+      
+      if (relevantRecs.length > 0) {
+        const totalRecs = relevantRecs.length;
+        const completedRecs = relevantRecs.filter(r => r.is_completed).length;
+        const completionRate = totalRecs > 0 ? Math.round((completedRecs / totalRecs) * 100) : 0;
+        
+        // Group by recommendation type
+        const typeGroups: Record<string, { total: number; completed: number }> = {};
+        relevantRecs.forEach(rec => {
+          if (!typeGroups[rec.recommendation_type]) {
+            typeGroups[rec.recommendation_type] = { total: 0, completed: 0 };
+          }
+          typeGroups[rec.recommendation_type].total++;
+          if (rec.is_completed) typeGroups[rec.recommendation_type].completed++;
+        });
+        
+        familyContext += `AFTERCARE PLAN COMPLIANCE:
+- Total Recommendations: ${totalRecs}
+- Completed: ${completedRecs}
+- Overall Completion Rate: ${completionRate}%
+
+By Category:
+${Object.entries(typeGroups).map(([type, stats]) => 
+  `- ${type.replace(/_/g, ' ')}: ${stats.completed}/${stats.total} (${Math.round((stats.completed / stats.total) * 100)}%)`
+).join('\n')}
+
+AFTERCARE COMPLIANCE INTERPRETATION:
+- Completion rates above 70% indicate strong engagement with aftercare
+- Rates below 50% suggest potential disengagement requiring clinical attention
+- Therapy and support group attendance are critical for one-year success
+- IOP/PHP compliance in early recovery is especially important
+
+`;
+      }
+    }
+
+    // Add provider clinical notes context (for AI-included notes only)
+    if (providerNotesResult.data && providerNotesResult.data.length > 0) {
+      familyContext += `PROVIDER CLINICAL NOTES (AI-Included):\n`;
+      providerNotesResult.data.forEach((note, i) => {
+        const date = new Date(note.created_at).toLocaleDateString();
+        const confidence = note.confidence_level ? ` [${note.confidence_level} confidence]` : '';
+        const horizon = note.time_horizon ? ` (${note.time_horizon})` : '';
+        familyContext += `${i + 1}. [${date}] ${note.note_type.toUpperCase()}${confidence}${horizon}: ${note.content}\n`;
+      });
+      familyContext += `
+PROVIDER NOTES INTERPRETATION:
+- These notes represent clinical observations from professional moderators
+- They provide context for understanding family dynamics and recovery trajectory
+- Use these insights to inform pattern analysis while maintaining clinical neutrality
+
+`;
+    }
+
+    // Add communication pattern context from messages
+    if (messagesResult.data && messagesResult.data.length > 0) {
+      const messages = messagesResult.data;
+      const uniqueSenders = new Set(messages.map(m => m.sender_id)).size;
+      const totalMessages = messages.length;
+      
+      // Analyze message patterns (without exposing content to families)
+      const avgMessageLength = Math.round(messages.reduce((sum, m) => sum + (m.content?.length || 0), 0) / totalMessages);
+      
+      // Check for concerning patterns in content (keywords)
+      const concerningKeywords = ['relapse', 'drink', 'use', 'slip', 'high', 'drunk', 'crisis', 'emergency', 'hospital'];
+      const supportiveKeywords = ['proud', 'meeting', 'sponsor', 'therapy', 'progress', 'milestone', 'grateful', 'recovery', 'sober'];
+      
+      let concerningMentions = 0;
+      let supportiveMentions = 0;
+      
+      messages.forEach(m => {
+        const content = (m.content || '').toLowerCase();
+        concerningKeywords.forEach(kw => {
+          if (content.includes(kw)) concerningMentions++;
+        });
+        supportiveKeywords.forEach(kw => {
+          if (content.includes(kw)) supportiveMentions++;
+        });
+      });
+      
+      familyContext += `FAMILY COMMUNICATION PATTERNS (Last 7 Days):
+- Total Messages: ${totalMessages}
+- Active Participants: ${uniqueSenders}
+- Average Message Length: ${avgMessageLength} characters
+- Supportive Language Frequency: ${supportiveMentions} mentions
+- Concerning Language Frequency: ${concerningMentions} mentions
+
+COMMUNICATION PATTERN INTERPRETATION:
+- Low message volume may indicate disengagement or isolation
+- High concerning language frequency warrants attention
+- Strong supportive language suggests healthy family dynamics
+- Single-participant dominance may indicate imbalanced communication
+
+`;
+    }
+
+    // Add document analysis context
+    if (documentsResult.data && documentsResult.data.length > 0) {
+      const docs = documentsResult.data;
+      const analyzedDocs = docs.filter(d => d.fiis_analyzed);
+      const docsWithBoundaries = docs.filter(d => d.boundaries_extracted && d.boundaries_extracted > 0);
+      const totalBoundariesExtracted = docsWithBoundaries.reduce((sum, d) => sum + (d.boundaries_extracted || 0), 0);
+      
+      // Group by document type
+      const typeGroups: Record<string, number> = {};
+      docs.forEach(d => {
+        const type = d.document_type || 'other';
+        typeGroups[type] = (typeGroups[type] || 0) + 1;
+      });
+      
+      familyContext += `DOCUMENT ANALYSIS SUMMARY:
+- Total Documents Uploaded: ${docs.length}
+- Documents Analyzed: ${analyzedDocs.length}
+- Documents with Boundaries Extracted: ${docsWithBoundaries.length}
+- Total Boundaries Extracted from Documents: ${totalBoundariesExtracted}
+
+Document Types:
+${Object.entries(typeGroups).map(([type, count]) => `- ${type.replace(/_/g, ' ')}: ${count}`).join('\n')}
+
+DOCUMENT ANALYSIS INTERPRETATION:
+- Intervention letters with extracted boundaries indicate family commitment
+- Clinical assessments provide baseline context for recovery trajectory
+- Aftercare/discharge plans should align with current aftercare compliance
+- Document engagement shows family investment in structured recovery
+
+`;
     }
 
     // Build the analysis prompt
