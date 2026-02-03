@@ -11,7 +11,7 @@ import { toast } from "sonner";
 import { Building2, Check, CreditCard, Shield, Users, Tag, Loader2, Copy, Brain, TrendingUp, MessageSquareWarning, Sparkles } from "lucide-react";
 import { BrandedHeader } from "@/components/BrandedHeader";
 import { AppStorePurchaseButton, RestorePurchasesButton } from "@/components/AppStorePurchaseButton";
-import { AppleLogo, GooglePlayLogo } from "@/components/icons/StoreLogos";
+
 import { SubscriptionDisclosure } from "@/components/SubscriptionDisclosure";
 import { PRODUCTS } from "@/lib/products";
 
@@ -156,20 +156,13 @@ const ProviderPurchase = () => {
     }
   };
 
-  // Get payment method display info
+  // Get payment method display info (for web and Android only - iOS uses email flow)
   const getPaymentInfo = () => {
-    if (isIOS) {
-      return {
-        icon: AppleLogo,
-        label: "Apple App Store",
-        description: "Payment processed through Apple",
-      };
-    }
     if (isAndroid) {
       return {
-        icon: GooglePlayLogo,
-        label: "Google Play Store",
-        description: "Payment processed through Google Play",
+        icon: CreditCard,
+        label: "Web Checkout",
+        description: "Secure payment on our website",
       };
     }
     return {
