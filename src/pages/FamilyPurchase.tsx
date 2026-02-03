@@ -466,8 +466,10 @@ const FamilyPurchase = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="Create Your Family Group - $19.99/month"
-        description="Start your family's recovery journey with FamilyBridge. AI-powered pattern detection, moderated chat, financial accountability, and meeting check-ins for $19.99/month."
+        title={isNative && isIOS ? "Create Your Family Group" : "Create Your Family Group - $19.99/month"}
+        description={isNative && isIOS 
+          ? "Start your family's recovery journey with FamilyBridge. AI-powered pattern detection, moderated chat, financial accountability, and meeting check-ins."
+          : "Start your family's recovery journey with FamilyBridge. AI-powered pattern detection, moderated chat, financial accountability, and meeting check-ins for $19.99/month."}
         canonicalPath="/family-purchase"
         structuredData={breadcrumbSchema}
       />
@@ -547,27 +549,29 @@ const FamilyPurchase = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <paymentInfo.icon className="w-5 h-5" />
-                  {PRODUCTS.family.monthly.displayName}
+                  {isNative && isIOS ? "Family Subscription" : PRODUCTS.family.monthly.displayName}
                 </CardTitle>
                 <CardDescription>
-                  Auto-renewable subscription · Cancel anytime
+                  {isNative && isIOS ? "Sign in to access your family" : "Auto-renewable subscription · Cancel anytime"}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                {/* Clear Subscription Pricing - Required by Apple Guideline 3.1.2 */}
-                <div className="text-center py-4 bg-primary/5 rounded-lg border border-primary/10">
-                  <p className="text-xs text-muted-foreground mb-1">Monthly Subscription</p>
-                  <div>
-                    <span className="text-4xl font-bold">${PRODUCTS.family.monthly.price}</span>
-                    <span className="text-muted-foreground">/month</span>
+                {/* Clear Subscription Pricing - Only show on non-iOS platforms */}
+                {!(isNative && isIOS) && (
+                  <div className="text-center py-4 bg-primary/5 rounded-lg border border-primary/10">
+                    <p className="text-xs text-muted-foreground mb-1">Monthly Subscription</p>
+                    <div>
+                      <span className="text-4xl font-bold">${PRODUCTS.family.monthly.price}</span>
+                      <span className="text-muted-foreground">/month</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      Billed monthly · Auto-renews until cancelled
+                    </p>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-2">
-                    Billed monthly · Auto-renews until cancelled
-                  </p>
-                </div>
+                )}
 
-                {/* Platform-specific payment notice */}
-                {isNative && (
+                {/* Platform-specific payment notice - Only show on Android */}
+                {isNative && !isIOS && (
                   <div className="bg-muted/50 border rounded-lg p-3 text-center">
                     <div className="flex items-center justify-center gap-2 text-sm font-medium">
                       <paymentInfo.icon className="w-4 h-4" />
@@ -655,7 +659,12 @@ const FamilyPurchase = () => {
 
                   {isNative && isIOS ? (
                     <>
-                      {/* iOS App Store compliant: No purchase buttons, just sign-in for existing users */}
+                      {/* iOS App Store compliant: No purchase buttons or pricing, just sign-in */}
+                      <div className="text-center py-4 bg-muted/50 rounded-lg mb-4">
+                        <p className="text-sm text-muted-foreground">
+                          Already have an account? Sign in to access your family group.
+                        </p>
+                      </div>
                       <Button
                         onClick={() => navigate("/auth")}
                         className="w-full"
@@ -663,9 +672,6 @@ const FamilyPurchase = () => {
                       >
                         Sign In to Your Account
                       </Button>
-                      <p className="text-xs text-muted-foreground text-center">
-                        Already have an account? Sign in to access your family.
-                      </p>
                     </>
                   ) : isNative ? (
                     <>
