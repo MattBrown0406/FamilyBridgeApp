@@ -12,13 +12,15 @@ interface SubscriptionDisclosureProps {
 }
 
 /**
- * Apple/Google-compliant subscription disclosure component.
- * Displays all required information per App Store Guideline 3.1.2 and Google Play policies:
- * - Subscription title matching IAP product name
- * - Clear price and duration
+ * Subscription disclosure component for web checkout.
+ * Displays required information for payment transparency:
+ * - Subscription title and pricing
  * - Auto-renewal terms
  * - Payment and cancellation info
  * - Links to Terms of Use and Privacy Policy
+ * 
+ * Note: iOS users subscribe via web (email flow), so this component
+ * is primarily shown on web and Android.
  */
 export const SubscriptionDisclosure = ({
   subscriptionTitle,
