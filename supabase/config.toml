@@ -104,3 +104,6 @@ verify_jwt = false
 
 [functions.send-family-invite-sms]
 verify_jwt = false
+
+[functions.analyze-aftercare-document]
+verify_jwt = false
