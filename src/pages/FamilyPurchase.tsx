@@ -584,19 +584,22 @@ const FamilyPurchase = () => {
                 )}
 
                 <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email Address</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="Enter your email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      Your invite code will be sent to this email
-                    </p>
-                  </div>
+                  {/* Email input - show different version for iOS */}
+                  {!(isNative && isIOS) && (
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email Address</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        placeholder="Enter your email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Your invite code will be sent to this email
+                      </p>
+                    </div>
+                  )}
 
                   {/* Coupon Code Section - only show on web to avoid IAP bypass concerns */}
                   {!isNative && (
