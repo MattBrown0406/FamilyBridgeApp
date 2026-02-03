@@ -1,138 +1,83 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Loader2, RotateCcw } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 import { toast } from "sonner";
-import { usePurchases } from "@/hooks/usePurchases";
-import { AppleLogo, GooglePlayLogo } from "@/components/icons/StoreLogos";
 import { usePlatform } from "@/hooks/usePlatform";
 
-interface AppStorePurchaseButtonProps {
-  platform: "apple" | "google";
-  productId: string;
+interface WebCheckoutButtonProps {
+  checkoutUrl?: string;
   email: string;
   subscriptionType?: "family" | "provider";
-  couponCode?: string;
-  onSuccess?: (transactionId: string, inviteCode: string) => void;
   disabled?: boolean;
   className?: string;
   children?: React.ReactNode;
 }
 
+/**
+ * Reader App Model: Directs users to web checkout instead of in-app purchases.
+ * All payments are processed through Square on the web.
+ */
 export function AppStorePurchaseButton({
-  platform,
-  productId,
+  checkoutUrl,
   email,
   subscriptionType = "family",
-  couponCode,
-  onSuccess,
   disabled,
   className,
   children,
-}: AppStorePurchaseButtonProps) {
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [retryCount, setRetryCount] = useState(0);
-  const { purchaseProduct, isLoading, isInitialized, error, getProduct, initialize } = usePurchases();
-  const { isIOS, isAndroid, isNative } = usePlatform();
+}: WebCheckoutButtonProps) {
+  const [isOpening, setIsOpening] = useState(false);
+  const { isNative } = usePlatform();
 
-  const handlePurchase = async () => {
+  const handleOpenWebCheckout = async () => {
     if (!email) {
       toast.error("Please enter your email address");
       return;
     }
 
-    if (!isNative) {
-      toast.error("In-app purchases are only available on mobile devices");
-      return;
-    }
-
-    // If not initialized, try to reinitialize before giving up
-    if (!isInitialized) {
-      if (retryCount < 2) {
-        toast.info("Connecting to purchase system...");
-        setRetryCount(prev => prev + 1);
-        try {
-          const init = await initialize();
-          if (!init.success) {
-            toast.error(init.error || "Unable to connect to purchase system. Please restart the app and try again.");
-            return;
-          }
-        } catch (e) {
-          toast.error("Purchase system unavailable. Please check your internet connection and restart the app.");
-          return;
-        }
-      } else {
-        toast.error("Purchase system is not available. Please restart the app or contact support.");
-        return;
-      }
-    }
-
-    setIsProcessing(true);
+    setIsOpening(true);
     
     try {
-      const result = await purchaseProduct(productId, email, subscriptionType, couponCode);
-
-      if (result.success && result.inviteCode) {
-        toast.success("Purchase successful! Your activation code has been generated.");
-        onSuccess?.(productId, result.inviteCode);
-      } else if (result.error) {
-        if (result.error !== "Purchase was cancelled") {
-          toast.error(result.error);
-        }
+      // Construct web checkout URL with email prefilled
+      const baseUrl = "https://familybridgeapp.lovable.app";
+      const path = subscriptionType === "provider" ? "/provider-purchase" : "/family-purchase";
+      const url = `${baseUrl}${path}?email=${encodeURIComponent(email)}`;
+      
+      if (isNative) {
+        // Open in external browser on native platforms
+        // This ensures we're following Apple's reader app guidelines
+        window.open(url, "_system");
+        toast.info("Opening web browser for secure checkout...");
+      } else {
+        // On web, just navigate
+        window.location.href = checkoutUrl || path;
       }
     } catch (error) {
-      console.error("Purchase error:", error);
-      toast.error("An unexpected error occurred. Please try again.");
+      console.error("Failed to open checkout:", error);
+      toast.error("Failed to open checkout. Please try again.");
     } finally {
-      setIsProcessing(false);
+      setIsOpening(false);
     }
   };
 
-  // Get localized price from store if available
-  const storeProduct = getProduct(productId);
-  const displayPrice = storeProduct?.priceString;
-
-  const Icon = platform === "apple" ? AppleLogo : GooglePlayLogo;
-  
-  // Show initialization status in button text
-  const getButtonText = () => {
-    if (isLoading) return "Loading...";
-    if (!isInitialized && error) {
-      if (/not linked|plugin/i.test(error) || /not implemented/i.test(error)) {
-        return "Purchase Setup Required";
-      }
-      return "Retry Connection";
-    }
-    if (!isInitialized) return "Connecting...";
-    const priceText = displayPrice ? ` (${displayPrice})` : "";
-    return platform === "apple" 
-      ? `Subscribe with Apple${priceText}` 
-      : `Subscribe with Google Play${priceText}`;
-  };
-
-  const buttonText = getButtonText();
-
-  // Button is only disabled if we're actively loading/processing, no email, or explicitly disabled
-  // Allow clicks when not initialized so user can trigger retry
-  const isButtonDisabled = disabled || isLoading || isProcessing || !email;
+  const buttonText = children || "Subscribe on Web";
 
   return (
     <Button
-      onClick={handlePurchase}
-      disabled={isButtonDisabled}
+      onClick={handleOpenWebCheckout}
+      disabled={disabled || isOpening || !email}
       className={className}
       size="lg"
     >
-      {isLoading || isProcessing ? (
-        <Loader2 className="h-4 w-4 animate-spin mr-2" />
-      ) : (
-        <Icon className="h-5 w-5 mr-2" />
-      )}
-      {children || buttonText}
+      <ExternalLink className="h-4 w-4 mr-2" />
+      {isOpening ? "Opening..." : buttonText}
     </Button>
   );
 }
 
-// Restore Purchases Button Component
+/**
+ * Restore Purchases - For reader apps, this directs users to sign in
+ * if they already have an account/subscription.
+ */
 export function RestorePurchasesButton({ 
   className,
   onRestore 
@@ -140,21 +85,15 @@ export function RestorePurchasesButton({
   className?: string;
   onRestore?: () => void;
 }) {
-  const { restorePurchases, isLoading, isNative } = usePurchases();
-  const [isRestoring, setIsRestoring] = useState(false);
+  const { isNative } = usePlatform();
 
+  // Only show on native platforms
   if (!isNative) return null;
 
-  const handleRestore = async () => {
-    setIsRestoring(true);
-    try {
-      const customerInfo = await restorePurchases();
-      if (customerInfo?.activeSubscriptions.length) {
-        onRestore?.();
-      }
-    } finally {
-      setIsRestoring(false);
-    }
+  const handleRestore = () => {
+    // For reader app model, "restore" means signing in with existing account
+    toast.info("If you have an existing subscription, please sign in with your account.");
+    onRestore?.();
   };
 
   return (
@@ -162,15 +101,9 @@ export function RestorePurchasesButton({
       variant="ghost"
       size="sm"
       onClick={handleRestore}
-      disabled={isLoading || isRestoring}
       className={className}
     >
-      {isRestoring ? (
-        <Loader2 className="h-4 w-4 animate-spin mr-2" />
-      ) : (
-        <RotateCcw className="h-4 w-4 mr-2" />
-      )}
-      Restore Purchases
+      Already subscribed? Sign in
     </Button>
   );
 }
