@@ -9,6 +9,7 @@ const corsHeaders = {
 // ============================================================================
 // FIIS — PRIMARY SYSTEM PROMPT
 // Family Intervention Intelligence System Master Prompt
+// Enhanced with Clinical Addiction Medicine Frameworks
 // ============================================================================
 
 const FIIS_SYSTEM_PROMPT = `You are FIIS — a shared observer embedded inside a private family recovery system.
@@ -23,19 +24,58 @@ You continuously observe:
 - Uploaded documents (intervention letters, clinical assessments, care plans)
 - Manual observations from family members and moderators
 - Stated values and boundaries
+- Calibrated patterns from validated clinical feedback
 
 You interpret this data using three integrated professional lenses:
-1. An addiction-trained family therapist
-2. A person in long-term recovery with sponsorship experience
-3. A recovery-inclusive specialist who evaluates progress within the recovery model chosen by the individual
+1. An addiction-trained family therapist (Bowen Family Systems, Structural Family Therapy)
+2. A person in long-term recovery with sponsorship experience (12-Step, SMART Recovery, Refuge Recovery)
+3. A recovery-inclusive specialist evaluating progress within the individual's chosen recovery model
 
-You analyze patterns over time, not isolated events.
+You analyze patterns over time, not isolated events. You learn from moderator corrections when available.
+
+---
+
+CLINICAL ADDICTION MEDICINE FRAMEWORKS:
+
+MARLATT'S RELAPSE PREVENTION MODEL:
+- Identify High-Risk Situations: social pressure, emotional distress, interpersonal conflict
+- Watch for Coping Skill Deficits: avoidance, aggression, passive responses
+- Abstinence Violation Effect (AVE): after a lapse, shame spiral can lead to full relapse
+- Seemingly Irrelevant Decisions (SIDs): small choices that chain toward use
+
+PROCHASKA'S STAGES OF CHANGE:
+- Precontemplation: No awareness of problem, denial, minimization
+- Contemplation: Ambivalence, "maybe I should cut back"
+- Preparation: Making plans, gathering resources
+- Action: Active behavior change, early recovery
+- Maintenance: Sustaining changes, building new identity
+- Match your response to their current stage
+
+GORSKI'S WARNING SIGNS:
+1. Change in attitude (complacency, entitlement)
+2. Elevated stress without coping
+3. Reactivation of denial patterns
+4. Behavior change away from recovery
+5. Social breakdown and isolation
+6. Loss of structure and routine
+7. Return of impaired judgment
+8. Loss of control over behavior
+9. Option reduction ("no other choice")
+10. Final relapse window
+
+FAMILY SYSTEMS DYNAMICS:
+- Enabling: removing natural consequences, rescuing
+- Codependency: over-functioning, boundary collapse
+- Triangulation: using third party to avoid direct communication
+- Scapegoating: blaming one member for family dysfunction
+- Parentification: child taking adult role
+- Family Homeostasis: resistance to change that threatens system
 
 ---
 
 PRIMARY OBJECTIVE: ONE-YEAR SOBRIETY GOAL
 
-Every recovering individual's primary goal is reaching ONE YEAR (365 days) of sobriety. This is the foundational benchmark that research shows dramatically increases long-term recovery success rates.
+Every recovering individual's primary goal is reaching ONE YEAR (365 days) of sobriety. Research shows this milestone dramatically increases long-term recovery success (studies show 90% of those reaching 1 year maintain 5+ years).
 
 Your function is to:
 - Track progress toward the ONE-YEAR milestone as the central focus
@@ -45,6 +85,7 @@ Your function is to:
 - Reinforce healthy behaviors that keep someone on the path to one year
 - Warn early when patterns suggest risk to the one-year goal
 - After one year, focus on maintaining sobriety and building sustainable recovery habits
+- Learn from moderator feedback to improve pattern accuracy
 
 ONE-YEAR GOAL FRAMEWORK:
 
@@ -385,7 +426,7 @@ serve(async (req) => {
     }
 
     // Fetch family values, boundaries, goals, sobriety journey, medication compliance, 
-    // aftercare plans, provider notes, recent messages, and documents
+    // aftercare plans, provider notes, recent messages, documents, calibration patterns, and past feedback
     const [
       valuesResult, 
       boundariesResult, 
@@ -397,6 +438,11 @@ serve(async (req) => {
       providerNotesResult,
       messagesResult,
       documentsResult,
+      calibrationPatternsResult,
+      pastFeedbackResult,
+      meetingCheckinsResult,
+      emotionalCheckinsResult,
+      financialRequestsResult,
     ] = await Promise.all([
       supabase.from("family_values").select("value_key").eq("family_id", familyId),
       supabase.from("family_boundaries").select("content, status, target_user_id").eq("family_id", familyId).eq("status", "approved"),
@@ -417,19 +463,47 @@ serve(async (req) => {
         .eq("include_in_ai_analysis", true)
         .order("created_at", { ascending: false })
         .limit(30),
-      // Recent messages for communication pattern analysis (last 7 days, limited sample)
+      // Recent messages for communication pattern analysis (last 14 days for better patterns)
       supabase.from("messages")
         .select("id, content, created_at, sender_id")
         .eq("family_id", familyId)
-        .gte("created_at", new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
+        .gte("created_at", new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString())
         .order("created_at", { ascending: false })
-        .limit(50),
+        .limit(100),
       // Documents with analysis results
       supabase.from("family_documents")
         .select("id, title, document_type, fiis_analyzed, boundaries_extracted, created_at")
         .eq("family_id", familyId)
         .order("created_at", { ascending: false })
         .limit(20),
+      // Calibration patterns for enhanced analysis
+      supabase.from("fiis_calibration_patterns")
+        .select("pattern_name, pattern_description, pattern_category, trigger_keywords, trigger_behaviors, suggested_risk_level, suggested_response, clinical_notes")
+        .eq("is_active", true),
+      // Past moderator feedback for this family (learning from corrections)
+      supabase.from("fiis_analysis_feedback")
+        .select("feedback_type, original_risk_level, corrected_risk_level, correction_reasoning, missed_patterns, false_patterns, clinical_context, recommended_keywords")
+        .eq("family_id", familyId)
+        .order("created_at", { ascending: false })
+        .limit(20),
+      // Meeting check-ins (last 30 days)
+      supabase.from("meeting_checkins")
+        .select("id, checked_in_at, checked_out_at, meeting_type, overdue_alert_sent")
+        .eq("family_id", familyId)
+        .gte("checked_in_at", new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString())
+        .order("checked_in_at", { ascending: false }),
+      // Emotional check-ins (last 30 days)
+      supabase.from("daily_emotional_checkins")
+        .select("id, feeling, was_bypassed, check_in_date, bypass_inferred_state")
+        .eq("family_id", familyId)
+        .gte("check_in_date", new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
+        .order("check_in_date", { ascending: false }),
+      // Financial requests (last 60 days)
+      supabase.from("financial_requests")
+        .select("id, amount, reason, status, created_at")
+        .eq("family_id", familyId)
+        .gte("created_at", new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString())
+        .order("created_at", { ascending: false }),
     ]);
 
     // Calculate sobriety days and phase
@@ -584,7 +658,7 @@ PROVIDER NOTES INTERPRETATION:
 `;
     }
 
-    // Add communication pattern context from messages
+    // Add communication pattern context from messages with ENHANCED keyword detection
     if (messagesResult.data && messagesResult.data.length > 0) {
       const messages = messagesResult.data;
       const uniqueSenders = new Set(messages.map(m => m.sender_id)).size;
@@ -593,35 +667,185 @@ PROVIDER NOTES INTERPRETATION:
       // Analyze message patterns (without exposing content to families)
       const avgMessageLength = Math.round(messages.reduce((sum, m) => sum + (m.content?.length || 0), 0) / totalMessages);
       
-      // Check for concerning patterns in content (keywords)
-      const concerningKeywords = ['relapse', 'drink', 'use', 'slip', 'high', 'drunk', 'crisis', 'emergency', 'hospital'];
-      const supportiveKeywords = ['proud', 'meeting', 'sponsor', 'therapy', 'progress', 'milestone', 'grateful', 'recovery', 'sober'];
+      // ENHANCED: Expanded keyword categories based on clinical literature
+      // Marlatt's relapse warning signs, Gorski's warning signs, family systems dynamics
+      const keywordCategories: Record<string, string[]> = {
+        relapse_warning: ['relapse', 'slip', 'slipped', 'used', 'drank', 'high', 'drunk', 'wasted'],
+        isolation: ['alone', 'leave me alone', 'need space', 'fine', 'whatever', 'busy', 'tired'],
+        minimization: ['wasnt that bad', 'only once', 'just a little', 'no big deal', 'at least i', 'could be worse'],
+        halt_states: ['exhausted', 'pissed', 'angry', 'lonely', 'starving', 'frustrated', 'cant sleep', 'overwhelmed', 'stressed'],
+        boundary_testing: ['just this once', 'exception', 'emergency', 'but i need', 'promise', 'last time', 'please'],
+        financial_pressure: ['need money', 'emergency', 'right now', 'immediately', 'cut off', 'deadline', 'threatened'],
+        triangulation: ['mom said', 'dad thinks', 'they said', 'unfair', 'everyone else', 'you never'],
+        crisis: ['end it', 'no point', 'better off without me', 'cant go on', 'done', 'give up', 'worthless', 'burden', 'hospital', 'emergency room'],
+        progress: ['proud', 'meeting', 'sponsor', 'therapy', 'progress', 'milestone', 'grateful', 'recovery', 'sober', 'days', 'clean'],
+        proactive: ['wanted to tell you', 'heads up', 'need to talk', 'struggling but', 'before you hear'],
+        accountability: ['step work', 'home group', 'service', 'helping others', 'my part', 'making amends'],
+      };
       
-      let concerningMentions = 0;
-      let supportiveMentions = 0;
+      const categoryMentions: Record<string, number> = {};
+      Object.keys(keywordCategories).forEach(cat => categoryMentions[cat] = 0);
       
       messages.forEach(m => {
         const content = (m.content || '').toLowerCase();
-        concerningKeywords.forEach(kw => {
-          if (content.includes(kw)) concerningMentions++;
-        });
-        supportiveKeywords.forEach(kw => {
-          if (content.includes(kw)) supportiveMentions++;
+        Object.entries(keywordCategories).forEach(([category, keywords]) => {
+          keywords.forEach(kw => {
+            if (content.includes(kw)) categoryMentions[category]++;
+          });
         });
       });
       
-      familyContext += `FAMILY COMMUNICATION PATTERNS (Last 7 Days):
+      // Add any custom keywords from past moderator feedback
+      const feedbackKeywords: string[] = [];
+      if (pastFeedbackResult.data) {
+        pastFeedbackResult.data.forEach((fb: { recommended_keywords?: string[] }) => {
+          if (fb.recommended_keywords) feedbackKeywords.push(...fb.recommended_keywords);
+        });
+      }
+      if (feedbackKeywords.length > 0) {
+        let customMentions = 0;
+        messages.forEach(m => {
+          const content = (m.content || '').toLowerCase();
+          feedbackKeywords.forEach(kw => {
+            if (content.includes(kw.toLowerCase())) customMentions++;
+          });
+        });
+        categoryMentions['moderator_flagged'] = customMentions;
+      }
+      
+      familyContext += `FAMILY COMMUNICATION PATTERNS (Last 14 Days):
 - Total Messages: ${totalMessages}
 - Active Participants: ${uniqueSenders}
 - Average Message Length: ${avgMessageLength} characters
-- Supportive Language Frequency: ${supportiveMentions} mentions
-- Concerning Language Frequency: ${concerningMentions} mentions
 
-COMMUNICATION PATTERN INTERPRETATION:
-- Low message volume may indicate disengagement or isolation
-- High concerning language frequency warrants attention
-- Strong supportive language suggests healthy family dynamics
-- Single-participant dominance may indicate imbalanced communication
+Keyword Pattern Detection:
+${Object.entries(categoryMentions).filter(([, count]) => count > 0).map(([cat, count]) => `- ${cat.replace(/_/g, ' ')}: ${count} mentions`).join('\n') || '- No significant patterns detected'}
+
+COMMUNICATION INTERPRETATION FRAMEWORK:
+- Isolation + HALT states = early warning per Gorski model
+- Minimization = Marlatt's "euphoric recall" pre-relapse indicator
+- Boundary testing + financial pressure = manipulation pattern
+- Triangulation = family systems dysfunction
+- Progress + accountability + proactive = strong protective factors
+- Crisis indicators require IMMEDIATE attention
+
+`;
+    }
+
+    // Add EXPANDED meeting attendance patterns (30 days)
+    if (meetingCheckinsResult.data && meetingCheckinsResult.data.length > 0) {
+      const checkins = meetingCheckinsResult.data;
+      const totalCheckins = checkins.length;
+      const completedCheckouts = checkins.filter((c: { checked_out_at?: string }) => c.checked_out_at).length;
+      const overdueAlerts = checkins.filter((c: { overdue_alert_sent?: boolean }) => c.overdue_alert_sent).length;
+      const checkoutRate = totalCheckins > 0 ? Math.round((completedCheckouts / totalCheckins) * 100) : 0;
+      
+      // Group by meeting type
+      const meetingTypes: Record<string, number> = {};
+      checkins.forEach((c: { meeting_type?: string }) => {
+        const type = c.meeting_type || 'other';
+        meetingTypes[type] = (meetingTypes[type] || 0) + 1;
+      });
+      
+      familyContext += `MEETING ATTENDANCE (Last 30 Days):
+- Total Check-ins: ${totalCheckins}
+- Completed Check-outs: ${completedCheckouts} (${checkoutRate}%)
+- Overdue/Missed Checkouts: ${overdueAlerts}
+- Weekly Average: ${(totalCheckins / 4).toFixed(1)} meetings/week
+
+Meeting Types: ${Object.entries(meetingTypes).map(([type, count]) => `${type}(${count})`).join(', ')}
+
+ATTENDANCE INTERPRETATION:
+- 3+ meetings/week = strong protective factor for one-year goal
+- Declining attendance = Gorski warning sign #4 (behavior change)
+- Missed checkouts may indicate avoidance or dishonesty
+- AA/NA literature: consistent attendance is #1 predictor of success
+
+`;
+    }
+
+    // Add EMOTIONAL CHECK-IN patterns (30 days)
+    if (emotionalCheckinsResult.data && emotionalCheckinsResult.data.length > 0) {
+      const checkins = emotionalCheckinsResult.data;
+      const totalCheckins = checkins.length;
+      const bypassedCount = checkins.filter((c: { was_bypassed?: boolean }) => c.was_bypassed).length;
+      const bypassRate = totalCheckins > 0 ? Math.round((bypassedCount / totalCheckins) * 100) : 0;
+      
+      // Feeling distribution
+      const feelings: Record<string, number> = {};
+      checkins.forEach((c: { feeling?: string }) => {
+        if (c.feeling) {
+          feelings[c.feeling] = (feelings[c.feeling] || 0) + 1;
+        }
+      });
+      
+      const negativeFeelings = ['awful', 'struggling', 'anxious', 'sad', 'angry', 'overwhelmed'];
+      const negativeCount = checkins.filter((c: { feeling?: string }) => negativeFeelings.includes(c.feeling?.toLowerCase() || '')).length;
+      
+      familyContext += `EMOTIONAL CHECK-INS (Last 30 Days):
+- Total Check-ins: ${totalCheckins}
+- Bypassed: ${bypassedCount} (${bypassRate}%)
+- Negative States: ${negativeCount}
+- Feeling Distribution: ${Object.entries(feelings).slice(0, 5).map(([f, c]) => `${f}(${c})`).join(', ')}
+
+EMOTIONAL PATTERN INTERPRETATION:
+- High bypass rate (>30%) = avoidance of self-reflection (Gorski warning sign)
+- Sustained negative states = HALT pattern, intervention consideration
+- Sudden shift from positive to negative = trajectory change alert
+
+`;
+    }
+
+    // Add FINANCIAL REQUEST patterns (60 days)
+    if (financialRequestsResult.data && financialRequestsResult.data.length > 0) {
+      const requests = financialRequestsResult.data;
+      const totalRequests = requests.length;
+      const totalAmount = requests.reduce((sum: number, r: { amount?: number }) => sum + (r.amount || 0), 0);
+      const approvedRequests = requests.filter((r: { status?: string }) => r.status === 'approved').length;
+      const deniedRequests = requests.filter((r: { status?: string }) => r.status === 'denied').length;
+      
+      familyContext += `FINANCIAL REQUESTS (Last 60 Days):
+- Total Requests: ${totalRequests}
+- Total Amount: $${totalAmount}
+- Approved: ${approvedRequests}
+- Denied: ${deniedRequests}
+- Average Request: $${totalRequests > 0 ? Math.round(totalAmount / totalRequests) : 0}
+
+FINANCIAL PATTERN INTERPRETATION:
+- Progressive escalation (increasing amounts) = manipulation warning
+- High denial rate = family setting boundaries appropriately
+- Frequency > 2/week = potential active use or compulsive behavior
+
+`;
+    }
+
+    // Add CALIBRATION PATTERNS context for enhanced detection
+    if (calibrationPatternsResult.data && calibrationPatternsResult.data.length > 0) {
+      familyContext += `CALIBRATED CLINICAL PATTERNS (for detection reference):
+${calibrationPatternsResult.data.map((p: { pattern_name: string; pattern_category: string; pattern_description: string }) => 
+  `- ${p.pattern_name} (${p.pattern_category}): ${p.pattern_description}`
+).join('\n')}
+
+`;
+    }
+
+    // Add MODERATOR FEEDBACK LEARNINGS (corrections from past analyses)
+    if (pastFeedbackResult.data && pastFeedbackResult.data.length > 0) {
+      const feedback = pastFeedbackResult.data;
+      const falsePositives = feedback.filter((f: { feedback_type: string }) => f.feedback_type === 'false_positive').length;
+      const falseNegatives = feedback.filter((f: { feedback_type: string }) => f.feedback_type === 'false_negative').length;
+      const corrections = feedback.filter((f: { feedback_type: string }) => f.feedback_type === 'wrong_severity' || f.feedback_type === 'pattern_correction');
+      
+      familyContext += `MODERATOR FEEDBACK LEARNINGS (From ${feedback.length} corrections):
+- False Positives (over-flagged): ${falsePositives}
+- False Negatives (missed): ${falseNegatives}
+
+Recent Corrections to Apply:
+${corrections.slice(0, 5).map((c: { feedback_type: string; correction_reasoning: string; missed_patterns?: string[] }) => 
+  `- ${c.feedback_type}: "${c.correction_reasoning}" ${c.missed_patterns?.length ? `(Missed: ${c.missed_patterns.join(', ')})` : ''}`
+).join('\n') || 'No recent corrections'}
+
+APPLY THESE LEARNINGS: Adjust your analysis based on moderator corrections. If moderators have flagged false positives, be less aggressive. If they flagged missed patterns, be more attentive to those signals.
 
 `;
     }
