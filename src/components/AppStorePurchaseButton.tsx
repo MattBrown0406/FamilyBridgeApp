@@ -14,8 +14,9 @@ interface WebCheckoutButtonProps {
 }
 
 /**
- * Reader App Model: Directs users to web checkout instead of in-app purchases.
- * All payments are processed through Square on the web.
+ * Web Checkout Button for Android users.
+ * Directs users to the web for Square checkout.
+ * Note: iOS uses email-driven subscription flow, not this button.
  */
 export function AppStorePurchaseButton({
   checkoutUrl,
@@ -44,7 +45,6 @@ export function AppStorePurchaseButton({
       
       if (isNative) {
         // Open in external browser on native platforms
-        // This ensures we're following Apple's reader app guidelines
         window.open(url, "_system");
         toast.info("Opening web browser for secure checkout...");
       } else {
@@ -75,8 +75,8 @@ export function AppStorePurchaseButton({
 }
 
 /**
- * Restore Purchases - For reader apps, this directs users to sign in
- * if they already have an account/subscription.
+ * Restore Purchases Button - Directs users to sign in
+ * if they already have an account/subscription from the website.
  */
 export function RestorePurchasesButton({ 
   className,
@@ -91,7 +91,6 @@ export function RestorePurchasesButton({
   if (!isNative) return null;
 
   const handleRestore = () => {
-    // For reader app model, "restore" means signing in with existing account
     toast.info("If you have an existing subscription, please sign in with your account.");
     onRestore?.();
   };

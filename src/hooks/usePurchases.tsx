@@ -2,16 +2,16 @@ import { useCallback } from "react";
 import { Capacitor } from "@capacitor/core";
 
 /**
- * Simplified purchases hook for reader app model.
- * All payments are processed through web checkout (Square).
- * This hook only provides platform detection for UI routing.
+ * Web-first payment model hook.
+ * All payments are processed through Square web checkout.
+ * iOS users subscribe via the website (email-driven flow).
+ * Android users can be directed to web checkout from the app.
  */
 export function usePurchases() {
   const isNative = Capacitor.isNativePlatform();
 
   // Open web checkout in external browser
   const openWebCheckout = useCallback((checkoutPath: string = "/family-purchase") => {
-    // Get the web URL for checkout
     const webUrl = `https://familybridgeapp.lovable.app${checkoutPath}`;
     
     if (isNative) {
@@ -26,11 +26,5 @@ export function usePurchases() {
   return {
     isNative,
     openWebCheckout,
-    // Legacy compatibility - these are no longer used but kept for type safety
-    isInitialized: true,
-    isLoading: false,
-    customerInfo: null,
-    products: [],
-    error: null,
   };
 }
