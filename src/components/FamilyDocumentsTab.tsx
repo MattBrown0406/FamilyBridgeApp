@@ -52,6 +52,8 @@ interface FamilyDocumentsTabProps {
 
 const documentTypeLabels: Record<string, string> = {
   intervention_letter: 'Intervention Letter',
+  discharge_plan: 'Discharge Plan',
+  aftercare_plan: 'Aftercare Plan',
   treatment_plan: 'Treatment Plan',
   clinical_summary: 'Clinical Summary',
   consent_form: 'Consent Form',
@@ -261,14 +263,12 @@ export const FamilyDocumentsTab = ({ familyId, userRole }: FamilyDocumentsTabPro
 
     setAnalyzingId(doc.id);
     try {
-      // Download the file content
       const { data: fileData, error: downloadError } = await supabase.storage
         .from('family-documents')
         .download(doc.file_path);
 
       if (downloadError) throw downloadError;
 
-      // Convert file to base64 for the edge function
       const arrayBuffer = await fileData.arrayBuffer();
       const bytes = new Uint8Array(arrayBuffer);
       let binary = '';
@@ -277,7 +277,6 @@ export const FamilyDocumentsTab = ({ familyId, userRole }: FamilyDocumentsTabPro
       }
       const base64 = btoa(binary);
 
-      // Call the analysis edge function with base64 file bytes
       const { data, error } = await supabase.functions.invoke('analyze-intervention-letter', {
         body: {
           documentId: doc.id,
@@ -298,6 +297,54 @@ export const FamilyDocumentsTab = ({ familyId, userRole }: FamilyDocumentsTabPro
       fetchDocuments();
     } catch (err: any) {
       console.error('Error analyzing document:', err);
+      toast.error(err.message || 'Failed to analyze document');
+    } finally {
+      setAnalyzingId(null);
+    }
+  };
+
+  const handleAnalyzeForAftercare = async (doc: FamilyDocument) => {
+    if (doc.document_type !== 'discharge_plan' && doc.document_type !== 'aftercare_plan') {
+      toast.error('Only discharge/aftercare plans can be analyzed');
+      return;
+    }
+
+    setAnalyzingId(doc.id);
+    try {
+      const { data: fileData, error: downloadError } = await supabase.storage
+        .from('family-documents')
+        .download(doc.file_path);
+
+      if (downloadError) throw downloadError;
+
+      const arrayBuffer = await fileData.arrayBuffer();
+      const bytes = new Uint8Array(arrayBuffer);
+      let binary = '';
+      for (let i = 0; i < bytes.length; i++) {
+        binary += String.fromCharCode(bytes[i]);
+      }
+      const base64 = btoa(binary);
+
+      const { data, error } = await supabase.functions.invoke('analyze-aftercare-document', {
+        body: {
+          documentId: doc.id,
+          familyId: familyId,
+          fileBytes: base64,
+          mimeType: doc.mime_type
+        }
+      });
+
+      if (error) throw error;
+
+      if (data.recommendationsCreated > 0) {
+        toast.success(`Created ${data.recommendationsCreated} aftercare items from the plan`);
+      } else {
+        toast.info('No aftercare recommendations found in this document');
+      }
+
+      fetchDocuments();
+    } catch (err: any) {
+      console.error('Error analyzing aftercare document:', err);
       toast.error(err.message || 'Failed to analyze document');
     } finally {
       setAnalyzingId(null);
@@ -383,6 +430,11 @@ export const FamilyDocumentsTab = ({ familyId, userRole }: FamilyDocumentsTabPro
                     💡 Intervention letters can be analyzed by FIIS to extract boundaries automatically.
                   </p>
                 )}
+                {(uploadForm.document_type === 'discharge_plan' || uploadForm.document_type === 'aftercare_plan') && (
+                  <p className="text-xs text-muted-foreground">
+                    💡 Discharge/aftercare plans will be analyzed to auto-create aftercare items for tracking.
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -428,6 +480,7 @@ export const FamilyDocumentsTab = ({ familyId, userRole }: FamilyDocumentsTabPro
           {documents.map(doc => {
             const FileIcon = getFileIcon(doc.mime_type);
             const isInterventionLetter = doc.document_type === 'intervention_letter';
+            const isAftercarePlan = doc.document_type === 'discharge_plan' || doc.document_type === 'aftercare_plan';
             
             return (
               <Card key={doc.id} className="hover:shadow-md transition-shadow">
@@ -449,7 +502,7 @@ export const FamilyDocumentsTab = ({ familyId, userRole }: FamilyDocumentsTabPro
                           {doc.fiis_analyzed && (
                             <Badge variant="secondary" className="text-xs gap-1">
                               <CheckCircle className="h-3 w-3" />
-                              {doc.boundaries_extracted} boundaries
+                              {isAftercarePlan ? `${doc.boundaries_extracted} items` : `${doc.boundaries_extracted} boundaries`}
                             </Badge>
                           )}
                         </div>
@@ -469,6 +522,21 @@ export const FamilyDocumentsTab = ({ familyId, userRole }: FamilyDocumentsTabPro
                           onClick={() => handleAnalyzeForBoundaries(doc)}
                           disabled={analyzingId === doc.id}
                           title="Analyze for Boundaries"
+                        >
+                          {analyzingId === doc.id ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Brain className="h-4 w-4" />
+                          )}
+                        </Button>
+                      )}
+                      {isAftercarePlan && !doc.fiis_analyzed && canManage && (
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          onClick={() => handleAnalyzeForAftercare(doc)}
+                          disabled={analyzingId === doc.id}
+                          title="Analyze & Create Aftercare Items"
                         >
                           {analyzingId === doc.id ? (
                             <Loader2 className="h-4 w-4 animate-spin" />
