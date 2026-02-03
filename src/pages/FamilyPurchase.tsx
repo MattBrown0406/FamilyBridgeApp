@@ -660,9 +660,23 @@ const FamilyPurchase = () => {
                     </div>
                   </div>
 
-                  {isNative ? (
+                  {isNative && isIOS ? (
                     <>
-                      {/* Reader App Model: Direct to web checkout */}
+                      {/* iOS App Store compliant: No purchase buttons, just sign-in for existing users */}
+                      <Button
+                        onClick={() => navigate("/auth")}
+                        className="w-full"
+                        size="lg"
+                      >
+                        Sign In to Your Account
+                      </Button>
+                      <p className="text-xs text-muted-foreground text-center">
+                        Already have an account? Sign in to access your family.
+                      </p>
+                    </>
+                  ) : isNative ? (
+                    <>
+                      {/* Android: Can still direct to web checkout */}
                       <AppStorePurchaseButton
                         email={email}
                         subscriptionType="family"

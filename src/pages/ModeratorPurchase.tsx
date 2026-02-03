@@ -281,9 +281,18 @@ export default function ModeratorPurchase() {
                   />
                 </div>
 
-                {isNative ? (
+                {isNative && isIOS ? (
                   <>
-                    {/* Reader App Model: Direct to web checkout */}
+                    {/* iOS App Store compliant: No purchase buttons */}
+                    <div className="text-center py-4 bg-muted/50 rounded-lg">
+                      <p className="text-sm text-muted-foreground">
+                        Moderator support can be purchased through our website.
+                      </p>
+                    </div>
+                  </>
+                ) : isNative ? (
+                  <>
+                    {/* Android: Can still direct to web checkout */}
                     <AppStorePurchaseButton
                       email={email}
                       subscriptionType="family"
@@ -301,7 +310,7 @@ export default function ModeratorPurchase() {
                     <Button onClick={handlePurchase} disabled={loading || !selectedFamily} className="w-full" size="lg">
                       {loading ? "Processing..." : "Purchase for $150"}
                     </Button>
-                    {/* Apple-Compliant Purchase Disclosure - Guideline 3.1.2 */}
+                    {/* Purchase Disclosure */}
                     <SubscriptionDisclosure
                       subscriptionTitle={PRODUCTS.crisisModeration.daily.displayName}
                       price={`$${PRODUCTS.crisisModeration.daily.price}`}
