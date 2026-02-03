@@ -471,19 +471,65 @@ const ProviderPurchase = () => {
                   {/* Platform-specific purchase button */}
                   {isNative && isIOS ? (
                     <>
-                      {/* iOS App Store compliant: No purchase buttons or pricing, just sign-in */}
-                      <div className="text-center py-4 bg-muted/50 rounded-lg mb-4">
-                        <p className="text-sm text-muted-foreground">
-                          Already have an account? Sign in to access your organization.
-                        </p>
+                      {/* iOS App Store compliant: Email collection to send setup info */}
+                      <div className="space-y-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="ios-email">Email Address</Label>
+                          <Input
+                            id="ios-email"
+                            type="email"
+                            placeholder="Enter your email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                          />
+                          <p className="text-xs text-muted-foreground">
+                            Enter your email to receive information on setting up your organization account.
+                          </p>
+                        </div>
+                        <Button
+                          onClick={async () => {
+                            if (!email) {
+                              toast.error("Please enter your email address");
+                              return;
+                            }
+                            setIsLoading(true);
+                            try {
+                              const { error } = await supabase.functions.invoke("send-welcome-email", {
+                                body: { email, accountType: "provider" },
+                              });
+                              if (error) throw error;
+                              toast.success("Check your email for setup instructions!");
+                            } catch (err) {
+                              console.error("Error sending email:", err);
+                              toast.error("Failed to send email. Please try again.");
+                            } finally {
+                              setIsLoading(false);
+                            }
+                          }}
+                          disabled={isLoading || !email}
+                          className="w-full"
+                          size="lg"
+                        >
+                          {isLoading ? "Sending..." : "Send Setup Information"}
+                        </Button>
+                        
+                        <div className="relative my-4">
+                          <div className="absolute inset-0 flex items-center">
+                            <span className="w-full border-t" />
+                          </div>
+                          <div className="relative flex justify-center text-xs uppercase">
+                            <span className="bg-background px-2 text-muted-foreground">or</span>
+                          </div>
+                        </div>
+                        
+                        <Button
+                          variant="outline"
+                          onClick={() => navigate("/auth")}
+                          className="w-full"
+                        >
+                          Already have an account? Sign In
+                        </Button>
                       </div>
-                      <Button
-                        onClick={() => navigate("/auth")}
-                        className="w-full"
-                        size="lg"
-                      >
-                        Sign In to Your Account
-                      </Button>
                     </>
                   ) : isNative ? (
                     <>
