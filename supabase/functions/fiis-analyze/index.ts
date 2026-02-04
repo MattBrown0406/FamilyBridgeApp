@@ -1738,9 +1738,9 @@ serve(async (req) => {
         .eq("family_id", familyId)
         .order("created_at", { ascending: false })
         .limit(20),
-      // Calibration patterns for enhanced analysis
+      // Calibration patterns for enhanced analysis (including fellowship-specific patterns)
       supabase.from("fiis_calibration_patterns")
-        .select("pattern_name, pattern_description, pattern_category, trigger_keywords, trigger_behaviors, suggested_risk_level, suggested_response, clinical_notes")
+        .select("pattern_name, pattern_description, pattern_category, trigger_keywords, trigger_behaviors, suggested_risk_level, suggested_response, clinical_notes, fellowship")
         .eq("is_active", true),
       // Past moderator feedback for this family (learning from corrections)
       supabase.from("fiis_analysis_feedback")
@@ -2058,11 +2058,22 @@ COMMUNICATION INTERPRETATION FRAMEWORK:
       const historyDepthDays = oldestCheckin ? Math.floor((now.getTime() - oldestCheckin.getTime()) / (1000 * 60 * 60 * 24)) : 0;
       const weeksOfHistory = Math.max(1, Math.ceil(historyDepthDays / 7));
       
-      // Group by meeting type
+      // Group by meeting type and determine PRIMARY FELLOWSHIP
       const meetingTypes: Record<string, number> = {};
+      const recoveryFellowships = ['AA', 'NA', 'Smart Recovery', 'SMART', 'Refuge Recovery', 'Celebrate Recovery', 'ACA', 'CoDA', 'Al-Anon', 'Nar-Anon', 'Families Anonymous'];
       checkins.forEach((c: { meeting_type?: string }) => {
         const type = c.meeting_type || 'other';
         meetingTypes[type] = (meetingTypes[type] || 0) + 1;
+      });
+      
+      // Determine primary fellowship (most attended recovery fellowship)
+      let primaryFellowship = '';
+      let maxCount = 0;
+      Object.entries(meetingTypes).forEach(([type, count]) => {
+        if (recoveryFellowships.includes(type) && count > maxCount) {
+          primaryFellowship = type;
+          maxCount = count;
+        }
       });
       
       familyContext += `MEETING ATTENDANCE (Complete History - ${historyDepthDays} Days):
@@ -2076,6 +2087,7 @@ COMMUNICATION INTERPRETATION FRAMEWORK:
 - Recent Weekly Average (Last 30 Days): ${(checkinsLast30 / Math.min(4, weeksOfHistory)).toFixed(1)} meetings/week
 
 Meeting Types (All Time): ${Object.entries(meetingTypes).map(([type, count]) => `${type}(${count})`).join(', ')}
+${primaryFellowship ? `\nPRIMARY RECOVERY FELLOWSHIP: ${primaryFellowship}` : ''}
 
 ATTENDANCE INTERPRETATION:
 - 3+ meetings/week = strong protective factor for one-year goal
@@ -2084,7 +2096,17 @@ ATTENDANCE INTERPRETATION:
 - Missed checkouts may indicate avoidance or dishonesty
 - Long-term consistency (90+ days) is more predictive than short-term spikes
 
+**CRITICAL: DOING THE WORK vs JUST ATTENDING MEETINGS**
+- Meeting attendance is NECESSARY but NOT SUFFICIENT for recovery
+- Each fellowship prescribes specific WORK to be done BETWEEN meetings
+- Monitor for "meeting-only" pattern: attending but not doing step work, homework, meditation, etc.
+- Recovery happens in the DAILY PRACTICE, not just in the meeting room
+${primaryFellowship ? `- For ${primaryFellowship}: Evaluate engagement with the program's prescribed work, not just attendance` : ''}
+
 `;
+      
+      // Store primary fellowship for calibration pattern filtering
+      familyContext += `PRIMARY_FELLOWSHIP: ${primaryFellowship || 'NONE'}\n\n`;
     }
 
     // Add COMPLETE emotional check-in patterns (full history)
@@ -2181,12 +2203,75 @@ FINANCIAL PATTERN INTERPRETATION:
 `;
     }
 
-    // Add CALIBRATION PATTERNS context for enhanced detection
+    // Add CALIBRATION PATTERNS context for enhanced detection (filtered by fellowship)
     if (calibrationPatternsResult.data && calibrationPatternsResult.data.length > 0) {
+      // Extract primary fellowship from earlier context
+      const fellowshipMatch = familyContext.match(/PRIMARY_FELLOWSHIP: ([^\n]+)/);
+      const detectedFellowship = fellowshipMatch ? fellowshipMatch[1].trim() : 'NONE';
+      
+      // Filter patterns: universal patterns (fellowship=null) + fellowship-specific patterns
+      const allPatterns = calibrationPatternsResult.data as Array<{
+        pattern_name: string;
+        pattern_category: string;
+        pattern_description: string;
+        fellowship?: string | null;
+        suggested_response?: string;
+        clinical_notes?: string;
+      }>;
+      
+      // Universal patterns apply to everyone
+      const universalPatterns = allPatterns.filter(p => !p.fellowship);
+      
+      // Fellowship-specific patterns
+      const fellowshipPatterns = detectedFellowship !== 'NONE' 
+        ? allPatterns.filter(p => p.fellowship === detectedFellowship)
+        : [];
+      
+      // Combine patterns, prioritizing fellowship-specific ones
+      const relevantPatterns = [...fellowshipPatterns, ...universalPatterns];
+      
+      // Separate work-focused patterns from general patterns
+      const workPatterns = relevantPatterns.filter(p => 
+        p.pattern_category === 'fellowship_engagement' || 
+        p.pattern_category === 'recovery_work_progress' || 
+        p.pattern_category === 'recovery_work_stagnation'
+      );
+      const generalPatterns = relevantPatterns.filter(p => 
+        p.pattern_category !== 'fellowship_engagement' && 
+        p.pattern_category !== 'recovery_work_progress' && 
+        p.pattern_category !== 'recovery_work_stagnation'
+      );
+      
       familyContext += `CALIBRATED CLINICAL PATTERNS (for detection reference):
-${calibrationPatternsResult.data.map((p: { pattern_name: string; pattern_category: string; pattern_description: string }) => 
+
+${detectedFellowship !== 'NONE' ? `**FELLOWSHIP-SPECIFIC PATTERNS FOR ${detectedFellowship.toUpperCase()}:**
+${fellowshipPatterns.map(p => 
+  `- ${p.pattern_name} (${p.pattern_category}): ${p.pattern_description}${p.suggested_response ? ` → Response: ${p.suggested_response}` : ''}`
+).join('\n') || 'No specific patterns for this fellowship'}
+
+` : ''}**RECOVERY WORK PATTERNS (CRITICAL - Doing the Work, Not Just Attending):**
+${workPatterns.map(p => 
+  `- ${p.pattern_name}: ${p.pattern_description}${p.suggested_response ? ` → ${p.suggested_response}` : ''}`
+).join('\n') || 'No work-focused patterns available'}
+
+**GENERAL CLINICAL PATTERNS:**
+${generalPatterns.slice(0, 15).map(p => 
   `- ${p.pattern_name} (${p.pattern_category}): ${p.pattern_description}`
 ).join('\n')}
+
+**WORK-FOCUSED ANALYSIS IMPERATIVE:**
+When evaluating recovery progress, ALWAYS distinguish between:
+1. MEETING ATTENDANCE - Going to meetings (necessary but insufficient)
+2. RECOVERY WORK - Actually doing the program's prescribed work BETWEEN meetings:
+   - AA/NA: Working steps with sponsor, Big Book study, service, daily inventory
+   - SMART: Using REBT tools, CBA worksheets, urge logs, values work daily
+   - Refuge Recovery: Daily meditation practice, Eightfold Path application, inquiry
+   - Celebrate Recovery: Step study, participant guides, accountability partner work
+   - Al-Anon/Nar-Anon: Personal step work, detachment practice, literature study
+   - ACA: Inner child work, reparenting exercises, Big Red Book work
+   - CoDA: Relationship patterns work, boundary practice
+
+If user shows high meeting attendance but no evidence of between-meeting work, this is a RECOVERY WORK STAGNATION pattern that warrants gentle inquiry.
 
 `;
     }

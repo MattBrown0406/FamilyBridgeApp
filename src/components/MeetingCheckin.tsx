@@ -18,7 +18,7 @@ const MEETING_TYPES = [
   { value: 'NA', label: 'Narcotics Anonymous (NA)' },
   { value: 'Nar-Anon', label: 'Nar-Anon Family Groups' },
   { value: 'Refuge Recovery', label: 'Refuge Recovery' },
-  { value: 'Smart Recovery', label: 'Smart Recovery' },
+  { value: 'Smart Recovery', label: 'SMART Recovery' },
   { value: 'ACA', label: 'Adult Children of Alcoholics (ACA)' },
   { value: 'CoDA', label: 'Co-Dependents Anonymous (CoDA)' },
   { value: 'Families Anonymous', label: 'Families Anonymous' },
