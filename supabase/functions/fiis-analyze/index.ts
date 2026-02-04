@@ -2120,6 +2120,7 @@ serve(async (req) => {
       emotionalCheckinsResult,
       financialRequestsResult,
       familyInfoResult,
+      medicationsResult, // Active medications for interaction warnings
     ] = await Promise.all([
       supabase.from("family_values").select("value_key").eq("family_id", familyId),
       supabase.from("family_boundaries").select("content, status, target_user_id").eq("family_id", familyId).eq("status", "approved"),
@@ -2181,6 +2182,11 @@ serve(async (req) => {
         .select("created_at, name")
         .eq("id", familyId)
         .single(),
+      // Active medications for drug interaction warnings during relapse risk
+      supabase.from("medications")
+        .select("medication_name, dosage, is_active")
+        .eq("family_id", familyId)
+        .eq("is_active", true),
     ]);
 
     // Calculate sobriety days and phase
@@ -2614,6 +2620,159 @@ FINANCIAL PATTERN INTERPRETATION:
 - Long-term financial patterns reveal underlying behavior trends
 
 `;
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════════
+    // MEDICATION INTERACTION WARNINGS (Proactive Safety Feature)
+    // Warns about dangerous substance interactions if relapse signs are emerging
+    // ═══════════════════════════════════════════════════════════════════════════════
+    
+    interface MedicationData {
+      medication_name: string;
+      dosage?: string;
+      is_active: boolean;
+    }
+    
+    // Map medication names to interaction risk categories
+    const medicationInteractionDatabase: Record<string, {
+      category: string;
+      dangerousWithSubstances: string[];
+      interactionWarning: string;
+      overdoseRisk: 'low' | 'moderate' | 'high' | 'critical';
+    }> = {
+      // SSRIs
+      'zoloft': { category: 'SSRI', dangerousWithSubstances: ['MDMA', 'ecstasy', 'molly', 'cocaine', 'tramadol', 'fentanyl'], interactionWarning: 'Serotonin syndrome risk - can be fatal', overdoseRisk: 'high' },
+      'sertraline': { category: 'SSRI', dangerousWithSubstances: ['MDMA', 'ecstasy', 'molly', 'cocaine', 'tramadol', 'fentanyl'], interactionWarning: 'Serotonin syndrome risk - can be fatal', overdoseRisk: 'high' },
+      'lexapro': { category: 'SSRI', dangerousWithSubstances: ['MDMA', 'ecstasy', 'molly', 'cocaine', 'tramadol', 'fentanyl'], interactionWarning: 'Serotonin syndrome risk - can be fatal', overdoseRisk: 'high' },
+      'escitalopram': { category: 'SSRI', dangerousWithSubstances: ['MDMA', 'ecstasy', 'molly', 'cocaine', 'tramadol', 'fentanyl'], interactionWarning: 'Serotonin syndrome risk - can be fatal', overdoseRisk: 'high' },
+      'prozac': { category: 'SSRI', dangerousWithSubstances: ['MDMA', 'ecstasy', 'molly', 'cocaine', 'tramadol', 'fentanyl'], interactionWarning: 'Serotonin syndrome risk - can be fatal', overdoseRisk: 'high' },
+      'fluoxetine': { category: 'SSRI', dangerousWithSubstances: ['MDMA', 'ecstasy', 'molly', 'cocaine', 'tramadol', 'fentanyl'], interactionWarning: 'Serotonin syndrome risk - can be fatal', overdoseRisk: 'high' },
+      'paxil': { category: 'SSRI', dangerousWithSubstances: ['MDMA', 'ecstasy', 'molly', 'cocaine', 'tramadol', 'fentanyl'], interactionWarning: 'Serotonin syndrome risk - can be fatal', overdoseRisk: 'high' },
+      'paroxetine': { category: 'SSRI', dangerousWithSubstances: ['MDMA', 'ecstasy', 'molly', 'cocaine', 'tramadol', 'fentanyl'], interactionWarning: 'Serotonin syndrome risk - can be fatal', overdoseRisk: 'high' },
+      'celexa': { category: 'SSRI', dangerousWithSubstances: ['MDMA', 'ecstasy', 'molly', 'cocaine', 'tramadol', 'fentanyl'], interactionWarning: 'Serotonin syndrome risk - can be fatal', overdoseRisk: 'high' },
+      'citalopram': { category: 'SSRI', dangerousWithSubstances: ['MDMA', 'ecstasy', 'molly', 'cocaine', 'tramadol', 'fentanyl'], interactionWarning: 'Serotonin syndrome risk - can be fatal', overdoseRisk: 'high' },
+      
+      // SNRIs
+      'effexor': { category: 'SNRI', dangerousWithSubstances: ['MDMA', 'ecstasy', 'cocaine', 'tramadol', 'fentanyl', 'alcohol'], interactionWarning: 'Serotonin syndrome risk + seizure risk with alcohol withdrawal', overdoseRisk: 'high' },
+      'venlafaxine': { category: 'SNRI', dangerousWithSubstances: ['MDMA', 'ecstasy', 'cocaine', 'tramadol', 'fentanyl', 'alcohol'], interactionWarning: 'Serotonin syndrome risk + seizure risk with alcohol withdrawal', overdoseRisk: 'high' },
+      'cymbalta': { category: 'SNRI', dangerousWithSubstances: ['MDMA', 'ecstasy', 'cocaine', 'tramadol', 'fentanyl', 'opioids'], interactionWarning: 'Serotonin syndrome risk, liver concerns with alcohol', overdoseRisk: 'high' },
+      'duloxetine': { category: 'SNRI', dangerousWithSubstances: ['MDMA', 'ecstasy', 'cocaine', 'tramadol', 'fentanyl', 'opioids'], interactionWarning: 'Serotonin syndrome risk, liver concerns with alcohol', overdoseRisk: 'high' },
+      
+      // Benzodiazepines (if prescribed for anxiety)
+      'xanax': { category: 'Benzodiazepine', dangerousWithSubstances: ['alcohol', 'opioids', 'heroin', 'fentanyl', 'oxycodone', 'hydrocodone', 'morphine'], interactionWarning: 'CRITICAL: Respiratory depression - leading cause of overdose death', overdoseRisk: 'critical' },
+      'alprazolam': { category: 'Benzodiazepine', dangerousWithSubstances: ['alcohol', 'opioids', 'heroin', 'fentanyl', 'oxycodone', 'hydrocodone', 'morphine'], interactionWarning: 'CRITICAL: Respiratory depression - leading cause of overdose death', overdoseRisk: 'critical' },
+      'klonopin': { category: 'Benzodiazepine', dangerousWithSubstances: ['alcohol', 'opioids', 'heroin', 'fentanyl', 'oxycodone', 'hydrocodone', 'morphine'], interactionWarning: 'CRITICAL: Respiratory depression - leading cause of overdose death', overdoseRisk: 'critical' },
+      'clonazepam': { category: 'Benzodiazepine', dangerousWithSubstances: ['alcohol', 'opioids', 'heroin', 'fentanyl', 'oxycodone', 'hydrocodone', 'morphine'], interactionWarning: 'CRITICAL: Respiratory depression - leading cause of overdose death', overdoseRisk: 'critical' },
+      'ativan': { category: 'Benzodiazepine', dangerousWithSubstances: ['alcohol', 'opioids', 'heroin', 'fentanyl', 'oxycodone', 'hydrocodone', 'morphine'], interactionWarning: 'CRITICAL: Respiratory depression - leading cause of overdose death', overdoseRisk: 'critical' },
+      'lorazepam': { category: 'Benzodiazepine', dangerousWithSubstances: ['alcohol', 'opioids', 'heroin', 'fentanyl', 'oxycodone', 'hydrocodone', 'morphine'], interactionWarning: 'CRITICAL: Respiratory depression - leading cause of overdose death', overdoseRisk: 'critical' },
+      'valium': { category: 'Benzodiazepine', dangerousWithSubstances: ['alcohol', 'opioids', 'heroin', 'fentanyl', 'oxycodone', 'hydrocodone', 'morphine'], interactionWarning: 'CRITICAL: Respiratory depression - leading cause of overdose death', overdoseRisk: 'critical' },
+      'diazepam': { category: 'Benzodiazepine', dangerousWithSubstances: ['alcohol', 'opioids', 'heroin', 'fentanyl', 'oxycodone', 'hydrocodone', 'morphine'], interactionWarning: 'CRITICAL: Respiratory depression - leading cause of overdose death', overdoseRisk: 'critical' },
+      
+      // Mood Stabilizers
+      'lithium': { category: 'Mood Stabilizer', dangerousWithSubstances: ['MDMA', 'ecstasy', 'dehydrating substances', 'NSAIDs'], interactionWarning: 'Lithium toxicity risk, serotonin syndrome with MDMA, dehydration dangerous', overdoseRisk: 'high' },
+      'depakote': { category: 'Mood Stabilizer', dangerousWithSubstances: ['alcohol'], interactionWarning: 'Severe liver toxicity with alcohol, CNS depression', overdoseRisk: 'high' },
+      'valproic acid': { category: 'Mood Stabilizer', dangerousWithSubstances: ['alcohol'], interactionWarning: 'Severe liver toxicity with alcohol, CNS depression', overdoseRisk: 'high' },
+      'lamictal': { category: 'Mood Stabilizer', dangerousWithSubstances: ['alcohol'], interactionWarning: 'Increased CNS depression, may reduce seizure threshold', overdoseRisk: 'moderate' },
+      'lamotrigine': { category: 'Mood Stabilizer', dangerousWithSubstances: ['alcohol'], interactionWarning: 'Increased CNS depression, may reduce seizure threshold', overdoseRisk: 'moderate' },
+      
+      // Antipsychotics
+      'seroquel': { category: 'Antipsychotic', dangerousWithSubstances: ['alcohol', 'opioids', 'benzodiazepines'], interactionWarning: 'Severe sedation, respiratory depression risk', overdoseRisk: 'high' },
+      'quetiapine': { category: 'Antipsychotic', dangerousWithSubstances: ['alcohol', 'opioids', 'benzodiazepines'], interactionWarning: 'Severe sedation, respiratory depression risk', overdoseRisk: 'high' },
+      'abilify': { category: 'Antipsychotic', dangerousWithSubstances: ['alcohol', 'stimulants'], interactionWarning: 'Altered medication effectiveness, increased side effects', overdoseRisk: 'moderate' },
+      'aripiprazole': { category: 'Antipsychotic', dangerousWithSubstances: ['alcohol', 'stimulants'], interactionWarning: 'Altered medication effectiveness, increased side effects', overdoseRisk: 'moderate' },
+      'risperdal': { category: 'Antipsychotic', dangerousWithSubstances: ['alcohol', 'opioids'], interactionWarning: 'Increased sedation, orthostatic hypotension risk', overdoseRisk: 'moderate' },
+      'risperidone': { category: 'Antipsychotic', dangerousWithSubstances: ['alcohol', 'opioids'], interactionWarning: 'Increased sedation, orthostatic hypotension risk', overdoseRisk: 'moderate' },
+      'zyprexa': { category: 'Antipsychotic', dangerousWithSubstances: ['alcohol', 'opioids', 'benzodiazepines'], interactionWarning: 'Severe sedation, metabolic concerns worsen with substances', overdoseRisk: 'high' },
+      'olanzapine': { category: 'Antipsychotic', dangerousWithSubstances: ['alcohol', 'opioids', 'benzodiazepines'], interactionWarning: 'Severe sedation, metabolic concerns worsen with substances', overdoseRisk: 'high' },
+      
+      // MAT Medications
+      'suboxone': { category: 'MAT', dangerousWithSubstances: ['benzodiazepines', 'alcohol', 'other opioids', 'fentanyl'], interactionWarning: 'CRITICAL: Respiratory depression risk, precipitated withdrawal with full opioids', overdoseRisk: 'critical' },
+      'buprenorphine': { category: 'MAT', dangerousWithSubstances: ['benzodiazepines', 'alcohol', 'other opioids', 'fentanyl'], interactionWarning: 'CRITICAL: Respiratory depression risk, precipitated withdrawal with full opioids', overdoseRisk: 'critical' },
+      'subutex': { category: 'MAT', dangerousWithSubstances: ['benzodiazepines', 'alcohol', 'other opioids', 'fentanyl'], interactionWarning: 'CRITICAL: Respiratory depression risk even higher without naloxone', overdoseRisk: 'critical' },
+      'methadone': { category: 'MAT', dangerousWithSubstances: ['benzodiazepines', 'alcohol', 'other opioids', 'fentanyl', 'cocaine'], interactionWarning: 'CRITICAL: Very long half-life - accumulation danger, QT prolongation with cocaine', overdoseRisk: 'critical' },
+      'vivitrol': { category: 'MAT', dangerousWithSubstances: ['opioids', 'heroin', 'fentanyl'], interactionWarning: 'DANGER: If opioids used after Vivitrol wears off, tolerance is ZERO - extreme overdose risk', overdoseRisk: 'critical' },
+      'naltrexone': { category: 'MAT', dangerousWithSubstances: ['opioids', 'heroin', 'fentanyl'], interactionWarning: 'DANGER: If opioids used after naltrexone wears off, tolerance is ZERO - extreme overdose risk', overdoseRisk: 'critical' },
+      
+      // Sleep Medications
+      'ambien': { category: 'Sleep Aid', dangerousWithSubstances: ['alcohol', 'opioids', 'benzodiazepines'], interactionWarning: 'Severe CNS depression, blackout risk with alcohol', overdoseRisk: 'high' },
+      'zolpidem': { category: 'Sleep Aid', dangerousWithSubstances: ['alcohol', 'opioids', 'benzodiazepines'], interactionWarning: 'Severe CNS depression, blackout risk with alcohol', overdoseRisk: 'high' },
+      'lunesta': { category: 'Sleep Aid', dangerousWithSubstances: ['alcohol', 'opioids'], interactionWarning: 'CNS depression, next-day impairment worsened', overdoseRisk: 'moderate' },
+      
+      // Muscle Relaxants
+      'soma': { category: 'Muscle Relaxant', dangerousWithSubstances: ['alcohol', 'opioids', 'benzodiazepines'], interactionWarning: 'CRITICAL: "Holy Trinity" combo (soma+opioid+benzo) is frequently fatal', overdoseRisk: 'critical' },
+      'carisoprodol': { category: 'Muscle Relaxant', dangerousWithSubstances: ['alcohol', 'opioids', 'benzodiazepines'], interactionWarning: 'CRITICAL: "Holy Trinity" combo frequently fatal', overdoseRisk: 'critical' },
+      'flexeril': { category: 'Muscle Relaxant', dangerousWithSubstances: ['alcohol', 'opioids', 'SSRIs'], interactionWarning: 'CNS depression, serotonin syndrome risk with SSRIs', overdoseRisk: 'moderate' },
+      'cyclobenzaprine': { category: 'Muscle Relaxant', dangerousWithSubstances: ['alcohol', 'opioids', 'SSRIs'], interactionWarning: 'CNS depression, serotonin syndrome risk with SSRIs', overdoseRisk: 'moderate' },
+      
+      // ADHD Medications
+      'adderall': { category: 'Stimulant', dangerousWithSubstances: ['alcohol', 'cocaine', 'MDMA', 'other stimulants'], interactionWarning: 'Cardiovascular strain, masks intoxication leading to overdose', overdoseRisk: 'high' },
+      'vyvanse': { category: 'Stimulant', dangerousWithSubstances: ['alcohol', 'cocaine', 'MDMA', 'other stimulants'], interactionWarning: 'Cardiovascular strain, masks intoxication leading to overdose', overdoseRisk: 'high' },
+      'ritalin': { category: 'Stimulant', dangerousWithSubstances: ['alcohol', 'cocaine', 'MDMA'], interactionWarning: 'Cardiovascular risk, may increase euphoria seeking behavior', overdoseRisk: 'moderate' },
+      'methylphenidate': { category: 'Stimulant', dangerousWithSubstances: ['alcohol', 'cocaine', 'MDMA'], interactionWarning: 'Cardiovascular risk, may increase euphoria seeking behavior', overdoseRisk: 'moderate' },
+    };
+    
+    // Analyze active medications for potential interaction warnings
+    let medicationWarnings: string[] = [];
+    let hasCriticalInteractionRisk = false;
+    let hasHighInteractionRisk = false;
+    
+    if (medicationsResult.data && medicationsResult.data.length > 0) {
+      const activeMeds = (medicationsResult.data as MedicationData[]).filter(m => m.is_active);
+      
+      activeMeds.forEach(med => {
+        const medNameLower = med.medication_name.toLowerCase().trim();
+        
+        // Check against known medications
+        for (const [knownMed, info] of Object.entries(medicationInteractionDatabase)) {
+          if (medNameLower.includes(knownMed) || knownMed.includes(medNameLower)) {
+            if (info.overdoseRisk === 'critical') {
+              hasCriticalInteractionRisk = true;
+            } else if (info.overdoseRisk === 'high') {
+              hasHighInteractionRisk = true;
+            }
+            
+            medicationWarnings.push(
+              `⚠️ ${med.medication_name} (${info.category}): DANGEROUS with ${info.dangerousWithSubstances.join(', ')} - ${info.interactionWarning}`
+            );
+            break; // Only match first (in case of duplicates)
+          }
+        }
+      });
+      
+      if (medicationWarnings.length > 0) {
+        familyContext += `
+═══════════════════════════════════════════════════════════════════════════════
+⚠️ MEDICATION INTERACTION WARNINGS - CRITICAL SAFETY INFORMATION ⚠️
+═══════════════════════════════════════════════════════════════════════════════
+
+The following medications are currently active and create DANGEROUS interactions if substance use resumes:
+
+${medicationWarnings.join('\n\n')}
+
+**IF RELAPSE WARNING SIGNS ARE DETECTED, FIIS MUST:**
+1. Include these specific medication interaction warnings in the analysis
+2. Emphasize that the person's current medications make ANY return to use MORE DANGEROUS than before
+3. Highlight specific substances that could be fatal in combination
+4. Frame this as critical safety information, not judgment
+5. Recommend family discuss Narcan/naloxone availability if opioid use was ever involved
+
+${hasCriticalInteractionRisk ? `
+🚨 CRITICAL RISK ALERT: This person is on medication(s) with CRITICAL interaction risk. 
+Return to opioid, benzodiazepine, or alcohol use could be FATAL. 
+This should be explicitly mentioned in any analysis showing relapse warning signs.
+` : ''}
+
+${hasHighInteractionRisk ? `
+⚠️ HIGH RISK ALERT: This person is on medication(s) with HIGH interaction risk.
+Substance use while on these medications significantly increases overdose and medical emergency risk.
+` : ''}
+
+**TOLERANCE LOSS WARNING:**
+Even if the person was previously able to use certain substances, their tolerance has likely decreased during sobriety.
+Previous use amounts can now be lethal. This is especially critical for opioids where tolerance drops rapidly.
+
+`;
+      }
     }
 
     // Add CALIBRATION PATTERNS context for enhanced detection (filtered by fellowship)
