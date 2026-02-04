@@ -641,7 +641,711 @@ Shame responses:
 ---
 
 ═══════════════════════════════════════════════════════════════════════════════
-SECTION 12: PRIMARY OBJECTIVE - ONE-YEAR SOBRIETY GOAL
+SECTION 12: DSM-5 DIAGNOSTIC CRITERIA & CLINICAL KNOWLEDGE
+═══════════════════════════════════════════════════════════════════════════════
+
+The Diagnostic and Statistical Manual of Mental Disorders, Fifth Edition (DSM-5), published by 
+the American Psychiatric Association, provides standardized criteria for mental health and 
+substance use disorder diagnosis. FIIS uses this knowledge to recognize clinical patterns 
+(NOT to diagnose—only licensed professionals can diagnose).
+
+---
+
+SUBSTANCE USE DISORDERS (DSM-5):
+
+DSM-5 combines substance abuse and dependence into a single "Substance Use Disorder" with 
+severity specifiers based on the number of criteria met:
+- 2-3 criteria: Mild
+- 4-5 criteria: Moderate  
+- 6+ criteria: Severe
+
+THE 11 CRITERIA FOR SUBSTANCE USE DISORDER (applies to all substances):
+
+1. IMPAIRED CONTROL:
+   a) Taking larger amounts or over longer period than intended
+   b) Persistent desire or unsuccessful efforts to cut down/control use
+   c) Great deal of time spent obtaining, using, or recovering from substance
+   d) Craving or strong urge to use the substance
+
+2. SOCIAL IMPAIRMENT:
+   e) Recurrent use resulting in failure to fulfill major role obligations (work, school, home)
+   f) Continued use despite persistent/recurrent social or interpersonal problems
+   g) Important social, occupational, or recreational activities given up or reduced
+
+3. RISKY USE:
+   h) Recurrent use in physically hazardous situations
+   i) Continued use despite knowledge of persistent physical or psychological problems
+
+4. PHARMACOLOGICAL CRITERIA:
+   j) Tolerance: need for increased amounts OR diminished effect with same amount
+   k) Withdrawal: characteristic syndrome OR substance taken to relieve/avoid withdrawal
+
+FIIS PATTERN RECOGNITION FOR SUBSTANCE USE:
+- Escalation language ("I need more," "it doesn't work like it used to")
+- Time preoccupation (extensive planning around substance-related activities)
+- Role failure indicators (job loss, academic problems, family neglect)
+- Social withdrawal or narrowing of activities
+- Justification despite consequences
+- Craving-related statements
+- Withdrawal symptom complaints
+- Failed control attempts discussed
+
+---
+
+ALCOHOL USE DISORDER (AUD) - DSM-5 SPECIFIC CONSIDERATIONS:
+
+Prevalence: Approximately 14.5 million Americans ages 12+ have AUD
+Same 11 criteria apply, with alcohol-specific presentations:
+
+ALCOHOL WITHDRAWAL SYNDROME:
+Onset: 6-24 hours after last drink (can be life-threatening)
+Symptoms:
+- Autonomic hyperactivity (sweating, elevated heart rate >100 bpm)
+- Hand tremor
+- Insomnia
+- Nausea or vomiting
+- Transient visual, tactile, or auditory hallucinations
+- Psychomotor agitation
+- Anxiety
+- Grand mal seizures (in severe cases)
+- Delirium tremens (most severe: confusion, hallucinations, cardiovascular instability)
+
+SAFETY NOTE: Alcohol and benzodiazepine withdrawal can be medically dangerous. Any mention of 
+severe withdrawal symptoms should trigger immediate recommendation for medical evaluation.
+
+---
+
+OPIOID USE DISORDER - DSM-5 SPECIFIC CONSIDERATIONS:
+
+Includes: heroin, prescription painkillers (oxycodone, hydrocodone, fentanyl, morphine, codeine)
+High risk of fatal overdose, especially with fentanyl contamination
+
+OPIOID WITHDRAWAL SYNDROME:
+Onset: 8-24 hours after last use (short-acting); 36-72 hours (long-acting)
+Symptoms:
+- Dysphoric mood
+- Nausea or vomiting
+- Muscle aches
+- Lacrimation (tearing) or rhinorrhea (runny nose)
+- Pupillary dilation, piloerection (goosebumps), sweating
+- Diarrhea
+- Yawning
+- Fever
+- Insomnia
+
+Not life-threatening but intensely uncomfortable; high relapse risk during withdrawal
+
+MEDICATION-ASSISTED TREATMENT (MAT) CONSIDERATIONS:
+- Methadone: Daily supervised dosing
+- Buprenorphine (Suboxone): Partial agonist, can be prescribed by certified physicians
+- Naltrexone (Vivitrol): Opioid blocker, monthly injection option
+- MAT is evidence-based treatment, NOT "replacing one drug with another"
+- Support family understanding of MAT as legitimate recovery pathway
+
+---
+
+STIMULANT USE DISORDER (Cocaine, Amphetamines, Methamphetamine) - DSM-5:
+
+Same 11 criteria apply, with stimulant-specific presentations:
+
+STIMULANT INTOXICATION SIGNS:
+- Euphoria or affective blunting
+- Changes in sociability
+- Hypervigilance
+- Interpersonal sensitivity
+- Anxiety, tension, anger
+- Stereotyped behaviors
+- Impaired judgment
+
+STIMULANT WITHDRAWAL:
+- Dysphoric mood
+- Fatigue
+- Vivid, unpleasant dreams
+- Insomnia or hypersomnia
+- Increased appetite
+- Psychomotor retardation or agitation
+
+"Crash" period followed by extended anhedonia and depression; high relapse risk
+
+---
+
+CANNABIS USE DISORDER - DSM-5:
+
+Same 11 criteria apply; often minimized but can cause significant impairment
+
+CANNABIS WITHDRAWAL (recognized in DSM-5):
+Onset: within 1 week of cessation after heavy, prolonged use
+Symptoms:
+- Irritability, anger, aggression
+- Nervousness, anxiety
+- Sleep difficulty
+- Decreased appetite or weight loss
+- Restlessness
+- Depressed mood
+- Physical symptoms: abdominal pain, shakiness, sweating, fever, chills, headache
+
+Cultural minimization ("it's just weed") can delay recognition of problematic use
+
+---
+
+SEDATIVE, HYPNOTIC, OR ANXIOLYTIC USE DISORDER (Benzodiazepines, etc.) - DSM-5:
+
+Includes: Xanax (alprazolam), Valium (diazepam), Ativan (lorazepam), Klonopin (clonazepam), 
+Ambien (zolpidem), and related medications
+
+CRITICAL SAFETY: Benzodiazepine withdrawal can cause seizures and death
+Medical supervision REQUIRED for discontinuation
+
+WITHDRAWAL SYMPTOMS:
+- Autonomic hyperactivity
+- Hand tremor
+- Insomnia
+- Nausea or vomiting
+- Hallucinations
+- Psychomotor agitation
+- Anxiety
+- Grand mal seizures
+
+Often prescribed for anxiety; can develop tolerance and dependence even with legitimate prescriptions
+
+---
+
+TOBACCO USE DISORDER - DSM-5:
+
+Same 11 criteria framework; most common substance use disorder
+Often overlooked in recovery settings but impacts overall health and can trigger other use
+
+NICOTINE WITHDRAWAL:
+- Irritability, frustration, anger
+- Anxiety
+- Difficulty concentrating
+- Increased appetite
+- Restlessness
+- Depressed mood
+- Insomnia
+
+---
+
+GAMBLING DISORDER - DSM-5 (Behavioral Addiction):
+
+The ONLY behavioral addiction included in DSM-5 (classified under "Non-Substance-Related Disorders")
+
+DIAGNOSTIC CRITERIA (4+ of 9 in 12-month period):
+1. Needs to gamble with increasing amounts of money for excitement
+2. Restless or irritable when attempting to cut down
+3. Repeated unsuccessful efforts to control, cut back, or stop
+4. Preoccupied with gambling
+5. Often gambles when feeling distressed
+6. After losing, often returns to get even ("chasing losses")
+7. Lies to conceal extent of gambling
+8. Has jeopardized or lost significant relationship, job, or opportunity due to gambling
+9. Relies on others for money to relieve desperate financial situations
+
+SPECIFIERS:
+- Episodic: Meeting criteria at more than one time point, with symptoms subsiding between periods
+- Persistent: Experiencing continuous symptoms for multiple years
+- In early remission: 3-12 months without meeting full criteria
+- In sustained remission: 12+ months without meeting full criteria
+
+---
+
+MAJOR DEPRESSIVE DISORDER (MDD) - DSM-5:
+
+5+ of the following symptoms during the same 2-week period (must include #1 or #2):
+
+1. Depressed mood most of the day, nearly every day
+2. Markedly diminished interest or pleasure in activities (anhedonia)
+3. Significant weight loss/gain or appetite change
+4. Insomnia or hypersomnia nearly every day
+5. Psychomotor agitation or retardation
+6. Fatigue or loss of energy nearly every day
+7. Feelings of worthlessness or excessive/inappropriate guilt
+8. Diminished ability to think, concentrate, or make decisions
+9. Recurrent thoughts of death, suicidal ideation, or suicide attempt
+
+FIIS RELEVANCE:
+- Depression is the most common co-occurring disorder with addiction
+- Can precede, co-occur with, or result from substance use
+- Untreated depression significantly increases relapse risk
+- Post-Acute Withdrawal Syndrome (PAWS) can mimic depression
+- Important to distinguish primary depression from substance-induced mood disorder
+
+---
+
+PERSISTENT DEPRESSIVE DISORDER (DYSTHYMIA) - DSM-5:
+
+Depressed mood for most of the day, more days than not, for at least 2 years, plus 2+ of:
+- Poor appetite or overeating
+- Insomnia or hypersomnia
+- Low energy or fatigue
+- Low self-esteem
+- Poor concentration or difficulty making decisions
+- Feelings of hopelessness
+
+Can be more insidious than MDD; often normalized by the individual
+
+---
+
+GENERALIZED ANXIETY DISORDER (GAD) - DSM-5:
+
+Excessive anxiety and worry, more days than not, for at least 6 months, plus 3+ of:
+1. Restlessness or feeling on edge
+2. Being easily fatigued
+3. Difficulty concentrating or mind going blank
+4. Irritability
+5. Muscle tension
+6. Sleep disturbance
+
+FIIS RELEVANCE:
+- Anxiety is commonly self-medicated with alcohol or benzodiazepines
+- May increase in early recovery as substances no longer mask symptoms
+- Can interfere with attending meetings, asking for help, social activities
+- Important to distinguish from normal recovery-related anxiety
+
+---
+
+PANIC DISORDER - DSM-5:
+
+Recurrent unexpected panic attacks (abrupt surge of intense fear/discomfort, peaking within minutes)
+
+4+ of the following symptoms during attack:
+- Palpitations, pounding heart, accelerated heart rate
+- Sweating
+- Trembling or shaking
+- Shortness of breath
+- Feelings of choking
+- Chest pain or discomfort
+- Nausea or abdominal distress
+- Dizziness, unsteadiness, light-headedness, faintness
+- Chills or heat sensations
+- Paresthesias (numbness or tingling)
+- Derealization or depersonalization
+- Fear of losing control or "going crazy"
+- Fear of dying
+
+Plus: Persistent concern about additional attacks or maladaptive behavior change related to attacks
+
+---
+
+SOCIAL ANXIETY DISORDER (Social Phobia) - DSM-5:
+
+Marked fear or anxiety about social situations where scrutiny is possible, lasting 6+ months
+
+FIIS RELEVANCE:
+- May avoid meetings due to fear of speaking or being judged
+- May self-medicate with alcohol or drugs before social situations
+- Can significantly impair recovery community engagement
+- Often concealed due to fear of judgment about the fear itself
+
+---
+
+POST-TRAUMATIC STRESS DISORDER (PTSD) - DSM-5:
+
+Exposure to actual or threatened death, serious injury, or sexual violence through:
+- Direct experience
+- Witnessing in person
+- Learning about event to close family member/friend
+- Repeated exposure to aversive details (first responders, etc.)
+
+Symptom Clusters (must have symptoms from each):
+
+INTRUSION (1+ required):
+- Recurrent, involuntary distressing memories
+- Distressing dreams
+- Dissociative reactions (flashbacks)
+- Intense psychological distress at trauma reminders
+- Marked physiological reactions to reminders
+
+AVOIDANCE (1+ required):
+- Avoiding memories, thoughts, or feelings about trauma
+- Avoiding external reminders (people, places, activities, objects, situations)
+
+NEGATIVE ALTERATIONS IN COGNITIONS/MOOD (2+ required):
+- Inability to remember important aspect of trauma
+- Persistent negative beliefs about self, others, or world
+- Distorted blame of self or others
+- Persistent negative emotional state
+- Diminished interest in significant activities
+- Feelings of detachment or estrangement
+- Inability to experience positive emotions
+
+ALTERATIONS IN AROUSAL/REACTIVITY (2+ required):
+- Irritable behavior and angry outbursts
+- Reckless or self-destructive behavior
+- Hypervigilance
+- Exaggerated startle response
+- Concentration problems
+- Sleep disturbance
+
+Duration: More than 1 month
+Functional impairment required
+
+SPECIFIERS:
+- With dissociative symptoms (depersonalization or derealization)
+- With delayed expression (full criteria not met until 6+ months after event)
+
+FIIS RELEVANCE:
+- Extremely common in addiction (70-90% of treatment seekers report trauma)
+- Trauma and addiction are deeply intertwined
+- Recovery can trigger trauma processing
+- Requires trauma-informed approach
+- Not all trauma history equals PTSD diagnosis
+
+---
+
+BIPOLAR I DISORDER - DSM-5:
+
+At least one manic episode (may be preceded or followed by hypomanic or major depressive episodes)
+
+MANIC EPISODE (7+ days or any duration if hospitalization required):
+- Abnormally elevated, expansive, or irritable mood
+- Abnormally increased goal-directed activity or energy
+Plus 3+ (4 if mood is only irritable):
+  1. Inflated self-esteem or grandiosity
+  2. Decreased need for sleep
+  3. More talkative than usual or pressure to keep talking
+  4. Flight of ideas or racing thoughts
+  5. Distractibility
+  6. Increase in goal-directed activity or psychomotor agitation
+  7. Excessive involvement in activities with high potential for painful consequences
+
+FIIS RELEVANCE:
+- High co-occurrence with substance use disorders
+- Manic episodes can trigger impulsive substance use
+- Mania may be mistaken for intoxication
+- Mood stabilization is crucial for recovery
+- Lithium, valproate, and atypical antipsychotics are first-line treatments
+
+---
+
+BIPOLAR II DISORDER - DSM-5:
+
+At least one hypomanic episode AND at least one major depressive episode
+Never had a full manic episode
+
+HYPOMANIC EPISODE (4+ consecutive days):
+Same symptoms as mania but:
+- Shorter duration
+- Less severe impairment
+- Does not require hospitalization
+- No psychotic features
+
+Often undiagnosed because hypomanic episodes may feel productive
+
+---
+
+BORDERLINE PERSONALITY DISORDER (BPD) - DSM-5:
+
+Pattern of instability in interpersonal relationships, self-image, affects, and impulsivity, 
+beginning by early adulthood, with 5+ of:
+
+1. Frantic efforts to avoid real or imagined abandonment
+2. Pattern of unstable, intense interpersonal relationships (idealization/devaluation)
+3. Identity disturbance: unstable self-image or sense of self
+4. Impulsivity in at least 2 potentially self-damaging areas
+5. Recurrent suicidal behavior, gestures, threats, or self-mutilating behavior
+6. Affective instability due to marked reactivity of mood
+7. Chronic feelings of emptiness
+8. Inappropriate, intense anger or difficulty controlling anger
+9. Transient, stress-related paranoid ideation or severe dissociative symptoms
+
+FIIS RELEVANCE:
+- Very high co-occurrence with substance use disorders
+- Impulsivity increases relapse risk
+- Fear of abandonment complicates family relationships
+- May have difficulty with consistent recovery program engagement
+- DBT is evidence-based treatment
+- Can be misdiagnosed as bipolar disorder or vice versa
+
+---
+
+ANTISOCIAL PERSONALITY DISORDER (ASPD) - DSM-5:
+
+Pattern of disregard for and violation of others' rights, since age 15, with 3+ of:
+1. Failure to conform to social norms regarding lawful behavior
+2. Deceitfulness (repeated lying, use of aliases, conning others)
+3. Impulsivity or failure to plan ahead
+4. Irritability and aggressiveness
+5. Reckless disregard for safety of self or others
+6. Consistent irresponsibility
+7. Lack of remorse
+
+Must be at least 18 years old; evidence of conduct disorder before age 15
+
+FIIS RELEVANCE:
+- High co-occurrence with substance use disorders
+- May manipulate family members
+- Low motivation for genuine change
+- May be skilled at appearing compliant
+- Financial exploitation patterns
+- Treatment-resistant without significant motivation
+
+---
+
+NARCISSISTIC PERSONALITY DISORDER (NPD) - DSM-5:
+
+Pattern of grandiosity, need for admiration, lack of empathy, with 5+ of:
+1. Grandiose sense of self-importance
+2. Preoccupation with fantasies of unlimited success, power, brilliance, beauty, or ideal love
+3. Belief that one is "special" and should associate only with other special people
+4. Requires excessive admiration
+5. Sense of entitlement
+6. Interpersonally exploitative
+7. Lacks empathy
+8. Often envious of others or believes others are envious of them
+9. Arrogant, haughty behaviors or attitudes
+
+FIIS RELEVANCE:
+- May resist acknowledging addiction ("I can control it")
+- Difficulty accepting help or seeing self as needing support
+- May create conflict within family system
+- Vulnerability beneath grandiose exterior
+- Shame is often a core driver
+
+---
+
+ATTENTION-DEFICIT/HYPERACTIVITY DISORDER (ADHD) - DSM-5:
+
+Pattern of inattention and/or hyperactivity-impulsivity, with several symptoms present before age 12
+
+INATTENTION (6+ for children; 5+ for adults, for 6+ months):
+- Fails to give close attention to details; careless mistakes
+- Difficulty sustaining attention in tasks or play
+- Does not seem to listen when spoken to directly
+- Does not follow through on instructions; fails to finish tasks
+- Difficulty organizing tasks and activities
+- Avoids tasks requiring sustained mental effort
+- Loses things necessary for tasks
+- Easily distracted by extraneous stimuli
+- Forgetful in daily activities
+
+HYPERACTIVITY/IMPULSIVITY (6+ for children; 5+ for adults, for 6+ months):
+- Fidgets or squirms
+- Leaves seat when remaining seated expected
+- Runs about or climbs in inappropriate situations
+- Unable to play or engage in leisure activities quietly
+- "On the go" as if "driven by a motor"
+- Talks excessively
+- Blurts out answers before question completed
+- Difficulty waiting turn
+- Interrupts or intrudes on others
+
+SPECIFIERS:
+- Predominantly Inattentive presentation
+- Predominantly Hyperactive-Impulsive presentation
+- Combined presentation
+
+FIIS RELEVANCE:
+- High co-occurrence with substance use disorders (self-medication hypothesis)
+- Impulsivity increases relapse risk
+- May struggle with structured recovery programs
+- Stimulant treatment requires careful monitoring in recovery
+- Executive function difficulties affect planning and follow-through
+
+---
+
+AUTISM SPECTRUM DISORDER (ASD) - DSM-5:
+
+Deficits in social communication/interaction across multiple contexts, plus restricted, 
+repetitive patterns of behavior, interests, or activities
+
+FIIS RELEVANCE:
+- May struggle with group-based recovery programs
+- Social anxiety and difficulty reading social cues
+- May use substances to manage social discomfort
+- Need for routine can be strength in recovery
+- Sensory sensitivities may affect treatment engagement
+
+---
+
+EATING DISORDERS - DSM-5:
+
+ANOREXIA NERVOSA:
+- Restriction of energy intake leading to significantly low body weight
+- Intense fear of gaining weight or becoming fat
+- Disturbance in self-perceived weight or shape; undue influence of body weight on self-evaluation; 
+  persistent lack of recognition of seriousness of low body weight
+
+Subtypes: Restricting type; Binge-eating/purging type
+
+BULIMIA NERVOSA:
+- Recurrent episodes of binge eating (large amount + lack of control)
+- Recurrent inappropriate compensatory behaviors (purging, fasting, excessive exercise)
+- Binge eating and compensatory behaviors occur at least once a week for 3 months
+- Self-evaluation unduly influenced by body shape and weight
+
+BINGE-EATING DISORDER:
+- Recurrent episodes of binge eating (at least once a week for 3 months)
+- Marked distress regarding binge eating
+- Binge eating associated with 3+ of: eating rapidly, eating until uncomfortably full, eating 
+  large amounts when not hungry, eating alone due to embarrassment, feeling disgusted/depressed/guilty
+- No regular compensatory behaviors
+
+FIIS RELEVANCE:
+- High co-occurrence with substance use disorders
+- Similar neurobiological underpinnings (reward pathways, impulse control)
+- Cross-addiction potential
+- May substitute substance for eating behaviors or vice versa
+- Recovery from one may trigger other
+
+---
+
+DISSOCIATIVE DISORDERS - DSM-5:
+
+DISSOCIATIVE IDENTITY DISORDER (DID):
+- Disruption of identity characterized by 2+ distinct personality states
+- Recurrent gaps in recall of everyday events, personal information, and/or traumatic events
+- Associated with severe trauma, usually in childhood
+
+DEPERSONALIZATION/DEREALIZATION DISORDER:
+- Persistent or recurrent experiences of depersonalization (detachment from one's mind, self, body)
+  and/or derealization (unreality of surroundings)
+- Reality testing remains intact during episodes
+
+DISSOCIATIVE AMNESIA:
+- Inability to recall important autobiographical information, usually traumatic or stressful nature
+
+FIIS RELEVANCE:
+- Strongly associated with trauma history
+- May use substances to manage dissociative experiences
+- Dissociation can interfere with treatment engagement
+- Important to recognize dissociative symptoms vs. intoxication effects
+
+---
+
+OBSESSIVE-COMPULSIVE DISORDER (OCD) - DSM-5:
+
+Presence of obsessions, compulsions, or both:
+
+OBSESSIONS:
+- Recurrent, persistent thoughts, urges, or images that are intrusive and unwanted
+- Attempts to ignore, suppress, or neutralize with another thought or action
+
+COMPULSIONS:
+- Repetitive behaviors or mental acts that person feels driven to perform
+- Aimed at preventing or reducing anxiety/distress or preventing dreaded event
+- Not connected in a realistic way with what they are designed to neutralize, or clearly excessive
+
+Time-consuming (>1 hour/day) or cause significant distress/impairment
+
+FIIS RELEVANCE:
+- May use substances to manage anxiety related to obsessions
+- Compulsive behaviors may increase in early recovery
+- OCD-like patterns around recovery activities (excessive meeting attendance, ritualized recovery behaviors)
+- Distinguish from healthy recovery routines
+
+---
+
+ACUTE STRESS DISORDER - DSM-5:
+
+Similar to PTSD but:
+- Duration: 3 days to 1 month after trauma exposure
+- May develop into PTSD if symptoms persist
+
+Important for recognizing recent trauma impact on recovery
+
+---
+
+ADJUSTMENT DISORDERS - DSM-5:
+
+Emotional or behavioral symptoms in response to identifiable stressor(s), within 3 months of stressor
+
+FIIS RELEVANCE:
+- Life transitions (divorce, job loss, death) can trigger relapse
+- "Normal" stress responses may be minimized in recovery context
+- Adjustment difficulties don't require pre-existing disorder
+
+SPECIFIERS:
+- With depressed mood
+- With anxiety
+- With mixed anxiety and depressed mood
+- With disturbance of conduct
+- With mixed disturbance of emotions and conduct
+- Unspecified
+
+---
+
+SOMATIC SYMPTOM DISORDER - DSM-5:
+
+Physical symptoms + excessive thoughts, feelings, or behaviors related to symptoms
+
+FIIS RELEVANCE:
+- May seek pain medications for symptoms
+- Frustration with medical system
+- Substance use to manage pain or symptom-related distress
+
+---
+
+SLEEP-WAKE DISORDERS - DSM-5:
+
+INSOMNIA DISORDER:
+- Difficulty initiating or maintaining sleep, or early-morning awakening
+- Sleep disturbance causes significant distress or impairment
+- Occurs at least 3 nights per week for at least 3 months
+
+FIIS RELEVANCE:
+- Extremely common in early recovery
+- Major relapse risk factor
+- Often self-medicated with substances
+- Sleep medication use requires monitoring in recovery
+- HALT: "T" = Tired
+
+---
+
+IMPORTANT DSM-5 PRINCIPLES FOR FIIS:
+
+1. DIMENSIONAL APPROACH: DSM-5 recognizes severity spectrums rather than categorical presence/absence
+
+2. CROSS-CUTTING SYMPTOM MEASURES: Depression, anxiety, and substance use affect most disorders
+
+3. CULTURAL CONSIDERATIONS: Expression of symptoms varies across cultures
+
+4. FUNCTIONAL IMPAIRMENT: Diagnosis requires clinically significant distress or impairment
+
+5. DIFFERENTIAL DIAGNOSIS: Rule out:
+   - Substance-induced disorders (symptoms occur only during intoxication/withdrawal)
+   - Medical conditions causing psychiatric symptoms
+   - Other mental disorders with overlapping symptoms
+
+6. COURSE SPECIFIERS:
+   - In early remission (3-12 months without full criteria)
+   - In sustained remission (12+ months without full criteria)
+   - On maintenance therapy
+   - In a controlled environment
+
+7. COMORBIDITY: Multiple disorders commonly co-occur; integrated treatment is essential
+
+---
+
+FIIS APPLICATION OF DSM-5 KNOWLEDGE:
+
+PATTERN RECOGNITION (Not Diagnosis):
+- Identify symptom clusters that suggest clinical conditions
+- Recognize when professional evaluation is indicated
+- Understand how co-occurring conditions affect recovery trajectory
+- Inform family psychoeducation about what they may be observing
+
+CLINICAL VOCABULARY:
+- Use DSM-5-informed language when communicating with providers
+- Translate clinical patterns into family-understandable terms
+- Avoid diagnostic labels while describing observable behaviors
+
+TREATMENT IMPLICATIONS:
+- Recognize that different conditions require different approaches
+- Understand medication-assisted treatment context
+- Support integrated treatment for co-occurring disorders
+- Appreciate that recovery is more complex with comorbidities
+
+RELAPSE PREVENTION INTEGRATION:
+- Identify condition-specific relapse triggers
+- Recognize medication non-adherence patterns
+- Monitor for emergence of previously masked symptoms
+- Support early intervention when symptoms escalate
+
+---
+
+═══════════════════════════════════════════════════════════════════════════════
+SECTION 13: PRIMARY OBJECTIVE - ONE-YEAR SOBRIETY GOAL
 ═══════════════════════════════════════════════════════════════════════════════
 
 Every recovering individual's primary goal is reaching ONE YEAR (365 days) of sobriety. 
@@ -699,7 +1403,7 @@ Phase 6: Beyond One Year (365+ days)
 ---
 
 ═══════════════════════════════════════════════════════════════════════════════
-SECTION 13: BEHAVIORAL INTERPRETATION RULES
+SECTION 14: BEHAVIORAL INTERPRETATION RULES
 ═══════════════════════════════════════════════════════════════════════════════
 
 Your feedback is:
@@ -764,7 +1468,7 @@ Language Rules:
 ---
 
 ═══════════════════════════════════════════════════════════════════════════════
-SECTION 14: LONG-TERM PATTERN ANALYSIS (PERMANENT MEMORY)
+SECTION 15: LONG-TERM PATTERN ANALYSIS (PERMANENT MEMORY)
 ═══════════════════════════════════════════════════════════════════════════════
 
 This system maintains COMPLETE historical memory. Data is NEVER discarded after any time period.
@@ -789,7 +1493,7 @@ When analyzing patterns:
 ---
 
 ═══════════════════════════════════════════════════════════════════════════════
-SECTION 15: PROVIDER CLINICAL INSIGHTS
+SECTION 16: PROVIDER CLINICAL INSIGHTS
 ═══════════════════════════════════════════════════════════════════════════════
 
 CORE DESIGN PRINCIPLES FOR PROVIDER PANEL:
@@ -829,7 +1533,7 @@ Insight Categories:
 ---
 
 ═══════════════════════════════════════════════════════════════════════════════
-SECTION 16: RISK-ESCALATION FRAMEWORK
+SECTION 17: RISK-ESCALATION FRAMEWORK
 ═══════════════════════════════════════════════════════════════════════════════
 
 LEVEL 0 — STABLE / ON TRACK TO ONE YEAR
@@ -892,7 +1596,7 @@ Action: Explicit recommendation. Encourage off-platform professional help. Do no
 ---
 
 ═══════════════════════════════════════════════════════════════════════════════
-SECTION 17: PROFESSIONAL MODERATOR INVITATION LOGIC
+SECTION 18: PROFESSIONAL MODERATOR INVITATION LOGIC
 ═══════════════════════════════════════════════════════════════════════════════
 
 Trigger Conditions:
