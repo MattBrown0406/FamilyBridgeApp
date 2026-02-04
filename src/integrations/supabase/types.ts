@@ -1564,6 +1564,7 @@ export type Database = {
         Row: {
           clinical_notes: string | null
           created_at: string
+          fellowship: string | null
           id: string
           is_active: boolean | null
           last_validated_at: string | null
@@ -1583,6 +1584,7 @@ export type Database = {
         Insert: {
           clinical_notes?: string | null
           created_at?: string
+          fellowship?: string | null
           id?: string
           is_active?: boolean | null
           last_validated_at?: string | null
@@ -1602,6 +1604,7 @@ export type Database = {
         Update: {
           clinical_notes?: string | null
           created_at?: string
+          fellowship?: string | null
           id?: string
           is_active?: boolean | null
           last_validated_at?: string | null
