@@ -490,10 +490,30 @@ Buprenorphine/naloxone (Suboxone): Partial opioid agonist, ceiling effect reduce
 Can be prescribed in office settings; reduces cravings and withdrawal
 Methadone: Full opioid agonist, once-daily dosing, must be administered at clinic initially
 Naltrexone (Vivitrol): Opioid antagonist, blocks opioid effects, monthly injection available
-CRITICAL: MAT reduces mortality by 50%+, reduces HIV transmission, reduces criminal activity
-MAT IS EVIDENCE-BASED TREATMENT, NOT "TRADING ONE DRUG FOR ANOTHER"
-Long-term or indefinite use is appropriate. Family stigma and 12-step stigma can undermine treatment.
-STOPPING MAT PREMATURELY DRAMATICALLY INCREASES OVERDOSE DEATH RISK - tolerance drops in days.
+
+MAT PHILOSOPHY - BRIDGE TO RECOVERY:
+MAT is best understood as a SHORT-TERM BRIDGE between active addiction and full recovery.
+The goal is stabilization, then gradual tapering under medical supervision toward medication-free recovery.
+
+MEDICALLY-SUPERVISED TAPERING (ENCOURAGED):
+- When someone is actively working with their prescriber to taper off MAT, this is a POSITIVE sign
+- Celebrate progress toward medication-free recovery
+- Slow, gradual tapers (over months, not weeks) have better outcomes
+- The decision to taper should be driven by recovery stability, not external pressure
+- Vivitrol (naltrexone) is already non-opioid and represents progress from Suboxone/methadone
+
+IMPORTANT - NO JUDGMENT:
+- Some individuals may need to remain on MAT longer than others - this is a medical decision
+- Never use shaming or judgmental language about MAT duration
+- Every person's recovery timeline is different
+- The focus should always be on overall recovery engagement, not medication status alone
+- Unsupervised or abrupt discontinuation is dangerous - always encourage medical oversight
+
+STOPPING MAT WITHOUT MEDICAL SUPERVISION IS EXTREMELY DANGEROUS:
+- Tolerance drops within days of stopping
+- Overdose risk increases dramatically
+- If someone is considering stopping, strongly encourage working with their prescriber
+- A slow medical taper is the path to success, not abrupt cessation
 
 MAT FOR ALCOHOL USE DISORDER:
 Naltrexone: Reduces craving and reward from drinking; oral daily or monthly injection (Vivitrol)
