@@ -319,6 +319,399 @@ EATING DISORDERS:
 Signs: Restrictive eating, binge eating, purging, body image distortion
 Recovery Impact: Cross-addiction potential, need for integrated treatment
 
+PSYCHOTIC DISORDERS:
+Signs: Hallucinations (auditory, visual), delusions (persecutory, grandiose), disorganized 
+thinking, social withdrawal, flat affect, difficulty with reality testing
+Recovery Impact: Medication non-compliance common, substance use can trigger or worsen psychosis,
+methamphetamine and cannabis can induce lasting psychotic vulnerability
+Substance-Induced vs Primary: Substance-induced psychosis typically resolves in days to weeks with
+abstinence; if symptoms persist 1+ month after abstinence, primary psychotic disorder likely
+CRITICAL: Schizophrenia + SUD comorbidity is ~50%. Clozapine may reduce substance use.
+
+SCHIZOPHRENIA SPECTRUM CONSIDERATIONS:
+- Positive symptoms: hallucinations, delusions, disorganized speech
+- Negative symptoms: flat affect, avolition, alogia, anhedonia (often mistaken for depression)
+- Cognitive symptoms: attention, working memory, executive function deficits
+- Long-acting injectable (LAI) antipsychotics improve medication compliance
+- Methamphetamine psychosis can persist for months after abstinence
+- 25-50% with substance-induced psychosis later develop primary psychotic disorder
+
+═══════════════════════════════════════════════════════════════════════════════
+SECTION 6A: DSM-5 DIAGNOSTIC CRITERIA FAMILIARITY
+═══════════════════════════════════════════════════════════════════════════════
+
+MAJOR DEPRESSIVE DISORDER (DSM-5 Criteria):
+5+ symptoms for 2+ weeks, including depressed mood OR anhedonia:
+1. Depressed mood most of day, nearly every day
+2. Markedly diminished interest/pleasure (anhedonia)
+3. Significant weight change (>5% in month) or appetite change
+4. Insomnia or hypersomnia
+5. Psychomotor agitation or retardation
+6. Fatigue or loss of energy
+7. Feelings of worthlessness or excessive guilt
+8. Diminished concentration or indecisiveness
+9. Recurrent thoughts of death, suicidal ideation, attempt, or plan
+DUAL DIAGNOSIS NOTE: In active addiction, depression symptoms may be substance-induced.
+Differentiate with 2-4 weeks of sustained abstinence - if symptoms persist, likely independent MDD.
+
+GENERALIZED ANXIETY DISORDER (DSM-5 Criteria):
+Excessive anxiety/worry more days than not for 6+ months with 3+ of:
+1. Restlessness or feeling keyed up
+2. Being easily fatigued
+3. Difficulty concentrating or mind going blank
+4. Irritability
+5. Muscle tension
+6. Sleep disturbance
+DUAL DIAGNOSIS NOTE: Anxiety often drives substance use (self-medication). 
+Benzodiazepines provide immediate relief but worsen long-term outcomes and are highly addictive.
+Safe alternatives: SSRIs, buspirone, CBT, mindfulness-based approaches.
+
+PANIC DISORDER:
+Recurrent unexpected panic attacks (4+ of 13 symptoms peaking within minutes):
+Palpitations, sweating, trembling, shortness of breath, choking feeling, chest pain,
+nausea, dizziness, chills/heat, paresthesias, derealization, fear of losing control, fear of dying
++ Persistent concern about additional attacks or maladaptive behavioral changes
+DUAL DIAGNOSIS NOTE: Panic attacks create powerful conditioning for substance use as immediate escape.
+
+PTSD (DSM-5 Criteria) - Requires exposure to actual/threatened death, serious injury, or sexual violence:
+Cluster B: Intrusion symptoms (1+ required)
+Cluster C: Avoidance (1+ required)
+Cluster D: Negative cognitions and mood (2+ required)
+Cluster E: Arousal and reactivity (2+ required)
+Duration: 1+ month
+DUAL DIAGNOSIS NOTE: 40-60% of those with PTSD have co-occurring SUD.
+Trauma often drives addiction. Trauma-focused therapy (EMDR, CPT, PE) typically after 3-6 months sobriety.
+
+COMPLEX PTSD (ICD-11, not yet DSM):
+Standard PTSD symptoms PLUS disturbances in self-organization:
+- Affect dysregulation (emotional volatility)
+- Negative self-concept (chronic shame, worthlessness)
+- Disturbances in relationships (difficulty with trust, intimacy)
+Typically from early/prolonged/repeated trauma, especially interpersonal.
+Higher risk for severe addiction, personality disorders, treatment dropout.
+Requires longer-term, phase-oriented treatment (stabilization before trauma processing).
+
+BIPOLAR I DISORDER:
+At least ONE manic episode (7+ days or any duration if hospitalization required):
+Elevated, expansive, or irritable mood + increased energy/activity + 3-4 of:
+1. Inflated self-esteem or grandiosity
+2. Decreased need for sleep
+3. More talkative than usual or pressure to keep talking
+4. Flight of ideas or racing thoughts
+5. Distractibility
+6. Increase in goal-directed activity or psychomotor agitation
+7. Excessive involvement in activities with high potential for painful consequences
+DUAL DIAGNOSIS NOTE: Mania can be triggered by substances or may trigger substance use.
+Sleep deprivation accelerates mania. Medication non-compliance often precedes episodes.
+CRITICAL: Stopping mood stabilizers is high-risk for relapse of both conditions.
+
+BIPOLAR II DISORDER:
+At least one hypomanic episode (4+ days) AND at least one major depressive episode.
+Hypomania is less severe than mania - no psychotic features, no hospitalization required.
+DUAL DIAGNOSIS NOTE: Bipolar II depression is 3x more common than hypomania, more disabling,
+and carries higher suicide risk than Bipolar I. Often misdiagnosed as unipolar depression.
+
+BORDERLINE PERSONALITY DISORDER (DSM-5 Criteria - 5+ of 9):
+1. Frantic efforts to avoid real or imagined abandonment
+2. Pattern of unstable, intense relationships (idealization/devaluation)
+3. Identity disturbance: unstable self-image or sense of self
+4. Impulsivity in 2+ areas that are self-damaging
+5. Recurrent suicidal behavior, gestures, threats, or self-mutilating behavior
+6. Affective instability (intense episodic dysphoria, irritability, anxiety)
+7. Chronic feelings of emptiness
+8. Inappropriate, intense anger or difficulty controlling anger
+9. Transient paranoid ideation or severe dissociative symptoms
+DUAL DIAGNOSIS NOTE: 50-70% of those with BPD have co-occurring SUD.
+DBT (Dialectical Behavior Therapy) has strong evidence for both conditions.
+Family education on not reinforcing crisis behaviors while maintaining connection is essential.
+
+NARCISSISTIC PERSONALITY DISORDER (DSM-5 Criteria - 5+ of 9):
+1. Grandiose sense of self-importance
+2. Preoccupied with fantasies of unlimited success, power, brilliance
+3. Believes they are "special" and should only associate with high-status people
+4. Requires excessive admiration
+5. Sense of entitlement
+6. Interpersonally exploitative
+7. Lacks empathy
+8. Often envious of others or believes others are envious of them
+9. Arrogant, haughty behaviors or attitudes
+DUAL DIAGNOSIS NOTE: In addiction, often manifests as "terminal uniqueness" and resistance to program.
+Focus on behavioral contracts rather than insight. Families need strong boundaries.
+
+ANTISOCIAL PERSONALITY DISORDER (DSM-5 Criteria):
+Pervasive disregard for rights of others since age 15 with 3+ of:
+1. Failure to conform to social norms/lawful behaviors
+2. Deceitfulness, repeated lying, conning
+3. Impulsivity or failure to plan ahead
+4. Irritability and aggressiveness
+5. Reckless disregard for safety of self or others
+6. Consistent irresponsibility
+7. Lack of remorse
++ Evidence of Conduct Disorder before age 15
+DUAL DIAGNOSIS NOTE: Very high SUD comorbidity. Treatment challenging but not hopeless.
+Behavioral approaches and contingency management more effective than insight-oriented therapy.
+Family safety is priority. Firm boundaries and natural consequences essential.
+
+═══════════════════════════════════════════════════════════════════════════════
+SECTION 6B: MEDICATION LITERACY FOR DUAL DIAGNOSIS
+═══════════════════════════════════════════════════════════════════════════════
+
+ANTIDEPRESSANTS (SSRIs/SNRIs):
+Common medications: fluoxetine (Prozac), sertraline (Zoloft), escitalopram (Lexapro),
+paroxetine (Paxil), citalopram (Celexa), venlafaxine (Effexor), duloxetine (Cymbalta)
+Timeline: 4-6 weeks for full effect; side effects often improve in 1-2 weeks
+Critical: Never stop abruptly - taper required to avoid discontinuation syndrome
+Side effects: Initial anxiety/activation, sexual dysfunction, weight changes, emotional blunting
+Wellbutrin (bupropion): NDRI - useful for smoking cessation, less sexual side effects
+DUAL DIAGNOSIS NOTE: SSRIs are first-line for depression and anxiety with SUD.
+
+MOOD STABILIZERS:
+Lithium: Narrow therapeutic window, requires blood level monitoring (0.6-1.2 mEq/L)
+Side effects: tremor, thirst, weight gain, thyroid/kidney effects with long-term use
+Valproate (Depakote): Weight gain, hair loss, liver monitoring required, teratogenic
+Lamotrigine (Lamictal): Slow titration required to prevent life-threatening rash (SJS)
+Excellent for bipolar depression
+Carbamazepine (Tegretol): Blood count monitoring, many drug interactions
+DUAL DIAGNOSIS NOTE: Mood stabilizer discontinuation is major relapse risk for both conditions.
+"Feeling better" often means medication is working - not that it's no longer needed.
+
+ANTIPSYCHOTICS:
+First-generation (typical): haloperidol (Haldol), chlorpromazine
+Second-generation (atypical): aripiprazole (Abilify), risperidone (Risperdal),
+olanzapine (Zyprexa), quetiapine (Seroquel), ziprasidone (Geodon), lurasidone (Latuda)
+Long-Acting Injectables (LAI): Improve compliance - Abilify Maintena, Invega Sustenna,
+Risperdal Consta, Haldol Decanoate
+METABOLIC SYNDROME RISK: Monitor weight, glucose, lipids regularly
+Clozapine: Most effective but requires weekly/biweekly blood monitoring (agranulocytosis risk)
+Evidence suggests clozapine may reduce substance use in schizophrenia-SUD.
+
+MEDICATION-ASSISTED TREATMENT (MAT) FOR OPIOID USE DISORDER:
+Buprenorphine/naloxone (Suboxone): Partial opioid agonist, ceiling effect reduces overdose risk
+Can be prescribed in office settings; reduces cravings and withdrawal
+Methadone: Full opioid agonist, once-daily dosing, must be administered at clinic initially
+Naltrexone (Vivitrol): Opioid antagonist, blocks opioid effects, monthly injection available
+CRITICAL: MAT reduces mortality by 50%+, reduces HIV transmission, reduces criminal activity
+MAT IS EVIDENCE-BASED TREATMENT, NOT "TRADING ONE DRUG FOR ANOTHER"
+Long-term or indefinite use is appropriate. Family stigma and 12-step stigma can undermine treatment.
+STOPPING MAT PREMATURELY DRAMATICALLY INCREASES OVERDOSE DEATH RISK - tolerance drops in days.
+
+MAT FOR ALCOHOL USE DISORDER:
+Naltrexone: Reduces craving and reward from drinking; oral daily or monthly injection (Vivitrol)
+Acamprosate (Campral): Reduces post-acute withdrawal symptoms
+Disulfiram (Antabuse): Creates aversive reaction if alcohol consumed (nausea, flushing)
+
+DANGEROUS DRUG INTERACTIONS (CRISIS LEVEL):
+- Opioids + Benzodiazepines: Leading cause of overdose death; FDA black box warning
+- Opioids + Alcohol + Muscle relaxants: Any CNS depressant combination potentially fatal
+- Methadone + Benzodiazepines: Particularly dangerous due to methadone's long half-life
+- SSRIs + MDMA (Ecstasy): Serotonin syndrome risk - can be fatal
+- SSRIs + Tramadol: Serotonin syndrome risk
+- MAOIs + Multiple substances: Hypertensive crisis, serotonin syndrome
+
+SEROTONIN SYNDROME RECOGNITION (MEDICAL EMERGENCY):
+Symptoms: Hyperthermia (high fever), agitation, confusion, muscle rigidity, rapid heart rate,
+dilated pupils, tremor, hyperreflexia, diarrhea
+Triggers: Multiple serotonergic substances (SSRIs, SNRIs, tramadol, MDMA, fentanyl, lithium, triptans)
+MAOI + serotonergic substances most dangerous
+REQUIRES IMMEDIATE MEDICAL ATTENTION
+
+═══════════════════════════════════════════════════════════════════════════════
+SECTION 6C: PSYCHIATRIC CRISIS RECOGNITION & RESPONSE
+═══════════════════════════════════════════════════════════════════════════════
+
+SUICIDE RISK ASSESSMENT:
+
+WARNING SIGNS REQUIRING IMMEDIATE ACTION:
+- Talking about wanting to die or kill oneself
+- Looking for ways to kill oneself (researching methods, acquiring means)
+- Talking about feeling hopeless or having no purpose
+- Talking about feeling trapped or in unbearable pain
+- Talking about being a burden to others
+- Increasing use of alcohol or drugs
+- Acting anxious, agitated, or reckless
+- Sleeping too little or too much
+- Withdrawing or feeling isolated
+- Showing rage or talking about seeking revenge
+- Displaying extreme mood swings
+- Giving away prized possessions
+- Saying goodbye to people as if for the last time
+
+SUICIDE RISK FACTORS:
+- Prior suicide attempt (strongest predictor)
+- Access to lethal means (especially firearms)
+- Family history of suicide
+- Recent significant loss
+- Chronic pain or illness
+- Substance use disorder (increases risk 5-10x)
+- Mental health conditions (especially bipolar, BPD, depression, schizophrenia)
+- Recent psychiatric hospitalization or discharge
+- Social isolation
+- Being in a high-risk demographic group
+
+PASSIVE VS ACTIVE SUICIDAL IDEATION:
+Passive: "I wish I wasn't here" / "I wouldn't mind dying" / "I'm tired of living"
+Active: "I want to kill myself" / "I have a plan" / "I've been thinking about how to do it"
+CRITICAL: Passive ideation can escalate to active. Both require attention and safety planning.
+
+LETHAL MEANS RESTRICTION (Evidence-based prevention):
+- Firearms: Should be stored elsewhere or secured by trusted person during high-risk periods
+(50% of suicides use firearms; they are the most lethal method)
+- Medications: Limit supply, lock up medications, dispose of unused prescriptions
+- Access to bridges/heights: Awareness of local high-risk locations
+
+CRISIS RESOURCES:
+- 988 Suicide & Crisis Lifeline (call or text 988)
+- Crisis Text Line (text HOME to 741741)
+- Local mobile crisis teams
+- Emergency room for imminent danger
+
+MANIC EMERGENCY:
+Signs requiring urgent intervention:
+- No sleep for 3+ days
+- Grandiose or persecutory delusions
+- Dangerous impulsivity (spending, sexual behavior, driving)
+- Irritable aggression putting self or others at risk
+- Unable to reality test
+- Psychotic features
+RESPONSE: Contact psychiatrist immediately or go to ER. May require hospitalization.
+Medication non-compliance often precedes manic episodes.
+
+PSYCHOTIC EMERGENCY:
+Signs requiring immediate intervention:
+- Command hallucinations (voices telling person to harm self or others)
+- Persecutory delusions about family (believing family is poisoning, plotting)
+- Inability to distinguish reality from delusions/hallucinations
+- Acting on delusions or hallucinations
+- Significant functional decline (not eating, hygiene neglect, dangerous behavior)
+RESPONSE: Do not argue with delusions. Ensure safety. Call 911 if danger present.
+ER evaluation and likely hospitalization needed.
+
+SEVERE DEPRESSION REQUIRING HOSPITALIZATION:
+- Inability to perform basic self-care (eating, hygiene, getting out of bed)
+- Active suicidal ideation with plan and intent
+- Catatonic features (not speaking, not moving, unresponsive)
+- Psychotic features (delusions of guilt, worthlessness, nihilism)
+ECT (electroconvulsive therapy) is highly effective for severe, medication-resistant depression.
+
+NON-SUICIDAL SELF-INJURY (NSSI):
+Definition: Deliberate self-harm WITHOUT suicidal intent (cutting, burning, hitting self)
+Purpose: Usually emotional regulation - provides temporary relief from overwhelming emotions
+Common in: BPD, PTSD, adolescents, trauma survivors
+RESPONSE: Avoid shaming or ultimatums. Express concern. Encourage DBT skills for distress tolerance.
+NSSI increases suicide risk even though the behavior itself is not suicide attempt.
+Ask directly: "Are you thinking of killing yourself?" (separate from self-harm)
+
+INVOLUNTARY COMMITMENT (Baker Act/5150/302):
+Legal criteria vary by state but generally require:
+1. Mental illness AND
+2. Imminent danger to self OR
+3. Imminent danger to others OR
+4. Grave disability (unable to meet basic needs)
+
+Process: 72-hour evaluation hold (not treatment). Family can petition in most states.
+Psychiatric evaluation determines if longer hold or voluntary treatment is needed.
+This is a last resort when voluntary treatment is refused and danger is imminent.
+
+═══════════════════════════════════════════════════════════════════════════════
+SECTION 6D: INTEGRATED TREATMENT MODELS FOR DUAL DIAGNOSIS
+═══════════════════════════════════════════════════════════════════════════════
+
+INTEGRATED DUAL DISORDER TREATMENT (IDDT):
+Core Principle: Treat both mental health and substance use disorder simultaneously
+with one integrated treatment team. Sequential treatment (addiction first, then mental health
+OR mental health first, then addiction) has POOR outcomes.
+
+IDDT Key Elements:
+1. Staged Treatment: Match intensity to current recovery stage (engagement → persuasion → active → prevention)
+2. Motivational Approaches: Meet people where they are, build motivation
+3. Multiple Contacts: Flexible, frequent touchpoints
+4. Time-Unlimited Services: Chronic illness model, not acute episode model
+5. Assertive Outreach: Go to clients who miss appointments
+6. Harm Reduction: Meet safety goals even if abstinence not yet achieved
+7. Comprehensive Services: Housing, employment, medication, therapy, case management
+
+STAGES OF TREATMENT (IDDT Model):
+1. ENGAGEMENT: Building trust and therapeutic alliance; no pressure to change
+2. PERSUASION: Helping develop motivation for change; exploring ambivalence
+3. ACTIVE TREATMENT: Skill building, therapy, medication management
+4. RELAPSE PREVENTION: Maintenance, early warning recognition, ongoing support
+
+TREATMENT LEVEL MATCHING (ASAM Criteria Framework):
+RESIDENTIAL/INPATIENT (24/7 supervision):
+- Failed outpatient attempts
+- Severe psychiatric symptoms requiring stabilization
+- Unsafe living environment
+- Medical detox required
+- Imminent danger to self or others
+Look for DUAL DIAGNOSIS programs that treat both conditions.
+
+PARTIAL HOSPITALIZATION (PHP - 20+ hours/week):
+- Step-down from residential
+- Needs structure but can maintain safety at home
+- Stable housing available
+- Not in crisis but needs intensive support
+
+INTENSIVE OUTPATIENT (IOP - 9-19 hours/week):
+- Step-down from PHP
+- Can maintain daily responsibilities
+- Needs more than weekly therapy but less than PHP
+- Good for transition and relapse prevention
+
+OUTPATIENT (Weekly therapy):
+- Stable in recovery
+- Strong support system
+- Can manage symptoms between sessions
+
+THERAPY MODALITIES FOR DUAL DIAGNOSIS:
+
+DBT (Dialectical Behavior Therapy):
+Gold standard for emotional dysregulation, BPD, chronic suicidality
+Four modules: Mindfulness, Distress Tolerance, Emotion Regulation, Interpersonal Effectiveness
+Strong evidence for dual diagnosis with personality disorders
+
+EMDR (Eye Movement Desensitization and Reprocessing):
+Trauma processing therapy - helps reprocess traumatic memories
+Typically after 3-6 months of sobriety/stability
+Can reduce trauma-driven cravings and avoidance
+
+CPT (Cognitive Processing Therapy):
+Trauma-focused CBT - addresses stuck points and cognitive distortions about trauma
+Structured, time-limited (12 sessions typically)
+Can be adapted for dual diagnosis
+
+PE (Prolonged Exposure):
+Gradual, repeated exposure to trauma memories and avoided situations
+Reduces avoidance and fear response
+Requires stable sobriety typically
+
+CBT for Substance Use:
+Identifies triggers, develops coping skills, addresses cognitive distortions
+Functional analysis of substance use
+Relapse prevention planning
+
+DUAL DIAGNOSIS RECOVERY TIMELINE EXPECTATIONS:
+
+CRITICAL FOR FAMILIES TO UNDERSTAND:
+- Dual diagnosis recovery is typically 2-5 YEARS for stabilization, not months
+- Psychiatric symptoms often WORSEN initially in early sobriety
+- Brain neuroadaptation takes 1-2 years
+- Full recovery may be 5+ years
+- Single-disorder recovery timelines DO NOT apply
+- Setbacks are normal and expected - not failures
+
+TERMINOLOGY:
+- LAPSE: Brief return to use, quick recovery, learning opportunity
+- RELAPSE: Extended return to use, requires treatment adjustment
+- PROLAPSE: Psychiatric worsening without substance use - also requires attention
+- Each teaches something for prevention
+
+FAMILY EXPECTATIONS:
+- This is a marathon, not a sprint
+- Progress is often two steps forward, one step back
+- Celebrate small wins
+- "Recovered" may not be the goal - "in recovery" is ongoing
+- Family members need their own recovery support (Al-Anon, therapy)
+
 ---
 
 ═══════════════════════════════════════════════════════════════════════════════
