@@ -1,9 +1,25 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'app.lovable.feec162303784a959c1635217b29129c',
+  appId: 'com.familybridgeapp.app',
   appName: 'FamilyBridge',
   webDir: 'dist',
+  android: {
+    buildOptions: {
+      keystorePath: undefined,
+      keystorePassword: undefined,
+      keystoreAlias: undefined,
+      keystoreAliasPassword: undefined,
+      releaseType: 'AAB',
+    }
+  },
+  plugins: {
+    SplashScreen: {
+      launchShowDuration: 2000,
+      backgroundColor: '#1a1a2e',
+      showSpinner: false,
+    }
+  },
   ...(process.env.CAPACITOR_LIVE_RELOAD === 'true'
     ? {
         server: {
