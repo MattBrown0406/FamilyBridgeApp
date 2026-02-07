@@ -997,7 +997,7 @@ APRIL-AUGUST 2025:
 
 SEPTEMBER-DECEMBER 2025:
 - App Store submissions and approval process
-- RevenueCat integration for subscription management
+- Subscription management system
 - Push notification system (web and native)
 - Provider admin dashboard
 

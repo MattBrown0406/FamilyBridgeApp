@@ -1,5 +1,5 @@
-// In-App Purchase Product Configuration
-// These IDs must match exactly what's configured in App Store Connect and Google Play Console
+// Product Configuration
+// These IDs are used for subscription management and checkout flows
 
 export const BUNDLE_ID = "app.lovable.feec162303784a959c1635217b29129c";
 
@@ -30,7 +30,7 @@ export const PRODUCTS = {
       price: 2500,
       period: "year",
       displayName: "Provider Annual",
-      webOnly: true, // Not available in App Store due to $999 limit
+      webOnly: true, // Not available on mobile platforms
     },
   },
   crisisModeration: {

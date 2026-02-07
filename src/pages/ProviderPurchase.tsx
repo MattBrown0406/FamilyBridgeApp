@@ -28,7 +28,7 @@ const ProviderPurchase = () => {
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
   const [generatedCode, setGeneratedCode] = useState<string | null>(null);
   // Billing period - default to quarterly which works on all platforms
-  // Annual is web-only (Apple doesn't allow >$999 IAP)
+  // Annual is web-only due to pricing constraints
   const [billingPeriod, setBillingPeriod] = useState<"monthly" | "quarterly" | "annual">("quarterly");
 
   // Safety guard: ensure annual is never selected on native platforms
@@ -87,7 +87,7 @@ const ProviderPurchase = () => {
     // On native platforms, coupons that require external checkout are not supported
     // Only full-discount coupons that generate immediate activation codes work on iOS/Android
     if (isNative) {
-      toast.error("Coupon codes are only available on the web. Please use In-App Purchase to subscribe.");
+      toast.error("Coupon codes are only available on the web.");
       return;
     }
 

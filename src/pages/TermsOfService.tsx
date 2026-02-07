@@ -81,14 +81,13 @@ const TermsOfService = () => {
                 <div>
                   <h3 className="font-medium text-foreground mb-2">5.2 Billing</h3>
                   <ul className="list-disc list-inside space-y-1">
-                    <li><strong>Apple App Store:</strong> Payment will be charged to your Apple ID account at confirmation of purchase. Subscription automatically renews unless cancelled at least 24 hours before the end of the current period.</li>
-                    <li><strong>Google Play Store:</strong> Payment will be charged to your Google Play account. Subscription automatically renews unless cancelled before the renewal date.</li>
-                    <li><strong>Web:</strong> Payments are processed through Square. Subscriptions renew automatically unless cancelled.</li>
+                    <li>Payment will be charged to your selected payment method at confirmation of purchase.</li>
+                    <li>Subscriptions renew automatically unless cancelled before the end of the current billing period.</li>
                   </ul>
                 </div>
                 <div>
                   <h3 className="font-medium text-foreground mb-2">5.3 Cancellation</h3>
-                  <p>You may cancel your subscription at any time through your App Store, Google Play Store, or account settings. Cancellation takes effect at the end of the current billing period. No refunds are provided for partial billing periods.</p>
+                  <p>You may cancel your subscription at any time through your account settings. Cancellation takes effect at the end of the current billing period. No refunds are provided for partial billing periods.</p>
                 </div>
                 <div>
                   <h3 className="font-medium text-foreground mb-2">5.4 Price Changes</h3>

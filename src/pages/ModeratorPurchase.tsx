@@ -283,12 +283,19 @@ export default function ModeratorPurchase() {
 
                 {isNative && isIOS ? (
                   <>
-                    {/* iOS App Store compliant: No purchase buttons or pricing */}
+                    {/* iOS App Store compliant: No purchase buttons, pricing, or external links */}
                     <div className="text-center py-4 bg-muted/50 rounded-lg">
                       <p className="text-sm text-muted-foreground">
-                        This service is available through our website at familybridgeapp.com
+                        To access this feature, please sign in with your existing account.
                       </p>
                     </div>
+                    <Button
+                      variant="outline"
+                      onClick={() => navigate("/auth")}
+                      className="w-full"
+                    >
+                      Sign In
+                    </Button>
                   </>
                 ) : isNative ? (
                   <>
