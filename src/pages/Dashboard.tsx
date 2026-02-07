@@ -312,8 +312,8 @@ const Dashboard = () => {
               This action cannot be undone. This will permanently delete your account data, 
               including your profile, family memberships, and all associated information.
               {'\n\n'}
-              If you have an active subscription, please cancel it through your App Store or 
-              Google Play settings before deleting your account.
+              If you have an active subscription, please cancel it through your account 
+              settings before deleting your account.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
