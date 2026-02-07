@@ -122,7 +122,7 @@ export default function UpdatePayment() {
     );
   }
 
-  // On iOS, payment updates must be handled through the App Store
+  // On iOS native, show generic account management instructions
   if (isNative && isIOS) {
     return (
       <div className="min-h-screen flex flex-col bg-background">
@@ -144,7 +144,7 @@ export default function UpdatePayment() {
               </div>
               <CardTitle className="text-lg sm:text-xl">Manage Subscription</CardTitle>
               <CardDescription className="text-sm">
-                Your subscription is managed through the App Store
+                Manage your subscription from your account
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4 sm:space-y-6 px-4 sm:px-6">
@@ -152,19 +152,18 @@ export default function UpdatePayment() {
                 <Shield className="h-4 w-4" />
                 <AlertDescription className="text-sm">
                   To update your payment method or manage your subscription, 
-                  please use your device's Settings app.
+                  please sign in to your account on the web.
                 </AlertDescription>
               </Alert>
 
               <div className="space-y-3 sm:space-y-4">
                 <p className="text-xs sm:text-sm text-muted-foreground">
-                  <strong>To update your payment method:</strong>
+                  <strong>To manage your subscription:</strong>
                 </p>
                 <ol className="text-xs sm:text-sm text-muted-foreground space-y-1.5 sm:space-y-2 list-decimal list-inside">
-                  <li>Open the <strong>Settings</strong> app on your device</li>
-                  <li>Tap your <strong>Apple ID</strong> at the top</li>
-                  <li>Tap <strong>Subscriptions</strong></li>
-                  <li>Select <strong>FamilyBridge</strong></li>
+                  <li>Sign in to your account</li>
+                  <li>Go to your account settings</li>
+                  <li>Select subscription management</li>
                   <li>Update your payment information</li>
                 </ol>
               </div>

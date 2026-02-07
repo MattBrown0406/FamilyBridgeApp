@@ -34,15 +34,11 @@ export const SubscriptionDisclosure = ({
   
   // Get platform-specific account name
   const getAccountName = () => {
-    if (isIOS) return "Apple ID account";
-    if (isAndroid) return "Google Play account";
     return "payment method";
   };
 
   // Get platform-specific settings location
   const getSettingsLocation = () => {
-    if (isIOS) return "your device's Account Settings";
-    if (isAndroid) return "Google Play Store → Subscriptions";
     return "your account settings";
   };
 

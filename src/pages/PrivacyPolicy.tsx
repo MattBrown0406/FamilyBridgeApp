@@ -55,7 +55,7 @@ const PrivacyPolicy = () => {
                 </div>
                 <div>
                   <h3 className="font-medium text-foreground mb-1">Payment Information</h3>
-                  <p>Payment usernames (Venmo, PayPal, Cash App) you provide for family financial support are encrypted and stored securely. Subscription payments are processed securely through Apple App Store, Google Play Store, or Square depending on your platform.</p>
+                  <p>Payment usernames (Venmo, PayPal, Cash App) you provide for family financial support are encrypted and stored securely. Subscription payments are processed securely through our payment provider.</p>
                 </div>
                 <div>
                   <h3 className="font-medium text-foreground mb-1">Device Information</h3>
@@ -127,15 +127,14 @@ const PrivacyPolicy = () => {
 
           <Card>
             <CardContent className="pt-6">
-              <h2 className="text-xl font-semibold text-foreground mb-3">In-App Purchases & Subscriptions</h2>
+              <h2 className="text-xl font-semibold text-foreground mb-3">Subscriptions & Payments</h2>
               <div className="space-y-4 text-muted-foreground">
-                <p>FamilyBridge offers subscription services through Apple App Store, Google Play Store, and our website:</p>
+                <p>FamilyBridge offers subscription services:</p>
                 <ul className="space-y-2 list-disc list-inside">
-                  <li><strong>Apple App Store:</strong> Purchases are processed by Apple. Payment information is handled according to Apple's privacy policy. Subscriptions auto-renew unless cancelled at least 24 hours before the end of the current period.</li>
-                  <li><strong>Google Play Store:</strong> Purchases are processed by Google. Payment information is handled according to Google's privacy policy. Subscriptions auto-renew unless cancelled.</li>
-                  <li><strong>Web Purchases:</strong> Payments are securely processed through Square. We do not store your credit card information.</li>
+                  <li>Payments are securely processed through our payment provider. We do not store your credit card information.</li>
+                  <li>Subscriptions auto-renew unless cancelled before the end of the current billing period.</li>
                 </ul>
-                <p>You can manage or cancel subscriptions through your device's app store settings or your Square account.</p>
+                <p>You can manage or cancel subscriptions through your account settings.</p>
               </div>
             </CardContent>
           </Card>

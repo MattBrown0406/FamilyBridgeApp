@@ -197,7 +197,7 @@ const FamilyPurchase = () => {
     // On native platforms, coupons that require external checkout are not supported
     // Only full-discount coupons that generate immediate invite codes work on iOS/Android
     if (isNative) {
-      toast.error("Coupon codes are only available on the web. Please use In-App Purchase to subscribe.");
+      toast.error("Coupon codes are only available on the web.");
       return;
     }
 

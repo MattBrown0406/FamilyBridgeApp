@@ -38,7 +38,7 @@ export function PaymentFailurePopup({
 
   const handleUpdatePayment = () => {
     onOpenChange(false);
-    // On iOS, navigate to update-payment which will show App Store instructions
+    // Navigate to update-payment page
     // On web, it will show the Square checkout flow
     navigate(`/update-payment?entity=${paymentIssue.entity_type}&id=${paymentIssue.entity_id}`);
   };
