@@ -834,7 +834,7 @@ PHASE 1 - B2C DIRECT (Current - Active):
 - Family subscription model ($19.99/month per family)
 - Professional moderator subscription for family counselors ($49.99/month)
 - Provider organization tier ($249/month - $629/quarter)
-- App Store / Google Play distribution via native apps + Progressive Web App
+- Native mobile apps + Progressive Web App distribution
 - Square payment processing integration
 
 PHASE 2 - B2B2C TREATMENT PROVIDER CHANNEL (Q3 2026):
@@ -907,10 +907,9 @@ MARKET TRENDS SUPPORTING ADOPTION:
 - Professional Moderator: $49.99/month - Manage multiple families, analytics dashboard
 - Provider Organization: $249/month or $629/quarter - White-label, multi-family, staff accounts, branding
 
-2. APP STORE REVENUE:
-- iOS In-App Purchase subscriptions (Apple takes 15-30%)
-- Google Play subscriptions
-- Web direct subscriptions via Square (0% platform fee)
+2. MOBILE APP REVENUE:
+- Mobile subscriptions
+- Web direct subscriptions via Square
 
 3. B2B LICENSING (Planned Q3 2026):
 - Treatment center integration: $2,500/month base + per-patient fees
@@ -990,13 +989,13 @@ NOVEMBER 2024 - MARCH 2025:
 
 APRIL-AUGUST 2025:
 - iOS and Android native app development (Capacitor)
-- App Store and Google Play preparation
+- Mobile app store preparation
 - Square payment integration
 - Organization/provider tier development
 - White-label branding system
 
 SEPTEMBER-DECEMBER 2025:
-- App Store submissions and approval process
+- Mobile app submissions and approval process
 - Subscription management system
 - Push notification system (web and native)
 - Provider admin dashboard
@@ -1007,7 +1006,7 @@ SEPTEMBER-DECEMBER 2025:
 
 JANUARY 2026:
 - Production launch preparation
-- Final App Store approval submissions
+- Final mobile app approval submissions
 - Patent application preparation
 - Commercial marketing launch
 - AI-powered intervention letter analysis with boundary extraction
