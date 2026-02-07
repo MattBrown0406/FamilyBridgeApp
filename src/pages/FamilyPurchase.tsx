@@ -501,7 +501,7 @@ const FamilyPurchase = () => {
             </h1>
             <p className="text-base sm:text-xl text-muted-foreground">
               {reactivatingFamily 
-                ? 'Purchase a subscription to restore your family group'
+                ? (isNative && isIOS ? 'Restore your family group' : 'Purchase a subscription to restore your family group')
                 : 'Start your family\'s journey to healing and connection'
               }
             </p>

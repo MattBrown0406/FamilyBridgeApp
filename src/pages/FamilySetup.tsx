@@ -196,7 +196,7 @@ const FamilySetup = () => {
                 Family Information
               </CardTitle>
               <CardDescription>
-                Start by entering your invite code from your purchase
+                Start by entering your invite code
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -211,7 +211,7 @@ const FamilySetup = () => {
                   className="font-mono"
                 />
                 <p className="text-xs text-muted-foreground">
-                  This is the code you received after purchasing your subscription
+                  This is the code you received after setting up your subscription
                 </p>
               </div>
 
@@ -359,7 +359,7 @@ const FamilySetup = () => {
             <p className="text-sm text-muted-foreground">
               Don't have an invite code?{" "}
               <Button variant="link" onClick={() => navigate("/family-purchase")} className="p-0 h-auto">
-                Purchase a subscription
+                Get a subscription
               </Button>
             </p>
           </div>

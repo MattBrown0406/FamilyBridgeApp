@@ -8,8 +8,10 @@ import { ArrowLeft, Check, Crown, Bell, Sparkles, Shield, Phone, Calendar, Messa
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
+import { usePlatform } from '@/hooks/usePlatform';
 
 const Subscription = () => {
+  const { isNative, isIOS } = usePlatform();
   const navigate = useNavigate();
   const { user } = useAuth();
   const [email, setEmail] = useState(user?.email || '');
@@ -158,10 +160,12 @@ const Subscription = () => {
               <h2 className="text-xl sm:text-2xl font-display font-bold text-center mb-2">Premium Plan</h2>
               <p className="text-muted-foreground text-center text-xs sm:text-sm mb-4 sm:mb-6">Everything you need for comprehensive family support</p>
               
-              <div className="flex items-baseline justify-center gap-1 mb-4 sm:mb-6">
-                <span className="text-4xl sm:text-5xl font-display font-bold">TBD</span>
-                <span className="text-muted-foreground">/month</span>
-              </div>
+              {!(isNative && isIOS) && (
+                <div className="flex items-baseline justify-center gap-1 mb-4 sm:mb-6">
+                  <span className="text-4xl sm:text-5xl font-display font-bold">TBD</span>
+                  <span className="text-muted-foreground">/month</span>
+                </div>
+              )}
               
               <Button 
                 variant="hero" 
@@ -171,9 +175,11 @@ const Subscription = () => {
                 Coming Soon
               </Button>
               
-              <p className="text-xs text-muted-foreground text-center mt-3 sm:mt-4">
-                Billed monthly • Cancel anytime
-              </p>
+              {!(isNative && isIOS) && (
+                <p className="text-xs text-muted-foreground text-center mt-3 sm:mt-4">
+                  Billed monthly • Cancel anytime
+                </p>
+              )}
             </CardContent>
           </Card>
         </div>
