@@ -255,9 +255,11 @@ const Demo = () => {
             <Button variant="outline" size="sm" onClick={() => navigate('/')}>
               Exit
             </Button>
-            <Button size="sm" onClick={() => navigate('/provider-purchase')}>
-              Subscribe
-            </Button>
+            {!(isNative && isIOS) && (
+              <Button size="sm" onClick={() => navigate('/provider-purchase')}>
+                Get Started
+              </Button>
+            )}
           </div>
         </div>
       </header>

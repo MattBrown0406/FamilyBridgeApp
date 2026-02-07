@@ -167,9 +167,9 @@ export default function ModeratorPurchase() {
               <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
                 <CheckCircle className="w-8 h-8 text-green-600" />
               </div>
-              <CardTitle className="text-2xl">Payment Successful!</CardTitle>
+              <CardTitle className="text-2xl">Success!</CardTitle>
               <CardDescription className="text-base">
-                Your 24-hour moderator support has been purchased. A moderator will be assigned to your family shortly.
+                Your 24-hour moderator support is now active. A moderator will be assigned to your family shortly.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -181,7 +181,7 @@ export default function ModeratorPurchase() {
                   Return to Family
                 </Button>
                 <Button variant="outline" onClick={() => navigate("/moderator-purchase")}>
-                  Purchase More Hours
+                  Get More Hours
                 </Button>
               </div>
             </CardContent>
@@ -201,7 +201,9 @@ export default function ModeratorPurchase() {
           <div className="text-center space-y-2 sm:space-y-4">
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">Extended Moderator Support</h1>
             <p className="text-sm sm:text-lg text-muted-foreground max-w-2xl mx-auto">
-              Need more time with a professional moderator? Purchase additional 24-hour support sessions for your family.
+              {isNative && isIOS 
+                ? "Professional moderator support for your family when you need it most."
+                : "Need more time with a professional moderator? Purchase additional 24-hour support sessions for your family."}
             </p>
           </div>
 

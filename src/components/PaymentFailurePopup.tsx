@@ -65,8 +65,10 @@ export function PaymentFailurePopup({
             <div className="space-y-4">
               {isSuspended ? (
                 <p className="text-foreground">
-                  Your {entityLabel.toLowerCase()} subscription has been suspended due to 
-                  payment failure. Please update your payment method to restore access.
+                  Your {entityLabel.toLowerCase()} subscription has been suspended. 
+                  {isNative && isIOS 
+                    ? " Please sign in on the web to manage your account and resolve this issue."
+                    : " Please update your payment method to restore access."}
                 </p>
               ) : (
                 <>
@@ -101,7 +103,7 @@ export function PaymentFailurePopup({
 
               <p className="text-sm text-muted-foreground">
                 {isNative && isIOS ? (
-                  "Please update your payment method in your device's Settings to restore your subscription."
+                  "Please sign in to your account on the web to manage your subscription and resolve this issue."
                 ) : (
                   "We will automatically retry charging your card daily. You can also update your payment method now to resolve this immediately."
                 )}

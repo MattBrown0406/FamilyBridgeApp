@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { usePlatform } from '@/hooks/usePlatform';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import {
@@ -73,6 +74,7 @@ export const TemporaryModeratorRequest = ({
 }: TemporaryModeratorRequestProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { isNative, isIOS } = usePlatform();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -280,15 +282,19 @@ export const TemporaryModeratorRequest = ({
                 {hasRecentRequest && (
                   <p className="text-sm text-destructive mt-2 font-medium">
                     ⚠️ You've already used your free session this month.{' '}
-                    <button 
-                      onClick={() => {
-                        setDialogOpen(false);
-                        navigate(`/moderator-purchase?familyId=${familyId}`);
-                      }}
-                      className="underline hover:no-underline"
-                    >
-                    Purchase additional hours ($150/day)
-                    </button>
+                    {isNative && isIOS ? (
+                      <span>Please sign in on the web for additional support options.</span>
+                    ) : (
+                      <button 
+                        onClick={() => {
+                          setDialogOpen(false);
+                          navigate(`/moderator-purchase?familyId=${familyId}`);
+                        }}
+                        className="underline hover:no-underline"
+                      >
+                        Get additional hours ($150/day)
+                      </button>
+                    )}
                   </p>
                 )}
               </div>
