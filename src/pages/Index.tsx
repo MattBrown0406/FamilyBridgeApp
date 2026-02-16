@@ -86,12 +86,6 @@ const Index = () => {
       badge: 'Patent Pending',
       forFamily: true,
     },
-    {
-      icon: MessageSquareWarning,
-      title: 'Secure Communication',
-      description: 'Real-time AI moderation with emotional tone analysis across conversations.',
-      gradient: 'from-primary to-accent',
-    },
   ];
 
   const stats = [
