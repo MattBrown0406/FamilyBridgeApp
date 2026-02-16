@@ -37,12 +37,7 @@ const handler = async (req: Request): Promise<Response> => {
     // Get the family admin(s) for this family
     const { data: admins, error: adminError } = await supabase
       .from("family_members")
-      .select(`
-        user_id,
-        profiles:user_id (
-          full_name
-        )
-      `)
+      .select("user_id")
       .eq("family_id", familyId)
       .eq("role", "admin");
 
@@ -59,8 +54,15 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Get admin emails from auth.users
     const adminIds = admins.map((a: any) => a.user_id);
+
+    // Get admin profiles
+    const { data: profiles } = await supabase
+      .from("profiles")
+      .select("id, full_name")
+      .in("id", adminIds);
+
+    // Get admin emails from auth.users
     const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
     
     if (authError) {
@@ -85,8 +87,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Send email to each admin
     for (const admin of adminEmails) {
-      const adminProfile = admins.find((a: any) => a.user_id === admin.id);
-      const profileData = adminProfile?.profiles as any;
+      const profileData = profiles?.find((p: any) => p.id === admin.id);
       const adminName = profileData?.full_name || "Family Admin";
 
       const emailHtml = `
