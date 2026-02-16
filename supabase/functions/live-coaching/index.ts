@@ -34,7 +34,7 @@ serve(async (req) => {
       );
     }
 
-    const { familyId, transcript, context, chatHistory } = await req.json();
+    const { familyId, transcript, context, chatHistory, talkingToName, talkingToUserId } = await req.json();
 
     if (!familyId || !transcript) {
       return new Response(
@@ -72,6 +72,31 @@ serve(async (req) => {
       .eq("id", user.id)
       .single();
 
+    // Get talking-to person's profile if they're a family member
+    let talkingToProfile: string | null = null;
+    if (talkingToUserId) {
+      const { data: ttProfile } = await supabase
+        .from("profiles")
+        .select("full_name")
+        .eq("id", talkingToUserId)
+        .single();
+      talkingToProfile = ttProfile?.full_name || null;
+
+      // Also check their relationship type in the family
+      const { data: ttMembership } = await supabase
+        .from("family_members")
+        .select("role, relationship_type")
+        .eq("family_id", familyId)
+        .eq("user_id", talkingToUserId)
+        .single();
+      if (ttMembership) {
+        talkingToProfile = `${talkingToProfile} (${ttMembership.relationship_type || ttMembership.role})`;
+      }
+    }
+
+    const talkingToDisplay = talkingToProfile || talkingToName || "their loved one";
+    const isFamilyMemberConvo = !!talkingToUserId;
+
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
       throw new Error("LOVABLE_API_KEY is not configured");
@@ -82,10 +107,13 @@ serve(async (req) => {
 **Context:**
 - Family: ${family?.name || "Unknown"}
 - You are coaching: ${profile?.full_name || "a family member"} (${membership.relationship_type || membership.role})
-- This person is having a ${context === 'phone' ? 'live phone/in-person' : 'text'} conversation with their loved one who is struggling with addiction and has NOT joined the FamilyBridge app.
+- They are having a ${context === 'phone' ? 'live phone/in-person' : 'text'} conversation with: ${talkingToDisplay}
+${isFamilyMemberConvo 
+  ? '- This is a conversation between family group members. Focus on healthy family communication, reducing conflict, and maintaining supportive recovery dynamics.'
+  : '- This person may not be in the FamilyBridge app. Focus on de-escalation and CRAFT-based engagement.'}
 
 **Your Role:**
-You are listening to the conversation in real-time and providing coaching to the family member on how to respond. The addicted individual CANNOT see your suggestions.
+You are listening to the conversation in real-time and providing coaching to the family member on how to respond. The other person CANNOT see your suggestions.
 
 **Core Coaching Principles:**
 1. **De-escalation First**: If tension is rising, prioritize calming the situation
@@ -95,7 +123,7 @@ You are listening to the conversation in real-time and providing coaching to the
 5. **Leave the Door Open**: Every conversation should end with hope for re-engagement
 6. **Timing**: Know when to end a conversation — sometimes the best move is a graceful exit
 7. **Non-Confrontational**: Never suggest ultimatums during heated moments
-8. **Validate Emotions**: Both the family member's AND the addicted person's feelings are valid
+8. **Validate Emotions**: Both parties' feelings are valid
 
 **Response Format:**
 Provide 1-2 short, actionable suggestions the family member can say RIGHT NOW. Be specific and conversational — give them exact words they can use. If the conversation should end, suggest a warm closing statement that leaves room for future connection.

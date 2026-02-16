@@ -2102,7 +2102,7 @@ serve(async (req) => {
     }
 
     // Fetch family values, boundaries, goals, sobriety journey, medication compliance, 
-    // aftercare plans, provider notes, recent messages, documents, calibration patterns, and past feedback
+    // aftercare plans, provider notes, recent messages, documents, calibration patterns, past feedback, and coaching sessions
     const [
       valuesResult, 
       boundariesResult, 
@@ -2120,7 +2120,8 @@ serve(async (req) => {
       emotionalCheckinsResult,
       financialRequestsResult,
       familyInfoResult,
-      medicationsResult, // Active medications for interaction warnings
+      medicationsResult,
+      coachingSessionsResult,
     ] = await Promise.all([
       supabase.from("family_values").select("value_key").eq("family_id", familyId),
       supabase.from("family_boundaries").select("content, status, target_user_id").eq("family_id", familyId).eq("status", "approved"),
@@ -2187,6 +2188,12 @@ serve(async (req) => {
         .select("medication_name, dosage, is_active")
         .eq("family_id", familyId)
         .eq("is_active", true),
+      // Coaching sessions with suggestions (only saved suggestions, not raw content)
+      supabase.from("coaching_sessions")
+        .select("id, session_type, started_at, ended_at, suggestions, user_id, talking_to_name, talking_to_user_id")
+        .eq("family_id", familyId)
+        .order("started_at", { ascending: false })
+        .limit(50),
     ]);
 
     // Calculate sobriety days and phase
@@ -2897,6 +2904,44 @@ DOCUMENT ANALYSIS INTERPRETATION:
 - Clinical assessments provide baseline context for recovery trajectory
 - Aftercare/discharge plans should align with current aftercare compliance
 - Document engagement shows family investment in structured recovery
+
+`;
+    }
+
+    // Add coaching session context
+    if (coachingSessionsResult.data && coachingSessionsResult.data.length > 0) {
+      const sessions = coachingSessionsResult.data;
+      const liveSessions = sessions.filter((s: any) => s.session_type === 'live');
+      const screenshotSessions = sessions.filter((s: any) => s.session_type === 'screenshot');
+      
+      // Identify unique people being coached about
+      const talkingToNames = new Set<string>();
+      sessions.forEach((s: any) => {
+        if (s.talking_to_name) talkingToNames.add(s.talking_to_name);
+      });
+
+      familyContext += `COACHING SESSION ACTIVITY:
+- Total Coaching Sessions: ${sessions.length}
+- Live Conversation Coaching: ${liveSessions.length} sessions
+- Screenshot Text Analysis: ${screenshotSessions.length} sessions
+- People Coached About: ${talkingToNames.size > 0 ? Array.from(talkingToNames).join(', ') : 'Not specified'}
+
+Recent Coaching Suggestions (AI guidance given to family members):
+${sessions.slice(0, 15).map((s: any) => {
+  const date = new Date(s.started_at).toLocaleDateString();
+  const suggestions = s.suggestions || [];
+  const suggestionSummary = suggestions.length > 0 
+    ? suggestions.slice(0, 2).map((sg: any) => typeof sg === 'string' ? sg.substring(0, 100) : JSON.stringify(sg).substring(0, 100)).join('; ')
+    : 'No suggestions recorded';
+  return `- [${date}] ${s.session_type} session${s.talking_to_name ? ` (re: ${s.talking_to_name})` : ''}: ${suggestionSummary}`;
+}).join('\n')}
+
+COACHING ANALYSIS INTERPRETATION:
+- High coaching frequency may indicate active family engagement with resistant loved ones
+- Repeated coaching about the same person suggests ongoing difficulty in that relationship
+- Coaching usage patterns reveal which family members are actively trying to improve communication
+- De-escalation coaching themes may correlate with family stress levels and conflict patterns
+- Screenshot analysis frequency may indicate text-based communication barriers
 
 `;
     }

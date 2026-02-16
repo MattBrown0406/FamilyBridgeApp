@@ -4912,7 +4912,7 @@ const FamilyChat = () => {
           {/* FIIS Tab - Hidden from recovering individuals */}
           {/* Coaching Tab */}
           <TabsContent value="coaching" className="mt-0 space-y-4 overflow-auto">
-            <CoachingTab familyId={familyId!} />
+            <CoachingTab familyId={familyId!} members={members.map(m => ({ user_id: m.user_id, full_name: m.full_name }))} />
           </TabsContent>
 
           {currentUserRole !== 'recovering' && (
