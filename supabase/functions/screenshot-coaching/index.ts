@@ -34,7 +34,7 @@ serve(async (req) => {
       );
     }
 
-    const { familyId, imageBase64, additionalContext } = await req.json();
+    const { familyId, imageBase64, additionalContext, talkingToName, talkingToUserId } = await req.json();
 
     if (!familyId || !imageBase64) {
       return new Response(
@@ -65,6 +65,17 @@ serve(async (req) => {
       .eq("id", user.id)
       .single();
 
+    // Get talking-to person's info
+    let talkingToDisplay = talkingToName || "their loved one";
+    if (talkingToUserId) {
+      const { data: ttProfile } = await supabase
+        .from("profiles")
+        .select("full_name")
+        .eq("id", talkingToUserId)
+        .single();
+      if (ttProfile) talkingToDisplay = ttProfile.full_name;
+    }
+
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
       throw new Error("LOVABLE_API_KEY is not configured");
@@ -74,7 +85,7 @@ serve(async (req) => {
 
 **Context:**
 - You are coaching: ${profile?.full_name || "a family member"} (${membership.relationship_type || membership.role})
-- They are sharing a screenshot of a text conversation with their loved one who is struggling with addiction.
+- They are sharing a screenshot of a text conversation with: ${talkingToDisplay}
 
 **Your Task:**
 1. Read and understand the text conversation in the screenshot

@@ -419,6 +419,8 @@ export type Database = {
           id: string
           image_path: string
           session_id: string
+          talking_to_name: string | null
+          talking_to_user_id: string | null
           user_id: string
         }
         Insert: {
@@ -428,6 +430,8 @@ export type Database = {
           id?: string
           image_path: string
           session_id: string
+          talking_to_name?: string | null
+          talking_to_user_id?: string | null
           user_id: string
         }
         Update: {
@@ -437,6 +441,8 @@ export type Database = {
           id?: string
           image_path?: string
           session_id?: string
+          talking_to_name?: string | null
+          talking_to_user_id?: string | null
           user_id?: string
         }
         Relationships: [
@@ -465,6 +471,8 @@ export type Database = {
           session_type: string
           started_at: string
           suggestions: Json[] | null
+          talking_to_name: string | null
+          talking_to_user_id: string | null
           user_id: string
         }
         Insert: {
@@ -475,6 +483,8 @@ export type Database = {
           session_type: string
           started_at?: string
           suggestions?: Json[] | null
+          talking_to_name?: string | null
+          talking_to_user_id?: string | null
           user_id: string
         }
         Update: {
@@ -485,6 +495,8 @@ export type Database = {
           session_type?: string
           started_at?: string
           suggestions?: Json[] | null
+          talking_to_name?: string | null
+          talking_to_user_id?: string | null
           user_id?: string
         }
         Relationships: [

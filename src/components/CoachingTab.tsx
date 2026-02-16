@@ -7,14 +7,22 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import ReactMarkdown from 'react-markdown';
 import {
   Mic, MicOff, Phone, MessageSquare, Image, Upload, Send, Loader2,
-  AlertTriangle, Copy, CheckCircle, X, Brain, PhoneCall, Camera
+  AlertTriangle, Copy, CheckCircle, X, Brain, PhoneCall, Camera, Users
 } from 'lucide-react';
 
 interface CoachingTabProps {
   familyId: string;
+  members?: Array<{ user_id: string; full_name: string }>;
 }
 
 interface ChatMessage {
@@ -30,8 +38,12 @@ interface ScreenshotAnalysis {
   coaching_tip: string;
 }
 
-export const CoachingTab = ({ familyId }: CoachingTabProps) => {
+export const CoachingTab = ({ familyId, members = [] }: CoachingTabProps) => {
   const { toast } = useToast();
+
+  // Talking to state
+  const [talkingToUserId, setTalkingToUserId] = useState<string>('');
+  const [talkingToCustomName, setTalkingToCustomName] = useState('');
 
   // Live coaching state
   const [isListening, setIsListening] = useState(false);
@@ -58,6 +70,15 @@ export const CoachingTab = ({ familyId }: CoachingTabProps) => {
       liveScrollRef.current.scrollTop = liveScrollRef.current.scrollHeight;
     }
   }, [liveMessages, liveStreamText]);
+
+  const getTalkingToName = (): string => {
+    if (talkingToUserId === '__custom__') return talkingToCustomName || 'someone';
+    if (talkingToUserId) {
+      const member = members.find(m => m.user_id === talkingToUserId);
+      return member?.full_name || 'a family member';
+    }
+    return '';
+  };
 
   // Speech recognition for speakerphone mode
   const startListening = useCallback(() => {
@@ -101,7 +122,7 @@ export const CoachingTab = ({ familyId }: CoachingTabProps) => {
 
     recognition.onend = () => {
       if (isListening) {
-        recognition.start(); // Auto-restart
+        recognition.start();
       }
     };
 
@@ -116,7 +137,6 @@ export const CoachingTab = ({ familyId }: CoachingTabProps) => {
       recognitionRef.current = null;
     }
     setIsListening(false);
-    // Clean up interim results
     setLiveInput(prev => prev.replace(/\[listening\.\.\.\].*$/, '').trim());
   }, []);
 
@@ -136,6 +156,8 @@ export const CoachingTab = ({ familyId }: CoachingTabProps) => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error('Not authenticated');
 
+      const talkingTo = getTalkingToName();
+
       const resp = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/live-coaching`,
         {
@@ -149,6 +171,8 @@ export const CoachingTab = ({ familyId }: CoachingTabProps) => {
             transcript: text.trim(),
             context: liveMode === 'speakerphone' ? 'phone' : 'text',
             chatHistory: liveMessages.slice(-10),
+            talkingToName: talkingTo,
+            talkingToUserId: talkingToUserId && talkingToUserId !== '__custom__' ? talkingToUserId : undefined,
           }),
         }
       );
@@ -158,7 +182,6 @@ export const CoachingTab = ({ familyId }: CoachingTabProps) => {
         throw new Error(err.error || 'Request failed');
       }
 
-      // Stream the response
       const reader = resp.body!.getReader();
       const decoder = new TextDecoder();
       let assistantText = '';
@@ -223,7 +246,6 @@ export const CoachingTab = ({ familyId }: CoachingTabProps) => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error('Not authenticated');
 
-      // Convert to base64
       const arrayBuffer = await screenshotFile.arrayBuffer();
       const bytes = new Uint8Array(arrayBuffer);
       let binary = '';
@@ -232,8 +254,16 @@ export const CoachingTab = ({ familyId }: CoachingTabProps) => {
       }
       const base64 = btoa(binary);
 
+      const talkingTo = getTalkingToName();
+
       const { data, error } = await supabase.functions.invoke('screenshot-coaching', {
-        body: { familyId, imageBase64: base64, additionalContext },
+        body: {
+          familyId,
+          imageBase64: base64,
+          additionalContext,
+          talkingToName: talkingTo,
+          talkingToUserId: talkingToUserId && talkingToUserId !== '__custom__' ? talkingToUserId : undefined,
+        },
       });
 
       if (error) throw error;
@@ -262,11 +292,44 @@ export const CoachingTab = ({ familyId }: CoachingTabProps) => {
             <div>
               <p className="font-semibold text-sm">FIIS Live Coaching</p>
               <p className="text-xs text-muted-foreground mt-1">
-                Get real-time coaching from FIIS during conversations with your loved one who hasn't joined the app. 
+                Get real-time coaching from FIIS during conversations with family members or loved ones. 
                 Use speakerphone mode during calls or type what they're saying for text-based coaching.
+                Coaching insights are factored into FIIS analysis.
               </p>
             </div>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Who are you talking to? */}
+      <Card>
+        <CardContent className="p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <Users className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm font-medium">Who are you talking to?</span>
+          </div>
+          <Select value={talkingToUserId} onValueChange={(val) => { setTalkingToUserId(val); if (val !== '__custom__') setTalkingToCustomName(''); }}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select a person..." />
+            </SelectTrigger>
+            <SelectContent>
+              {members.map((m) => (
+                <SelectItem key={m.user_id} value={m.user_id}>
+                  {m.full_name}
+                </SelectItem>
+              ))}
+              <SelectItem value="__custom__">Someone not in the app...</SelectItem>
+            </SelectContent>
+          </Select>
+          {talkingToUserId === '__custom__' && (
+            <input
+              type="text"
+              value={talkingToCustomName}
+              onChange={(e) => setTalkingToCustomName(e.target.value)}
+              placeholder="Enter their name..."
+              className="mt-2 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+            />
+          )}
         </CardContent>
       </Card>
 
@@ -345,7 +408,7 @@ export const CoachingTab = ({ familyId }: CoachingTabProps) => {
                   <Brain className="h-10 w-10 mx-auto mb-3 opacity-30" />
                   <p className="text-sm">
                     {liveMode === 'text'
-                      ? 'Type what your loved one is saying and FIIS will coach you on how to respond.'
+                      ? 'Type what they\'re saying and FIIS will coach you on how to respond.'
                       : 'Start listening and FIIS will provide coaching suggestions as the conversation progresses.'}
                   </p>
                 </div>
