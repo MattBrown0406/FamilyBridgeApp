@@ -107,3 +107,9 @@ verify_jwt = false
 
 [functions.analyze-aftercare-document]
 verify_jwt = false
+
+[functions.live-coaching]
+verify_jwt = false
+
+[functions.screenshot-coaching]
+verify_jwt = false

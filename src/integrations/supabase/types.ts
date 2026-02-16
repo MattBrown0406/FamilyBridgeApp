@@ -411,6 +411,92 @@ export type Database = {
           },
         ]
       }
+      coaching_screenshots: {
+        Row: {
+          ai_analysis: Json | null
+          created_at: string
+          family_id: string
+          id: string
+          image_path: string
+          session_id: string
+          user_id: string
+        }
+        Insert: {
+          ai_analysis?: Json | null
+          created_at?: string
+          family_id: string
+          id?: string
+          image_path: string
+          session_id: string
+          user_id: string
+        }
+        Update: {
+          ai_analysis?: Json | null
+          created_at?: string
+          family_id?: string
+          id?: string
+          image_path?: string
+          session_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coaching_screenshots_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "coaching_screenshots_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "coaching_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      coaching_sessions: {
+        Row: {
+          created_at: string
+          ended_at: string | null
+          family_id: string
+          id: string
+          session_type: string
+          started_at: string
+          suggestions: Json[] | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          ended_at?: string | null
+          family_id: string
+          id?: string
+          session_type: string
+          started_at?: string
+          suggestions?: Json[] | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          ended_at?: string | null
+          family_id?: string
+          id?: string
+          session_type?: string
+          started_at?: string
+          suggestions?: Json[] | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coaching_sessions_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       crm_activities: {
         Row: {
           activity_type: string
