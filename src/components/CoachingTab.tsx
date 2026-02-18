@@ -17,7 +17,8 @@ import {
 import ReactMarkdown from 'react-markdown';
 import {
   Mic, MicOff, Phone, MessageSquare, Image, Upload, Send, Loader2,
-  AlertTriangle, Copy, CheckCircle, X, Brain, PhoneCall, Camera, Users
+  AlertTriangle, Copy, CheckCircle, X, Brain, PhoneCall, Camera, Users,
+  HelpCircle
 } from 'lucide-react';
 
 interface CoachingTabProps {
@@ -294,11 +295,11 @@ export const CoachingTab = ({ familyId, members = [] }: CoachingTabProps) => {
           <div className="flex items-start gap-3">
             <Brain className="h-5 w-5 text-primary mt-0.5 shrink-0" />
             <div>
-              <p className="font-semibold text-sm">FIIS Live Coaching</p>
+              <p className="font-semibold text-sm">FIIS Coaching</p>
               <p className="text-xs text-muted-foreground mt-1">
-                Get real-time coaching from FIIS during conversations with family members or loved ones. 
-                Use speakerphone mode during calls or type what they're saying for text-based coaching.
-                Coaching insights are factored into FIIS analysis.
+                Get coaching from FIIS — whether you're in a live conversation, reviewing texts and emails, 
+                or just need one-on-one guidance on how to handle a situation.
+                All coaching insights are factored into FIIS analysis.
               </p>
             </div>
           </div>
@@ -337,17 +338,116 @@ export const CoachingTab = ({ familyId, members = [] }: CoachingTabProps) => {
         </CardContent>
       </Card>
 
-      <Tabs defaultValue="live" className="w-full">
-        <TabsList className="grid grid-cols-2 w-full">
-          <TabsTrigger value="live" className="flex items-center gap-2">
-            <PhoneCall className="h-4 w-4" />
-            <span>Live Coaching</span>
+      <Tabs defaultValue="ask" className="w-full">
+        <TabsList className="grid grid-cols-3 w-full">
+          <TabsTrigger value="ask" className="flex items-center gap-1.5">
+            <HelpCircle className="h-4 w-4" />
+            <span>Ask FIIS</span>
           </TabsTrigger>
-          <TabsTrigger value="screenshot" className="flex items-center gap-2">
+          <TabsTrigger value="live" className="flex items-center gap-1.5">
+            <PhoneCall className="h-4 w-4" />
+            <span>Live</span>
+          </TabsTrigger>
+          <TabsTrigger value="screenshot" className="flex items-center gap-1.5">
             <Camera className="h-4 w-4" />
             <span>Texts &amp; Emails</span>
           </TabsTrigger>
         </TabsList>
+
+        {/* Ask FIIS Tab - On-demand coaching */}
+        <TabsContent value="ask" className="space-y-4 mt-4">
+          <Card className="flex flex-col" style={{ minHeight: '300px' }}>
+            <ScrollArea className="flex-1 p-4" style={{ maxHeight: '400px' }}>
+              {liveMessages.length === 0 && !liveStreamText && (
+                <div className="text-center text-muted-foreground py-8">
+                  <Brain className="h-10 w-10 mx-auto mb-3 opacity-30" />
+                  <p className="text-sm font-medium mb-1">Ask FIIS anything</p>
+                  <p className="text-xs max-w-xs mx-auto">
+                    Get guidance on handling a situation, preparing for a tough conversation, 
+                    or understanding what's going on — no live conversation needed.
+                  </p>
+                  <div className="mt-4 flex flex-wrap justify-center gap-2">
+                    {[
+                      "How do I bring up treatment?",
+                      "They're asking for money again",
+                      "I think they relapsed",
+                      "How do I set a boundary?",
+                    ].map((prompt) => (
+                      <Button
+                        key={prompt}
+                        variant="outline"
+                        size="sm"
+                        className="text-xs"
+                        onClick={() => setLiveInput(prompt)}
+                      >
+                        {prompt}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {liveMessages.map((msg, i) => (
+                <div key={i} className={`mb-4 ${msg.role === 'user' ? 'text-right' : ''}`}>
+                  <div className={`inline-block max-w-[85%] rounded-lg p-3 text-sm ${
+                    msg.role === 'user'
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-muted'
+                  }`}>
+                    {msg.role === 'assistant' ? (
+                      <div className="prose prose-sm dark:prose-invert max-w-none">
+                        <ReactMarkdown>{msg.content}</ReactMarkdown>
+                      </div>
+                    ) : (
+                      <p>{msg.content}</p>
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {msg.role === 'user' ? 'You' : 'FIIS Coach'}
+                  </p>
+                </div>
+              ))}
+              {liveStreamText && (
+                <div className="mb-4">
+                  <div className="inline-block max-w-[85%] rounded-lg p-3 text-sm bg-muted">
+                    <div className="prose prose-sm dark:prose-invert max-w-none">
+                      <ReactMarkdown>{liveStreamText}</ReactMarkdown>
+                    </div>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">FIIS Coach</p>
+                </div>
+              )}
+              {isLiveLoading && !liveStreamText && (
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span className="text-sm">FIIS is thinking...</span>
+                </div>
+              )}
+            </ScrollArea>
+
+            <div className="border-t p-3 flex gap-2">
+              <Textarea
+                value={liveInput}
+                onChange={(e) => setLiveInput(e.target.value)}
+                placeholder="Ask FIIS for advice on any situation..."
+                className="min-h-[40px] max-h-[100px] resize-none"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendLiveCoaching();
+                  }
+                }}
+              />
+              <Button
+                onClick={sendLiveCoaching}
+                disabled={isLiveLoading || !liveInput.trim()}
+                size="icon"
+                className="shrink-0"
+              >
+                <Send className="h-4 w-4" />
+              </Button>
+            </div>
+          </Card>
+        </TabsContent>
 
         {/* Live Coaching Tab */}
         <TabsContent value="live" className="space-y-4 mt-4">
