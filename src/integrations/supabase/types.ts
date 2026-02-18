@@ -509,6 +509,54 @@ export type Database = {
           },
         ]
       }
+      consequence_events: {
+        Row: {
+          auto_detected: boolean
+          boundary_id: string
+          created_at: string
+          event_type: string
+          family_id: string
+          id: string
+          logged_by: string
+          notes: string | null
+        }
+        Insert: {
+          auto_detected?: boolean
+          boundary_id: string
+          created_at?: string
+          event_type: string
+          family_id: string
+          id?: string
+          logged_by: string
+          notes?: string | null
+        }
+        Update: {
+          auto_detected?: boolean
+          boundary_id?: string
+          created_at?: string
+          event_type?: string
+          family_id?: string
+          id?: string
+          logged_by?: string
+          notes?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "consequence_events_boundary_id_fkey"
+            columns: ["boundary_id"]
+            isOneToOne: false
+            referencedRelation: "family_boundaries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "consequence_events_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       crm_activities: {
         Row: {
           activity_type: string
@@ -1369,11 +1417,15 @@ export type Database = {
           author_matched_user_id: string | null
           author_name: string | null
           consequence: string | null
+          consequence_enforced_count: number
+          consequence_failed_count: number
           content: string
           created_at: string
           created_by: string
           family_id: string
           id: string
+          last_enforcement_at: string | null
+          last_violation_at: string | null
           rejected_reason: string | null
           status: string
           target_user_id: string | null
@@ -1385,11 +1437,15 @@ export type Database = {
           author_matched_user_id?: string | null
           author_name?: string | null
           consequence?: string | null
+          consequence_enforced_count?: number
+          consequence_failed_count?: number
           content: string
           created_at?: string
           created_by: string
           family_id: string
           id?: string
+          last_enforcement_at?: string | null
+          last_violation_at?: string | null
           rejected_reason?: string | null
           status?: string
           target_user_id?: string | null
@@ -1401,11 +1457,15 @@ export type Database = {
           author_matched_user_id?: string | null
           author_name?: string | null
           consequence?: string | null
+          consequence_enforced_count?: number
+          consequence_failed_count?: number
           content?: string
           created_at?: string
           created_by?: string
           family_id?: string
           id?: string
+          last_enforcement_at?: string | null
+          last_violation_at?: string | null
           rejected_reason?: string | null
           status?: string
           target_user_id?: string | null
@@ -1624,6 +1684,7 @@ export type Database = {
         Row: {
           family_id: string
           id: string
+          is_primary_patient: boolean
           joined_at: string
           private_messaging_enabled: boolean
           relationship_type:
@@ -1635,6 +1696,7 @@ export type Database = {
         Insert: {
           family_id: string
           id?: string
+          is_primary_patient?: boolean
           joined_at?: string
           private_messaging_enabled?: boolean
           relationship_type?:
@@ -1646,6 +1708,7 @@ export type Database = {
         Update: {
           family_id?: string
           id?: string
+          is_primary_patient?: boolean
           joined_at?: string
           private_messaging_enabled?: boolean
           relationship_type?:
@@ -2596,6 +2659,7 @@ export type Database = {
           id: string
           instructions: string | null
           is_active: boolean | null
+          is_mat: boolean
           label_image_url: string | null
           last_refill_date: string | null
           medication_name: string
@@ -2620,6 +2684,7 @@ export type Database = {
           id?: string
           instructions?: string | null
           is_active?: boolean | null
+          is_mat?: boolean
           label_image_url?: string | null
           last_refill_date?: string | null
           medication_name: string
@@ -2644,6 +2709,7 @@ export type Database = {
           id?: string
           instructions?: string | null
           is_active?: boolean | null
+          is_mat?: boolean
           label_image_url?: string | null
           last_refill_date?: string | null
           medication_name?: string
@@ -3596,6 +3662,70 @@ export type Database = {
           },
           {
             foreignKeyName: "provider_documents_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations_member_view"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      provider_fiis_settings: {
+        Row: {
+          aftercare_tolerance_percent: number
+          alert_sensitivity: string
+          created_at: string
+          created_by: string
+          family_id: string | null
+          id: string
+          mat_counts_as_sobriety: boolean
+          organization_id: string
+          risk_accumulation_window_days: number
+          silence_sensitivity_hours: number
+          updated_at: string
+        }
+        Insert: {
+          aftercare_tolerance_percent?: number
+          alert_sensitivity?: string
+          created_at?: string
+          created_by: string
+          family_id?: string | null
+          id?: string
+          mat_counts_as_sobriety?: boolean
+          organization_id: string
+          risk_accumulation_window_days?: number
+          silence_sensitivity_hours?: number
+          updated_at?: string
+        }
+        Update: {
+          aftercare_tolerance_percent?: number
+          alert_sensitivity?: string
+          created_at?: string
+          created_by?: string
+          family_id?: string | null
+          id?: string
+          mat_counts_as_sobriety?: boolean
+          organization_id?: string
+          risk_accumulation_window_days?: number
+          silence_sensitivity_hours?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_fiis_settings_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provider_fiis_settings_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provider_fiis_settings_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations_member_view"
