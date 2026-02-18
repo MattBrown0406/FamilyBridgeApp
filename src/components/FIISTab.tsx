@@ -207,6 +207,15 @@ interface PatternAnalysis {
   // Provider-only insights (new format) and legacy alerts
   provider_clinical_insights?: ProviderClinicalInsight[];
   provider_clinical_alerts?: ProviderClinicalAlert[];
+  // Family-facing behavioral summaries (replaces clinical role labels)
+  family_role_summaries?: FamilyRoleSummary[];
+}
+
+interface FamilyRoleSummary {
+  member_name: string;
+  behavioral_summary: string;
+  strengths_observed?: string;
+  growth_opportunity?: string;
 }
 
 const OBSERVATION_TYPES = [
@@ -287,6 +296,15 @@ const RISK_LEVEL_CONFIG: Record<string, { label: string; color: string; bgColor:
   pattern_formation: { label: "Pattern Formation", color: "text-orange-700 dark:text-orange-400", bgColor: "bg-orange-500/20 border-orange-500/30", icon: TrendingUp },
   system_strain: { label: "System Strain", color: "text-red-700 dark:text-red-400", bgColor: "bg-red-500/20 border-red-500/30", icon: TrendingUp },
   critical: { label: "Critical Risk", color: "text-red-800 dark:text-red-300", bgColor: "bg-red-600/30 border-red-600/50", icon: AlertTriangle },
+};
+
+// Family-facing risk band labels (no numeric scores, no clinical terminology)
+const RISK_BAND_LABELS: Record<string, string> = {
+  stable: "Low Risk",
+  early_drift: "Guarded",
+  pattern_formation: "Elevated",
+  system_strain: "High",
+  critical: "Critical",
 };
 
 export function FIISTab({ familyId, members, excludeUserIds = [], onView, isModerator = false }: FIISTabProps) {
@@ -791,17 +809,21 @@ export function FIISTab({ familyId, members, excludeUserIds = [], onView, isMode
                   <Brain className="h-4 w-4 text-violet-600" />
                   Pattern Analysis
                 </CardTitle>
-                {/* Risk Level Indicator */}
+                {/* Risk Level Indicator - Moderators see numeric level, family sees band label */}
                 {analysis.risk_level_name && (
                   <div className={`px-3 py-1.5 rounded-lg border flex items-center gap-2 ${RISK_LEVEL_CONFIG[analysis.risk_level_name]?.bgColor || "bg-muted"}`}>
                     {(() => {
                       const config = RISK_LEVEL_CONFIG[analysis.risk_level_name || "stable"];
                       const RiskIcon = config?.icon || Shield;
+                      const bandLabel = RISK_BAND_LABELS[analysis.risk_level_name || "stable"] || "Low";
                       return (
                         <>
                           <RiskIcon className={`h-4 w-4 ${config?.color || ""}`} />
                           <span className={`text-sm font-medium ${config?.color || ""}`}>
-                            Level {analysis.risk_level}: {config?.label || analysis.risk_level_name}
+                            {isModerator 
+                              ? `Level ${analysis.risk_level}: ${config?.label || analysis.risk_level_name}`
+                              : bandLabel
+                            }
                           </span>
                         </>
                       );
@@ -1465,6 +1487,36 @@ export function FIISTab({ familyId, members, excludeUserIds = [], onView, isMode
                     <li key={i} className="text-sm text-green-700 dark:text-green-400">{item}</li>
                   ))}
                 </ul>
+              </div>
+            )}
+
+            {/* Family Role Behavioral Summaries - Family view only (replaces clinical labels) */}
+            {!isModerator && analysis.family_role_summaries && analysis.family_role_summaries.length > 0 && (
+              <div className="p-4 rounded-lg bg-muted/50 border border-border">
+                <h4 className="text-sm font-medium mb-3 flex items-center gap-2">
+                  <Heart className="h-4 w-4 text-muted-foreground" />
+                  Family Member Insights
+                </h4>
+                <div className="space-y-3">
+                  {analysis.family_role_summaries.map((summary, i) => (
+                    <div key={i} className="p-3 rounded-lg bg-background border">
+                      <p className="text-sm font-medium mb-1">{summary.member_name}</p>
+                      <p className="text-sm text-muted-foreground">{summary.behavioral_summary}</p>
+                      {summary.strengths_observed && (
+                        <p className="text-xs text-green-600 dark:text-green-400 mt-2 flex items-start gap-1">
+                          <CheckCircle className="h-3 w-3 mt-0.5 shrink-0" />
+                          {summary.strengths_observed}
+                        </p>
+                      )}
+                      {summary.growth_opportunity && (
+                        <p className="text-xs text-amber-600 dark:text-amber-400 mt-1 flex items-start gap-1">
+                          <Zap className="h-3 w-3 mt-0.5 shrink-0" />
+                          {summary.growth_opportunity}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
 

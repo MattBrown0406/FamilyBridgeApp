@@ -2381,6 +2381,8 @@ serve(async (req) => {
       familyInfoResult,
       medicationsResult,
       coachingSessionsResult,
+      providerSettingsResult,
+      consequenceEventsResult,
     ] = await Promise.all([
       supabase.from("family_values").select("value_key").eq("family_id", familyId),
       supabase.from("family_boundaries").select("content, status, target_user_id").eq("family_id", familyId).eq("status", "approved"),
@@ -2453,6 +2455,30 @@ serve(async (req) => {
         .eq("family_id", familyId)
         .order("started_at", { ascending: false })
         .limit(50),
+      // Provider FIIS settings (customization layer)
+      supabase.from("provider_fiis_settings")
+        .select("alert_sensitivity, risk_accumulation_window_days, silence_sensitivity_hours, aftercare_tolerance_percent, mat_counts_as_sobriety")
+        .eq("family_id", familyId)
+        .maybeSingle()
+        .then(async (res) => {
+          if (res.data) return res;
+          // Fallback: check org-level settings
+          const { data: familyData } = await supabase.from("families").select("organization_id").eq("id", familyId).single();
+          if (familyData?.organization_id) {
+            return supabase.from("provider_fiis_settings")
+              .select("alert_sensitivity, risk_accumulation_window_days, silence_sensitivity_hours, aftercare_tolerance_percent, mat_counts_as_sobriety")
+              .eq("organization_id", familyData.organization_id)
+              .is("family_id", null)
+              .maybeSingle();
+          }
+          return res;
+        }),
+      // Consequence events for boundary enforcement tracking
+      supabase.from("consequence_events")
+        .select("id, boundary_id, event_type, auto_detected, created_at")
+        .eq("family_id", familyId)
+        .order("created_at", { ascending: false })
+        .limit(100),
     ]);
 
     // Calculate sobriety days and phase
@@ -2535,6 +2561,66 @@ FAMILY JOURNEY DURATION:
 
     // Build context about family values and boundaries
     let familyContext = sobrietyContext + familyJourneyContext;
+
+    // Add provider FIIS settings context
+    const providerSettings = providerSettingsResult?.data;
+    if (providerSettings) {
+      familyContext += `PROVIDER CUSTOMIZATION SETTINGS:
+- Alert Sensitivity: ${providerSettings.alert_sensitivity}
+- Risk Accumulation Window: ${providerSettings.risk_accumulation_window_days} days
+- Silence Sensitivity: ${providerSettings.silence_sensitivity_hours} hours
+- Aftercare Tolerance: ${providerSettings.aftercare_tolerance_percent}%
+- MAT Counts as Sobriety: ${providerSettings.mat_counts_as_sobriety}
+
+APPLY THESE SETTINGS: Adjust your sensitivity thresholds accordingly. ${
+  providerSettings.alert_sensitivity === 'conservative' 
+    ? 'Use LOWER thresholds — flag deviations earlier, be more cautious.' 
+    : providerSettings.alert_sensitivity === 'stabilized' 
+    ? 'Use HIGHER thresholds — only flag significant deviations, allow more variance.'
+    : 'Use BALANCED thresholds — standard sensitivity.'
+}
+
+`;
+    }
+
+    // Add MAT context
+    const matMedications = (medicationsResult.data || []).filter((m: { is_mat?: boolean }) => m.is_mat);
+    if (matMedications.length > 0) {
+      const matCountsAsSobriety = providerSettings?.mat_counts_as_sobriety !== false; // default true
+      familyContext += `MEDICATION-ASSISTED TREATMENT (MAT):
+- Active MAT Medications: ${matMedications.map((m: { medication_name: string }) => m.medication_name).join(', ')}
+- MAT Policy: ${matCountsAsSobriety ? 'Prescribed MAT COUNTS as maintaining sobriety when compliant' : 'MAT tracked separately from abstinence-based sobriety'}
+${matCountsAsSobriety ? '- Do NOT reset sobriety clock for prescribed MAT compliance' : '- Track MAT separately; sobriety clock counts full abstinence only'}
+
+`;
+    }
+
+    // Add consequence tracking context
+    if (consequenceEventsResult.data && consequenceEventsResult.data.length > 0) {
+      const events = consequenceEventsResult.data;
+      const violations = events.filter((e: { event_type: string }) => e.event_type === 'violation').length;
+      const enforced = events.filter((e: { event_type: string }) => e.event_type === 'enforced').length;
+      const failed = events.filter((e: { event_type: string }) => e.event_type === 'failed').length;
+      const autoDetected = events.filter((e: { auto_detected: boolean }) => e.auto_detected).length;
+      const enforcementRate = (violations + enforced + failed) > 0 
+        ? Math.round((enforced / (enforced + failed)) * 100) 
+        : 100;
+
+      familyContext += `CONSEQUENCE ENFORCEMENT TRACKING:
+- Total Boundary Violations Logged: ${violations}
+- Consequences Enforced: ${enforced}
+- Consequences Failed (not enforced): ${failed}
+- Auto-Detected Events: ${autoDetected}
+- Enforcement Rate: ${enforcementRate}%
+
+CONSEQUENCE INTERPRETATION:
+- Enforcement rate below 50% = HIGH enabling risk, boundary system failing
+- Failed consequences INCREASE Enabling Risk Index and REDUCE Boundary Integrity Score
+- Each unenforced consequence contributes to relapse risk accumulation
+
+`;
+    }
+
     if (valuesResult.data && valuesResult.data.length > 0) {
       familyContext += `FAMILY VALUES: ${valuesResult.data.map(v => v.value_key).join(", ")}\n\n`;
     }
@@ -3555,6 +3641,23 @@ COACHING ANALYSIS INTERPRETATION:
                     },
                     description: "Pattern-based clinical insights for provider review. MUST follow principles: Pattern>Events (trends not transcripts), Signal>Sentiment (no emotional content), Actionable>Interesting (every element answers 'what should I do differently?'), Non-Predictive (trajectory not risk), Clinical Neutrality (considerations not orders)."
                   },
+                  family_role_summaries: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        member_name: { type: "string", description: "Family member name" },
+                        behavioral_summary: { 
+                          type: "string", 
+                          description: "Plain-language behavioral description for family view. Example: 'Tends to absorb consequences for others' NOT 'Enabler'. 'Takes on extra responsibility to compensate' NOT 'Hero'. Must be non-clinical, non-labeling, and behavior-focused." 
+                        },
+                        strengths_observed: { type: "string", description: "Positive behaviors this person demonstrates" },
+                        growth_opportunity: { type: "string", description: "Area where this person could focus for family health improvement" },
+                      },
+                      required: ["member_name", "behavioral_summary"]
+                    },
+                    description: "Behavioral summaries for each family member. CRITICAL: Use plain behavioral descriptions, NEVER clinical role labels (Enabler, Hero, Scapegoat, Lost Child, Mascot). These are shown to the family."
+                  },
                 },
                 required: [
                   "risk_level", 
@@ -3693,6 +3796,92 @@ COACHING ANALYSIS INTERPRETATION:
       console.error("Error storing analysis:", insertError);
     }
 
+    // ═══════════════════════════════════════════════════════════════
+    // EMERGENCY PROTOCOL: Push notifications on crisis detection
+    // ═══════════════════════════════════════════════════════════════
+    if (analysis.risk_level >= 4 || analysis.risk_level_name === "critical") {
+      try {
+        // Get all family members for notification
+        const { data: allMembers } = await supabase
+          .from("family_members")
+          .select("user_id, role")
+          .eq("family_id", familyId);
+
+        if (allMembers && allMembers.length > 0) {
+          const moderatorIds = allMembers.filter(m => m.role === 'moderator').map(m => m.user_id);
+          const familyMemberIds = allMembers.map(m => m.user_id);
+
+          // Notify moderators first (priority)
+          if (moderatorIds.length > 0) {
+            for (const modId of moderatorIds) {
+              await supabase.from("notifications").insert({
+                user_id: modId,
+                family_id: familyId,
+                type: "fiis_crisis_alert",
+                title: "🚨 FIIS Critical Alert",
+                body: "Critical risk level detected. Immediate review recommended. If safety is at risk, contact 988 Suicide & Crisis Lifeline or local emergency services.",
+                related_id: familyId,
+              });
+            }
+          }
+
+          // Notify family members
+          const familyOnlyIds = familyMemberIds.filter(id => !moderatorIds.includes(id));
+          for (const memberId of familyOnlyIds) {
+            await supabase.from("notifications").insert({
+              user_id: memberId,
+              family_id: familyId,
+              type: "fiis_safety_alert",
+              title: "⚠️ Important Safety Information",
+              body: "Your family's support system has detected a pattern that needs attention. If anyone is in immediate danger, call 911. For crisis support: 988 Suicide & Crisis Lifeline.",
+              related_id: familyId,
+            });
+          }
+
+          // Also notify org members managing this family
+          const { data: orgMembers } = await supabase
+            .from("families")
+            .select("organization_id")
+            .eq("id", familyId)
+            .single();
+
+          if (orgMembers?.organization_id) {
+            const { data: orgStaff } = await supabase
+              .from("organization_members")
+              .select("user_id")
+              .eq("organization_id", orgMembers.organization_id);
+
+            if (orgStaff) {
+              for (const staff of orgStaff) {
+                if (!familyMemberIds.includes(staff.user_id)) {
+                  await supabase.from("notifications").insert({
+                    user_id: staff.user_id,
+                    family_id: familyId,
+                    type: "fiis_crisis_alert",
+                    title: "🚨 FIIS Critical Alert - Family Requires Immediate Review",
+                    body: `Critical risk level detected for ${familyInfoResult.data?.name || 'a family'}. Review and contact recommended.`,
+                    related_id: familyId,
+                  });
+                }
+              }
+            }
+          }
+        }
+        console.log("Emergency notifications sent for critical risk level");
+      } catch (notifError) {
+        console.error("Error sending emergency notifications:", notifError);
+        // Don't fail the analysis response due to notification errors
+      }
+    }
+
+    // Separate response for family vs moderator visibility
+    // Family should NOT see numeric risk scores - only banded labels
+    // Role labels should be replaced with behavioral summaries
+    analysis._viewer_guidance = {
+      family_visible_risk_label: getRiskBandLabel(analysis.risk_level_name),
+      numeric_scores_moderator_only: true,
+    };
+
     return new Response(JSON.stringify(analysis), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
@@ -3743,5 +3932,16 @@ function formatEventData(type: string, data: Record<string, unknown>): string {
       return `Reached ${data.days} day milestone (${data.days === 365 ? "ONE YEAR ACHIEVED!" : `${Math.round((Number(data.days) / 365) * 100)}% to one year`})`;
     default:
       return JSON.stringify(data);
+  }
+}
+
+function getRiskBandLabel(riskLevelName: string): string {
+  switch (riskLevelName) {
+    case "stable": return "Low";
+    case "early_drift": return "Guarded";
+    case "pattern_formation": return "Elevated";
+    case "system_strain": return "High";
+    case "critical": return "Critical";
+    default: return "Low";
   }
 }
