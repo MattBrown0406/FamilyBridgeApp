@@ -113,3 +113,6 @@ verify_jwt = false
 
 [functions.screenshot-coaching]
 verify_jwt = false
+
+[functions.check-follow-up-reminders]
+verify_jwt = false
