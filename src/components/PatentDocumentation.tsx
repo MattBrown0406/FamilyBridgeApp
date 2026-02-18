@@ -71,8 +71,15 @@ const DIAGRAM_SYSTEM_ARCHITECTURE = `graph TD
     subgraph "FIIS Core Engine"
         E[Pattern Analysis Engine]
         F[Data Aggregation Service]
-        G[Signal Classification System]
+        G[5-Level Signal Classification<br/>Low → Critical]
         H[Notification Orchestrator]
+        H2[Emergency Crisis Protocol<br/>Push Notifications + 988]
+    end
+
+    subgraph "Provider Configuration"
+        PC[Provider FIIS Settings]
+        PC2[MAT Sobriety Policy]
+        PC3[Alert Sensitivity Config]
     end
 
     subgraph "AI Coaching Layer"
@@ -80,18 +87,27 @@ const DIAGRAM_SYSTEM_ARCHITECTURE = `graph TD
         S[Screenshot Analysis]
         T[Communication Helper]
         U[Goal/Value/Boundary Alignment]
+        U2[Adaptive Tone Engine<br/>Per-Individual]
     end
 
     subgraph "AI/ML Layer"
         I[LLM Integration<br/>Gemini/GPT Models]
         J[Clinical Knowledge Base<br/>CRAFT, HALT, Gorski, DBT]
         K[Response Parser<br/>Lay Language Translation]
+        K2[Role-Adaptive Display<br/>Numeric vs Banded]
     end
 
     subgraph "Clinical Data Layer"
         V[Family Goals & Values]
         W[Emotional Check-ins & Tone Analysis]
         X[Coaching Sessions & Calibration Patterns]
+        X2[Consequence Events & Tracking]
+    end
+
+    subgraph "Reporting Layer"
+        RP[Aggregate Org Dashboards]
+        RP2[Per-Family Exports]
+        RP3[Court/Legal Reports]
     end
 
     subgraph "Data Layer"
@@ -108,22 +124,33 @@ const DIAGRAM_SYSTEM_ARCHITECTURE = `graph TD
     E --> F
     F --> G
     G --> I
+    G --> H2
     R --> J
+    R --> U2
     S --> J
     T --> J
     U --> V
     I --> J
     J --> K
+    J --> K2
     K --> E
     K --> R
     E --> H
+    PC --> E
+    PC2 --> E
+    PC3 --> H
     F --> L
     V --> L
     W --> L
     X --> L
+    X2 --> L
     L --> M
+    L --> RP
+    L --> RP2
+    L --> RP3
     M --> A
     H --> A
+    H2 --> A
     N --> L`;
 
 const DIAGRAM_PATTERN_ANALYSIS = `flowchart TD
@@ -172,9 +199,12 @@ const DIAGRAM_DATA_MODEL = `erDiagram
     FAMILIES ||--o{ FAMILY_COMMON_GOALS : pursues
     FAMILIES ||--o{ FAMILY_BOUNDARIES : establishes
     FAMILIES ||--o{ DAILY_EMOTIONAL_CHECKINS : logs
+    FAMILIES ||--o{ CONSEQUENCE_EVENTS : logs
+    ORGANIZATIONS ||--o{ PROVIDER_FIIS_SETTINGS : configures
 
     FAMILY_MEMBERS }o--|| PROFILES : references
     COACHING_SESSIONS }o--|| PROFILES : coached_by
+    FAMILY_BOUNDARIES ||--o{ CONSEQUENCE_EVENTS : triggers
 
     FAMILIES {
         uuid id PK
@@ -191,6 +221,7 @@ const DIAGRAM_DATA_MODEL = `erDiagram
         uuid user_id FK
         enum role
         enum relationship_type
+        boolean is_primary_patient
         timestamp joined_at
     }
 
@@ -227,6 +258,18 @@ const DIAGRAM_DATA_MODEL = `erDiagram
         string status
         string consequence
         uuid target_user_id FK
+        integer consequence_enforced_count
+        integer consequence_failed_count
+    }
+
+    CONSEQUENCE_EVENTS {
+        uuid id PK
+        uuid family_id FK
+        uuid boundary_id FK
+        string event_type
+        boolean auto_detected
+        text notes
+        uuid logged_by FK
     }
 
     DAILY_EMOTIONAL_CHECKINS {
@@ -258,6 +301,16 @@ const DIAGRAM_DATA_MODEL = `erDiagram
         text status_reason
         jsonb metrics
         timestamp calculated_at
+    }
+
+    PROVIDER_FIIS_SETTINGS {
+        uuid id PK
+        uuid organization_id FK
+        integer alert_sensitivity_level
+        integer risk_window_days
+        integer silence_threshold_hours
+        boolean celebrate_milestones
+        string mat_sobriety_policy
     }`;
 
 const DIAGRAM_SIGNAL_CLASSIFICATION = `graph TD
@@ -276,18 +329,22 @@ const DIAGRAM_SIGNAL_CLASSIFICATION = `graph TD
         I[Anomaly Detection]
     end
 
-    subgraph "Classification Engine"
+    subgraph "Classification Engine - 5 Levels"
         J{Pattern Matcher}
-        K[Positive Indicators]
-        L[Concerning Patterns]
-        M[Crisis Signals]
-        N[Neutral Observations]
+        K[Level 0: Low Risk]
+        L[Level 1: Moderate Risk]
+        L2[Level 2: Elevated Risk]
+        M[Level 3: High Risk]
+        M2[Level 4: Critical Risk]
     end
 
     subgraph "Output"
-        O[Signal Score: -1 to +1]
+        O[Risk Level 0-4]
         P[Confidence Level]
         Q[Actionable Insight]
+        Q2{Role-Based Display}
+        Q3[Moderator: Numeric Level]
+        Q4[Family: Banded Label]
     end
 
     A --> F
@@ -303,16 +360,21 @@ const DIAGRAM_SIGNAL_CLASSIFICATION = `graph TD
 
     J --> K
     J --> L
+    J --> L2
     J --> M
-    J --> N
+    J --> M2
 
     K --> O
     L --> O
+    L2 --> O
     M --> O
-    N --> O
+    M2 --> O
 
     O --> P
-    P --> Q`;
+    P --> Q
+    Q --> Q2
+    Q2 -->|Moderator| Q3
+    Q2 -->|Family| Q4`;
 
 const DIAGRAM_HEALTH_CALCULATION = `flowchart TD
     A[Trigger Health Calculation] --> B[Fetch Family Data]
@@ -337,11 +399,11 @@ const DIAGRAM_HEALTH_CALCULATION = `flowchart TD
     
     M --> N{Calculate Status}
     
-    N -->|Score >= 0.8| O[IMPROVING]
-    N -->|Score >= 0.6| P[STABLE]
-    N -->|Score >= 0.4| Q[TENSION]
-    N -->|Score >= 0.2| R[CONCERN]
-    N -->|Score < 0.2| S[CRISIS]
+    N -->|Level 0| O[LOW - Positive Trajectory]
+    N -->|Level 1| P[MODERATE - Minor Concerns]
+    N -->|Level 2| Q[ELEVATED - Active Monitoring]
+    N -->|Level 3| R[HIGH - Intervention Recommended]
+    N -->|Level 4| S[CRITICAL - Emergency Protocol]
     
     O --> T[Generate Status Reason]
     P --> T
@@ -650,6 +712,11 @@ const DIAGRAM_COMPETITIVE_ADVANTAGE = `graph TD
         D6[🎙️ Real-Time AI Coaching<br/>Goal-Driven Guidance]
         D7[🎯 Goal/Value/Boundary<br/>Alignment Engine]
         D8[🧠 Clinical Knowledge<br/>Lay Language Translation]
+        D9[🚨 Emergency Crisis Protocol<br/>Auto Push + 988]
+        D10[⚙️ Provider-Configurable<br/>FIIS Settings]
+        D11[💊 MAT Sobriety Logic<br/>Prescribed = Sobriety]
+        D12[🎭 Adaptive Coaching Tone<br/>Per-Individual]
+        D13[📋 Court/Legal Reports<br/>Exportable Compliance]
     end
 
     subgraph "Competitor Gaps"
@@ -661,7 +728,7 @@ const DIAGRAM_COMPETITIVE_ADVANTAGE = `graph TD
     end
 
     subgraph "Market Position"
-        M1[🎯 Only Platform for<br/>Family + Provider + AI<br/>+ Real-Time Coaching<br/>in Recovery Space]
+        M1[🎯 Only Platform for<br/>Family + Provider + AI<br/>+ Real-Time Coaching<br/>+ MAT + Crisis Protocol<br/>in Recovery Space]
     end
 
     D1 --> M1
@@ -672,6 +739,11 @@ const DIAGRAM_COMPETITIVE_ADVANTAGE = `graph TD
     D6 --> M1
     D7 --> M1
     D8 --> M1
+    D9 --> M1
+    D10 --> M1
+    D11 --> M1
+    D12 --> M1
+    D13 --> M1
 
     C1 -.->|Gap| D2
     C2 -.->|Gap| D1
@@ -825,7 +897,27 @@ const defaultDisclosure: InventionDisclosure = {
 
 18. EMOTIONAL TONE ANALYSIS: AI-powered analysis of family communication sentiment over time, tracking baseline tone establishment, current tone assessment, trajectory detection (improving, stable, declining), and pattern identification — integrated as behavioral signals in the FIIS pattern recognition engine.
 
-19. CRM PIPELINE MANAGEMENT: Integrated customer relationship management for provider organizations with lead scoring, referral source tracking, pipeline stage management, task assignment, activity timelines, and conversion tracking from prospect to active family — providing business intelligence alongside clinical oversight.`,
+19. CRM PIPELINE MANAGEMENT: Integrated customer relationship management for provider organizations with lead scoring, referral source tracking, pipeline stage management, task assignment, activity timelines, and conversion tracking from prospect to active family — providing business intelligence alongside clinical oversight.
+
+20. PROVIDER-CONFIGURABLE FIIS SETTINGS: A customization layer allowing provider organizations to configure FIIS behavior per-organization, including alert sensitivity levels, risk assessment time windows, silence detection thresholds, milestone celebration preferences, and Medication-Assisted Treatment (MAT) sobriety policy — enabling clinical adaptation without code changes.
+
+21. EMERGENCY CRISIS PROTOCOL WITH PUSH NOTIFICATIONS: When FIIS pattern analysis detects Critical-level risk (Level 4+), the system automatically generates real-time push notifications to all moderators, family members (with 988 Suicide & Crisis Lifeline resources), and organization staff — ensuring immediate human intervention for life-threatening situations.
+
+22. ROLE-ADAPTIVE SCORE VISIBILITY: A dual-display system where professional moderators see numeric risk levels (Level 0-4) for clinical precision, while family members see only banded labels (Low, Moderate, Elevated, High, Critical) — preventing score fixation and preserving therapeutic relationships.
+
+23. MEDICATION-ASSISTED TREATMENT (MAT) SOBRIETY LOGIC: The system treats prescribed, compliant MAT medications (buprenorphine, methadone, naltrexone) as maintaining sobriety rather than breaking it, configurable per provider organization — reflecting current clinical best practices and reducing stigma in recovery tracking.
+
+24. MULTI-PATIENT FAMILY SUPPORT: Support for families with multiple recovering individuals, each tracked independently with their own sobriety clocks, medications, and FIIS signals, with a primary patient designation to focus default views while maintaining comprehensive family-wide analysis.
+
+25. AUTOMATED CONSEQUENCE TRACKING: Auto-detection and moderator logging of boundary violations, consequence enforcements, and consequence failures, with running counts per boundary and integration as high-weight behavioral signals in FIIS pattern analysis.
+
+26. INDIVIDUALLY ADAPTIVE COACHING TONE: The AI coaching engine dynamically adapts its communication tone based on each individual's engagement history, emotional state trajectory, and role within the family — moving between supportive, direct, boundary-focused, and de-escalation modes rather than using a uniform tone for all members.
+
+27. AGGREGATE AND PER-FAMILY OUTCOME REPORTING: Dual-layer reporting for provider organizations providing both aggregate outcome dashboards (retention rates, success metrics across all families) and detailed per-family exportable reports for clinical review, court documentation, and insurance compliance.
+
+28. PROCESS ADDICTION RISK FACTOR INPUTS: Process addictions (gambling, gaming, shopping, social media) tracked as weighted risk factor inputs to the substance relapse risk score rather than as separate addiction metrics — acknowledging their clinical correlation with substance use escalation without conflating distinct behavioral categories.
+
+29. COURT AND LEGAL INTEGRATION: Structured, exportable compliance reports designed for court-mandated recovery documentation, including meeting attendance records, boundary adherence, medication compliance, and FIIS trajectory summaries — formatted for legal admissibility with timestamp verification and audit trails.`,
   competingProducts: `COMPETITIVE LANDSCAPE ANALYSIS (Updated January 2026):
 
 ══════════════════════════════════════════════════════════════
@@ -1194,6 +1286,18 @@ FEBRUARY 2026:
 - Pattern shift alerts with automated behavioral signal detection
 - Family archival and reactivation system
 - Provider broadcast messaging
+- Provider-configurable FIIS settings (alert sensitivity, risk windows, MAT policy)
+- Emergency crisis protocol with real-time push notifications (988 resources)
+- 5-level risk classification (Low → Critical) replacing binary scoring
+- Role-adaptive score visibility (numeric for moderators, banded for families)
+- Behavioral role summaries replacing clinical labels for family-facing views
+- MAT sobriety logic (prescribed MAT = sobriety maintained, configurable per org)
+- Multi-patient family support with primary patient designation
+- Automated consequence tracking (auto-detect + moderator logging)
+- Individually adaptive coaching tone based on engagement + emotional state
+- Aggregate and per-family outcome reporting for provider organizations
+- Process addiction risk factor inputs to substance relapse score
+- Court/legal compliance reporting with structured exportable reports
 
 ══════════════════════════════════════════════════════════════
 TECHNICAL DECISIONS DOCUMENTED
@@ -1586,7 +1690,7 @@ export const PatentDocumentation = () => {
     <div class="toc-item">3. Prior Art Analysis</div>
     <div class="toc-item">4. Business Context</div>
     <div class="toc-item">5. Development Timeline</div>
-    <div class="toc-item">6. Patent Claims (25 Claims)</div>
+    <div class="toc-item">6. Patent Claims (33 Claims)</div>
     <div class="toc-item">7. Prior Art Differentiation</div>
   </div>
 
@@ -1824,6 +1928,46 @@ export const PatentDocumentation = () => {
     <p>The system of Claim 14, further comprising a customer relationship management module configured to: manage prospective family leads with contact information, presenting issues, and referral source attribution; implement pipeline stage tracking from initial inquiry through admission, active treatment, and alumni status; calculate lead scoring based on engagement metrics and conversion likelihood; assign and track tasks for organization staff members; maintain activity timelines for all lead and family interactions; support referral source management with performance analytics; convert qualified leads into active family groups with automated onboarding; and provide analytics dashboards with pipeline performance metrics and conversion rates.</p>
   </div>
 
+  <div class="claim">
+    <div class="claim-title">Claim 26: Provider-Configurable FIIS Settings (Dependent on Claim 14)</div>
+    <p>The system of Claim 14, further comprising a provider configuration module configured to: store per-organization FIIS settings including alert sensitivity levels, risk assessment time windows, silence detection thresholds, and milestone celebration preferences; define Medication-Assisted Treatment (MAT) sobriety policy per organization; apply organization-specific configurations to all FIIS analyses for families within that organization; enable clinical adaptation of system behavior without requiring code modifications; and maintain configuration audit trails for compliance documentation.</p>
+  </div>
+
+  <div class="claim">
+    <div class="claim-title">Claim 27: Emergency Crisis Protocol (Dependent on Claim 5)</div>
+    <p>The notification system of Claim 5, further comprising an emergency crisis protocol configured to: detect Critical-level risk assessments (Level 4 or higher) from FIIS pattern analysis; automatically generate immediate push notifications to all assigned moderators with crisis details; send concurrent notifications to family members including national crisis resources (988 Suicide & Crisis Lifeline); alert organization staff when the family is associated with a provider organization; log all emergency protocol activations with timestamps for audit compliance; and escalate through multiple notification channels simultaneously rather than sequentially.</p>
+  </div>
+
+  <div class="claim">
+    <div class="claim-title">Claim 28: Role-Adaptive Score Visibility (Dependent on Claim 1)</div>
+    <p>The system of Claim 1, further comprising a role-adaptive display module configured to: present numeric risk levels (Level 0 through Level 4) exclusively to professional moderators and provider staff for clinical precision; display banded risk labels (Low, Moderate, Elevated, High, Critical) to family members to prevent score fixation and preserve therapeutic relationships; maintain consistent underlying risk assessment logic regardless of display mode; generate role-specific behavioral summaries replacing clinical role labels (e.g., replacing "Enabler" with "Tends to absorb consequences") for family-facing views; and enforce display separation through role-based rendering logic rather than data-level restrictions.</p>
+  </div>
+
+  <div class="claim">
+    <div class="claim-title">Claim 29: Medication-Assisted Treatment Sobriety Logic (Dependent on Claim 12)</div>
+    <p>The sobriety tracking system of Claim 12, further comprising a MAT integration module configured to: identify medications flagged as Medication-Assisted Treatment (buprenorphine, methadone, naltrexone); treat prescribed, compliant MAT medication usage as maintaining sobriety continuity rather than resetting the sobriety clock; apply MAT sobriety policy as configured by the provider organization; integrate MAT compliance status as a positive behavioral signal in FIIS pattern analysis; and distinguish between prescribed MAT compliance and unauthorized substance use in all sobriety calculations.</p>
+  </div>
+
+  <div class="claim">
+    <div class="claim-title">Claim 30: Multi-Patient Family Support (Dependent on Claim 1)</div>
+    <p>The system of Claim 1, further comprising a multi-patient management module configured to: support families with multiple recovering individuals each tracked independently; maintain separate sobriety clocks, medication records, and FIIS behavioral signals per recovering member; designate a primary patient to focus default dashboard views; enable family-wide analysis that considers interactions between multiple recovery journeys; and provide moderators with consolidated and individual-level views for clinical oversight.</p>
+  </div>
+
+  <div class="claim">
+    <div class="claim-title">Claim 31: Automated Consequence Tracking (Dependent on Claim 1)</div>
+    <p>The system of Claim 1, further comprising a consequence tracking module configured to: automatically detect potential boundary violations through behavioral pattern analysis; enable moderators to manually log violation events, consequence enforcements, and consequence failures; maintain running enforcement and failure counts per boundary record; update boundary metadata including last violation date and last enforcement date; integrate consequence adherence patterns as high-weight behavioral signals in FIIS analysis; and generate consequence tracking reports for provider and legal documentation.</p>
+  </div>
+
+  <div class="claim">
+    <div class="claim-title">Claim 32: Individually Adaptive Coaching Tone (Dependent on Claim 20)</div>
+    <p>The coaching system of Claim 20, further comprising an adaptive tone engine configured to: analyze each individual's engagement history, emotional state trajectory, and family role; dynamically select communication tone from a spectrum including supportive-empathetic, direct-boundary-focused, motivational, and de-escalation modes; adapt tone independently for each family member within the same family group; weight tone selection based on recent emotional check-in patterns and coaching session outcomes; and maintain tone consistency within a single coaching session while evolving across sessions based on engagement feedback.</p>
+  </div>
+
+  <div class="claim">
+    <div class="claim-title">Claim 33: Aggregate and Per-Family Outcome Reporting (Dependent on Claim 14)</div>
+    <p>The system of Claim 14, further comprising a dual-layer reporting module configured to: generate aggregate outcome dashboards showing retention rates, recovery progression, and success metrics across all families within an organization; produce detailed per-family exportable reports for clinical review including FIIS trajectory, boundary adherence, medication compliance, and meeting attendance; format reports for court documentation with timestamp verification and audit trails; support structured legal compliance reporting for court-mandated recovery programs; and correlate CRM pipeline data with family health outcomes for organizational performance analysis.</p>
+  </div>
+
   <div class="page-break"></div>
 
   <h2>7. Prior Art Differentiation</h2>
@@ -1871,6 +2015,31 @@ export const PatentDocumentation = () => {
         <td><strong>Goal Alignment</strong></td>
         <td>No goal-driven AI guidance</td>
         <td>Family-selected goals and values drive all coaching suggestions with automatic conversation extrication</td>
+      </tr>
+      <tr>
+        <td><strong>Risk Scoring</strong></td>
+        <td>Single numeric score shown to all users</td>
+        <td>5-level classification with role-adaptive display (numeric for clinicians, banded labels for families)</td>
+      </tr>
+      <tr>
+        <td><strong>MAT Support</strong></td>
+        <td>MAT treated as substance use or ignored entirely</td>
+        <td>Prescribed MAT maintains sobriety continuity, configurable per provider organization</td>
+      </tr>
+      <tr>
+        <td><strong>Crisis Response</strong></td>
+        <td>Manual escalation or no protocol</td>
+        <td>Automated emergency push notifications with 988 resources on Critical-level detection</td>
+      </tr>
+      <tr>
+        <td><strong>Provider Customization</strong></td>
+        <td>One-size-fits-all or requires custom development</td>
+        <td>Per-organization configurable settings for alert sensitivity, risk windows, and clinical policies</td>
+      </tr>
+      <tr>
+        <td><strong>Coaching Tone</strong></td>
+        <td>Uniform tone for all users</td>
+        <td>Individually adaptive tone based on engagement history, emotional state, and family role</td>
       </tr>
     </tbody>
   </table>
@@ -2918,6 +3087,78 @@ export const PatentDocumentation = () => {
                     The system of Claim 14, further comprising a CRM module with lead scoring, referral source tracking, pipeline stage management, task assignment, activity timelines, and conversion tracking from prospect to active family.
                   </p>
                 </div>
+
+                <Separator />
+
+                <div>
+                  <h4 className="font-semibold mb-2">Claim 26: Provider-Configurable FIIS Settings (Dependent on Claim 14)</h4>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    The system of Claim 14, further comprising a provider configuration module with per-organization FIIS settings including alert sensitivity, risk assessment windows, silence thresholds, MAT sobriety policy, and milestone preferences — enabling clinical adaptation without code changes.
+                  </p>
+                </div>
+
+                <Separator />
+
+                <div>
+                  <h4 className="font-semibold mb-2">Claim 27: Emergency Crisis Protocol (Dependent on Claim 5)</h4>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    The notification system of Claim 5, further comprising an emergency crisis protocol that detects Critical-level risk (Level 4+) and automatically generates simultaneous push notifications to moderators, family members (with 988 crisis resources), and organization staff.
+                  </p>
+                </div>
+
+                <Separator />
+
+                <div>
+                  <h4 className="font-semibold mb-2">Claim 28: Role-Adaptive Score Visibility (Dependent on Claim 1)</h4>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    The system of Claim 1, further comprising a role-adaptive display presenting numeric risk levels (0-4) to moderators and banded labels (Low → Critical) to family members, with behavioral role summaries replacing clinical labels in family-facing views.
+                  </p>
+                </div>
+
+                <Separator />
+
+                <div>
+                  <h4 className="font-semibold mb-2">Claim 29: MAT Sobriety Logic (Dependent on Claim 12)</h4>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    The sobriety tracking system of Claim 12, further comprising MAT integration that treats prescribed, compliant Medication-Assisted Treatment as maintaining sobriety continuity, configurable per provider organization.
+                  </p>
+                </div>
+
+                <Separator />
+
+                <div>
+                  <h4 className="font-semibold mb-2">Claim 30: Multi-Patient Family Support (Dependent on Claim 1)</h4>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    The system of Claim 1, further comprising multi-patient management with independent sobriety clocks, medication records, and FIIS signals per recovering member, with primary patient designation for default views.
+                  </p>
+                </div>
+
+                <Separator />
+
+                <div>
+                  <h4 className="font-semibold mb-2">Claim 31: Automated Consequence Tracking (Dependent on Claim 1)</h4>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    The system of Claim 1, further comprising consequence tracking with auto-detection of boundary violations, moderator-logged enforcement/failure events, running counts per boundary, and integration as high-weight FIIS behavioral signals.
+                  </p>
+                </div>
+
+                <Separator />
+
+                <div>
+                  <h4 className="font-semibold mb-2">Claim 32: Individually Adaptive Coaching Tone (Dependent on Claim 20)</h4>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    The coaching system of Claim 20, further comprising an adaptive tone engine that dynamically selects communication tone (supportive, direct, motivational, de-escalation) based on individual engagement history, emotional state trajectory, and family role.
+                  </p>
+                </div>
+
+                <Separator />
+
+                <div>
+                  <h4 className="font-semibold mb-2">Claim 33: Aggregate and Per-Family Outcome Reporting (Dependent on Claim 14)</h4>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    The system of Claim 14, further comprising dual-layer reporting with aggregate org dashboards and per-family exportable reports, formatted for court documentation with timestamp verification and audit trails.
+                  </p>
+                </div>
               </CardContent>
             </Card>
           </Section>
@@ -2973,6 +3214,31 @@ export const PatentDocumentation = () => {
                         <td className="p-3 font-medium">Goal Alignment</td>
                         <td className="p-3 text-muted-foreground">No goal-driven AI guidance</td>
                         <td className="p-3 text-muted-foreground">Family-selected goals and values drive all coaching suggestions with automatic conversation extrication</td>
+                      </tr>
+                      <tr className="border-b">
+                        <td className="p-3 font-medium">Risk Scoring</td>
+                        <td className="p-3 text-muted-foreground">Single numeric score shown to all users</td>
+                        <td className="p-3 text-muted-foreground">5-level classification with role-adaptive display (numeric for clinicians, banded labels for families)</td>
+                      </tr>
+                      <tr className="border-b">
+                        <td className="p-3 font-medium">MAT Support</td>
+                        <td className="p-3 text-muted-foreground">MAT treated as substance use or ignored entirely</td>
+                        <td className="p-3 text-muted-foreground">Prescribed MAT maintains sobriety continuity, configurable per provider</td>
+                      </tr>
+                      <tr className="border-b">
+                        <td className="p-3 font-medium">Crisis Response</td>
+                        <td className="p-3 text-muted-foreground">Manual escalation or no protocol</td>
+                        <td className="p-3 text-muted-foreground">Automated emergency push notifications with 988 resources on Critical-level detection</td>
+                      </tr>
+                      <tr className="border-b">
+                        <td className="p-3 font-medium">Provider Customization</td>
+                        <td className="p-3 text-muted-foreground">One-size-fits-all or requires custom development</td>
+                        <td className="p-3 text-muted-foreground">Per-organization configurable settings for alert sensitivity, risk windows, and clinical policies</td>
+                      </tr>
+                      <tr className="border-b">
+                        <td className="p-3 font-medium">Coaching Tone</td>
+                        <td className="p-3 text-muted-foreground">Uniform tone for all users</td>
+                        <td className="p-3 text-muted-foreground">Individually adaptive tone based on engagement history, emotional state, and family role</td>
                       </tr>
                     </tbody>
                   </table>
