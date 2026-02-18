@@ -590,6 +590,204 @@ export type Database = {
           },
         ]
       }
+      crm_calendar_events: {
+        Row: {
+          assigned_to: string | null
+          created_at: string
+          created_by: string
+          description: string | null
+          end_time: string | null
+          event_type: string
+          family_id: string | null
+          id: string
+          lead_id: string | null
+          organization_id: string
+          start_time: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          created_at?: string
+          created_by: string
+          description?: string | null
+          end_time?: string | null
+          event_type?: string
+          family_id?: string | null
+          id?: string
+          lead_id?: string | null
+          organization_id: string
+          start_time: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_to?: string | null
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          end_time?: string | null
+          event_type?: string
+          family_id?: string | null
+          id?: string
+          lead_id?: string | null
+          organization_id?: string
+          start_time?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_calendar_events_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_calendar_events_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "crm_leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_calendar_events_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_calendar_events_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations_member_view"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_communication_templates: {
+        Row: {
+          body: string
+          created_at: string
+          created_by: string
+          id: string
+          name: string
+          organization_id: string
+          stage: string | null
+          subject: string | null
+          template_type: string
+          updated_at: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          created_by: string
+          id?: string
+          name: string
+          organization_id: string
+          stage?: string | null
+          subject?: string | null
+          template_type?: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          name?: string
+          organization_id?: string
+          stage?: string | null
+          subject?: string | null
+          template_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_communication_templates_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_communication_templates_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations_member_view"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_follow_up_reminders: {
+        Row: {
+          assigned_to: string
+          created_at: string
+          created_by: string
+          id: string
+          is_dismissed: boolean
+          is_sent: boolean
+          lead_id: string
+          message: string | null
+          organization_id: string
+          remind_at: string
+          reminder_type: string
+          sent_at: string | null
+        }
+        Insert: {
+          assigned_to: string
+          created_at?: string
+          created_by: string
+          id?: string
+          is_dismissed?: boolean
+          is_sent?: boolean
+          lead_id: string
+          message?: string | null
+          organization_id: string
+          remind_at: string
+          reminder_type?: string
+          sent_at?: string | null
+        }
+        Update: {
+          assigned_to?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          is_dismissed?: boolean
+          is_sent?: boolean
+          lead_id?: string
+          message?: string | null
+          organization_id?: string
+          remind_at?: string
+          reminder_type?: string
+          sent_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_follow_up_reminders_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "crm_leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_follow_up_reminders_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_follow_up_reminders_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations_member_view"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       crm_integrations: {
         Row: {
           access_token_encrypted: string | null
@@ -665,6 +863,7 @@ export type Database = {
           created_by: string
           estimated_value: number | null
           id: string
+          lost_category: string | null
           lost_reason: string | null
           notes: string | null
           organization_id: string
@@ -690,6 +889,7 @@ export type Database = {
           created_by: string
           estimated_value?: number | null
           id?: string
+          lost_category?: string | null
           lost_reason?: string | null
           notes?: string | null
           organization_id: string
@@ -715,6 +915,7 @@ export type Database = {
           created_by?: string
           estimated_value?: number | null
           id?: string
+          lost_category?: string | null
           lost_reason?: string | null
           notes?: string | null
           organization_id?: string

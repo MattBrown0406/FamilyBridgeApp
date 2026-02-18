@@ -42,7 +42,7 @@ import {
   Target
 } from 'lucide-react';
 import { format, formatDistanceToNow, isAfter, isBefore, addDays } from 'date-fns';
-import { CRMKanbanBoard, CRMActivityTimeline, CRMAnalyticsDashboard, CRMLeadScoring, calculateLeadScore } from './crm';
+import { CRMKanbanBoard, CRMActivityTimeline, CRMAnalyticsDashboard, CRMLeadScoring, calculateLeadScore, CRMAdvancedAnalytics, CRMCalendar, CRMTemplates, CRMBulkActions } from './crm';
 
 type PipelineStage = 'lead' | 'contacted' | 'intake' | 'active' | 'aftercare' | 'alumni' | 'lost';
 type TaskStatus = 'pending' | 'in_progress' | 'completed' | 'cancelled';
@@ -154,6 +154,9 @@ export function CRMDashboard({ organizationId, organizationName, organizationLog
   const [tasks, setTasks] = useState<Task[]>([]);
   const [activities, setActivities] = useState<CRMActivity[]>([]);
   const [referralSources, setReferralSources] = useState<ReferralSource[]>([]);
+  const [calendarEvents, setCalendarEvents] = useState<any[]>([]);
+  const [familyHealthData, setFamilyHealthData] = useState<any[]>([]);
+  const [templates, setTemplates] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [userProfiles, setUserProfiles] = useState<Record<string, string>>({});
 
@@ -222,6 +225,9 @@ export function CRMDashboard({ organizationId, organizationName, organizationLog
       fetchTasks(),
       fetchActivities(),
       fetchReferralSources(),
+      fetchCalendarEvents(),
+      fetchFamilyHealth(),
+      fetchTemplates(),
     ]);
     setIsLoading(false);
   };
@@ -296,6 +302,34 @@ export function CRMDashboard({ organizationId, organizationName, organizationLog
     } catch (err) {
       console.error('Error fetching referral sources:', err);
     }
+  };
+
+  const fetchCalendarEvents = async () => {
+    try {
+      const { data, error } = await supabase.from('crm_calendar_events').select('*').eq('organization_id', organizationId).order('start_time', { ascending: true });
+      if (error) throw error;
+      setCalendarEvents(data || []);
+    } catch (err) { console.error('Error fetching calendar events:', err); }
+  };
+
+  const fetchFamilyHealth = async () => {
+    try {
+      const { data, error } = await supabase.from('family_health_status').select('family_id, status');
+      if (error) throw error;
+      const healthWithNames = (data || []).map(fh => {
+        const family = families.find(f => f.id === fh.family_id);
+        return { ...fh, family_name: family?.name || 'Unknown' };
+      });
+      setFamilyHealthData(healthWithNames);
+    } catch (err) { console.error('Error fetching family health:', err); }
+  };
+
+  const fetchTemplates = async () => {
+    try {
+      const { data, error } = await supabase.from('crm_communication_templates').select('*').eq('organization_id', organizationId);
+      if (error) throw error;
+      setTemplates(data || []);
+    } catch (err) { console.error('Error fetching templates:', err); }
   };
 
   const handleCreateLead = async () => {
