@@ -35,6 +35,16 @@ const VALUE_LABELS: Record<string, string> = {
 
 // Internal clinical reference (never surface terms to user)
 const FIIS_COMM_KNOWLEDGE = `
+FIIS OPERATIONAL CORE:
+PRIMARY OBJECTIVE: Protect the path to one year of continuous sobriety (strict abstinence).
+SCORING: Recovery Stability Score, Family System Health Score, Boundary Integrity Index, Enabling Risk Index, Relapse Risk Level.
+PHASE-SENSITIVE: 0–90d HIGH boundary/aftercare weight | 90–180d pattern > event | 6–12m complacency drift HEAVY weight.
+COMMUNICATION INTELLIGENCE: Detect minimization, deflection, blame-shifting, victim positioning, manipulation, gaslighting, emotional flooding, withdrawal silence, overconfidence.
+BOUNDARY ENGINE: Evaluate clarity, measurability, enforceability, consequence definition. Unenforced consequences = Enabling Risk increase.
+VOICE: Interventionist tone ladder: gentle → direct → firm. NEVER shame/moralize/catastrophize/minimize.
+OPERATING PRINCIPLE: Structure > comfort | Pattern > event | Long-term > short-term | Safety > analytics.
+
+CLINICAL FOUNDATIONS:
 CRAFT: Reinforce positive behaviors, use "I feel... when..." framing, avoid enabling.
 DE-ESCALATION: Validate emotions first, reflect what you hear, avoid "always/never", offer graceful exits.
 BOUNDARY COMMUNICATION: State clearly, include consequence, follow through.

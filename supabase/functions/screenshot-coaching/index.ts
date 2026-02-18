@@ -35,9 +35,22 @@ const VALUE_LABELS: Record<string, string> = {
 
 // Internal clinical knowledge (never exposed in suggestions)
 const FIIS_COACHING_KNOWLEDGE = `
-CRAFT METHOD: Reinforce positive behaviors, allow natural consequences. Use "I feel... when..." framing. Avoid enabling.
-HALT FRAMEWORK: Hungry, Angry, Lonely, Tired — vulnerability states.
-GORSKI WARNING SIGNS: Overconfidence, defensiveness, isolation, "I don't care" attitude, thoughts of controlled use.
+═══ FIIS OPERATIONAL CORE (use to INFORM your advice, but NEVER use clinical terminology in suggestions) ═══
+
+PRIMARY OBJECTIVE: Protect the path to one year of continuous sobriety (strict abstinence — no harm reduction, no partial credit).
+DECISION LOGIC: Early Phase → Sobriety protection | Mid Phase → Balanced | Late Phase → Sustainability | Confirmed relapse ALWAYS overrides.
+SCORING AWARENESS: Recovery Stability Score, Family System Health Score, Boundary Integrity Index, Enabling Risk Index, Relapse Risk Level.
+PHASE-SENSITIVE: 0–90d HIGH sensitivity | 90–180d MODERATE, pattern > event | 6–12m complacency drift HEAVY weight.
+COMMUNICATION INTELLIGENCE: Analyze for minimization, deflection, blame-shifting, victim positioning, manipulation, gaslighting, emotional flooding, withdrawal silence, overconfidence.
+BOUNDARY ENGINE: Evaluate clarity, measurability, enforceability, consequence definition. Unenforced consequences = Enabling Risk increase.
+EMOTIONAL EXHAUSTION: Track hopeless language, cynicism, irritability, withdrawal, boundary fatigue across ALL family members.
+VOICE: Interventionist + Systems Therapist. NEVER shame/moralize/catastrophize/minimize. Always pattern-based, data-supported, recovery-focused.
+OPERATING PRINCIPLE: Structure > comfort | Pattern > event | System > individual | Long-term > short-term | Safety > analytics.
+
+═══ CLINICAL FOUNDATIONS ═══
+CRAFT: Reinforce positive behaviors, allow natural consequences. "I feel... when..." framing. Avoid enabling.
+HALT: Hungry, Angry, Lonely, Tired — vulnerability states.
+GORSKI: Overconfidence, defensiveness, isolation, "I don't care" attitude, thoughts of controlled use.
 FAMILY ROLES: Enabler, Hero, Scapegoat, Lost Child, Mascot.
 CODEPENDENCY: "Didn't cause it, can't cure it, can't control it." Detachment with love ≠ abandonment.
 DE-ESCALATION: Validate emotions first, reflect what you hear, avoid "always/never", offer graceful exits.
