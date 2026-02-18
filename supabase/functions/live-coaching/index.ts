@@ -6,141 +6,62 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Goal and value label maps for human-readable context
+const GOAL_LABELS: Record<string, string> = {
+  complete_intervention: "Complete Family Intervention",
+  enter_treatment: "Enter Treatment Program",
+  complete_treatment: "Complete Treatment Program",
+  establish_support_network: "Build a Recovery Support Network",
+  family_therapy_sessions: "Complete 8 Family Therapy Sessions",
+  "90_meetings_90_days": "Attend 90 Meetings in 90 Days",
+  living_amends_plan: "Create Living Amends Plan",
+  family_recovery_milestones: "Celebrate 6-Month Family Recovery",
+  rebuild_financial_trust: "Restore Financial Accountability",
+  one_year_celebration: "Celebrate One Year of Sobriety",
+};
+
+const VALUE_LABELS: Record<string, string> = {
+  honesty: "Honesty & Transparency",
+  accountability: "Accountability Without Shame",
+  boundaries: "Healthy Boundaries",
+  support_not_enabling: "Support Without Enabling",
+  patience: "Patience & Progress",
+  forgiveness: "Forgiveness & Moving Forward",
+  self_care: "Self-Care for Everyone",
+  consistency: "Consistency & Follow-Through",
+  communication: "Compassionate Communication",
+  hope: "Hope & Faith in Recovery",
+};
+
 // ============================================================================
-// FIIS COACHING CLINICAL KNOWLEDGE BASE (Condensed for Real-Time Coaching)
+// FIIS COACHING KNOWLEDGE (Internal reference — NOT exposed in suggestions)
 // ============================================================================
 
 const FIIS_COACHING_KNOWLEDGE = `
-═══ CLINICAL FOUNDATIONS ═══
+═══ CLINICAL FOUNDATIONS (use to INFORM your advice, but NEVER use clinical terminology in your suggestions) ═══
 
-CRAFT METHOD (Community Reinforcement and Family Training):
-- Reinforce positive behaviors, allow natural consequences for negative ones
-- Use "I" statements: "I feel [emotion] when [behavior] because [impact]"
-- Avoid enabling while maintaining connection
-- Timing matters: address issues when both parties are calm, not during crisis
-- Positive communication increases: specific praise for recovery-consistent behavior
-- Functional analysis: identify triggers → behavior → consequences
-
-HALT FRAMEWORK (Vulnerability States):
-H - HUNGRY: Physical needs neglected, self-care decline
-A - ANGRY: Unprocessed resentments, irritability, conflict escalation
-L - LONELY: Isolation, withdrawal from support
-T - TIRED: Sleep disruption, exhaustion, burnout
-When HALT states detected in conversation, coaching priority shifts to stabilization.
-
-GORSKI'S KEY WARNING SIGNS (Early Relapse Indicators):
-- Apprehension about well-being / denial of apprehension
-- Overconfidence ("I've got this")
-- Defensiveness and compulsive behavior
-- Loneliness and tunnel vision
-- Irritation with friends/family
-- "I don't care" attitude
-- Conscious lying and rejection of help
-- Thoughts of controlled use
-
-FAMILY ROLES IN ADDICTION:
-- ENABLER: Making excuses, preventing consequences, covering up
-- HERO: Over-achieving, perfectionism, hidden anxiety
-- SCAPEGOAT: Acting out, drawing negative attention
-- LOST CHILD: Withdrawing, avoiding conflict
-- MASCOT: Using humor to defuse tension
-Recognition of these roles helps guide coaching toward healthier dynamics.
-
-BOWEN FAMILY SYSTEMS:
-- Emotional triangles: Tension between two pulls in a third
-- De-triangulation is key to healthy communication
-- Family homeostasis: Systems resist change, even positive change
-- Differentiation of self: Ability to hold position while maintaining emotional contact
-
-CODEPENDENCY PATTERNS (Al-Anon):
-- The 3 C's: "We didn't cause it, we can't cure it, we can't control it"
-- Caretaking, obsession, controlling, weak boundaries
-- Detachment with love ≠ abandonment
-- Enabling behaviors: making excuses, bailing out, threatening without follow-through
-
-ATTACHMENT THEORY:
-- Anxious-preoccupied: Fear of abandonment, seeking reassurance
-- Dismissive-avoidant: Emotional distance, uncomfortable with intimacy
-- Fearful-avoidant: Push-pull patterns, often trauma-related
-- Understanding attachment style informs coaching approach
-
-STAGES OF CHANGE (Prochaska):
-1. Precontemplation → Raise awareness without confrontation
-2. Contemplation → Explore ambivalence
-3. Preparation → Help with planning
-4. Action → Support and reinforce
-5. Maintenance → Prevent complacency
-Match coaching suggestions to the person's current stage.
-
-MOTIVATIONAL INTERVIEWING (OARS):
-- Open-ended questions
-- Affirmations
-- Reflections
-- Summaries
-Evoke change talk: Desire, Ability, Reasons, Need, Commitment
-
-DBT INTERPERSONAL EFFECTIVENESS (DEAR MAN):
-- Describe the situation objectively
-- Express feelings using "I" statements
-- Assert what you want/need clearly
-- Reinforce why it matters
-- Mindful: Stay focused on the goal
-- Appear confident even if anxious
-- Negotiate: Be willing to give to get
-
-COGNITIVE DISTORTIONS TO ADDRESS:
-- All-or-Nothing: "I relapsed once, so I'm a complete failure"
-- Catastrophizing: "If I say this, everything will fall apart"
-- Mind Reading: "They think I'm a terrible parent"
-- Should Statements: "I should be further along"
-- Emotional Reasoning: "I feel angry, so I should express it harshly"
-
-TRAUMA-INFORMED COMMUNICATION:
-- Prioritize safety (physical and emotional)
-- Trustworthiness: Clear, consistent communication
-- Choice: Restore sense of control and autonomy
-- Avoid re-traumatization through aggressive confrontation
-- Recognize trauma responses: Fight, Flight, Freeze, Fawn
-
-CRISIS RECOGNITION:
-- Suicide warning signs: talking about wanting to die, feeling hopeless, being a burden, giving away possessions
-- If crisis detected: Recommend 988 Suicide & Crisis Lifeline, do NOT attempt to manage internally
-- Manic emergency: 3+ days no sleep, grandiose delusions, dangerous impulsivity
-- Never suggest ultimatums during heated moments
-
-DE-ESCALATION PRINCIPLES:
-1. Lower your voice, slow your pace
-2. Validate emotions before problem-solving
-3. Reflect what you hear: "It sounds like you're feeling..."
-4. Avoid "always" and "never" language
-5. Name the tension: "This conversation is getting heated"
-6. Offer a graceful exit: "Let's take a break and come back to this"
-7. Leave the door open: End with hope for re-engagement
-
-BOUNDARY COMMUNICATION:
-- State the boundary clearly and calmly
-- Include the consequence
-- Follow through consistently
-- Separate the person from the behavior
-- "I love you AND this behavior is not acceptable"
-- Dialectics: Hold two truths simultaneously
+CRAFT METHOD: Reinforce positive behaviors, allow natural consequences for negative ones. Use "I feel... when... because..." framing. Avoid enabling while maintaining connection. Address issues when calm.
+HALT FRAMEWORK: Watch for Hungry, Angry, Lonely, Tired states — they increase vulnerability.
+GORSKI WARNING SIGNS: Overconfidence, defensiveness, isolation, "I don't care" attitude, thoughts of controlled use.
+FAMILY ROLES: Enabler (covering up), Hero (over-achieving), Scapegoat (acting out), Lost Child (withdrawing), Mascot (deflecting with humor).
+CODEPENDENCY: "We didn't cause it, can't cure it, can't control it." Detachment with love ≠ abandonment.
+STAGES OF CHANGE: Match your coaching to the person's readiness level.
+DE-ESCALATION: Lower voice, validate emotions first, reflect what you hear, avoid "always/never", offer graceful exits.
+BOUNDARY COMMUNICATION: State clearly, include consequence, follow through, separate person from behavior.
+DBT INTERPERSONAL EFFECTIVENESS: Describe situation, express feelings, assert needs, reinforce why it matters.
+TRAUMA-INFORMED: Prioritize safety, trustworthiness, choice. Recognize fight/flight/freeze/fawn.
+ATTACHMENT PATTERNS: Inform your approach based on anxious, avoidant, or disorganized patterns.
+COGNITIVE DISTORTIONS: All-or-nothing, catastrophizing, mind reading, should statements.
+CRISIS: If suicide/self-harm detected → recommend 988 immediately. Never manage crisis internally.
 `;
 
-// Fetch comprehensive family observational context for coaching
+// Fetch comprehensive family context including goals, values, and boundaries
 async function fetchFamilyContext(supabase: ReturnType<typeof createClient>, familyId: string) {
   const [
-    sobrietyResult,
-    boundariesResult,
-    emotionalCheckinsResult,
-    meetingCheckinsResult,
-    messagesResult,
-    financialRequestsResult,
-    coachingSessionsResult,
-    medicationsResult,
-    providerNotesResult,
-    aftercarePlansResult,
-    aftercareRecsResult,
-    calibrationPatternsResult,
+    sobrietyResult, boundariesResult, emotionalCheckinsResult, meetingCheckinsResult,
+    messagesResult, financialRequestsResult, coachingSessionsResult, medicationsResult,
+    providerNotesResult, aftercarePlansResult, aftercareRecsResult, calibrationPatternsResult,
+    goalsResult, valuesResult, commonGoalsResult,
   ] = await Promise.all([
     supabase.from("sobriety_journeys").select("start_date, reset_count, is_active").eq("family_id", familyId).eq("is_active", true).maybeSingle(),
     supabase.from("family_boundaries").select("content, status").eq("family_id", familyId).eq("status", "approved"),
@@ -154,9 +75,35 @@ async function fetchFamilyContext(supabase: ReturnType<typeof createClient>, fam
     supabase.from("aftercare_plans").select("id, is_active").eq("family_id", familyId).eq("is_active", true),
     supabase.from("aftercare_recommendations").select("plan_id, recommendation_type, title, is_completed, frequency").order("created_at", { ascending: false }).limit(50),
     supabase.from("fiis_calibration_patterns").select("pattern_name, pattern_description, trigger_keywords, trigger_behaviors, suggested_response, fellowship").eq("is_active", true),
+    supabase.from("family_goals").select("goal_type, completed_at").eq("family_id", familyId),
+    supabase.from("family_values").select("value_key").eq("family_id", familyId),
+    supabase.from("family_common_goals").select("goal_key, completed_at").eq("family_id", familyId),
   ]);
 
   let context = "";
+
+  // Family Goals (most important — drives coaching focus)
+  const activeGoals = (commonGoalsResult.data || []).filter(g => !g.completed_at);
+  const completedGoals = (commonGoalsResult.data || []).filter(g => g.completed_at);
+  if (activeGoals.length > 0 || completedGoals.length > 0) {
+    context += `\nFAMILY GOALS (guide ALL coaching around these):\n`;
+    if (activeGoals.length > 0) {
+      context += `Active goals: ${activeGoals.map(g => GOAL_LABELS[g.goal_key] || g.goal_key.replace(/_/g, ' ')).join(', ')}\n`;
+    }
+    if (completedGoals.length > 0) {
+      context += `Completed: ${completedGoals.map(g => GOAL_LABELS[g.goal_key] || g.goal_key.replace(/_/g, ' ')).join(', ')}\n`;
+    }
+  }
+
+  // Family Values
+  if (valuesResult.data && valuesResult.data.length > 0) {
+    context += `\nFAMILY VALUES (reference these when coaching): ${valuesResult.data.map(v => VALUE_LABELS[v.value_key] || v.value_key.replace(/_/g, ' ')).join(', ')}\n`;
+  }
+
+  // Approved boundaries
+  if (boundariesResult.data && boundariesResult.data.length > 0) {
+    context += `\nFAMILY BOUNDARIES:\n${boundariesResult.data.map((b, i) => `${i + 1}. ${b.content}`).join("\n")}\n`;
+  }
 
   // Sobriety journey
   if (sobrietyResult.data) {
@@ -165,7 +112,6 @@ async function fetchFamilyContext(supabase: ReturnType<typeof createClient>, fam
     startDate.setHours(0, 0, 0, 0);
     today.setHours(0, 0, 0, 0);
     const currentDays = Math.max(0, Math.floor((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)));
-    const daysToOneYear = Math.max(0, 365 - currentDays);
     let phase = "";
     if (currentDays <= 30) phase = "Early Recovery (high vulnerability)";
     else if (currentDays <= 90) phase = "Building Foundation";
@@ -174,15 +120,10 @@ async function fetchFamilyContext(supabase: ReturnType<typeof createClient>, fam
     else if (currentDays <= 365) phase = "Approaching One-Year Milestone";
     else phase = "Beyond One Year (maintenance)";
     const resetInfo = sobrietyResult.data.reset_count > 0 ? ` Recovery attempt #${sobrietyResult.data.reset_count + 1}.` : "";
-    context += `\nSOBRIETY: ${currentDays} days sober. ${daysToOneYear > 0 ? daysToOneYear + " days to one-year goal." : "One-year achieved!"} Phase: ${phase}.${resetInfo}\n`;
+    context += `\nSOBRIETY: ${currentDays} days sober. Phase: ${phase}.${resetInfo}\n`;
   }
 
-  // Approved boundaries
-  if (boundariesResult.data && boundariesResult.data.length > 0) {
-    context += `\nAPPROVED FAMILY BOUNDARIES:\n${boundariesResult.data.map((b, i) => `${i + 1}. ${b.content}`).join("\n")}\n`;
-  }
-
-  // Emotional check-in patterns (last 30)
+  // Emotional check-in patterns
   if (emotionalCheckinsResult.data && emotionalCheckinsResult.data.length > 0) {
     const checkins = emotionalCheckinsResult.data;
     const bypassedCount = checkins.filter(c => c.was_bypassed).length;
@@ -193,7 +134,7 @@ async function fetchFamilyContext(supabase: ReturnType<typeof createClient>, fam
     context += `\nEMOTIONAL STATE (Last 30 check-ins): ${checkins.length} total. Bypassed: ${bypassedCount}. Negative states: ${negativeCount}. Distribution: ${Object.entries(feelings).map(([f, c]) => `${f}(${c})`).join(', ')}\n`;
   }
 
-  // Meeting attendance patterns
+  // Meeting attendance
   if (meetingCheckinsResult.data && meetingCheckinsResult.data.length > 0) {
     const checkins = meetingCheckinsResult.data;
     const now = new Date();
@@ -201,15 +142,11 @@ async function fetchFamilyContext(supabase: ReturnType<typeof createClient>, fam
     const last30 = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
     const recent7 = checkins.filter(c => new Date(c.checked_in_at) >= last7).length;
     const recent30 = checkins.filter(c => new Date(c.checked_in_at) >= last30).length;
-    const overdueAlerts = checkins.filter(c => c.overdue_alert_sent).length;
-    const meetingTypes: Record<string, number> = {};
-    checkins.forEach(c => { const t = c.meeting_type || 'other'; meetingTypes[t] = (meetingTypes[t] || 0) + 1; });
-    context += `\nMEETING ATTENDANCE: Last 7 days: ${recent7}. Last 30 days: ${recent30}. Overdue checkouts: ${overdueAlerts}. Types: ${Object.entries(meetingTypes).map(([t, c]) => `${t}(${c})`).join(', ')}\n`;
+    context += `\nMEETING ATTENDANCE: Last 7 days: ${recent7}. Last 30 days: ${recent30}.\n`;
   }
 
-  // Communication patterns (keyword analysis, no content exposed)
+  // Chat pattern signals
   if (messagesResult.data && messagesResult.data.length > 0) {
-    const messages = messagesResult.data;
     const keywordCategories: Record<string, string[]> = {
       relapse_warning: ['relapse', 'slip', 'slipped', 'used', 'drank', 'high', 'drunk'],
       isolation: ['alone', 'leave me alone', 'need space', 'fine', 'whatever'],
@@ -220,7 +157,7 @@ async function fetchFamilyContext(supabase: ReturnType<typeof createClient>, fam
     };
     const categoryMentions: Record<string, number> = {};
     Object.keys(keywordCategories).forEach(cat => categoryMentions[cat] = 0);
-    messages.forEach(m => {
+    messagesResult.data.forEach(m => {
       const content = (m.content || '').toLowerCase();
       Object.entries(keywordCategories).forEach(([category, keywords]) => {
         keywords.forEach(kw => { if (content.includes(kw)) categoryMentions[category]++; });
@@ -232,36 +169,24 @@ async function fetchFamilyContext(supabase: ReturnType<typeof createClient>, fam
     }
   }
 
-  // Financial request patterns
+  // Financial patterns
   if (financialRequestsResult.data && financialRequestsResult.data.length > 0) {
     const requests = financialRequestsResult.data;
     const totalAmount = requests.reduce((sum, r) => sum + (r.amount || 0), 0);
-    const denied = requests.filter(r => r.status === 'denied').length;
-    context += `\nFINANCIAL PATTERNS: ${requests.length} recent requests totaling $${totalAmount}. Denied: ${denied}.\n`;
+    context += `\nFINANCIAL PATTERNS: ${requests.length} recent requests totaling $${totalAmount}.\n`;
   }
 
-  // Prior coaching sessions
+  // Prior coaching
   if (coachingSessionsResult.data && coachingSessionsResult.data.length > 0) {
-    const sessions = coachingSessionsResult.data;
-    const liveCount = sessions.filter(s => s.session_type === 'live').length;
-    const screenshotCount = sessions.filter(s => s.session_type === 'screenshot').length;
-    const recentSuggestions = sessions.slice(0, 5).flatMap(s => {
-      if (Array.isArray(s.suggestions)) return s.suggestions.map((sg: any) => typeof sg === 'string' ? sg : sg?.text || '').filter(Boolean);
-      return [];
-    }).slice(0, 5);
-    context += `\nPRIOR COACHING: ${sessions.length} sessions (${liveCount} live, ${screenshotCount} screenshot).`;
-    if (recentSuggestions.length > 0) {
-      context += ` Recent suggestions given: ${recentSuggestions.map((s, i) => `${i + 1}. "${s}"`).join('; ')}`;
-    }
-    context += "\n";
+    context += `\nPRIOR COACHING: ${coachingSessionsResult.data.length} sessions.\n`;
   }
 
-  // Active medications
+  // Medications
   if (medicationsResult.data && medicationsResult.data.length > 0) {
     context += `\nACTIVE MEDICATIONS: ${medicationsResult.data.map(m => `${m.medication_name}${m.dosage ? ` (${m.dosage})` : ''}`).join(', ')}\n`;
   }
 
-  // Provider clinical notes
+  // Provider notes
   if (providerNotesResult.data && providerNotesResult.data.length > 0) {
     context += `\nPROVIDER NOTES:\n${providerNotesResult.data.map((n, i) => `${i + 1}. [${n.note_type}] ${n.content}`).join('\n')}\n`;
   }
@@ -338,7 +263,7 @@ serve(async (req) => {
       );
     }
 
-    // Fetch family context, profile info, and talking-to info in parallel
+    // Fetch context in parallel
     const [familyObservations, familyResult, profileResult, talkingToInfo] = await Promise.all([
       fetchFamilyContext(supabase, familyId),
       supabase.from("families").select("name, description").eq("id", familyId).single(),
@@ -361,8 +286,19 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    const systemPrompt = `You are FIIS Live Coaching — an embedded real-time communication coach powered by the Family Intervention Intelligence System, for families dealing with addiction and recovery.
+    const systemPrompt = `You are a real-time conversation coach helping families navigate difficult conversations during addiction recovery. You speak like a trusted friend — warm, direct, and down-to-earth. The other person CANNOT see your suggestions.
 
+═══ IMPORTANT LANGUAGE RULES ═══
+- NEVER use therapy jargon or clinical terms like "codependency", "triangulation", "differentiation", "attachment style", "cognitive distortion", "HALT", "CRAFT", "DBT", etc.
+- Instead, use plain everyday language. For example:
+  • Instead of "You're showing codependent behavior" → "It sounds like you're carrying more than your share here"
+  • Instead of "Use an I-statement" → "Try telling them how YOU feel instead of what THEY did"
+  • Instead of "Set a boundary" → "Let them know what you will and won't accept"
+  • Instead of "Detach with love" → "You can love someone and still step back from the chaos"
+  • Instead of "You're enabling" → "Sometimes helping actually makes things harder for them in the long run"
+- Sound like a wise friend, not a therapist. Be warm and real.
+
+═══ YOUR INTERNAL KNOWLEDGE (use to guide your thinking, but translate into plain language) ═══
 ${FIIS_COACHING_KNOWLEDGE}
 
 ═══ FAMILY-SPECIFIC CONTEXT ═══
@@ -372,27 +308,28 @@ ${FIIS_COACHING_KNOWLEDGE}
 **Talking to:** ${talkingToInfo.display}
 **Conversation type:** ${context === 'phone' ? 'live phone/in-person' : 'text'}
 ${talkingToInfo.isMember
-  ? '**Relationship:** Family group members. Focus on healthy family communication, reducing conflict, and maintaining supportive recovery dynamics.'
-  : '**Relationship:** Person outside the app. Focus on de-escalation and CRAFT-based engagement.'}
+  ? '**Relationship:** Family group members.'
+  : '**Relationship:** Person outside the app.'}
 
 ═══ FAMILY OBSERVATIONAL DATA ═══
 ${familyObservations || "No historical data available yet."}
 
-═══ YOUR ROLE ═══
-You are listening to the conversation in real-time and providing coaching. The other person CANNOT see your suggestions.
+═══ GOAL-DRIVEN COACHING ═══
+Your PRIMARY job is to help this conversation support the family's goals, values, and boundaries listed above.
 
-Use your full clinical knowledge base AND the family's observational history to provide contextually aware coaching. For example:
-- If sobriety days are low, be extra careful about de-escalation
-- If HALT patterns are detected in recent check-ins, address vulnerability
-- If boundary testing patterns exist in chat, reinforce boundary maintenance
-- If prior coaching sessions addressed similar dynamics, build on that guidance
-- If provider notes highlight specific concerns, factor those in
-- If meeting attendance is declining, consider this in your assessment
+1. **Stay focused on what matters**: If the family's goal is getting into treatment, steer the conversation toward that. If it's following an aftercare plan, encourage that. Always connect your suggestions back to what this family is working toward.
+
+2. **Reference their values**: When suggesting what to say, naturally weave in the family's chosen values. For example, if they value "Honesty & Transparency," encourage honest but kind communication.
+
+3. **Protect their boundaries**: If the conversation is heading toward a boundary violation, gently remind them of what they agreed to and help them hold firm.
+
+4. **Know when to wrap it up**: If continuing the conversation would hurt their progress — if it's getting heated, going in circles, or pulling them away from their goals — suggest a warm way to end the conversation. Something like:
+   - "Hey, I think we've covered a lot. Let's take a breather and come back to this."
+   - "I love you and I want to keep talking about this, but I think we both need some time to think."
+   - "I appreciate you being open with me. Let's pick this up when we've both had a chance to process."
 
 **Response Format:**
-Provide 1-2 short, actionable suggestions the family member can say RIGHT NOW. Be specific and conversational — give them exact words they can use. If the conversation should end, suggest a warm closing statement that leaves room for future connection.
-
-Keep responses brief and immediately actionable — this is real-time coaching.`;
+Provide 1-2 short, actionable suggestions — give them exact words they can say RIGHT NOW. Keep it brief and immediately useful. If the conversation should end, suggest a warm closing that leaves room for future connection.`;
 
     const messages = [
       { role: "system", content: systemPrompt },
