@@ -6,31 +6,55 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Condensed FIIS clinical knowledge for screenshot coaching context
+// Goal and value label maps
+const GOAL_LABELS: Record<string, string> = {
+  complete_intervention: "Complete Family Intervention",
+  enter_treatment: "Enter Treatment Program",
+  complete_treatment: "Complete Treatment Program",
+  establish_support_network: "Build a Recovery Support Network",
+  family_therapy_sessions: "Complete 8 Family Therapy Sessions",
+  "90_meetings_90_days": "Attend 90 Meetings in 90 Days",
+  living_amends_plan: "Create Living Amends Plan",
+  family_recovery_milestones: "Celebrate 6-Month Family Recovery",
+  rebuild_financial_trust: "Restore Financial Accountability",
+  one_year_celebration: "Celebrate One Year of Sobriety",
+};
+
+const VALUE_LABELS: Record<string, string> = {
+  honesty: "Honesty & Transparency",
+  accountability: "Accountability Without Shame",
+  boundaries: "Healthy Boundaries",
+  support_not_enabling: "Support Without Enabling",
+  patience: "Patience & Progress",
+  forgiveness: "Forgiveness & Moving Forward",
+  self_care: "Self-Care for Everyone",
+  consistency: "Consistency & Follow-Through",
+  communication: "Compassionate Communication",
+  hope: "Hope & Faith in Recovery",
+};
+
+// Internal clinical knowledge (never exposed in suggestions)
 const FIIS_COACHING_KNOWLEDGE = `
-CRAFT METHOD: Reinforce positive behaviors, allow natural consequences. Use "I" statements. Avoid enabling while maintaining connection.
-HALT FRAMEWORK: Hungry, Angry, Lonely, Tired — vulnerability states that increase risk.
+CRAFT METHOD: Reinforce positive behaviors, allow natural consequences. Use "I feel... when..." framing. Avoid enabling.
+HALT FRAMEWORK: Hungry, Angry, Lonely, Tired — vulnerability states.
 GORSKI WARNING SIGNS: Overconfidence, defensiveness, isolation, "I don't care" attitude, thoughts of controlled use.
-FAMILY ROLES: Enabler (covering up), Hero (over-achieving), Scapegoat (acting out), Lost Child (withdrawing), Mascot (deflecting with humor).
-CODEPENDENCY: The 3 C's — "We didn't cause it, we can't cure it, we can't control it." Detachment with love ≠ abandonment.
-STAGES OF CHANGE: Match response to person's readiness (precontemplation → maintenance).
-DE-ESCALATION: Lower voice, validate emotions first, reflect what you hear, avoid "always/never", offer graceful exits, leave the door open.
-BOUNDARY COMMUNICATION: State clearly, include consequence, follow through, separate person from behavior. "I love you AND this behavior is not acceptable."
-DBT DEAR MAN: Describe, Express, Assert, Reinforce, Mindful, Appear confident, Negotiate.
-TRAUMA-INFORMED: Prioritize safety, trustworthiness, choice, avoid re-traumatization. Recognize fight/flight/freeze/fawn responses.
-ATTACHMENT: Anxious (fear of abandonment), Avoidant (emotional distance), Disorganized (push-pull). Inform coaching approach accordingly.
-COGNITIVE DISTORTIONS: All-or-nothing thinking, catastrophizing, mind reading, should statements, emotional reasoning.
-CRISIS: If suicide/self-harm indicators detected, recommend 988 immediately. Never manage crisis internally.
+FAMILY ROLES: Enabler, Hero, Scapegoat, Lost Child, Mascot.
+CODEPENDENCY: "Didn't cause it, can't cure it, can't control it." Detachment with love ≠ abandonment.
+DE-ESCALATION: Validate emotions first, reflect what you hear, avoid "always/never", offer graceful exits.
+BOUNDARY COMMUNICATION: State clearly, include consequence, follow through, separate person from behavior.
+TRAUMA-INFORMED: Prioritize safety, trustworthiness, choice. Recognize fight/flight/freeze/fawn.
+CRISIS: If suicide/self-harm detected → recommend 988 immediately.
 `;
 
-// Fetch family observational data for contextual coaching
+// Fetch family observational data including goals, values, boundaries
 async function fetchFamilyContext(supabase: ReturnType<typeof createClient>, familyId: string) {
   const [
     sobrietyResult, boundariesResult, emotionalCheckinsResult, meetingCheckinsResult,
     messagesResult, financialRequestsResult, coachingSessionsResult, medicationsResult,
     providerNotesResult, aftercarePlansResult, aftercareRecsResult,
+    goalsResult, valuesResult, commonGoalsResult,
   ] = await Promise.all([
-    supabase.from("sobriety_journeys").select("start_date, reset_count, is_active").eq("family_id", familyId).eq("is_active", true).maybeSingle(),
+    supabase.from("sobriety_journeys").select("start_date, reset_count").eq("family_id", familyId).eq("is_active", true).maybeSingle(),
     supabase.from("family_boundaries").select("content").eq("family_id", familyId).eq("status", "approved"),
     supabase.from("daily_emotional_checkins").select("feeling, was_bypassed").eq("family_id", familyId).order("check_in_date", { ascending: false }).limit(30),
     supabase.from("meeting_checkins").select("checked_in_at, meeting_type, overdue_alert_sent").eq("family_id", familyId).order("checked_in_at", { ascending: false }).limit(50),
@@ -41,35 +65,49 @@ async function fetchFamilyContext(supabase: ReturnType<typeof createClient>, fam
     supabase.from("provider_notes").select("note_type, content").eq("family_id", familyId).eq("include_in_ai_analysis", true).order("created_at", { ascending: false }).limit(10),
     supabase.from("aftercare_plans").select("id, is_active").eq("family_id", familyId).eq("is_active", true),
     supabase.from("aftercare_recommendations").select("plan_id, recommendation_type, title, is_completed").order("created_at", { ascending: false }).limit(50),
+    supabase.from("family_goals").select("goal_type, completed_at").eq("family_id", familyId),
+    supabase.from("family_values").select("value_key").eq("family_id", familyId),
+    supabase.from("family_common_goals").select("goal_key, completed_at").eq("family_id", familyId),
   ]);
 
   let ctx = "";
+
+  // Goals (most important)
+  const activeGoals = (commonGoalsResult.data || []).filter(g => !g.completed_at);
+  const completedGoals = (commonGoalsResult.data || []).filter(g => g.completed_at);
+  if (activeGoals.length > 0 || completedGoals.length > 0) {
+    ctx += `FAMILY GOALS (guide ALL coaching around these):\n`;
+    if (activeGoals.length > 0) ctx += `Active: ${activeGoals.map(g => GOAL_LABELS[g.goal_key] || g.goal_key.replace(/_/g, ' ')).join(', ')}\n`;
+    if (completedGoals.length > 0) ctx += `Completed: ${completedGoals.map(g => GOAL_LABELS[g.goal_key] || g.goal_key.replace(/_/g, ' ')).join(', ')}\n`;
+  }
+
+  // Values
+  if (valuesResult.data?.length) {
+    ctx += `FAMILY VALUES: ${valuesResult.data.map(v => VALUE_LABELS[v.value_key] || v.value_key.replace(/_/g, ' ')).join(', ')}\n`;
+  }
+
+  // Boundaries
+  if (boundariesResult.data?.length) ctx += `BOUNDARIES: ${boundariesResult.data.map((b, i) => `${i + 1}. ${b.content}`).join('; ')}\n`;
 
   if (sobrietyResult.data) {
     const days = Math.max(0, Math.floor((Date.now() - new Date(sobrietyResult.data.start_date).getTime()) / 86400000));
     let phase = days <= 30 ? "Early Recovery" : days <= 90 ? "Building Foundation" : days <= 180 ? "Developing Resilience" : days <= 365 ? "Strengthening" : "Maintenance";
     ctx += `SOBRIETY: ${days} days. Phase: ${phase}. ${sobrietyResult.data.reset_count > 0 ? `Attempt #${sobrietyResult.data.reset_count + 1}.` : ''}\n`;
   }
-  if (boundariesResult.data?.length) ctx += `BOUNDARIES: ${boundariesResult.data.map((b, i) => `${i + 1}. ${b.content}`).join('; ')}\n`;
   if (emotionalCheckinsResult.data?.length) {
-    const checkins = emotionalCheckinsResult.data;
-    const bypassed = checkins.filter(c => c.was_bypassed).length;
     const feelings: Record<string, number> = {};
-    checkins.forEach(c => { if (c.feeling) feelings[c.feeling] = (feelings[c.feeling] || 0) + 1; });
-    ctx += `EMOTIONAL STATE: ${checkins.length} check-ins. Bypassed: ${bypassed}. Feelings: ${Object.entries(feelings).map(([f, c]) => `${f}(${c})`).join(', ')}\n`;
+    emotionalCheckinsResult.data.forEach(c => { if (c.feeling) feelings[c.feeling] = (feelings[c.feeling] || 0) + 1; });
+    ctx += `EMOTIONAL STATE: ${Object.entries(feelings).map(([f, c]) => `${f}(${c})`).join(', ')}\n`;
   }
   if (meetingCheckinsResult.data?.length) {
     const now = Date.now();
     const recent7 = meetingCheckinsResult.data.filter(c => new Date(c.checked_in_at).getTime() >= now - 604800000).length;
-    const recent30 = meetingCheckinsResult.data.filter(c => new Date(c.checked_in_at).getTime() >= now - 2592000000).length;
-    ctx += `MEETINGS: Last 7 days: ${recent7}. Last 30 days: ${recent30}.\n`;
+    ctx += `MEETINGS: ${recent7} in last 7 days.\n`;
   }
   if (messagesResult.data?.length) {
     const keywords: Record<string, string[]> = {
       relapse_warning: ['relapse', 'slip', 'used', 'drank', 'high'],
       isolation: ['alone', 'leave me alone', 'need space', 'fine'],
-      halt_states: ['exhausted', 'angry', 'lonely', 'overwhelmed', 'stressed'],
-      crisis: ['end it', 'no point', 'better off without me', 'give up', 'worthless'],
       progress: ['proud', 'meeting', 'sponsor', 'therapy', 'grateful', 'sober'],
     };
     const counts: Record<string, number> = {};
@@ -81,16 +119,8 @@ async function fetchFamilyContext(supabase: ReturnType<typeof createClient>, fam
     const sig = Object.entries(counts).filter(([, c]) => c > 0);
     if (sig.length) ctx += `CHAT SIGNALS: ${sig.map(([k, v]) => `${k.replace(/_/g, ' ')}(${v})`).join(', ')}\n`;
   }
-  if (financialRequestsResult.data?.length) {
-    const total = financialRequestsResult.data.reduce((s, r) => s + (r.amount || 0), 0);
-    ctx += `FINANCIAL: ${financialRequestsResult.data.length} requests totaling $${total}.\n`;
-  }
-  if (coachingSessionsResult.data?.length) {
-    ctx += `PRIOR COACHING: ${coachingSessionsResult.data.length} sessions.\n`;
-  }
-  if (medicationsResult.data?.length) {
-    ctx += `MEDICATIONS: ${medicationsResult.data.map(m => m.medication_name).join(', ')}\n`;
-  }
+  if (coachingSessionsResult.data?.length) ctx += `PRIOR COACHING: ${coachingSessionsResult.data.length} sessions.\n`;
+  if (medicationsResult.data?.length) ctx += `MEDICATIONS: ${medicationsResult.data.map(m => m.medication_name).join(', ')}\n`;
   if (providerNotesResult.data?.length) {
     ctx += `PROVIDER NOTES:\n${providerNotesResult.data.map((n, i) => `${i + 1}. [${n.note_type}] ${n.content}`).join('\n')}\n`;
   }
@@ -135,7 +165,6 @@ serve(async (req) => {
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    // Verify membership
     const { data: membership } = await supabase.from("family_members").select("id, role, relationship_type")
       .eq("family_id", familyId).eq("user_id", user.id).single();
     if (!membership) {
@@ -143,7 +172,6 @@ serve(async (req) => {
         { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    // Fetch all context in parallel
     const [familyObservations, profileResult, talkingToDisplay] = await Promise.all([
       fetchFamilyContext(supabase, familyId),
       supabase.from("profiles").select("full_name").eq("id", user.id).single(),
@@ -160,38 +188,49 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    const systemPrompt = `You are FIIS Text Coaching — an expert communication coach powered by the Family Intervention Intelligence System for families dealing with addiction and recovery.
+    const systemPrompt = `You are a text conversation coach helping families navigate difficult conversations during addiction recovery. You speak like a wise, caring friend — NOT like a therapist.
 
+═══ CRITICAL LANGUAGE RULES ═══
+- NEVER use clinical or therapy terms like "codependency", "triangulation", "HALT", "CRAFT", "attachment style", "cognitive distortion", "DBT", "differentiation", "enmeshment", etc.
+- Use plain, everyday language that anyone would understand.
+- Sound like a supportive friend who's been through tough times, not a textbook.
+- Examples of what to do:
+  • Say "You're taking on too much of their stuff" NOT "codependent behavior"
+  • Say "Tell them how it makes YOU feel" NOT "Use an I-statement"
+  • Say "That's more than you should have to handle" NOT "You need to set boundaries"
+  • Say "Sometimes the kindest thing is to let them figure it out" NOT "Stop enabling"
+
+═══ INTERNAL CLINICAL REFERENCE (never surface these terms) ═══
 ${FIIS_COACHING_KNOWLEDGE}
 
-═══ FAMILY-SPECIFIC CONTEXT ═══
+═══ CONTEXT ═══
 Coaching: ${profileResult.data?.full_name || "a family member"} (${membership.relationship_type || membership.role})
 Talking to: ${talkingToDisplay}
 
 ═══ FAMILY OBSERVATIONAL DATA ═══
 ${familyObservations || "No historical data available yet."}
 
-Use your clinical knowledge AND the family's observational history to provide contextually aware analysis. Factor in sobriety phase, emotional patterns, boundary history, meeting attendance trends, and prior coaching sessions when crafting suggestions.
+═══ GOAL-DRIVEN COACHING ═══
+Your PRIMARY job is to help this conversation support the family's goals, values, and boundaries listed above.
 
-**Your Task:**
-1. Read and understand the text conversation in the screenshot
-2. Identify emotional dynamics using your clinical knowledge (HALT, Gorski, attachment patterns, family roles)
-3. Provide specific response suggestions informed by the family's recovery journey
-4. Flag any concerning patterns connected to observational data
+1. **Connect to their goals**: If they're working toward getting someone into treatment, guide the conversation toward that. If they're focused on aftercare, reinforce that.
+2. **Reflect their values**: Naturally reference what the family says they care about (honesty, patience, etc.) without making it sound clinical.
+3. **Guard their boundaries**: If the conversation is pushing past an agreed boundary, help them hold the line in a loving way.
+4. **Know when enough is enough**: If continuing this conversation would set them back — going in circles, getting heated, or undermining their goals — suggest a warm way to wrap up that leaves the door open.
 
 **Response Format (JSON):**
 {
-  "conversation_summary": "Brief summary of what's happening in the text exchange",
-  "emotional_dynamics": "What emotions and clinical patterns you see at play",
+  "conversation_summary": "Brief summary of what's happening in plain language",
+  "emotional_dynamics": "What's really going on emotionally, described like a friend would",
   "suggested_responses": [
     {
-      "response": "The exact text they could send",
-      "approach": "Brief description of this approach (5-10 words)",
-      "when_to_use": "When this response is most appropriate"
+      "response": "Exact text they could send — warm, real, not clinical",
+      "approach": "Brief plain-language description (5-10 words)",
+      "when_to_use": "When this fits best"
     }
   ],
-  "warning_signs": ["Any concerning patterns you notice, connected to observational data"],
-  "coaching_tip": "A broader coaching insight for the family member, informed by their recovery context"
+  "warning_signs": ["Any red flags, described in everyday language"],
+  "coaching_tip": "A brief, friendly insight — like advice from a wise friend, connected to their family goals"
 }`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -246,8 +285,8 @@ Use your clinical knowledge AND the family's observational history to provide co
     });
 
     if (!response.ok) {
-      if (response.status === 429) return new Response(JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-      if (response.status === 402) return new Response(JSON.stringify({ error: "AI credits exhausted. Please try again later." }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      if (response.status === 429) return new Response(JSON.stringify({ error: "Rate limit exceeded." }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      if (response.status === 402) return new Response(JSON.stringify({ error: "AI credits exhausted." }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       const errorText = await response.text();
       console.error("AI gateway error:", response.status, errorText);
       throw new Error("AI gateway error");
@@ -268,8 +307,8 @@ Use your clinical knowledge AND the family's observational history to provide co
         return new Response(JSON.stringify({
           conversation_summary: "Analysis completed",
           emotional_dynamics: "See suggestions below",
-          suggested_responses: [{ response: content, approach: "AI suggestion", when_to_use: "General response" }],
-          coaching_tip: "Consider using 'I' statements to express your feelings.",
+          suggested_responses: [{ response: content, approach: "Friendly suggestion", when_to_use: "General response" }],
+          coaching_tip: "Try telling them how you feel instead of what they did wrong.",
         }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
       }
     }

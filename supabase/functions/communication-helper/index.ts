@@ -6,39 +6,80 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Condensed FIIS clinical knowledge for communication coaching
+// Goal and value label maps
+const GOAL_LABELS: Record<string, string> = {
+  complete_intervention: "Complete Family Intervention",
+  enter_treatment: "Enter Treatment Program",
+  complete_treatment: "Complete Treatment Program",
+  establish_support_network: "Build a Recovery Support Network",
+  family_therapy_sessions: "Complete 8 Family Therapy Sessions",
+  "90_meetings_90_days": "Attend 90 Meetings in 90 Days",
+  living_amends_plan: "Create Living Amends Plan",
+  family_recovery_milestones: "Celebrate 6-Month Family Recovery",
+  rebuild_financial_trust: "Restore Financial Accountability",
+  one_year_celebration: "Celebrate One Year of Sobriety",
+};
+
+const VALUE_LABELS: Record<string, string> = {
+  honesty: "Honesty & Transparency",
+  accountability: "Accountability Without Shame",
+  boundaries: "Healthy Boundaries",
+  support_not_enabling: "Support Without Enabling",
+  patience: "Patience & Progress",
+  forgiveness: "Forgiveness & Moving Forward",
+  self_care: "Self-Care for Everyone",
+  consistency: "Consistency & Follow-Through",
+  communication: "Compassionate Communication",
+  hope: "Hope & Faith in Recovery",
+};
+
+// Internal clinical reference (never surface terms to user)
 const FIIS_COMM_KNOWLEDGE = `
-CRAFT METHOD: Reinforce positive behaviors, use "I" statements, avoid enabling while maintaining connection.
+CRAFT: Reinforce positive behaviors, use "I feel... when..." framing, avoid enabling.
 DE-ESCALATION: Validate emotions first, reflect what you hear, avoid "always/never", offer graceful exits.
-BOUNDARY COMMUNICATION: State clearly, include consequence, follow through. "I love you AND this behavior is not acceptable."
-DBT DEAR MAN: Describe, Express, Assert, Reinforce, Mindful, Appear confident, Negotiate.
-CODEPENDENCY: The 3 C's — didn't cause it, can't cure it, can't control it. Detachment with love ≠ abandonment.
-COGNITIVE DISTORTIONS: All-or-nothing, catastrophizing, mind reading, should statements, emotional reasoning.
-FAMILY ROLES: Enabler, Hero, Scapegoat, Lost Child, Mascot — identify and guide away from dysfunctional roles.
-TRAUMA-INFORMED: Prioritize safety, trustworthiness, choice. Recognize fight/flight/freeze/fawn responses.
+BOUNDARY COMMUNICATION: State clearly, include consequence, follow through.
+CODEPENDENCY: Didn't cause it, can't cure it, can't control it. Detachment with love ≠ abandonment.
+FAMILY ROLES: Enabler, Hero, Scapegoat, Lost Child, Mascot.
+TRAUMA-INFORMED: Prioritize safety, trustworthiness, choice.
 `;
 
-// Fetch family observational context
+// Fetch family context including goals, values, boundaries
 async function fetchFamilyContext(supabase: ReturnType<typeof createClient>, familyId: string) {
-  const [sobrietyResult, boundariesResult, emotionalCheckinsResult, coachingSessionsResult] = await Promise.all([
+  const [sobrietyResult, boundariesResult, emotionalCheckinsResult, coachingSessionsResult, valuesResult, commonGoalsResult] = await Promise.all([
     supabase.from("sobriety_journeys").select("start_date, reset_count").eq("family_id", familyId).eq("is_active", true).maybeSingle(),
     supabase.from("family_boundaries").select("content").eq("family_id", familyId).eq("status", "approved"),
     supabase.from("daily_emotional_checkins").select("feeling, was_bypassed").eq("family_id", familyId).order("check_in_date", { ascending: false }).limit(14),
     supabase.from("coaching_sessions").select("session_type, suggestions").eq("family_id", familyId).order("started_at", { ascending: false }).limit(5),
+    supabase.from("family_values").select("value_key").eq("family_id", familyId),
+    supabase.from("family_common_goals").select("goal_key, completed_at").eq("family_id", familyId),
   ]);
 
   let ctx = "";
+
+  // Goals first (drives focus)
+  const activeGoals = (commonGoalsResult.data || []).filter(g => !g.completed_at);
+  if (activeGoals.length > 0) {
+    ctx += `Family goals: ${activeGoals.map(g => GOAL_LABELS[g.goal_key] || g.goal_key.replace(/_/g, ' ')).join(', ')}. `;
+  }
+
+  // Values
+  if (valuesResult.data?.length) {
+    ctx += `Family values: ${valuesResult.data.map(v => VALUE_LABELS[v.value_key] || v.value_key.replace(/_/g, ' ')).join(', ')}. `;
+  }
+
+  // Boundaries
+  if (boundariesResult.data?.length) ctx += `Boundaries: ${boundariesResult.data.map(b => b.content).join('; ')}. `;
+
   if (sobrietyResult.data) {
     const days = Math.max(0, Math.floor((Date.now() - new Date(sobrietyResult.data.start_date).getTime()) / 86400000));
     ctx += `Sobriety: ${days} days. `;
   }
-  if (boundariesResult.data?.length) ctx += `Boundaries: ${boundariesResult.data.map(b => b.content).join('; ')}. `;
   if (emotionalCheckinsResult.data?.length) {
     const feelings: Record<string, number> = {};
     emotionalCheckinsResult.data.forEach(c => { if (c.feeling) feelings[c.feeling] = (feelings[c.feeling] || 0) + 1; });
-    ctx += `Recent emotional state: ${Object.entries(feelings).map(([f, c]) => `${f}(${c})`).join(', ')}. `;
+    ctx += `Recent feelings: ${Object.entries(feelings).map(([f, c]) => `${f}(${c})`).join(', ')}. `;
   }
-  if (coachingSessionsResult.data?.length) ctx += `Prior coaching sessions: ${coachingSessionsResult.data.length}. `;
+  if (coachingSessionsResult.data?.length) ctx += `Prior coaching: ${coachingSessionsResult.data.length} sessions. `;
   return ctx;
 }
 
@@ -71,7 +112,6 @@ serve(async (req) => {
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    // Verify membership
     const { data: membership, error: membershipError } = await supabase
       .from("family_members").select("id").eq("family_id", familyId).eq("user_id", user.id).single();
     if (membershipError || !membership) {
@@ -82,7 +122,6 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    // Fetch writing style and family context in parallel
     const [recentMessagesResult, familyObservations] = await Promise.all([
       supabase.from("messages").select("content").eq("family_id", familyId).eq("sender_id", user.id)
         .order("created_at", { ascending: false }).limit(10),
@@ -95,42 +134,51 @@ serve(async (req) => {
 Here are examples of how this person typically writes:
 ${recentMessagesResult.data.map((m, i) => `${i + 1}. "${m.content}"`).join("\n")}
 
-Try to match their tone, vocabulary level, and communication style when suggesting alternatives.`;
+Match their tone, vocabulary, and style when suggesting alternatives.`;
     }
 
-    const systemPrompt = `You are a compassionate communication coach powered by the Family Intervention Intelligence System (FIIS), specializing in family recovery dynamics.
+    const systemPrompt = `You are a caring communication coach helping someone rephrase a message to their family during addiction recovery. You sound like a thoughtful friend — warm, direct, and real.
 
+═══ CRITICAL LANGUAGE RULES ═══
+- NEVER use therapy jargon like "I-statement", "boundary", "codependent", "enabling", "CRAFT", "HALT", "DBT", "triangulation", etc.
+- Use plain, everyday language.
+- Your tip should sound like friendly advice, not a therapy lesson.
+- Examples:
+  • Say "Try telling them how it makes YOU feel" NOT "Use an I-statement"
+  • Say "Sometimes helping too much actually hurts" NOT "You're enabling"
+  • Say "You don't have to fix this for them" NOT "Practice detachment with love"
+
+═══ INTERNAL REFERENCE (never surface these terms) ═══
 ${FIIS_COMM_KNOWLEDGE}
 
 ═══ FAMILY CONTEXT ═══
 ${familyObservations || "No historical data available yet."}
 
-Your role is to help users express difficult emotions and concerns in ways that are:
-- Non-confrontational and non-judgmental
-- Using "I" statements instead of "you" accusations
-- Focused on feelings and needs rather than blame
-- Supportive of recovery while maintaining healthy boundaries
-- Honest but kind
-- Informed by the family's recovery journey and emotional patterns
+═══ GOAL-DRIVEN REPHRASING ═══
+When rephrasing, consider:
+1. **Does this message support the family's goals?** If their goal is getting into treatment, help shape the message toward that. If the goal is aftercare compliance, lean into that.
+2. **Does it align with their values?** If they value honesty, keep it honest. If they value patience, soften the urgency.
+3. **Does it respect their boundaries?** Don't help them say something that violates an agreed-upon boundary.
+4. **Would sending this help or hurt?** If the message would make things worse, gently suggest they might want to wait or say something different entirely.
 
 ${userWritingStyle}
 
 When the user shares what they want to say, provide 2-3 alternative phrasings that:
-1. Preserve their core message and intent
-2. Match their natural writing style (casual, formal, etc.)
-3. Remove potentially triggering or accusatory language
-4. Focus on connection rather than conflict
-5. Factor in the family's current recovery phase and dynamics
+1. Keep what they actually mean
+2. Sound like THEM (match their style)
+3. Take out anything that could start a fight
+4. Focus on connecting, not blaming
+5. Support what the family is working toward right now
 
-Format your response as a JSON object with this structure:
+Format as JSON:
 {
   "suggestions": [
     {
-      "text": "the suggested message",
-      "approach": "brief 5-10 word description of the approach"
+      "text": "the suggested message — warm and real, not clinical",
+      "approach": "brief plain-language description (5-10 words)"
     }
   ],
-  "tip": "A brief tip about the communication principle used, informed by recovery context"
+  "tip": "A brief, friendly insight — like advice from a wise friend, connected to the family's goals"
 }`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -175,8 +223,8 @@ Format your response as a JSON object with this structure:
     });
 
     if (!response.ok) {
-      if (response.status === 429) return new Response(JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-      if (response.status === 402) return new Response(JSON.stringify({ error: "AI credits exhausted. Please try again later." }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      if (response.status === 429) return new Response(JSON.stringify({ error: "Rate limit exceeded." }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      if (response.status === 402) return new Response(JSON.stringify({ error: "AI credits exhausted." }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       const errorText = await response.text();
       console.error("AI gateway error:", response.status, errorText);
       throw new Error("AI gateway error");
@@ -195,8 +243,8 @@ Format your response as a JSON object with this structure:
         return new Response(JSON.stringify(JSON.parse(content)), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
       } catch {
         return new Response(JSON.stringify({
-          suggestions: [{ text: content, approach: "AI suggestion" }],
-          tip: "Consider using 'I' statements to express your feelings."
+          suggestions: [{ text: content, approach: "Friendly suggestion" }],
+          tip: "Try focusing on how you feel instead of what they did."
         }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
       }
     }
