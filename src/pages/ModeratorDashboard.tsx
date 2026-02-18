@@ -23,6 +23,7 @@ import { FamilyHandoffDialog } from '@/components/FamilyHandoffDialog';
 import { ModeratorNotesPanel } from '@/components/ModeratorNotesPanel';
 import { ProviderMessaging } from '@/components/ProviderMessaging';
 import FIISModeratorChat from '@/components/FIISModeratorChat';
+import { FIISCoachingPanel } from '@/components/FIISCoachingPanel';
 import CRMDashboard from '@/components/CRMDashboard';
 import { ProviderDocumentsPanel } from '@/components/ProviderDocumentsPanel';
 
@@ -720,28 +721,53 @@ const ModeratorDashboard = () => {
               </Card>
             </TabsContent>
 
-            {/* FIIS Chat Tab */}
+            {/* FIIS Tab - Coaching + AI Chat */}
             <TabsContent value="fiis-chat">
-              <Card className="border-primary/20">
-                <CardHeader className="bg-primary/5 rounded-t-lg">
-                  <CardTitle className="flex items-center gap-2 text-primary">
-                    <Brain className="h-5 w-5" />
-                    FIIS Communication Assistant
-                  </CardTitle>
-                  <CardDescription>
-                    Private AI consultation about family dynamics and communication strategies. Not included in FIIS analysis.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="pt-6">
-                  <FIISModeratorChat 
-                    families={assignedFamilies.map(f => ({
-                      id: f.id,
-                      name: f.name,
-                      organization_id: f.organization_id,
-                    }))} 
-                  />
-                </CardContent>
-              </Card>
+              <div className="space-y-6">
+                {/* Coaching Panel */}
+                <Card className="border-primary/20">
+                  <CardHeader className="bg-primary/5 rounded-t-lg">
+                    <CardTitle className="flex items-center gap-2 text-primary">
+                      <Brain className="h-5 w-5" />
+                      FIIS Clinical Coaching
+                    </CardTitle>
+                    <CardDescription>
+                      Analyze live or uploaded conversations. Coaching insights are saved as clinical notes — conversations are never recorded.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-6">
+                    <FIISCoachingPanel 
+                      families={assignedFamilies.map(f => ({
+                        id: f.id,
+                        name: f.name,
+                        organization_id: f.organization_id,
+                      }))}
+                    />
+                  </CardContent>
+                </Card>
+
+                {/* AI Chat */}
+                <Card className="border-primary/20">
+                  <CardHeader className="bg-primary/5 rounded-t-lg">
+                    <CardTitle className="flex items-center gap-2 text-primary">
+                      <MessageSquare className="h-5 w-5" />
+                      FIIS AI Consultation
+                    </CardTitle>
+                    <CardDescription>
+                      Private AI consultation about family dynamics and communication strategies. Not included in FIIS analysis.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-6">
+                    <FIISModeratorChat 
+                      families={assignedFamilies.map(f => ({
+                        id: f.id,
+                        name: f.name,
+                        organization_id: f.organization_id,
+                      }))} 
+                    />
+                  </CardContent>
+                </Card>
+              </div>
             </TabsContent>
 
             {/* Documents Tab - Only for organization members */}

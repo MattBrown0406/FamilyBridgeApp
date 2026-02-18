@@ -248,7 +248,7 @@ serve(async (req) => {
       );
     }
 
-    // Verify user is a family member
+    // Verify user is a family member or org member
     const { data: membership } = await supabase
       .from("family_members")
       .select("id, role, relationship_type")
@@ -257,10 +257,23 @@ serve(async (req) => {
       .single();
 
     if (!membership) {
-      return new Response(
-        JSON.stringify({ error: "Not authorized for this family" }),
-        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      // Check if user is an org member managing this family
+      const { data: family } = await supabase.from("families").select("organization_id").eq("id", familyId).single();
+      if (family?.organization_id) {
+        const { data: orgMember } = await supabase.from("organization_members")
+          .select("role").eq("organization_id", family.organization_id).eq("user_id", user.id).single();
+        if (!orgMember) {
+          return new Response(
+            JSON.stringify({ error: "Not authorized for this family" }),
+            { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+      } else {
+        return new Response(
+          JSON.stringify({ error: "Not authorized for this family" }),
+          { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
     }
 
     // Fetch context in parallel

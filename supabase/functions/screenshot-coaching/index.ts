@@ -159,17 +159,35 @@ serve(async (req) => {
         { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    const { familyId, imageBase64, additionalContext, talkingToName, talkingToUserId } = await req.json();
-    if (!familyId || !imageBase64) {
-      return new Response(JSON.stringify({ error: "Missing familyId or image" }),
+    const { familyId, imageBase64, pastedConversation, additionalContext, talkingToName, talkingToUserId } = await req.json();
+    if (!familyId || (!imageBase64 && !pastedConversation)) {
+      return new Response(JSON.stringify({ error: "Missing familyId or conversation content (image or text)" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
+    // Check family membership OR organization membership (for moderators/providers)
     const { data: membership } = await supabase.from("family_members").select("id, role, relationship_type")
       .eq("family_id", familyId).eq("user_id", user.id).single();
+    
+    let userRole = membership?.role || "provider";
+    let userRelationship = membership?.relationship_type || "provider";
+    
     if (!membership) {
-      return new Response(JSON.stringify({ error: "Not authorized for this family" }),
-        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      // Check if user is an org member managing this family
+      const { data: family } = await supabase.from("families").select("organization_id").eq("id", familyId).single();
+      if (family?.organization_id) {
+        const { data: orgMember } = await supabase.from("organization_members")
+          .select("role").eq("organization_id", family.organization_id).eq("user_id", user.id).single();
+        if (!orgMember) {
+          return new Response(JSON.stringify({ error: "Not authorized for this family" }),
+            { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+        }
+        userRole = "provider";
+        userRelationship = `organization ${orgMember.role}`;
+      } else {
+        return new Response(JSON.stringify({ error: "Not authorized for this family" }),
+          { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
     }
 
     const [familyObservations, profileResult, talkingToDisplay] = await Promise.all([
@@ -204,7 +222,7 @@ serve(async (req) => {
 ${FIIS_COACHING_KNOWLEDGE}
 
 ═══ CONTEXT ═══
-Coaching: ${profileResult.data?.full_name || "a family member"} (${membership.relationship_type || membership.role})
+Coaching: ${profileResult.data?.full_name || "a team member"} (${userRelationship || userRole})
 Talking to: ${talkingToDisplay}
 
 ═══ FAMILY OBSERVATIONAL DATA ═══
@@ -243,12 +261,15 @@ Your PRIMARY job is to help this conversation support the family's goals, values
         model: "google/gemini-3-flash-preview",
         messages: [
           { role: "system", content: systemPrompt },
-          {
+          imageBase64 ? {
             role: "user",
             content: [
               { type: "text", text: `Please analyze this text conversation screenshot and suggest how I should respond.${additionalContext ? `\n\nAdditional context: ${additionalContext}` : ""}` },
               { type: "image_url", image_url: { url: `data:image/png;base64,${imageBase64}` } },
             ],
+          } : {
+            role: "user",
+            content: `Please analyze this conversation and suggest how I should respond.\n\n--- CONVERSATION ---\n${pastedConversation}\n--- END ---${additionalContext ? `\n\nAdditional context: ${additionalContext}` : ""}`,
           },
         ],
         tools: [{
