@@ -60,7 +60,7 @@ interface InventionDisclosure {
 const DIAGRAM_SYSTEM_ARCHITECTURE = `graph TD
     subgraph "Client Layer"
         A[React Frontend<br/>FamilyBridge App]
-        B[Mobile PWA]
+        B[Mobile PWA<br/>iOS/Android via Capacitor]
     end
 
     subgraph "API Layer"
@@ -75,10 +75,23 @@ const DIAGRAM_SYSTEM_ARCHITECTURE = `graph TD
         H[Notification Orchestrator]
     end
 
+    subgraph "AI Coaching Layer"
+        R[Live Coaching Engine]
+        S[Screenshot Analysis]
+        T[Communication Helper]
+        U[Goal/Value/Boundary Alignment]
+    end
+
     subgraph "AI/ML Layer"
         I[LLM Integration<br/>Gemini/GPT Models]
-        J[Prompt Engineering Module]
-        K[Response Parser]
+        J[Clinical Knowledge Base<br/>CRAFT, HALT, Gorski, DBT]
+        K[Response Parser<br/>Lay Language Translation]
+    end
+
+    subgraph "Clinical Data Layer"
+        V[Family Goals & Values]
+        W[Emotional Check-ins & Tone Analysis]
+        X[Coaching Sessions & Calibration Patterns]
     end
 
     subgraph "Data Layer"
@@ -91,14 +104,23 @@ const DIAGRAM_SYSTEM_ARCHITECTURE = `graph TD
     B --> C
     C --> D
     C --> E
+    C --> R
     E --> F
     F --> G
     G --> I
+    R --> J
+    S --> J
+    T --> J
+    U --> V
     I --> J
     J --> K
     K --> E
+    K --> R
     E --> H
     F --> L
+    V --> L
+    W --> L
+    X --> L
     L --> M
     M --> A
     H --> A
@@ -145,17 +167,21 @@ const DIAGRAM_DATA_MODEL = `erDiagram
     FAMILIES ||--o{ FIIS_AUTO_EVENTS : tracks
     FAMILIES ||--o{ FIIS_PATTERN_ANALYSES : generates
     FAMILIES ||--|| FAMILY_HEALTH_STATUS : has
+    FAMILIES ||--o{ COACHING_SESSIONS : has
+    FAMILIES ||--o{ FAMILY_VALUES : selects
+    FAMILIES ||--o{ FAMILY_COMMON_GOALS : pursues
+    FAMILIES ||--o{ FAMILY_BOUNDARIES : establishes
+    FAMILIES ||--o{ DAILY_EMOTIONAL_CHECKINS : logs
 
     FAMILY_MEMBERS }o--|| PROFILES : references
-    FIIS_OBSERVATIONS }o--|| PROFILES : submitted_by
-    FIIS_AUTO_EVENTS }o--|| PROFILES : triggered_by
-    FIIS_PATTERN_ANALYSES }o--|| PROFILES : requested_by
+    COACHING_SESSIONS }o--|| PROFILES : coached_by
 
     FAMILIES {
         uuid id PK
         string name
         string account_number
         uuid organization_id FK
+        boolean is_archived
         timestamp created_at
     }
 
@@ -168,23 +194,48 @@ const DIAGRAM_DATA_MODEL = `erDiagram
         timestamp joined_at
     }
 
-    FIIS_OBSERVATIONS {
+    COACHING_SESSIONS {
         uuid id PK
         uuid family_id FK
         uuid user_id FK
-        string observation_type
-        text content
-        timestamp occurred_at
-        timestamp created_at
+        string session_type
+        uuid talking_to_user_id FK
+        string talking_to_name
+        jsonb suggestions
+        timestamp started_at
+        timestamp ended_at
     }
 
-    FIIS_AUTO_EVENTS {
+    FAMILY_VALUES {
+        uuid id PK
+        uuid family_id FK
+        string value_key
+        uuid selected_by FK
+    }
+
+    FAMILY_COMMON_GOALS {
+        uuid id PK
+        uuid family_id FK
+        string goal_key
+        timestamp completed_at
+    }
+
+    FAMILY_BOUNDARIES {
+        uuid id PK
+        uuid family_id FK
+        text content
+        string status
+        string consequence
+        uuid target_user_id FK
+    }
+
+    DAILY_EMOTIONAL_CHECKINS {
         uuid id PK
         uuid family_id FK
         uuid user_id FK
-        string event_type
-        jsonb event_data
-        timestamp occurred_at
+        string feeling
+        boolean was_bypassed
+        string bypass_inferred_state
     }
 
     FIIS_PATTERN_ANALYSES {
@@ -192,7 +243,6 @@ const DIAGRAM_DATA_MODEL = `erDiagram
         uuid family_id FK
         uuid requested_by FK
         string analysis_type
-        jsonb input_summary
         jsonb pattern_signals
         text what_seeing
         text contextual_framing
@@ -393,13 +443,25 @@ const DIAGRAM_FAMILY_MEMBER_JOURNEY = `flowchart TD
         B --> C[📧 Receive Family Invite]
         C --> D[👥 Join Family Group]
         D --> E[📋 Sign HIPAA Release]
+        E --> F1[🎯 Select Family Goals]
+        F1 --> F2[💎 Choose Family Values]
     end
 
     subgraph "Daily Engagement"
-        E --> F[💬 Family Chat]
-        E --> G[📅 Meeting Check-ins]
-        E --> H[😊 Daily Emotional Check-in]
-        E --> I[💰 Financial Requests]
+        F2 --> F[💬 Family Chat]
+        F2 --> G[📅 Meeting Check-ins]
+        F2 --> H[😊 Daily Emotional Check-in]
+        F2 --> I[💰 Financial Requests]
+        F2 --> CC[🎙️ Real-Time Coaching]
+    end
+
+    subgraph "AI Coaching Tools"
+        CC --> CC1[📞 Live Conversation Coaching]
+        CC --> CC2[📸 Screenshot Text Analysis]
+        CC --> CC3[✍️ Message Rephrasing Helper]
+        CC1 --> CC4[🎯 Goal-Aligned Suggestions]
+        CC2 --> CC4
+        CC3 --> CC4
     end
 
     subgraph "Ongoing Support"
@@ -414,6 +476,7 @@ const DIAGRAM_FAMILY_MEMBER_JOURNEY = `flowchart TD
         K --> N
         L --> N
         M --> N
+        CC4 --> N
         N --> O[💡 Receive Actionable Insights]
         O --> P[🎉 Celebrate Milestones]
     end`;
@@ -460,18 +523,22 @@ const DIAGRAM_MODERATOR_JOURNEY = `flowchart TD
         D --> F[📊 Review FIIS Insights]
         D --> G[📍 Check Location Alerts]
         D --> H[💊 Monitor Medication Compliance]
+        D --> CC[🎙️ Review Coaching Sessions]
     end
 
     subgraph "Clinical Tools"
         E --> I[📝 Add Clinical Notes]
-        F --> J[🤖 AI-Assisted Analysis]
+        F --> J[🤖 FIIS AI Consultation]
         G --> K[🍺 Liquor License Alerts]
         H --> L[⏰ Refill Reminders]
+        CC --> J2[📋 Coaching Pattern Analysis]
+        J --> J3[🔄 Calibration Feedback]
     end
 
     subgraph "Care Coordination"
         I --> M[👥 Provider Messaging]
         J --> M
+        J2 --> M
         K --> M
         L --> M
         M --> N[🔄 Care Transitions]
@@ -580,6 +647,9 @@ const DIAGRAM_COMPETITIVE_ADVANTAGE = `graph TD
         D3[🔄 Care Coordination<br/>Provider Handoffs]
         D4[📊 Outcome Tracking<br/>Success Metrics]
         D5[🍺 Liquor License Alerts<br/>Location Intelligence]
+        D6[🎙️ Real-Time AI Coaching<br/>Goal-Driven Guidance]
+        D7[🎯 Goal/Value/Boundary<br/>Alignment Engine]
+        D8[🧠 Clinical Knowledge<br/>Lay Language Translation]
     end
 
     subgraph "Competitor Gaps"
@@ -587,10 +657,11 @@ const DIAGRAM_COMPETITIVE_ADVANTAGE = `graph TD
         C2[❌ Life360<br/>No clinical features]
         C3[❌ Bark<br/>Youth focused]
         C4[❌ Soberlink<br/>Hardware dependent]
+        C5[❌ BetterHelp<br/>No family integration]
     end
 
     subgraph "Market Position"
-        M1[🎯 Only Platform for<br/>Family + Provider + AI<br/>in Recovery Space]
+        M1[🎯 Only Platform for<br/>Family + Provider + AI<br/>+ Real-Time Coaching<br/>in Recovery Space]
     end
 
     D1 --> M1
@@ -598,11 +669,80 @@ const DIAGRAM_COMPETITIVE_ADVANTAGE = `graph TD
     D3 --> M1
     D4 --> M1
     D5 --> M1
+    D6 --> M1
+    D7 --> M1
+    D8 --> M1
 
     C1 -.->|Gap| D2
     C2 -.->|Gap| D1
     C3 -.->|Gap| D2
-    C4 -.->|Gap| D3`;
+    C4 -.->|Gap| D3
+    C5 -.->|Gap| D6`;
+
+// ========== AI COACHING DIAGRAM ==========
+
+const DIAGRAM_AI_COACHING_FLOW = `flowchart TD
+    subgraph "User Initiates Coaching"
+        A[👤 Select Conversation Partner] --> B{Coaching Mode}
+        B -->|Live| C[🎙️ Speakerphone / Text Entry]
+        B -->|Screenshot| D[📸 Upload Text Screenshot]
+        B -->|Rephrase| E[✍️ Enter Raw Message]
+    end
+
+    subgraph "Context Assembly"
+        C --> F[Fetch Family Context]
+        D --> F
+        E --> F
+        F --> G[Goals & Values]
+        F --> H[Approved Boundaries]
+        F --> I[Sobriety Journey]
+        F --> J[Emotional Check-ins]
+        F --> K[Meeting Attendance]
+        F --> L[Chat Pattern Signals]
+        F --> M[Provider Notes]
+        F --> N[Prior Coaching Sessions]
+    end
+
+    subgraph "Clinical Knowledge Base"
+        O[CRAFT Method]
+        P[HALT Framework]
+        Q[Gorski Warning Signs]
+        R[Bowen Family Systems]
+        S[DBT DEAR MAN]
+        T[Stages of Change]
+        U[Trauma-Informed Care]
+    end
+
+    subgraph "AI Processing"
+        G --> V[Build Goal-Aligned Prompt]
+        H --> V
+        I --> V
+        J --> V
+        K --> V
+        L --> V
+        M --> V
+        N --> V
+        O --> V
+        P --> V
+        Q --> V
+        R --> V
+        S --> V
+        T --> V
+        U --> V
+        V --> W[LLM Processing<br/>Gemini/GPT]
+        W --> X{Translate to<br/>Lay Language}
+    end
+
+    subgraph "Output"
+        X --> Y[Conversational Suggestions]
+        X --> Z[Goal-Aligned Guidance]
+        X --> AA[Boundary Reminders]
+        X --> AB[Graceful Exit Suggestions]
+        Y --> AC[Return to User]
+        Z --> AC
+        AA --> AC
+        AB --> AC
+    end`;
 
 // ========== COMPONENT ==========
 
@@ -671,7 +811,21 @@ const defaultDisclosure: InventionDisclosure = {
 
 11. CARE TRANSITION MANAGEMENT: Seamless provider handoff system for transferring family oversight between treatment levels (Detox, Residential, Sober Living, Independent) with outcome scoring and success metrics.
 
-12. RECOVERY TRAJECTORY VISUALIZATION: Qualitative graphing of recovery stability over time (Improving, Stable, Softening, Destabilizing) without numerical judgments, focusing on direction and patterns rather than scores.`,
+12. RECOVERY TRAJECTORY VISUALIZATION: Qualitative graphing of recovery stability over time (Improving, Stable, Softening, Destabilizing) without numerical judgments, focusing on direction and patterns rather than scores.
+
+13. REAL-TIME AI COACHING SYSTEM: A multi-modal coaching engine providing live conversation guidance (phone/in-person via text entry), text message screenshot analysis, and message rephrasing assistance. The system uses a comprehensive clinical knowledge base (CRAFT, HALT, Gorski, DBT DEAR MAN, Bowen Family Systems, Stages of Change, Trauma-Informed Care) internally while translating all guidance into conversational lay language — never surfacing clinical terminology to users.
+
+14. GOAL-DRIVEN CONVERSATIONAL AI: The coaching system dynamically aligns all suggestions with the family's actively selected goals (e.g., "Enter Treatment," "Complete Aftercare"), chosen values (e.g., "Honesty & Transparency," "Support Without Enabling"), and approved boundaries. When conversation context conflicts with established goals/values/boundaries, the system suggests polite extrication strategies to protect recovery progress.
+
+15. FAMILY GOALS AND VALUES FRAMEWORK: A configurable goal/value selection system allowing families to choose recovery milestones (intervention completion, treatment entry, 90-in-90, one-year celebration) and core values (honesty, accountability, patience, forgiveness, self-care, consistency, compassionate communication, hope) that drive all AI coaching interactions and FIIS analysis weighting.
+
+16. MODERATOR FIIS AI CONSULTATION: A dedicated AI consultation interface for professional moderators enabling structured clinical dialogue about family patterns, with the AI drawing from all observational data sources and calibration patterns refined through moderator feedback loops.
+
+17. CALIBRATION FEEDBACK LOOP: A system enabling moderators to provide structured corrections to FIIS pattern analyses (false positives, missed patterns, accuracy ratings), which are synthesized into calibration patterns with trigger keywords and suggested responses, continuously improving analysis accuracy across all families.
+
+18. EMOTIONAL TONE ANALYSIS: AI-powered analysis of family communication sentiment over time, tracking baseline tone establishment, current tone assessment, trajectory detection (improving, stable, declining), and pattern identification — integrated as behavioral signals in the FIIS pattern recognition engine.
+
+19. CRM PIPELINE MANAGEMENT: Integrated customer relationship management for provider organizations with lead scoring, referral source tracking, pipeline stage management, task assignment, activity timelines, and conversion tracking from prospect to active family — providing business intelligence alongside clinical oversight.`,
   competingProducts: `COMPETITIVE LANDSCAPE ANALYSIS (Updated January 2026):
 
 ══════════════════════════════════════════════════════════════
@@ -773,8 +927,16 @@ No existing product combines ALL of:
 11. Care transition management with provider handoffs and outcome scoring
 12. Recovery trajectory visualization with 365-day milestone tracking
 13. Secure family document management with clinical document analysis
+14. Real-time AI coaching with clinical knowledge base (CRAFT, HALT, Gorski, DBT, etc.) translated into lay language
+15. Goal-driven conversational AI that aligns coaching to family-selected goals, values, and boundaries
+16. Automatic conversation extrication when dialogue threatens recovery goals
+17. Multi-modal coaching (live phone/in-person, text screenshot analysis, message rephrasing)
+18. Moderator AI consultation with calibration feedback loops for continuous improvement
+19. Emotional tone trajectory analysis with baseline comparison
+20. Integrated CRM pipeline for provider organizations with lead scoring and referral tracking
+21. Family goals and values framework driving all AI interactions
 
-Bark comes closest in AI pattern detection but targets child safety, not adult addiction recovery with family involvement. I Am Sober has trigger analysis but lacks family integration entirely.`,
+Bark comes closest in AI pattern detection but targets child safety, not adult addiction recovery with family involvement. I Am Sober has trigger analysis but lacks family integration entirely. No competitor offers real-time goal-aligned coaching that translates clinical frameworks into conversational guidance.`,
   academicPapers: `RELEVANT ACADEMIC RESEARCH:
 
 1. Family-Based Intervention Research:
@@ -1017,6 +1179,22 @@ JANUARY 2026:
 - Provider outcome success scoring
 - Enhanced FIIS clinical insights for providers
 
+FEBRUARY 2026:
+- Real-time AI Coaching System (live, screenshot, and communication helper modes)
+- Comprehensive clinical knowledge base integration (CRAFT, HALT, Gorski, DBT DEAR MAN, Bowen Family Systems, Stages of Change, Trauma-Informed Care, Motivational Interviewing)
+- Goal-driven coaching alignment (coaching suggestions centered on family-selected goals, values, and boundaries)
+- Lay language translation layer (all AI coaching output converted from clinical terminology to conversational language)
+- Automatic conversation extrication when dialogue is counterproductive to recovery goals
+- Family goals and values selection framework
+- Moderator FIIS AI consultation interface
+- Calibration feedback loop for continuous FIIS accuracy improvement
+- Emotional tone trajectory analysis
+- CRM pipeline management for provider organizations (lead scoring, referral tracking, Kanban board)
+- Daily emotional check-in with bypass detection and inferred state analysis
+- Pattern shift alerts with automated behavioral signal detection
+- Family archival and reactivation system
+- Provider broadcast messaging
+
 ══════════════════════════════════════════════════════════════
 TECHNICAL DECISIONS DOCUMENTED
 ══════════════════════════════════════════════════════════════
@@ -1073,6 +1251,7 @@ export const PatentDocumentation = () => {
       { title: 'System Architecture', chart: DIAGRAM_SYSTEM_ARCHITECTURE },
       { title: 'Pattern Analysis Flow', chart: DIAGRAM_PATTERN_ANALYSIS },
       { title: 'Data Model (ERD)', chart: DIAGRAM_DATA_MODEL },
+      { title: 'AI Coaching Flow', chart: DIAGRAM_AI_COACHING_FLOW },
       { title: 'Signal Classification', chart: DIAGRAM_SIGNAL_CLASSIFICATION },
       { title: 'Family Health Calculation', chart: DIAGRAM_HEALTH_CALCULATION },
       { title: 'Real-time Events Sequence', chart: DIAGRAM_REALTIME_EVENTS },
@@ -1081,7 +1260,6 @@ export const PatentDocumentation = () => {
       { title: 'Recovering Individual Journey', chart: DIAGRAM_RECOVERING_INDIVIDUAL_JOURNEY },
       { title: 'Moderator Journey', chart: DIAGRAM_MODERATOR_JOURNEY },
       { title: 'Provider Admin Journey', chart: DIAGRAM_PROVIDER_ADMIN_JOURNEY },
-      // Market/positioning diagrams (kept here if present in the doc UI)
       { title: 'Value Proposition', chart: DIAGRAM_VALUE_PROPOSITION },
       { title: 'User Ecosystem', chart: DIAGRAM_USER_ECOSYSTEM },
       { title: 'Competitive Advantage', chart: DIAGRAM_COMPETITIVE_ADVANTAGE },
@@ -1408,7 +1586,7 @@ export const PatentDocumentation = () => {
     <div class="toc-item">3. Prior Art Analysis</div>
     <div class="toc-item">4. Business Context</div>
     <div class="toc-item">5. Development Timeline</div>
-    <div class="toc-item">6. Patent Claims (19 Claims)</div>
+    <div class="toc-item">6. Patent Claims (25 Claims)</div>
     <div class="toc-item">7. Prior Art Differentiation</div>
   </div>
 
@@ -1616,6 +1794,36 @@ export const PatentDocumentation = () => {
     <p>The system of Claim 1, further comprising a family document management module configured to: provide secure document upload with encryption at rest; categorize documents by type including intervention letters, treatment agreements, and clinical records; integrate family-uploaded documents into provider dashboards with source attribution; trigger automatic AI analysis for intervention letters upon upload; maintain audit trails for document access and modifications; enforce role-based access controls distinguishing family member, moderator, and provider access levels.</p>
   </div>
 
+  <div class="claim">
+    <div class="claim-title">Claim 20: Real-Time AI Coaching System (Dependent on Claim 1)</div>
+    <p>The system of Claim 1, further comprising a real-time conversational coaching module configured to: accept multi-modal input including live conversation transcription, text message screenshot images, and raw message text; assemble comprehensive family context from multiple observational data sources including sobriety journey status, approved boundaries, emotional check-in history, meeting attendance patterns, communication pattern signals, financial request history, active medications, provider notes, aftercare compliance, and prior coaching session data; process input through a large language model informed by a clinical knowledge base encompassing CRAFT methodology, HALT vulnerability framework, Gorski relapse warning signs, DBT interpersonal effectiveness, Bowen family systems theory, stages of change model, motivational interviewing principles, and trauma-informed care; translate all clinical analysis into conversational lay language that avoids therapeutic jargon; and generate specific, immediately actionable response suggestions tailored to the conversation context.</p>
+  </div>
+
+  <div class="claim">
+    <div class="claim-title">Claim 21: Goal-Driven Conversational AI Alignment (Dependent on Claim 20)</div>
+    <p>The coaching system of Claim 20, further comprising a goal alignment engine configured to: retrieve the family's actively selected recovery goals from a configurable goal framework including treatment entry, program completion, support network establishment, meeting attendance commitments, living amends, financial accountability, and milestone celebrations; retrieve the family's chosen core values including honesty, accountability, healthy boundaries, support without enabling, patience, forgiveness, self-care, consistency, compassionate communication, and hope; align all coaching suggestions with the family's active goals and stated values; reference specific boundaries when the conversation approaches boundary-relevant territory; and when the conversation context is assessed as counterproductive to established goals, values, or boundaries, generate polite extrication suggestions that preserve relational connection while protecting recovery progress.</p>
+  </div>
+
+  <div class="claim">
+    <div class="claim-title">Claim 22: Clinical-to-Lay Language Translation Layer (Dependent on Claim 20)</div>
+    <p>The coaching system of Claim 20, further comprising a language translation layer configured to: maintain an internal clinical knowledge base including but not limited to codependency patterns, attachment theory, cognitive distortions, family role dynamics, and de-escalation principles; systematically translate clinical concepts into plain conversational language in all user-facing output; substitute clinical terms with everyday equivalents (e.g., translating "codependent behavior" to "carrying more than your share," translating "set a boundary" to "let them know what you will and won't accept," translating "enabling" to "sometimes helping actually makes things harder for them"); and ensure all coaching suggestions match the natural communication style of a supportive friend rather than a clinical practitioner.</p>
+  </div>
+
+  <div class="claim">
+    <div class="claim-title">Claim 23: Moderator AI Consultation with Calibration (Dependent on Claim 1)</div>
+    <p>The system of Claim 1, further comprising a moderator AI consultation module configured to: provide professional moderators with a dedicated AI dialogue interface for clinical pattern inquiry; assemble comprehensive family observational context for moderator queries; enable moderators to submit structured feedback on pattern analysis accuracy including false positive identification, missed pattern reporting, accuracy ratings, and corrected risk assessments; synthesize moderator feedback into calibration patterns containing trigger keywords, trigger behaviors, suggested responses, and fellowship-specific context; apply validated calibration patterns to subsequent analyses across all families; and maintain audit trails of calibration pattern evolution.</p>
+  </div>
+
+  <div class="claim">
+    <div class="claim-title">Claim 24: Emotional Tone Trajectory Analysis (Dependent on Claim 1)</div>
+    <p>The system of Claim 1, further comprising an emotional tone analysis module configured to: analyze family communication content through an AI model to assess emotional tone; establish baseline tone measurements for each family member; track current tone relative to established baseline; calculate tone trajectory indicators (improving, stable, declining); identify pattern notes and emotional shifts over configurable time periods; integrate tone trajectory data as behavioral signals in the pattern recognition engine; and provide tone analysis summaries for moderator and provider review.</p>
+  </div>
+
+  <div class="claim">
+    <div class="claim-title">Claim 25: CRM Pipeline for Provider Organizations (Dependent on Claim 14)</div>
+    <p>The system of Claim 14, further comprising a customer relationship management module configured to: manage prospective family leads with contact information, presenting issues, and referral source attribution; implement pipeline stage tracking from initial inquiry through admission, active treatment, and alumni status; calculate lead scoring based on engagement metrics and conversion likelihood; assign and track tasks for organization staff members; maintain activity timelines for all lead and family interactions; support referral source management with performance analytics; convert qualified leads into active family groups with automated onboarding; and provide analytics dashboards with pipeline performance metrics and conversion rates.</p>
+  </div>
+
   <div class="page-break"></div>
 
   <h2>7. Prior Art Differentiation</h2>
@@ -1653,6 +1861,16 @@ export const PatentDocumentation = () => {
         <td><strong>User Interaction</strong></td>
         <td>Passive monitoring</td>
         <td>Active observation input with AI-guided questioning</td>
+      </tr>
+      <tr>
+        <td><strong>Coaching Approach</strong></td>
+        <td>None or basic scripted tips</td>
+        <td>Real-time AI coaching with clinical knowledge translated to lay language, aligned to family goals/values/boundaries</td>
+      </tr>
+      <tr>
+        <td><strong>Goal Alignment</strong></td>
+        <td>No goal-driven AI guidance</td>
+        <td>Family-selected goals and values drive all coaching suggestions with automatic conversation extrication</td>
       </tr>
     </tbody>
   </table>
@@ -2646,6 +2864,60 @@ export const PatentDocumentation = () => {
                     and the family intervention intelligence system of Claim 1 deployed within each organization context.
                   </p>
                 </div>
+
+                <Separator />
+
+                <div>
+                  <h4 className="font-semibold mb-2">Claim 20: Real-Time AI Coaching System (Dependent on Claim 1)</h4>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    The system of Claim 1, further comprising a real-time conversational coaching module configured to: accept multi-modal input including live conversation transcription, text message screenshot images, and raw message text; assemble comprehensive family context from multiple observational data sources; process input through a large language model informed by a clinical knowledge base encompassing CRAFT, HALT, Gorski, DBT, Bowen family systems, stages of change, motivational interviewing, and trauma-informed care; translate all clinical analysis into conversational lay language; and generate specific, immediately actionable response suggestions.
+                  </p>
+                </div>
+
+                <Separator />
+
+                <div>
+                  <h4 className="font-semibold mb-2">Claim 21: Goal-Driven Conversational AI Alignment (Dependent on Claim 20)</h4>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    The coaching system of Claim 20, further comprising a goal alignment engine configured to: retrieve the family's actively selected recovery goals and core values; align all coaching suggestions with active goals and stated values; reference specific boundaries when conversation approaches boundary-relevant territory; and when conversation context is counterproductive to established goals, values, or boundaries, generate polite extrication suggestions that preserve relational connection while protecting recovery progress.
+                  </p>
+                </div>
+
+                <Separator />
+
+                <div>
+                  <h4 className="font-semibold mb-2">Claim 22: Clinical-to-Lay Language Translation (Dependent on Claim 20)</h4>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    The coaching system of Claim 20, further comprising a language translation layer configured to: maintain an internal clinical knowledge base; systematically translate clinical concepts into plain conversational language in all user-facing output; and ensure all coaching suggestions match the natural communication style of a supportive friend rather than a clinical practitioner.
+                  </p>
+                </div>
+
+                <Separator />
+
+                <div>
+                  <h4 className="font-semibold mb-2">Claim 23: Moderator AI Consultation with Calibration (Dependent on Claim 1)</h4>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    The system of Claim 1, further comprising a moderator AI consultation module with structured feedback for pattern analysis accuracy, synthesizing corrections into calibration patterns that improve subsequent analyses across all families.
+                  </p>
+                </div>
+
+                <Separator />
+
+                <div>
+                  <h4 className="font-semibold mb-2">Claim 24: Emotional Tone Trajectory Analysis (Dependent on Claim 1)</h4>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    The system of Claim 1, further comprising an emotional tone analysis module that establishes baseline tone measurements, tracks trajectory indicators, and integrates tone data as behavioral signals in the pattern recognition engine.
+                  </p>
+                </div>
+
+                <Separator />
+
+                <div>
+                  <h4 className="font-semibold mb-2">Claim 25: CRM Pipeline for Provider Organizations (Dependent on Claim 14)</h4>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    The system of Claim 14, further comprising a CRM module with lead scoring, referral source tracking, pipeline stage management, task assignment, activity timelines, and conversion tracking from prospect to active family.
+                  </p>
+                </div>
               </CardContent>
             </Card>
           </Section>
@@ -2691,6 +2963,16 @@ export const PatentDocumentation = () => {
                         <td className="p-3 font-medium">User Interaction</td>
                         <td className="p-3 text-muted-foreground">Passive monitoring</td>
                         <td className="p-3 text-muted-foreground">Active observation input with AI-guided questioning</td>
+                      </tr>
+                      <tr className="border-b">
+                        <td className="p-3 font-medium">Coaching Approach</td>
+                        <td className="p-3 text-muted-foreground">None or basic scripted tips</td>
+                        <td className="p-3 text-muted-foreground">Real-time AI coaching with clinical knowledge translated to lay language, aligned to family goals/values/boundaries</td>
+                      </tr>
+                      <tr className="border-b">
+                        <td className="p-3 font-medium">Goal Alignment</td>
+                        <td className="p-3 text-muted-foreground">No goal-driven AI guidance</td>
+                        <td className="p-3 text-muted-foreground">Family-selected goals and values drive all coaching suggestions with automatic conversation extrication</td>
                       </tr>
                     </tbody>
                   </table>
