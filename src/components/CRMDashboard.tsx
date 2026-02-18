@@ -822,6 +822,22 @@ export function CRMDashboard({ organizationId, organizationName, organizationLog
               <BarChart3 className="h-4 w-4" />
               Analytics
             </TabsTrigger>
+            <TabsTrigger value="advanced-analytics" className="gap-2">
+              <TrendingUp className="h-4 w-4" />
+              Advanced
+            </TabsTrigger>
+            <TabsTrigger value="calendar" className="gap-2">
+              <Calendar className="h-4 w-4" />
+              Calendar
+            </TabsTrigger>
+            <TabsTrigger value="templates" className="gap-2">
+              <FileText className="h-4 w-4" />
+              Templates
+            </TabsTrigger>
+            <TabsTrigger value="bulk" className="gap-2">
+              <Users className="h-4 w-4" />
+              Bulk Actions
+            </TabsTrigger>
           </TabsList>
 
           <div className="flex gap-2">
@@ -1293,6 +1309,49 @@ export function CRMDashboard({ organizationId, organizationName, organizationLog
             tasks={tasks}
             referralSources={referralSources}
             familyCount={families.length}
+          />
+        </TabsContent>
+
+        {/* Advanced Analytics */}
+        <TabsContent value="advanced-analytics" className="mt-4">
+          <CRMAdvancedAnalytics
+            leads={leads}
+            referralSources={referralSources}
+            activities={activities}
+            familyHealthData={familyHealthData}
+            orgMembers={orgMembers}
+          />
+        </TabsContent>
+
+        {/* Calendar */}
+        <TabsContent value="calendar" className="mt-4">
+          <CRMCalendar
+            organizationId={organizationId}
+            events={calendarEvents}
+            leads={leads}
+            families={families}
+            orgMembers={orgMembers}
+            onRefresh={fetchCalendarEvents}
+          />
+        </TabsContent>
+
+        {/* Templates */}
+        <TabsContent value="templates" className="mt-4">
+          <CRMTemplates
+            organizationId={organizationId}
+            leads={leads}
+            organizationName={organizationName}
+          />
+        </TabsContent>
+
+        {/* Bulk Actions */}
+        <TabsContent value="bulk" className="mt-4">
+          <CRMBulkActions
+            organizationId={organizationId}
+            leads={leads}
+            orgMembers={orgMembers}
+            templates={templates}
+            onRefresh={fetchLeads}
           />
         </TabsContent>
       </Tabs>
