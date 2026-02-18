@@ -55,9 +55,11 @@ export const CoachingTab = ({ familyId, members = [] }: CoachingTabProps) => {
   const recognitionRef = useRef<any>(null);
   const [transcribedText, setTranscribedText] = useState('');
 
-  // Screenshot coaching state
+  // Screenshot / email coaching state
   const [screenshotFile, setScreenshotFile] = useState<File | null>(null);
   const [screenshotPreview, setScreenshotPreview] = useState<string | null>(null);
+  const [pastedConversation, setPastedConversation] = useState('');
+  const [uploadMode, setUploadMode] = useState<'image' | 'paste'>('image');
   const [additionalContext, setAdditionalContext] = useState('');
   const [screenshotAnalysis, setScreenshotAnalysis] = useState<ScreenshotAnalysis | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -237,8 +239,8 @@ export const CoachingTab = ({ familyId, members = [] }: CoachingTabProps) => {
     reader.readAsDataURL(file);
   };
 
-  const analyzeScreenshot = async () => {
-    if (!screenshotFile) return;
+  const analyzeConversation = async () => {
+    if (!screenshotFile && !pastedConversation.trim()) return;
     setIsAnalyzing(true);
     setScreenshotAnalysis(null);
 
@@ -246,25 +248,27 @@ export const CoachingTab = ({ familyId, members = [] }: CoachingTabProps) => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error('Not authenticated');
 
-      const arrayBuffer = await screenshotFile.arrayBuffer();
-      const bytes = new Uint8Array(arrayBuffer);
-      let binary = '';
-      for (let i = 0; i < bytes.length; i++) {
-        binary += String.fromCharCode(bytes[i]);
-      }
-      const base64 = btoa(binary);
-
       const talkingTo = getTalkingToName();
+      let body: any = {
+        familyId,
+        additionalContext,
+        talkingToName: talkingTo,
+        talkingToUserId: talkingToUserId && talkingToUserId !== '__custom__' ? talkingToUserId : undefined,
+      };
 
-      const { data, error } = await supabase.functions.invoke('screenshot-coaching', {
-        body: {
-          familyId,
-          imageBase64: base64,
-          additionalContext,
-          talkingToName: talkingTo,
-          talkingToUserId: talkingToUserId && talkingToUserId !== '__custom__' ? talkingToUserId : undefined,
-        },
-      });
+      if (screenshotFile) {
+        const arrayBuffer = await screenshotFile.arrayBuffer();
+        const bytes = new Uint8Array(arrayBuffer);
+        let binary = '';
+        for (let i = 0; i < bytes.length; i++) {
+          binary += String.fromCharCode(bytes[i]);
+        }
+        body.imageBase64 = btoa(binary);
+      } else {
+        body.pastedConversation = pastedConversation.trim();
+      }
+
+      const { data, error } = await supabase.functions.invoke('screenshot-coaching', { body });
 
       if (error) throw error;
       setScreenshotAnalysis(data as ScreenshotAnalysis);
@@ -341,7 +345,7 @@ export const CoachingTab = ({ familyId, members = [] }: CoachingTabProps) => {
           </TabsTrigger>
           <TabsTrigger value="screenshot" className="flex items-center gap-2">
             <Camera className="h-4 w-4" />
-            <span>Text Screenshots</span>
+            <span>Texts &amp; Emails</span>
           </TabsTrigger>
         </TabsList>
 
@@ -484,13 +488,35 @@ export const CoachingTab = ({ familyId, members = [] }: CoachingTabProps) => {
             <CardHeader className="pb-3">
               <CardTitle className="text-base flex items-center gap-2">
                 <Image className="h-4 w-4" />
-                Upload Text Conversation Screenshot
+                Upload Texts or Emails for Coaching
               </CardTitle>
               <CardDescription>
-                Upload a screenshot of your text conversation and FIIS will analyze it and suggest how to respond.
+                Upload a screenshot of a text conversation, or paste an email or chat thread for FIIS to analyze and suggest responses.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+              {/* Mode toggle */}
+              <div className="flex gap-2">
+                <Button
+                  variant={uploadMode === 'image' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => { setUploadMode('image'); setPastedConversation(''); }}
+                  className="flex-1"
+                >
+                  <Camera className="h-4 w-4 mr-2" />
+                  Screenshot
+                </Button>
+                <Button
+                  variant={uploadMode === 'paste' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => { setUploadMode('paste'); setScreenshotFile(null); setScreenshotPreview(null); }}
+                  className="flex-1"
+                >
+                  <MessageSquare className="h-4 w-4 mr-2" />
+                  Paste Text / Email
+                </Button>
+              </div>
+
               <input
                 type="file"
                 ref={fileInputRef}
@@ -499,49 +525,60 @@ export const CoachingTab = ({ familyId, members = [] }: CoachingTabProps) => {
                 className="hidden"
               />
 
-              {!screenshotPreview ? (
-                <Button
-                  variant="outline"
-                  className="w-full h-32 border-dashed border-2 flex flex-col items-center gap-2"
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  <Upload className="h-8 w-8 text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground">
-                    Tap to upload screenshot
-                  </span>
-                </Button>
+              {uploadMode === 'image' ? (
+                <>
+                  {!screenshotPreview ? (
+                    <Button
+                      variant="outline"
+                      className="w-full h-32 border-dashed border-2 flex flex-col items-center gap-2"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      <Upload className="h-8 w-8 text-muted-foreground" />
+                      <span className="text-sm text-muted-foreground">
+                        Tap to upload a screenshot of a text or email
+                      </span>
+                    </Button>
+                  ) : (
+                    <div className="relative">
+                      <img
+                        src={screenshotPreview}
+                        alt="Screenshot preview"
+                        className="w-full max-h-96 object-contain rounded-lg border"
+                      />
+                      <Button
+                        variant="destructive"
+                        size="icon"
+                        className="absolute top-2 right-2 h-7 w-7"
+                        onClick={() => {
+                          setScreenshotFile(null);
+                          setScreenshotPreview(null);
+                          setScreenshotAnalysis(null);
+                        }}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  )}
+                </>
               ) : (
-                <div className="relative">
-                  <img
-                    src={screenshotPreview}
-                    alt="Screenshot preview"
-                    className="w-full max-h-96 object-contain rounded-lg border"
-                  />
-                  <Button
-                    variant="destructive"
-                    size="icon"
-                    className="absolute top-2 right-2 h-7 w-7"
-                    onClick={() => {
-                      setScreenshotFile(null);
-                      setScreenshotPreview(null);
-                      setScreenshotAnalysis(null);
-                    }}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
+                <Textarea
+                  value={pastedConversation}
+                  onChange={(e) => setPastedConversation(e.target.value)}
+                  placeholder={"Paste your email or text conversation here...\n\nExample:\nThem: I don't need help, I'm fine.\nMe: We're worried about you.\nThem: Just leave me alone."}
+                  className="min-h-[150px]"
+                />
               )}
 
               <Textarea
                 value={additionalContext}
                 onChange={(e) => setAdditionalContext(e.target.value)}
-                placeholder="Add any context (optional): e.g., 'They just got out of rehab 2 weeks ago' or 'They've been avoiding my calls'"
+                placeholder="Add any context (optional): e.g., 'They just got out of rehab 2 weeks ago' or 'This is an email from their employer'"
                 className="min-h-[60px]"
               />
 
               <Button
-                onClick={analyzeScreenshot}
-                disabled={!screenshotFile || isAnalyzing}
+                onClick={analyzeConversation}
+                disabled={(!screenshotFile && !pastedConversation.trim()) || isAnalyzing}
                 className="w-full"
               >
                 {isAnalyzing ? (
