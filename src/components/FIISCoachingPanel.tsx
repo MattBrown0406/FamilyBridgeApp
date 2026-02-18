@@ -85,7 +85,53 @@ export const FIISCoachingPanel = ({ families, members = {} }: FIISCoachingPanelP
     }
   }, [liveMessages, liveStreamText]);
 
-  const currentMembers = members[selectedFamilyId] || [];
+  const [fetchedMembers, setFetchedMembers] = useState<Record<string, Array<{ user_id: string; full_name: string }>>>({});
+
+  // Fetch family members when selected family changes
+  useEffect(() => {
+    const fetchFamilyMembers = async () => {
+      if (!selectedFamilyId) return;
+      // Skip if already fetched or provided via props
+      if (members[selectedFamilyId]?.length || fetchedMembers[selectedFamilyId]) return;
+
+      try {
+        const { data: memberRows, error: memberError } = await supabase
+          .from('family_members')
+          .select('user_id, role, relationship_type')
+          .eq('family_id', selectedFamilyId);
+
+        if (memberError) throw memberError;
+        if (!memberRows?.length) {
+          setFetchedMembers(prev => ({ ...prev, [selectedFamilyId]: [] }));
+          return;
+        }
+
+        const userIds = memberRows.map(m => m.user_id);
+        const { data: profiles } = await supabase.functions.invoke('get-profiles', {
+          body: { ids: userIds },
+        });
+
+        const profileMap = new Map(
+          (profiles?.profiles || []).map((p: any) => [p.id, p.full_name || 'Unknown'])
+        );
+
+        const membersArray = memberRows.map(m => ({
+          user_id: m.user_id,
+          full_name: (profileMap.get(m.user_id) as string) || 'Unknown Member',
+        }));
+
+        setFetchedMembers(prev => ({ ...prev, [selectedFamilyId]: membersArray }));
+      } catch (err) {
+        console.error('Error fetching family members for coaching:', err);
+      }
+    };
+
+    fetchFamilyMembers();
+  }, [selectedFamilyId, members]);
+
+  const currentMembers = members[selectedFamilyId]?.length
+    ? members[selectedFamilyId]
+    : fetchedMembers[selectedFamilyId] || [];
   const selectedFamily = families.find(f => f.id === selectedFamilyId);
 
   const getTalkingToName = (): string => {
