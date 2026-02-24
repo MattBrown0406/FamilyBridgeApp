@@ -75,12 +75,78 @@ export const usePushNotifications = () => {
           .eq('endpoint', subscription.endpoint)
           .single();
         
-        setIsSubscribed(!!data);
+        if (data) {
+          setIsSubscribed(true);
+        } else {
+          // Browser has subscription but DB doesn't — save it
+          const subscriptionJson = subscription.toJSON();
+          const { error } = await supabase
+            .from('push_subscriptions')
+            .upsert({
+              user_id: user.id,
+              endpoint: subscriptionJson.endpoint!,
+              p256dh: subscriptionJson.keys!.p256dh,
+              auth: subscriptionJson.keys!.auth,
+            }, { onConflict: 'user_id,endpoint' });
+          
+          setIsSubscribed(!error);
+        }
       } else {
-        setIsSubscribed(false);
+        // Browser lost the subscription — check if DB has one (user previously enabled)
+        const { data: dbSubs } = await supabase
+          .from('push_subscriptions')
+          .select('id')
+          .eq('user_id', user.id)
+          .limit(1);
+        
+        if (dbSubs && dbSubs.length > 0 && Notification.permission === 'granted') {
+          // Auto-re-subscribe: user previously enabled but browser lost subscription
+          console.log('Re-subscribing: browser lost push subscription');
+          await resubscribe(registration);
+        } else {
+          setIsSubscribed(false);
+        }
       }
     } catch (error) {
       console.error('Error checking subscription:', error);
+    }
+  };
+
+  const resubscribe = async (registration: ServiceWorkerRegistration) => {
+    try {
+      if (!vapidPublicKeyRef.current) {
+        await fetchVapidKey();
+      }
+      if (!vapidPublicKeyRef.current || !user) return;
+
+      const applicationServerKey = urlBase64ToUint8Array(vapidPublicKeyRef.current);
+      const subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: applicationServerKey.buffer as ArrayBuffer,
+      });
+
+      const subscriptionJson = subscription.toJSON();
+
+      // Clean old subscriptions for this user, then save the new one
+      await supabase
+        .from('push_subscriptions')
+        .delete()
+        .eq('user_id', user.id);
+
+      const { error } = await supabase
+        .from('push_subscriptions')
+        .insert({
+          user_id: user.id,
+          endpoint: subscriptionJson.endpoint!,
+          p256dh: subscriptionJson.keys!.p256dh,
+          auth: subscriptionJson.keys!.auth,
+        });
+
+      setIsSubscribed(!error);
+      if (!error) console.log('Successfully re-subscribed to push notifications');
+    } catch (error) {
+      console.error('Error re-subscribing:', error);
+      setIsSubscribed(false);
     }
   };
 
