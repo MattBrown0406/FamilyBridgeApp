@@ -31,15 +31,14 @@ export function PaymentFailurePopup({
   const navigate = useNavigate();
   const { isNative, isIOS } = usePlatform();
 
-  if (!paymentIssue) return null;
+  // Apple App Store compliance: Never show payment-related popups on native platforms
+  if (isNative || !paymentIssue) return null;
 
   const isSuspended = paymentIssue.status === "suspended";
   const entityLabel = paymentIssue.entity_type === "family" ? "Family" : "Provider";
 
   const handleUpdatePayment = () => {
     onOpenChange(false);
-    // Navigate to update-payment page
-    // On web, it will show the Square checkout flow
     navigate(`/update-payment?entity=${paymentIssue.entity_type}&id=${paymentIssue.entity_id}`);
   };
 

@@ -58,7 +58,7 @@ const FamilyPurchase = () => {
     }
   }, [status, reactivateFamilyId, user]);
 
-  // After returning from Square checkout, finalize purchase and generate the invite code.
+  // After returning from web checkout, finalize purchase and generate the invite code.
   useEffect(() => {
     const finalize = async () => {
       if (status !== 'success') return;
@@ -142,6 +142,12 @@ const FamilyPurchase = () => {
   };
 
   const handleSquarePurchase = async (withTrial = true) => {
+    // Apple App Store compliance: Never execute payment flows on native
+    if (isNative) {
+      toast.error("This feature is not available on mobile. Please use the web version.");
+      return;
+    }
+
     if (!email) {
       toast.error("Please enter your email address");
       return;
@@ -467,10 +473,8 @@ const FamilyPurchase = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title={isNative && isIOS ? "Create Your Family Group" : "Create Your Family Group - $19.99/month"}
-        description={isNative && isIOS 
-          ? "Start your family's recovery journey with FamilyBridge. AI-powered pattern detection, moderated chat, financial accountability, and meeting check-ins."
-          : "Start your family's recovery journey with FamilyBridge. AI-powered pattern detection, moderated chat, financial accountability, and meeting check-ins for $19.99/month."}
+        title="Create Your Family Group"
+        description="Start your family's recovery journey with FamilyBridge. AI-powered pattern detection, moderated chat, financial accountability, and meeting check-ins."
         canonicalPath="/family-purchase"
         structuredData={breadcrumbSchema}
       />
@@ -502,7 +506,7 @@ const FamilyPurchase = () => {
             </h1>
             <p className="text-base sm:text-xl text-muted-foreground">
               {reactivatingFamily 
-                ? (isNative && isIOS ? 'Restore your family group' : 'Purchase a subscription to restore your family group')
+                ? (isNative ? 'Restore your family group' : 'Purchase a subscription to restore your family group')
                 : 'Start your family\'s journey to healing and connection'
               }
             </p>
@@ -562,8 +566,8 @@ const FamilyPurchase = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                {/* Free Trial + Subscription Pricing - Only show on non-iOS platforms */}
-                {!(isNative && isIOS) && (
+                {/* Free Trial + Subscription Pricing - Apple App Store compliance: Hide on ALL native platforms */}
+                {!isNative && (
                   <div className="space-y-4">
                     {/* Free Trial Highlight */}
                     <div className="text-center py-4 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20 rounded-lg border border-emerald-200/50 dark:border-emerald-800/50">
@@ -590,22 +594,22 @@ const FamilyPurchase = () => {
                   </div>
                 )}
 
-                {/* Platform-specific payment notice - Only show on Android */}
-                {isNative && !isIOS && (
+                {/* Platform-specific notice - Only show on Android (Apple compliance: no payment language) */}
+                {isAndroid && (
                   <div className="bg-muted/50 border rounded-lg p-3 text-center">
                     <div className="flex items-center justify-center gap-2 text-sm font-medium">
-                      <paymentInfo.icon className="w-4 h-4" />
-                      <span>{paymentInfo.label}</span>
+                      <CreditCard className="w-4 h-4" />
+                      <span>Web Setup</span>
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">
-                      {paymentInfo.description}
+                      Complete setup on our website
                     </p>
                   </div>
                 )}
 
                 <div className="space-y-4">
-                  {/* Email input - show different version for iOS */}
-                  {!(isNative && isIOS) && (
+                  {/* Email input - Apple App Store compliance: Web only */}
+                  {!isNative && (
                     <div className="space-y-2">
                       <Label htmlFor="email">Email Address</Label>
                       <Input
@@ -621,7 +625,7 @@ const FamilyPurchase = () => {
                     </div>
                   )}
 
-                  {/* Coupon Code Section - only show on web to avoid IAP bypass concerns */}
+                  {/* Coupon Code Section - Apple App Store compliance: Web only */}
                   {!isNative && (
                     <div className="space-y-2">
                       <Label htmlFor="coupon">Coupon Code (Optional)</Label>
@@ -680,9 +684,9 @@ const FamilyPurchase = () => {
                     </div>
                   </div>
 
-                  {isNative && isIOS ? (
+                  {isIOS ? (
                     <>
-                      {/* iOS App Store compliant: Email collection to send setup info */}
+                      {/* iOS App Store compliant: Email collection only */}
                       <div className="space-y-4">
                         <div className="space-y-2">
                           <Label htmlFor="ios-email">Email Address</Label>
@@ -694,7 +698,7 @@ const FamilyPurchase = () => {
                             onChange={(e) => setEmail(e.target.value)}
                           />
                           <p className="text-xs text-muted-foreground">
-                            Enter your email to receive information on setting up your account.
+                            We'll send you a link to complete setup from your computer.
                           </p>
                         </div>
                         <Button
@@ -721,7 +725,7 @@ const FamilyPurchase = () => {
                           className="w-full"
                           size="lg"
                         >
-                          {isLoading ? "Sending..." : "Send Setup Information"}
+                          {isLoading ? "Sending..." : "Get Started"}
                         </Button>
                         
                         <div className="relative my-4">
@@ -742,28 +746,40 @@ const FamilyPurchase = () => {
                         </Button>
                       </div>
                     </>
-                  ) : isNative ? (
+                  ) : isAndroid ? (
                     <>
-                      {/* Android: Can still direct to web checkout */}
-                      <AppStorePurchaseButton
-                        email={email}
-                        subscriptionType="family"
-                        disabled={!email}
-                        className="w-full"
-                      >
-                        Subscribe on Web - ${PRODUCTS.family.monthly.price}/mo
-                      </AppStorePurchaseButton>
-                      <p className="text-xs text-muted-foreground text-center">
-                        You'll be redirected to our secure web checkout to complete your purchase.
-                      </p>
-                      <RestorePurchasesButton 
-                        className="w-full" 
-                        onRestore={() => navigate("/auth")}
-                      />
+                      {/* Android: Email collection for web setup */}
+                      <div className="space-y-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="android-email">Email Address</Label>
+                          <Input
+                            id="android-email"
+                            type="email"
+                            placeholder="Enter your email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                          />
+                          <p className="text-xs text-muted-foreground">
+                            We'll send you a link to complete setup from your computer.
+                          </p>
+                        </div>
+                        <AppStorePurchaseButton
+                          email={email}
+                          accountType="family"
+                          disabled={!email}
+                          className="w-full"
+                        >
+                          Get Started
+                        </AppStorePurchaseButton>
+                        <RestorePurchasesButton 
+                          className="w-full" 
+                          onRestore={() => navigate("/auth")}
+                        />
+                      </div>
                     </>
                   ) : (
                     <>
-                      {/* Primary CTA - Free Trial */}
+                      {/* Web-only purchase flow */}
                       <Button
                         onClick={() => handleSquarePurchase(true)}
                         disabled={isLoading || !email}

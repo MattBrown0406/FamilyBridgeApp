@@ -104,7 +104,7 @@ export default function ModeratorPurchase() {
 
       if (insertError) throw insertError;
 
-      // Create Square checkout
+      // Create web checkout
       const { data, error } = await supabase.functions.invoke("create-moderator-checkout", {
         body: {
           email,
@@ -251,8 +251,8 @@ export default function ModeratorPurchase() {
             {/* Purchase Card */}
             <Card>
               <CardHeader>
-              <CardTitle>{isNative && isIOS ? "24-Hour Support" : "Purchase 24-Hour Support"}</CardTitle>
-                <CardDescription>{isNative && isIOS ? "Professional crisis moderation" : "$150 per 24-hour session"}</CardDescription>
+              <CardTitle>{isNative ? "24-Hour Support" : "Purchase 24-Hour Support"}</CardTitle>
+                <CardDescription>{isNative ? "Professional crisis moderation" : "$150 per 24-hour session"}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
@@ -283,7 +283,7 @@ export default function ModeratorPurchase() {
                   />
                 </div>
 
-                {isNative && isIOS ? (
+                {isIOS ? (
                   <>
                     {/* iOS App Store compliant: No purchase buttons, pricing, or external links */}
                     <div className="text-center py-4 bg-muted/50 rounded-lg">
@@ -299,25 +299,27 @@ export default function ModeratorPurchase() {
                       Sign In
                     </Button>
                   </>
-                ) : isNative ? (
+                ) : isAndroid ? (
                   <>
-                    {/* Android: Can still direct to web checkout */}
+                    {/* Android: Email collection for web setup */}
+                    <div className="text-center py-4 bg-muted/50 rounded-lg">
+                      <p className="text-sm text-muted-foreground">
+                        To access this feature, please complete setup on our website.
+                      </p>
+                    </div>
                     <AppStorePurchaseButton
                       email={email}
-                      subscriptionType="family"
+                      accountType="family"
                       disabled={!selectedFamily || !email}
                       className="w-full"
                     >
-                      Purchase on Web - ${PRODUCTS.crisisModeration.daily.price}
+                      Get Setup Info
                     </AppStorePurchaseButton>
-                    <p className="text-xs text-muted-foreground text-center">
-                      You'll be redirected to our secure web checkout to complete your purchase.
-                    </p>
                   </>
                 ) : (
                   <>
                     <Button onClick={handlePurchase} disabled={loading || !selectedFamily} className="w-full" size="lg">
-                      {loading ? "Processing..." : "Purchase for $150"}
+                      {loading ? "Processing..." : "Get Support"}
                     </Button>
                     {/* Purchase Disclosure */}
                     <SubscriptionDisclosure

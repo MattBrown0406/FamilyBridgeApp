@@ -8,7 +8,7 @@ export interface PlatformInfo {
   isIOS: boolean;
   isAndroid: boolean;
   isWeb: boolean;
-  paymentMethod: "apple" | "google" | "square";
+  paymentMethod: "apple" | "google" | "web";
 }
 
 // Detect platform synchronously - Capacitor APIs are synchronous
@@ -17,7 +17,7 @@ function detectPlatform(): PlatformInfo {
   const nativePlatform = Capacitor.getPlatform();
   
   let platform: Platform = "web";
-  let paymentMethod: "apple" | "google" | "square" = "square";
+  let paymentMethod: "apple" | "google" | "web" = "web";
   
   if (isNative) {
     if (nativePlatform === "ios") {

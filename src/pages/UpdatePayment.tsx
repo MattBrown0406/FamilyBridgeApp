@@ -122,8 +122,8 @@ export default function UpdatePayment() {
     );
   }
 
-  // On iOS native, show generic account management instructions
-  if (isNative && isIOS) {
+  // Apple App Store compliance: Hide payment references on all native platforms
+  if (isNative) {
     return (
       <div className="min-h-screen flex flex-col bg-background">
         <BrandedHeader />
@@ -142,29 +142,29 @@ export default function UpdatePayment() {
               <div className="mx-auto w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-full flex items-center justify-center mb-3 sm:mb-4">
                 <Smartphone className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
               </div>
-              <CardTitle className="text-lg sm:text-xl">Manage Subscription</CardTitle>
+              <CardTitle className="text-lg sm:text-xl">Account Management</CardTitle>
               <CardDescription className="text-sm">
-                Manage your subscription from your account
+                Manage your account settings
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4 sm:space-y-6 px-4 sm:px-6">
               <Alert>
                 <Shield className="h-4 w-4" />
                 <AlertDescription className="text-sm">
-                  To update your payment method or manage your subscription, 
+                  To manage your account settings, 
                   please sign in to your account on the web.
                 </AlertDescription>
               </Alert>
 
               <div className="space-y-3 sm:space-y-4">
                 <p className="text-xs sm:text-sm text-muted-foreground">
-                  <strong>To manage your subscription:</strong>
+                  <strong>To manage your account:</strong>
                 </p>
                 <ol className="text-xs sm:text-sm text-muted-foreground space-y-1.5 sm:space-y-2 list-decimal list-inside">
                   <li>Sign in to your account</li>
                   <li>Go to your account settings</li>
-                  <li>Select subscription management</li>
-                  <li>Update your payment information</li>
+                  <li>Select account management</li>
+                  <li>Update your account information</li>
                 </ol>
               </div>
 
@@ -213,7 +213,7 @@ export default function UpdatePayment() {
             <Alert>
               <Shield className="h-4 w-4" />
               <AlertDescription className="text-sm">
-                Your payment information is processed securely through Square. 
+                Your information is processed securely through our payment processor. 
                 We never store your full card details.
               </AlertDescription>
             </Alert>

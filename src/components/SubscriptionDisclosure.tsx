@@ -12,15 +12,9 @@ interface SubscriptionDisclosureProps {
 }
 
 /**
- * Subscription disclosure component for web checkout.
- * Displays required information for payment transparency:
- * - Subscription title and pricing
- * - Auto-renewal terms
- * - Payment and cancellation info
- * - Links to Terms of Use and Privacy Policy
- * 
- * Note: iOS users subscribe via web (email flow), so this component
- * is primarily shown on web and Android.
+ * Legal disclosure component - Apple App Store compliance.
+ * Only shows Terms and Privacy links on native platforms.
+ * Subscription/payment terms are web-only.
  */
 export const SubscriptionDisclosure = ({
   subscriptionTitle,
@@ -30,17 +24,39 @@ export const SubscriptionDisclosure = ({
   isOneTimePurchase = false,
   className = "",
 }: SubscriptionDisclosureProps) => {
-  const { isIOS, isAndroid } = usePlatform();
+  const { isNative: platformNative } = usePlatform();
   
-  // Get platform-specific account name
-  const getAccountName = () => {
-    return "payment method";
-  };
-
-  // Get platform-specific settings location
-  const getSettingsLocation = () => {
-    return "your account settings";
-  };
+  // Apple App Store compliance: Never show payment/subscription terms on native
+  const showNative = isNative || platformNative;
+  
+  if (showNative) {
+    // Native platforms: Only show legal links, no payment/subscription terms
+    return (
+      <div className={`bg-muted/30 border rounded-lg p-4 ${className}`}>
+        <div className="text-center">
+          <p className="text-xs text-muted-foreground mb-2">
+            By using this app, you agree to our:
+          </p>
+          <div className="flex flex-wrap justify-center gap-4 text-xs">
+            <Link 
+              to="/terms" 
+              className="text-primary hover:underline inline-flex items-center gap-1 font-medium"
+            >
+              Terms of Use
+              <ExternalLink className="h-3 w-3" />
+            </Link>
+            <Link 
+              to="/privacy" 
+              className="text-primary hover:underline inline-flex items-center gap-1 font-medium"
+            >
+              Privacy Policy
+              <ExternalLink className="h-3 w-3" />
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={`bg-muted/30 border rounded-lg p-4 space-y-3 ${className}`}>

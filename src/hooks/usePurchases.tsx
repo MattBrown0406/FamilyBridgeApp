@@ -3,7 +3,7 @@ import { Capacitor } from "@capacitor/core";
 
 /**
  * Web-first payment model hook.
- * All payments are processed through Square web checkout.
+ * All payments are processed through secure web checkout.
  * iOS users subscribe via the website (email-driven flow).
  * Android users can be directed to web checkout from the app.
  */

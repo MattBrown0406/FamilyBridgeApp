@@ -1,82 +1,81 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ExternalLink } from "lucide-react";
+import { Mail } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import { usePlatform } from "@/hooks/usePlatform";
 
-interface WebCheckoutButtonProps {
-  checkoutUrl?: string;
+interface EmailSetupButtonProps {
   email: string;
-  subscriptionType?: "family" | "provider";
+  accountType?: "family" | "provider";
   disabled?: boolean;
   className?: string;
   children?: React.ReactNode;
 }
 
 /**
- * Web Checkout Button for Android users.
- * Directs users to the web for Square checkout.
- * Note: iOS uses email-driven subscription flow, not this button.
+ * Apple App Store compliant email collection button for native platforms.
+ * Collects email and sends setup instructions via email.
+ * No references to purchasing, pricing, or external checkout.
  */
 export function AppStorePurchaseButton({
-  checkoutUrl,
   email,
-  subscriptionType = "family",
+  accountType = "family",
   disabled,
   className,
   children,
-}: WebCheckoutButtonProps) {
-  const [isOpening, setIsOpening] = useState(false);
+}: EmailSetupButtonProps) {
+  const [isSending, setIsSending] = useState(false);
   const { isNative } = usePlatform();
 
-  const handleOpenWebCheckout = async () => {
+  const handleSendSetupInfo = async () => {
     if (!email) {
       toast.error("Please enter your email address");
       return;
     }
 
-    setIsOpening(true);
+    setIsSending(true);
     
     try {
-      // Construct web checkout URL with email prefilled
-      const baseUrl = "https://familybridgeapp.lovable.app";
-      const path = subscriptionType === "provider" ? "/provider-purchase" : "/family-purchase";
-      const url = `${baseUrl}${path}?email=${encodeURIComponent(email)}`;
+      const { error } = await supabase.functions.invoke("send-welcome-email", {
+        body: { email, accountType },
+      });
       
-      if (isNative) {
-        // Open in external browser on native platforms
-        window.open(url, "_system");
-        toast.info("Opening web browser for secure checkout...");
-      } else {
-        // On web, just navigate
-        window.location.href = checkoutUrl || path;
-      }
+      if (error) throw error;
+      
+      toast.success("Check your email for setup instructions!");
     } catch (error) {
-      console.error("Failed to open checkout:", error);
-      toast.error("Failed to open checkout. Please try again.");
+      console.error("Failed to send setup info:", error);
+      toast.error("Failed to send setup information. Please try again.");
     } finally {
-      setIsOpening(false);
+      setIsSending(false);
     }
   };
 
-  const buttonText = children || "Subscribe on Web";
+  // On native platforms, only show email collection
+  if (isNative) {
+    const buttonText = children || "Send Setup Information";
 
-  return (
-    <Button
-      onClick={handleOpenWebCheckout}
-      disabled={disabled || isOpening || !email}
-      className={className}
-      size="lg"
-    >
-      <ExternalLink className="h-4 w-4 mr-2" />
-      {isOpening ? "Opening..." : buttonText}
-    </Button>
-  );
+    return (
+      <Button
+        onClick={handleSendSetupInfo}
+        disabled={disabled || isSending || !email}
+        className={className}
+        size="lg"
+      >
+        <Mail className="h-4 w-4 mr-2" />
+        {isSending ? "Sending..." : buttonText}
+      </Button>
+    );
+  }
+
+  // On web, this component should not be used - web has its own flows
+  return null;
 }
 
 /**
- * Restore Purchases Button - Directs users to sign in
- * if they already have an account/subscription from the website.
+ * Sign In Button - Apple App Store compliant
+ * Directs users to sign in if they already have an account.
  */
 export function RestorePurchasesButton({ 
   className,
@@ -90,8 +89,8 @@ export function RestorePurchasesButton({
   // Only show on native platforms
   if (!isNative) return null;
 
-  const handleRestore = () => {
-    toast.info("If you have an existing subscription, please sign in with your account.");
+  const handleSignIn = () => {
+    toast.info("If you have an existing account, please sign in.");
     onRestore?.();
   };
 
@@ -99,10 +98,10 @@ export function RestorePurchasesButton({
     <Button
       variant="ghost"
       size="sm"
-      onClick={handleRestore}
+      onClick={handleSignIn}
       className={className}
     >
-      Already subscribed? Sign in
+      Already have an account? Sign In
     </Button>
   );
 }

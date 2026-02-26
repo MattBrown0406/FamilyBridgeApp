@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { usePlatform } from "@/hooks/usePlatform";
 
 export interface PaymentStatus {
   id: string;
@@ -21,6 +22,7 @@ export interface PaymentStatus {
 
 export function usePaymentStatus() {
   const { user } = useAuth();
+  const { isNative } = usePlatform();
   const [paymentIssues, setPaymentIssues] = useState<PaymentStatus[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showPaymentPopup, setShowPaymentPopup] = useState(false);
@@ -47,8 +49,8 @@ export function usePaymentStatus() {
       const issues = (data || []) as PaymentStatus[];
       setPaymentIssues(issues);
 
-      // Show popup if there are any payment issues for this user's subscriptions
-      if (issues.length > 0) {
+      // Apple App Store compliance: Never show payment popups on native platforms
+      if (issues.length > 0 && !isNative) {
         setSelectedIssue(issues[0]);
         setShowPaymentPopup(true);
       }
