@@ -51,6 +51,12 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Textarea } from '@/components/ui/textarea';
 import { NotificationBell } from '@/components/NotificationBell';
 import { TabbedCheckin } from '@/components/TabbedCheckin';
@@ -434,6 +440,7 @@ const FamilyChat = () => {
   const [newBoundaryTarget, setNewBoundaryTarget] = useState<string>('all');
   const [isAddingBoundary, setIsAddingBoundary] = useState(false);
   const [showBoundaryForm, setShowBoundaryForm] = useState(false);
+  const [showBoundaryTemplates, setShowBoundaryTemplates] = useState(false);
   const [boundaryToAcknowledge, setBoundaryToAcknowledge] = useState<FamilyBoundary | null>(null);
   const [editingBoundary, setEditingBoundary] = useState<FamilyBoundary | null>(null);
   const [editBoundaryContent, setEditBoundaryContent] = useState('');
@@ -464,6 +471,18 @@ const FamilyChat = () => {
   
   // Sobriety journey for header display
   const { journey: headerJourney, daysCount: headerDaysCount } = useFamilyMemberJourney(familyId || '');
+  
+  // Progressive tab disclosure state
+  const [showMoreTabs, setShowMoreTabs] = useState(false);
+  const [activeTab, setActiveTab] = useState('messages');
+  
+  // First-time onboarding state
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [onboardingStep, setOnboardingStep] = useState(1);
+  const [hasSeenOnboarding, setHasSeenOnboarding] = useState(false);
+  
+  // Contextual coaching nudge state
+  const [showCoachingNudge, setShowCoachingNudge] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -1169,6 +1188,19 @@ const FamilyChat = () => {
       // Check if user is the family creator
       if (familyData.created_by === user?.id) {
         setIsFamilyCreator(true);
+      }
+      
+      // Check if this is the user's first visit for onboarding
+      if (user?.id && familyId) {
+        const onboardingKey = `familybridge_onboarding_${familyId}_complete`;
+        const hasCompletedOnboarding = localStorage.getItem(onboardingKey) === 'true';
+        
+        if (!hasCompletedOnboarding) {
+          setShowOnboarding(true);
+          setOnboardingStep(1);
+        } else {
+          setHasSeenOnboarding(true);
+        }
       }
 
       // Fetch messages
@@ -1919,7 +1951,12 @@ const FamilyChat = () => {
             sender_name: sender?.full_name || 'Unknown',
           };
           // Add to all messages
-          setAllMessages(prev => [...prev, msgWithName]);
+          setAllMessages(prev => {
+            const updated = [...prev, msgWithName];
+            // Check for heated conversation (3+ messages in last 5 minutes from different users)
+            checkForHeatedConversation(updated);
+            return updated;
+          });
           // Only add to visible messages if it's in the current week
           const currentWeekStart = startOfWeek(new Date(), { weekStartsOn: 0 });
           const currentWeekEnd = endOfWeek(new Date(), { weekStartsOn: 0 });
@@ -1927,7 +1964,12 @@ const FamilyChat = () => {
           if (isWithinInterval(msgDate, { start: currentWeekStart, end: currentWeekEnd })) {
             // Check if we're viewing the current week
             if (isSameWeek(selectedWeekStart, new Date(), { weekStartsOn: 0 })) {
-              setMessages(prev => [...prev, msgWithName]);
+              setMessages(prev => {
+                const updated = [...prev, msgWithName];
+                // Check for heated conversation in visible messages too
+                checkForHeatedConversation(updated);
+                return updated;
+              });
             }
           }
         }
@@ -2062,8 +2104,19 @@ const FamilyChat = () => {
     if (cooldownEndTime && Date.now() < cooldownEndTime) {
       toast({
         title: 'Please wait',
-        description: `You can send a message in ${cooldownRemaining} seconds.`,
+        description: `You can send a message in ${cooldownRemaining} seconds. It seems like emotions are running high - when you're ready, our Coaching tool can help you find the right words.`,
         variant: 'destructive',
+        action: {
+          altText: "Go to Coaching",
+          label: "Open Coaching",
+          onClick: () => {
+            // Switch to coaching tab
+            const coachingTab = document.querySelector('[data-value="coaching"]') as HTMLElement;
+            if (coachingTab) {
+              coachingTab.click();
+            }
+          }
+        }
       });
       return;
     }
@@ -2092,8 +2145,19 @@ const FamilyChat = () => {
         
         toast({
           title: 'Cooldown activated',
-          description: 'You must wait 60 seconds before sending another message. Please take a moment to reflect.',
+          description: 'You must wait 60 seconds before sending another message. It seems like emotions are running high. Take a moment, and when you\'re ready, our Coaching tool can help you find the right words.',
           variant: 'destructive',
+          action: {
+            altText: "Go to Coaching",
+            label: "Open Coaching",
+            onClick: () => {
+              // Switch to coaching tab
+              const coachingTab = document.querySelector('[data-value="coaching"]') as HTMLElement;
+              if (coachingTab) {
+                coachingTab.click();
+              }
+            }
+          }
         });
       } else {
         toast({
@@ -2744,94 +2808,167 @@ const FamilyChat = () => {
 
       {/* Main Content */}
       <main className="flex-1 container mx-auto px-1.5 sm:px-4 py-1.5 sm:py-4 overflow-hidden">
-        <Tabs defaultValue="messages" className="h-full flex flex-col">
-          <TabsList className="grid grid-cols-6 md:grid-cols-12 grid-rows-2 md:grid-rows-1 h-auto gap-1.5 w-full mb-2 sm:mb-4 shrink-0 bg-card/50 backdrop-blur-sm border border-border/50 p-1.5 sm:p-2 rounded-lg sm:rounded-xl shadow-soft">
-            <TabsTrigger 
-              value="messages" 
-              className="flex items-center justify-center gap-1 px-2 py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
-            >
-              <MessageCircle className="h-4 w-4" />
-              <span className="hidden md:inline text-xs">Chat</span>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="checkin" 
-              className="flex items-center justify-center gap-1 px-2 py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
-            >
-              <MapPin className="h-4 w-4" />
-              <span className="hidden md:inline text-xs">Check-in</span>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="financial" 
-              className="flex items-center justify-center gap-1 px-2 py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
-            >
-              <DollarSign className="h-4 w-4" />
-              <span className="hidden md:inline text-xs">Financial</span>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="values" 
-              className="flex items-center justify-center gap-1 px-2 py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
-            >
-              <Target className="h-4 w-4" />
-              <span className="hidden md:inline text-xs">Goals</span>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="boundaries" 
-              className="flex items-center justify-center gap-1 px-2 py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
-            >
-              <ShieldCheck className="h-4 w-4" />
-              <span className="hidden md:inline text-xs">Boundaries</span>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="aftercare" 
-              className="flex items-center justify-center gap-1 px-2 py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
-            >
-              <ClipboardList className="h-4 w-4" />
-              <span className="hidden md:inline text-xs">Aftercare</span>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="test-results" 
-              className="flex items-center justify-center gap-1 px-2 py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
-            >
-              <FlaskConical className="h-4 w-4" />
-              <span className="hidden md:inline text-xs">Tests</span>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="medications" 
-              className="flex items-center justify-center gap-1 px-2 py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
-            >
-              <Pill className="h-4 w-4" />
-              <span className="hidden md:inline text-xs">Meds</span>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="docs" 
-              className="flex items-center justify-center gap-1 px-2 py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
-            >
-              <FolderOpen className="h-4 w-4" />
-              <span className="hidden md:inline text-xs">Docs</span>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="coaching" 
-              className="flex items-center justify-center gap-1 px-2 py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
-            >
-              <PhoneCall className="h-4 w-4" />
-              <span className="hidden md:inline text-xs">Coaching</span>
-            </TabsTrigger>
-            {currentUserRole !== 'recovering' && (
-              <TabsTrigger 
-                value="fiis" 
-                className="relative flex items-center justify-center gap-1 px-2 py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
+          <div className="mb-2 sm:mb-4 shrink-0 bg-card/50 backdrop-blur-sm border border-border/50 p-1.5 sm:p-2 rounded-lg sm:rounded-xl shadow-soft">
+            {/* Primary tabs (always visible) */}
+            <div className="flex items-center gap-1.5 flex-wrap">
+              {/* Chat Tab */}
+              <button 
+                onClick={() => setActiveTab('messages')}
+                className={`flex items-center justify-center gap-1 px-3 py-2.5 rounded-md sm:rounded-lg transition-all duration-200 ${
+                  activeTab === 'messages' 
+                    ? 'bg-primary text-primary-foreground shadow-md ring-2 ring-primary/20' 
+                    : 'hover:bg-muted'
+                }`}
               >
-                <Brain className="h-4 w-4" />
-                <span className="hidden md:inline text-xs">FIIS</span>
-                {hasNewAnalysis && (
-                  <span className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 h-2.5 w-2.5 sm:h-3 sm:w-3 bg-destructive rounded-full animate-pulse border-2 border-card" />
+                <MessageCircle className="h-4 w-4" />
+                <span className="text-xs">Chat</span>
+                {showOnboarding && onboardingStep === 1 && (
+                  <div className="absolute -top-1 -right-1 h-3 w-3 bg-accent rounded-full animate-bounce border-2 border-card" />
                 )}
-              </TabsTrigger>
-            )}
-          </TabsList>
+              </button>
+              
+              {/* Check-in Tab */}
+              <button 
+                onClick={() => setActiveTab('checkin')}
+                className={`flex items-center justify-center gap-1 px-3 py-2.5 rounded-md sm:rounded-lg transition-all duration-200 ${
+                  activeTab === 'checkin' 
+                    ? 'bg-primary text-primary-foreground shadow-md ring-2 ring-primary/20' 
+                    : 'hover:bg-muted'
+                }`}
+              >
+                <MapPin className="h-4 w-4" />
+                <span className="text-xs">Check-in</span>
+              </button>
+              
+              {/* Boundaries Tab */}
+              <button 
+                onClick={() => setActiveTab('boundaries')}
+                className={`relative flex items-center justify-center gap-1 px-3 py-2.5 rounded-md sm:rounded-lg transition-all duration-200 ${
+                  activeTab === 'boundaries' 
+                    ? 'bg-primary text-primary-foreground shadow-md ring-2 ring-primary/20' 
+                    : 'hover:bg-muted'
+                }`}
+              >
+                <ShieldCheck className="h-4 w-4" />
+                <span className="text-xs">Boundaries</span>
+                {showOnboarding && onboardingStep === 3 && (
+                  <div className="absolute -top-1 -right-1 h-3 w-3 bg-accent rounded-full animate-bounce border-2 border-card" />
+                )}
+              </button>
+              
+              {/* Goals Tab */}
+              <button 
+                onClick={() => setActiveTab('values')}
+                className={`relative flex items-center justify-center gap-1 px-3 py-2.5 rounded-md sm:rounded-lg transition-all duration-200 ${
+                  activeTab === 'values' 
+                    ? 'bg-primary text-primary-foreground shadow-md ring-2 ring-primary/20' 
+                    : 'hover:bg-muted'
+                }`}
+              >
+                <Target className="h-4 w-4" />
+                <span className="text-xs">Goals</span>
+                {showOnboarding && onboardingStep === 2 && (
+                  <div className="absolute -top-1 -right-1 h-3 w-3 bg-accent rounded-full animate-bounce border-2 border-card" />
+                )}
+              </button>
+              
+              {/* Coaching Tab */}
+              <button 
+                onClick={() => setActiveTab('coaching')}
+                className={`flex items-center justify-center gap-1 px-3 py-2.5 rounded-md sm:rounded-lg transition-all duration-200 ${
+                  activeTab === 'coaching' 
+                    ? 'bg-primary text-primary-foreground shadow-md ring-2 ring-primary/20' 
+                    : 'hover:bg-muted'
+                }`}
+              >
+                <PhoneCall className="h-4 w-4" />
+                <span className="text-xs">Coaching</span>
+              </button>
+              
+              {/* More... Dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="flex items-center justify-center gap-1 px-3 py-2.5 rounded-md sm:rounded-lg transition-all duration-200 hover:bg-muted text-muted-foreground hover:text-foreground">
+                    <span className="text-xs">More...</span>
+                    <ChevronDown className="h-3 w-3" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem onClick={() => setActiveTab('financial')} className="flex items-center gap-2">
+                    <DollarSign className="h-4 w-4" />
+                    Financial
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setActiveTab('aftercare')} className="flex items-center gap-2">
+                    <ClipboardList className="h-4 w-4" />
+                    Aftercare
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setActiveTab('test-results')} className="flex items-center gap-2">
+                    <FlaskConical className="h-4 w-4" />
+                    Tests
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setActiveTab('medications')} className="flex items-center gap-2">
+                    <Pill className="h-4 w-4" />
+                    Medications
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setActiveTab('docs')} className="flex items-center gap-2">
+                    <FolderOpen className="h-4 w-4" />
+                    Documents
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              
+              {/* FIIS Tab - kept as is, only visible to non-recovering members */}
+              {currentUserRole !== 'recovering' && (
+                <button 
+                  onClick={() => setActiveTab('fiis')}
+                  className={`relative flex items-center justify-center gap-1 px-3 py-2.5 rounded-md sm:rounded-lg transition-all duration-200 ${
+                    activeTab === 'fiis' 
+                      ? 'bg-primary text-primary-foreground shadow-md ring-2 ring-primary/20' 
+                      : 'hover:bg-muted'
+                  }`}
+                >
+                  <Brain className="h-4 w-4" />
+                  <span className="text-xs">FIIS</span>
+                  {hasNewAnalysis && (
+                    <span className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 h-2.5 w-2.5 sm:h-3 sm:w-3 bg-destructive rounded-full animate-pulse border-2 border-card" />
+                  )}
+                </button>
+              )}
+            </div>
+          </div>
 
           {/* Messages Tab */}
           <TabsContent value="messages" className="flex-1 flex flex-col overflow-hidden mt-0">
+            {/* Contextual Coaching Nudge */}
+            {showCoachingNudge && (
+              <div className="mb-4 p-3 bg-gradient-to-r from-accent/10 to-primary/10 border border-accent/20 rounded-xl flex items-center gap-3 animate-slide-down">
+                <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-accent/20 to-primary/20 flex items-center justify-center shrink-0">
+                  <PhoneCall className="h-4 w-4 text-accent" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-foreground">Need help with what to say?</p>
+                  <p className="text-xs text-muted-foreground">Our coaching tools can help you communicate more effectively.</p>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <Button 
+                    size="sm" 
+                    className="bg-gradient-to-r from-accent to-primary text-white"
+                    onClick={() => setActiveTab('coaching')}
+                  >
+                    Try Coaching →
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    variant="ghost"
+                    onClick={() => setShowCoachingNudge(false)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            )}
+            
             {/* Stats Cards for Messages */}
             <div className="grid grid-cols-3 gap-1.5 sm:gap-3 mb-2 sm:mb-4 shrink-0">
               <Card className="relative overflow-hidden border-0 shadow-md group hover:shadow-lg transition-all duration-300">
@@ -3034,11 +3171,29 @@ const FamilyChat = () => {
               {isCurrentWeek ? (
                 <form onSubmit={handleSendMessage} className="p-4 border-t-2 border-border shrink-0 bg-card shadow-lg">
                   {cooldownRemaining > 0 && (
-                    <div className="mb-3 p-3 bg-destructive/10 border border-destructive/20 rounded-xl flex items-center gap-2 animate-scale-in">
-                      <AlertTriangle className="h-4 w-4 text-destructive" />
-                      <span className="text-sm text-destructive">
-                        Cooldown active: {cooldownRemaining} seconds remaining
-                      </span>
+                    <div className="mb-3 p-3 bg-destructive/10 border border-destructive/20 rounded-xl animate-scale-in">
+                      <div className="flex items-center gap-2 mb-2">
+                        <AlertTriangle className="h-4 w-4 text-destructive" />
+                        <span className="text-sm text-destructive">
+                          Cooldown active: {cooldownRemaining} seconds remaining
+                        </span>
+                      </div>
+                      <p className="text-xs text-muted-foreground mb-2">
+                        It seems like emotions are running high. Take a moment, and when you're ready, our Coaching tool can help you find the right words.
+                      </p>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-7 text-xs"
+                        onClick={() => {
+                          const coachingTab = document.querySelector('[data-value="coaching"]') as HTMLElement;
+                          if (coachingTab) {
+                            coachingTab.click();
+                          }
+                        }}
+                      >
+                        Open Coaching Tool
+                      </Button>
                     </div>
                   )}
                   <div className="flex gap-2">
@@ -4500,7 +4655,92 @@ const FamilyChat = () => {
                         </Select>
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="boundaryContent">Boundary Description</Label>
+                        <div className="flex items-center justify-between">
+                          <Label htmlFor="boundaryContent">Boundary Description</Label>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setShowBoundaryTemplates(!showBoundaryTemplates)}
+                            className="text-xs"
+                          >
+                            Use a Template
+                          </Button>
+                        </div>
+                        
+                        {showBoundaryTemplates && (
+                          <div className="p-3 rounded-md bg-muted/50 border space-y-2">
+                            <p className="text-xs text-muted-foreground mb-2">
+                              These are starting points — customize them for your family's situation.
+                            </p>
+                            <div className="space-y-2">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-auto p-2 text-left justify-start whitespace-normal text-xs"
+                                onClick={() => {
+                                  setNewBoundaryContent("If [loved one] uses drugs or alcohol, then the following consequence will occur:");
+                                  setNewBoundaryConsequence("I will not provide financial support until they complete 30 days of documented sobriety");
+                                  setShowBoundaryTemplates(false);
+                                }}
+                              >
+                                "If [loved one] uses drugs or alcohol, then [consequence for substance use]"
+                              </Button>
+                              
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-auto p-2 text-left justify-start whitespace-normal text-xs"
+                                onClick={() => {
+                                  setNewBoundaryContent("If [loved one] misses a recovery meeting without a valid reason, then we will address this concern:");
+                                  setNewBoundaryConsequence("We will have a family discussion about their commitment to recovery within 24 hours");
+                                  setShowBoundaryTemplates(false);
+                                }}
+                              >
+                                "If [loved one] misses a recovery meeting without a valid reason, then [consequence for missed meetings]"
+                              </Button>
+                              
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-auto p-2 text-left justify-start whitespace-normal text-xs"
+                                onClick={() => {
+                                  setNewBoundaryContent("If [loved one] becomes verbally abusive, then I will protect my emotional wellbeing:");
+                                  setNewBoundaryConsequence("I will leave the room/conversation immediately and we will revisit the discussion when everyone is calm");
+                                  setShowBoundaryTemplates(false);
+                                }}
+                              >
+                                "If [loved one] becomes verbally abusive, then [consequence for verbal abuse]"
+                              </Button>
+                              
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-auto p-2 text-left justify-start whitespace-normal text-xs"
+                                onClick={() => {
+                                  setNewBoundaryContent("If [loved one] asks for money without accountability, then financial decisions will be handled systematically:");
+                                  setNewBoundaryConsequence("The request will go through our family financial voting process before any decision is made");
+                                  setShowBoundaryTemplates(false);
+                                }}
+                              >
+                                "If [loved one] asks for money without accountability, then [consequence for unaccountable requests]"
+                              </Button>
+                              
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-auto p-2 text-left justify-start whitespace-normal text-xs"
+                                onClick={() => {
+                                  setNewBoundaryContent("I will attend my own support group meetings to maintain my wellbeing:");
+                                  setNewBoundaryConsequence("If I miss more than one meeting per month without valid reason, I will recommit to my own recovery support");
+                                  setShowBoundaryTemplates(false);
+                                }}
+                              >
+                                "I will attend my own support group meetings at least [X] times per week"
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+                        
                         <Textarea
                           id="boundaryContent"
                           placeholder="Describe the boundary clearly and specifically..."
@@ -5575,6 +5815,188 @@ const FamilyChat = () => {
 
       {user && familyId && (
         <DailyEmotionalCheckin familyId={familyId} />
+      )}
+
+      {/* First-Time Onboarding Overlay */}
+      {showOnboarding && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-card rounded-2xl shadow-2xl max-w-md w-full mx-4 animate-scale-in border border-border/50">
+            <div className="h-2 bg-gradient-to-r from-primary via-accent to-success rounded-t-2xl" />
+            
+            <div className="p-6">
+              <div className="text-center mb-6">
+                <div className="h-16 w-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-primary/20 via-accent/20 to-success/20 flex items-center justify-center shadow-inner">
+                  <Heart className="h-8 w-8 text-primary" />
+                </div>
+                <h2 className="text-xl font-display font-semibold text-foreground mb-2">
+                  Welcome to your family group!
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  Here's how to get started and connect with your family:
+                </p>
+              </div>
+
+              <div className="space-y-4 mb-6">
+                {/* Step 1 */}
+                <div className={`flex items-start gap-3 p-3 rounded-xl transition-all duration-300 ${
+                  onboardingStep === 1 
+                    ? 'bg-primary/10 border border-primary/20 shadow-sm' 
+                    : onboardingStep > 1
+                      ? 'bg-success/10 border border-success/20'
+                      : 'bg-muted/30'
+                }`}>
+                  <div className={`h-8 w-8 rounded-lg flex items-center justify-center shrink-0 ${
+                    onboardingStep === 1 
+                      ? 'bg-primary/20 text-primary' 
+                      : onboardingStep > 1
+                        ? 'bg-success/20 text-success'
+                        : 'bg-muted text-muted-foreground'
+                  }`}>
+                    {onboardingStep > 1 ? (
+                      <CheckCircle2 className="h-5 w-5" />
+                    ) : (
+                      <MessageCircle className="h-5 w-5" />
+                    )}
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-foreground">Step 1: Send a message</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Start the conversation with your family in the Chat tab
+                    </p>
+                  </div>
+                </div>
+
+                {/* Step 2 */}
+                <div className={`flex items-start gap-3 p-3 rounded-xl transition-all duration-300 ${
+                  onboardingStep === 2 
+                    ? 'bg-primary/10 border border-primary/20 shadow-sm' 
+                    : onboardingStep > 2
+                      ? 'bg-success/10 border border-success/20'
+                      : 'bg-muted/30'
+                }`}>
+                  <div className={`h-8 w-8 rounded-lg flex items-center justify-center shrink-0 ${
+                    onboardingStep === 2 
+                      ? 'bg-primary/20 text-primary' 
+                      : onboardingStep > 2
+                        ? 'bg-success/20 text-success'
+                        : 'bg-muted text-muted-foreground'
+                  }`}>
+                    {onboardingStep > 2 ? (
+                      <CheckCircle2 className="h-5 w-5" />
+                    ) : (
+                      <Target className="h-5 w-5" />
+                    )}
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-foreground">Step 2: Set your family values</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Define what matters most in your recovery journey
+                    </p>
+                  </div>
+                </div>
+
+                {/* Step 3 */}
+                <div className={`flex items-start gap-3 p-3 rounded-xl transition-all duration-300 ${
+                  onboardingStep === 3 
+                    ? 'bg-primary/10 border border-primary/20 shadow-sm' 
+                    : onboardingStep > 3
+                      ? 'bg-success/10 border border-success/20'
+                      : 'bg-muted/30'
+                }`}>
+                  <div className={`h-8 w-8 rounded-lg flex items-center justify-center shrink-0 ${
+                    onboardingStep === 3 
+                      ? 'bg-primary/20 text-primary' 
+                      : onboardingStep > 3
+                        ? 'bg-success/20 text-success'
+                        : 'bg-muted text-muted-foreground'
+                  }`}>
+                    {onboardingStep > 3 ? (
+                      <CheckCircle2 className="h-5 w-5" />
+                    ) : (
+                      <ShieldCheck className="h-5 w-5" />
+                    )}
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-foreground">Step 3: Create your first boundary</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Establish healthy boundaries with love and clear consequences
+                    </p>
+                  </div>
+                </div>
+
+                {/* Step 4 */}
+                <div className={`flex items-start gap-3 p-3 rounded-xl transition-all duration-300 ${
+                  onboardingStep === 4 
+                    ? 'bg-success/10 border border-success/20 shadow-sm' 
+                    : 'bg-muted/30'
+                }`}>
+                  <div className={`h-8 w-8 rounded-lg flex items-center justify-center shrink-0 ${
+                    onboardingStep === 4 
+                      ? 'bg-success/20 text-success'
+                      : 'bg-muted text-muted-foreground'
+                  }`}>
+                    <Sparkles className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-foreground">You're ready!</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Explore more features as you go. We're here to support your journey.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <Button 
+                  variant="outline" 
+                  className="flex-1"
+                  onClick={() => {
+                    const onboardingKey = `familybridge_onboarding_${familyId}_complete`;
+                    localStorage.setItem(onboardingKey, 'true');
+                    setShowOnboarding(false);
+                    setHasSeenOnboarding(true);
+                  }}
+                >
+                  Skip for now
+                </Button>
+                
+                {onboardingStep < 4 ? (
+                  <Button 
+                    className="flex-1 bg-gradient-to-r from-primary to-accent"
+                    onClick={() => {
+                      if (onboardingStep === 1) {
+                        setActiveTab('messages');
+                        setOnboardingStep(2);
+                      } else if (onboardingStep === 2) {
+                        setActiveTab('values');
+                        setOnboardingStep(3);
+                      } else if (onboardingStep === 3) {
+                        setActiveTab('boundaries');
+                        setOnboardingStep(4);
+                      }
+                    }}
+                  >
+                    {onboardingStep === 1 ? 'Start with Chat' : 
+                     onboardingStep === 2 ? 'Set Goals' :
+                     'Create Boundary'}
+                  </Button>
+                ) : (
+                  <Button 
+                    className="flex-1 bg-gradient-to-r from-success to-emerald-500"
+                    onClick={() => {
+                      const onboardingKey = `familybridge_onboarding_${familyId}_complete`;
+                      localStorage.setItem(onboardingKey, 'true');
+                      setShowOnboarding(false);
+                      setHasSeenOnboarding(true);
+                    }}
+                  >
+                    Let's Go!
+                  </Button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

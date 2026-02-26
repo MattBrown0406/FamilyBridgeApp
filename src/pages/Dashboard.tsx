@@ -360,14 +360,44 @@ const Dashboard = () => {
           {/* Family Groups List */}
           {families.length === 0 ? (
             <Card className="text-center py-12">
-              <CardContent>
+              <CardContent className="space-y-6">
                 <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                 <h3 className="text-lg font-semibold text-foreground mb-2">
-                  No Family Groups Yet
+                  Welcome to FamilyBridge
                 </h3>
-                <p className="text-muted-foreground mb-6">
-                  You haven't been added to a family group yet. Ask a family member to share an invite link with you.
-                </p>
+                
+                {/* Getting Started Paths */}
+                <div className="grid gap-4 max-w-md mx-auto">
+                  <Button
+                    className="h-auto p-4 flex-col gap-2"
+                    onClick={() => navigate('/family-setup')}
+                  >
+                    <div className="font-semibold">Just purchased? Set up your family group</div>
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                  
+                  <Button
+                    variant="outline"
+                    className="h-auto p-4 flex-col gap-2"
+                    onClick={() => navigate('/family-setup')}
+                  >
+                    <div className="font-semibold">Been invited? Enter your invite code</div>
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </div>
+
+                {/* What is FamilyBridge section */}
+                <div className="max-w-lg mx-auto pt-6 border-t border-border">
+                  <h4 className="font-medium text-foreground mb-3">What is FamilyBridge?</h4>
+                  <div className="text-sm text-muted-foreground space-y-2">
+                    <p>
+                      FamilyBridge is a secure platform designed to help families affected by addiction communicate more effectively and maintain healthy boundaries.
+                    </p>
+                    <p>
+                      Our tools include moderated family chat, boundary setting, goal tracking, and coaching resources—all designed to support your family's recovery journey.
+                    </p>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           ) : (
