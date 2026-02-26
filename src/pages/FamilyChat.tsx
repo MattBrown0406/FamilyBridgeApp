@@ -483,6 +483,51 @@ const FamilyChat = () => {
   
   // Contextual coaching nudge state
   const [showCoachingNudge, setShowCoachingNudge] = useState(false);
+  
+  // Check for heated conversation and trigger coaching nudge
+  const checkForHeatedConversation = (messagesArray: Message[]) => {
+    if (showCoachingNudge || activeTab !== 'messages') return;
+    
+    const now = new Date();
+    const fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000);
+    
+    // Get recent messages (last 5 minutes)
+    const recentMessages = messagesArray.filter(msg => 
+      new Date(msg.created_at) >= fiveMinutesAgo
+    );
+    
+    // Check if there are 3+ messages from different users in the last 5 minutes
+    const uniqueSenders = new Set(recentMessages.map(msg => msg.sender_id));
+    
+    if (recentMessages.length >= 3 && uniqueSenders.size >= 2) {
+      setShowCoachingNudge(true);
+      // Auto-hide after 30 seconds if not manually dismissed
+      setTimeout(() => setShowCoachingNudge(false), 30000);
+    }
+  };
+  
+  // Check for FIIS analysis and trigger coaching nudge
+  const checkForFIISAnalysis = async () => {
+    if (!familyId || showCoachingNudge || activeTab !== 'messages') return;
+    
+    try {
+      const { data } = await supabase
+        .from('fiis_analysis')
+        .select('id')
+        .eq('family_id', familyId)
+        .eq('needs_attention', true)
+        .order('created_at', { ascending: false })
+        .limit(1);
+      
+      if (data && data.length > 0) {
+        setShowCoachingNudge(true);
+        // Auto-hide after 45 seconds if not manually dismissed
+        setTimeout(() => setShowCoachingNudge(false), 45000);
+      }
+    } catch (error) {
+      console.error('Error checking FIIS analysis:', error);
+    }
+  };
 
   useEffect(() => {
     if (!loading && !user) {
@@ -498,6 +543,16 @@ const FamilyChat = () => {
       // Note: Private message unread counts are now handled by PrivateMessagingV2 component
     }
   }, [user, familyId]);
+
+  // Check for FIIS analysis every 2 minutes when on messages tab
+  useEffect(() => {
+    if (!user || !familyId || activeTab !== 'messages') return;
+    
+    checkForFIISAnalysis();
+    const interval = setInterval(checkForFIISAnalysis, 2 * 60 * 1000); // 2 minutes
+    
+    return () => clearInterval(interval);
+  }, [user, familyId, activeTab]);
 
   // Online presence tracking
   useEffect(() => {
@@ -2815,7 +2870,7 @@ const FamilyChat = () => {
               {/* Chat Tab */}
               <button 
                 onClick={() => setActiveTab('messages')}
-                className={`flex items-center justify-center gap-1 px-3 py-2.5 rounded-md sm:rounded-lg transition-all duration-200 ${
+                className={`relative flex items-center justify-center gap-1 px-3 py-2.5 rounded-md sm:rounded-lg transition-all duration-200 ${
                   activeTab === 'messages' 
                     ? 'bg-primary text-primary-foreground shadow-md ring-2 ring-primary/20' 
                     : 'hover:bg-muted'
