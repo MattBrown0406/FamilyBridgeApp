@@ -141,7 +141,7 @@ const FamilyPurchase = () => {
     }
   };
 
-  const handleSquarePurchase = async () => {
+  const handleSquarePurchase = async (withTrial = true) => {
     if (!email) {
       toast.error("Please enter your email address");
       return;
@@ -158,6 +158,7 @@ const FamilyPurchase = () => {
         body: {
           email,
           redirectUrl,
+          ...(withTrial && { trialDays: 7, couponCode: "TRIAL7" }),
         },
       });
 
@@ -507,9 +508,9 @@ const FamilyPurchase = () => {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-4 sm:gap-8">
+          <div className="grid md:grid-cols-3 gap-4 sm:gap-6">
             {/* Features Card */}
-            <Card>
+            <Card className="md:col-span-1">
               <CardHeader>
                 <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-medium mb-2 w-fit">
                   <Brain className="h-3 w-3" />
@@ -544,29 +545,48 @@ const FamilyPurchase = () => {
               </CardContent>
             </Card>
 
-            {/* Purchase Card */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+            {/* Standard Plan Card */}
+            <Card className="md:col-span-1 relative">
+              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                <span className="bg-emerald-500 text-white text-xs font-medium px-3 py-1 rounded-full">
+                  Most Popular
+                </span>
+              </div>
+              <CardHeader className="text-center">
+                <CardTitle className="flex items-center justify-center gap-2 text-xl">
                   <paymentInfo.icon className="w-5 h-5" />
-                  {isNative && isIOS ? "Family Subscription" : PRODUCTS.family.monthly.displayName}
+                  Standard Plan
                 </CardTitle>
                 <CardDescription>
-                  {isNative && isIOS ? "Sign in to access your family" : "Auto-renewable subscription · Cancel anytime"}
+                  {isNative && isIOS ? "Essential family support tools" : "Auto-renewable subscription · Cancel anytime"}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                {/* Clear Subscription Pricing - Only show on non-iOS platforms */}
+                {/* Free Trial + Subscription Pricing - Only show on non-iOS platforms */}
                 {!(isNative && isIOS) && (
-                  <div className="text-center py-4 bg-primary/5 rounded-lg border border-primary/10">
-                    <p className="text-xs text-muted-foreground mb-1">Monthly Subscription</p>
-                    <div>
-                      <span className="text-4xl font-bold">${PRODUCTS.family.monthly.price}</span>
-                      <span className="text-muted-foreground">/month</span>
+                  <div className="space-y-4">
+                    {/* Free Trial Highlight */}
+                    <div className="text-center py-4 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20 rounded-lg border border-emerald-200/50 dark:border-emerald-800/50">
+                      <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-300 mb-1">Start Free Today</p>
+                      <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mb-1">
+                        7-Day Free Trial
+                      </div>
+                      <p className="text-xs text-emerald-600/80 dark:text-emerald-400/80">
+                        No payment required to start
+                      </p>
                     </div>
-                    <p className="text-xs text-muted-foreground mt-2">
-                      Billed monthly · Auto-renews until cancelled
-                    </p>
+                    
+                    {/* Regular Pricing */}
+                    <div className="text-center py-4 bg-primary/5 rounded-lg border border-primary/10">
+                      <p className="text-xs text-muted-foreground mb-1">Then just</p>
+                      <div>
+                        <span className="text-4xl font-bold">${PRODUCTS.family.monthly.price}</span>
+                        <span className="text-muted-foreground">/month</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-2">
+                        Billed monthly · Cancel anytime during or after trial
+                      </p>
+                    </div>
                   </div>
                 )}
 
@@ -743,14 +763,36 @@ const FamilyPurchase = () => {
                     </>
                   ) : (
                     <>
+                      {/* Primary CTA - Free Trial */}
                       <Button
-                        onClick={handleSquarePurchase}
+                        onClick={() => handleSquarePurchase(true)}
                         disabled={isLoading || !email}
-                        className="w-full"
+                        className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-lg"
                         size="lg"
                       >
-                        {isLoading ? "Processing..." : "Subscribe Now"}
+                        {isLoading ? "Processing..." : "Try Free for 7 Days"}
                       </Button>
+                      
+                      {/* Alternative - Skip Trial */}
+                      <div className="relative">
+                        <div className="absolute inset-0 flex items-center">
+                          <span className="w-full border-t" />
+                        </div>
+                        <div className="relative flex justify-center text-xs uppercase">
+                          <span className="bg-background px-2 text-muted-foreground">or</span>
+                        </div>
+                      </div>
+                      
+                      <Button
+                        variant="outline"
+                        onClick={() => handleSquarePurchase(false)}
+                        disabled={isLoading || !email}
+                        className="w-full"
+                        size="sm"
+                      >
+                        {isLoading ? "Processing..." : `Subscribe Now - $${PRODUCTS.family.monthly.price}/mo`}
+                      </Button>
+                      
                       {/* Subscription Disclosure */}
                       <SubscriptionDisclosure
                         subscriptionTitle={PRODUCTS.family.monthly.displayName}
@@ -761,6 +803,91 @@ const FamilyPurchase = () => {
                     </>
                   )}
                 </div>
+              </CardContent>
+            </Card>
+
+            {/* Premium Plan Card */}
+            <Card className="md:col-span-1 relative opacity-75">
+              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                <span className="bg-amber-500 text-white text-xs font-medium px-3 py-1 rounded-full">
+                  Coming Soon
+                </span>
+              </div>
+              <CardHeader className="text-center">
+                <CardTitle className="flex items-center justify-center gap-2 text-xl">
+                  <Sparkles className="w-5 h-5" />
+                  Premium Plan
+                </CardTitle>
+                <CardDescription>
+                  Enhanced features with professional moderation
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Premium Pricing */}
+                <div className="text-center py-4 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 rounded-lg border border-amber-200/50 dark:border-amber-800/50">
+                  <p className="text-xs text-muted-foreground mb-1">Premium Plan</p>
+                  <div>
+                    <span className="text-4xl font-bold text-muted-foreground">$TBD</span>
+                    <span className="text-muted-foreground">/month</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    Pricing available soon
+                  </p>
+                </div>
+
+                {/* Premium Features */}
+                <ul className="space-y-3">
+                  <li className="flex items-start gap-3">
+                    <div className="w-5 h-5 rounded-full bg-amber-100 dark:bg-amber-900/50 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Check className="w-3 h-3 text-amber-600 dark:text-amber-400" />
+                    </div>
+                    <div>
+                      <span className="text-sm font-medium">Drug Testing Coordination</span>
+                      <p className="text-xs text-muted-foreground">Professional test scheduling and results tracking</p>
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <div className="w-5 h-5 rounded-full bg-amber-100 dark:bg-amber-900/50 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Check className="w-3 h-3 text-amber-600 dark:text-amber-400" />
+                    </div>
+                    <div>
+                      <span className="text-sm font-medium">24/7 Crisis Moderation</span>
+                      <p className="text-xs text-muted-foreground">Professional interventionist support</p>
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <div className="w-5 h-5 rounded-full bg-amber-100 dark:bg-amber-900/50 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Check className="w-3 h-3 text-amber-600 dark:text-amber-400" />
+                    </div>
+                    <div>
+                      <span className="text-sm font-medium">Priority Support</span>
+                      <p className="text-xs text-muted-foreground">Dedicated family recovery specialist</p>
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <div className="w-5 h-5 rounded-full bg-amber-100 dark:bg-amber-900/50 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Check className="w-3 h-3 text-amber-600 dark:text-amber-400" />
+                    </div>
+                    <div>
+                      <span className="text-sm font-medium">All Standard Features</span>
+                      <p className="text-xs text-muted-foreground">Plus everything from the Standard plan</p>
+                    </div>
+                  </li>
+                </ul>
+
+                {/* Disabled Button */}
+                <Button
+                  disabled
+                  className="w-full"
+                  size="lg"
+                  variant="secondary"
+                >
+                  Notify Me When Available
+                </Button>
+                
+                <p className="text-xs text-muted-foreground text-center">
+                  Join the <Button variant="link" onClick={() => navigate("/subscription")} className="p-0 h-auto text-xs">waitlist</Button> to be notified when Premium launches
+                </p>
               </CardContent>
             </Card>
           </div>
