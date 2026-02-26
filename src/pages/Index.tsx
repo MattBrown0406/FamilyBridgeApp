@@ -401,7 +401,7 @@ const Index = () => {
           <div className="relative z-10 p-5 sm:p-10 md:p-16">
             <div className="inline-flex items-center gap-1.5 sm:gap-2 bg-white/20 backdrop-blur-sm px-2.5 sm:px-4 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium text-primary-foreground mb-3 sm:mb-6">
               <Heart className="h-3 w-3 sm:h-4 sm:w-4" />
-              Join thousands of families
+              Join families rebuilding trust
             </div>
             <h2 className="text-xl xs:text-2xl sm:text-3xl md:text-5xl font-display font-bold text-primary-foreground mb-3 sm:mb-6 px-1">
               Your Family's Recovery{' '}
