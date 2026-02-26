@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -46,6 +46,7 @@ const RELATIONSHIP_OPTIONS: { value: RelationshipType; label: string }[] = [
 const FamilySetup = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   
   const [inviteCode, setInviteCode] = useState("");
   const [familyName, setFamilyName] = useState("");
@@ -57,6 +58,14 @@ const FamilySetup = () => {
   ]);
   const [isLoading, setIsLoading] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
+
+  // Auto-fill invite code from URL parameters
+  useEffect(() => {
+    const codeParam = searchParams.get('code');
+    if (codeParam && !inviteCode) {
+      setInviteCode(codeParam);
+    }
+  }, [searchParams, inviteCode]);
 
   const addMember = () => {
     setMembers([...members, { id: crypto.randomUUID(), name: "", email: "", relationship: "" }]);
