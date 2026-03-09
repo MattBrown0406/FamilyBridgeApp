@@ -272,7 +272,7 @@ const ProviderPurchase = () => {
       <div className="container mx-auto px-3 sm:px-4 py-6 sm:py-12">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-6 sm:mb-12">
-            <h1 className="text-2xl sm:text-4xl font-bold mb-2 sm:mb-4">Become a Provider</h1>
+            <h1 className="text-2xl sm:text-4xl font-bold mb-2 sm:mb-4">FamilyBridge for Providers</h1>
             <p className="text-base sm:text-xl text-muted-foreground">
               Get your activation code to create your organization and start helping families
             </p>

@@ -502,7 +502,7 @@ const FamilyPurchase = () => {
 
           <div className="text-center mb-6 sm:mb-12">
             <h1 className="text-2xl sm:text-4xl font-bold mb-2 sm:mb-4">
-              {reactivatingFamily ? 'Reactivate Your Family Group' : 'Create Your Family Group'}
+              {reactivatingFamily ? 'Reactivate Your Family Group' : 'FamilyBridge Family Plan'}
             </h1>
             <p className="text-base sm:text-xl text-muted-foreground">
               {reactivatingFamily 

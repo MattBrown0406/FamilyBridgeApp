@@ -122,7 +122,7 @@ const Support = () => {
         </Button>
         
         <div className="text-center mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">Customer Support</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">Support</h1>
           <p className="text-sm sm:text-base text-muted-foreground">
             We're here to help you with any questions or concerns.
           </p>

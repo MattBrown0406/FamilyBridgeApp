@@ -199,7 +199,7 @@ export default function ModeratorPurchase() {
         <div className="max-w-4xl mx-auto space-y-4 sm:space-y-8">
           {/* Hero Section */}
           <div className="text-center space-y-2 sm:space-y-4">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">Extended Moderator Support</h1>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">Moderator Access</h1>
             <p className="text-sm sm:text-lg text-muted-foreground max-w-2xl mx-auto">
               {isNative && isIOS 
                 ? "Professional moderator support for your family when you need it most."

@@ -45,7 +45,7 @@ const Meetings = () => {
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-8">
             <h1 className="text-3xl md:text-4xl font-display font-bold text-foreground mb-3">
-              Find a Recovery Meeting
+              Meeting Check-Ins
             </h1>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
               Search for AA, Al-Anon, and other recovery meetings. Connect with a supportive community.

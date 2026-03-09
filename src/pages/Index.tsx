@@ -184,10 +184,10 @@ const Index = () => {
           </div>
           
           <h1 className="text-2xl xs:text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-display font-bold text-foreground mb-2 sm:mb-4 leading-tight animate-slide-up px-1">
-            Healing Starts with{' '}
+            Recovery Support for{' '}
             <span className="relative inline-block">
               <span className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent bg-[length:200%_auto] animate-shimmer">
-                Connection
+                Families
               </span>
               <svg className="absolute -bottom-1 sm:-bottom-2 left-0 w-full" viewBox="0 0 200 8" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M1 5.5C47.6667 2.16667 141.4 -2.1 199 5.5" stroke="hsl(var(--primary))" strokeWidth="2" strokeLinecap="round" className="animate-fade-in" style={{ animationDelay: '0.5s' }}/>

@@ -12,7 +12,7 @@ export function usePurchases() {
 
   // Open web checkout in external browser
   const openWebCheckout = useCallback((checkoutPath: string = "/family-purchase") => {
-    const webUrl = `https://familybridgeapp.lovable.app${checkoutPath}`;
+    const webUrl = `https://familybridgeapp.com${checkoutPath}`;
     
     if (isNative) {
       // Open in external browser on native platforms

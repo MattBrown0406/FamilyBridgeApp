@@ -136,8 +136,8 @@ export const createOrganizationSchema = () => ({
   '@context': 'https://schema.org',
   '@type': 'Organization',
   name: 'FamilyBridge',
-  url: 'https://familybridgeapp.lovable.app',
-  logo: 'https://familybridgeapp.lovable.app/favicon.png',
+  url: 'https://familybridgeapp.com',
+  logo: 'https://familybridgeapp.com/favicon.png',
   description: 'FamilyBridge helps families support loved ones in recovery with AI-powered pattern detection, transparent communication, financial coordination, and accountability tools.',
   contactPoint: {
     '@type': 'ContactPoint',
