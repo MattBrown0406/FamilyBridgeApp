@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Shield, Clock, CheckCircle, Users, AlertCircle, Smartphone, ArrowLeft } from "lucide-react";
 import { BrandedHeader } from "@/components/BrandedHeader";
+import { SEOHead } from "@/components/SEOHead";
 import { BrandedFooter } from "@/components/BrandedFooter";
 import { AppStorePurchaseButton } from "@/components/AppStorePurchaseButton";
 import { SubscriptionDisclosure } from "@/components/SubscriptionDisclosure";
