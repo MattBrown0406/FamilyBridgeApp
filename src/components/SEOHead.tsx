@@ -115,7 +115,7 @@ export const createBreadcrumbSchema = (items: { name: string; url: string }[]) =
     '@type': 'ListItem',
     position: index + 1,
     name: item.name,
-    item: `https://familybridgeapp.lovable.app${item.url}`,
+    item: `https://familybridgeapp.com${item.url}`,
   })),
 });
 
