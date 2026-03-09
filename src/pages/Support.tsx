@@ -104,8 +104,8 @@ const Support = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <SEOHead
-        title="Customer Support"
-        description="Get help with FamilyBridge. Contact our support team for account setup, billing inquiries, technical issues, and feature requests."
+        title="Support — FamilyBridge"
+        description="Get help with FamilyBridge. FAQs, troubleshooting, and contact our support team."
         canonicalPath="/support"
         structuredData={breadcrumbSchema}
       />
