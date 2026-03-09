@@ -2202,17 +2202,17 @@ const FamilyChat = () => {
           title: 'Cooldown activated',
           description: 'You must wait 60 seconds before sending another message. It seems like emotions are running high. Take a moment, and when you\'re ready, our Coaching tool can help you find the right words.',
           variant: 'destructive',
-          action: {
-            altText: "Go to Coaching",
-            label: "Open Coaching",
-            onClick: () => {
-              // Switch to coaching tab
-              const coachingTab = document.querySelector('[data-value="coaching"]') as HTMLElement;
-              if (coachingTab) {
-                coachingTab.click();
-              }
-            }
-          }
+          action: (
+            <button
+              className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-8 px-3"
+              onClick={() => {
+                const coachingTab = document.querySelector('[data-value="coaching"]') as HTMLElement;
+                if (coachingTab) coachingTab.click();
+              }}
+            >
+              Open Coaching
+            </button>
+          ) as any
         });
       } else {
         toast({

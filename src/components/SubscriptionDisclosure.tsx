@@ -24,7 +24,10 @@ export const SubscriptionDisclosure = ({
   isOneTimePurchase = false,
   className = "",
 }: SubscriptionDisclosureProps) => {
-  const { isNative: platformNative } = usePlatform();
+  const { isNative: platformNative, isIOS } = usePlatform();
+  
+  const getAccountName = () => isIOS ? 'Apple ID' : 'Google Play account';
+  const getSettingsLocation = () => isIOS ? 'your Apple ID Settings' : 'Google Play Store subscription settings';
   
   // Apple App Store compliance: Never show payment/subscription terms on native
   const showNative = isNative || platformNative;
