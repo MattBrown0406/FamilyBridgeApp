@@ -379,6 +379,11 @@ const EnablingExercise = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title="Enabling Exercise — Am I Enabling? — FamilyBridge"
+        description="Are you enabling addiction? Take this interactive exercise to identify enabling behaviors and learn healthier alternatives for supporting your loved one."
+        canonicalPath="/enabling-exercise"
+      />
       <header className="container mx-auto px-3 sm:px-4 py-3 sm:py-4 border-b border-border">
         <nav className="flex items-center justify-between">
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
