@@ -102,7 +102,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background overflow-hidden">
       <SEOHead 
-        title="FamilyBridge - Recovery Support for Families"
+        title="FamilyBridge — Recovery Support for Families Affected by Addiction"
         description="FamilyBridge helps families support loved ones in recovery with AI-powered pattern detection, transparent communication, financial coordination, and accountability tools."
         canonicalPath="/"
         structuredData={createOrganizationSchema()}
