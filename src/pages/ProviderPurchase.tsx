@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { Building2, Check, CreditCard, Shield, Users, Tag, Loader2, Copy, Brain, TrendingUp, MessageSquareWarning, Sparkles } from "lucide-react";
 import { BrandedHeader } from "@/components/BrandedHeader";
 import { AppStorePurchaseButton, RestorePurchasesButton } from "@/components/AppStorePurchaseButton";
+import { SEOHead } from "@/components/SEOHead";
 
 import { SubscriptionDisclosure } from "@/components/SubscriptionDisclosure";
 import { PRODUCTS } from "@/lib/products";
