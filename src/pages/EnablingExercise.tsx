@@ -403,7 +403,7 @@ const EnablingExercise = () => {
             <CardHeader>
               <CardTitle className="text-2xl font-display flex items-center gap-2">
                 <HelpCircle className="h-6 w-6 text-primary" />
-                Am I Enabling?
+                <h1>Am I Enabling?</h1>
               </CardTitle>
               <CardDescription className="text-base">
                 This exercise will help you understand the difference between a genuine crisis that requires help 

@@ -195,6 +195,11 @@ export default function ModeratorPurchase() {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <SEOHead
+        title="Moderator Plan — FamilyBridge"
+        description="FamilyBridge moderator access. Professional tools for overseeing family recovery communications and providing clinical guidance."
+        canonicalPath="/moderator-purchase"
+      />
       <BrandedHeader />
       <main className="flex-1 container px-3 sm:px-4 py-4 sm:py-8">
         <div className="max-w-4xl mx-auto space-y-4 sm:space-y-8">

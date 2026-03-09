@@ -269,6 +269,11 @@ const ProviderPurchase = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title="Provider Plan — FamilyBridge"
+        description="FamilyBridge for treatment providers. Enhance family engagement with AI-powered communication, accountability tracking, and clinical oversight tools."
+        canonicalPath="/provider-purchase"
+      />
       <BrandedHeader />
       <div className="container mx-auto px-3 sm:px-4 py-6 sm:py-12">
         <div className="max-w-4xl mx-auto">
