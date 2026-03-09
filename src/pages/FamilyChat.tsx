@@ -511,7 +511,7 @@ const FamilyChat = () => {
     if (!familyId || showCoachingNudge || activeTab !== 'messages') return;
     
     try {
-      const { data } = await supabase
+      const { data } = await (supabase as any)
         .from('fiis_analysis')
         .select('id')
         .eq('family_id', familyId)
