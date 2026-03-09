@@ -23,7 +23,7 @@ export const SEOHead = ({
   noIndex = false,
   structuredData,
 }: SEOHeadProps) => {
-  const baseUrl = 'https://familybridgeapp.lovable.app';
+  const baseUrl = 'https://familybridgeapp.com';
   const fullUrl = `${baseUrl}${canonicalPath}`;
   const fullImageUrl = ogImage.startsWith('http') ? ogImage : `${baseUrl}${ogImage}`;
   const fullTitle = title.includes('FamilyBridge') ? title : `${title} | FamilyBridge`;
