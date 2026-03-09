@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Shield, Clock, CheckCircle, Users, AlertCircle, Smartphone, ArrowLeft } from "lucide-react";
 import { BrandedHeader } from "@/components/BrandedHeader";
+import { SEOHead } from "@/components/SEOHead";
 import { BrandedFooter } from "@/components/BrandedFooter";
 import { AppStorePurchaseButton } from "@/components/AppStorePurchaseButton";
 import { SubscriptionDisclosure } from "@/components/SubscriptionDisclosure";
@@ -194,12 +195,17 @@ export default function ModeratorPurchase() {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <SEOHead
+        title="Moderator Plan — FamilyBridge"
+        description="FamilyBridge moderator access. Professional tools for overseeing family recovery communications and providing clinical guidance."
+        canonicalPath="/moderator-purchase"
+      />
       <BrandedHeader />
       <main className="flex-1 container px-3 sm:px-4 py-4 sm:py-8">
         <div className="max-w-4xl mx-auto space-y-4 sm:space-y-8">
           {/* Hero Section */}
           <div className="text-center space-y-2 sm:space-y-4">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">Extended Moderator Support</h1>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">Moderator Access</h1>
             <p className="text-sm sm:text-lg text-muted-foreground max-w-2xl mx-auto">
               {isNative && isIOS 
                 ? "Professional moderator support for your family when you need it most."

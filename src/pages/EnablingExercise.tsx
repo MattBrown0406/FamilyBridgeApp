@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { SEOHead } from '@/components/SEOHead';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -378,6 +379,11 @@ const EnablingExercise = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title="Enabling Exercise — Am I Enabling? — FamilyBridge"
+        description="Are you enabling addiction? Take this interactive exercise to identify enabling behaviors and learn healthier alternatives for supporting your loved one."
+        canonicalPath="/enabling-exercise"
+      />
       <header className="container mx-auto px-3 sm:px-4 py-3 sm:py-4 border-b border-border">
         <nav className="flex items-center justify-between">
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
@@ -397,7 +403,7 @@ const EnablingExercise = () => {
             <CardHeader>
               <CardTitle className="text-2xl font-display flex items-center gap-2">
                 <HelpCircle className="h-6 w-6 text-primary" />
-                Am I Enabling?
+                <h1>Am I Enabling?</h1>
               </CardTitle>
               <CardDescription className="text-base">
                 This exercise will help you understand the difference between a genuine crisis that requires help 

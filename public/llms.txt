@@ -1,0 +1,33 @@
+# FamilyBridge
+
+> Recovery Support for Families Affected by Addiction
+
+FamilyBridge is an AI-powered platform helping families support loved ones in recovery through transparent communication, financial coordination, verified meeting check-ins, and professional oversight tools.
+
+## Key Pages
+
+- Homepage: https://familybridgeapp.com/
+- Family Plan: https://familybridgeapp.com/family-purchase
+- Provider Plan: https://familybridgeapp.com/provider-purchase
+- Demo: https://familybridgeapp.com/demo
+- Family Demo: https://familybridgeapp.com/demo/family
+- Meeting Check-Ins: https://familybridgeapp.com/meetings
+- Enabling Exercise: https://familybridgeapp.com/enabling-exercise
+- Support: https://familybridgeapp.com/support
+
+## About
+
+Founded by Matt Brown, a 20+ year addiction interventionist. FamilyBridge was built because families navigating a loved one's addiction need structure, transparency, and professional support — not just hope.
+
+Features include AI-powered pattern detection, moderated family communication, transparent financial requests, GPS-verified meeting check-ins, and clinical professional oversight.
+
+## Pricing
+
+- Family Plan: $19.99/month
+- Provider Plan: Contact for pricing
+- Moderator Plan: Contact for pricing
+
+## Contact
+
+Email: matt@freedominterventions.com
+Website: https://familybridgeapp.com

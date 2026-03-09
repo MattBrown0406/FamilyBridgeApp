@@ -1,43 +1,18 @@
-# Robots.txt for FamilyBridge
-# https://familybridgeapp.lovable.app
-
-# Allow all major search engine crawlers
-User-agent: Googlebot
-Allow: /
-Crawl-delay: 1
-
-User-agent: Bingbot
-Allow: /
-Crawl-delay: 1
-
-User-agent: Twitterbot
-Allow: /
-
-User-agent: facebookexternalhit
-Allow: /
-
-User-agent: LinkedInBot
-Allow: /
-
-User-agent: Slackbot
-Allow: /
-
-# Default rule for all other bots
 User-agent: *
 Allow: /
+Disallow: /auth
+Disallow: /admin
 
-# Disallow private/authenticated routes from indexing
-Disallow: /dashboard
-Disallow: /family/
-Disallow: /moderator-dashboard
-Disallow: /provider-admin
-Disallow: /super-admin
-Disallow: /family-setup
-Disallow: /sign-hipaa
-Disallow: /subscription
+User-agent: GPTBot
+Allow: /
 
-# Sitemap location
-Sitemap: https://familybridgeapp.lovable.app/sitemap.xml
+User-agent: ClaudeBot
+Allow: /
 
-# Host directive (some crawlers use this)
-Host: https://familybridgeapp.lovable.app
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+Sitemap: https://familybridgeapp.com/sitemap.xml

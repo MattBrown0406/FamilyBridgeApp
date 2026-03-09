@@ -16,8 +16,8 @@ const Meetings = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="Find Recovery Meetings - AA, Al-Anon, NA & More"
-        description="Search for AA, Al-Anon, NA, and other recovery meetings near you. Find support groups and connect with a community that understands your journey."
+        title="Meeting Check-Ins — FamilyBridge"
+        description="Verified meeting check-ins with FamilyBridge. GPS-verified attendance tracking for AA, NA, and recovery meetings."
         canonicalPath="/meetings"
         structuredData={breadcrumbSchema}
       />
@@ -45,7 +45,7 @@ const Meetings = () => {
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-8">
             <h1 className="text-3xl md:text-4xl font-display font-bold text-foreground mb-3">
-              Find a Recovery Meeting
+              Meeting Check-Ins
             </h1>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
               Search for AA, Al-Anon, and other recovery meetings. Connect with a supportive community.

@@ -296,7 +296,7 @@ const Auth = () => {
   return (
     <div className="min-h-screen flex items-center justify-center gradient-hero p-3 sm:p-4">
       <SEOHead
-        title={mode === 'signin' ? 'Sign In' : mode === 'signup' ? 'Create Account' : mode === 'forgot' ? 'Reset Password' : 'Set New Password'}
+        title="Sign In — FamilyBridge"
         description="Sign in or create an account to access FamilyBridge. Connect with your family and support loved ones in recovery."
         canonicalPath="/auth"
         noIndex={true}

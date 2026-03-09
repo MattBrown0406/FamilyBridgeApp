@@ -473,8 +473,8 @@ const FamilyPurchase = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="Create Your Family Group"
-        description="Start your family's recovery journey with FamilyBridge. AI-powered pattern detection, moderated chat, financial accountability, and meeting check-ins."
+        title="Family Plan — FamilyBridge"
+        description="Get FamilyBridge for your family. AI-powered recovery support with communication tools, financial transparency, and meeting check-ins."
         canonicalPath="/family-purchase"
         structuredData={breadcrumbSchema}
       />
@@ -502,7 +502,7 @@ const FamilyPurchase = () => {
 
           <div className="text-center mb-6 sm:mb-12">
             <h1 className="text-2xl sm:text-4xl font-bold mb-2 sm:mb-4">
-              {reactivatingFamily ? 'Reactivate Your Family Group' : 'Create Your Family Group'}
+              {reactivatingFamily ? 'Reactivate Your Family Group' : 'FamilyBridge Family Plan'}
             </h1>
             <p className="text-base sm:text-xl text-muted-foreground">
               {reactivatingFamily 

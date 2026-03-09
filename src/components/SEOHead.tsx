@@ -23,7 +23,7 @@ export const SEOHead = ({
   noIndex = false,
   structuredData,
 }: SEOHeadProps) => {
-  const baseUrl = 'https://familybridgeapp.lovable.app';
+  const baseUrl = 'https://familybridgeapp.com';
   const fullUrl = `${baseUrl}${canonicalPath}`;
   const fullImageUrl = ogImage.startsWith('http') ? ogImage : `${baseUrl}${ogImage}`;
   const fullTitle = title.includes('FamilyBridge') ? title : `${title} | FamilyBridge`;
@@ -115,7 +115,7 @@ export const createBreadcrumbSchema = (items: { name: string; url: string }[]) =
     '@type': 'ListItem',
     position: index + 1,
     name: item.name,
-    item: `https://familybridgeapp.lovable.app${item.url}`,
+    item: `https://familybridgeapp.com${item.url}`,
   })),
 });
 
@@ -136,8 +136,8 @@ export const createOrganizationSchema = () => ({
   '@context': 'https://schema.org',
   '@type': 'Organization',
   name: 'FamilyBridge',
-  url: 'https://familybridgeapp.lovable.app',
-  logo: 'https://familybridgeapp.lovable.app/favicon.png',
+  url: 'https://familybridgeapp.com',
+  logo: 'https://familybridgeapp.com/favicon.png',
   description: 'FamilyBridge helps families support loved ones in recovery with AI-powered pattern detection, transparent communication, financial coordination, and accountability tools.',
   contactPoint: {
     '@type': 'ContactPoint',

@@ -239,8 +239,8 @@ const Demo = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="Interactive Demo - See FamilyBridge in Action"
-        description="Experience how FamilyBridge helps families support loved ones in recovery. Try our interactive demo with custom branding, family communication tools, and accountability features."
+        title="Demo — See FamilyBridge in Action"
+        description="See FamilyBridge in action. Explore our AI-powered family recovery platform with interactive demos of communication, financial, and accountability tools."
         canonicalPath="/demo"
         structuredData={breadcrumbSchema}
       />

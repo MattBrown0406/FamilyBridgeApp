@@ -104,8 +104,8 @@ const Support = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <SEOHead
-        title="Customer Support"
-        description="Get help with FamilyBridge. Contact our support team for account setup, billing inquiries, technical issues, and feature requests."
+        title="Support — FamilyBridge"
+        description="Get help with FamilyBridge. FAQs, troubleshooting, and contact our support team."
         canonicalPath="/support"
         structuredData={breadcrumbSchema}
       />
@@ -122,7 +122,7 @@ const Support = () => {
         </Button>
         
         <div className="text-center mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">Customer Support</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">Support</h1>
           <p className="text-sm sm:text-base text-muted-foreground">
             We're here to help you with any questions or concerns.
           </p>
