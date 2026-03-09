@@ -20,7 +20,7 @@ export default function ModeratorPurchase() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { isNative, isIOS, paymentMethod } = usePlatform();
+  const { isNative, isIOS, isAndroid, paymentMethod } = usePlatform();
   const [loading, setLoading] = useState(false);
   const [families, setFamilies] = useState<{ id: string; name: string }[]>([]);
   const [selectedFamily, setSelectedFamily] = useState<string>("");
