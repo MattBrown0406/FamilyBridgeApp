@@ -2214,6 +2214,21 @@ export const PatentDocumentation = () => {
         <td>Uniform tone for all users</td>
         <td>Individually adaptive tone based on engagement history, emotional state, and family role</td>
       </tr>
+      <tr>
+        <td><strong>Activity Tracking</strong></td>
+        <td>Meeting attendance only or no tracking</td>
+        <td>GPS-verified check-ins for meetings AND life appointments (therapy, work, court, social events) with category classification</td>
+      </tr>
+      <tr>
+        <td><strong>Location Verification</strong></td>
+        <td>Continuous surveillance or none</td>
+        <td>On-demand moderator-initiated location requests with expiration windows — accountability without surveillance</td>
+      </tr>
+      <tr>
+        <td><strong>Private Messaging</strong></td>
+        <td>External apps or no private channels</td>
+        <td>In-platform 1:1 and group conversation threads within family context with moderator oversight controls</td>
+      </tr>
     </tbody>
   </table>
 
