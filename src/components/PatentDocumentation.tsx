@@ -1840,7 +1840,7 @@ export const PatentDocumentation = () => {
     <div class="toc-item">3. Prior Art Analysis</div>
     <div class="toc-item">4. Business Context</div>
     <div class="toc-item">5. Development Timeline</div>
-    <div class="toc-item">6. Patent Claims (33 Claims)</div>
+    <div class="toc-item">6. Patent Claims (38 Claims)</div>
     <div class="toc-item">7. Prior Art Differentiation</div>
   </div>
 
