@@ -633,32 +633,36 @@ const DIAGRAM_FAMILY_MEMBER_JOURNEY = `flowchart TD
 
 const DIAGRAM_RECOVERING_INDIVIDUAL_JOURNEY = `flowchart TD
     subgraph "Getting Started"
-        A[📱 Join Family Group] --> B[📋 Accept Boundaries]
-        B --> C[🎯 Set Sobriety Date]
-        C --> D[💊 Add Medications]
+        A[Join Family Group] --> B[Accept Boundaries]
+        B --> C[Set Sobriety Date]
+        C --> D[Add Medications]
     end
 
     subgraph "Daily Routine"
-        D --> E[📅 Check into Meetings]
-        D --> F[😊 Daily Emotional Check-in]
-        D --> G[💊 Log Medication Doses]
-        D --> H[💬 Family Communication]
+        D --> E[Check into Meetings]
+        D --> E2[Life Appointment Check-ins]
+        D --> F[Daily Emotional Check-in]
+        D --> G[Log Medication Doses]
+        D --> H[Family Communication]
+        D --> H2[Private Messages]
     end
 
     subgraph "Accountability"
-        E --> I[📍 Location Verification]
-        F --> J[📊 Mood Tracking]
-        G --> K[✅ Compliance Tracking]
-        H --> L[🤝 Support Network]
+        E --> I[Location Verification]
+        E2 --> I2[Activity Verification]
+        F --> J[Mood Tracking]
+        G --> K[Compliance Tracking]
+        H --> L[Support Network]
     end
 
     subgraph "Recovery Progress"
-        I --> M[🏆 Milestone Celebrations]
+        I --> M[Milestone Celebrations]
+        I2 --> M
         J --> M
         K --> M
         L --> M
-        M --> N[📈 365-Day Goal Tracking]
-        N --> O[🌟 Recovery Success]
+        M --> N[365-Day Goal Tracking]
+        N --> O[Recovery Success]
     end`;
 
 const DIAGRAM_MODERATOR_JOURNEY = `flowchart TD
