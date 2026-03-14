@@ -801,31 +801,36 @@ const DIAGRAM_USER_ECOSYSTEM = `graph TD
 
 const DIAGRAM_COMPETITIVE_ADVANTAGE = `graph TD
     subgraph "Unique Differentiators"
-        D1[🤖 FIIS AI Engine<br/>Patent Pending]
-        D2[👨‍👩‍👧 Family-Centric Design<br/>Not Individual-Only]
-        D3[🔄 Care Coordination<br/>Provider Handoffs]
-        D4[📊 Outcome Tracking<br/>Success Metrics]
-        D5[🍺 Liquor License Alerts<br/>Location Intelligence]
-        D6[🎙️ Real-Time AI Coaching<br/>Goal-Driven Guidance]
-        D7[🎯 Goal/Value/Boundary<br/>Alignment Engine]
-        D8[🧠 Clinical Knowledge<br/>Lay Language Translation]
-        D9[🚨 Emergency Crisis Protocol<br/>Auto Push + 988]
-        D10[⚙️ Provider-Configurable<br/>FIIS Settings]
-        D11[💊 MAT Sobriety Logic<br/>Prescribed = Sobriety]
-        D12[🎭 Adaptive Coaching Tone<br/>Per-Individual]
-        D13[📋 Court/Legal Reports<br/>Exportable Compliance]
+        D1[FIIS AI Engine<br/>Patent Pending]
+        D2[Family-Centric Design<br/>Not Individual-Only]
+        D3[Care Coordination<br/>Provider Handoffs]
+        D4[Outcome Tracking<br/>Success Metrics]
+        D5[Liquor License Alerts<br/>Location Intelligence]
+        D6[Real-Time AI Coaching<br/>Goal-Driven Guidance]
+        D7[Goal/Value/Boundary<br/>Alignment Engine]
+        D8[Clinical Knowledge<br/>Lay Language Translation]
+        D9[Emergency Crisis Protocol<br/>Auto Push + 988]
+        D10[Provider-Configurable<br/>FIIS Settings]
+        D11[MAT Sobriety Logic<br/>Prescribed = Sobriety]
+        D12[Adaptive Coaching Tone<br/>Per-Individual]
+        D13[Court/Legal Reports<br/>Exportable Compliance]
+        D14[Life Appointment Check-ins<br/>GPS-Verified Activities]
+        D15[Location Check-in Requests<br/>Moderator-Initiated]
+        D16[Private Messaging V2<br/>Group and 1:1 Threads]
+        D17[AI Conversation Starters<br/>Context-Aware Prompts]
+        D18[Location Drift Monitor<br/>Geofence Deviation Alerts]
     end
 
     subgraph "Competitor Gaps"
-        C1[❌ I Am Sober<br/>Individual only]
-        C2[❌ Life360<br/>No clinical features]
-        C3[❌ Bark<br/>Youth focused]
-        C4[❌ Soberlink<br/>Hardware dependent]
-        C5[❌ BetterHelp<br/>No family integration]
+        C1[I Am Sober<br/>Individual only]
+        C2[Life360<br/>No clinical features]
+        C3[Bark<br/>Youth focused]
+        C4[Soberlink<br/>Hardware dependent]
+        C5[BetterHelp<br/>No family integration]
     end
 
     subgraph "Market Position"
-        M1[🎯 Only Platform for<br/>Family + Provider + AI<br/>+ Real-Time Coaching<br/>+ MAT + Crisis Protocol<br/>in Recovery Space]
+        M1[Only Platform for<br/>Family + Provider + AI<br/>+ Real-Time Coaching<br/>+ MAT + Crisis Protocol<br/>+ Life Appointments<br/>in Recovery Space]
     end
 
     D1 --> M1
@@ -841,6 +846,11 @@ const DIAGRAM_COMPETITIVE_ADVANTAGE = `graph TD
     D11 --> M1
     D12 --> M1
     D13 --> M1
+    D14 --> M1
+    D15 --> M1
+    D16 --> M1
+    D17 --> M1
+    D18 --> M1
 
     C1 -.->|Gap| D2
     C2 -.->|Gap| D1
