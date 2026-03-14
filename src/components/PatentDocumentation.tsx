@@ -705,31 +705,35 @@ const DIAGRAM_MODERATOR_JOURNEY = `flowchart TD
 
 const DIAGRAM_PROVIDER_ADMIN_JOURNEY = `flowchart TD
     subgraph "Organization Setup"
-        A[🏢 Create Organization] --> B[🎨 Configure Branding]
-        B --> C[👥 Invite Staff Members]
-        C --> D[📋 Assign Roles]
+        A[Create Organization] --> B[Configure Branding]
+        B --> B2[Configure FIIS Settings]
+        B2 --> C[Invite Staff Members]
+        C --> D[Assign Roles]
     end
 
     subgraph "Family Management"
-        D --> E[➕ Create Family Groups]
-        E --> F[👤 Assign Moderators]
-        F --> G[📧 Send Family Invites]
-        G --> H[📊 Monitor All Families]
+        D --> E[Create Family Groups]
+        E --> F[Assign Moderators]
+        F --> G[Send Family Invites]
+        G --> H[Monitor All Families]
+        H --> H2[Broadcast Messages]
     end
 
     subgraph "Clinical Oversight"
-        H --> I[📈 Provider Dashboard]
-        I --> J[📝 Clinical Notes]
-        I --> K[💬 Team Messaging]
-        I --> L[🔄 Care Transitions]
+        H --> I[Provider Dashboard]
+        I --> J[Clinical Notes]
+        I --> K[Team Messaging]
+        I --> L[Care Transitions]
+        L --> L2[Continuity Readiness Scoring]
     end
 
-    subgraph "Analytics & Outcomes"
-        J --> M[📊 Outcome Reports]
+    subgraph "Analytics and Outcomes"
+        J --> M[Outcome Reports]
         K --> M
-        L --> M
-        M --> N[🏆 Success Metrics]
-        N --> O[📈 CRM Analytics]
+        L2 --> M
+        M --> N[Success Metrics]
+        N --> O[CRM Analytics]
+        O --> O2[Lead Pipeline Management]
     end`;
 
 // ========== MARKETING DIAGRAMS ==========
