@@ -663,36 +663,40 @@ const DIAGRAM_RECOVERING_INDIVIDUAL_JOURNEY = `flowchart TD
 
 const DIAGRAM_MODERATOR_JOURNEY = `flowchart TD
     subgraph "Assignment"
-        A[🏢 Organization Admin] --> B[📋 Assign to Family]
-        B --> C[🔔 Receive Notification]
-        C --> D[👁️ Access Family Dashboard]
+        A[Organization Admin] --> B[Assign to Family]
+        B --> C[Receive Notification]
+        C --> D[Access Family Dashboard]
     end
 
     subgraph "Daily Oversight"
-        D --> E[💬 Monitor Family Chat]
-        D --> F[📊 Review FIIS Insights]
-        D --> G[📍 Check Location Alerts]
-        D --> H[💊 Monitor Medication Compliance]
-        D --> CC[🎙️ Review Coaching Sessions]
+        D --> E[Monitor Family Chat]
+        D --> F[Review FIIS Insights]
+        D --> G[Check Location Alerts]
+        D --> H[Monitor Medication Compliance]
+        D --> CC[Review Coaching Sessions]
+        D --> LR[Send Location Check-in Requests]
+        D --> LA[Review Life Appointments]
     end
 
     subgraph "Clinical Tools"
-        E --> I[📝 Add Clinical Notes]
-        F --> J[🤖 FIIS AI Consultation]
-        G --> K[🍺 Liquor License Alerts]
-        H --> L[⏰ Refill Reminders]
-        CC --> J2[📋 Coaching Pattern Analysis]
-        J --> J3[🔄 Calibration Feedback]
+        E --> I[Add Clinical Notes]
+        F --> J[FIIS AI Chat Consultation]
+        G --> K[Liquor License Alerts]
+        H --> L[Refill Reminders]
+        CC --> J2[Coaching Pattern Analysis]
+        J --> J3[Calibration Feedback]
+        LR --> LR2[Real-Time Location Response]
     end
 
     subgraph "Care Coordination"
-        I --> M[👥 Provider Messaging]
+        I --> M[Provider Messaging]
         J --> M
         J2 --> M
         K --> M
         L --> M
-        M --> N[🔄 Care Transitions]
-        N --> O[📈 Outcome Reports]
+        M --> N[Care Transitions]
+        N --> N2[Continuity Readiness Scoring]
+        N2 --> O[Outcome Reports]
     end`;
 
 const DIAGRAM_PROVIDER_ADMIN_JOURNEY = `flowchart TD
