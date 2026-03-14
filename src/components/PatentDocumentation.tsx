@@ -862,21 +862,24 @@ const DIAGRAM_COMPETITIVE_ADVANTAGE = `graph TD
 
 const DIAGRAM_AI_COACHING_FLOW = `flowchart TD
     subgraph "User Initiates Coaching"
-        A[👤 Select Conversation Partner] --> B{Coaching Mode}
-        B -->|Live| C[🎙️ Speakerphone / Text Entry]
-        B -->|Screenshot| D[📸 Upload Text Screenshot]
-        B -->|Rephrase| E[✍️ Enter Raw Message]
+        A[Select Conversation Partner] --> B{Coaching Mode}
+        B -->|Live| C[Speakerphone / Text Entry]
+        B -->|Screenshot| D[Upload Text Screenshot]
+        B -->|Rephrase| E[Enter Raw Message]
+        B -->|Starters| E2[AI Conversation Starters]
     end
 
     subgraph "Context Assembly"
         C --> F[Fetch Family Context]
         D --> F
         E --> F
-        F --> G[Goals & Values]
+        E2 --> F
+        F --> G[Goals and Values]
         F --> H[Approved Boundaries]
         F --> I[Sobriety Journey]
         F --> J[Emotional Check-ins]
         F --> K[Meeting Attendance]
+        F --> K2[Life Appointment History]
         F --> L[Chat Pattern Signals]
         F --> M[Provider Notes]
         F --> N[Prior Coaching Sessions]
@@ -890,6 +893,7 @@ const DIAGRAM_AI_COACHING_FLOW = `flowchart TD
         S[DBT DEAR MAN]
         T[Stages of Change]
         U[Trauma-Informed Care]
+        U2[Motivational Interviewing]
     end
 
     subgraph "AI Processing"
@@ -898,6 +902,7 @@ const DIAGRAM_AI_COACHING_FLOW = `flowchart TD
         I --> V
         J --> V
         K --> V
+        K2 --> V
         L --> V
         M --> V
         N --> V
@@ -908,6 +913,7 @@ const DIAGRAM_AI_COACHING_FLOW = `flowchart TD
         S --> V
         T --> V
         U --> V
+        U2 --> V
         V --> W[LLM Processing<br/>Gemini/GPT]
         W --> X{Translate to<br/>Lay Language}
     end
@@ -917,10 +923,12 @@ const DIAGRAM_AI_COACHING_FLOW = `flowchart TD
         X --> Z[Goal-Aligned Guidance]
         X --> AA[Boundary Reminders]
         X --> AB[Graceful Exit Suggestions]
+        X --> AC2[Context-Aware Starters]
         Y --> AC[Return to User]
         Z --> AC
         AA --> AC
         AB --> AC
+        AC2 --> AC
     end`;
 
 // ========== COMPONENT ==========
