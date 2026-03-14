@@ -1435,6 +1435,20 @@ FEBRUARY 2026:
 - Process addiction risk factor inputs to substance relapse score
 - Court/legal compliance reporting with structured exportable reports
 
+MARCH 2026:
+- Life Appointment Check-in System (GPS-verified check-ins for therapy, medical, gym, work, court, probation, social events with category classification)
+- Moderator-Initiated Location Check-in Requests (real-time GPS verification requests with expiration windows)
+- Private Messaging V2 (group conversations, 1:1 threads, unread tracking, conversation naming)
+- AI Conversation Starters (context-aware conversation prompt generation based on family dynamics)
+- Location Drift Monitor (geofence deviation alerts for recovery routine departures)
+- Continuity Transition Readiness Scoring (multi-dimensional care level transition assessment)
+- Bill/Receipt AI Image Clarity Analysis (automated image quality verification for financial documentation)
+- Enhanced Family Chat unified dashboard with tabbed interface (Chat, FIIS, Coaching, Medication, Documents, Aftercare, Boundaries, Financial)
+- FIIS Moderator Chat with streaming AI responses (dedicated moderator-AI consultation with full family context injection)
+- Pattern Shift Alerts enhancement with automated behavioral signal detection
+- Recovery Trajectory Panel with qualitative graphing improvements
+- Provider Outcome Reports with enhanced metrics visualization
+- SEO optimization for public pages with dynamic metadata
 ══════════════════════════════════════════════════════════════
 TECHNICAL DECISIONS DOCUMENTED
 ══════════════════════════════════════════════════════════════
