@@ -1032,7 +1032,21 @@ const defaultDisclosure: InventionDisclosure = {
 
 28. PROCESS ADDICTION RISK FACTOR INPUTS: Process addictions (gambling, gaming, shopping, social media) tracked as weighted risk factor inputs to the substance relapse risk score rather than as separate addiction metrics — acknowledging their clinical correlation with substance use escalation without conflating distinct behavioral categories.
 
-29. COURT AND LEGAL INTEGRATION: Structured, exportable compliance reports designed for court-mandated recovery documentation, including meeting attendance records, boundary adherence, medication compliance, and FIIS trajectory summaries — formatted for legal admissibility with timestamp verification and audit trails.`,
+29. COURT AND LEGAL INTEGRATION: Structured, exportable compliance reports designed for court-mandated recovery documentation, including meeting attendance records, boundary adherence, medication compliance, and FIIS trajectory summaries — formatted for legal admissibility with timestamp verification and audit trails.
+
+30. LIFE APPOINTMENT CHECK-IN SYSTEM: GPS-verified check-ins for non-meeting recovery activities including therapy/counseling, medical appointments, gym/fitness, wellness activities, support groups, work/employment, job interviews, dates, social gatherings, group events, family events, court appearances, and probation meetings — each categorized (Healthcare, Professional, Social, Legal) and tracked as behavioral signals in FIIS pattern analysis, providing holistic accountability beyond just recovery meetings.
+
+31. MODERATOR-INITIATED LOCATION CHECK-IN REQUESTS: A real-time location verification system allowing moderators to send GPS check-in requests to specific family members with configurable expiration windows, response capture with coordinates and optional notes, and automatic expiration handling — enabling on-demand accountability without continuous surveillance.
+
+32. PRIVATE MESSAGING V2 WITH GROUP CONVERSATIONS: A conversation-based messaging system within the family context supporting both 1:1 and multi-participant group threads, with conversation naming, participant management, unread tracking with last-read timestamps, and real-time message delivery — enabling private family sub-group communication without exposing messages to the full family chat.
+
+33. AI-POWERED CONVERSATION STARTERS: Context-aware conversation prompt generation that analyzes family dynamics, recent emotional check-ins, coaching sessions, and recovery phase to suggest appropriate conversation openers — helping family members initiate difficult but necessary recovery-related discussions.
+
+34. LOCATION DRIFT MONITORING WITH GEOFENCE DEVIATION ALERTS: Continuous background monitoring of check-in location patterns to detect geographic drift from established recovery routines (e.g., new locations near high-risk areas, deviation from therapy/meeting routes), generating automated alerts to moderators when patterns suggest environmental risk factors.
+
+35. CONTINUITY TRANSITION READINESS SCORING: A multi-dimensional readiness assessment for care level transitions (Detox to Residential, Residential to Sober Living, etc.) that evaluates meeting attendance consistency, emotional stability trajectory, medication compliance, boundary adherence, and coaching engagement to generate a composite readiness score with specific deficit indicators.
+
+36. BILL AND RECEIPT AI IMAGE CLARITY ANALYSIS: AI-powered image quality verification for financial request supporting documentation, analyzing uploaded photos of bills, prescriptions, receipts, and invoices for legibility, completeness, and authenticity before routing to family approvers — reducing fraud risk and ensuring documentation quality in financial coordination workflows.`,
   competingProducts: `COMPETITIVE LANDSCAPE ANALYSIS (Updated January 2026):
 
 ══════════════════════════════════════════════════════════════
