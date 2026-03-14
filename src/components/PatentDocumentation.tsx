@@ -582,46 +582,53 @@ const DIAGRAM_NOTIFICATION_SYSTEM = `flowchart TD
 
 const DIAGRAM_FAMILY_MEMBER_JOURNEY = `flowchart TD
     subgraph "Onboarding"
-        A[📱 Download App] --> B[🔐 Create Account]
-        B --> C[📧 Receive Family Invite]
-        C --> D[👥 Join Family Group]
-        D --> E[📋 Sign HIPAA Release]
-        E --> F1[🎯 Select Family Goals]
-        F1 --> F2[💎 Choose Family Values]
+        A[Download App] --> B[Create Account]
+        B --> C[Receive Family Invite]
+        C --> D[Join Family Group]
+        D --> E[Sign HIPAA Release]
+        E --> F1[Select Family Goals]
+        F1 --> F2[Choose Family Values]
     end
 
     subgraph "Daily Engagement"
-        F2 --> F[💬 Family Chat]
-        F2 --> G[📅 Meeting Check-ins]
-        F2 --> H[😊 Daily Emotional Check-in]
-        F2 --> I[💰 Financial Requests]
-        F2 --> CC[🎙️ Real-Time Coaching]
+        F2 --> F[Family Chat]
+        F2 --> G[Meeting Check-ins]
+        F2 --> G2[Life Appointment Check-ins]
+        F2 --> H[Daily Emotional Check-in]
+        F2 --> I[Financial Requests]
+        F2 --> CC[Real-Time Coaching]
+        F2 --> PM[Private Messages]
     end
 
     subgraph "AI Coaching Tools"
-        CC --> CC1[📞 Live Conversation Coaching]
-        CC --> CC2[📸 Screenshot Text Analysis]
-        CC --> CC3[✍️ Message Rephrasing Helper]
-        CC1 --> CC4[🎯 Goal-Aligned Suggestions]
+        CC --> CC1[Live Conversation Coaching]
+        CC --> CC2[Screenshot Text Analysis]
+        CC --> CC3[Message Rephrasing Helper]
+        CC --> CC5[AI Conversation Starters]
+        CC1 --> CC4[Goal-Aligned Suggestions]
         CC2 --> CC4
         CC3 --> CC4
+        CC5 --> CC4
     end
 
     subgraph "Ongoing Support"
-        F --> J[📖 View Shared Boundaries]
-        G --> K[✅ Verify Attendance]
-        H --> L[📊 Track Patterns]
-        I --> M[🗳️ Vote on Requests]
+        F --> J[View Shared Boundaries]
+        G --> K[Verify Attendance]
+        G2 --> K2[Track Life Activities]
+        H --> L[Track Patterns]
+        I --> M[Vote on Requests]
+        PM --> PM2[1:1 and Group Threads]
     end
 
-    subgraph "Insights & Growth"
-        J --> N[🎯 FIIS Pattern Analysis]
+    subgraph "Insights and Growth"
+        J --> N[FIIS Pattern Analysis]
         K --> N
+        K2 --> N
         L --> N
         M --> N
         CC4 --> N
-        N --> O[💡 Receive Actionable Insights]
-        O --> P[🎉 Celebrate Milestones]
+        N --> O[Receive Actionable Insights]
+        O --> P[Celebrate Milestones]
     end`;
 
 const DIAGRAM_RECOVERING_INDIVIDUAL_JOURNEY = `flowchart TD
