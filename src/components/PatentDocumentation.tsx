@@ -226,11 +226,16 @@ const DIAGRAM_DATA_MODEL = `erDiagram
     FAMILIES ||--o{ FAMILY_BOUNDARIES : establishes
     FAMILIES ||--o{ DAILY_EMOTIONAL_CHECKINS : logs
     FAMILIES ||--o{ CONSEQUENCE_EVENTS : logs
+    FAMILIES ||--o{ LIFE_APPOINTMENT_CHECKINS : tracks
+    FAMILIES ||--o{ LOCATION_CHECKIN_REQUESTS : requests
+    FAMILIES ||--o{ PRIVATE_CONVERSATIONS : contains
     ORGANIZATIONS ||--o{ PROVIDER_FIIS_SETTINGS : configures
 
     FAMILY_MEMBERS }o--|| PROFILES : references
     COACHING_SESSIONS }o--|| PROFILES : coached_by
     FAMILY_BOUNDARIES ||--o{ CONSEQUENCE_EVENTS : triggers
+    PRIVATE_CONVERSATIONS ||--o{ CONVERSATION_MESSAGES : contains
+    PRIVATE_CONVERSATIONS ||--o{ CONVERSATION_PARTICIPANTS : has
 
     FAMILIES {
         uuid id PK
@@ -248,6 +253,7 @@ const DIAGRAM_DATA_MODEL = `erDiagram
         enum role
         enum relationship_type
         boolean is_primary_patient
+        boolean private_messaging_enabled
         timestamp joined_at
     }
 
@@ -305,6 +311,55 @@ const DIAGRAM_DATA_MODEL = `erDiagram
         string feeling
         boolean was_bypassed
         string bypass_inferred_state
+    }
+
+    LIFE_APPOINTMENT_CHECKINS {
+        uuid id PK
+        uuid family_id FK
+        uuid user_id FK
+        string appointment_type
+        string appointment_category
+        float latitude
+        float longitude
+        string notes
+        timestamp checked_in_at
+    }
+
+    LOCATION_CHECKIN_REQUESTS {
+        uuid id PK
+        uuid family_id FK
+        uuid requested_by FK
+        uuid target_user_id FK
+        string status
+        float response_latitude
+        float response_longitude
+        string response_note
+        timestamp requested_at
+        timestamp responded_at
+        timestamp expires_at
+    }
+
+    PRIVATE_CONVERSATIONS {
+        uuid id PK
+        uuid family_id FK
+        string name
+        boolean is_group
+        timestamp created_at
+    }
+
+    CONVERSATION_PARTICIPANTS {
+        uuid id PK
+        uuid conversation_id FK
+        uuid user_id FK
+        timestamp last_read_at
+    }
+
+    CONVERSATION_MESSAGES {
+        uuid id PK
+        uuid conversation_id FK
+        uuid sender_id FK
+        text content
+        timestamp created_at
     }
 
     FIIS_PATTERN_ANALYSES {
