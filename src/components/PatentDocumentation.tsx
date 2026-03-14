@@ -3473,6 +3473,21 @@ export const PatentDocumentation = () => {
                         <td className="p-3 text-muted-foreground">Uniform tone for all users</td>
                         <td className="p-3 text-muted-foreground">Individually adaptive tone based on engagement history, emotional state, and family role</td>
                       </tr>
+                      <tr className="border-b">
+                        <td className="p-3 font-medium">Activity Tracking</td>
+                        <td className="p-3 text-muted-foreground">Meeting attendance only or no tracking</td>
+                        <td className="p-3 text-muted-foreground">GPS-verified check-ins for meetings AND life appointments (therapy, work, court, social) with category classification</td>
+                      </tr>
+                      <tr className="border-b">
+                        <td className="p-3 font-medium">Location Verification</td>
+                        <td className="p-3 text-muted-foreground">Continuous surveillance or none</td>
+                        <td className="p-3 text-muted-foreground">On-demand moderator-initiated location requests with expiration — accountability without surveillance</td>
+                      </tr>
+                      <tr className="border-b">
+                        <td className="p-3 font-medium">Private Messaging</td>
+                        <td className="p-3 text-muted-foreground">External apps or no private channels</td>
+                        <td className="p-3 text-muted-foreground">In-platform 1:1 and group threads within family context with moderator oversight controls</td>
+                      </tr>
                     </tbody>
                   </table>
                 </div>
