@@ -3377,6 +3377,10 @@ export const PatentDocumentation = () => {
                     The system of Claim 1, with multi-dimensional care transition readiness scoring evaluating meeting consistency, emotional stability, medication compliance, boundary adherence, and coaching engagement to generate composite readiness scores with deficit indicators.
                   </p>
                 </div>
+              </CardContent>
+            </Card>
+          </Section>
+
           {/* Prior Art Differentiation */}
           <Section 
             title="12. Prior Art Differentiation" 
