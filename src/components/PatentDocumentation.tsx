@@ -71,7 +71,7 @@ const DIAGRAM_SYSTEM_ARCHITECTURE = `graph TD
     subgraph "FIIS Core Engine"
         E[Pattern Analysis Engine]
         F[Data Aggregation Service]
-        G[5-Level Signal Classification<br/>Low → Critical]
+        G[5-Level Signal Classification<br/>Low to Critical]
         H[Notification Orchestrator]
         H2[Emergency Crisis Protocol<br/>Push Notifications + 988]
     end
@@ -88,6 +88,7 @@ const DIAGRAM_SYSTEM_ARCHITECTURE = `graph TD
         T[Communication Helper]
         U[Goal/Value/Boundary Alignment]
         U2[Adaptive Tone Engine<br/>Per-Individual]
+        CV[Conversation Starters<br/>Context-Aware Prompts]
     end
 
     subgraph "AI/ML Layer"
@@ -95,24 +96,40 @@ const DIAGRAM_SYSTEM_ARCHITECTURE = `graph TD
         J[Clinical Knowledge Base<br/>CRAFT, HALT, Gorski, DBT]
         K[Response Parser<br/>Lay Language Translation]
         K2[Role-Adaptive Display<br/>Numeric vs Banded]
+        IC[Image Clarity Analysis<br/>Receipt/Bill Verification]
+    end
+
+    subgraph "Accountability Layer"
+        MT[Meeting Check-ins<br/>GPS Verified]
+        LA[Life Appointment Check-ins<br/>Therapy/Work/Court/Social]
+        LR[Location Check-in Requests<br/>Moderator-Initiated]
+        LD[Location Drift Monitor<br/>Geofence Alerts]
+    end
+
+    subgraph "Communication Layer"
+        FC[Family Group Chat<br/>Moderated]
+        PM[Private Messaging V2<br/>1:1 and Group Threads]
+        PM2[Moderator-Only Channels]
+        BC[Provider Broadcast<br/>Multi-Family Messaging]
     end
 
     subgraph "Clinical Data Layer"
-        V[Family Goals & Values]
-        W[Emotional Check-ins & Tone Analysis]
-        X[Coaching Sessions & Calibration Patterns]
-        X2[Consequence Events & Tracking]
+        V[Family Goals and Values]
+        W[Emotional Check-ins and Tone Analysis]
+        X[Coaching Sessions and Calibration Patterns]
+        X2[Consequence Events and Tracking]
     end
 
     subgraph "Reporting Layer"
         RP[Aggregate Org Dashboards]
         RP2[Per-Family Exports]
         RP3[Court/Legal Reports]
+        RP4[Recovery Trajectory Panel]
     end
 
     subgraph "Data Layer"
         L[(PostgreSQL<br/>Supabase)]
-        M[(Real-time Subscriptions)]
+        M2[(Real-time Subscriptions)]
         N[Encrypted Storage]
     end
 
@@ -127,6 +144,7 @@ const DIAGRAM_SYSTEM_ARCHITECTURE = `graph TD
     G --> H2
     R --> J
     R --> U2
+    CV --> J
     S --> J
     T --> J
     U --> V
@@ -139,16 +157,24 @@ const DIAGRAM_SYSTEM_ARCHITECTURE = `graph TD
     PC --> E
     PC2 --> E
     PC3 --> H
+    MT --> F
+    LA --> F
+    LR --> F
+    LD --> F
+    FC --> L
+    PM --> L
+    IC --> S
     F --> L
     V --> L
     W --> L
     X --> L
     X2 --> L
-    L --> M
+    L --> M2
     L --> RP
     L --> RP2
     L --> RP3
-    M --> A
+    L --> RP4
+    M2 --> A
     H --> A
     H2 --> A
     N --> L`;
@@ -200,11 +226,16 @@ const DIAGRAM_DATA_MODEL = `erDiagram
     FAMILIES ||--o{ FAMILY_BOUNDARIES : establishes
     FAMILIES ||--o{ DAILY_EMOTIONAL_CHECKINS : logs
     FAMILIES ||--o{ CONSEQUENCE_EVENTS : logs
+    FAMILIES ||--o{ LIFE_APPOINTMENT_CHECKINS : tracks
+    FAMILIES ||--o{ LOCATION_CHECKIN_REQUESTS : requests
+    FAMILIES ||--o{ PRIVATE_CONVERSATIONS : contains
     ORGANIZATIONS ||--o{ PROVIDER_FIIS_SETTINGS : configures
 
     FAMILY_MEMBERS }o--|| PROFILES : references
     COACHING_SESSIONS }o--|| PROFILES : coached_by
     FAMILY_BOUNDARIES ||--o{ CONSEQUENCE_EVENTS : triggers
+    PRIVATE_CONVERSATIONS ||--o{ CONVERSATION_MESSAGES : contains
+    PRIVATE_CONVERSATIONS ||--o{ CONVERSATION_PARTICIPANTS : has
 
     FAMILIES {
         uuid id PK
@@ -222,6 +253,7 @@ const DIAGRAM_DATA_MODEL = `erDiagram
         enum role
         enum relationship_type
         boolean is_primary_patient
+        boolean private_messaging_enabled
         timestamp joined_at
     }
 
@@ -279,6 +311,55 @@ const DIAGRAM_DATA_MODEL = `erDiagram
         string feeling
         boolean was_bypassed
         string bypass_inferred_state
+    }
+
+    LIFE_APPOINTMENT_CHECKINS {
+        uuid id PK
+        uuid family_id FK
+        uuid user_id FK
+        string appointment_type
+        string appointment_category
+        float latitude
+        float longitude
+        string notes
+        timestamp checked_in_at
+    }
+
+    LOCATION_CHECKIN_REQUESTS {
+        uuid id PK
+        uuid family_id FK
+        uuid requested_by FK
+        uuid target_user_id FK
+        string status
+        float response_latitude
+        float response_longitude
+        string response_note
+        timestamp requested_at
+        timestamp responded_at
+        timestamp expires_at
+    }
+
+    PRIVATE_CONVERSATIONS {
+        uuid id PK
+        uuid family_id FK
+        string name
+        boolean is_group
+        timestamp created_at
+    }
+
+    CONVERSATION_PARTICIPANTS {
+        uuid id PK
+        uuid conversation_id FK
+        uuid user_id FK
+        timestamp last_read_at
+    }
+
+    CONVERSATION_MESSAGES {
+        uuid id PK
+        uuid conversation_id FK
+        uuid sender_id FK
+        text content
+        timestamp created_at
     }
 
     FIIS_PATTERN_ANALYSES {
@@ -501,191 +582,215 @@ const DIAGRAM_NOTIFICATION_SYSTEM = `flowchart TD
 
 const DIAGRAM_FAMILY_MEMBER_JOURNEY = `flowchart TD
     subgraph "Onboarding"
-        A[📱 Download App] --> B[🔐 Create Account]
-        B --> C[📧 Receive Family Invite]
-        C --> D[👥 Join Family Group]
-        D --> E[📋 Sign HIPAA Release]
-        E --> F1[🎯 Select Family Goals]
-        F1 --> F2[💎 Choose Family Values]
+        A[Download App] --> B[Create Account]
+        B --> C[Receive Family Invite]
+        C --> D[Join Family Group]
+        D --> E[Sign HIPAA Release]
+        E --> F1[Select Family Goals]
+        F1 --> F2[Choose Family Values]
     end
 
     subgraph "Daily Engagement"
-        F2 --> F[💬 Family Chat]
-        F2 --> G[📅 Meeting Check-ins]
-        F2 --> H[😊 Daily Emotional Check-in]
-        F2 --> I[💰 Financial Requests]
-        F2 --> CC[🎙️ Real-Time Coaching]
+        F2 --> F[Family Chat]
+        F2 --> G[Meeting Check-ins]
+        F2 --> G2[Life Appointment Check-ins]
+        F2 --> H[Daily Emotional Check-in]
+        F2 --> I[Financial Requests]
+        F2 --> CC[Real-Time Coaching]
+        F2 --> PM[Private Messages]
     end
 
     subgraph "AI Coaching Tools"
-        CC --> CC1[📞 Live Conversation Coaching]
-        CC --> CC2[📸 Screenshot Text Analysis]
-        CC --> CC3[✍️ Message Rephrasing Helper]
-        CC1 --> CC4[🎯 Goal-Aligned Suggestions]
+        CC --> CC1[Live Conversation Coaching]
+        CC --> CC2[Screenshot Text Analysis]
+        CC --> CC3[Message Rephrasing Helper]
+        CC --> CC5[AI Conversation Starters]
+        CC1 --> CC4[Goal-Aligned Suggestions]
         CC2 --> CC4
         CC3 --> CC4
+        CC5 --> CC4
     end
 
     subgraph "Ongoing Support"
-        F --> J[📖 View Shared Boundaries]
-        G --> K[✅ Verify Attendance]
-        H --> L[📊 Track Patterns]
-        I --> M[🗳️ Vote on Requests]
+        F --> J[View Shared Boundaries]
+        G --> K[Verify Attendance]
+        G2 --> K2[Track Life Activities]
+        H --> L[Track Patterns]
+        I --> M[Vote on Requests]
+        PM --> PM2[1:1 and Group Threads]
     end
 
-    subgraph "Insights & Growth"
-        J --> N[🎯 FIIS Pattern Analysis]
+    subgraph "Insights and Growth"
+        J --> N[FIIS Pattern Analysis]
         K --> N
+        K2 --> N
         L --> N
         M --> N
         CC4 --> N
-        N --> O[💡 Receive Actionable Insights]
-        O --> P[🎉 Celebrate Milestones]
+        N --> O[Receive Actionable Insights]
+        O --> P[Celebrate Milestones]
     end`;
 
 const DIAGRAM_RECOVERING_INDIVIDUAL_JOURNEY = `flowchart TD
     subgraph "Getting Started"
-        A[📱 Join Family Group] --> B[📋 Accept Boundaries]
-        B --> C[🎯 Set Sobriety Date]
-        C --> D[💊 Add Medications]
+        A[Join Family Group] --> B[Accept Boundaries]
+        B --> C[Set Sobriety Date]
+        C --> D[Add Medications]
     end
 
     subgraph "Daily Routine"
-        D --> E[📅 Check into Meetings]
-        D --> F[😊 Daily Emotional Check-in]
-        D --> G[💊 Log Medication Doses]
-        D --> H[💬 Family Communication]
+        D --> E[Check into Meetings]
+        D --> E2[Life Appointment Check-ins]
+        D --> F[Daily Emotional Check-in]
+        D --> G[Log Medication Doses]
+        D --> H[Family Communication]
+        D --> H2[Private Messages]
     end
 
     subgraph "Accountability"
-        E --> I[📍 Location Verification]
-        F --> J[📊 Mood Tracking]
-        G --> K[✅ Compliance Tracking]
-        H --> L[🤝 Support Network]
+        E --> I[Location Verification]
+        E2 --> I2[Activity Verification]
+        F --> J[Mood Tracking]
+        G --> K[Compliance Tracking]
+        H --> L[Support Network]
     end
 
     subgraph "Recovery Progress"
-        I --> M[🏆 Milestone Celebrations]
+        I --> M[Milestone Celebrations]
+        I2 --> M
         J --> M
         K --> M
         L --> M
-        M --> N[📈 365-Day Goal Tracking]
-        N --> O[🌟 Recovery Success]
+        M --> N[365-Day Goal Tracking]
+        N --> O[Recovery Success]
     end`;
 
 const DIAGRAM_MODERATOR_JOURNEY = `flowchart TD
     subgraph "Assignment"
-        A[🏢 Organization Admin] --> B[📋 Assign to Family]
-        B --> C[🔔 Receive Notification]
-        C --> D[👁️ Access Family Dashboard]
+        A[Organization Admin] --> B[Assign to Family]
+        B --> C[Receive Notification]
+        C --> D[Access Family Dashboard]
     end
 
     subgraph "Daily Oversight"
-        D --> E[💬 Monitor Family Chat]
-        D --> F[📊 Review FIIS Insights]
-        D --> G[📍 Check Location Alerts]
-        D --> H[💊 Monitor Medication Compliance]
-        D --> CC[🎙️ Review Coaching Sessions]
+        D --> E[Monitor Family Chat]
+        D --> F[Review FIIS Insights]
+        D --> G[Check Location Alerts]
+        D --> H[Monitor Medication Compliance]
+        D --> CC[Review Coaching Sessions]
+        D --> LR[Send Location Check-in Requests]
+        D --> LA[Review Life Appointments]
     end
 
     subgraph "Clinical Tools"
-        E --> I[📝 Add Clinical Notes]
-        F --> J[🤖 FIIS AI Consultation]
-        G --> K[🍺 Liquor License Alerts]
-        H --> L[⏰ Refill Reminders]
-        CC --> J2[📋 Coaching Pattern Analysis]
-        J --> J3[🔄 Calibration Feedback]
+        E --> I[Add Clinical Notes]
+        F --> J[FIIS AI Chat Consultation]
+        G --> K[Liquor License Alerts]
+        H --> L[Refill Reminders]
+        CC --> J2[Coaching Pattern Analysis]
+        J --> J3[Calibration Feedback]
+        LR --> LR2[Real-Time Location Response]
     end
 
     subgraph "Care Coordination"
-        I --> M[👥 Provider Messaging]
+        I --> M[Provider Messaging]
         J --> M
         J2 --> M
         K --> M
         L --> M
-        M --> N[🔄 Care Transitions]
-        N --> O[📈 Outcome Reports]
+        M --> N[Care Transitions]
+        N --> N2[Continuity Readiness Scoring]
+        N2 --> O[Outcome Reports]
     end`;
 
 const DIAGRAM_PROVIDER_ADMIN_JOURNEY = `flowchart TD
     subgraph "Organization Setup"
-        A[🏢 Create Organization] --> B[🎨 Configure Branding]
-        B --> C[👥 Invite Staff Members]
-        C --> D[📋 Assign Roles]
+        A[Create Organization] --> B[Configure Branding]
+        B --> B2[Configure FIIS Settings]
+        B2 --> C[Invite Staff Members]
+        C --> D[Assign Roles]
     end
 
     subgraph "Family Management"
-        D --> E[➕ Create Family Groups]
-        E --> F[👤 Assign Moderators]
-        F --> G[📧 Send Family Invites]
-        G --> H[📊 Monitor All Families]
+        D --> E[Create Family Groups]
+        E --> F[Assign Moderators]
+        F --> G[Send Family Invites]
+        G --> H[Monitor All Families]
+        H --> H2[Broadcast Messages]
     end
 
     subgraph "Clinical Oversight"
-        H --> I[📈 Provider Dashboard]
-        I --> J[📝 Clinical Notes]
-        I --> K[💬 Team Messaging]
-        I --> L[🔄 Care Transitions]
+        H --> I[Provider Dashboard]
+        I --> J[Clinical Notes]
+        I --> K[Team Messaging]
+        I --> L[Care Transitions]
+        L --> L2[Continuity Readiness Scoring]
     end
 
-    subgraph "Analytics & Outcomes"
-        J --> M[📊 Outcome Reports]
+    subgraph "Analytics and Outcomes"
+        J --> M[Outcome Reports]
         K --> M
-        L --> M
-        M --> N[🏆 Success Metrics]
-        N --> O[📈 CRM Analytics]
+        L2 --> M
+        M --> N[Success Metrics]
+        N --> O[CRM Analytics]
+        O --> O2[Lead Pipeline Management]
     end`;
 
 // ========== MARKETING DIAGRAMS ==========
 
 const DIAGRAM_VALUE_PROPOSITION = `graph LR
     subgraph "The Problem"
-        P1[😰 Families Feel Helpless]
-        P2[📞 Poor Communication]
-        P3[❓ No Visibility into Recovery]
-        P4[🔄 Scattered Care Providers]
+        P1[Families Feel Helpless]
+        P2[Poor Communication]
+        P3[No Visibility into Recovery]
+        P4[Scattered Care Providers]
+        P5[No Activity Accountability]
     end
 
     subgraph "FamilyBridge Solution"
-        S1[🤖 AI-Powered Insights]
-        S2[💬 Unified Communication]
-        S3[📊 Real-time Tracking]
-        S4[🔄 Coordinated Care]
+        S1[AI-Powered Insights]
+        S2[Unified Communication]
+        S3[Real-time Tracking]
+        S4[Coordinated Care]
+        S5[Life Appointment Verification]
     end
 
     subgraph "The Outcome"
-        O1[💪 Empowered Families]
-        O2[🎯 Better Outcomes]
-        O3[📈 Data-Driven Decisions]
-        O4[🏆 Recovery Success]
+        O1[Empowered Families]
+        O2[Better Outcomes]
+        O3[Data-Driven Decisions]
+        O4[Recovery Success]
+        O5[Comprehensive Accountability]
     end
 
     P1 --> S1
     P2 --> S2
     P3 --> S3
     P4 --> S4
+    P5 --> S5
 
     S1 --> O1
     S2 --> O2
     S3 --> O3
-    S4 --> O4`;
+    S4 --> O4
+    S5 --> O5`;
 
 const DIAGRAM_USER_ECOSYSTEM = `graph TD
     subgraph "Core Users"
-        U1[👨‍👩‍👧‍👦 Families<br/>Parents, Siblings, Spouses]
-        U2[🧘 Recovering Individuals<br/>Adults in Recovery]
-        U3[👨‍⚕️ Professional Moderators<br/>Interventionists, Counselors]
+        U1[Families<br/>Parents, Siblings, Spouses]
+        U2[Recovering Individuals<br/>Adults in Recovery]
+        U3[Professional Moderators<br/>Interventionists, Counselors]
     end
 
     subgraph "Provider Organizations"
-        O1[🏥 Treatment Centers]
-        O2[🏠 Sober Living Homes]
-        O3[🧠 Therapists & Counselors]
-        O4[👥 Intervention Companies]
+        O1[Treatment Centers]
+        O2[Sober Living Homes]
+        O3[Therapists and Counselors]
+        O4[Intervention Companies]
     end
 
     subgraph "FamilyBridge Platform"
-        FB[🌉 FamilyBridge<br/>Connecting Recovery<br/>Ecosystems]
+        FB[FamilyBridge<br/>Connecting Recovery<br/>Ecosystems]
     end
 
     U1 <--> FB
@@ -704,31 +809,36 @@ const DIAGRAM_USER_ECOSYSTEM = `graph TD
 
 const DIAGRAM_COMPETITIVE_ADVANTAGE = `graph TD
     subgraph "Unique Differentiators"
-        D1[🤖 FIIS AI Engine<br/>Patent Pending]
-        D2[👨‍👩‍👧 Family-Centric Design<br/>Not Individual-Only]
-        D3[🔄 Care Coordination<br/>Provider Handoffs]
-        D4[📊 Outcome Tracking<br/>Success Metrics]
-        D5[🍺 Liquor License Alerts<br/>Location Intelligence]
-        D6[🎙️ Real-Time AI Coaching<br/>Goal-Driven Guidance]
-        D7[🎯 Goal/Value/Boundary<br/>Alignment Engine]
-        D8[🧠 Clinical Knowledge<br/>Lay Language Translation]
-        D9[🚨 Emergency Crisis Protocol<br/>Auto Push + 988]
-        D10[⚙️ Provider-Configurable<br/>FIIS Settings]
-        D11[💊 MAT Sobriety Logic<br/>Prescribed = Sobriety]
-        D12[🎭 Adaptive Coaching Tone<br/>Per-Individual]
-        D13[📋 Court/Legal Reports<br/>Exportable Compliance]
+        D1[FIIS AI Engine<br/>Patent Pending]
+        D2[Family-Centric Design<br/>Not Individual-Only]
+        D3[Care Coordination<br/>Provider Handoffs]
+        D4[Outcome Tracking<br/>Success Metrics]
+        D5[Liquor License Alerts<br/>Location Intelligence]
+        D6[Real-Time AI Coaching<br/>Goal-Driven Guidance]
+        D7[Goal/Value/Boundary<br/>Alignment Engine]
+        D8[Clinical Knowledge<br/>Lay Language Translation]
+        D9[Emergency Crisis Protocol<br/>Auto Push + 988]
+        D10[Provider-Configurable<br/>FIIS Settings]
+        D11[MAT Sobriety Logic<br/>Prescribed = Sobriety]
+        D12[Adaptive Coaching Tone<br/>Per-Individual]
+        D13[Court/Legal Reports<br/>Exportable Compliance]
+        D14[Life Appointment Check-ins<br/>GPS-Verified Activities]
+        D15[Location Check-in Requests<br/>Moderator-Initiated]
+        D16[Private Messaging V2<br/>Group and 1:1 Threads]
+        D17[AI Conversation Starters<br/>Context-Aware Prompts]
+        D18[Location Drift Monitor<br/>Geofence Deviation Alerts]
     end
 
     subgraph "Competitor Gaps"
-        C1[❌ I Am Sober<br/>Individual only]
-        C2[❌ Life360<br/>No clinical features]
-        C3[❌ Bark<br/>Youth focused]
-        C4[❌ Soberlink<br/>Hardware dependent]
-        C5[❌ BetterHelp<br/>No family integration]
+        C1[I Am Sober<br/>Individual only]
+        C2[Life360<br/>No clinical features]
+        C3[Bark<br/>Youth focused]
+        C4[Soberlink<br/>Hardware dependent]
+        C5[BetterHelp<br/>No family integration]
     end
 
     subgraph "Market Position"
-        M1[🎯 Only Platform for<br/>Family + Provider + AI<br/>+ Real-Time Coaching<br/>+ MAT + Crisis Protocol<br/>in Recovery Space]
+        M1[Only Platform for<br/>Family + Provider + AI<br/>+ Real-Time Coaching<br/>+ MAT + Crisis Protocol<br/>+ Life Appointments<br/>in Recovery Space]
     end
 
     D1 --> M1
@@ -744,6 +854,11 @@ const DIAGRAM_COMPETITIVE_ADVANTAGE = `graph TD
     D11 --> M1
     D12 --> M1
     D13 --> M1
+    D14 --> M1
+    D15 --> M1
+    D16 --> M1
+    D17 --> M1
+    D18 --> M1
 
     C1 -.->|Gap| D2
     C2 -.->|Gap| D1
@@ -755,21 +870,24 @@ const DIAGRAM_COMPETITIVE_ADVANTAGE = `graph TD
 
 const DIAGRAM_AI_COACHING_FLOW = `flowchart TD
     subgraph "User Initiates Coaching"
-        A[👤 Select Conversation Partner] --> B{Coaching Mode}
-        B -->|Live| C[🎙️ Speakerphone / Text Entry]
-        B -->|Screenshot| D[📸 Upload Text Screenshot]
-        B -->|Rephrase| E[✍️ Enter Raw Message]
+        A[Select Conversation Partner] --> B{Coaching Mode}
+        B -->|Live| C[Speakerphone / Text Entry]
+        B -->|Screenshot| D[Upload Text Screenshot]
+        B -->|Rephrase| E[Enter Raw Message]
+        B -->|Starters| E2[AI Conversation Starters]
     end
 
     subgraph "Context Assembly"
         C --> F[Fetch Family Context]
         D --> F
         E --> F
-        F --> G[Goals & Values]
+        E2 --> F
+        F --> G[Goals and Values]
         F --> H[Approved Boundaries]
         F --> I[Sobriety Journey]
         F --> J[Emotional Check-ins]
         F --> K[Meeting Attendance]
+        F --> K2[Life Appointment History]
         F --> L[Chat Pattern Signals]
         F --> M[Provider Notes]
         F --> N[Prior Coaching Sessions]
@@ -783,6 +901,7 @@ const DIAGRAM_AI_COACHING_FLOW = `flowchart TD
         S[DBT DEAR MAN]
         T[Stages of Change]
         U[Trauma-Informed Care]
+        U2[Motivational Interviewing]
     end
 
     subgraph "AI Processing"
@@ -791,6 +910,7 @@ const DIAGRAM_AI_COACHING_FLOW = `flowchart TD
         I --> V
         J --> V
         K --> V
+        K2 --> V
         L --> V
         M --> V
         N --> V
@@ -801,6 +921,7 @@ const DIAGRAM_AI_COACHING_FLOW = `flowchart TD
         S --> V
         T --> V
         U --> V
+        U2 --> V
         V --> W[LLM Processing<br/>Gemini/GPT]
         W --> X{Translate to<br/>Lay Language}
     end
@@ -810,10 +931,12 @@ const DIAGRAM_AI_COACHING_FLOW = `flowchart TD
         X --> Z[Goal-Aligned Guidance]
         X --> AA[Boundary Reminders]
         X --> AB[Graceful Exit Suggestions]
+        X --> AC2[Context-Aware Starters]
         Y --> AC[Return to User]
         Z --> AC
         AA --> AC
         AB --> AC
+        AC2 --> AC
     end`;
 
 // ========== COMPONENT ==========
@@ -917,7 +1040,21 @@ const defaultDisclosure: InventionDisclosure = {
 
 28. PROCESS ADDICTION RISK FACTOR INPUTS: Process addictions (gambling, gaming, shopping, social media) tracked as weighted risk factor inputs to the substance relapse risk score rather than as separate addiction metrics — acknowledging their clinical correlation with substance use escalation without conflating distinct behavioral categories.
 
-29. COURT AND LEGAL INTEGRATION: Structured, exportable compliance reports designed for court-mandated recovery documentation, including meeting attendance records, boundary adherence, medication compliance, and FIIS trajectory summaries — formatted for legal admissibility with timestamp verification and audit trails.`,
+29. COURT AND LEGAL INTEGRATION: Structured, exportable compliance reports designed for court-mandated recovery documentation, including meeting attendance records, boundary adherence, medication compliance, and FIIS trajectory summaries — formatted for legal admissibility with timestamp verification and audit trails.
+
+30. LIFE APPOINTMENT CHECK-IN SYSTEM: GPS-verified check-ins for non-meeting recovery activities including therapy/counseling, medical appointments, gym/fitness, wellness activities, support groups, work/employment, job interviews, dates, social gatherings, group events, family events, court appearances, and probation meetings — each categorized (Healthcare, Professional, Social, Legal) and tracked as behavioral signals in FIIS pattern analysis, providing holistic accountability beyond just recovery meetings.
+
+31. MODERATOR-INITIATED LOCATION CHECK-IN REQUESTS: A real-time location verification system allowing moderators to send GPS check-in requests to specific family members with configurable expiration windows, response capture with coordinates and optional notes, and automatic expiration handling — enabling on-demand accountability without continuous surveillance.
+
+32. PRIVATE MESSAGING V2 WITH GROUP CONVERSATIONS: A conversation-based messaging system within the family context supporting both 1:1 and multi-participant group threads, with conversation naming, participant management, unread tracking with last-read timestamps, and real-time message delivery — enabling private family sub-group communication without exposing messages to the full family chat.
+
+33. AI-POWERED CONVERSATION STARTERS: Context-aware conversation prompt generation that analyzes family dynamics, recent emotional check-ins, coaching sessions, and recovery phase to suggest appropriate conversation openers — helping family members initiate difficult but necessary recovery-related discussions.
+
+34. LOCATION DRIFT MONITORING WITH GEOFENCE DEVIATION ALERTS: Continuous background monitoring of check-in location patterns to detect geographic drift from established recovery routines (e.g., new locations near high-risk areas, deviation from therapy/meeting routes), generating automated alerts to moderators when patterns suggest environmental risk factors.
+
+35. CONTINUITY TRANSITION READINESS SCORING: A multi-dimensional readiness assessment for care level transitions (Detox to Residential, Residential to Sober Living, etc.) that evaluates meeting attendance consistency, emotional stability trajectory, medication compliance, boundary adherence, and coaching engagement to generate a composite readiness score with specific deficit indicators.
+
+36. BILL AND RECEIPT AI IMAGE CLARITY ANALYSIS: AI-powered image quality verification for financial request supporting documentation, analyzing uploaded photos of bills, prescriptions, receipts, and invoices for legibility, completeness, and authenticity before routing to family approvers — reducing fraud risk and ensuring documentation quality in financial coordination workflows.`,
   competingProducts: `COMPETITIVE LANDSCAPE ANALYSIS (Updated January 2026):
 
 ══════════════════════════════════════════════════════════════
@@ -1027,8 +1164,15 @@ No existing product combines ALL of:
 19. Emotional tone trajectory analysis with baseline comparison
 20. Integrated CRM pipeline for provider organizations with lead scoring and referral tracking
 21. Family goals and values framework driving all AI interactions
+22. GPS-verified life appointment check-ins beyond meetings (therapy, work, court, social events)
+23. Moderator-initiated real-time location check-in requests with expiration handling
+24. Private messaging with 1:1 and group conversation threads within family context
+25. AI-powered conversation starters based on family context and recovery phase
+26. Location drift monitoring with geofence deviation alerts
+27. Care transition readiness scoring with multi-dimensional assessment
+28. Bill/receipt AI image clarity analysis for financial request verification
 
-Bark comes closest in AI pattern detection but targets child safety, not adult addiction recovery with family involvement. I Am Sober has trigger analysis but lacks family integration entirely. No competitor offers real-time goal-aligned coaching that translates clinical frameworks into conversational guidance.`,
+Bark comes closest in AI pattern detection but targets child safety, not adult addiction recovery with family involvement. I Am Sober has trigger analysis but lacks family integration entirely. No competitor offers real-time goal-aligned coaching that translates clinical frameworks into conversational guidance, nor GPS-verified life activity tracking integrated with AI pattern analysis.`,
   academicPapers: `RELEVANT ACADEMIC RESEARCH:
 
 1. Family-Based Intervention Research:
@@ -1299,6 +1443,20 @@ FEBRUARY 2026:
 - Process addiction risk factor inputs to substance relapse score
 - Court/legal compliance reporting with structured exportable reports
 
+MARCH 2026:
+- Life Appointment Check-in System (GPS-verified check-ins for therapy, medical, gym, work, court, probation, social events with category classification)
+- Moderator-Initiated Location Check-in Requests (real-time GPS verification requests with expiration windows)
+- Private Messaging V2 (group conversations, 1:1 threads, unread tracking, conversation naming)
+- AI Conversation Starters (context-aware conversation prompt generation based on family dynamics)
+- Location Drift Monitor (geofence deviation alerts for recovery routine departures)
+- Continuity Transition Readiness Scoring (multi-dimensional care level transition assessment)
+- Bill/Receipt AI Image Clarity Analysis (automated image quality verification for financial documentation)
+- Enhanced Family Chat unified dashboard with tabbed interface (Chat, FIIS, Coaching, Medication, Documents, Aftercare, Boundaries, Financial)
+- FIIS Moderator Chat with streaming AI responses (dedicated moderator-AI consultation with full family context injection)
+- Pattern Shift Alerts enhancement with automated behavioral signal detection
+- Recovery Trajectory Panel with qualitative graphing improvements
+- Provider Outcome Reports with enhanced metrics visualization
+- SEO optimization for public pages with dynamic metadata
 ══════════════════════════════════════════════════════════════
 TECHNICAL DECISIONS DOCUMENTED
 ══════════════════════════════════════════════════════════════
@@ -1690,7 +1848,7 @@ export const PatentDocumentation = () => {
     <div class="toc-item">3. Prior Art Analysis</div>
     <div class="toc-item">4. Business Context</div>
     <div class="toc-item">5. Development Timeline</div>
-    <div class="toc-item">6. Patent Claims (33 Claims)</div>
+    <div class="toc-item">6. Patent Claims (38 Claims)</div>
     <div class="toc-item">7. Prior Art Differentiation</div>
   </div>
 
@@ -1968,9 +2126,32 @@ export const PatentDocumentation = () => {
     <p>The system of Claim 14, further comprising a dual-layer reporting module configured to: generate aggregate outcome dashboards showing retention rates, recovery progression, and success metrics across all families within an organization; produce detailed per-family exportable reports for clinical review including FIIS trajectory, boundary adherence, medication compliance, and meeting attendance; format reports for court documentation with timestamp verification and audit trails; support structured legal compliance reporting for court-mandated recovery programs; and correlate CRM pipeline data with family health outcomes for organizational performance analysis.</p>
   </div>
 
-  <div class="page-break"></div>
+  <div class="claim">
+    <div class="claim-title">Claim 34: Life Appointment Check-In System (Dependent on Claim 8)</div>
+    <p>The meeting verification system of Claim 8, further extended to non-meeting recovery activities comprising: GPS-verified check-ins for categorized appointment types including therapy, medical appointments, gym/fitness, wellness activities, support groups, work/employment, job interviews, social gatherings, family events, court appearances, and probation meetings; automatic categorization into Healthcare, Professional, Social, and Legal activity classes; integration of appointment attendance patterns as weighted behavioral signals in the FIIS pattern recognition engine; and holistic accountability tracking beyond recovery meetings to encompass all structured life activities relevant to recovery progress.</p>
+  </div>
 
-  <h2>7. Prior Art Differentiation</h2>
+  <div class="claim">
+    <div class="claim-title">Claim 35: Moderator-Initiated Location Verification Requests (Dependent on Claim 10)</div>
+    <p>The moderator integration system of Claim 10, further comprising a real-time location verification request module configured to: enable moderators to send on-demand GPS check-in requests to specific family members; set configurable expiration windows for request validity; capture response coordinates with optional contextual notes from the responding user; handle automatic request expiration with status tracking; and provide location response data as high-weight behavioral signals in the pattern recognition engine without requiring continuous location surveillance.</p>
+  </div>
+
+  <div class="claim">
+    <div class="claim-title">Claim 36: Private Conversation Threading System (Dependent on Claim 1)</div>
+    <p>The system of Claim 1, further comprising a private messaging module within the family context configured to: support both one-to-one and multi-participant group conversation threads; enable conversation naming and participant management; track per-participant last-read timestamps for unread message indicators; deliver messages in real-time through subscription-based channels; maintain conversation isolation within the family boundary while excluding private messages from family-wide chat analysis; and enable moderator oversight of private messaging availability per family member.</p>
+  </div>
+
+  <div class="claim">
+    <div class="claim-title">Claim 37: AI-Powered Conversation Starter Generation (Dependent on Claim 20)</div>
+    <p>The coaching system of Claim 20, further comprising a context-aware conversation prompt generator configured to: analyze current family dynamics including emotional check-in trends, recent coaching sessions, and recovery phase progression; generate appropriate conversation openers tailored to specific family relationships; align suggested prompts with active family goals, values, and boundaries; and adapt prompt tone and content based on the individual's engagement history and emotional state trajectory.</p>
+  </div>
+
+  <div class="claim">
+    <div class="claim-title">Claim 38: Continuity Transition Readiness Assessment (Dependent on Claim 1)</div>
+    <p>The system of Claim 1, further comprising a care transition readiness scoring module configured to: evaluate multi-dimensional readiness indicators including meeting attendance consistency, emotional stability trajectory, medication compliance rates, boundary adherence patterns, and coaching engagement levels; generate composite readiness scores with specific deficit indicators for each dimension; provide moderators with actionable transition recommendations based on quantified readiness thresholds; and track historical readiness score progression to identify optimal transition timing.</p>
+  </div>
+
+
 
   <table class="comparison">
     <thead>
@@ -2040,6 +2221,21 @@ export const PatentDocumentation = () => {
         <td><strong>Coaching Tone</strong></td>
         <td>Uniform tone for all users</td>
         <td>Individually adaptive tone based on engagement history, emotional state, and family role</td>
+      </tr>
+      <tr>
+        <td><strong>Activity Tracking</strong></td>
+        <td>Meeting attendance only or no tracking</td>
+        <td>GPS-verified check-ins for meetings AND life appointments (therapy, work, court, social events) with category classification</td>
+      </tr>
+      <tr>
+        <td><strong>Location Verification</strong></td>
+        <td>Continuous surveillance or none</td>
+        <td>On-demand moderator-initiated location requests with expiration windows — accountability without surveillance</td>
+      </tr>
+      <tr>
+        <td><strong>Private Messaging</strong></td>
+        <td>External apps or no private channels</td>
+        <td>In-platform 1:1 and group conversation threads within family context with moderator oversight controls</td>
       </tr>
     </tbody>
   </table>
@@ -3159,6 +3355,51 @@ export const PatentDocumentation = () => {
                     The system of Claim 14, further comprising dual-layer reporting with aggregate org dashboards and per-family exportable reports, formatted for court documentation with timestamp verification and audit trails.
                   </p>
                 </div>
+
+                <Separator />
+
+                <div>
+                  <h4 className="font-semibold mb-2">Claim 34: Life Appointment Check-In System (Dependent on Claim 8)</h4>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    The meeting verification system of Claim 8, extended to GPS-verified check-ins for categorized non-meeting activities (therapy, medical, gym, work, court, probation, social events), with automatic Healthcare/Professional/Social/Legal categorization and integration as FIIS behavioral signals.
+                  </p>
+                </div>
+
+                <Separator />
+
+                <div>
+                  <h4 className="font-semibold mb-2">Claim 35: Moderator-Initiated Location Verification Requests (Dependent on Claim 10)</h4>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    The moderator system of Claim 10, with on-demand GPS check-in requests to specific family members, configurable expiration windows, response capture with coordinates and notes, and automatic expiration handling — enabling accountability without continuous surveillance.
+                  </p>
+                </div>
+
+                <Separator />
+
+                <div>
+                  <h4 className="font-semibold mb-2">Claim 36: Private Conversation Threading System (Dependent on Claim 1)</h4>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    The system of Claim 1, with private messaging supporting 1:1 and group threads within the family context, conversation naming, participant management, per-participant unread tracking, and moderator oversight of messaging availability per member.
+                  </p>
+                </div>
+
+                <Separator />
+
+                <div>
+                  <h4 className="font-semibold mb-2">Claim 37: AI-Powered Conversation Starter Generation (Dependent on Claim 20)</h4>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    The coaching system of Claim 20, with context-aware conversation prompt generation analyzing family dynamics, emotional trends, recovery phase, and relationship type to suggest appropriate conversation openers aligned with active goals and boundaries.
+                  </p>
+                </div>
+
+                <Separator />
+
+                <div>
+                  <h4 className="font-semibold mb-2">Claim 38: Continuity Transition Readiness Assessment (Dependent on Claim 1)</h4>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    The system of Claim 1, with multi-dimensional care transition readiness scoring evaluating meeting consistency, emotional stability, medication compliance, boundary adherence, and coaching engagement to generate composite readiness scores with deficit indicators.
+                  </p>
+                </div>
               </CardContent>
             </Card>
           </Section>
@@ -3239,6 +3480,21 @@ export const PatentDocumentation = () => {
                         <td className="p-3 font-medium">Coaching Tone</td>
                         <td className="p-3 text-muted-foreground">Uniform tone for all users</td>
                         <td className="p-3 text-muted-foreground">Individually adaptive tone based on engagement history, emotional state, and family role</td>
+                      </tr>
+                      <tr className="border-b">
+                        <td className="p-3 font-medium">Activity Tracking</td>
+                        <td className="p-3 text-muted-foreground">Meeting attendance only or no tracking</td>
+                        <td className="p-3 text-muted-foreground">GPS-verified check-ins for meetings AND life appointments (therapy, work, court, social) with category classification</td>
+                      </tr>
+                      <tr className="border-b">
+                        <td className="p-3 font-medium">Location Verification</td>
+                        <td className="p-3 text-muted-foreground">Continuous surveillance or none</td>
+                        <td className="p-3 text-muted-foreground">On-demand moderator-initiated location requests with expiration — accountability without surveillance</td>
+                      </tr>
+                      <tr className="border-b">
+                        <td className="p-3 font-medium">Private Messaging</td>
+                        <td className="p-3 text-muted-foreground">External apps or no private channels</td>
+                        <td className="p-3 text-muted-foreground">In-platform 1:1 and group threads within family context with moderator oversight controls</td>
                       </tr>
                     </tbody>
                   </table>
