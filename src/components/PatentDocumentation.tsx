@@ -732,35 +732,40 @@ const DIAGRAM_PROVIDER_ADMIN_JOURNEY = `flowchart TD
 
 const DIAGRAM_VALUE_PROPOSITION = `graph LR
     subgraph "The Problem"
-        P1[😰 Families Feel Helpless]
-        P2[📞 Poor Communication]
-        P3[❓ No Visibility into Recovery]
-        P4[🔄 Scattered Care Providers]
+        P1[Families Feel Helpless]
+        P2[Poor Communication]
+        P3[No Visibility into Recovery]
+        P4[Scattered Care Providers]
+        P5[No Activity Accountability]
     end
 
     subgraph "FamilyBridge Solution"
-        S1[🤖 AI-Powered Insights]
-        S2[💬 Unified Communication]
-        S3[📊 Real-time Tracking]
-        S4[🔄 Coordinated Care]
+        S1[AI-Powered Insights]
+        S2[Unified Communication]
+        S3[Real-time Tracking]
+        S4[Coordinated Care]
+        S5[Life Appointment Verification]
     end
 
     subgraph "The Outcome"
-        O1[💪 Empowered Families]
-        O2[🎯 Better Outcomes]
-        O3[📈 Data-Driven Decisions]
-        O4[🏆 Recovery Success]
+        O1[Empowered Families]
+        O2[Better Outcomes]
+        O3[Data-Driven Decisions]
+        O4[Recovery Success]
+        O5[Comprehensive Accountability]
     end
 
     P1 --> S1
     P2 --> S2
     P3 --> S3
     P4 --> S4
+    P5 --> S5
 
     S1 --> O1
     S2 --> O2
     S3 --> O3
-    S4 --> O4`;
+    S4 --> O4
+    S5 --> O5`;
 
 const DIAGRAM_USER_ECOSYSTEM = `graph TD
     subgraph "Core Users"
