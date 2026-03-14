@@ -3332,10 +3332,51 @@ export const PatentDocumentation = () => {
                     The system of Claim 14, further comprising dual-layer reporting with aggregate org dashboards and per-family exportable reports, formatted for court documentation with timestamp verification and audit trails.
                   </p>
                 </div>
-              </CardContent>
-            </Card>
-          </Section>
 
+                <Separator />
+
+                <div>
+                  <h4 className="font-semibold mb-2">Claim 34: Life Appointment Check-In System (Dependent on Claim 8)</h4>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    The meeting verification system of Claim 8, extended to GPS-verified check-ins for categorized non-meeting activities (therapy, medical, gym, work, court, probation, social events), with automatic Healthcare/Professional/Social/Legal categorization and integration as FIIS behavioral signals.
+                  </p>
+                </div>
+
+                <Separator />
+
+                <div>
+                  <h4 className="font-semibold mb-2">Claim 35: Moderator-Initiated Location Verification Requests (Dependent on Claim 10)</h4>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    The moderator system of Claim 10, with on-demand GPS check-in requests to specific family members, configurable expiration windows, response capture with coordinates and notes, and automatic expiration handling — enabling accountability without continuous surveillance.
+                  </p>
+                </div>
+
+                <Separator />
+
+                <div>
+                  <h4 className="font-semibold mb-2">Claim 36: Private Conversation Threading System (Dependent on Claim 1)</h4>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    The system of Claim 1, with private messaging supporting 1:1 and group threads within the family context, conversation naming, participant management, per-participant unread tracking, and moderator oversight of messaging availability per member.
+                  </p>
+                </div>
+
+                <Separator />
+
+                <div>
+                  <h4 className="font-semibold mb-2">Claim 37: AI-Powered Conversation Starter Generation (Dependent on Claim 20)</h4>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    The coaching system of Claim 20, with context-aware conversation prompt generation analyzing family dynamics, emotional trends, recovery phase, and relationship type to suggest appropriate conversation openers aligned with active goals and boundaries.
+                  </p>
+                </div>
+
+                <Separator />
+
+                <div>
+                  <h4 className="font-semibold mb-2">Claim 38: Continuity Transition Readiness Assessment (Dependent on Claim 1)</h4>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    The system of Claim 1, with multi-dimensional care transition readiness scoring evaluating meeting consistency, emotional stability, medication compliance, boundary adherence, and coaching engagement to generate composite readiness scores with deficit indicators.
+                  </p>
+                </div>
           {/* Prior Art Differentiation */}
           <Section 
             title="12. Prior Art Differentiation" 
