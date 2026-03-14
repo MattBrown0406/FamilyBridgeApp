@@ -71,7 +71,7 @@ const DIAGRAM_SYSTEM_ARCHITECTURE = `graph TD
     subgraph "FIIS Core Engine"
         E[Pattern Analysis Engine]
         F[Data Aggregation Service]
-        G[5-Level Signal Classification<br/>Low → Critical]
+        G[5-Level Signal Classification<br/>Low to Critical]
         H[Notification Orchestrator]
         H2[Emergency Crisis Protocol<br/>Push Notifications + 988]
     end
@@ -88,6 +88,7 @@ const DIAGRAM_SYSTEM_ARCHITECTURE = `graph TD
         T[Communication Helper]
         U[Goal/Value/Boundary Alignment]
         U2[Adaptive Tone Engine<br/>Per-Individual]
+        CV[Conversation Starters<br/>Context-Aware Prompts]
     end
 
     subgraph "AI/ML Layer"
@@ -95,24 +96,40 @@ const DIAGRAM_SYSTEM_ARCHITECTURE = `graph TD
         J[Clinical Knowledge Base<br/>CRAFT, HALT, Gorski, DBT]
         K[Response Parser<br/>Lay Language Translation]
         K2[Role-Adaptive Display<br/>Numeric vs Banded]
+        IC[Image Clarity Analysis<br/>Receipt/Bill Verification]
+    end
+
+    subgraph "Accountability Layer"
+        MT[Meeting Check-ins<br/>GPS Verified]
+        LA[Life Appointment Check-ins<br/>Therapy/Work/Court/Social]
+        LR[Location Check-in Requests<br/>Moderator-Initiated]
+        LD[Location Drift Monitor<br/>Geofence Alerts]
+    end
+
+    subgraph "Communication Layer"
+        FC[Family Group Chat<br/>Moderated]
+        PM[Private Messaging V2<br/>1:1 and Group Threads]
+        PM2[Moderator-Only Channels]
+        BC[Provider Broadcast<br/>Multi-Family Messaging]
     end
 
     subgraph "Clinical Data Layer"
-        V[Family Goals & Values]
-        W[Emotional Check-ins & Tone Analysis]
-        X[Coaching Sessions & Calibration Patterns]
-        X2[Consequence Events & Tracking]
+        V[Family Goals and Values]
+        W[Emotional Check-ins and Tone Analysis]
+        X[Coaching Sessions and Calibration Patterns]
+        X2[Consequence Events and Tracking]
     end
 
     subgraph "Reporting Layer"
         RP[Aggregate Org Dashboards]
         RP2[Per-Family Exports]
         RP3[Court/Legal Reports]
+        RP4[Recovery Trajectory Panel]
     end
 
     subgraph "Data Layer"
         L[(PostgreSQL<br/>Supabase)]
-        M[(Real-time Subscriptions)]
+        M2[(Real-time Subscriptions)]
         N[Encrypted Storage]
     end
 
@@ -127,6 +144,7 @@ const DIAGRAM_SYSTEM_ARCHITECTURE = `graph TD
     G --> H2
     R --> J
     R --> U2
+    CV --> J
     S --> J
     T --> J
     U --> V
@@ -139,16 +157,24 @@ const DIAGRAM_SYSTEM_ARCHITECTURE = `graph TD
     PC --> E
     PC2 --> E
     PC3 --> H
+    MT --> F
+    LA --> F
+    LR --> F
+    LD --> F
+    FC --> L
+    PM --> L
+    IC --> S
     F --> L
     V --> L
     W --> L
     X --> L
     X2 --> L
-    L --> M
+    L --> M2
     L --> RP
     L --> RP2
     L --> RP3
-    M --> A
+    L --> RP4
+    M2 --> A
     H --> A
     H2 --> A
     N --> L`;
