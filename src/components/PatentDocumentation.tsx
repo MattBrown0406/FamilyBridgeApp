@@ -777,20 +777,20 @@ const DIAGRAM_VALUE_PROPOSITION = `graph LR
 
 const DIAGRAM_USER_ECOSYSTEM = `graph TD
     subgraph "Core Users"
-        U1[👨‍👩‍👧‍👦 Families<br/>Parents, Siblings, Spouses]
-        U2[🧘 Recovering Individuals<br/>Adults in Recovery]
-        U3[👨‍⚕️ Professional Moderators<br/>Interventionists, Counselors]
+        U1[Families<br/>Parents, Siblings, Spouses]
+        U2[Recovering Individuals<br/>Adults in Recovery]
+        U3[Professional Moderators<br/>Interventionists, Counselors]
     end
 
     subgraph "Provider Organizations"
-        O1[🏥 Treatment Centers]
-        O2[🏠 Sober Living Homes]
-        O3[🧠 Therapists & Counselors]
-        O4[👥 Intervention Companies]
+        O1[Treatment Centers]
+        O2[Sober Living Homes]
+        O3[Therapists and Counselors]
+        O4[Intervention Companies]
     end
 
     subgraph "FamilyBridge Platform"
-        FB[🌉 FamilyBridge<br/>Connecting Recovery<br/>Ecosystems]
+        FB[FamilyBridge<br/>Connecting Recovery<br/>Ecosystems]
     end
 
     U1 <--> FB
