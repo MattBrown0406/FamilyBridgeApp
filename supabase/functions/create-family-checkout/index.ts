@@ -5,6 +5,8 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+const FAMILY_PLAN_ID = "NXU2LLO56OWLAN3OWJV55VHT";
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -12,9 +14,7 @@ serve(async (req) => {
 
   try {
     const accessToken = Deno.env.get('SQUARE_ACCESS_TOKEN');
-    const applicationId = Deno.env.get('SQUARE_APPLICATION_ID');
-
-    if (!accessToken || !applicationId) {
+    if (!accessToken) {
       throw new Error('Square credentials not configured');
     }
 
@@ -24,10 +24,55 @@ serve(async (req) => {
       throw new Error('Email is required');
     }
 
-    console.log('Creating family checkout for:', email, trialDays ? `with ${trialDays}-day trial` : '');
+    console.log('Creating family subscription for:', email, trialDays ? `with ${trialDays}-day trial` : '');
 
-    // Fetch locations to get a valid location ID
-    const locationsResponse = await fetch('https://connect.squareup.com/v2/locations', {
+    // Step 1: Find or create customer
+    const customerSearchRes = await fetch('https://connect.squareup.com/v2/customers/search', {
+      method: 'POST',
+      headers: {
+        'Square-Version': '2024-01-18',
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        query: {
+          filter: {
+            email_address: { exact: email },
+          },
+        },
+      }),
+    });
+
+    const customerSearchData = await customerSearchRes.json();
+    let customerId: string;
+
+    if (customerSearchData.customers?.length > 0) {
+      customerId = customerSearchData.customers[0].id;
+      console.log('Found existing customer:', customerId);
+    } else {
+      const createCustomerRes = await fetch('https://connect.squareup.com/v2/customers', {
+        method: 'POST',
+        headers: {
+          'Square-Version': '2024-01-18',
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          idempotency_key: crypto.randomUUID(),
+          email_address: email,
+        }),
+      });
+
+      const createCustomerData = await createCustomerRes.json();
+      if (createCustomerData.errors) {
+        throw new Error(createCustomerData.errors[0]?.detail || 'Failed to create customer');
+      }
+      customerId = createCustomerData.customer.id;
+      console.log('Created new customer:', customerId);
+    }
+
+    // Step 2: Get location
+    const locationsRes = await fetch('https://connect.squareup.com/v2/locations', {
       method: 'GET',
       headers: {
         'Square-Version': '2024-01-18',
@@ -36,85 +81,61 @@ serve(async (req) => {
       },
     });
 
-    const locationsData = await locationsResponse.json();
-    console.log('Square locations:', locationsData);
+    const locationsData = await locationsRes.json();
+    if (!locationsData.locations?.length) {
+      throw new Error('No Square locations found');
+    }
+    const locationId = (locationsData.locations.find((l: any) => l.status === 'ACTIVE') || locationsData.locations[0]).id;
 
-    if (locationsData.errors || !locationsData.locations?.length) {
-      throw new Error('No Square locations found. Please set up a location in your Square dashboard.');
+    // Step 3: Create subscription
+    const startDate = new Date();
+    // If trial, push the billing start date forward
+    if (trialDays && trialDays > 0) {
+      startDate.setDate(startDate.getDate() + trialDays);
     }
 
-    // Use the first active location
-    const activeLocation = locationsData.locations.find((loc: any) => loc.status === 'ACTIVE') || locationsData.locations[0];
-    const locationId = activeLocation.id;
-    console.log('Using location:', locationId, activeLocation.name);
-
-    // Create a checkout link using Square Checkout API
-    const idempotencyKey = crypto.randomUUID();
-    
-    // Build the checkout request
-    const checkoutBody: any = {
-      idempotency_key: idempotencyKey,
-      quick_pay: {
-        name: trialDays 
-          ? `FamilyBridge Family Subscription (${trialDays}-Day Free Trial)`
-          : 'FamilyBridge Family Subscription',
-        price_money: {
-          amount: 1999, // $19.99 in cents
-          currency: 'USD',
-        },
-        location_id: locationId,
-      },
-      checkout_options: {
-        redirect_url: redirectUrl || `${req.headers.get('origin')}/family-purchase?status=success`,
-        ask_for_shipping_address: false,
-      },
-      pre_populated_data: {
-        buyer_email: email,
-      },
+    const subscriptionBody: any = {
+      idempotency_key: crypto.randomUUID(),
+      location_id: locationId,
+      plan_variation_id: FAMILY_PLAN_ID,
+      customer_id: customerId,
+      start_date: startDate.toISOString().split('T')[0],
     };
 
-    // Add note about trial if applicable
-    if (trialDays && couponCode) {
-      checkoutBody.quick_pay.name = `FamilyBridge Family Subscription - ${trialDays}-Day Free Trial (${couponCode})`;
-      // Note: Square's quick_pay doesn't support trials directly.
-      // For a true trial, you would need to use Square Subscriptions API.
-      // For now, we're noting the trial in the order name.
-      // The webhook handler will need to process this and apply the trial logic.
-      checkoutBody.note = JSON.stringify({
-        trial_days: trialDays,
-        coupon_code: couponCode,
-        trial_end_date: new Date(Date.now() + trialDays * 24 * 60 * 60 * 1000).toISOString(),
-      });
-    }
-
-    const checkoutResponse = await fetch('https://connect.squareup.com/v2/online-checkout/payment-links', {
+    const subscriptionRes = await fetch('https://connect.squareup.com/v2/subscriptions', {
       method: 'POST',
       headers: {
         'Square-Version': '2024-01-18',
         'Authorization': `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(checkoutBody),
+      body: JSON.stringify(subscriptionBody),
     });
 
-    const checkoutData = await checkoutResponse.json();
-    console.log('Square checkout response:', checkoutData);
+    const subscriptionData = await subscriptionRes.json();
+    console.log('Square subscription response:', JSON.stringify(subscriptionData));
 
-    if (checkoutData.errors) {
-      console.error('Square checkout errors:', checkoutData.errors);
-      throw new Error(checkoutData.errors[0]?.detail || 'Failed to create checkout');
+    if (subscriptionData.errors) {
+      console.error('Square subscription errors:', subscriptionData.errors);
+      throw new Error(subscriptionData.errors[0]?.detail || 'Failed to create subscription');
     }
 
+    const subscription = subscriptionData.subscription;
+    const actionUrl = subscriptionData.actions?.[0]?.url;
+
     return new Response(JSON.stringify({
-      checkoutUrl: checkoutData.payment_link?.url,
-      orderId: checkoutData.payment_link?.order_id,
+      subscriptionId: subscription.id,
+      customerId,
+      checkoutUrl: actionUrl || (redirectUrl || `${req.headers.get('origin')}/family-purchase?status=success`),
+      orderId: subscription.id, // Use subscription ID as order reference
       trialDays: trialDays || 0,
+      status: subscription.status,
     }), {
       status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error) {
-    console.error('Checkout creation error:', error);
+    console.error('Family subscription creation error:', error);
     const message = error instanceof Error ? error.message : 'Unknown error';
     return new Response(JSON.stringify({ error: message }), {
       status: 500,

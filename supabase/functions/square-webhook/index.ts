@@ -30,15 +30,12 @@ async function verifySignature(payload: string, signature: string, webhookUrl: s
   return computedSignature === signature;
 }
 
-// Generate activation code
 function generateActivationCode(): string {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   let result = '';
   for (let i = 0; i < 12; i++) {
     result += chars.charAt(Math.floor(Math.random() * chars.length));
-    if (i === 3 || i === 7) {
-      result += '-';
-    }
+    if (i === 3 || i === 7) result += '-';
   }
   return result;
 }
@@ -65,7 +62,6 @@ serve(async (req) => {
     const signature = req.headers.get('x-square-hmacsha256-signature');
     const webhookUrl = `${supabaseUrl}/functions/v1/square-webhook`;
 
-    // Verify webhook signature
     if (signature && !(await verifySignature(payload, signature, webhookUrl))) {
       console.error('Invalid webhook signature');
       return new Response(JSON.stringify({ error: 'Invalid signature' }), {
@@ -77,68 +73,63 @@ serve(async (req) => {
     const event = JSON.parse(payload);
     console.log('Square webhook event:', event.type);
 
-    // Handle payment completed events
-    if (event.type === 'payment.completed') {
-      const payment = event.data.object.payment;
-      const orderId = payment.order_id;
-      const customerId = payment.customer_id;
-      const receiptEmail = payment.receipt_email;
+    // ── SUBSCRIPTION CREATED ──
+    if (event.type === 'subscription.created') {
+      const subscription = event.data?.object?.subscription;
+      if (!subscription) {
+        console.log('No subscription object in event');
+        return new Response(JSON.stringify({ success: true }), { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      }
 
-      console.log('Payment completed:', { orderId, customerId, receiptEmail });
+      const customerId = subscription.customer_id;
+      const subscriptionId = subscription.id;
+      const planId = subscription.plan_variation_id;
+
+      console.log('Subscription created:', { subscriptionId, customerId, planId });
+
+      // Fetch customer email from Square
+      const accessToken = Deno.env.get('SQUARE_ACCESS_TOKEN');
+      let receiptEmail = '';
+      if (accessToken && customerId) {
+        try {
+          const custRes = await fetch(`https://connect.squareup.com/v2/customers/${customerId}`, {
+            headers: {
+              'Square-Version': '2024-01-18',
+              'Authorization': `Bearer ${accessToken}`,
+            },
+          });
+          const custData = await custRes.json();
+          receiptEmail = custData.customer?.email_address || '';
+        } catch (e) {
+          console.error('Failed to fetch customer email:', e);
+        }
+      }
 
       // Generate activation code
       const activationCode = generateActivationCode();
+      const customerHash = await sha256Hex(customerId);
 
-      // Encrypt sensitive fields before storage (plaintext columns are not stored)
-      const { data: emailEncrypted, error: emailEncError } = await supabase.rpc('encrypt_sensitive', {
-        plain_text: receiptEmail,
-      });
-      if (emailEncError) {
-        console.error('Error encrypting receipt email:', emailEncError);
-        return new Response(JSON.stringify({ error: 'Failed to create activation code' }), {
-          status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
+      // Encrypt sensitive fields
+      const { data: emailEncrypted } = await supabase.rpc('encrypt_sensitive', { plain_text: receiptEmail });
+      const { data: customerEncrypted } = await supabase.rpc('encrypt_sensitive', { plain_text: customerId });
+      const { data: subEncrypted } = await supabase.rpc('encrypt_sensitive', { plain_text: subscriptionId });
 
-      const { data: customerEncrypted, error: customerEncError } = await supabase.rpc('encrypt_sensitive', {
-        plain_text: customerId,
-      });
-      if (customerEncError) {
-        console.error('Error encrypting customer ID:', customerEncError);
-        return new Response(JSON.stringify({ error: 'Failed to create activation code' }), {
-          status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
-
-      const squareCustomerIdHash = await sha256Hex(customerId);
-
-      // Store activation code in database
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('activation_codes')
         .insert({
           code: activationCode,
           email_encrypted: emailEncrypted,
           square_customer_id_encrypted: customerEncrypted,
-          square_customer_id_hash: squareCustomerIdHash,
-          expires_at: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(), // 1 year expiry
-        })
-        .select()
-        .single();
+          square_customer_id_hash: customerHash,
+          square_subscription_id_encrypted: subEncrypted,
+          expires_at: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+        });
 
       if (error) {
         console.error('Error creating activation code:', error);
-        return new Response(JSON.stringify({ error: 'Failed to create activation code' }), {
-          status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
+      } else {
+        console.log('Activation code created for subscription:', activationCode);
       }
-
-      console.log('Activation code created:', activationCode);
-
-      // TODO: Send email with activation code (would need email service integration)
-      // For now, the code is stored and can be retrieved via the purchase flow
 
       return new Response(JSON.stringify({ success: true, code: activationCode }), {
         status: 200,
@@ -146,46 +137,20 @@ serve(async (req) => {
       });
     }
 
-    // Handle subscription events
-    if (event.type === 'subscription.created' || event.type === 'subscription.updated') {
-      const subscription = event.data.object.subscription;
-      console.log('Subscription event:', subscription);
-
-      // Update activation code with subscription ID if exists
-      if (subscription.customer_id) {
-        const customerHash = await sha256Hex(subscription.customer_id);
-
-        const { data: subEncrypted, error: subEncError } = await supabase.rpc('encrypt_sensitive', {
-          plain_text: subscription.id,
-        });
-
-        if (subEncError) {
-          console.error('Error encrypting subscription ID:', subEncError);
-        } else {
-          await supabase
-            .from('activation_codes')
-            .update({ square_subscription_id_encrypted: subEncrypted })
-            .eq('square_customer_id_hash', customerHash);
-        }
+    // ── SUBSCRIPTION UPDATED (status changes, cancellations) ──
+    if (event.type === 'subscription.updated') {
+      const subscription = event.data?.object?.subscription;
+      if (!subscription?.customer_id) {
+        return new Response(JSON.stringify({ success: true }), { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
       }
-    }
 
-    // Handle payment failed events
-    if (event.type === 'payment.failed' || event.type === 'invoice.payment_failed') {
-      const payment = event.data?.object?.payment || event.data?.object?.invoice;
-      const customerId = payment?.customer_id;
-      const cardLast4 = payment?.card_details?.card?.last_4;
-      const errorMessage = payment?.processing_fee?.[0]?.effective_at || 'Payment declined';
+      const customerHash = await sha256Hex(subscription.customer_id);
+      const status = subscription.status; // ACTIVE, CANCELED, PAUSED, DEACTIVATED
 
-      console.log('Payment failed:', { customerId, cardLast4 });
+      console.log('Subscription updated:', { id: subscription.id, status });
 
-      if (customerId) {
-        const customerHash = await sha256Hex(customerId);
-        const now = new Date();
-        const gracePeriodEnd = new Date(now.getTime() + 5 * 24 * 60 * 60 * 1000); // 5 days
-        const nextRetry = new Date(now.getTime() + 24 * 60 * 60 * 1000); // 24 hours
-
-        // Find or create payment status record
+      if (status === 'CANCELED' || status === 'DEACTIVATED') {
+        // Update payment status to suspended
         const { data: existingStatus } = await supabase
           .from('subscription_payment_status')
           .select('*')
@@ -193,35 +158,41 @@ serve(async (req) => {
           .single();
 
         if (existingStatus) {
-          // Update existing record
           await supabase
             .from('subscription_payment_status')
             .update({
-              status: 'past_due',
-              last_payment_attempt: now.toISOString(),
-              next_retry_at: nextRetry.toISOString(),
-              failed_at: existingStatus.failed_at || now.toISOString(),
-              grace_period_ends_at: existingStatus.grace_period_ends_at || gracePeriodEnd.toISOString(),
-              retry_count: (existingStatus.retry_count || 0) + 1,
-              last_error: errorMessage,
-              card_last_four: cardLast4 || existingStatus.card_last_four,
+              status: 'suspended',
+              suspension_date: new Date().toISOString(),
+              last_error: `Subscription ${status.toLowerCase()}`,
             })
             .eq('id', existingStatus.id);
-        }
 
-        console.log('Payment status updated to past_due');
+          // Archive family if applicable
+          if (existingStatus.entity_type === 'family') {
+            await supabase
+              .from('families')
+              .update({
+                is_archived: true,
+                archived_at: new Date().toISOString(),
+              })
+              .eq('id', existingStatus.entity_id);
+          }
+        }
       }
     }
 
-    // Handle successful payment after being past_due
-    if (event.type === 'payment.completed') {
-      const payment = event.data?.object?.payment;
-      const customerId = payment?.customer_id;
+    // ── INVOICE PAYMENT MADE (recurring payment success) ──
+    if (event.type === 'invoice.payment_made') {
+      const invoice = event.data?.object?.invoice;
+      const subscriptionId = invoice?.subscription_id;
+      const customerId = invoice?.primary_recipient?.customer_id;
+
+      console.log('Invoice payment made:', { subscriptionId, customerId });
 
       if (customerId) {
         const customerHash = await sha256Hex(customerId);
 
-        // Check if this customer was past_due and reactivate
+        // Reactivate if was past_due or suspended
         const { data: existingStatus } = await supabase
           .from('subscription_payment_status')
           .select('*')
@@ -230,7 +201,7 @@ serve(async (req) => {
           .single();
 
         if (existingStatus) {
-          console.log('Reactivating account after successful payment');
+          console.log('Reactivating account after successful invoice payment');
 
           await supabase
             .from('subscription_payment_status')
@@ -247,7 +218,7 @@ serve(async (req) => {
             })
             .eq('id', existingStatus.id);
 
-          // Unarchive family if it was suspended
+          // Unarchive family if suspended
           if (existingStatus.entity_type === 'family' && existingStatus.status === 'suspended') {
             await supabase
               .from('families')
@@ -258,6 +229,90 @@ serve(async (req) => {
               })
               .eq('id', existingStatus.entity_id);
           }
+        }
+      }
+    }
+
+    // ── PAYMENT COMPLETED (one-time or first subscription payment) ──
+    if (event.type === 'payment.completed') {
+      const payment = event.data?.object?.payment;
+      const customerId = payment?.customer_id;
+
+      if (customerId) {
+        const customerHash = await sha256Hex(customerId);
+
+        // Reactivate if past_due/suspended
+        const { data: existingStatus } = await supabase
+          .from('subscription_payment_status')
+          .select('*')
+          .eq('square_customer_id_hash', customerHash)
+          .in('status', ['past_due', 'suspended'])
+          .single();
+
+        if (existingStatus) {
+          console.log('Reactivating account after successful payment');
+          await supabase
+            .from('subscription_payment_status')
+            .update({
+              status: 'active',
+              last_payment_attempt: new Date().toISOString(),
+              next_retry_at: null,
+              failed_at: null,
+              grace_period_ends_at: null,
+              suspension_date: null,
+              retry_count: 0,
+              last_error: null,
+              payment_updated_at: new Date().toISOString(),
+            })
+            .eq('id', existingStatus.id);
+
+          if (existingStatus.entity_type === 'family' && existingStatus.status === 'suspended') {
+            await supabase
+              .from('families')
+              .update({ is_archived: false, archived_at: null, archived_by: null })
+              .eq('id', existingStatus.entity_id);
+          }
+        }
+      }
+    }
+
+    // ── PAYMENT FAILED / INVOICE PAYMENT FAILED ──
+    if (event.type === 'payment.failed' || event.type === 'invoice.payment_failed') {
+      const payment = event.data?.object?.payment || event.data?.object?.invoice;
+      const customerId = payment?.customer_id || payment?.primary_recipient?.customer_id;
+      const cardLast4 = payment?.card_details?.card?.last_4;
+      const errorMessage = payment?.processing_fee?.[0]?.effective_at || 'Payment declined';
+
+      console.log('Payment failed:', { customerId, cardLast4 });
+
+      if (customerId) {
+        const customerHash = await sha256Hex(customerId);
+        const now = new Date();
+        const gracePeriodEnd = new Date(now.getTime() + 5 * 24 * 60 * 60 * 1000);
+        const nextRetry = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+
+        const { data: existingStatus } = await supabase
+          .from('subscription_payment_status')
+          .select('*')
+          .eq('square_customer_id_hash', customerHash)
+          .single();
+
+        if (existingStatus) {
+          await supabase
+            .from('subscription_payment_status')
+            .update({
+              status: 'past_due',
+              last_payment_attempt: now.toISOString(),
+              next_retry_at: nextRetry.toISOString(),
+              failed_at: existingStatus.failed_at || now.toISOString(),
+              grace_period_ends_at: existingStatus.grace_period_ends_at || gracePeriodEnd.toISOString(),
+              retry_count: (existingStatus.retry_count || 0) + 1,
+              last_error: errorMessage,
+              card_last_four: cardLast4 || existingStatus.card_last_four,
+            })
+            .eq('id', existingStatus.id);
+
+          console.log('Payment status updated to past_due');
         }
       }
     }
