@@ -3,10 +3,19 @@
 
 export const BUNDLE_ID = "app.lovable.feec162303784a959c1635217b29129c";
 
+// Square Subscription Plan IDs (from Square Dashboard)
+export const SQUARE_PLAN_IDS = {
+  family_monthly: "NXU2LLO56OWLAN3OWJV55VHT",
+  provider_monthly: "J5JSSBKZASUKMISQBLISFUZP",
+  provider_quarterly: "MYPV3BWPOMVKFCGKFLD5CMLU",
+  provider_annual: "JJFJPR2WOCB6PIJZL4TUUQGF",
+} as const;
+
 export const PRODUCTS = {
   family: {
     monthly: {
       id: `${BUNDLE_ID}.family_monthly`,
+      squarePlanId: SQUARE_PLAN_IDS.family_monthly,
       price: 19.99,
       period: "month",
       displayName: "Family Monthly",
@@ -15,22 +24,25 @@ export const PRODUCTS = {
   provider: {
     monthly: {
       id: `${BUNDLE_ID}.provider_monthly_v2`,
+      squarePlanId: SQUARE_PLAN_IDS.provider_monthly,
       price: 250,
       period: "month",
       displayName: "Provider Monthly",
     },
     quarterly: {
       id: `${BUNDLE_ID}.provider_quarterly_v2`,
+      squarePlanId: SQUARE_PLAN_IDS.provider_quarterly,
       price: 629,
       period: "3 months",
       displayName: "Provider Quarterly",
     },
     annual: {
       id: `${BUNDLE_ID}.provider_annual`,
+      squarePlanId: SQUARE_PLAN_IDS.provider_annual,
       price: 2500,
       period: "year",
       displayName: "Provider Annual",
-      webOnly: true, // Not available on mobile platforms
+      webOnly: true,
     },
   },
   crisisModeration: {
@@ -61,6 +73,24 @@ export const ALL_PRODUCT_IDS_INCLUDING_WEB = [
 // Subscription types
 export type SubscriptionType = "family" | "provider";
 export type BillingPeriod = "monthly" | "quarterly" | "annual";
+
+// Get Square Plan ID based on subscription type and billing period
+export function getSquarePlanId(
+  subscriptionType: SubscriptionType,
+  billingPeriod: BillingPeriod = "monthly"
+): string {
+  if (subscriptionType === "family") {
+    return SQUARE_PLAN_IDS.family_monthly;
+  }
+  switch (billingPeriod) {
+    case "annual":
+      return SQUARE_PLAN_IDS.provider_annual;
+    case "quarterly":
+      return SQUARE_PLAN_IDS.provider_quarterly;
+    default:
+      return SQUARE_PLAN_IDS.provider_monthly;
+  }
+}
 
 // Get product ID based on subscription type and billing period
 export function getProductId(

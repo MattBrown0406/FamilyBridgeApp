@@ -5,11 +5,11 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Default pricing in cents
-const DEFAULT_PRICING = {
-  monthly: 25000, // $250/month
-  quarterly: 62900, // $629/quarter
-  annual: 250000, // $2,500/year
+// Square Subscription Plan IDs
+const SQUARE_PLAN_IDS: Record<string, string> = {
+  monthly: "J5JSSBKZASUKMISQBLISFUZP",
+  quarterly: "MYPV3BWPOMVKFCGKFLD5CMLU",
+  annual: "JJFJPR2WOCB6PIJZL4TUUQGF",
 };
 
 serve(async (req) => {
@@ -19,9 +19,7 @@ serve(async (req) => {
 
   try {
     const accessToken = Deno.env.get('SQUARE_ACCESS_TOKEN');
-    const applicationId = Deno.env.get('SQUARE_APPLICATION_ID');
-
-    if (!accessToken || !applicationId) {
+    if (!accessToken) {
       throw new Error('Square credentials not configured');
     }
 
@@ -31,10 +29,61 @@ serve(async (req) => {
       throw new Error('Email is required');
     }
 
-    console.log(`Creating checkout for ${email}, period: ${billingPeriod}, coupon: ${couponCode || 'none'}, specialPrice: ${specialPrice || 'none'}`);
+    const planId = SQUARE_PLAN_IDS[billingPeriod];
+    if (!planId) {
+      throw new Error(`Invalid billing period: ${billingPeriod}`);
+    }
 
-    // Fetch locations to get a valid location ID
-    const locationsResponse = await fetch('https://connect.squareup.com/v2/locations', {
+    console.log(`Creating subscription for ${email}, period: ${billingPeriod}, plan: ${planId}`);
+
+    // Step 1: Find or create a Square customer
+    const customerSearchRes = await fetch('https://connect.squareup.com/v2/customers/search', {
+      method: 'POST',
+      headers: {
+        'Square-Version': '2024-01-18',
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        query: {
+          filter: {
+            email_address: { exact: email },
+          },
+        },
+      }),
+    });
+
+    const customerSearchData = await customerSearchRes.json();
+    let customerId: string;
+
+    if (customerSearchData.customers?.length > 0) {
+      customerId = customerSearchData.customers[0].id;
+      console.log('Found existing customer:', customerId);
+    } else {
+      // Create new customer
+      const createCustomerRes = await fetch('https://connect.squareup.com/v2/customers', {
+        method: 'POST',
+        headers: {
+          'Square-Version': '2024-01-18',
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          idempotency_key: crypto.randomUUID(),
+          email_address: email,
+        }),
+      });
+
+      const createCustomerData = await createCustomerRes.json();
+      if (createCustomerData.errors) {
+        throw new Error(createCustomerData.errors[0]?.detail || 'Failed to create customer');
+      }
+      customerId = createCustomerData.customer.id;
+      console.log('Created new customer:', customerId);
+    }
+
+    // Step 2: Get location
+    const locationsRes = await fetch('https://connect.squareup.com/v2/locations', {
       method: 'GET',
       headers: {
         'Square-Version': '2024-01-18',
@@ -43,81 +92,67 @@ serve(async (req) => {
       },
     });
 
-    const locationsData = await locationsResponse.json();
-    console.log('Square locations:', locationsData);
-
-    if (locationsData.errors || !locationsData.locations?.length) {
-      throw new Error('No Square locations found. Please set up a location in your Square dashboard.');
+    const locationsData = await locationsRes.json();
+    if (!locationsData.locations?.length) {
+      throw new Error('No Square locations found');
     }
+    const locationId = (locationsData.locations.find((l: any) => l.status === 'ACTIVE') || locationsData.locations[0]).id;
 
-    // Use the first active location
-    const activeLocation = locationsData.locations.find((loc: any) => loc.status === 'ACTIVE') || locationsData.locations[0];
-    const locationId = activeLocation.id;
-    console.log('Using location:', locationId, activeLocation.name);
+    // Step 3: Create subscription
+    const subscriptionBody: any = {
+      idempotency_key: crypto.randomUUID(),
+      location_id: locationId,
+      plan_variation_id: planId,
+      customer_id: customerId,
+      start_date: new Date().toISOString().split('T')[0],
+    };
 
-    // Determine the price - use special price if provided, otherwise use default for billing period
-    let priceInCents: number;
-    let subscriptionName: string;
-
+    // If there's a coupon with special pricing, apply price override
     if (specialPrice) {
-      // Use the special coupon price (monthly subscription at discounted rate)
-      priceInCents = specialPrice;
-      subscriptionName = `Provider Account Subscription (${couponCode || 'Promo'} - $${(specialPrice / 100).toFixed(2)}/month)`;
-      console.log(`Using special price: $${priceInCents / 100}`);
-    } else {
-      // Use default pricing based on billing period
-      priceInCents = DEFAULT_PRICING[billingPeriod as keyof typeof DEFAULT_PRICING] || DEFAULT_PRICING.monthly;
-      const periodLabel = billingPeriod === 'annual' ? 'Annual' : billingPeriod === 'quarterly' ? 'Quarterly' : 'Monthly';
-      subscriptionName = `Provider Account Subscription (${periodLabel})`;
+      console.log(`Applying special price override: $${specialPrice / 100}`);
+      subscriptionBody.price_override_money = {
+        amount: specialPrice,
+        currency: 'USD',
+      };
     }
 
-    // Create a checkout link using Square Checkout API
-    const idempotencyKey = crypto.randomUUID();
-    
-    const checkoutResponse = await fetch('https://connect.squareup.com/v2/online-checkout/payment-links', {
+    const subscriptionRes = await fetch('https://connect.squareup.com/v2/subscriptions', {
       method: 'POST',
       headers: {
         'Square-Version': '2024-01-18',
         'Authorization': `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        idempotency_key: idempotencyKey,
-        quick_pay: {
-          name: subscriptionName,
-          price_money: {
-            amount: priceInCents,
-            currency: 'USD',
-          },
-          location_id: locationId,
-        },
-        checkout_options: {
-          redirect_url: redirectUrl || `${req.headers.get('origin')}/provider-purchase?status=success`,
-          ask_for_shipping_address: false,
-        },
-        pre_populated_data: {
-          buyer_email: email,
-        },
-      }),
+      body: JSON.stringify(subscriptionBody),
     });
 
-    const checkoutData = await checkoutResponse.json();
-    console.log('Square checkout response:', checkoutData);
+    const subscriptionData = await subscriptionRes.json();
+    console.log('Square subscription response:', JSON.stringify(subscriptionData));
 
-    if (checkoutData.errors) {
-      console.error('Square checkout errors:', checkoutData.errors);
-      throw new Error(checkoutData.errors[0]?.detail || 'Failed to create checkout');
+    if (subscriptionData.errors) {
+      console.error('Square subscription errors:', subscriptionData.errors);
+      throw new Error(subscriptionData.errors[0]?.detail || 'Failed to create subscription');
     }
 
+    const subscription = subscriptionData.subscription;
+
+    // Return the subscription info — the webhook will handle activation code creation
+    // If Square returns an action URL (for card-on-file), redirect there
+    const actionUrl = subscriptionData.actions?.[0]?.url;
+
     return new Response(JSON.stringify({
-      checkoutUrl: checkoutData.payment_link?.url,
-      orderId: checkoutData.payment_link?.order_id,
+      subscriptionId: subscription.id,
+      customerId,
+      // If there's a checkout action (customer needs to add card), use that URL
+      // Otherwise redirect to success
+      checkoutUrl: actionUrl || (redirectUrl || `${req.headers.get('origin')}/provider-purchase?status=success`),
+      status: subscription.status,
     }), {
       status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error) {
-    console.error('Checkout creation error:', error);
+    console.error('Subscription creation error:', error);
     const message = error instanceof Error ? error.message : 'Unknown error';
     return new Response(JSON.stringify({ error: message }), {
       status: 500,
