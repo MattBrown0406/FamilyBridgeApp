@@ -20,14 +20,12 @@ export function ModeratorDisclaimer({ moderatorName }: ModeratorDisclaimerProps)
           </p>
           <div className="text-sm text-blue-700 dark:text-blue-300 space-y-2">
             <p>
-              <strong>Important Notice:</strong> While HIPAA releases are not legally required for 
-              this family-initiated group, your moderator will conduct themselves as if such a 
-              release is in place.
+              <strong>Important Notice:</strong> While a formal HIPAA authorization is not typically required for
+              a family-initiated group, your moderator will treat what you share as sensitive and confidential.
             </p>
             <p>
-              This means all information shared within this group will be treated with the same 
-              level of confidentiality as protected health information. Your moderator is bound 
-              by professional ethics to:
+              This means information shared within this group will be treated as confidential.
+              Your moderator is bound by professional ethics to:
             </p>
             <ul className="list-disc ml-5 space-y-1 text-sm">
               <li>Keep all family communications strictly confidential</li>

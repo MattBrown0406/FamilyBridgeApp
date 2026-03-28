@@ -92,9 +92,9 @@ export function HIPAARelease({
         <div className="p-4 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50 flex gap-3">
           <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
           <p className="text-sm text-amber-800 dark:text-amber-200">
-            This family group is supervised by a certified professional interventionist. 
-            HIPAA regulations require your authorization before any health information can be 
-            shared with the moderator and other family members.
+            This family group is supervised by a certified professional interventionist.
+            If you choose to share treatment or recovery information with the moderator and family members,
+            you may be asked to sign an authorization.
           </p>
         </div>
 
@@ -112,14 +112,14 @@ export function HIPAARelease({
             <div className="border-t pt-4 mt-4">
               <p className="font-semibold mb-2">I. PURPOSE OF DISCLOSURE</p>
               <p>
-                I hereby authorize the disclosure and exchange of my protected health information (PHI) 
-                for the purpose of facilitating communication, support, and coordination of care within 
-                my family group on the FamilyBridge platform. This includes, but is not limited to:
+                I hereby authorize the disclosure and exchange of sensitive treatment and recovery information
+                for the purpose of facilitating communication, support, and coordination within my family group
+                on the FamilyBridge platform. This includes, but is not limited to:
               </p>
               <ul className="list-disc ml-6 mt-2 space-y-1">
-                <li>Substance use disorder status and recovery progress</li>
+                <li>Recovery status and progress you choose to share</li>
                 <li>Meeting attendance and check-in information</li>
-                <li>Treatment compliance and progress updates</li>
+                <li>Treatment participation and progress updates</li>
                 <li>Financial assistance requests related to recovery</li>
                 <li>Location check-ins and safety status</li>
                 <li>Communications shared within the family group</li>
@@ -128,7 +128,7 @@ export function HIPAARelease({
 
             <div className="border-t pt-4">
               <p className="font-semibold mb-2">II. PERSONS/ENTITIES AUTHORIZED TO RECEIVE INFORMATION</p>
-              <p>I authorize the following to receive and share my PHI:</p>
+              <p>I authorize the following to receive and share this information:</p>
               <ul className="list-disc ml-6 mt-2 space-y-1">
                 <li>The assigned Certified Professional Interventionist (Moderator)</li>
                 <li>All current and future members of my designated family group</li>

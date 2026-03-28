@@ -190,8 +190,8 @@ export function CareTransitionsTab({
             open={showReauthDialog}
             onOpenChange={setShowReauthDialog}
             onSuccess={handleReauthSuccess}
-            title="Access Medical Records"
-            description="Transition summaries contain sensitive medical information. Please verify your identity to continue."
+            title="Access Sensitive Information"
+            description="Transition summaries may contain sensitive treatment and recovery information. Please verify your identity to continue."
           />
 
           {showNewSummary ? (
@@ -219,11 +219,11 @@ export function CareTransitionsTab({
                   </div>
                 </div>
                 <div>
-                  <h3 className="font-medium text-lg mb-2">Protected Medical Records</h3>
+                  <h3 className="font-medium text-lg mb-2">Sensitive Information</h3>
                   <p className="text-sm text-muted-foreground max-w-md mx-auto">
-                    Transition summaries contain sensitive treatment information including 
-                    medical notes, risk factors, and medication details. Additional verification 
-                    is required to access these records.
+                    Transition summaries may include sensitive treatment and recovery details such as
+                    risk factors, care notes, and medication information. Additional verification
+                    is required to view this content.
                   </p>
                 </div>
                 <Alert className="max-w-md mx-auto bg-background">

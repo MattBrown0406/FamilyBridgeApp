@@ -29,7 +29,7 @@ export function ReauthenticationDialog({
   onOpenChange,
   onSuccess,
   title = "Verify Your Identity",
-  description = "This information contains sensitive medical records. Please re-enter your password to continue.",
+  description = "This section may contain sensitive treatment and recovery information. Please re-enter your password to continue.",
 }: ReauthenticationDialogProps) {
   const { user } = useAuth();
   const { toast } = useToast();
