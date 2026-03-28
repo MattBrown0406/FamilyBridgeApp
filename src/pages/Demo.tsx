@@ -34,6 +34,7 @@ const Demo = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { isNative, isIOS } = usePlatform();
+  const paymentsWebOnly = isNative && isIOS;
   const [brandingStep, setBrandingStep] = useState(0);
   const [demoPrimaryColor, setDemoPrimaryColor] = useState('#6366f1');
   const [demoName, setDemoName] = useState('Recovery Partners');
@@ -256,7 +257,7 @@ const Demo = () => {
               Exit
             </Button>
             {!(isNative && isIOS) && (
-              <Button size="sm" onClick={() => navigate('/provider-purchase')}>
+              <Button size="sm" onClick={() => navigate(paymentsWebOnly ? '/auth' : '/provider-purchase')}>
                 Get Started
               </Button>
             )}
@@ -705,14 +706,14 @@ const Demo = () => {
                   <Button 
                     variant="secondary" 
                     size="lg"
-                    onClick={() => navigate('/provider-purchase')}
+                    onClick={() => navigate(paymentsWebOnly ? '/auth' : '/provider-purchase')}
                   >
                     For Providers
                   </Button>
                   <Button 
                     variant="secondary" 
                     size="lg"
-                    onClick={() => navigate('/family-purchase')}
+                    onClick={() => navigate(paymentsWebOnly ? '/auth' : '/family-purchase')}
                   >
                     For Families
                   </Button>

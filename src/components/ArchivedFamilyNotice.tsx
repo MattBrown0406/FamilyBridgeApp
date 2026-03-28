@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { usePlatform } from '@/hooks/usePlatform';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useFamilyArchive } from '@/hooks/useFamilyArchive';
@@ -32,6 +33,8 @@ interface ReactivationRequest {
 export const ArchivedFamilyNotice = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { isNative, isIOS } = usePlatform();
+  const paymentsWebOnly = isNative && isIOS;
   const { requestReactivation, reactivateFamilyAsIndependent, isRequesting, isReactivating } = useFamilyArchive();
   
   const [archivedFamilies, setArchivedFamilies] = useState<ArchivedFamily[]>([]);
@@ -236,7 +239,7 @@ export const ArchivedFamilyNotice = () => {
                     <AlertDialogFooter>
                       <AlertDialogCancel>Cancel</AlertDialogCancel>
                       <AlertDialogAction 
-                        onClick={() => navigate(`/family-purchase?reactivate=${family.id}`)}
+                        onClick={() => navigate(paymentsWebOnly ? `/support?type=family` : `/family-purchase?reactivate=${family.id}`)}
                       >
                         Continue to Reactivate
                       </AlertDialogAction>

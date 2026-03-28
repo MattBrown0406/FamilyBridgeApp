@@ -229,7 +229,7 @@ export const TemporaryModeratorRequest = ({
         <Button
           variant="outline"
           size="sm"
-          onClick={() => navigate(`/moderator-purchase?familyId=${familyId}`)}
+          onClick={() => navigate(isNative && isIOS ? `/support?type=family` : `/moderator-purchase?familyId=${familyId}`)}
           className="gap-1"
         >
           <Plus className="h-3 w-3" />
@@ -288,7 +288,7 @@ export const TemporaryModeratorRequest = ({
                       <button 
                         onClick={() => {
                           setDialogOpen(false);
-                          navigate(`/moderator-purchase?familyId=${familyId}`);
+                          navigate(isNative && isIOS ? `/support?type=family` : `/moderator-purchase?familyId=${familyId}`);
                         }}
                         className="underline hover:no-underline"
                       >

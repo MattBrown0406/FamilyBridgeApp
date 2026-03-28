@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { usePlatform } from '@/hooks/usePlatform';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -235,6 +236,8 @@ const getFamilyData = (family: FamilyType) => {
 
 const DemoFamily = () => {
   const navigate = useNavigate();
+  const { isNative, isIOS } = usePlatform();
+  const paymentsWebOnly = isNative && isIOS;
   const location = useLocation();
   const branding = (location.state as { branding?: DemoBranding })?.branding;
   const [activeTab, setActiveTab] = useState('messages');
@@ -457,7 +460,7 @@ const DemoFamily = () => {
                 </AlertDialog>
               )}
               <Button 
-                onClick={() => navigate('/family-purchase')}
+                onClick={() => navigate(paymentsWebOnly ? '/auth' : '/family-purchase')}
                 size="sm"
                 className="hover-lift shadow-lg text-xs sm:text-sm px-2 sm:px-4"
                 style={branding ? { backgroundColor: branding.primaryColor } : undefined}

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useProviderAdmin } from '@/hooks/useProviderAdmin';
+import { usePlatform } from '@/hooks/usePlatform';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -47,6 +48,8 @@ const Dashboard = () => {
   const { user, signOut, loading } = useAuth();
   const { isProvider, isLoading: isProviderLoading } = useProviderAdmin();
   const navigate = useNavigate();
+  const { isNative, isIOS } = usePlatform();
+  const paymentsWebOnly = isNative && isIOS;
   const { toast } = useToast();
   const { 
     showPaymentPopup, 
@@ -256,7 +259,11 @@ const Dashboard = () => {
               <span className="text-sm text-muted-foreground hidden sm:block">
                 {user?.email}
               </span>
-              <Button variant="ghost" size="sm" onClick={() => navigate('/subscription')}>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate(paymentsWebOnly ? '/auth' : '/subscription')}
+              >
                 <Crown className="h-4 w-4" />
                 <span className="hidden sm:inline ml-2">Premium</span>
               </Button>

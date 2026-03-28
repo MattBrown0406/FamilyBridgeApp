@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { usePlatform } from '@/hooks/usePlatform';
 import { useProviderAdmin } from '@/hooks/useProviderAdmin';
 import { useAuth } from '@/hooks/useAuth';
 import { useOrganizationBranding } from '@/hooks/useOrganizationBranding';
@@ -79,6 +80,8 @@ const hexToHsl = (hex: string): string => {
 
 const ProviderAdmin = () => {
   const navigate = useNavigate();
+  const { isNative, isIOS } = usePlatform();
+  const paymentsWebOnly = isNative && isIOS;
   const { user, loading: authLoading } = useAuth();
   const { branding, applyBranding, resetBranding } = useOrganizationBranding();
   const { 
@@ -835,7 +838,7 @@ const ProviderAdmin = () => {
               <p className="text-muted-foreground mb-4">
                 Don't have an activation code?
               </p>
-              <Button variant="outline" onClick={() => navigate('/provider-purchase')} size="lg">
+              <Button variant="outline" onClick={() => navigate(paymentsWebOnly ? '/auth' : '/provider-purchase')} size="lg">
                 <CreditCard className="h-5 w-5 mr-2" />
                 Purchase Activation Code
               </Button>

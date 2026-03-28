@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { usePlatform } from '@/hooks/usePlatform';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { useOrganization } from '@/hooks/useOrganization';
@@ -15,6 +16,8 @@ const Index = () => {
   const { organization, isWhiteLabeled } = useOrganization();
   const { isProvider } = useProviderAdmin();
   const navigate = useNavigate();
+  const { isNative, isIOS } = usePlatform();
+  const paymentsWebOnly = isNative && isIOS;
 
   const handleSignOut = async () => {
     await signOut();
@@ -157,7 +160,7 @@ const Index = () => {
                 <Button 
                   size="sm" 
                   className="h-8 px-2 sm:px-3 text-xs sm:text-sm bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300" 
-                  onClick={() => navigate('/family-purchase')}
+                  onClick={() => navigate(paymentsWebOnly ? '/auth' : '/family-purchase')}
                 >
                   <span className="hidden sm:inline">Get Started</span>
                   <span className="sm:hidden">Start</span>
@@ -202,7 +205,7 @@ const Index = () => {
           <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 justify-center px-2 sm:px-0 animate-fade-in" style={{ animationDelay: '0.4s' }}>
             <Button 
               size="default" 
-              onClick={() => navigate('/family-purchase')}
+              onClick={() => navigate(paymentsWebOnly ? '/auth' : '/family-purchase')}
               className="group h-10 sm:h-12 px-4 sm:px-6 text-sm sm:text-base bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground shadow-xl shadow-primary/30 hover:shadow-2xl hover:shadow-primary/40 transition-all duration-300 hover:-translate-y-1"
             >
               Start Your Journey
@@ -379,7 +382,7 @@ const Index = () => {
                   ))}
                 </ul>
                 <Button 
-                  onClick={() => navigate('/provider-purchase')}
+                  onClick={() => navigate(paymentsWebOnly ? '/auth' : '/provider-purchase')}
                   className="group h-9 sm:h-11 text-sm sm:text-base bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground shadow-lg w-full sm:w-auto"
                 >
                   Learn More
@@ -413,7 +416,7 @@ const Index = () => {
             <Button 
               size="default" 
               className="group h-10 sm:h-12 px-4 sm:px-6 text-sm sm:text-base bg-card text-primary hover:bg-card/90 shadow-2xl hover:shadow-3xl transition-all duration-300 hover:-translate-y-1 w-full sm:w-auto"
-              onClick={() => navigate('/family-purchase')}
+              onClick={() => navigate(paymentsWebOnly ? '/auth' : '/family-purchase')}
             >
               Create Your Family Group
               <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5 ml-2 group-hover:translate-x-1 transition-transform" />

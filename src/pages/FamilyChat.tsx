@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { usePlatform } from '@/hooks/usePlatform';
 import { useAuth } from '@/hooks/useAuth';
 import { useOrganization } from '@/hooks/useOrganization';
 import { supabase } from '@/integrations/supabase/client';
@@ -339,6 +340,8 @@ const FamilyChat = () => {
   const { user, loading } = useAuth();
   const { organization, setOrganizationById, clearFamilyOrganization } = useOrganization();
   const navigate = useNavigate();
+  const { isNative, isIOS } = usePlatform();
+  const paymentsWebOnly = isNative && isIOS;
   const { toast } = useToast();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -5161,7 +5164,7 @@ const FamilyChat = () => {
                       <p className="text-sm text-muted-foreground">Join our waitlist to be notified when testing and other premium features launch.</p>
                     </div>
                     <Button 
-                      onClick={() => navigate('/subscription')}
+                      onClick={() => navigate(paymentsWebOnly ? '/auth' : '/subscription')}
                       className="shrink-0"
                     >
                       Learn More

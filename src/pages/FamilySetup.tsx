@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { usePlatform } from "@/hooks/usePlatform";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -46,6 +47,8 @@ const RELATIONSHIP_OPTIONS: { value: RelationshipType; label: string }[] = [
 const FamilySetup = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { isNative, isIOS } = usePlatform();
+  const paymentsWebOnly = isNative && isIOS;
   const [searchParams] = useSearchParams();
   
   const [inviteCode, setInviteCode] = useState("");
@@ -367,7 +370,7 @@ const FamilySetup = () => {
           <div className="mt-6 text-center">
             <p className="text-sm text-muted-foreground">
               Don't have an invite code?{" "}
-              <Button variant="link" onClick={() => navigate("/family-purchase")} className="p-0 h-auto">
+              <Button variant="link" onClick={() => navigate(paymentsWebOnly ? "/auth" : "/family-purchase")} className="p-0 h-auto">
                 Get a subscription
               </Button>
             </p>
