@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>NSPrivacyTracking</key>
+  <false/>
+  <key>NSPrivacyTrackingDomains</key>
+  <array/>
+
+  <!--
+    Privacy manifest scaffold.
+
+    IMPORTANT:
+    - Keep this aligned with your actual data practices and any third-party SDKs.
+    - If you add SDKs that use Apple “Required Reason” APIs, you must declare them
+      under NSPrivacyAccessedAPITypes with the correct reason codes.
+
+    This app currently uses:
+    - Camera (user-initiated receipt / medication label capture)
+    - Location (user-initiated meeting check-ins / safety features)
+
+    Review before App Store submission.
+  -->
+
+  <key>NSPrivacyCollectedDataTypes</key>
+  <array/>
+
+  <key>NSPrivacyAccessedAPITypes</key>
+  <array/>
+</dict>
+</plist>
