@@ -327,8 +327,8 @@ const Demo = () => {
                   </p>
                   <p className="text-xs text-amber-700 dark:text-amber-300 mt-1 ml-6">
                     {!isNative 
-                      ? "Individual family subscriptions available at $19.99/month"
-                      : "Individual family subscriptions also available"
+                      ? "Individual family plans available"
+                      : "Individual family plans also available"
                     }
                   </p>
                 </div>

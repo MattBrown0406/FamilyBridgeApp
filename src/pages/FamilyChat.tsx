@@ -5096,7 +5096,7 @@ const FamilyChat = () => {
                   Drug & Alcohol Testing
                   <Badge className="ml-auto bg-gradient-to-r from-amber-500 to-orange-500 border-0 text-white">
                     <Sparkles className="h-3 w-3 mr-1" />
-                    Premium
+                    Features
                   </Badge>
                 </CardTitle>
               </CardHeader>
@@ -5111,7 +5111,7 @@ const FamilyChat = () => {
                     <div>
                       <h3 className="text-xl font-bold text-foreground mb-2">Coming Soon</h3>
                       <p className="text-muted-foreground max-w-md mx-auto">
-                        Drug and alcohol testing features are currently in development. When ready, they will be offered as part of a premium upgrade.
+                        Drug and alcohol testing features are currently in development. When ready, they will be offered as an optional add-on.
                       </p>
                     </div>
                     <Badge variant="secondary" className="bg-amber-100 text-amber-700 border-amber-200">
@@ -5160,8 +5160,8 @@ const FamilyChat = () => {
                       <Sparkles className="h-6 w-6 text-primary-foreground" />
                     </div>
                     <div className="flex-1 text-center sm:text-left">
-                      <h4 className="font-semibold text-foreground">Interested in Premium Features?</h4>
-                      <p className="text-sm text-muted-foreground">Join our waitlist to be notified when testing and other premium features launch.</p>
+                      <h4 className="font-semibold text-foreground">Interested in Early Access?</h4>
+                      <p className="text-sm text-muted-foreground">Join our waitlist to be notified when testing and other optional add-ons launch.</p>
                     </div>
                     <Button 
                       onClick={() => navigate(paymentsWebOnly ? '/auth' : '/subscription')}

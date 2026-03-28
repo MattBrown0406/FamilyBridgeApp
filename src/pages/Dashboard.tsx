@@ -51,13 +51,13 @@ const Dashboard = () => {
   const { isNative, isIOS } = usePlatform();
   const paymentsWebOnly = isNative && isIOS;
   const { toast } = useToast();
-  const { 
-    showPaymentPopup, 
-    selectedIssue, 
-    setShowPaymentPopup, 
-    getGracePeriodRemaining 
+  const {
+    showPaymentPopup,
+    selectedIssue,
+    setShowPaymentPopup,
+    getGracePeriodRemaining
   } = usePaymentStatus();
-  
+
   const [families, setFamilies] = useState<Family[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -193,12 +193,12 @@ const Dashboard = () => {
 
       // Sign out the user (the auth.users record will remain but user data is deleted)
       await signOut();
-      
+
       toast({
         title: 'Account Deleted',
         description: 'Your account data has been successfully deleted.',
       });
-      
+
       navigate('/');
     } catch (error) {
       console.error('Error deleting account:', error);
@@ -265,11 +265,11 @@ const Dashboard = () => {
                 onClick={() => navigate(paymentsWebOnly ? '/auth' : '/subscription')}
               >
                 <Crown className="h-4 w-4" />
-                <span className="hidden sm:inline ml-2">Premium</span>
+                <span className="hidden sm:inline ml-2">More</span>
               </Button>
-              <Button 
-                variant="ghost" 
-                size="sm" 
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() => {
                   const firstFamily = families[0];
                   const params = new URLSearchParams({ type: 'family' });
@@ -281,7 +281,7 @@ const Dashboard = () => {
                 <span className="hidden sm:inline ml-2">Support</span>
               </Button>
               <NotificationBell />
-              
+
               {/* Settings Dropdown */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -296,7 +296,7 @@ const Dashboard = () => {
                     Sign Out
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem 
+                  <DropdownMenuItem
                     onClick={() => setShowDeleteDialog(true)}
                     className="text-destructive focus:text-destructive"
                   >
@@ -316,10 +316,10 @@ const Dashboard = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Your Account?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete your account data, 
+              This action cannot be undone. This will permanently delete your account data,
               including your profile, family memberships, and all associated information.
               {'\n\n'}
-              If you have an active subscription, please cancel it through your account 
+              If you have an active plan, you can manage it through your account
               settings before deleting your account.
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -372,7 +372,7 @@ const Dashboard = () => {
                 <h3 className="text-lg font-semibold text-foreground mb-2">
                   Welcome to FamilyBridge
                 </h3>
-                
+
                 {/* Getting Started Paths */}
                 <div className="grid gap-4 max-w-md mx-auto">
                   <Button
@@ -382,7 +382,7 @@ const Dashboard = () => {
                     <div className="font-semibold">Just purchased? Set up your family group</div>
                     <ArrowRight className="h-4 w-4" />
                   </Button>
-                  
+
                   <Button
                     variant="outline"
                     className="h-auto p-4 flex-col gap-2"
@@ -401,7 +401,7 @@ const Dashboard = () => {
                       FamilyBridge is a secure platform designed to help families affected by addiction communicate more effectively and maintain healthy boundaries.
                     </p>
                     <p>
-                      Our tools include moderated family chat, boundary setting, goal tracking, and coaching resources—all designed to support your family's recovery journey.
+                      Our tools include moderated family chat, boundary setting, goal tracking, and coaching resources-all designed to support your family's recovery journey.
                     </p>
                   </div>
                 </div>
@@ -410,8 +410,8 @@ const Dashboard = () => {
           ) : (
             <div className="grid gap-4">
               {families.map((family) => (
-                <Card 
-                  key={family.id} 
+                <Card
+                  key={family.id}
                   className="hover:shadow-elevated transition-shadow cursor-pointer"
                   onClick={() => navigate(`/family/${family.id}`)}
                 >
@@ -424,8 +424,8 @@ const Dashboard = () => {
                         )}
                       </div>
                       <span className={`text-xs px-2 py-1 rounded-full ${
-                        family.role === 'moderator' 
-                          ? 'bg-primary/10 text-primary' 
+                        family.role === 'moderator'
+                          ? 'bg-primary/10 text-primary'
                           : family.role === 'recovering'
                           ? 'bg-accent/10 text-accent'
                           : 'bg-secondary text-secondary-foreground'

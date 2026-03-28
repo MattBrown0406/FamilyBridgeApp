@@ -223,7 +223,7 @@ const FamilySetup = () => {
                   className="font-mono"
                 />
                 <p className="text-xs text-muted-foreground">
-                  This is the code you received after setting up your subscription
+                  This is the code you received when your account was set up
                 </p>
               </div>
 
@@ -371,7 +371,7 @@ const FamilySetup = () => {
             <p className="text-sm text-muted-foreground">
               Don't have an invite code?{" "}
               <Button variant="link" onClick={() => navigate(paymentsWebOnly ? "/auth" : "/family-purchase")} className="p-0 h-auto">
-                Get a subscription
+                Set up an account
               </Button>
             </p>
           </div>

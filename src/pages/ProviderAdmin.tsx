@@ -799,7 +799,7 @@ const ProviderAdmin = () => {
                   Enter Activation Code
                 </CardTitle>
                 <CardDescription>
-                  Enter your purchased activation code to get started
+                  Enter your activation code to get started
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -840,7 +840,7 @@ const ProviderAdmin = () => {
               </p>
               <Button variant="outline" onClick={() => navigate(paymentsWebOnly ? '/auth' : '/provider-purchase')} size="lg">
                 <CreditCard className="h-5 w-5 mr-2" />
-                Purchase Activation Code
+                Get Activation Code
               </Button>
             </div>
           </div>

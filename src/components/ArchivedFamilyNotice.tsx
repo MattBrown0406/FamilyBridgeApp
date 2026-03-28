@@ -214,7 +214,7 @@ export const ArchivedFamilyNotice = () => {
                 <p className="text-sm text-muted-foreground">
                   As a family admin, you can reactivate this family as an independent group 
                   (no longer associated with {family.organization_name || 'the provider'}).
-                  A subscription is required to continue.
+                  Continued access requires an active plan.
                 </p>
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
@@ -230,7 +230,7 @@ export const ArchivedFamilyNotice = () => {
                       <AlertDialogTitle>Reactivate as Independent Family?</AlertDialogTitle>
                       <AlertDialogDescription>
                         To reactivate "{family.name}" as an independent family group, 
-                        you'll need a family subscription.
+                        you'll need an active family plan.
                         <br /><br />
                         <strong>Note:</strong> If you want to remain with {family.organization_name || 'the provider'}, 
                         please contact them to reactivate your family at no additional cost.
