@@ -20,13 +20,21 @@ const config: CapacitorConfig = {
       showSpinner: false,
     }
   },
+  // Live reload is DEV-ONLY. Do not allow a remote server URL in production builds.
   ...(process.env.CAPACITOR_LIVE_RELOAD === 'true'
-    ? {
-        server: {
-          url: 'https://feec1623-0378-4a95-9c16-35217b29129c.lovableproject.com?forceHideBadge=true',
-          cleartext: true,
-        },
-      }
+    ? (() => {
+        if (process.env.NODE_ENV === 'production') {
+          throw new Error('CAPACITOR_LIVE_RELOAD cannot be enabled in production');
+        }
+
+        return {
+          server: {
+            url: 'https://feec1623-0378-4a95-9c16-35217b29129c.lovableproject.com?forceHideBadge=true',
+            // Allow http cleartext only for local/dev workflows.
+            cleartext: true,
+          },
+        };
+      })()
     : {}),
 };
 
