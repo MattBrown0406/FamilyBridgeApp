@@ -1,5 +1,10 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import {
+  assessEscalationLevel,
+  buildFIISDoctrinePrompt,
+  selectAdaptiveLenses,
+} from "../_shared/fiis-doctrine.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -2305,6 +2310,19 @@ interface AnalysisRequest {
   }>;
 }
 
+interface FIISResponseMetadata {
+  active_lenses: Array<{
+    id: string;
+    label: string;
+    why: string;
+  }>;
+  escalation_level: 1 | 2 | 3 | 4;
+  escalation_label: string;
+  moderator_recommended: boolean;
+  professional_recommended: boolean;
+  emergency_override: boolean;
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -3340,6 +3358,16 @@ COACHING ANALYSIS INTERPRETATION:
 
     dataDescription += `\nAnalyze these ${observations.length + autoEvents.length} data points using the risk-escalation framework. Focus on how these patterns affect the likelihood of reaching the ONE-YEAR sobriety goal. Determine the current risk level (0-4) and provide your assessment with predictive indicators.`;
 
+    const activeLenses = selectAdaptiveLenses(dataDescription);
+    const doctrineEscalation = assessEscalationLevel(dataDescription);
+    const doctrinePrompt = buildFIISDoctrinePrompt({
+      audience: "mixed",
+      mode: "analysis",
+      plainLanguageSurface: true,
+      contextText: dataDescription,
+    });
+    const combinedSystemPrompt = `${doctrinePrompt}\n\n${FIIS_SYSTEM_PROMPT}`;
+
     console.log("Calling Lovable AI for FIIS analysis with one-year goal focus...");
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -3351,7 +3379,7 @@ COACHING ANALYSIS INTERPRETATION:
       body: JSON.stringify({
         model: "google/gemini-3-flash-preview",
         messages: [
-          { role: "system", content: FIIS_SYSTEM_PROMPT },
+          { role: "system", content: combinedSystemPrompt },
           { role: "user", content: dataDescription },
         ],
         tools: [
@@ -3658,6 +3686,53 @@ COACHING ANALYSIS INTERPRETATION:
                     },
                     description: "Behavioral summaries for each family member. CRITICAL: Use plain behavioral descriptions, NEVER clinical role labels (Enabler, Hero, Scapegoat, Lost Child, Mascot). These are shown to the family."
                   },
+                  response_metadata: {
+                    type: "object",
+                    properties: {
+                      active_lenses: {
+                        type: "array",
+                        items: {
+                          type: "object",
+                          properties: {
+                            id: { type: "string" },
+                            label: { type: "string" },
+                            why: { type: "string" },
+                          },
+                          required: ["id", "label", "why"],
+                        },
+                        description: "The doctrine lenses most active for this analysis.",
+                      },
+                      escalation_level: {
+                        type: "number",
+                        enum: [1, 2, 3, 4],
+                      },
+                      escalation_label: {
+                        type: "string",
+                        description: "Human-readable escalation label.",
+                      },
+                      moderator_recommended: {
+                        type: "boolean",
+                        description: "Whether moderator involvement is recommended.",
+                      },
+                      professional_recommended: {
+                        type: "boolean",
+                        description: "Whether professional/interventionist support is recommended.",
+                      },
+                      emergency_override: {
+                        type: "boolean",
+                        description: "True when the response must explicitly prioritize emergency response.",
+                      },
+                    },
+                    required: [
+                      "active_lenses",
+                      "escalation_level",
+                      "escalation_label",
+                      "moderator_recommended",
+                      "professional_recommended",
+                      "emergency_override"
+                    ],
+                    description: "Structured doctrine and escalation metadata that UI can surface safely.",
+                  },
                 },
                 required: [
                   "risk_level", 
@@ -3677,7 +3752,8 @@ COACHING ANALYSIS INTERPRETATION:
                   "provider_clinical_insights",
                   "clarifying_questions", 
                   "what_to_watch", 
-                  "recommend_professional"
+                  "recommend_professional",
+                  "response_metadata"
                 ],
               },
             },
@@ -3735,6 +3811,14 @@ COACHING ANALYSIS INTERPRETATION:
           clarifying_questions: [],
           what_to_watch: [],
           recommend_professional: false,
+          response_metadata: {
+            active_lenses: activeLenses,
+            escalation_level: doctrineEscalation.level,
+            escalation_label: doctrineEscalation.label,
+            moderator_recommended: doctrineEscalation.requiresModerator,
+            professional_recommended: doctrineEscalation.requiresProfessionalSupport,
+            emergency_override: doctrineEscalation.emergencyOverride,
+          },
         };
       }
     } catch (parseError) {
@@ -3755,7 +3839,55 @@ COACHING ANALYSIS INTERPRETATION:
         clarifying_questions: [],
         what_to_watch: [],
         recommend_professional: false,
+        response_metadata: {
+          active_lenses: activeLenses,
+          escalation_level: doctrineEscalation.level,
+          escalation_label: doctrineEscalation.label,
+          moderator_recommended: doctrineEscalation.requiresModerator,
+          professional_recommended: doctrineEscalation.requiresProfessionalSupport,
+          emergency_override: doctrineEscalation.emergencyOverride,
+        },
       };
+    }
+
+    const responseMetadata: FIISResponseMetadata = {
+      active_lenses: Array.isArray(analysis.response_metadata?.active_lenses) && analysis.response_metadata.active_lenses.length > 0
+        ? analysis.response_metadata.active_lenses
+        : activeLenses,
+      escalation_level: analysis.response_metadata?.escalation_level ?? doctrineEscalation.level,
+      escalation_label: analysis.response_metadata?.escalation_label ?? doctrineEscalation.label,
+      moderator_recommended:
+        analysis.response_metadata?.moderator_recommended ??
+        analysis.recommend_professional ??
+        doctrineEscalation.requiresModerator,
+      professional_recommended:
+        analysis.response_metadata?.professional_recommended ??
+        analysis.recommend_professional ??
+        doctrineEscalation.requiresProfessionalSupport,
+      emergency_override:
+        analysis.response_metadata?.emergency_override ?? doctrineEscalation.emergencyOverride,
+    };
+
+    analysis.response_metadata = responseMetadata;
+    analysis.active_lenses = responseMetadata.active_lenses;
+    analysis.escalation_level = responseMetadata.escalation_level;
+    analysis.moderator_recommended = responseMetadata.moderator_recommended;
+    analysis.professional_recommended = responseMetadata.professional_recommended;
+    analysis.emergency_override = responseMetadata.emergency_override;
+
+    if (responseMetadata.escalation_level >= 3) {
+      analysis.recommend_professional = true;
+    }
+
+    if (responseMetadata.escalation_level === 4) {
+      const emergencyPrefix = "Call 911 first. After emergency services are contacted, use the moderator/help button for follow-on support.";
+      if (typeof analysis.professional_recommendation_reason === "string" && analysis.professional_recommendation_reason.length > 0) {
+        if (!analysis.professional_recommendation_reason.toLowerCase().includes("call 911 first")) {
+          analysis.professional_recommendation_reason = `${emergencyPrefix} ${analysis.professional_recommendation_reason}`;
+        }
+      } else {
+        analysis.professional_recommendation_reason = emergencyPrefix;
+      }
     }
 
     // Add one-year goal context to the response
@@ -3781,6 +3913,9 @@ COACHING ANALYSIS INTERPRETATION:
           risk_level: analysis.risk_level,
           risk_level_name: analysis.risk_level_name,
           recommend_professional: analysis.recommend_professional,
+          escalation_level: analysis.response_metadata?.escalation_level,
+          moderator_recommended: analysis.response_metadata?.moderator_recommended,
+          professional_recommended: analysis.response_metadata?.professional_recommended,
           one_year_likelihood: analysis.one_year_likelihood,
           current_sobriety_days: currentDays,
           recovery_phase: recoveryPhase,

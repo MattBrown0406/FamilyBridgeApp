@@ -21,6 +21,8 @@ import { LifeBuoy, Loader2, Clock, AlertTriangle, Plus } from 'lucide-react';
 interface TemporaryModeratorRequestProps {
   familyId: string;
   hasOrganization: boolean;
+  escalationLevel?: 3 | 4;
+  compactLabel?: string;
 }
 
 const formatCountdown = (expiresAt: Date): string => {
@@ -70,7 +72,9 @@ const getUpdateInterval = (expiresAt: Date): number => {
 
 export const TemporaryModeratorRequest = ({ 
   familyId, 
-  hasOrganization 
+  hasOrganization,
+  escalationLevel,
+  compactLabel,
 }: TemporaryModeratorRequestProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -248,7 +252,7 @@ export const TemporaryModeratorRequest = ({
           className="gap-2 border-destructive/50 text-destructive hover:bg-destructive hover:text-destructive-foreground"
         >
           <LifeBuoy className="h-4 w-4" />
-          <span className="hidden sm:inline">Request Temporary Moderator</span>
+          <span className="hidden sm:inline">{compactLabel || 'Request Temporary Moderator'}</span>
           <span className="sm:hidden">Crisis Help</span>
         </Button>
       </AlertDialogTrigger>
@@ -260,6 +264,24 @@ export const TemporaryModeratorRequest = ({
           </AlertDialogTitle>
           <AlertDialogDescription asChild>
             <div className="space-y-4 text-left">
+              {escalationLevel === 4 && (
+                <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-4">
+                  <p className="font-semibold text-destructive">Call 911 first.</p>
+                  <p className="text-sm mt-1">
+                    This help request is for follow-on moderator/interventionist support after emergency services have been contacted.
+                  </p>
+                </div>
+              )}
+
+              {escalationLevel === 3 && (
+                <div className="rounded-lg border border-warning/40 bg-warning/10 p-4">
+                  <p className="font-semibold text-foreground">Level 3 strain detected</p>
+                  <p className="text-sm mt-1">
+                    Moderator or interventionist involvement is strongly recommended now so the family is not carrying this alone.
+                  </p>
+                </div>
+              )}
+
               <p>
                 You are about to request temporary supervision from a professional 
                 interventionist to help your family during a crisis.

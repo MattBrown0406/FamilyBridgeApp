@@ -85,6 +85,7 @@ import { AftercarePlanTab } from '@/components/AftercarePlanTab';
 import { MedicationTab } from '@/components/MedicationTab';
 import { FamilyDocumentsTab } from '@/components/FamilyDocumentsTab';
 import { CoachingTab } from '@/components/CoachingTab';
+import { evaluateBoundaryQuality } from '@/lib/boundaryQuality';
 
 const REQUEST_REASONS = [
   'Electric',
@@ -486,6 +487,8 @@ const FamilyChat = () => {
   
   // Contextual coaching nudge state
   const [showCoachingNudge, setShowCoachingNudge] = useState(false);
+  const newBoundaryQuality = evaluateBoundaryQuality(newBoundaryContent, newBoundaryConsequence);
+  const editBoundaryQuality = evaluateBoundaryQuality(editBoundaryContent, editBoundaryConsequence);
   
   // Check for heated conversation and trigger coaching nudge
   const checkForHeatedConversation = (messagesArray: Message[]) => {
@@ -1561,6 +1564,24 @@ const FamilyChat = () => {
   const handleCreateBoundary = async () => {
     if (!newBoundaryContent.trim() || !user || !familyId) return;
 
+    if (!newBoundaryConsequence.trim()) {
+      toast({
+        title: 'Consequence required',
+        description: 'A boundary without a consequence is just a request.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!newBoundaryQuality.isStrong) {
+      toast({
+        title: 'Strengthen this boundary first',
+        description: newBoundaryQuality.summary,
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setIsAddingBoundary(true);
     try {
       const { error } = await supabase
@@ -1751,6 +1772,24 @@ const FamilyChat = () => {
       toast({
         title: 'Content required',
         description: 'Please enter the boundary content.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!editBoundaryConsequence.trim()) {
+      toast({
+        title: 'Consequence required',
+        description: 'Keep the consequence concrete so the boundary can actually be enforced.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!editBoundaryQuality.isStrong) {
+      toast({
+        title: 'Strengthen this boundary first',
+        description: editBoundaryQuality.summary,
         variant: 'destructive',
       });
       return;
@@ -4820,10 +4859,31 @@ const FamilyChat = () => {
                           A boundary without a consequence is just a request. Be specific about what will happen.
                         </p>
                       </div>
+                      {(newBoundaryContent.trim().length > 0 || newBoundaryConsequence.trim().length > 0) && (
+                        <div className={`rounded-lg border p-3 ${newBoundaryQuality.isStrong ? 'bg-green-50 border-green-200 dark:bg-green-950/20 dark:border-green-900/40' : 'bg-amber-50 border-amber-200 dark:bg-amber-950/20 dark:border-amber-900/40'}`}>
+                          <div className="flex items-center justify-between gap-3 mb-2">
+                            <p className="text-sm font-medium">Boundary quality check</p>
+                            <Badge variant={newBoundaryQuality.isStrong ? 'default' : 'secondary'}>
+                              {newBoundaryQuality.score}/4 checks
+                            </Badge>
+                          </div>
+                          <p className="text-xs text-muted-foreground mb-2">{newBoundaryQuality.summary}</p>
+                          <div className="grid gap-2">
+                            {newBoundaryQuality.checks.map((check) => (
+                              <div key={check.key} className="text-xs">
+                                <span className={`font-medium ${check.passed ? 'text-green-700 dark:text-green-400' : 'text-amber-700 dark:text-amber-400'}`}>
+                                  {check.label}:
+                                </span>{' '}
+                                <span className="text-muted-foreground">{check.feedback}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                       <div className="flex gap-2">
                         <Button
                           onClick={handleCreateBoundary}
-                          disabled={!newBoundaryContent.trim() || !newBoundaryConsequence.trim() || isAddingBoundary}
+                          disabled={!newBoundaryContent.trim() || !newBoundaryConsequence.trim() || isAddingBoundary || !newBoundaryQuality.isStrong}
                         >
                           {isAddingBoundary ? (
                             <>
@@ -5858,12 +5918,32 @@ const FamilyChat = () => {
                 rows={2}
               />
             </div>
+            {(editBoundaryContent.trim().length > 0 || editBoundaryConsequence.trim().length > 0) && (
+              <div className={`rounded-lg border p-3 ${editBoundaryQuality.isStrong ? 'bg-green-50 border-green-200 dark:bg-green-950/20 dark:border-green-900/40' : 'bg-amber-50 border-amber-200 dark:bg-amber-950/20 dark:border-amber-900/40'}`}>
+                <div className="flex items-center justify-between gap-3 mb-2">
+                  <p className="text-sm font-medium">Boundary quality check</p>
+                  <Badge variant={editBoundaryQuality.isStrong ? 'default' : 'secondary'}>
+                    {editBoundaryQuality.score}/4 checks
+                  </Badge>
+                </div>
+                <div className="grid gap-2">
+                  {editBoundaryQuality.checks.map((check) => (
+                    <div key={check.key} className="text-xs">
+                      <span className={`font-medium ${check.passed ? 'text-green-700 dark:text-green-400' : 'text-amber-700 dark:text-amber-400'}`}>
+                        {check.label}:
+                      </span>{' '}
+                      <span className="text-muted-foreground">{check.feedback}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
           <div className="flex gap-2 justify-end">
             <Button variant="ghost" onClick={() => setEditingBoundary(null)}>
               Cancel
             </Button>
-            <Button onClick={handleUpdateBoundary}>
+            <Button onClick={handleUpdateBoundary} disabled={!editBoundaryQuality.isStrong || !editBoundaryConsequence.trim()}>
               <Check className="h-4 w-4 mr-2" />
               Save Changes
             </Button>

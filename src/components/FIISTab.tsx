@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { FIIS_ESCALATION_LEVELS } from "@/lib/fiisDoctrine";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -43,6 +44,7 @@ import {
   ArrowRight,
   Zap,
   Stethoscope,
+  Phone,
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { format, formatDistanceToNow } from "date-fns";
@@ -210,6 +212,19 @@ interface PatternAnalysis {
   provider_clinical_alerts?: ProviderClinicalAlert[];
   // Family-facing behavioral summaries (replaces clinical role labels)
   family_role_summaries?: FamilyRoleSummary[];
+  response_metadata?: {
+    active_lenses: Array<{ id: string; label: string; why: string }>;
+    escalation_level: 1 | 2 | 3 | 4;
+    escalation_label: string;
+    moderator_recommended: boolean;
+    professional_recommended: boolean;
+    emergency_override: boolean;
+  };
+  active_lenses?: Array<{ id: string; label: string; why: string }>;
+  escalation_level?: 1 | 2 | 3 | 4;
+  moderator_recommended?: boolean;
+  professional_recommended?: boolean;
+  emergency_override?: boolean;
 }
 
 interface FamilyRoleSummary {
@@ -617,6 +632,13 @@ export function FIISTab({ familyId, members, excludeUserIds = [], onView, isMode
     ...observations.map((o) => ({ ...o, _type: "observation" as const })),
     ...autoEvents.map((e) => ({ ...e, _type: "auto" as const })),
   ].sort((a, b) => new Date(b.occurred_at).getTime() - new Date(a.occurred_at).getTime());
+
+  const responseMetadata = analysis?.response_metadata;
+  const activeLenses = responseMetadata?.active_lenses || analysis?.active_lenses || [];
+  const escalationLevel = responseMetadata?.escalation_level || analysis?.escalation_level;
+  const escalationConfig = escalationLevel
+    ? FIIS_ESCALATION_LEVELS.find((item) => item.level === escalationLevel)
+    : null;
 
   if (isLoading) {
     return (
@@ -1453,24 +1475,95 @@ export function FIISTab({ familyId, members, excludeUserIds = [], onView, isMode
             ) : null}
 
             {/* Professional Moderator Recommendation */}
-            {analysis.recommend_professional && (
+            {(activeLenses.length > 0 || escalationConfig) && (
+              <div className="p-4 rounded-lg bg-muted/40 border border-border space-y-3">
+                {activeLenses.length > 0 && (
+                  <div>
+                    <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
+                      <Sparkles className="h-4 w-4 text-muted-foreground" />
+                      Active FIIS Lenses
+                    </h4>
+                    <div className="flex flex-wrap gap-2">
+                      {activeLenses.map((lens) => (
+                        <Badge key={lens.id} variant="secondary" className="text-[11px]">
+                          {lens.label}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {escalationConfig && (
+                  <div className="rounded-lg border border-border bg-background/80 p-3">
+                    <div className="flex items-center justify-between gap-3 flex-wrap mb-1">
+                      <h4 className="text-sm font-medium flex items-center gap-2">
+                        <Shield className="h-4 w-4 text-muted-foreground" />
+                        Escalation Guidance
+                      </h4>
+                      <Badge variant={escalationLevel && escalationLevel >= 3 ? "destructive" : "outline"}>
+                        Level {escalationLevel}: {escalationConfig.label}
+                      </Badge>
+                    </div>
+                    <p className="text-sm text-muted-foreground">{escalationConfig.description}</p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {(analysis.recommend_professional || escalationLevel === 3 || escalationLevel === 4) && (
               <div className="p-4 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800">
                 <h4 className="text-sm font-semibold mb-2 text-red-800 dark:text-red-300 flex items-center gap-2">
                   <UserPlus className="h-4 w-4" />
-                  Professional Support Recommended
+                  {escalationLevel === 4 ? "Emergency + Professional Help Needed" : "Professional Support Recommended"}
                 </h4>
                 <p className="text-sm text-red-700 dark:text-red-400 mb-3">
                   {analysis.professional_recommendation_reason || 
                     "Inviting a professional moderator is not a sign of failure. It is often the most effective way to protect the path to one year, preserve relationships, restore clarity, and reduce long-term harm."}
                 </p>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="border-red-300 dark:border-red-700 text-red-700 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/50"
-                >
-                  <UserPlus className="h-4 w-4 mr-2" />
-                  Request Professional Moderator
-                </Button>
+
+                {escalationLevel === 4 ? (
+                  <div className="space-y-2">
+                    <div className="rounded-md border border-red-300/60 bg-white/70 dark:bg-red-950/20 p-3 text-sm text-red-800 dark:text-red-300">
+                      <strong>Call 911 first.</strong> After emergency services are contacted, return here and use moderator/help support for follow-on guidance.
+                    </div>
+                    <div className="flex gap-2 flex-wrap">
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => window.location.assign("tel:911")}
+                      >
+                        <Phone className="h-4 w-4 mr-2" />
+                        Call 911 First
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="border-red-300 dark:border-red-700 text-red-700 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/50"
+                        onClick={() => window.location.assign("/support?type=family")}
+                      >
+                        <UserPlus className="h-4 w-4 mr-2" />
+                        Open Moderator / Help
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {escalationLevel === 3 && (
+                      <div className="rounded-md border border-red-300/60 bg-white/70 dark:bg-red-950/20 p-3 text-sm text-red-800 dark:text-red-300">
+                        Level 3 means the family system is under strain. Bring in a moderator or interventionist now rather than trying to carry this alone.
+                      </div>
+                    )}
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="border-red-300 dark:border-red-700 text-red-700 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/50"
+                      onClick={() => window.location.assign("/support?type=family")}
+                    >
+                      <UserPlus className="h-4 w-4 mr-2" />
+                      Request Moderator / Interventionist Help
+                    </Button>
+                  </div>
+                )}
               </div>
             )}
 
