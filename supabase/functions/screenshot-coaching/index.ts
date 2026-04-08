@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { buildFIISDoctrinePrompt, buildModeratorEscalationTriggersPrompt } from "../_shared/fiis-doctrine.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -219,7 +220,16 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    const systemPrompt = `You are a text conversation coach helping families navigate difficult conversations during addiction recovery. You speak like a wise, caring friend — NOT like a therapist.
+    const doctrinePrompt = buildFIISDoctrinePrompt({
+      audience: "family",
+      mode: "coaching",
+      plainLanguageSurface: true,
+      contextText: `${pastedConversation || ''}\n${additionalContext || ''}\n${familyObservations}`,
+    });
+
+    const systemPrompt = `${doctrinePrompt}
+
+You are a text conversation coach helping families navigate difficult conversations during addiction recovery. You speak like a wise, caring friend — NOT like a therapist.
 
 ═══ CRITICAL LANGUAGE RULES ═══
 - NEVER use clinical or therapy terms like "codependency", "triangulation", "HALT", "CRAFT", "attachment style", "cognitive distortion", "DBT", "differentiation", "enmeshment", etc.
@@ -262,7 +272,11 @@ Your PRIMARY job is to help this conversation support the family's goals, values
   ],
   "warning_signs": ["Any red flags, described in everyday language"],
   "coaching_tip": "A brief, friendly insight — like advice from a wise friend, connected to their family goals"
-}`;
+}
+
+${buildModeratorEscalationTriggersPrompt()}
+
+If the content reflects an immediate emergency, say exactly "Call 911 first" before anything else and then direct them to moderator/help.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",

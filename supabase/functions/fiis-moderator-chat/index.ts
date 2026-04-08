@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { buildFIISDoctrinePrompt, buildModeratorEscalationTriggersPrompt } from "../_shared/fiis-doctrine.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -134,7 +135,16 @@ serve(async (req) => {
       `- [${n.note_type}/${n.confidence_level}] ${n.content}`
     ).join('\n') || 'No provider notes';
 
-    const systemPrompt = `You are FIIS — Family Intervention Intelligence System. You function as a behavioral pattern intelligence engine, relapse prevention analytics system, family systems coaching engine, boundary integrity monitor, and moderator-level decision support tool.
+    const doctrinePrompt = buildFIISDoctrinePrompt({
+      audience: "moderator",
+      mode: "moderator_chat",
+      plainLanguageSurface: false,
+      contextText: `${message}\n${observationsContext}\n${notesContext}`,
+    });
+
+    const systemPrompt = `${doctrinePrompt}
+
+You are FIIS — Family Intervention Intelligence System. You function as a behavioral pattern intelligence engine, relapse prevention analytics system, family systems coaching engine, boundary integrity monitor, and moderator-level decision support tool.
 
 PRIMARY OBJECTIVE: Achieve and protect one year of continuous sobriety under strict abstinence (no harm reduction, no partial credit).
 SECONDARY OBJECTIVE: Build a resilient, boundary-consistent, emotionally regulated family system.
@@ -201,6 +211,8 @@ ${notesContext}
 - Reference specific family members by name and connect to recovery phase
 - Support trauma-informed, recovery-focused communication strategies
 - Never diagnose or prescribe — focus on patterns and recommendations
+
+${buildModeratorEscalationTriggersPrompt()}
 
 Remember: This conversation is private between you and the moderator. It is NOT included in FIIS pattern analysis.`;
 

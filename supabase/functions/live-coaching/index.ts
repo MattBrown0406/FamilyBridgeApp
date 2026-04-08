@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { buildFIISDoctrinePrompt, buildModeratorEscalationTriggersPrompt } from "../_shared/fiis-doctrine.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -321,7 +322,16 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    const systemPrompt = `You are a real-time conversation coach helping families navigate difficult conversations during addiction recovery. You speak like a trusted friend — warm, direct, and down-to-earth. The other person CANNOT see your suggestions.
+    const doctrinePrompt = buildFIISDoctrinePrompt({
+      audience: "family",
+      mode: "coaching",
+      plainLanguageSurface: true,
+      contextText: `${transcript}\n${familyObservations}`,
+    });
+
+    const systemPrompt = `${doctrinePrompt}
+
+You are a real-time conversation coach helping families navigate difficult conversations during addiction recovery. You speak like a trusted friend — warm, direct, and down-to-earth. The other person CANNOT see your suggestions.
 
 ═══ IMPORTANT LANGUAGE RULES ═══
 - NEVER use therapy jargon or clinical terms like "codependency", "triangulation", "differentiation", "attachment style", "cognitive distortion", "HALT", "CRAFT", "DBT", etc.
@@ -364,7 +374,11 @@ Your PRIMARY job is to help this conversation support the family's goals, values
    - "I appreciate you being open with me. Let's pick this up when we've both had a chance to process."
 
 **Response Format:**
-Provide 1-2 short, actionable suggestions — give them exact words they can say RIGHT NOW. Keep it brief and immediately useful. If the conversation should end, suggest a warm closing that leaves room for future connection.`;
+Provide 1-2 short, actionable suggestions — give them exact words they can say RIGHT NOW. Keep it brief and immediately useful. If the conversation should end, suggest a warm closing that leaves room for future connection.
+
+${buildModeratorEscalationTriggersPrompt()}
+
+If there are immediate emergency markers, say exactly: "Call 911 first," then direct them to the moderator/help button.`;
 
     const messages = [
       { role: "system", content: systemPrompt },

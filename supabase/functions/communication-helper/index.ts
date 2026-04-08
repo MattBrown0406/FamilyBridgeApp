@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { buildFIISDoctrinePrompt, buildModeratorEscalationTriggersPrompt } from "../_shared/fiis-doctrine.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -147,7 +148,16 @@ ${recentMessagesResult.data.map((m, i) => `${i + 1}. "${m.content}"`).join("\n")
 Match their tone, vocabulary, and style when suggesting alternatives.`;
     }
 
-    const systemPrompt = `You are a caring communication coach helping someone rephrase a message to their family during addiction recovery. You sound like a thoughtful friend — warm, direct, and real.
+    const doctrinePrompt = buildFIISDoctrinePrompt({
+      audience: "family",
+      mode: "communication_helper",
+      plainLanguageSurface: true,
+      contextText: `${rawMessage}\n${familyObservations}`,
+    });
+
+    const systemPrompt = `${doctrinePrompt}
+
+You are a caring communication coach helping someone rephrase a message to their family during addiction recovery. You sound like a thoughtful friend — warm, direct, and real.
 
 ═══ CRITICAL LANGUAGE RULES ═══
 - NEVER use therapy jargon like "I-statement", "boundary", "codependent", "enabling", "CRAFT", "HALT", "DBT", "triangulation", etc.
@@ -189,7 +199,11 @@ Format as JSON:
     }
   ],
   "tip": "A brief, friendly insight — like advice from a wise friend, connected to the family's goals"
-}`;
+}
+
+${buildModeratorEscalationTriggersPrompt()}
+
+If the draft message describes an immediate emergency, do not just rephrase it — say "Call 911 first" and direct them to moderator/help.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",

@@ -50,6 +50,7 @@ import { RecoveryTrajectoryPanel } from "@/components/RecoveryTrajectoryPanel";
 import { PatternShiftAlerts } from "@/components/PatternShiftAlerts";
 import { ContinuityTransitionPanel } from "@/components/ContinuityTransitionPanel";
 import { FIISFeedbackDialog } from "@/components/FIISFeedbackDialog";
+import { FIISDoctrineNotice } from "@/components/FIISDoctrineNotice";
 
 interface FIISTabProps {
   familyId: string;
@@ -689,10 +690,8 @@ export function FIISTab({ familyId, members, excludeUserIds = [], onView, isMode
           </div>
           {/* Disclaimer - only show if not acknowledged */}
           {hasAcknowledgedDisclaimer === false && (
-            <div className="p-4 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800">
-              <p className="text-sm text-amber-800 dark:text-amber-300 mb-3">
-                <strong>⚖️ Important Disclaimer:</strong> FIIS is a tool designed to support family growth and recovery awareness. It does not provide medical, psychiatric, or legal advice, and is not a substitute for professional care. If you or a family member need immediate help, please contact a licensed professional or emergency services.
-              </p>
+            <div className="space-y-3">
+              <FIISDoctrineNotice />
               <Button 
                 size="sm" 
                 onClick={handleAcknowledgeDisclaimer}

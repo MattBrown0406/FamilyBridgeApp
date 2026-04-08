@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import ReactMarkdown from 'react-markdown';
+import { FIISDoctrineNotice } from '@/components/FIISDoctrineNotice';
 import {
   Mic, MicOff, Phone, MessageSquare, Image, Upload, Send, Loader2,
   AlertTriangle, Copy, CheckCircle, X, Brain, PhoneCall, Camera, Users,
@@ -291,7 +292,7 @@ export const CoachingTab = ({ familyId, members = [] }: CoachingTabProps) => {
     <div className="space-y-4">
       {/* Feature intro */}
       <Card className="border-primary/20 bg-primary/5">
-        <CardContent className="p-4">
+        <CardContent className="p-4 space-y-3">
           <div className="flex items-start gap-3">
             <Brain className="h-5 w-5 text-primary mt-0.5 shrink-0" />
             <div>
@@ -303,6 +304,7 @@ export const CoachingTab = ({ familyId, members = [] }: CoachingTabProps) => {
               </p>
             </div>
           </div>
+          <FIISDoctrineNotice compact />
         </CardContent>
       </Card>
 

@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/select';
 import { Brain, Send, Loader2, MessageSquare, Trash2, Plus } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
+import { FIISDoctrineNotice } from '@/components/FIISDoctrineNotice';
 
 interface Family {
   id: string;
@@ -380,11 +381,14 @@ const FIISModeratorChat = ({ families }: FIISModeratorChatProps) => {
           <CardContent className="text-center py-12">
             <Brain className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-lg font-semibold mb-2">FIIS Communication Assistant</h3>
-            <p className="text-muted-foreground max-w-sm">
+            <p className="text-muted-foreground max-w-sm mb-4">
               Select a family above to start a conversation with FIIS about how to 
               better communicate with family members. This chat is private and not 
               included in FIIS pattern analysis.
             </p>
+            <div className="mx-auto max-w-xl text-left">
+              <FIISDoctrineNotice compact />
+            </div>
           </CardContent>
         </Card>
       ) : isLoadingChat ? (
@@ -396,7 +400,7 @@ const FIISModeratorChat = ({ families }: FIISModeratorChatProps) => {
         </Card>
       ) : (
         <Card className="flex-1 flex flex-col overflow-hidden">
-          <CardHeader className="py-3 border-b bg-primary/5">
+          <CardHeader className="py-3 border-b bg-primary/5 space-y-3">
             <div className="flex items-center gap-2">
               <Brain className="h-5 w-5 text-primary" />
               <div>
@@ -408,6 +412,7 @@ const FIISModeratorChat = ({ families }: FIISModeratorChatProps) => {
                 </CardDescription>
               </div>
             </div>
+            <FIISDoctrineNotice compact />
           </CardHeader>
 
           {/* Messages Area */}
