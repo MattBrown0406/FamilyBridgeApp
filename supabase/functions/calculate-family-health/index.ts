@@ -5,6 +5,9 @@ const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+const FIIS_AI_MODEL = Deno.env.get("FIIS_AI_MODEL") ?? Deno.env.get("FAMILYBRIDGE_AI_MODEL") ?? "google/gemini-3-flash-preview";
+// Override in Lovable/Supabase env when needed. Default preserves current production behavior.
+
 
 interface HealthMetrics {
   checkinCompletionRate: number;
@@ -92,7 +95,7 @@ Respond with JSON in this exact format:
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
+        model: FIIS_AI_MODEL,
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },

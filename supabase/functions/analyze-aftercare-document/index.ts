@@ -5,6 +5,9 @@ const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
+const FIIS_AI_MODEL = Deno.env.get("FIIS_AI_MODEL") ?? Deno.env.get("FAMILYBRIDGE_AI_MODEL") ?? "google/gemini-3-flash-preview";
+// Override in Lovable/Supabase env when needed. Default preserves current production behavior.
+
 
 interface ExtractedAftercare {
   recommendation_type: "therapy" | "meetings" | "outpatient" | "residential" | "sober_living" | "medical" | "wellness" | "other";
@@ -39,7 +42,7 @@ async function extractPdfText(pdfBytes: ArrayBuffer, apiKey: string): Promise<st
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      model: "google/gemini-3-flash-preview",
+      model: FIIS_AI_MODEL,
       messages: [
         {
           role: "user",
@@ -87,7 +90,7 @@ async function extractImageText(imageBytes: ArrayBuffer, mimeType: string, apiKe
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      model: "google/gemini-3-flash-preview",
+      model: FIIS_AI_MODEL,
       messages: [
         {
           role: "user",
@@ -289,7 +292,7 @@ Respond with a JSON array of recommendations. Include ALL recommendations found 
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
+        model: FIIS_AI_MODEL,
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: `Please analyze this discharge/aftercare plan and extract all recommendations:\n\n${documentContent}` }

@@ -6,6 +6,9 @@ const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
+const FIIS_AI_MODEL = Deno.env.get("FIIS_AI_MODEL") ?? Deno.env.get("FAMILYBRIDGE_AI_MODEL") ?? "google/gemini-3-flash-preview";
+// Override in Lovable/Supabase env when needed. Default preserves current production behavior.
+
 
 // Goal and value label maps
 const GOAL_LABELS: Record<string, string> = {
@@ -285,7 +288,7 @@ If the content reflects an immediate emergency, say exactly "Call 911 first" bef
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
+        model: FIIS_AI_MODEL,
         messages: [
           { role: "system", content: systemPrompt },
           imageBase64 ? {

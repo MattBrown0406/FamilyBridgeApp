@@ -6,6 +6,9 @@ const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
+const FIIS_AI_MODEL = Deno.env.get("FIIS_AI_MODEL") ?? Deno.env.get("FAMILYBRIDGE_AI_MODEL") ?? "google/gemini-3-flash-preview";
+// Override in Lovable/Supabase env when needed. Default preserves current production behavior.
+
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -238,7 +241,7 @@ Remember: This conversation is private between you and the moderator. It is NOT 
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
+        model: FIIS_AI_MODEL,
         messages,
         stream: true,
       }),

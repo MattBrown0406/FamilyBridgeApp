@@ -10,6 +10,9 @@ const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
+const FIIS_AI_MODEL = Deno.env.get("FIIS_AI_MODEL") ?? Deno.env.get("FAMILYBRIDGE_AI_MODEL") ?? "google/gemini-3-flash-preview";
+// Override in Lovable/Supabase env when needed. Default preserves current production behavior.
+
 
 // ============================================================================
 // FIIS — PRIMARY SYSTEM PROMPT
@@ -3377,7 +3380,7 @@ COACHING ANALYSIS INTERPRETATION:
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
+        model: FIIS_AI_MODEL,
         messages: [
           { role: "system", content: combinedSystemPrompt },
           { role: "user", content: dataDescription },
