@@ -138,7 +138,7 @@ const Index = () => {
         <div className="container mx-auto px-4 pt-12 sm:pt-20 pb-10 sm:pb-16 relative z-10">
           <div className="max-w-3xl mx-auto text-center">
             <p className="text-sm sm:text-base font-medium text-primary mb-4 tracking-wide uppercase">
-              Patent Pending AI Recovery Intelligence Platform
+              Powered by FIIS™ — Patent-Pending AI
             </p>
             <h1 className="text-3xl sm:text-5xl md:text-6xl font-display font-bold text-foreground leading-[1.1] mb-5">
               See the full picture.{' '}
