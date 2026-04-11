@@ -61,12 +61,13 @@ const FamilySetup = () => {
   ]);
   const [isLoading, setIsLoading] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
+  const [createdFamilyInviteCode, setCreatedFamilyInviteCode] = useState("");
 
   // Auto-fill invite code from URL parameters
   useEffect(() => {
-    const codeParam = searchParams.get('code');
+    const codeParam = searchParams.get('inviteCode') || searchParams.get('code');
     if (codeParam && !inviteCode) {
-      setInviteCode(codeParam);
+      setInviteCode(codeParam.toUpperCase());
     }
   }, [searchParams, inviteCode]);
 
@@ -145,6 +146,7 @@ const FamilySetup = () => {
       if (error) throw error;
 
       if (data.success) {
+        setCreatedFamilyInviteCode(data.memberInviteCode || inviteCode.trim().toUpperCase());
         setIsComplete(true);
         toast.success("Family group created! Invitations have been sent.");
       } else {
@@ -176,8 +178,11 @@ const FamilySetup = () => {
               Each family member will receive an email with instructions on how to join your family group.
             </p>
             <div className="space-y-2">
-              <Button onClick={() => navigate("/auth")} className="w-full">
-                Sign In to Access Your Family
+              <Button
+                onClick={() => navigate(`/auth?mode=signup&familyInvite=${encodeURIComponent(createdFamilyInviteCode || inviteCode.trim().toUpperCase())}`)}
+                className="w-full"
+              >
+                Create Account or Sign In
               </Button>
               <Button variant="outline" onClick={() => navigate("/")} className="w-full">
                 Return Home

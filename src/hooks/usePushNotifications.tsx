@@ -2,27 +2,23 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from './useAuth';
 import { supabase } from '@/integrations/supabase/client';
 
-// Extend ServiceWorkerRegistration to include pushManager (Web Push API)
-declare global {
-  interface ServiceWorkerRegistration {
-    pushManager: PushManager;
-  }
-}
-
 function urlBase64ToUint8Array(base64String: string): Uint8Array {
-  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
   const base64 = (base64String + padding)
     .replace(/-/g, '+')
     .replace(/_/g, '/');
-  
+
   const rawData = atob(base64);
   const outputArray = new Uint8Array(rawData.length);
-  
+
   for (let i = 0; i < rawData.length; ++i) {
     outputArray[i] = rawData.charCodeAt(i);
   }
+
   return outputArray;
 }
+
+type NotificationPayload = Record<string, unknown>;
 
 export const usePushNotifications = () => {
   const { user } = useAuth();
@@ -32,23 +28,9 @@ export const usePushNotifications = () => {
   const [isLoading, setIsLoading] = useState(false);
   const vapidPublicKeyRef = useRef<string | null>(null);
 
-  useEffect(() => {
-    // Check if push notifications are supported
-    const supported = 'serviceWorker' in navigator && 
-                      'PushManager' in window && 
-                      'Notification' in window;
-    setIsSupported(supported);
-    
-    if (supported) {
-      setPermission(Notification.permission);
-      fetchVapidKey();
-      checkExistingSubscription();
-    }
-  }, [user]);
-
-  const fetchVapidKey = async () => {
+  const fetchVapidKey = useCallback(async () => {
     if (vapidPublicKeyRef.current) return;
-    
+
     try {
       const { data, error } = await supabase.functions.invoke('get-vapid-public-key');
       if (!error && data?.publicKey) {
@@ -57,66 +39,41 @@ export const usePushNotifications = () => {
     } catch (error) {
       console.error('Error fetching VAPID key:', error);
     }
-  };
+  }, []);
 
-  const checkExistingSubscription = async () => {
-    if (!user) return;
+  const persistSubscription = useCallback(async (subscription: PushSubscription) => {
+    if (!user) return false;
 
-    try {
-      const registration = await navigator.serviceWorker.ready;
-      const subscription = await registration.pushManager.getSubscription();
-      
-      if (subscription) {
-        // Check if this subscription is saved in database
-        const { data } = await supabase
-          .from('push_subscriptions')
-          .select('id')
-          .eq('user_id', user.id)
-          .eq('endpoint', subscription.endpoint)
-          .single();
-        
-        if (data) {
-          setIsSubscribed(true);
-        } else {
-          // Browser has subscription but DB doesn't — save it
-          const subscriptionJson = subscription.toJSON();
-          const { error } = await supabase
-            .from('push_subscriptions')
-            .upsert({
-              user_id: user.id,
-              endpoint: subscriptionJson.endpoint!,
-              p256dh: subscriptionJson.keys!.p256dh,
-              auth: subscriptionJson.keys!.auth,
-            }, { onConflict: 'user_id,endpoint' });
-          
-          setIsSubscribed(!error);
-        }
-      } else {
-        // Browser lost the subscription — check if DB has one (user previously enabled)
-        const { data: dbSubs } = await supabase
-          .from('push_subscriptions')
-          .select('id')
-          .eq('user_id', user.id)
-          .limit(1);
-        
-        if (dbSubs && dbSubs.length > 0 && Notification.permission === 'granted') {
-          // Auto-re-subscribe: user previously enabled but browser lost subscription
-          console.log('Re-subscribing: browser lost push subscription');
-          await resubscribe(registration);
-        } else {
-          setIsSubscribed(false);
-        }
-      }
-    } catch (error) {
-      console.error('Error checking subscription:', error);
+    const subscriptionJson = subscription.toJSON();
+    const endpoint = subscriptionJson.endpoint;
+    const p256dh = subscriptionJson.keys?.p256dh;
+    const auth = subscriptionJson.keys?.auth;
+
+    if (!endpoint || !p256dh || !auth) {
+      return false;
     }
-  };
 
-  const resubscribe = async (registration: ServiceWorkerRegistration) => {
+    const { error } = await supabase
+      .from('push_subscriptions')
+      .upsert(
+        {
+          user_id: user.id,
+          endpoint,
+          p256dh,
+          auth,
+        },
+        { onConflict: 'user_id,endpoint' }
+      );
+
+    return !error;
+  }, [user]);
+
+  const resubscribe = useCallback(async (registration: ServiceWorkerRegistration) => {
     try {
       if (!vapidPublicKeyRef.current) {
         await fetchVapidKey();
       }
+
       if (!vapidPublicKeyRef.current || !user) return;
 
       const applicationServerKey = urlBase64ToUint8Array(vapidPublicKeyRef.current);
@@ -125,32 +82,77 @@ export const usePushNotifications = () => {
         applicationServerKey: applicationServerKey.buffer as ArrayBuffer,
       });
 
-      const subscriptionJson = subscription.toJSON();
-
-      // Clean old subscriptions for this user, then save the new one
       await supabase
         .from('push_subscriptions')
         .delete()
         .eq('user_id', user.id);
 
-      const { error } = await supabase
-        .from('push_subscriptions')
-        .insert({
-          user_id: user.id,
-          endpoint: subscriptionJson.endpoint!,
-          p256dh: subscriptionJson.keys!.p256dh,
-          auth: subscriptionJson.keys!.auth,
-        });
+      const saved = await persistSubscription(subscription);
+      setIsSubscribed(saved);
 
-      setIsSubscribed(!error);
-      if (!error) console.log('Successfully re-subscribed to push notifications');
+      if (saved) {
+        console.log('Successfully re-subscribed to push notifications');
+      }
     } catch (error) {
       console.error('Error re-subscribing:', error);
       setIsSubscribed(false);
     }
-  };
+  }, [fetchVapidKey, persistSubscription, user]);
 
-  const registerServiceWorker = async (): Promise<ServiceWorkerRegistration | null> => {
+  const checkExistingSubscription = useCallback(async () => {
+    if (!user) return;
+
+    try {
+      const registration = await navigator.serviceWorker.ready;
+      const subscription = await registration.pushManager.getSubscription();
+
+      if (subscription) {
+        const { data } = await supabase
+          .from('push_subscriptions')
+          .select('id')
+          .eq('user_id', user.id)
+          .eq('endpoint', subscription.endpoint)
+          .single();
+
+        if (data) {
+          setIsSubscribed(true);
+          return;
+        }
+
+        const saved = await persistSubscription(subscription);
+        setIsSubscribed(saved);
+        return;
+      }
+
+      const { data: dbSubs } = await supabase
+        .from('push_subscriptions')
+        .select('id')
+        .eq('user_id', user.id)
+        .limit(1);
+
+      if (dbSubs && dbSubs.length > 0 && Notification.permission === 'granted') {
+        console.log('Re-subscribing: browser lost push subscription');
+        await resubscribe(registration);
+      } else {
+        setIsSubscribed(false);
+      }
+    } catch (error) {
+      console.error('Error checking subscription:', error);
+    }
+  }, [persistSubscription, resubscribe, user]);
+
+  useEffect(() => {
+    const supported = 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+    setIsSupported(supported);
+
+    if (supported) {
+      setPermission(Notification.permission);
+      void fetchVapidKey();
+      void checkExistingSubscription();
+    }
+  }, [checkExistingSubscription, fetchVapidKey, user]);
+
+  const registerServiceWorker = useCallback(async (): Promise<ServiceWorkerRegistration | null> => {
     try {
       const registration = await navigator.serviceWorker.register('/sw.js');
       console.log('Service Worker registered:', registration);
@@ -159,7 +161,7 @@ export const usePushNotifications = () => {
       console.error('Service Worker registration failed:', error);
       return null;
     }
-  };
+  }, []);
 
   const subscribe = useCallback(async (): Promise<boolean> => {
     if (!isSupported || !user) {
@@ -167,11 +169,10 @@ export const usePushNotifications = () => {
       return false;
     }
 
-    // Ensure we have the VAPID key
     if (!vapidPublicKeyRef.current) {
       await fetchVapidKey();
     }
-    
+
     if (!vapidPublicKeyRef.current) {
       console.log('VAPID public key not available');
       return false;
@@ -180,7 +181,6 @@ export const usePushNotifications = () => {
     setIsLoading(true);
 
     try {
-      // Request notification permission
       const permissionResult = await Notification.requestPermission();
       setPermission(permissionResult);
 
@@ -190,7 +190,6 @@ export const usePushNotifications = () => {
         return false;
       }
 
-      // Register service worker
       let registration = await navigator.serviceWorker.getRegistration();
       if (!registration) {
         registration = await registerServiceWorker();
@@ -203,29 +202,15 @@ export const usePushNotifications = () => {
 
       await navigator.serviceWorker.ready;
 
-      // Subscribe to push
-      const applicationServerKey = urlBase64ToUint8Array(vapidPublicKeyRef.current!);
+      const applicationServerKey = urlBase64ToUint8Array(vapidPublicKeyRef.current);
       const subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: applicationServerKey.buffer as ArrayBuffer,
       });
 
-      const subscriptionJson = subscription.toJSON();
-      
-      // Save to database
-      const { error } = await supabase
-        .from('push_subscriptions')
-        .upsert({
-          user_id: user.id,
-          endpoint: subscriptionJson.endpoint!,
-          p256dh: subscriptionJson.keys!.p256dh,
-          auth: subscriptionJson.keys!.auth,
-        }, {
-          onConflict: 'user_id,endpoint'
-        });
-
-      if (error) {
-        console.error('Error saving subscription:', error);
+      const saved = await persistSubscription(subscription);
+      if (!saved) {
+        console.error('Error saving subscription');
         setIsLoading(false);
         return false;
       }
@@ -238,7 +223,7 @@ export const usePushNotifications = () => {
       setIsLoading(false);
       return false;
     }
-  }, [isSupported, user]);
+  }, [fetchVapidKey, isSupported, persistSubscription, registerServiceWorker, user]);
 
   const unsubscribe = useCallback(async (): Promise<boolean> => {
     if (!user) return false;
@@ -252,7 +237,6 @@ export const usePushNotifications = () => {
       if (subscription) {
         await subscription.unsubscribe();
 
-        // Remove from database
         await supabase
           .from('push_subscriptions')
           .delete()
@@ -274,7 +258,7 @@ export const usePushNotifications = () => {
     userIds: string[],
     title: string,
     body: string,
-    data?: Record<string, any>,
+    data?: NotificationPayload,
     type?: string
   ): Promise<boolean> => {
     try {
@@ -294,7 +278,7 @@ export const usePushNotifications = () => {
       }
 
       console.log('Push notification result:', result);
-      return result?.success || false;
+      return Boolean(result?.success);
     } catch (error) {
       console.error('Error invoking push notification function:', error);
       return false;

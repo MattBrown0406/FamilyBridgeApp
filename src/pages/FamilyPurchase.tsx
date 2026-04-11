@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { usePlatform } from "@/hooks/usePlatform";
@@ -51,12 +51,52 @@ const FamilyPurchase = () => {
     }
   }, [reactivateFamilyId]);
 
+  const handleReactivateFamily = useCallback(async () => {
+    if (!reactivateFamilyId || !user) return;
+    
+    setIsReactivating(true);
+    try {
+      // Reactivate as independent (remove organization)
+      const { error: familyError } = await supabase
+        .from('families')
+        .update({
+          is_archived: false,
+          archived_at: null,
+          archived_by: null,
+          organization_id: null, // Remove provider association
+        })
+        .eq('id', reactivateFamilyId);
+
+      if (familyError) throw familyError;
+
+      // Update any pending reactivation requests
+      await supabase
+        .from('family_reactivation_requests')
+        .update({
+          status: 'approved',
+          approved_by: user.id,
+          approved_at: new Date().toISOString(),
+          reactivation_type: 'family_admin',
+        })
+        .eq('family_id', reactivateFamilyId)
+        .eq('status', 'pending');
+
+      toast.success("Family reactivated successfully!");
+      navigate('/dashboard');
+    } catch (error) {
+      console.error('Error reactivating family:', error);
+      toast.error("Failed to reactivate family. Please contact support.");
+    } finally {
+      setIsReactivating(false);
+    }
+  }, [navigate, reactivateFamilyId, user]);
+
   // Handle successful purchase for reactivation
   useEffect(() => {
     if (status === 'success' && reactivateFamilyId && user) {
-      handleReactivateFamily();
+      void handleReactivateFamily();
     }
-  }, [status, reactivateFamilyId, user]);
+  }, [handleReactivateFamily, reactivateFamilyId, status, user]);
 
   // After returning from web checkout, finalize purchase and generate the invite code.
   useEffect(() => {
@@ -100,46 +140,6 @@ const FamilyPurchase = () => {
     finalize();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, reactivateFamilyId, generatedCode, isNative]);
-
-  const handleReactivateFamily = async () => {
-    if (!reactivateFamilyId || !user) return;
-    
-    setIsReactivating(true);
-    try {
-      // Reactivate as independent (remove organization)
-      const { error: familyError } = await supabase
-        .from('families')
-        .update({
-          is_archived: false,
-          archived_at: null,
-          archived_by: null,
-          organization_id: null, // Remove provider association
-        })
-        .eq('id', reactivateFamilyId);
-
-      if (familyError) throw familyError;
-
-      // Update any pending reactivation requests
-      await supabase
-        .from('family_reactivation_requests')
-        .update({
-          status: 'approved',
-          approved_by: user.id,
-          approved_at: new Date().toISOString(),
-          reactivation_type: 'family_admin',
-        })
-        .eq('family_id', reactivateFamilyId)
-        .eq('status', 'pending');
-
-      toast.success("Family reactivated successfully!");
-      navigate('/dashboard');
-    } catch (error) {
-      console.error('Error reactivating family:', error);
-      toast.error("Failed to reactivate family. Please contact support.");
-    } finally {
-      setIsReactivating(false);
-    }
-  };
 
   const handleSquarePurchase = async (withTrial = true) => {
     // Apple App Store compliance: Never execute payment flows on native
@@ -384,7 +384,7 @@ const FamilyPurchase = () => {
             <p className="text-xs text-muted-foreground text-center">
               A copy of this code has also been sent to your email.
             </p>
-            <Button onClick={() => navigate("/family-setup")} className="w-full" size="lg">
+            <Button onClick={() => navigate(`/family-setup?inviteCode=${encodeURIComponent(generatedCode)}`)} className="w-full" size="lg">
               Continue to Family Setup
             </Button>
           </CardContent>

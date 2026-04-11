@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { usePlatform } from '@/hooks/usePlatform';
 import { useAuth } from '@/hooks/useAuth';
@@ -59,6 +59,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Textarea } from '@/components/ui/textarea';
+import { ToastAction } from '@/components/ui/toast';
 import { NotificationBell } from '@/components/NotificationBell';
 import { TabbedCheckin } from '@/components/TabbedCheckin';
 import { MeetingCheckout } from '@/components/MeetingCheckout';
@@ -108,6 +109,16 @@ interface Message {
   was_filtered: boolean;
   created_at: string;
   sender_name?: string;
+}
+
+interface PresenceStateEntry {
+  user_id?: string;
+}
+
+interface BoundaryAcknowledgment {
+  boundary_id: string;
+  user_id: string;
+  acknowledged_at: string;
 }
 
 interface Member {
@@ -479,6 +490,10 @@ const FamilyChat = () => {
   // Progressive tab disclosure state
   const [showMoreTabs, setShowMoreTabs] = useState(false);
   const [activeTab, setActiveTab] = useState('messages');
+  const dashboardPath = currentUserRole === 'moderator' ? '/moderator-dashboard' : '/dashboard';
+  const openCoachingTab = useCallback(() => {
+    setActiveTab('coaching');
+  }, []);
   
   // First-time onboarding state
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -512,28 +527,15 @@ const FamilyChat = () => {
     }
   };
   
-  // Check for FIIS analysis and trigger coaching nudge
-  const checkForFIISAnalysis = async () => {
-    if (!familyId || showCoachingNudge || activeTab !== 'messages') return;
-    
-    try {
-      const { data } = await (supabase as any)
-        .from('fiis_analysis')
-        .select('id')
-        .eq('family_id', familyId)
-        .eq('needs_attention', true)
-        .order('created_at', { ascending: false })
-        .limit(1);
-      
-      if (data && data.length > 0) {
-        setShowCoachingNudge(true);
-        // Auto-hide after 45 seconds if not manually dismissed
-        setTimeout(() => setShowCoachingNudge(false), 45000);
-      }
-    } catch (error) {
-      console.error('Error checking FIIS analysis:', error);
-    }
-  };
+  // Show the coaching nudge when FIIS has fresh analysis for this family
+  const checkForFIISAnalysis = useCallback(() => {
+    if (!hasNewAnalysis || activeTab !== 'messages') return undefined;
+
+    setShowCoachingNudge(true);
+    const timeoutId = window.setTimeout(() => setShowCoachingNudge(false), 45000);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [activeTab, hasNewAnalysis]);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -543,22 +545,23 @@ const FamilyChat = () => {
 
   useEffect(() => {
     if (user && familyId) {
-      fetchFamilyData();
-      subscribeToMessages();
-      fetchPaymentHandles();
+      void fetchFamilyData();
+      const unsubscribeFromMessages = subscribeToMessages();
+      void fetchPaymentHandles();
       // Note: Private message unread counts are now handled by PrivateMessagingV2 component
+
+      return unsubscribeFromMessages;
     }
+
+    return undefined;
+    // fetchFamilyData depends on large local helpers in this file. Keep this effect scoped to identity/page changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, familyId]);
 
-  // Check for FIIS analysis every 2 minutes when on messages tab
+  // Surface fresh FIIS analysis with a coaching nudge while the user is in Messages
   useEffect(() => {
-    if (!user || !familyId || activeTab !== 'messages') return;
-    
-    checkForFIISAnalysis();
-    const interval = setInterval(checkForFIISAnalysis, 2 * 60 * 1000); // 2 minutes
-    
-    return () => clearInterval(interval);
-  }, [user, familyId, activeTab]);
+    return checkForFIISAnalysis();
+  }, [checkForFIISAnalysis]);
 
   // Online presence tracking
   useEffect(() => {
@@ -567,18 +570,21 @@ const FamilyChat = () => {
     const presenceChannel = supabase.channel(`family-presence-${familyId}`)
       .on('presence', { event: 'sync' }, () => {
         const state = presenceChannel.presenceState();
-        const onlineUserIds = Object.values(state)
-          .flat()
-          .map((p: any) => p.user_id)
+        const onlineUserIds = (Object.values(state).flat() as PresenceStateEntry[])
+          .map((p) => p.user_id)
           .filter((id): id is string => !!id);
         setOnlineMembers([...new Set(onlineUserIds)]);
       })
       .on('presence', { event: 'join' }, ({ newPresences }) => {
-        const newIds = newPresences.map((p: any) => p.user_id).filter(Boolean);
+        const newIds = (newPresences as PresenceStateEntry[])
+          .map((p) => p.user_id)
+          .filter((id): id is string => Boolean(id));
         setOnlineMembers(prev => [...new Set([...prev, ...newIds])]);
       })
       .on('presence', { event: 'leave' }, ({ leftPresences }) => {
-        const leftIds = leftPresences.map((p: any) => p.user_id);
+        const leftIds = (leftPresences as PresenceStateEntry[])
+          .map((p) => p.user_id)
+          .filter((id): id is string => Boolean(id));
         setOnlineMembers(prev => prev.filter(id => !leftIds.includes(id)));
       })
       .subscribe(async (status) => {
@@ -603,7 +609,7 @@ const FamilyChat = () => {
   }, [clearFamilyOrganization]);
 
   // Fetch member last activity when sheet opens
-  const fetchMemberActivity = async () => {
+  const fetchMemberActivity = useCallback(async () => {
     if (!familyId || members.length === 0) return;
     
     const activityMap: Record<string, { date: string; type: string }> = {};
@@ -694,14 +700,14 @@ const FamilyChat = () => {
     }
     
     setMemberLastActivity(activityMap);
-  };
+  }, [familyId, members]);
 
   // Fetch activity when members sheet opens
   useEffect(() => {
     if (membersSheetOpen && members.length > 0) {
-      fetchMemberActivity();
+      void fetchMemberActivity();
     }
-  }, [membersSheetOpen, members.length]);
+  }, [fetchMemberActivity, members.length, membersSheetOpen]);
 
   // Note: Private message functions moved to PrivateMessagingV2 component
 
@@ -1063,7 +1069,7 @@ const FamilyChat = () => {
     }
   };
 
-  const checkProfessionalModerator = async () => {
+  const checkProfessionalModerator = useCallback(async () => {
     if (!familyId || !user) return;
     
     // Check temporary moderator requests - also check if current user is assigned
@@ -1105,10 +1111,10 @@ const FamilyChat = () => {
       setCurrentUserRole('moderator');
       setIsAdminOrModerator(true);
     }
-  };
+  }, [familyId, user]);
 
   // Check for moderator disclaimer for self-created families
-  const checkModeratorDisclaimer = async () => {
+  const checkModeratorDisclaimer = useCallback(async () => {
     if (!familyId) return;
     
     const { data: disclaimer } = await supabase
@@ -1130,14 +1136,14 @@ const FamilyChat = () => {
         moderatorName: profile?.full_name || undefined,
       });
     }
-  };
+  }, [familyId]);
 
   useEffect(() => {
     if (familyId) {
-      checkProfessionalModerator();
-      checkModeratorDisclaimer();
+      void checkProfessionalModerator();
+      void checkModeratorDisclaimer();
     }
-  }, [familyId]);
+  }, [checkModeratorDisclaimer, checkProfessionalModerator, familyId]);
 
   useEffect(() => {
     scrollToBottom();
@@ -1529,14 +1535,14 @@ const FamilyChat = () => {
 
     // Fetch acknowledgments for each boundary
     const boundaryIds = boundariesData?.map(b => b.id) || [];
-    let acknowledgmentsData: any[] = [];
+    let acknowledgmentsData: BoundaryAcknowledgment[] = [];
     
     if (boundaryIds.length > 0) {
       const { data: acks } = await supabase
         .from('boundary_acknowledgments')
         .select('*')
         .in('boundary_id', boundaryIds);
-      acknowledgmentsData = acks || [];
+      acknowledgmentsData = (acks || []) as BoundaryAcknowledgment[];
     }
 
     // Build boundaries with acknowledgments and names
@@ -1874,11 +1880,12 @@ const FamilyChat = () => {
         title: 'Avatar updated',
         description: 'Family avatar has been updated successfully.',
       });
-    } catch (error: any) {
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to upload avatar.';
       console.error('Error uploading avatar:', error);
       toast({
         title: 'Upload failed',
-        description: error.message || 'Failed to upload avatar.',
+        description: errorMessage,
         variant: 'destructive',
       });
     } finally {
@@ -2031,7 +2038,7 @@ const FamilyChat = () => {
 
   const subscribeToMessages = () => {
     const channel = supabase
-      .channel('messages-channel')
+      .channel(`messages-channel-${familyId}`)
       .on(
         'postgres_changes',
         {
@@ -2204,16 +2211,14 @@ const FamilyChat = () => {
         description: `You can send a message in ${cooldownRemaining} seconds. It seems like emotions are running high - when you're ready, our Coaching tool can help you find the right words.`,
         variant: 'destructive',
         action: (
-          <button
+          <ToastAction
+            altText="Open Coaching"
             className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-8 px-3"
-            onClick={() => {
-              const coachingTab = document.querySelector('[data-value="coaching"]') as HTMLElement;
-              if (coachingTab) coachingTab.click();
-            }}
+            onClick={openCoachingTab}
           >
             Open Coaching
-          </button>
-        ) as any
+          </ToastAction>
+        )
       });
       return;
     }
@@ -2245,16 +2250,14 @@ const FamilyChat = () => {
           description: 'You must wait 60 seconds before sending another message. It seems like emotions are running high. Take a moment, and when you\'re ready, our Coaching tool can help you find the right words.',
           variant: 'destructive',
           action: (
-            <button
+            <ToastAction
+              altText="Open Coaching"
               className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-8 px-3"
-              onClick={() => {
-                const coachingTab = document.querySelector('[data-value="coaching"]') as HTMLElement;
-                if (coachingTab) coachingTab.click();
-              }}
+              onClick={openCoachingTab}
             >
               Open Coaching
-            </button>
-          ) as any
+            </ToastAction>
+          )
         });
       } else {
         toast({
@@ -2771,7 +2774,7 @@ const FamilyChat = () => {
             <Button 
               variant="ghost" 
               size="icon" 
-              onClick={() => navigate('/dashboard')}
+              onClick={() => navigate(dashboardPath)}
               className="hover:bg-primary/10 hover:text-primary transition-colors h-8 w-8 sm:h-10 sm:w-10"
             >
               <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
@@ -3281,13 +3284,9 @@ const FamilyChat = () => {
                       <Button
                         variant="outline"
                         size="sm"
+                        type="button"
                         className="h-7 text-xs"
-                        onClick={() => {
-                          const coachingTab = document.querySelector('[data-value="coaching"]') as HTMLElement;
-                          if (coachingTab) {
-                            coachingTab.click();
-                          }
-                        }}
+                        onClick={openCoachingTab}
                       >
                         Open Coaching Tool
                       </Button>

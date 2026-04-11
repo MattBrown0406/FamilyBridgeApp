@@ -1,8 +1,11 @@
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usePlatform } from '@/hooks/usePlatform';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { useOrganization } from '@/hooks/useOrganization';
+import { useProviderAdmin } from '@/hooks/useProviderAdmin';
+import { supabase } from '@/integrations/supabase/client';
 import { BrandedHeader } from '@/components/BrandedHeader';
 import { BrandedFooter } from '@/components/BrandedFooter';
 import { SEOHead, createOrganizationSchema } from '@/components/SEOHead';
@@ -20,11 +23,51 @@ const trustSignals = [
 ];
 
 const Index = () => {
-  const { user, signOut } = useAuth();
+  const { user, loading, signOut } = useAuth();
   const { organization, isWhiteLabeled } = useOrganization();
+  const { isProvider, isLoading: isProviderLoading } = useProviderAdmin();
   const navigate = useNavigate();
   const { isNative, isIOS } = usePlatform();
   const paymentsWebOnly = isNative && isIOS;
+  const [dashboardPath, setDashboardPath] = useState('/dashboard');
+  const [isResolvingDashboard, setIsResolvingDashboard] = useState(false);
+
+  useEffect(() => {
+    const resolveDashboardPath = async () => {
+      if (!user || isProviderLoading) {
+        setDashboardPath('/dashboard');
+        return;
+      }
+
+      if (isProvider) {
+        setDashboardPath('/moderator-dashboard');
+        return;
+      }
+
+      setIsResolvingDashboard(true);
+      try {
+        const { count, error } = await supabase
+          .from('family_members')
+          .select('id', { count: 'exact', head: true })
+          .eq('user_id', user.id)
+          .eq('role', 'moderator');
+
+        if (error) throw error;
+        setDashboardPath((count || 0) > 0 ? '/moderator-dashboard' : '/dashboard');
+      } catch (error) {
+        console.error('Error resolving dashboard route:', error);
+        setDashboardPath('/dashboard');
+      } finally {
+        setIsResolvingDashboard(false);
+      }
+    };
+
+    void resolveDashboardPath();
+  }, [isProvider, isProviderLoading, user]);
+
+  const handleDashboardClick = () => {
+    navigate(dashboardPath);
+  };
 
   const tagline = isWhiteLabeled && organization?.tagline
     ? organization.tagline
@@ -49,7 +92,7 @@ const Index = () => {
             </Button>
             {user ? (
               <>
-                <Button size="sm" onClick={() => navigate('/moderator-dashboard')} className="h-8 px-3 text-xs sm:text-sm bg-primary text-primary-foreground hover:bg-primary/90">
+                <Button size="sm" onClick={handleDashboardClick} disabled={loading || isProviderLoading || isResolvingDashboard} className="h-8 px-3 text-xs sm:text-sm bg-primary text-primary-foreground hover:bg-primary/90">
                   Dashboard
                 </Button>
                 <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={() => signOut()}>
