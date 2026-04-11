@@ -467,6 +467,7 @@ export const CoachingTab = ({ familyId, members = [] }: CoachingTabProps) => {
         </TabsContent>
 
         {/* Live Coaching Tab */}
+        <TabsContent value="live" className="space-y-4 mt-4">
           {/* Mode selector */}
           <div className="flex gap-2">
             <Button
