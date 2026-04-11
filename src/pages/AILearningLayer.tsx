@@ -396,6 +396,21 @@ export default function AILearningLayer() {
           </CardContent>
         </Card>
 
+        {/* Stage 2 Link */}
+        <Card className="border-primary/30 bg-primary/5">
+          <CardContent className="p-4 flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium">Stage 2: Adaptive Learning</p>
+              <p className="text-xs text-muted-foreground">
+                See how the platform adapts scoring weights, alert thresholds, and recommendation priorities over time.
+              </p>
+            </div>
+            <Button onClick={() => navigate('/ai-learning/stage-2')} variant="outline" size="sm">
+              View Stage 2 <ChevronRight className="h-4 w-4 ml-1" />
+            </Button>
+          </CardContent>
+        </Card>
+
         {/* CTA for demo */}
         <div className="text-center py-6">
           <p className="text-sm text-muted-foreground mb-3">
