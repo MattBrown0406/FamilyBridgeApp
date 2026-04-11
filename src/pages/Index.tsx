@@ -11,7 +11,8 @@ import { SEOHead, createOrganizationSchema } from '@/components/SEOHead';
 import {
   Shield, Users, ArrowRight, Building2, Check, LogOut, Brain,
   Heart, FileText, Pill, GitBranch, Activity, Vote, Mic, Crosshair,
-  Target, BarChart3, Zap, ChevronRight, Eye, MessageSquare
+  Target, BarChart3, Zap, ChevronRight, Eye, MessageSquare, ClipboardCheck,
+  AlertTriangle
 } from 'lucide-react';
 
 const journeySteps = [
@@ -74,6 +75,18 @@ const journeySteps = [
       { label: 'Recommendation evolution', icon: Activity },
     ],
     link: '/ai-learning',
+  },
+  {
+    question: 'Is the data accurate?',
+    answer: 'The Input Reconciliation System detects vague, incomplete, or contradictory input — and prompts for the clarity needed to keep guidance accurate.',
+    icon: ClipboardCheck,
+    color: 'from-slate-500 to-gray-700',
+    features: [
+      { label: 'Contradiction detection', icon: AlertTriangle },
+      { label: 'Depth prompting', icon: MessageSquare },
+      { label: 'Data confidence scoring', icon: BarChart3 },
+    ],
+    link: '/input-reconciliation',
   },
 ];
 
