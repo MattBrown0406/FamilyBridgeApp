@@ -84,7 +84,8 @@ const Index = () => {
               </p>
             </div>
             <h1 className="text-3xl sm:text-5xl md:text-6xl font-display font-bold text-foreground leading-[1.1] mb-5">
-              See the full picture.{' '}
+              See the full picture.
+              <br />
               <span className="text-primary">Act with clarity.</span>
             </h1>
             <p className="text-base sm:text-lg text-muted-foreground max-w-xl mx-auto mb-8 leading-relaxed">
