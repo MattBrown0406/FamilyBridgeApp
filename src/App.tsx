@@ -83,6 +83,7 @@ const App = () => {
               <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="/terms" element={<TermsOfService />} />
               <Route path="/sign-hipaa" element={<SignHIPAA />} />
+              <Route path="/intervention-readiness" element={<InterventionReadiness />} />
               <Route
                 path="/update-payment"
                 element={paymentsWebOnly ? <Navigate to="/auth" replace /> : <UpdatePayment />}
