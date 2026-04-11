@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { ArrowLeft, Info, Loader2, ShieldAlert } from 'lucide-react';
+import { ArrowLeft, Info, Loader2 } from 'lucide-react';
 import { Link, Navigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ReadinessHeader } from '@/components/intervention/ReadinessHeader';
