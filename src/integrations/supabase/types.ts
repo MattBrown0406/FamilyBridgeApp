@@ -2921,6 +2921,283 @@ export type Database = {
           },
         ]
       }
+      input_data_confidence: {
+        Row: {
+          calculated_at: string
+          category: string
+          completeness: number
+          confidence_level: string
+          consistency: number
+          created_at: string
+          family_id: string
+          id: string
+          issues_list: string[]
+          organization_id: string | null
+          overall_score: number
+          specificity: number
+          updated_at: string
+        }
+        Insert: {
+          calculated_at?: string
+          category: string
+          completeness?: number
+          confidence_level?: string
+          consistency?: number
+          created_at?: string
+          family_id: string
+          id?: string
+          issues_list?: string[]
+          organization_id?: string | null
+          overall_score?: number
+          specificity?: number
+          updated_at?: string
+        }
+        Update: {
+          calculated_at?: string
+          category?: string
+          completeness?: number
+          confidence_level?: string
+          consistency?: number
+          created_at?: string
+          family_id?: string
+          id?: string
+          issues_list?: string[]
+          organization_id?: string | null
+          overall_score?: number
+          specificity?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "input_data_confidence_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "input_data_confidence_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "input_data_confidence_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations_member_view"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      input_deferrals: {
+        Row: {
+          created_at: string
+          deferred_by: string
+          family_id: string
+          family_member_name: string | null
+          id: string
+          issue_id: string
+          reminder_sent: boolean
+          reminder_sent_at: string | null
+          resolved: boolean
+          return_time: string
+          returned_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          deferred_by: string
+          family_id: string
+          family_member_name?: string | null
+          id?: string
+          issue_id: string
+          reminder_sent?: boolean
+          reminder_sent_at?: string | null
+          resolved?: boolean
+          return_time: string
+          returned_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          deferred_by?: string
+          family_id?: string
+          family_member_name?: string | null
+          id?: string
+          issue_id?: string
+          reminder_sent?: boolean
+          reminder_sent_at?: string | null
+          resolved?: boolean
+          return_time?: string
+          returned_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "input_deferrals_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "input_deferrals_issue_id_fkey"
+            columns: ["issue_id"]
+            isOneToOne: false
+            referencedRelation: "input_reconciliation_issues"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      input_reconciliation_events: {
+        Row: {
+          category: string
+          confidence_level: string | null
+          created_at: string
+          description: string
+          event_type: string
+          family_id: string
+          family_member_name: string | null
+          id: string
+          organization_id: string | null
+          related_issue_id: string | null
+        }
+        Insert: {
+          category: string
+          confidence_level?: string | null
+          created_at?: string
+          description: string
+          event_type: string
+          family_id: string
+          family_member_name?: string | null
+          id?: string
+          organization_id?: string | null
+          related_issue_id?: string | null
+        }
+        Update: {
+          category?: string
+          confidence_level?: string | null
+          created_at?: string
+          description?: string
+          event_type?: string
+          family_id?: string
+          family_member_name?: string | null
+          id?: string
+          organization_id?: string | null
+          related_issue_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "input_reconciliation_events_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "input_reconciliation_events_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "input_reconciliation_events_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations_member_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "input_reconciliation_events_related_issue_id_fkey"
+            columns: ["related_issue_id"]
+            isOneToOne: false
+            referencedRelation: "input_reconciliation_issues"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      input_reconciliation_issues: {
+        Row: {
+          category: string
+          created_at: string
+          current_input: string | null
+          deferred_until: string | null
+          detected_by: string | null
+          escalation_level: number
+          family_id: string
+          family_member_name: string | null
+          id: string
+          issue_type: string
+          organization_id: string | null
+          prior_input: string | null
+          required_info: string[]
+          resolved_at: string | null
+          summary: string
+          tracking_state: string
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          current_input?: string | null
+          deferred_until?: string | null
+          detected_by?: string | null
+          escalation_level?: number
+          family_id: string
+          family_member_name?: string | null
+          id?: string
+          issue_type: string
+          organization_id?: string | null
+          prior_input?: string | null
+          required_info?: string[]
+          resolved_at?: string | null
+          summary: string
+          tracking_state?: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          current_input?: string | null
+          deferred_until?: string | null
+          detected_by?: string | null
+          escalation_level?: number
+          family_id?: string
+          family_member_name?: string | null
+          id?: string
+          issue_type?: string
+          organization_id?: string | null
+          prior_input?: string | null
+          required_info?: string[]
+          resolved_at?: string | null
+          summary?: string
+          tracking_state?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "input_reconciliation_issues_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "input_reconciliation_issues_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "input_reconciliation_issues_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations_member_view"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       intervention_alerts: {
         Row: {
           contributing_signals: string[] | null
