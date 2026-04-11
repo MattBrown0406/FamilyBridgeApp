@@ -83,12 +83,12 @@ const InterventionReadiness = () => {
       <div className="min-h-screen bg-background">
         {/* Demo banner */}
         {isDemo && (
-          <div className="bg-amber-50 border-b border-amber-200 dark:bg-amber-950/30 dark:border-amber-800/50">
+          <div className="bg-warning/10 border-b border-warning/30">
             <div className="max-w-7xl mx-auto px-4 py-2.5 flex items-center justify-between">
               <div className="flex items-center gap-2 text-sm">
-                <Eye className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-                <span className="font-medium text-amber-800 dark:text-amber-300">Demo Mode</span>
-                <span className="text-amber-600 dark:text-amber-400 hidden sm:inline">— Viewing sample intervention readiness data</span>
+                <Eye className="h-4 w-4 text-warning" />
+                <span className="font-medium text-foreground">Demo Mode</span>
+                <span className="text-muted-foreground hidden sm:inline">— Viewing sample intervention readiness data</span>
               </div>
               <Button size="sm" className="h-7 text-xs bg-primary text-primary-foreground" onClick={() => navigate('/family-purchase')}>
                 Get Started
