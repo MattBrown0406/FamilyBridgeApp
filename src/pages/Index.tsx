@@ -36,6 +36,7 @@ const Index = () => {
       gradient: 'from-violet-500 to-purple-600',
       badge: 'Patent Pending',
       forProvider: true,
+      link: '/features/fiis-intelligence',
     },
     {
       icon: Activity,
@@ -43,6 +44,7 @@ const Index = () => {
       description: 'Visual progress tracking toward the 1-year sobriety milestone with phase progression.',
       highlight: true,
       gradient: 'from-emerald-500 to-teal-600',
+      link: '/features/recovery-trajectory',
     },
     {
       icon: FileText,
@@ -51,6 +53,7 @@ const Index = () => {
       highlight: true,
       gradient: 'from-rose-500 to-pink-600',
       forProvider: true,
+      link: '/features/document-analysis',
     },
     {
       icon: Pill,
@@ -58,6 +61,7 @@ const Index = () => {
       description: 'AI label scanning, dose tracking, and family alerts for missed medications.',
       highlight: true,
       gradient: 'from-amber-500 to-orange-600',
+      link: '/features/medication-compliance',
     },
     {
       icon: Crosshair,
@@ -67,6 +71,7 @@ const Index = () => {
       gradient: 'from-red-500 to-orange-600',
       badge: 'Patent Pending',
       forProvider: true,
+      link: '/intervention-readiness',
     },
     {
       icon: Vote,
@@ -74,6 +79,7 @@ const Index = () => {
       description: 'Family voting on financial requests with receipt uploads and pledge tracking.',
       gradient: 'from-indigo-500 to-violet-600',
       forFamily: true,
+      link: '/features/financial-coordination',
     },
     {
       icon: GitBranch,
@@ -81,6 +87,7 @@ const Index = () => {
       description: 'Seamless handoffs between providers with outcome tracking and success scoring.',
       gradient: 'from-cyan-500 to-blue-600',
       forProvider: true,
+      link: '/features/care-transitions',
     },
     {
       icon: Mic,
@@ -90,6 +97,7 @@ const Index = () => {
       gradient: 'from-fuchsia-500 to-pink-600',
       badge: 'Patent Pending',
       forFamily: true,
+      link: '/features/conversation-coaching',
     },
   ];
 
