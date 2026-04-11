@@ -1,8 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { HeartPulse, ShieldAlert } from 'lucide-react';
+import { HeartPulse, ShieldAlert, ArrowRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 
 const acceptedSteps = [
@@ -27,6 +29,7 @@ const declinedSteps = [
 ];
 
 export const PostInterventionTracker = () => {
+  const navigate = useNavigate();
   const [acceptedChecked, setAcceptedChecked] = useState<Record<string, boolean>>({});
   const [declinedChecked, setDeclinedChecked] = useState<Record<string, boolean>>({});
 
@@ -88,6 +91,17 @@ export const PostInterventionTracker = () => {
             </div>
           </TabsContent>
         </Tabs>
+
+        {/* Link to full Continuity Engine */}
+        <div className="mt-4 pt-4 border-t">
+          <Button
+            variant="outline"
+            className="w-full gap-2"
+            onClick={() => navigate('/post-intervention')}
+          >
+            Open Full Post-Intervention Continuity Engine <ArrowRight className="h-4 w-4" />
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );

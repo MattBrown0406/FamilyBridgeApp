@@ -31,6 +31,7 @@ import SignHIPAA from "./pages/SignHIPAA";
 import UpdatePayment from "./pages/UpdatePayment";
 import InterventionReadiness from "./pages/InterventionReadiness";
 import InterventionExecution from "./pages/InterventionExecution";
+import PostInterventionContinuity from "./pages/PostInterventionContinuity";
 import FIISIntelligence from "./pages/features/FIISIntelligence";
 import RecoveryTrajectory from "./pages/features/RecoveryTrajectory";
 import DocumentAnalysis from "./pages/features/DocumentAnalysis";
@@ -93,6 +94,7 @@ const App = () => {
               <Route path="/sign-hipaa" element={<SignHIPAA />} />
               <Route path="/intervention-readiness" element={<InterventionReadiness />} />
               <Route path="/intervention-execution" element={<InterventionExecution />} />
+              <Route path="/post-intervention" element={<PostInterventionContinuity />} />
               <Route path="/features/fiis-intelligence" element={<FIISIntelligence />} />
               <Route path="/features/recovery-trajectory" element={<RecoveryTrajectory />} />
               <Route path="/features/document-analysis" element={<DocumentAnalysis />} />
