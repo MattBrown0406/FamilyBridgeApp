@@ -26,6 +26,15 @@ import { useUserFamilyRole } from '@/hooks/useUserFamilyRole';
 const InterventionReadiness = () => {
   const { user, loading: authLoading } = useAuth();
   const { isRecovering, loading: roleLoading } = useUserFamilyRole();
+  const [indicators, setIndicators] = useState<ObservedIndicator[]>(demoClient.indicators);
+  const [notes, setNotes] = useState<ClinicianNote[]>(demoClient.notes);
+  const [signals] = useState(demoClient.signals);
+  const [caseStatus, setCaseStatus] = useState<CaseStatus>(demoClient.caseStatus);
+
+  const totalScore = useMemo(() => calculateReadinessScore(signals), [signals]);
+  const statusLabel = useMemo(() => getStatusLabel(totalScore), [totalScore]);
+  const recommendation = useMemo(() => getRecommendation(totalScore), [totalScore]);
+  const suggestedStatus = useMemo(() => getSuggestedStatus(totalScore), [totalScore]);
 
   // Block recovering users from accessing this page
   if (authLoading || roleLoading) {
@@ -43,15 +52,6 @@ const InterventionReadiness = () => {
   if (isRecovering) {
     return <Navigate to="/dashboard" replace />;
   }
-  const [indicators, setIndicators] = useState<ObservedIndicator[]>(demoClient.indicators);
-  const [notes, setNotes] = useState<ClinicianNote[]>(demoClient.notes);
-  const [signals] = useState(demoClient.signals);
-  const [caseStatus, setCaseStatus] = useState<CaseStatus>(demoClient.caseStatus);
-
-  const totalScore = useMemo(() => calculateReadinessScore(signals), [signals]);
-  const statusLabel = useMemo(() => getStatusLabel(totalScore), [totalScore]);
-  const recommendation = useMemo(() => getRecommendation(totalScore), [totalScore]);
-  const suggestedStatus = useMemo(() => getSuggestedStatus(totalScore), [totalScore]);
 
   const handleAddIndicator = (ind: ObservedIndicator) => {
     setIndicators((prev) => [ind, ...prev]);
