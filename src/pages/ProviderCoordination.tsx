@@ -27,11 +27,9 @@ const ProviderCoordination = () => {
 
   // Apply org branding
   useEffect(() => {
-    if (organizations.length > 0) {
-      applyBranding(organizations[0].id);
-    }
+    applyBranding();
     return () => resetBranding();
-  }, [organizations]);
+  }, [branding]);
 
   if (authLoading || orgsLoading) {
     return (
