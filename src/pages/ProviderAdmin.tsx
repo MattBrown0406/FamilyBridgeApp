@@ -10,6 +10,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { ChevronDown } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { fetchProfilesByIds } from '@/lib/profileApi';
@@ -1134,9 +1136,43 @@ const ProviderAdmin = () => {
                   alt={branding?.name || "FamilyBridge"} 
                   className="h-7 w-auto object-contain" 
                 />
-                <span className="text-lg sm:text-xl font-display font-semibold truncate max-w-[150px] sm:max-w-none">
-                  {branding?.name || "Provider Admin"}
-                </span>
+                {organizations.length > 1 ? (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="sm" className="text-primary-foreground hover:bg-primary-foreground/10 px-2 gap-1 max-w-[180px] sm:max-w-none">
+                        <span className="truncate text-lg sm:text-xl font-display font-semibold">
+                          {currentOrg?.name || "Select Org"}
+                        </span>
+                        <ChevronDown className="h-4 w-4 shrink-0" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" className="w-64">
+                      {organizations.map((org) => (
+                        <DropdownMenuItem
+                          key={org.id}
+                          onClick={() => handleSelectOrg(org.id)}
+                          className={`flex items-center gap-2 ${selectedOrg === org.id ? 'bg-primary/10 font-semibold' : ''}`}
+                        >
+                          {org.logo_url ? (
+                            <img src={org.logo_url} alt={org.name} className="h-6 w-6 rounded object-contain" />
+                          ) : (
+                            <div className="h-6 w-6 rounded bg-primary/10 flex items-center justify-center">
+                              <Building2 className="h-3 w-3 text-primary" />
+                            </div>
+                          )}
+                          <div className="min-w-0">
+                            <p className="truncate text-sm">{org.name}</p>
+                            <p className="truncate text-xs text-muted-foreground">{org.subdomain}.familybridgeapp.com</p>
+                          </div>
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                ) : (
+                  <span className="text-lg sm:text-xl font-display font-semibold truncate max-w-[180px] sm:max-w-none">
+                    {currentOrg?.name || "Provider Admin"}
+                  </span>
+                )}
               </div>
               <Button variant="ghost" size="sm" onClick={() => navigate('/dashboard')} className="sm:hidden text-primary-foreground hover:bg-primary-foreground/10">
                 <ArrowLeft className="h-4 w-4" />
