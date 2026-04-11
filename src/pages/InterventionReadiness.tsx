@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
-import { ArrowLeft, Info } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { ArrowLeft, Info, Loader2, ShieldAlert } from 'lucide-react';
+import { Link, Navigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ReadinessHeader } from '@/components/intervention/ReadinessHeader';
 import { SignalCards } from '@/components/intervention/SignalCards';
@@ -20,8 +20,29 @@ import {
 } from '@/data/interventionReadinessData';
 import type { ObservedIndicator, ClinicianNote, CaseStatus } from '@/data/interventionReadinessData';
 import { SEOHead } from '@/components/SEOHead';
+import { useAuth } from '@/hooks/useAuth';
+import { useUserFamilyRole } from '@/hooks/useUserFamilyRole';
 
 const InterventionReadiness = () => {
+  const { user, loading: authLoading } = useAuth();
+  const { isRecovering, loading: roleLoading } = useUserFamilyRole();
+
+  // Block recovering users from accessing this page
+  if (authLoading || roleLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/auth" replace />;
+  }
+
+  if (isRecovering) {
+    return <Navigate to="/dashboard" replace />;
+  }
   const [indicators, setIndicators] = useState<ObservedIndicator[]>(demoClient.indicators);
   const [notes, setNotes] = useState<ClinicianNote[]>(demoClient.notes);
   const [signals] = useState(demoClient.signals);
