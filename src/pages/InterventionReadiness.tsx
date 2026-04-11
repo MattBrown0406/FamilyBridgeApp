@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
-import { ArrowLeft, Info, Loader2 } from 'lucide-react';
-import { Link, Navigate } from 'react-router-dom';
+import { ArrowLeft, Info, Loader2, Zap } from 'lucide-react';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ReadinessHeader } from '@/components/intervention/ReadinessHeader';
 import { SignalCards } from '@/components/intervention/SignalCards';
