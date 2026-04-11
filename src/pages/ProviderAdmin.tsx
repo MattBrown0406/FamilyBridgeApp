@@ -40,6 +40,7 @@ import {
   ArrowRightLeft,
   FileText,
   Target,
+  MessageSquare,
 } from 'lucide-react';
 import { ArchivedFamiliesPanel } from '@/components/ArchivedFamiliesPanel';
 import { BroadcastMessage } from '@/components/BroadcastMessage';
