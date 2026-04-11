@@ -53,19 +53,34 @@ const typeIcon = (t: DetectedIssue['type']) => {
 /* =============================================
    SUPER ADMIN SITE-WIDE OVERVIEW COMPONENT
    ============================================= */
-const PlatformHealthOverview = () => {
-  const ph = demoPlatformHealth;
+const PlatformHealthOverview = ({ data }: { data: PlatformHealthData }) => {
+  const ph = data;
   const totalConf = ph.confidenceDistribution;
   const totalFamiliesWithConf = totalConf.low + totalConf.moderate + totalConf.high;
+
+  const hasData = totalFamiliesWithConf > 0 || ph.totalUnresolved > 0;
+
+  if (!hasData) {
+    return (
+      <Card className="border-slate-200">
+        <CardContent className="py-8 text-center">
+          <Shield className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+          <p className="font-medium text-sm">No input reconciliation data yet</p>
+          <p className="text-xs text-muted-foreground mt-1 max-w-md mx-auto">
+            As families and providers submit updates, the system will track data quality, detect inconsistencies, and report health metrics here.
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <div className="space-y-6">
       {/* Top-level stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
         {[
           { label: 'Total Families', value: ph.totalFamilies, icon: Users },
           { label: 'Providers', value: ph.totalProviders, icon: Building2 },
-          { label: 'Private Families', value: ph.privateFamilies, icon: Shield },
           { label: 'Avg Confidence', value: `${ph.avgDataConfidence}%`, icon: BarChart3, color: ph.avgDataConfidence >= 70 ? 'text-emerald-600' : ph.avgDataConfidence >= 50 ? 'text-amber-600' : 'text-red-600' },
           { label: 'Unresolved Issues', value: ph.totalUnresolved, icon: AlertTriangle, color: 'text-red-600' },
           { label: 'Deferrals Overdue', value: ph.totalDeferralsOverdue, icon: Clock, color: 'text-amber-600' },
