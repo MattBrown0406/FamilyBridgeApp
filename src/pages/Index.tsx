@@ -7,7 +7,7 @@ import { useProviderAdmin } from '@/hooks/useProviderAdmin';
 import { BrandedHeader } from '@/components/BrandedHeader';
 import { BrandedFooter } from '@/components/BrandedFooter';
 import { SEOHead, createOrganizationSchema } from '@/components/SEOHead';
-import { Shield, Users, DollarSign, MessageCircle, Eye, MapPin, ArrowRight, HelpCircle, Building2, Check, Play, LogOut, Brain, Sparkles, TrendingUp, MessageSquareWarning, Heart, ChevronDown, FileText, Pill, GitBranch, Activity, Vote, Clock, Mic } from 'lucide-react';
+import { Shield, Users, DollarSign, MessageCircle, Eye, MapPin, ArrowRight, HelpCircle, Building2, Check, Play, LogOut, Brain, Sparkles, TrendingUp, MessageSquareWarning, Heart, ChevronDown, FileText, Pill, GitBranch, Activity, Vote, Clock, Mic, Crosshair } from 'lucide-react';
 import { RecoveryIcon } from '@/components/icons/RecoveryIcon';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 
@@ -60,11 +60,13 @@ const Index = () => {
       gradient: 'from-amber-500 to-orange-600',
     },
     {
-      icon: MapPin,
-      title: 'Meeting Check-Ins',
-      description: 'GPS-verified recovery meeting attendance with automatic family notifications.',
-      gradient: 'from-blue-500 to-cyan-600',
-      forFamily: true,
+      icon: Crosshair,
+      title: 'Intervention Readiness Engine',
+      description: 'Pattern-recognition system that identifies when resistance is weakening and intervention timing is optimal.',
+      highlight: true,
+      gradient: 'from-red-500 to-orange-600',
+      badge: 'Patent Pending',
+      forProvider: true,
     },
     {
       icon: Vote,
