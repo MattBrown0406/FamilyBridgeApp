@@ -137,9 +137,14 @@ const Index = () => {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-3xl pointer-events-none" />
         <div className="container mx-auto px-4 pt-12 sm:pt-20 pb-10 sm:pb-16 relative z-10">
           <div className="max-w-3xl mx-auto text-center">
-            <p className="text-sm sm:text-base font-medium text-primary mb-4 tracking-wide uppercase">
-              Powered by FIIS™ — Patent-Pending AI
-            </p>
+            <div className="mb-4 text-center">
+              <p className="text-base sm:text-lg font-semibold text-primary tracking-wide uppercase">
+                Powered by FIIS™ — Patent-Pending AI
+              </p>
+              <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+                Family Insight & Intervention System
+              </p>
+            </div>
             <h1 className="text-3xl sm:text-5xl md:text-6xl font-display font-bold text-foreground leading-[1.1] mb-5">
               See the full picture.{' '}
               <span className="text-primary">Act with clarity.</span>
