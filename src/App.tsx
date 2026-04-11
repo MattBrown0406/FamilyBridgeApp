@@ -35,6 +35,7 @@ import InterventionExecution from "./pages/InterventionExecution";
 import AccountabilityEngine from "./pages/AccountabilityEngine";
 import PostInterventionContinuity from "./pages/PostInterventionContinuity";
 import OutcomePredictions from "./pages/OutcomePredictions";
+import AILearningLayer from "./pages/AILearningLayer";
 import FIISIntelligence from "./pages/features/FIISIntelligence";
 import RecoveryTrajectory from "./pages/features/RecoveryTrajectory";
 import DocumentAnalysis from "./pages/features/DocumentAnalysis";
@@ -101,6 +102,7 @@ const App = () => {
               <Route path="/post-intervention" element={<PostInterventionContinuity />} />
               <Route path="/accountability-engine" element={<AccountabilityEngine />} />
               <Route path="/outcome-predictions" element={<OutcomePredictions />} />
+              <Route path="/ai-learning" element={<AILearningLayer />} />
               <Route path="/features/fiis-intelligence" element={<FIISIntelligence />} />
               <Route path="/features/recovery-trajectory" element={<RecoveryTrajectory />} />
               <Route path="/features/document-analysis" element={<DocumentAnalysis />} />
