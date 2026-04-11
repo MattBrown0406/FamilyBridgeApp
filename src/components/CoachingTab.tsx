@@ -603,7 +603,7 @@ export const CoachingTab = ({ familyId, members = [] }: CoachingTabProps) => {
               />
               <Button
                 onClick={sendLiveCoaching}
-                disabled={isLiveLoading || !(liveMode === 'speakerphone' ? transcribedText : liveInput).trim()}
+                disabled={isLiveLoading || !((liveMode === 'speakerphone' || liveMode === 'inroom') ? transcribedText : liveInput).trim()}
                 size="icon"
                 className="shrink-0"
               >
