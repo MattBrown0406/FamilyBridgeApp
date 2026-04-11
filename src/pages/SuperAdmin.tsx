@@ -1168,7 +1168,7 @@ const SuperAdmin = () => {
                   <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-primary/10 flex items-center justify-center">
                     <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
                   </div>
-                  <span className="text-base sm:text-lg truncate">{familyDetails?.family.name || 'Family Details'}</span>
+                  <span className="text-base sm:text-lg truncate">{familyDetails?.family?.name || 'Family Details'}</span>
                 </span>
                 {familyDetails?.family.account_number && (
                   <Badge variant="outline" className="font-mono text-[10px] sm:text-xs w-fit mt-1.5">
