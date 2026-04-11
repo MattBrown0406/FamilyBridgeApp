@@ -260,17 +260,46 @@ const PlatformHealthOverview = ({ data }: { data: PlatformHealthData }) => {
 const InputReconciliation = () => {
   const navigate = useNavigate();
   const { isAdmin, isVerifying } = useSuperAdmin();
+  const { platformHealth, loading: healthLoading, loadPlatformHealth } = useInputReconciliation();
   const [expandedIssue, setExpandedIssue] = useState<string | null>(null);
   const [expandedPrompt, setExpandedPrompt] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'platform' | 'case'>('platform');
+
+  const isDemo = new URLSearchParams(window.location.search).has('demo');
+  const showPlatformView = isAdmin || isDemo;
+
+  // Load real data for super admins
+  useEffect(() => {
+    if (isAdmin && !isDemo) {
+      loadPlatformHealth();
+    }
+  }, [isAdmin, isDemo, loadPlatformHealth]);
+
+  // Use real data if available, otherwise demo data for demo mode
+  const activePlatformData: PlatformHealthData = (!isDemo && platformHealth) ? platformHealth : {
+    totalFamilies: demoPlatformHealth.totalFamilies,
+    totalProviders: demoPlatformHealth.totalProviders,
+    avgDataConfidence: demoPlatformHealth.avgDataConfidence,
+    totalUnresolved: demoPlatformHealth.totalUnresolved,
+    totalContradictions: demoPlatformHealth.totalContradictions,
+    totalShallowInputs: demoPlatformHealth.totalShallowInputs,
+    totalIncomplete: demoPlatformHealth.totalIncomplete,
+    totalDeferralsOverdue: demoPlatformHealth.totalDeferralsOverdue,
+    confidenceDistribution: demoPlatformHealth.confidenceDistribution,
+    orgHealth: demoOrgInputHealth.map(o => ({
+      id: o.id, name: o.name, type: o.type, totalFamilies: o.totalFamilies,
+      avgConfidence: o.avgConfidence, confidence: o.confidence,
+      unresolvedIssues: o.unresolvedIssues, contradictions: o.contradictions,
+      shallowInputs: o.shallowInputs, incompleteInputs: o.incompleteInputs,
+      deferralsOverdue: o.deferralsOverdue,
+    })),
+    topCategories: demoTopIssueCategories,
+  };
 
   const overallConfidence = Math.round(
     demoDataConfidence.reduce((s, d) => s + d.overall, 0) / demoDataConfidence.length
   );
   const unresolvedCount = demoDetectedIssues.filter(i => i.trackingState !== 'resolved').length;
-
-  // Show platform view for super admins by default
-  const showPlatformView = isAdmin || new URLSearchParams(window.location.search).has('demo');
 
   return (
     <div className="min-h-screen bg-background">
