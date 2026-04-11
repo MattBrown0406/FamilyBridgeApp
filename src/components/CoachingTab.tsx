@@ -50,7 +50,7 @@ export const CoachingTab = ({ familyId, members = [] }: CoachingTabProps) => {
 
   // Live coaching state
   const [isListening, setIsListening] = useState(false);
-  const [liveMode, setLiveMode] = useState<'speakerphone' | 'text'>('text');
+  const [liveMode, setLiveMode] = useState<'speakerphone' | 'inroom' | 'text'>('text');
   const [liveInput, setLiveInput] = useState('');
   const [liveMessages, setLiveMessages] = useState<ChatMessage[]>([]);
   const [isLiveLoading, setIsLiveLoading] = useState(false);
@@ -158,7 +158,7 @@ export const CoachingTab = ({ familyId, members = [] }: CoachingTabProps) => {
 
   // Send live coaching request (streaming)
   const sendLiveCoaching = async () => {
-    const text = liveMode === 'speakerphone' ? transcribedText : liveInput;
+    const text = (liveMode === 'speakerphone' || liveMode === 'inroom') ? transcribedText : liveInput;
     if (!text.trim()) return;
 
     const userMessage: ChatMessage = { role: 'user', content: text.trim() };
@@ -185,7 +185,7 @@ export const CoachingTab = ({ familyId, members = [] }: CoachingTabProps) => {
           body: JSON.stringify({
             familyId,
             transcript: text.trim(),
-            context: liveMode === 'speakerphone' ? 'phone' : 'text',
+            context: liveMode === 'text' ? 'text' : liveMode === 'inroom' ? 'in_room' : 'phone',
             chatHistory: liveMessages.slice(-10),
             talkingToName: talkingTo,
             talkingToUserId: talkingToUserId && talkingToUserId !== '__custom__' ? talkingToUserId : undefined,
@@ -477,22 +477,31 @@ export const CoachingTab = ({ familyId, members = [] }: CoachingTabProps) => {
               className="flex-1"
             >
               <MessageSquare className="h-4 w-4 mr-2" />
-              Type What They Say
+              Type It
+            </Button>
+            <Button
+              variant={liveMode === 'inroom' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => { setLiveMode('inroom'); stopListening(); }}
+              className="flex-1"
+            >
+              <Users className="h-4 w-4 mr-2" />
+              In Room
             </Button>
             <Button
               variant={liveMode === 'speakerphone' ? 'default' : 'outline'}
               size="sm"
-              onClick={() => setLiveMode('speakerphone')}
+              onClick={() => { setLiveMode('speakerphone'); stopListening(); }}
               className="flex-1"
             >
               <Phone className="h-4 w-4 mr-2" />
-              Speakerphone
+              Speaker
             </Button>
           </div>
 
-          {/* Speakerphone controls */}
-          {liveMode === 'speakerphone' && (
-            <Card className="border-amber-500/30 bg-amber-500/5">
+          {/* Listening controls for speakerphone and in-room modes */}
+          {(liveMode === 'speakerphone' || liveMode === 'inroom') && (
+            <Card className="border-primary/30 bg-primary/5">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -502,7 +511,11 @@ export const CoachingTab = ({ familyId, members = [] }: CoachingTabProps) => {
                       <div className="h-3 w-3 bg-muted rounded-full" />
                     )}
                     <span className="text-sm font-medium">
-                      {isListening ? 'Listening... Put phone on speaker' : 'Ready to listen'}
+                      {isListening 
+                        ? liveMode === 'inroom' 
+                          ? 'Listening to room conversation...' 
+                          : 'Listening... Put phone on speaker'
+                        : 'Ready to listen'}
                     </span>
                   </div>
                   <Button
@@ -511,11 +524,13 @@ export const CoachingTab = ({ familyId, members = [] }: CoachingTabProps) => {
                     onClick={isListening ? stopListening : startListening}
                   >
                     {isListening ? <MicOff className="h-4 w-4 mr-2" /> : <Mic className="h-4 w-4 mr-2" />}
-                    {isListening ? 'Stop' : 'Start Listening'}
+                    {isListening ? 'Stop' : 'Start'}
                   </Button>
                 </div>
                 <p className="text-xs text-muted-foreground mt-2">
-                  Put your phone on speaker and tap Start. FIIS will transcribe the conversation and provide coaching in real-time.
+                  {liveMode === 'inroom'
+                    ? 'Place your device nearby during an in-person conversation. FIIS will listen and provide real-time coaching suggestions.'
+                    : 'Put your phone on speaker and tap Start. FIIS will transcribe the conversation and provide coaching in real-time.'}
                 </p>
               </CardContent>
             </Card>
@@ -589,7 +604,7 @@ export const CoachingTab = ({ familyId, members = [] }: CoachingTabProps) => {
               />
               <Button
                 onClick={sendLiveCoaching}
-                disabled={isLiveLoading || !(liveMode === 'speakerphone' ? transcribedText : liveInput).trim()}
+                disabled={isLiveLoading || !((liveMode === 'speakerphone' || liveMode === 'inroom') ? transcribedText : liveInput).trim()}
                 size="icon"
                 className="shrink-0"
               >
