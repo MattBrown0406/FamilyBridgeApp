@@ -30,6 +30,10 @@
 	<string>FamilyBridge uses Face ID to help you securely sign in to your account on this device.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>FamilyBridge uses your location to support meeting check-ins and safety features you initiate.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>FamilyBridge uses the microphone during live coaching so FIIS can transcribe conversations you choose to analyze.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>FamilyBridge uses speech recognition during live coaching to turn conversations into text and suggest grounded responses.</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>

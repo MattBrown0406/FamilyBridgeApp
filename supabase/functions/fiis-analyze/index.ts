@@ -3277,7 +3277,9 @@ DOCUMENT ANALYSIS INTERPRETATION:
     // Add coaching session context
     if (coachingSessionsResult.data && coachingSessionsResult.data.length > 0) {
       const sessions = coachingSessionsResult.data;
-      const liveSessions = sessions.filter((s: any) => s.session_type === 'live');
+      const liveSessions = sessions.filter((s: any) => s.session_type === 'live_speakerphone' || s.session_type === 'live_text');
+      const speakerphoneSessions = sessions.filter((s: any) => s.session_type === 'live_speakerphone');
+      const typedSessions = sessions.filter((s: any) => s.session_type === 'live_text');
       const screenshotSessions = sessions.filter((s: any) => s.session_type === 'screenshot');
       
       // Identify unique people being coached about
@@ -3289,6 +3291,8 @@ DOCUMENT ANALYSIS INTERPRETATION:
       familyContext += `COACHING SESSION ACTIVITY:
 - Total Coaching Sessions: ${sessions.length}
 - Live Conversation Coaching: ${liveSessions.length} sessions
+- Live Listening Sessions: ${speakerphoneSessions.length} sessions
+- Typed Coaching Sessions: ${typedSessions.length} sessions
 - Screenshot Text Analysis: ${screenshotSessions.length} sessions
 - People Coached About: ${talkingToNames.size > 0 ? Array.from(talkingToNames).join(', ') : 'Not specified'}
 

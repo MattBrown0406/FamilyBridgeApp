@@ -17,6 +17,7 @@ import {
 import ReactMarkdown from 'react-markdown';
 import { FIISDoctrineNotice } from '@/components/FIISDoctrineNotice';
 import { AIProcessingNotice } from '@/components/AIProcessingNotice';
+import { startLiveSpeechRecognition, type ActiveSpeechRecognitionSession } from '@/lib/liveSpeechRecognition';
 import {
   Mic, MicOff, Phone, MessageSquare, Image, Upload, Send, Loader2,
   AlertTriangle, Copy, CheckCircle, X, Brain, PhoneCall, Camera, Users,
@@ -55,7 +56,7 @@ export const CoachingTab = ({ familyId, members = [] }: CoachingTabProps) => {
   const [liveMessages, setLiveMessages] = useState<ChatMessage[]>([]);
   const [isLiveLoading, setIsLiveLoading] = useState(false);
   const [liveStreamText, setLiveStreamText] = useState('');
-  const recognitionRef = useRef<any>(null);
+  const recognitionRef = useRef<ActiveSpeechRecognitionSession | null>(null);
   const [transcribedText, setTranscribedText] = useState('');
 
   // Screenshot / email coaching state
@@ -76,6 +77,15 @@ export const CoachingTab = ({ familyId, members = [] }: CoachingTabProps) => {
     }
   }, [liveMessages, liveStreamText]);
 
+  useEffect(() => {
+    return () => {
+      if (recognitionRef.current) {
+        void recognitionRef.current.stop();
+        recognitionRef.current = null;
+      }
+    };
+  }, []);
+
   const getTalkingToName = (): string => {
     if (talkingToUserId === '__custom__') return talkingToCustomName || 'someone';
     if (talkingToUserId) {
@@ -85,83 +95,147 @@ export const CoachingTab = ({ familyId, members = [] }: CoachingTabProps) => {
     return '';
   };
 
-  // Speech recognition for speakerphone mode
+  // Speech recognition for live coaching, with native support inside the iPhone app
   const startListening = useCallback(async () => {
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      toast({ title: "Not supported", description: "Speech recognition is not supported in this browser. Please use Chrome or Edge.", variant: "destructive" });
-      return;
-    }
-
-    // Request microphone permission before starting speech recognition
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      // Stop the stream immediately — we just needed the permission grant
-      stream.getTracks().forEach(track => track.stop());
-    } catch (err) {
-      console.error('Microphone permission denied:', err);
-      toast({ title: "Microphone access required", description: "Please allow microphone access in your browser or device settings to use speakerphone mode.", variant: "destructive" });
-      return;
-    }
-
-    const recognition = new SpeechRecognition();
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    recognition.lang = 'en-US';
-
-    recognition.onresult = (event: any) => {
-      let finalTranscript = '';
-      let interimTranscript = '';
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const transcript = event.results[i][0].transcript;
-        if (event.results[i].isFinal) {
-          finalTranscript += transcript + ' ';
-        } else {
-          interimTranscript += transcript;
-        }
-      }
-      if (finalTranscript) {
-        setTranscribedText(prev => prev + finalTranscript);
-      }
-      setLiveInput(prev => {
-        const base = prev.replace(/\[listening\.\.\.\].*$/, '');
-        return (base + finalTranscript + (interimTranscript ? `[listening...] ${interimTranscript}` : '')).trim();
-      });
-    };
-
-    recognition.onerror = (event: any) => {
-      console.error('Speech recognition error:', event.error);
-      if (event.error !== 'no-speech' && event.error !== 'not-allowed') {
-        toast({ title: "Listening error", description: `Speech recognition error: ${event.error}`, variant: "destructive" });
-      }
-    };
-
-    recognition.onend = () => {
-      if (isListening) {
-        recognition.start();
-      }
-    };
-
-    recognitionRef.current = recognition;
-    recognition.start();
-    setIsListening(true);
-  }, [isListening, toast]);
-
-  const stopListening = useCallback(() => {
     if (recognitionRef.current) {
-      recognitionRef.current.stop();
+      await recognitionRef.current.stop();
+      recognitionRef.current = null;
+    }
+
+    try {
+      recognitionRef.current = await startLiveSpeechRecognition({
+        onUpdate: ({ committedText, displayText }) => {
+          setTranscribedText(committedText);
+          setLiveInput(displayText);
+        },
+        onListeningChange: setIsListening,
+        onError: (message) => {
+          console.error('Speech recognition error:', message);
+          toast({ title: 'Listening error', description: message, variant: 'destructive' });
+        },
+      });
+    } catch (error: any) {
+      toast({
+        title: 'Not supported',
+        description: error.message || 'Speech recognition is not available on this device.',
+        variant: 'destructive',
+      });
+    }
+  }, [toast]);
+
+  const stopListening = useCallback(async () => {
+    if (recognitionRef.current) {
+      await recognitionRef.current.stop();
       recognitionRef.current = null;
     }
     setIsListening(false);
     setLiveInput(prev => prev.replace(/\[listening\.\.\.\].*$/, '').trim());
   }, []);
 
+  const saveCoachingSession = async ({
+    sessionType,
+    submittedText,
+    assistantText,
+    analysis,
+    screenshot,
+  }: {
+    sessionType: 'live_speakerphone' | 'live_text' | 'screenshot';
+    submittedText?: string;
+    assistantText?: string;
+    analysis?: ScreenshotAnalysis;
+    screenshot?: File | null;
+  }) => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user) throw new Error('Not authenticated');
+
+    const talkingToName = getTalkingToName() || null;
+    const talkingToUser = talkingToUserId && talkingToUserId !== '__custom__' ? talkingToUserId : null;
+    const suggestions: any[] = [];
+
+    if (submittedText?.trim()) {
+      suggestions.push({
+        type: 'conversation_context',
+        mode: sessionType,
+        content: submittedText.trim().slice(0, 2000),
+      });
+    }
+
+    if (assistantText?.trim()) {
+      suggestions.push({
+        type: 'coach_response',
+        mode: sessionType,
+        content: assistantText.trim(),
+      });
+    }
+
+    if (analysis) {
+      suggestions.push({ type: 'analysis_summary', content: analysis.conversation_summary });
+      suggestions.push({ type: 'emotional_dynamics', content: analysis.emotional_dynamics });
+
+      analysis.suggested_responses.forEach((item) => {
+        suggestions.push({
+          type: 'suggested_response',
+          approach: item.approach,
+          when_to_use: item.when_to_use,
+          content: item.response,
+        });
+      });
+
+      if (analysis.coaching_tip) {
+        suggestions.push({ type: 'coaching_tip', content: analysis.coaching_tip });
+      }
+    }
+
+    const { data: sessionRow, error: sessionError } = await supabase
+      .from('coaching_sessions')
+      .insert({
+        family_id: familyId,
+        user_id: session.user.id,
+        session_type: sessionType,
+        suggestions: suggestions as any,
+        ended_at: new Date().toISOString(),
+        talking_to_name: talkingToName,
+        talking_to_user_id: talkingToUser,
+      })
+      .select('id')
+      .single();
+
+    if (sessionError) throw sessionError;
+
+    if (screenshot && sessionRow?.id) {
+      const safeName = (screenshot.name || 'conversation.png').toLowerCase().replace(/[^a-z0-9._-]+/g, '-');
+      const imagePath = `${familyId}/${sessionRow.id}/${Date.now()}-${safeName.includes('.') ? safeName : `${safeName}.png`}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('coaching-screenshots')
+        .upload(imagePath, screenshot, { upsert: false });
+
+      if (uploadError) throw uploadError;
+
+      const { error: screenshotError } = await supabase
+        .from('coaching_screenshots')
+        .insert({
+          session_id: sessionRow.id,
+          family_id: familyId,
+          user_id: session.user.id,
+          image_path: imagePath,
+          ai_analysis: (analysis || null) as any,
+          talking_to_name: talkingToName,
+          talking_to_user_id: talkingToUser,
+        });
+
+      if (screenshotError) throw screenshotError;
+    }
+  };
+
   // Send live coaching request (streaming)
   const sendLiveCoaching = async () => {
-    const text = (liveMode === 'speakerphone' || liveMode === 'inroom') ? transcribedText : liveInput;
-    if (!text.trim()) return;
+    const text = (liveMode === 'speakerphone' ? transcribedText : liveInput).trim();
+    if (!text) return;
+    const text = ((liveMode === 'speakerphone' || liveMode === 'inroom') ? transcribedText : liveInput).trim();
+    if (!text) return;
 
-    const userMessage: ChatMessage = { role: 'user', content: text.trim() };
+    const userMessage: ChatMessage = { role: 'user', content: text };
     setLiveMessages(prev => [...prev, userMessage]);
     setLiveInput('');
     setTranscribedText('');
@@ -184,7 +258,7 @@ export const CoachingTab = ({ familyId, members = [] }: CoachingTabProps) => {
           },
           body: JSON.stringify({
             familyId,
-            transcript: text.trim(),
+            transcript: text,
             context: liveMode === 'text' ? 'text' : liveMode === 'inroom' ? 'in_room' : 'phone',
             chatHistory: liveMessages.slice(-10),
             talkingToName: talkingTo,
@@ -229,6 +303,21 @@ export const CoachingTab = ({ familyId, members = [] }: CoachingTabProps) => {
 
       if (assistantText) {
         setLiveMessages(prev => [...prev, { role: 'assistant', content: assistantText }]);
+
+        try {
+          await saveCoachingSession({
+            sessionType: liveMode === 'text' ? 'live_text' : 'live_speakerphone',
+            submittedText: text,
+            assistantText,
+          });
+        } catch (saveError) {
+          console.error('Error saving coaching session:', saveError);
+          toast({
+            title: 'Coaching saved locally only',
+            description: 'FIIS gave advice, but this session could not be added to the family learning history.',
+            variant: 'destructive',
+          });
+        }
       }
       setLiveStreamText('');
     } catch (error: any) {
@@ -285,7 +374,24 @@ export const CoachingTab = ({ familyId, members = [] }: CoachingTabProps) => {
       const { data, error } = await supabase.functions.invoke('screenshot-coaching', { body });
 
       if (error) throw error;
-      setScreenshotAnalysis(data as ScreenshotAnalysis);
+      const analysis = data as ScreenshotAnalysis;
+      setScreenshotAnalysis(analysis);
+
+      try {
+        await saveCoachingSession({
+          sessionType: 'screenshot',
+          submittedText: pastedConversation.trim() || additionalContext.trim(),
+          analysis,
+          screenshot: screenshotFile,
+        });
+      } catch (saveError) {
+        console.error('Error saving screenshot coaching session:', saveError);
+        toast({
+          title: 'Analysis not added to FIIS history',
+          description: 'The coaching analysis worked, but it could not be saved for future family context.',
+          variant: 'destructive',
+        });
+      }
     } catch (error: any) {
       toast({ title: 'Analysis error', description: error.message, variant: 'destructive' });
     } finally {
@@ -310,9 +416,9 @@ export const CoachingTab = ({ familyId, members = [] }: CoachingTabProps) => {
             <div>
               <p className="font-semibold text-sm">FIIS Coaching</p>
               <p className="text-xs text-muted-foreground mt-1">
-                Get coaching from FIIS — whether you're in a live conversation, reviewing texts and emails, 
+                Get coaching from FIIS, whether you're in a live conversation, reviewing texts and emails,
                 or just need one-on-one guidance on how to handle a situation.
-                All coaching insights are factored into FIIS analysis.
+                Coaching sessions are saved into the family's FIIS context so future analysis can use them.
               </p>
             </div>
           </div>
@@ -495,7 +601,7 @@ export const CoachingTab = ({ familyId, members = [] }: CoachingTabProps) => {
               className="flex-1"
             >
               <Phone className="h-4 w-4 mr-2" />
-              Speaker
+              Speakerphone
             </Button>
           </div>
 
@@ -511,9 +617,9 @@ export const CoachingTab = ({ familyId, members = [] }: CoachingTabProps) => {
                       <div className="h-3 w-3 bg-muted rounded-full" />
                     )}
                     <span className="text-sm font-medium">
-                      {isListening 
-                        ? liveMode === 'inroom' 
-                          ? 'Listening to room conversation...' 
+                      {isListening
+                        ? liveMode === 'inroom'
+                          ? 'Listening to the room...'
                           : 'Listening... Put phone on speaker'
                         : 'Ready to listen'}
                     </span>
@@ -529,8 +635,8 @@ export const CoachingTab = ({ familyId, members = [] }: CoachingTabProps) => {
                 </div>
                 <p className="text-xs text-muted-foreground mt-2">
                   {liveMode === 'inroom'
-                    ? 'Place your device nearby during an in-person conversation. FIIS will listen and provide real-time coaching suggestions.'
-                    : 'Put your phone on speaker and tap Start. FIIS will transcribe the conversation and provide coaching in real-time.'}
+                    ? 'Place your device nearby during an in-person conversation. FIIS will transcribe what it hears and coach you in real time.'
+                    : 'Put your phone on speaker and tap Start. FIIS will transcribe the call and coach you in real time.'}
                 </p>
               </CardContent>
             </Card>

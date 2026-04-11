@@ -68,7 +68,8 @@ async function fetchFamilyContext(supabase: ReturnType<typeof createClient>, fam
   const [
     sobrietyResult, boundariesResult, emotionalCheckinsResult, meetingCheckinsResult,
     messagesResult, financialRequestsResult, coachingSessionsResult, medicationsResult,
-    providerNotesResult, aftercarePlansResult, aftercareRecsResult,
+    providerNotesResult, aftercarePlansResult, aftercareRecsResult, calibrationPatternsResult,
+    feedbackResult,
     goalsResult, valuesResult, commonGoalsResult,
   ] = await Promise.all([
     supabase.from("sobriety_journeys").select("start_date, reset_count").eq("family_id", familyId).eq("is_active", true).maybeSingle(),
@@ -82,6 +83,8 @@ async function fetchFamilyContext(supabase: ReturnType<typeof createClient>, fam
     supabase.from("provider_notes").select("note_type, content").eq("family_id", familyId).eq("include_in_ai_analysis", true).order("created_at", { ascending: false }).limit(10),
     supabase.from("aftercare_plans").select("id, is_active").eq("family_id", familyId).eq("is_active", true),
     supabase.from("aftercare_recommendations").select("plan_id, recommendation_type, title, is_completed").order("created_at", { ascending: false }).limit(50),
+    supabase.from("fiis_calibration_patterns").select("pattern_name, pattern_description, suggested_response").eq("is_active", true),
+    supabase.from("fiis_analysis_feedback").select("feedback_type, correction_reasoning, missed_patterns, false_patterns, recommended_keywords, clinical_context").eq("family_id", familyId).order("created_at", { ascending: false }).limit(10),
     supabase.from("family_goals").select("goal_type, completed_at").eq("family_id", familyId),
     supabase.from("family_values").select("value_key").eq("family_id", familyId),
     supabase.from("family_common_goals").select("goal_key, completed_at").eq("family_id", familyId),
@@ -140,6 +143,21 @@ async function fetchFamilyContext(supabase: ReturnType<typeof createClient>, fam
   if (medicationsResult.data?.length) ctx += `MEDICATIONS: ${medicationsResult.data.map(m => m.medication_name).join(', ')}\n`;
   if (providerNotesResult.data?.length) {
     ctx += `PROVIDER NOTES:\n${providerNotesResult.data.map((n, i) => `${i + 1}. [${n.note_type}] ${n.content}`).join('\n')}\n`;
+  }
+  if (calibrationPatternsResult.data?.length) {
+    ctx += `CALIBRATED WARNING PATTERNS:\n${calibrationPatternsResult.data.slice(0, 10).map((p) => `- ${p.pattern_name}: ${p.pattern_description}${p.suggested_response ? ` → ${p.suggested_response}` : ''}`).join('\n')}\n`;
+  }
+  if (feedbackResult.data?.length) {
+    ctx += `MODERATOR CALIBRATION FEEDBACK:\n${feedbackResult.data.slice(0, 8).map((f, i) => {
+      const corrections = [
+        f.correction_reasoning,
+        f.missed_patterns?.length ? `Missed: ${f.missed_patterns.join(', ')}` : '',
+        f.false_patterns?.length ? `Avoid flagging: ${f.false_patterns.join(', ')}` : '',
+        f.recommended_keywords?.length ? `Watch for: ${f.recommended_keywords.join(', ')}` : '',
+        f.clinical_context || '',
+      ].filter(Boolean).join(' | ');
+      return `${i + 1}. [${f.feedback_type}] ${corrections}`;
+    }).join('\n')}\n`;
   }
   if (aftercarePlansResult.data?.length) {
     const planIds = aftercarePlansResult.data.map(p => p.id);

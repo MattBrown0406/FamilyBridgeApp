@@ -87,7 +87,7 @@ async function fetchFamilyContext(supabase: any, familyId: string) {
     sobrietyResult, boundariesResult, emotionalCheckinsResult, meetingCheckinsResult,
     messagesResult, financialRequestsResult, coachingSessionsResult, medicationsResult,
     providerNotesResult, aftercarePlansResult, aftercareRecsResult, calibrationPatternsResult,
-    goalsResult, valuesResult, commonGoalsResult,
+    feedbackResult, goalsResult, valuesResult, commonGoalsResult,
   ] = await Promise.all([
     supabase.from("sobriety_journeys").select("start_date, reset_count, is_active").eq("family_id", familyId).eq("is_active", true).maybeSingle(),
     supabase.from("family_boundaries").select("content, status").eq("family_id", familyId).eq("status", "approved"),
@@ -101,6 +101,7 @@ async function fetchFamilyContext(supabase: any, familyId: string) {
     supabase.from("aftercare_plans").select("id, is_active").eq("family_id", familyId).eq("is_active", true),
     supabase.from("aftercare_recommendations").select("plan_id, recommendation_type, title, is_completed, frequency").order("created_at", { ascending: false }).limit(50),
     supabase.from("fiis_calibration_patterns").select("pattern_name, pattern_description, trigger_keywords, trigger_behaviors, suggested_response, fellowship").eq("is_active", true),
+    supabase.from("fiis_analysis_feedback").select("feedback_type, correction_reasoning, missed_patterns, false_patterns, clinical_context, recommended_keywords").eq("family_id", familyId).order("created_at", { ascending: false }).limit(10),
     supabase.from("family_goals").select("goal_type, completed_at").eq("family_id", familyId),
     supabase.from("family_values").select("value_key").eq("family_id", familyId),
     supabase.from("family_common_goals").select("goal_key, completed_at").eq("family_id", familyId),
@@ -234,6 +235,19 @@ async function fetchFamilyContext(supabase: any, familyId: string) {
     context += `\nCALIBRATED WARNING PATTERNS:\n${patterns.map(p => `- ${p.pattern_name}: ${p.pattern_description}${p.suggested_response ? ` → ${p.suggested_response}` : ''}`).join('\n')}\n`;
   }
 
+  if (feedbackResult.data && feedbackResult.data.length > 0) {
+    context += `\nMODERATOR CALIBRATION FEEDBACK (apply these corrections when coaching):\n${feedbackResult.data.slice(0, 8).map((f, i) => {
+      const corrections = [
+        f.correction_reasoning,
+        f.missed_patterns?.length ? `Missed: ${f.missed_patterns.join(', ')}` : '',
+        f.false_patterns?.length ? `Avoid flagging: ${f.false_patterns.join(', ')}` : '',
+        f.recommended_keywords?.length ? `Watch for: ${f.recommended_keywords.join(', ')}` : '',
+        f.clinical_context || '',
+      ].filter(Boolean).join(' | ');
+      return `${i + 1}. [${f.feedback_type}] ${corrections}`;
+    }).join('\n')}\n`;
+  }
+
   return context;
 }
 
@@ -354,7 +368,7 @@ ${FIIS_COACHING_KNOWLEDGE}
 **Family:** ${family?.name || "Unknown"}
 **Coaching:** ${profile?.full_name || "a family member"} (${membership.relationship_type || membership.role})
 **Talking to:** ${talkingToInfo.display}
-**Conversation type:** ${context === 'phone' ? 'live phone/in-person' : 'text'}
+**Conversation type:** ${context === 'phone' || context === 'in_room' ? 'live phone/in-person' : 'text'}
 ${talkingToInfo.isMember
   ? '**Relationship:** Family group members.'
   : '**Relationship:** Person outside the app.'}
