@@ -187,7 +187,7 @@ const Index = () => {
       <section
         id="journey"
         
-        className={`py-12 sm:py-20 transition-all duration-700 ${isVisible('journey') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+        className="py-12 sm:py-20"
       >
         <div className="container mx-auto px-4">
           <div className="text-center mb-8 sm:mb-12">
@@ -282,7 +282,7 @@ const Index = () => {
       <section
         id="tools"
         
-        className={`py-10 sm:py-16 bg-muted/30 transition-all duration-700 ${isVisible('tools') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+        className="py-10 sm:py-16 bg-muted/30"
       >
         <div className="container mx-auto px-4">
           <div className="text-center mb-6 sm:mb-8">
@@ -314,7 +314,7 @@ const Index = () => {
       <section
         id="provider"
         
-        className={`py-12 sm:py-20 transition-all duration-700 ${isVisible('provider') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+        className="py-12 sm:py-20"
       >
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto bg-card border border-border/50 rounded-2xl p-6 sm:p-10 relative overflow-hidden">
@@ -362,7 +362,7 @@ const Index = () => {
       <section
         id="cta"
         
-        className={`py-12 sm:py-20 transition-all duration-700 ${isVisible('cta') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+        className="py-12 sm:py-20"
       >
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center bg-primary rounded-2xl p-8 sm:p-14 relative overflow-hidden">
