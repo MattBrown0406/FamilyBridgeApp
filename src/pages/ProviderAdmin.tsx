@@ -10,6 +10,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { ChevronDown } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { fetchProfilesByIds } from '@/lib/profileApi';
@@ -1134,9 +1136,43 @@ const ProviderAdmin = () => {
                   alt={branding?.name || "FamilyBridge"} 
                   className="h-7 w-auto object-contain" 
                 />
-                <span className="text-lg sm:text-xl font-display font-semibold truncate max-w-[150px] sm:max-w-none">
-                  {branding?.name || "Provider Admin"}
-                </span>
+                {organizations.length > 1 ? (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="sm" className="text-primary-foreground hover:bg-primary-foreground/10 px-2 gap-1 max-w-[180px] sm:max-w-none">
+                        <span className="truncate text-lg sm:text-xl font-display font-semibold">
+                          {currentOrg?.name || "Select Org"}
+                        </span>
+                        <ChevronDown className="h-4 w-4 shrink-0" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" className="w-64">
+                      {organizations.map((org) => (
+                        <DropdownMenuItem
+                          key={org.id}
+                          onClick={() => handleSelectOrg(org.id)}
+                          className={`flex items-center gap-2 ${selectedOrg === org.id ? 'bg-primary/10 font-semibold' : ''}`}
+                        >
+                          {org.logo_url ? (
+                            <img src={org.logo_url} alt={org.name} className="h-6 w-6 rounded object-contain" />
+                          ) : (
+                            <div className="h-6 w-6 rounded bg-primary/10 flex items-center justify-center">
+                              <Building2 className="h-3 w-3 text-primary" />
+                            </div>
+                          )}
+                          <div className="min-w-0">
+                            <p className="truncate text-sm">{org.name}</p>
+                            <p className="truncate text-xs text-muted-foreground">{org.subdomain}.familybridgeapp.com</p>
+                          </div>
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                ) : (
+                  <span className="text-lg sm:text-xl font-display font-semibold truncate max-w-[180px] sm:max-w-none">
+                    {currentOrg?.name || "Provider Admin"}
+                  </span>
+                )}
               </div>
               <Button variant="ghost" size="sm" onClick={() => navigate('/dashboard')} className="sm:hidden text-primary-foreground hover:bg-primary-foreground/10">
                 <ArrowLeft className="h-4 w-4" />
@@ -1190,43 +1226,9 @@ const ProviderAdmin = () => {
       </header>
 
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
-        <div className="grid lg:grid-cols-4 gap-4 sm:gap-6">
-          {/* Organization selector */}
-          <div className="lg:col-span-1 space-y-2">
-            <h2 className="text-sm font-medium text-muted-foreground mb-2 sm:mb-3">
-              Your Organizations
-            </h2>
-            <div className="flex lg:flex-col gap-2 overflow-x-auto pb-2 lg:pb-0">
-              {organizations.map((org) => (
-                <Card 
-                  key={org.id}
-                  className={`cursor-pointer transition-colors shrink-0 lg:shrink ${
-                    selectedOrg === org.id ? 'ring-2 ring-primary' : 'hover:bg-muted/50'
-                  }`}
-                  onClick={() => handleSelectOrg(org.id)}
-                >
-                  <CardContent className="p-3 sm:p-4">
-                    <div className="flex items-center gap-2 sm:gap-3">
-                      {org.logo_url ? (
-                        <img src={org.logo_url} alt={org.name} className="h-8 w-8 sm:h-10 sm:w-10 rounded object-contain" />
-                      ) : (
-                        <div className="h-8 w-8 sm:h-10 sm:w-10 rounded bg-primary/10 flex items-center justify-center">
-                          <Building2 className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
-                        </div>
-                      )}
-                      <div className="min-w-0">
-                        <p className="font-medium text-foreground text-sm sm:text-base truncate">{org.name}</p>
-                        <p className="text-[10px] sm:text-xs text-muted-foreground truncate">{org.subdomain}.familybridgeapp.com</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-
+        <div>
           {/* Main content */}
-          <div className="lg:col-span-3">
+          <div>
             {selectedOrg && currentOrg ? (
               <Tabs defaultValue="families" className="space-y-4">
                 <TabsList className="flex flex-wrap h-auto gap-1 w-full bg-primary/10">
