@@ -7,7 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Users, LogOut, Loader2, Copy, ArrowRight, Crown, Home, Settings, Trash2, HelpCircle, Activity } from 'lucide-react';
+import { Users, LogOut, Loader2, Copy, ArrowRight, Crown, Home, Settings, Trash2, HelpCircle, Activity, Brain } from 'lucide-react';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 import { NotificationBell } from '@/components/NotificationBell';
 import { AdminBreadcrumbs } from '@/components/AdminBreadcrumbs';
@@ -476,6 +476,27 @@ const Dashboard = () => {
                   <div>
                     <p className="font-semibold text-foreground">Accountability Engine</p>
                     <p className="text-sm text-muted-foreground">Track commitments, scores, and system alignment</p>
+                  </div>
+                </div>
+                <ArrowRight className="h-5 w-5 text-muted-foreground" />
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Outcome Predictions Link */}
+          {families.length > 0 && (
+            <Card
+              className="hover:shadow-elevated transition-shadow cursor-pointer border-primary/20"
+              onClick={() => navigate('/outcome-predictions')}
+            >
+              <CardContent className="py-4 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Brain className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-foreground">Outcome Predictions</p>
+                    <p className="text-sm text-muted-foreground">Forward-looking recovery intelligence</p>
                   </div>
                 </div>
                 <ArrowRight className="h-5 w-5 text-muted-foreground" />

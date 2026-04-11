@@ -3814,6 +3814,115 @@ export type Database = {
         }
         Relationships: []
       }
+      outcome_prediction_alerts: {
+        Row: {
+          alert_type: string
+          created_at: string
+          dismissed_at: string | null
+          dismissed_by: string | null
+          family_id: string
+          id: string
+          is_dismissed: boolean
+          message: string
+          prediction_type: string
+          severity: string
+          title: string
+        }
+        Insert: {
+          alert_type: string
+          created_at?: string
+          dismissed_at?: string | null
+          dismissed_by?: string | null
+          family_id: string
+          id?: string
+          is_dismissed?: boolean
+          message: string
+          prediction_type: string
+          severity?: string
+          title: string
+        }
+        Update: {
+          alert_type?: string
+          created_at?: string
+          dismissed_at?: string | null
+          dismissed_by?: string | null
+          family_id?: string
+          id?: string
+          is_dismissed?: boolean
+          message?: string
+          prediction_type?: string
+          severity?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "outcome_prediction_alerts_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      outcome_predictions: {
+        Row: {
+          ai_insight: string | null
+          ai_recommendation: Json | null
+          calculated_at: string
+          confidence: string
+          created_at: string
+          data_sources: Json | null
+          family_id: string
+          id: string
+          prediction_type: string
+          previous_probability: number | null
+          probability: number
+          protective_factors: Json | null
+          risk_drivers: Json | null
+          trend: string
+        }
+        Insert: {
+          ai_insight?: string | null
+          ai_recommendation?: Json | null
+          calculated_at?: string
+          confidence?: string
+          created_at?: string
+          data_sources?: Json | null
+          family_id: string
+          id?: string
+          prediction_type: string
+          previous_probability?: number | null
+          probability?: number
+          protective_factors?: Json | null
+          risk_drivers?: Json | null
+          trend?: string
+        }
+        Update: {
+          ai_insight?: string | null
+          ai_recommendation?: Json | null
+          calculated_at?: string
+          confidence?: string
+          created_at?: string
+          data_sources?: Json | null
+          family_id?: string
+          id?: string
+          prediction_type?: string
+          previous_probability?: number | null
+          probability?: number
+          protective_factors?: Json | null
+          risk_drivers?: Json | null
+          trend?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "outcome_predictions_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       paid_moderator_requests: {
         Row: {
           activated_at: string | null
