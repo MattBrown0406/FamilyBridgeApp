@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usePlatform } from '@/hooks/usePlatform';
 import { Button } from '@/components/ui/button';
@@ -89,27 +89,6 @@ const Index = () => {
   const paymentsWebOnly = isNative && isIOS;
 
   const [activeStep, setActiveStep] = useState(0);
-  const [visibleSections, setVisibleSections] = useState<Set<string>>(new Set());
-  const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
-
-  // Intersection Observer for scroll-triggered animations
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setVisibleSections((prev) => new Set([...prev, entry.target.id]));
-          }
-        });
-      },
-      { threshold: 0.15, rootMargin: '0px 0px -50px 0px' }
-    );
-    Object.values(sectionRefs.current).forEach((el) => { if (el) observer.observe(el); });
-    return () => observer.disconnect();
-  }, []);
-
-  const registerRef = (id: string) => (el: HTMLElement | null) => { sectionRefs.current[id] = el; };
-  const isVisible = (id: string) => visibleSections.has(id);
 
   const tagline = isWhiteLabeled && organization?.tagline
     ? organization.tagline
