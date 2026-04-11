@@ -156,7 +156,7 @@ const PlatformHealthOverview = ({ data }: { data: PlatformHealthData }) => {
             <CardTitle className="text-sm">Top Issue Categories</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
-            {demoTopIssueCategories.map(cat => (
+            {ph.topCategories.map(cat => (
               <div key={cat.category}>
                 <div className="flex justify-between text-xs mb-0.5">
                   <span>{cat.category}</span>
@@ -186,12 +186,11 @@ const PlatformHealthOverview = ({ data }: { data: PlatformHealthData }) => {
                   <th className="pb-2 pr-3 text-center">Unresolved</th>
                   <th className="pb-2 pr-3 text-center">Contradictions</th>
                   <th className="pb-2 pr-3 text-center">Shallow</th>
-                  <th className="pb-2 pr-3 text-center">Overdue</th>
-                  <th className="pb-2 text-center">Learning Excluded</th>
+                  <th className="pb-2 text-center">Overdue</th>
                 </tr>
               </thead>
               <tbody>
-                {demoOrgInputHealth.map(org => (
+                {ph.orgHealth.map(org => (
                   <tr key={org.id} className="border-b last:border-b-0 hover:bg-muted/30">
                     <td className="py-2.5 pr-4">
                       <div className="flex items-center gap-2">
@@ -219,9 +218,6 @@ const PlatformHealthOverview = ({ data }: { data: PlatformHealthData }) => {
                     <td className="py-2.5 pr-3 text-center">
                       <span className={org.deferralsOverdue > 0 ? 'text-amber-600 font-semibold' : 'text-emerald-600'}>{org.deferralsOverdue}</span>
                     </td>
-                    <td className="py-2.5 text-center">
-                      <span className={org.learningExclusions > 5 ? 'text-red-600 font-semibold' : ''}>{org.learningExclusions}</span>
-                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -231,19 +227,21 @@ const PlatformHealthOverview = ({ data }: { data: PlatformHealthData }) => {
       </Card>
 
       {/* Learning Impact */}
-      <Card className="border-slate-200 bg-slate-50">
-        <CardContent className="py-4">
-          <div className="flex items-start gap-3">
-            <Eye className="h-5 w-5 text-muted-foreground mt-0.5" />
-            <div>
-              <p className="font-medium text-sm mb-1">Learning Layer Impact</p>
-              <p className="text-sm text-muted-foreground">
-                <span className="font-semibold text-red-600">{ph.learningDataExcluded} families</span> currently have data excluded from cross-case pattern learning due to low input confidence. Improving data quality in these families will strengthen the platform's ability to generate reliable, privacy-safe insights.
-              </p>
+      {ph.confidenceDistribution.low > 0 && (
+        <Card className="border-slate-200 bg-slate-50">
+          <CardContent className="py-4">
+            <div className="flex items-start gap-3">
+              <Eye className="h-5 w-5 text-muted-foreground mt-0.5" />
+              <div>
+                <p className="font-medium text-sm mb-1">Learning Layer Impact</p>
+                <p className="text-sm text-muted-foreground">
+                  <span className="font-semibold text-red-600">{ph.confidenceDistribution.low} families</span> currently have low data confidence, which may reduce their contribution to cross-case pattern learning. Improving data quality will strengthen privacy-safe insights.
+                </p>
+              </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
 
       <Card className="border-slate-200 bg-slate-50">
         <CardContent className="py-3">
