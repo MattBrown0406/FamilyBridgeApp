@@ -204,21 +204,22 @@ serve(async (req) => {
 
                 <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;" />
 
-                <h2 style="color: #2d7d6f; margin-top: 0;">🆘 Your Included Crisis Session</h2>
+                <h2 style="color: #2d7d6f; margin-top: 0;">🆘 Your Included Professional Guidance Window</h2>
                 <div style="background: #e3f2fd; border-left: 4px solid #1976d2; padding: 20px; margin: 20px 0;">
-                  <p style="margin: 0 0 15px 0;"><strong>Your membership includes one FREE 24-hour crisis moderation session.</strong></p>
-                  <p style="margin: 0;">When you're facing a crisis with your loved one - whether they're refusing treatment, in active relapse, or the family is at a breaking point - you can activate your crisis session. An experienced interventionist with over 20 years of working with individuals who are reluctant to get into or stay in recovery will personally moderate your family's communications for 24 hours.</p>
+                  <p style="margin: 0 0 15px 0;"><strong>Your membership includes 1 Professional Guidance Window per month.</strong></p>
+                  <p style="margin: 0;">When your family needs more structure, boundary clarity, or interventionist-led guidance, you can activate a Professional Guidance Window. An experienced interventionist can join your FamilyBridge family chat for one 24-hour period to help guide communication inside the app.</p>
                 </div>
                 
-                <p><strong>What to expect during a crisis session:</strong></p>
+                <p><strong>What to expect during a Professional Guidance Window:</strong></p>
                 <ul style="color: #555; padding-left: 20px;">
-                  <li>Real-time guidance on how to communicate effectively during the crisis</li>
-                  <li>Step-by-step coaching to help you navigate that day</li>
+                  <li>Guidance on how to communicate more effectively during a difficult period</li>
+                  <li>Step-by-step coaching to help your family stay aligned</li>
                   <li>Professional intervention techniques adapted to your specific situation</li>
-                  <li>Support for the entire family, not just the person in crisis</li>
+                  <li>Support delivered inside your FamilyBridge family chat</li>
                 </ul>
 
-                <p><strong>Need more than one day?</strong> Additional 24-hour crisis moderation sessions can be purchased on-demand for $150 per day directly within the app.</p>
+                <p><strong>Need another window?</strong> Additional Professional Guidance Windows can be purchased on-demand for $399 per 24-hour period directly within the app.</p>
+                <p><strong>Important:</strong> Professional Guidance Windows do not include off-platform texting, personal phone access, emergency services, or psychiatric care.</p>
 
                 <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;" />
 

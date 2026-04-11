@@ -105,8 +105,8 @@ const handler = async (req: Request): Promise<Response> => {
             user_id: request.assigned_moderator_id,
             family_id: request.family_id,
             type: "temp_moderator_expired",
-            title: "Crisis Moderation Session Ended",
-            body: `Your 24-hour crisis moderation session for ${familyName} has ended.`,
+            title: "Professional Guidance Window Ended",
+            body: `Your 24-hour Professional Guidance Window for ${familyName} has ended.`,
             related_id: request.id,
           });
 
@@ -117,8 +117,8 @@ const handler = async (req: Request): Promise<Response> => {
             user_id: request.requested_by,
             family_id: request.family_id,
             type: "temp_moderator_expired",
-            title: "Crisis Moderation Session Ended",
-            body: `Your 24-hour crisis moderation session has ended. You can purchase additional days for $150 each if needed.`,
+            title: "Professional Guidance Window Ended",
+            body: `Your 24-hour Professional Guidance Window has ended. You can purchase another window for $399 if needed.`,
             related_id: request.id,
           });
 
@@ -136,14 +136,14 @@ const handler = async (req: Request): Promise<Response> => {
               await resend.emails.send({
                 from: "FamilyBridge <noreply@familybridgeapp.com>",
                 to: [moderator.email],
-                subject: "Crisis Moderation Session Ended",
+                subject: "Professional Guidance Window Ended",
                 html: `
                   <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
                     <div style="text-align: center; margin-bottom: 20px;">
                       <img src="https://familybridgeapp.com/og-image.png" alt="FamilyBridge" style="max-width: 180px; height: auto;" />
                     </div>
-                    <h1 style="color: #7c3aed;">Session Ended</h1>
-                    <p>Your 24-hour crisis moderation session for <strong>${familyName}</strong> has ended.</p>
+                    <h1 style="color: #7c3aed;">Guidance Window Ended</h1>
+                    <p>Your 24-hour Professional Guidance Window for <strong>${familyName}</strong> has ended.</p>
                     <p>You have been automatically removed from the family group.</p>
                     <p style="margin-top: 30px; margin-bottom: 5px;">Thank you,</p>
                     <p style="font-weight: bold; margin-top: 0;">Matt Brown, Creator of Family Bridge</p>
@@ -156,19 +156,19 @@ const handler = async (req: Request): Promise<Response> => {
               await resend.emails.send({
                 from: "FamilyBridge <noreply@familybridgeapp.com>",
                 to: [requester.email],
-                subject: "Your Crisis Moderation Session Has Ended",
+                subject: "Your Professional Guidance Window Has Ended",
                 html: `
                   <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
                     <div style="text-align: center; margin-bottom: 20px;">
                       <img src="https://familybridgeapp.com/og-image.png" alt="FamilyBridge" style="max-width: 180px; height: auto;" />
                     </div>
-                    <h1 style="color: #7c3aed;">Session Ended</h1>
-                    <p>Your 24-hour crisis moderation session for <strong>${familyName}</strong> has ended.</p>
+                    <h1 style="color: #7c3aed;">Guidance Window Ended</h1>
+                    <p>Your 24-hour Professional Guidance Window for <strong>${familyName}</strong> has ended.</p>
                     <p>The assigned moderator has been removed from your family group.</p>
                     
                     <div style="background: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
                       <p><strong>Need more support?</strong></p>
-                      <p>You can purchase additional crisis moderation days for $150 each directly in the FamilyBridge app.</p>
+                      <p>You can purchase another Professional Guidance Window for $399 directly in the FamilyBridge app.</p>
                     </div>
                     
                     <p style="margin-top: 30px; margin-bottom: 5px;">Thank you,</p>

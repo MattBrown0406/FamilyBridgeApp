@@ -175,14 +175,14 @@ const handler = async (req: Request): Promise<Response> => {
         const emailResponse = await resend.emails.send({
           from: "FamilyBridge <noreply@familybridgeapp.com>",
           to: [moderatorEmail],
-          subject: "🚨 Temporary Moderator Assignment - Crisis Support Requested",
+          subject: "🚨 Professional Guidance Window Requested",
           html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
               <div style="text-align: center; margin-bottom: 20px;">
                 <img src="https://familybridgeapp.com/og-image.png" alt="FamilyBridge" style="max-width: 180px; height: auto;" />
               </div>
-              <h1 style="color: #7c3aed;">Temporary Moderator Assignment</h1>
-              <p>You have been assigned as a temporary moderator for a family in crisis.</p>
+              <h1 style="color: #7c3aed;">Professional Guidance Window Assignment</h1>
+              <p>You have been assigned to support a family during a 24-hour Professional Guidance Window.</p>
               
               <div style="background: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
                 <p><strong>Family:</strong> ${family.name}</p>
@@ -213,8 +213,8 @@ const handler = async (req: Request): Promise<Response> => {
         user_id: moderator.id,
         family_id: familyId,
         type: "temp_moderator_assigned",
-        title: "Temporary Moderator Assignment",
-        body: `You have been assigned as temporary moderator for ${family.name} for 24 hours.`,
+        title: "Professional Guidance Window Assignment",
+        body: `You have been assigned to ${family.name} for a 24-hour Professional Guidance Window.`,
         related_id: newRequest.id,
       });
 
@@ -222,7 +222,7 @@ const handler = async (req: Request): Promise<Response> => {
       JSON.stringify({ 
         success: true, 
         expiresAt: expiresAt.toISOString(),
-        message: "Temporary moderator has been assigned" 
+        message: "Professional Guidance Window has been assigned" 
       }),
       {
         status: 200,

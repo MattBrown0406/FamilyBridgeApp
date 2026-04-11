@@ -417,28 +417,28 @@ const DemoFamily = () => {
                     <AlertDialogHeader>
                       <AlertDialogTitle className="flex items-center gap-2">
                         <AlertTriangle className="h-5 w-5 text-warning" />
-                        Request 24-Hour Crisis Support
+                        Request a Professional Guidance Window
                       </AlertDialogTitle>
                       <AlertDialogDescription asChild>
                         <div className="space-y-4 text-left">
                           <p>
-                            You are about to request temporary supervision from a professional 
-                            interventionist to help your family during a crisis.
+                            You are about to request a 24-hour Professional Guidance Window with a professional 
+                            interventionist inside your FamilyBridge family chat.
                           </p>
                           
                           <div className="bg-muted p-4 rounded-lg space-y-2">
                             <p className="font-medium text-foreground">What happens next:</p>
                             <ul className="list-disc list-inside text-sm space-y-1">
-                              <li>A professional interventionist will be assigned immediately</li>
-                              <li>They will have moderator access to your family group for 24 hours</li>
-                              <li>They will monitor conversations and provide guidance</li>
+                              <li>A professional interventionist will be notified for your family</li>
+                              <li>They will have moderator access to your family group for one 24-hour window</li>
+                              <li>They will provide guidance inside the FamilyBridge family chat</li>
                             </ul>
                           </div>
 
                           <div className="bg-primary/10 p-4 rounded-lg">
                             <p className="text-sm">
                               <strong className="text-foreground">Your membership includes:</strong>
-                              {' '}One free 24-hour crisis supervision per 30-day period.
+                              {' '}1 Professional Guidance Window per month.
                             </p>
                           </div>
                         </div>
@@ -448,12 +448,12 @@ const DemoFamily = () => {
                       <AlertDialogCancel>Cancel</AlertDialogCancel>
                       <AlertDialogAction
                         onClick={() => {
-                          toast.success('Demo: Crisis support would be activated for 24 hours');
+                          toast.success('Demo: Professional Guidance Window would be activated for 24 hours');
                           setShowModeratorDialog(false);
                         }}
                         className="bg-destructive hover:bg-destructive/90"
                       >
-                        Yes, Request Crisis Support
+                        Yes, Request Guidance
                       </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>

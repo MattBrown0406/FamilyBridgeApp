@@ -227,7 +227,7 @@ export const TemporaryModeratorRequest = ({
               : 'bg-success/10 text-success'
         }`}>
           <Clock className={`h-4 w-4 ${isCritical ? 'animate-pulse' : ''}`} />
-          <span className="hidden sm:inline">Crisis Support</span>
+          <span className="hidden sm:inline">Guidance Window</span>
           <span className="font-bold tabular-nums">{countdown}</span>
         </div>
         <Button
@@ -237,7 +237,7 @@ export const TemporaryModeratorRequest = ({
           className="gap-1"
         >
           <Plus className="h-3 w-3" />
-          <span className="hidden sm:inline">Add Hours</span>
+          <span className="hidden sm:inline">Add Window</span>
         </Button>
       </div>
     );
@@ -252,15 +252,15 @@ export const TemporaryModeratorRequest = ({
           className="gap-2 border-destructive/50 text-destructive hover:bg-destructive hover:text-destructive-foreground"
         >
           <LifeBuoy className="h-4 w-4" />
-          <span className="hidden sm:inline">{compactLabel || 'Request Temporary Moderator'}</span>
-          <span className="sm:hidden">Crisis Help</span>
+          <span className="hidden sm:inline">{compactLabel || 'Request Professional Guidance'}</span>
+          <span className="sm:hidden">Guidance</span>
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent className="max-w-md">
         <AlertDialogHeader>
           <AlertDialogTitle className="flex items-center gap-2">
             <AlertTriangle className="h-5 w-5 text-warning" />
-            Request 24-Hour Crisis Support
+            Request a Professional Guidance Window
           </AlertDialogTitle>
           <AlertDialogDescription asChild>
             <div className="space-y-4 text-left">
@@ -283,27 +283,27 @@ export const TemporaryModeratorRequest = ({
               )}
 
               <p>
-                You are about to request temporary supervision from a professional 
-                interventionist to help your family during a crisis.
+                You are about to request a 24-hour Professional Guidance Window with a professional
+                interventionist inside your FamilyBridge family chat.
               </p>
               
               <div className="bg-muted p-4 rounded-lg space-y-2">
                 <p className="font-medium text-foreground">What happens next:</p>
                 <ul className="list-disc list-inside text-sm space-y-1">
-                  <li>A professional interventionist will be assigned immediately</li>
-                  <li>They will have moderator access to your family group for 24 hours</li>
-                  <li>They will monitor conversations and provide guidance</li>
+                  <li>A professional interventionist will be notified for your family</li>
+                  <li>They will have moderator access to your family group for one 24-hour window</li>
+                  <li>They will provide guidance inside the FamilyBridge family chat</li>
                 </ul>
               </div>
 
               <div className="bg-primary/10 p-4 rounded-lg">
                 <p className="text-sm">
                   <strong className="text-foreground">Your membership includes:</strong>
-                  {' '}One free 24-hour crisis supervision per 30-day period.
+                  {' '}1 Professional Guidance Window per month.
                 </p>
                 {hasRecentRequest && (
                   <p className="text-sm text-destructive mt-2 font-medium">
-                    ⚠️ You've already used your free session this month.{' '}
+                    ⚠️ You&apos;ve already used your included window this month.{' '}
                     {isNative && isIOS ? (
                       <span>Please sign in on the web for additional support options.</span>
                     ) : (
@@ -314,7 +314,7 @@ export const TemporaryModeratorRequest = ({
                         }}
                         className="underline hover:no-underline"
                       >
-                        Get additional hours ($150/day)
+                        Purchase another window ($399/24 hours)
                       </button>
                     )}
                   </p>
@@ -339,7 +339,7 @@ export const TemporaryModeratorRequest = ({
                 Requesting...
               </>
             ) : (
-              'Yes, Request Crisis Support'
+              'Yes, Request Guidance'
             )}
           </AlertDialogAction>
         </AlertDialogFooter>

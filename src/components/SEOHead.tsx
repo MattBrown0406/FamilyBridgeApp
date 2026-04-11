@@ -201,10 +201,10 @@ export const createServiceSchema = () => ({
         '@type': 'Offer',
         itemOffered: {
           '@type': 'Service',
-          name: 'Provider Monthly Subscription',
-          description: 'Create branded organization, unlimited families, AI insights',
+          name: 'FIIS Provider Monthly Subscription',
+          description: 'Provider-level FIIS tools, organization workspace access, and moderator-managed support workflows',
         },
-        price: '99.99',
+        price: '250',
         priceCurrency: 'USD',
       },
     ],

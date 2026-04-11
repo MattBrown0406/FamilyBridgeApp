@@ -39,7 +39,7 @@ const handler = async (req: Request): Promise<Response> => {
       ? `${appUrl}/provider-purchase?email=${encodeURIComponent(email)}`
       : `${appUrl}/family-purchase?email=${encodeURIComponent(email)}`;
     
-    const purchaseLabel = accountType === "provider" ? "Provider Subscription" : "Family Subscription";
+    const purchaseLabel = accountType === "provider" ? "FIIS Provider setup" : "FIIS Support setup";
 
     const emailResponse = await resend.emails.send({
       from: "FamilyBridge <noreply@familybridgeapp.com>",
@@ -72,7 +72,7 @@ const handler = async (req: Request): Promise<Response> => {
               <div style="background: #f0f9f7; border-left: 4px solid #2d7d6f; border-radius: 0 8px 8px 0; padding: 20px; margin: 25px 0;">
                 <h3 style="margin: 0 0 10px 0; color: #2d7d6f; font-size: 16px;">📱 Downloaded our app?</h3>
                 <p style="margin: 0; color: #555; font-size: 14px;">
-                  To start using FamilyBridge, you'll need to set up or join a family group. Visit our website to get started with your subscription.
+                  To start using FamilyBridge, you&apos;ll need to set up or join a family group. Visit our website to finish your setup.
                 </p>
               </div>
               
@@ -93,7 +93,7 @@ const handler = async (req: Request): Promise<Response> => {
                 <li style="margin-bottom: 10px;"><strong>Group Communication</strong> – Keep your family connected with secure messaging</li>
                 <li style="margin-bottom: 10px;"><strong>Recovery Support</strong> – Track sobriety milestones and emotional check-ins</li>
                 <li style="margin-bottom: 10px;"><strong>Accountability Tools</strong> – Meeting check-ins, location sharing, and more</li>
-                <li style="margin-bottom: 10px;"><strong>Professional Moderation</strong> – Optional support from trained moderators</li>
+                <li style="margin-bottom: 10px;"><strong>Professional Guidance Windows</strong> – Optional interventionist-led support inside your family chat</li>
               </ul>
               
               <div style="background: #fef3cd; border-radius: 8px; padding: 15px; margin-top: 25px;">

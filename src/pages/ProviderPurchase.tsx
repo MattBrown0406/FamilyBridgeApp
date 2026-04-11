@@ -148,12 +148,12 @@ const ProviderPurchase = () => {
   };
 
   const features = [
-    { icon: Brain, text: "AI Pattern Intelligence Dashboard", subtitle: "Monitor all families with AI-powered behavioral insights", highlight: true },
-    { icon: TrendingUp, text: "Cross-Family Analytics", subtitle: "AI surfaces trends and early warning signs across your entire caseload", highlight: true },
-    { icon: MessageSquareWarning, text: "AI Chat Moderation", subtitle: "Automatic filtering protects communication in all family groups", highlight: true },
-    { icon: Building2, text: "Create and manage your organization" },
-    { icon: Users, text: "Onboard unlimited families" },
-    { icon: Shield, text: "Custom branding for your organization" },
+    { icon: Brain, text: "Provider-level FIIS tools", subtitle: "Monitor family dynamics with structured intelligence and oversight", highlight: true },
+    { icon: TrendingUp, text: "Cross-family visibility", subtitle: "See patterns, strain points, and momentum across your caseload", highlight: true },
+    { icon: MessageSquareWarning, text: "Protected communication workflows", subtitle: "Support more families without losing clarity or guardrails", highlight: true },
+    { icon: Building2, text: "Organization workspace access" },
+    { icon: Users, text: "Onboard and manage multiple families" },
+    { icon: Shield, text: "Moderator-managed support model" },
   ];
 
   const handleCopyCode = () => {
@@ -270,17 +270,17 @@ const ProviderPurchase = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="Provider Plan — FamilyBridge"
-        description="FamilyBridge for treatment providers. Enhance family engagement with AI-powered communication, accountability tracking, and clinical oversight tools."
+        title="FIIS Provider — FamilyBridge"
+        description="FIIS Provider gives treatment programs and recovery professionals provider-level FIIS tools, organization access, and a moderator-managed support model."
         canonicalPath="/provider-purchase"
       />
       <BrandedHeader />
       <div className="container mx-auto px-3 sm:px-4 py-6 sm:py-12">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-6 sm:mb-12">
-            <h1 className="text-2xl sm:text-4xl font-bold mb-2 sm:mb-4">FamilyBridge for Providers</h1>
+            <h1 className="text-2xl sm:text-4xl font-bold mb-2 sm:mb-4">FIIS Provider</h1>
             <p className="text-base sm:text-xl text-muted-foreground">
-              Get your activation code to create your organization and start helping families
+              Provider-level FamilyBridge access for treatment teams, sober living programs, and recovery professionals
             </p>
           </div>
 
@@ -326,10 +326,10 @@ const ProviderPurchase = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <paymentInfo.icon className="w-5 h-5" />
-                  Provider Subscription
+                  FIIS Provider
                 </CardTitle>
                 <CardDescription>
-                  {isNative ? "Sign in to access your organization" : "Auto-renewable subscription · Cancel anytime"}
+                  {isNative ? "Sign in to access your organization" : "Current provider tier · Auto-renewable subscription"}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -486,57 +486,16 @@ const ProviderPurchase = () => {
                   {/* Platform-specific purchase button */}
                   {isIOS ? (
                     <>
-                      {/* iOS App Store compliant: Email collection only */}
+                      {/* iOS: existing-account access only while native IAP is being implemented */}
                       <div className="space-y-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="ios-email">Email Address</Label>
-                          <Input
-                            id="ios-email"
-                            type="email"
-                            placeholder="Enter your email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                          />
-                          <p className="text-xs text-muted-foreground">
-                            We'll send you a link to complete setup from your computer.
+                        <div className="rounded-lg border bg-muted/40 p-4 text-sm text-muted-foreground">
+                          <p className="font-medium text-foreground mb-2">Provider access on iPhone is currently for existing organizations and active accounts.</p>
+                          <p>
+                            If your organization already uses FamilyBridge, sign in below. New provider subscriptions
+                            will need the dedicated native purchase flow before they should be enabled in this build.
                           </p>
                         </div>
-                        <Button
-                          onClick={async () => {
-                            if (!email) {
-                              toast.error("Please enter your email address");
-                              return;
-                            }
-                            setIsLoading(true);
-                            try {
-                              const { error } = await supabase.functions.invoke("send-welcome-email", {
-                                body: { email, accountType: "provider" },
-                              });
-                              if (error) throw error;
-                              toast.success("Check your email for setup instructions!");
-                            } catch (err) {
-                              console.error("Error sending email:", err);
-                              toast.error("Failed to send email. Please try again.");
-                            } finally {
-                              setIsLoading(false);
-                            }
-                          }}
-                          disabled={isLoading || !email}
-                          className="w-full"
-                          size="lg"
-                        >
-                          {isLoading ? "Sending..." : "Get Started"}
-                        </Button>
-                        
-                        <div className="relative my-4">
-                          <div className="absolute inset-0 flex items-center">
-                            <span className="w-full border-t" />
-                          </div>
-                          <div className="relative flex justify-center text-xs uppercase">
-                            <span className="bg-background px-2 text-muted-foreground">or</span>
-                          </div>
-                        </div>
-                        
+
                         <Button
                           variant="outline"
                           onClick={() => navigate("/auth")}
@@ -560,7 +519,7 @@ const ProviderPurchase = () => {
                             onChange={(e) => setEmail(e.target.value)}
                           />
                           <p className="text-xs text-muted-foreground">
-                            We'll send you a link to complete setup from your computer.
+                            We&apos;ll email setup details for your FamilyBridge access.
                           </p>
                         </div>
                         <AppStorePurchaseButton
@@ -612,6 +571,45 @@ const ProviderPurchase = () => {
               </CardContent>
             </Card>
           </div>
+
+          <Card className="mt-6 border-amber-500/30 bg-amber-50/40 dark:bg-amber-950/10">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-xl">
+                <Sparkles className="w-5 h-5 text-amber-600" />
+                FIIS Command
+              </CardTitle>
+              <CardDescription>
+                Founding-tier provider command layer for teams that want the full advanced FIIS feature set
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid gap-3 sm:grid-cols-3">
+                <div className="rounded-lg border bg-background/70 p-4 text-center">
+                  <p className="text-xs text-muted-foreground">Founding monthly</p>
+                  <p className="text-2xl font-bold">$499</p>
+                </div>
+                <div className="rounded-lg border bg-background/70 p-4 text-center">
+                  <p className="text-xs text-muted-foreground">Quarterly</p>
+                  <p className="text-2xl font-bold">$1,299</p>
+                </div>
+                <div className="rounded-lg border bg-background/70 p-4 text-center">
+                  <p className="text-xs text-muted-foreground">Annual</p>
+                  <p className="text-2xl font-bold">$4,990</p>
+                </div>
+              </div>
+
+              <ul className="space-y-2 text-sm text-muted-foreground list-disc pl-5">
+                <li>Everything in FIIS Provider</li>
+                <li>Intervention readiness and execution tools</li>
+                <li>Post-intervention continuity, accountability, and prediction layers</li>
+                <li>Built for higher-touch provider teams using FIIS as a command surface</li>
+              </ul>
+
+              <p className="text-xs text-muted-foreground">
+                Professional Guidance Windows are not included in provider plans.
+              </p>
+            </CardContent>
+          </Card>
 
           {/* Already have a code */}
           <div className="mt-8 text-center">

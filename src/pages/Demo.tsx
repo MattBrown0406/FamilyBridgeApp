@@ -569,7 +569,7 @@ const Demo = () => {
                 <div className="mt-3 p-3 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 border border-green-200 dark:border-green-800 rounded-lg">
                   <p className="text-sm font-medium text-green-800 dark:text-green-200 flex items-center gap-2">
                     <Sparkles className="h-4 w-4" />
-                    Early Adopter Lifetime Price: Just $19.99/month forever!
+                    Founding family price: FIIS Support at $49.99/month while active
                   </p>
                   <p className="text-xs text-green-700 dark:text-green-300 mt-1 ml-6">
                     For individual families not using a provider invite code

@@ -300,12 +300,12 @@ const FamilyPurchase = () => {
   };
 
   const features = [
-    { icon: Brain, text: "AI Pattern Intelligence", subtitle: "Automatically detects concerning behavioral patterns and early warning signs", highlight: true },
-    { icon: MessageSquareWarning, text: "AI-Powered Chat Moderation", subtitle: "Real-time filtering blocks harmful language before it causes damage", highlight: true },
-    { icon: TrendingUp, text: "Smart Behavioral Insights", subtitle: "AI tracks activities and surfaces trends to help you intervene early", highlight: true },
-    { icon: Users, text: "Invite unlimited family members" },
-    { icon: DollarSign, text: "Financial tracking & accountability", subtitle: "AI monitors request patterns for red flags" },
-    { icon: Shield, text: "Privacy and content protection" },
+    { icon: Brain, text: "FIIS pattern guidance", subtitle: "Bounded AI coaching that helps families spot strain and respond earlier", highlight: true },
+    { icon: MessageSquareWarning, text: "Protected family communication", subtitle: "Conversation tools that support calmer, more accountable dialogue", highlight: true },
+    { icon: TrendingUp, text: "Behavior and risk visibility", subtitle: "Track check-ins, requests, and family dynamics in one place", highlight: true },
+    { icon: Users, text: "Unlimited family participation" },
+    { icon: DollarSign, text: "Financial accountability tools", subtitle: "More clarity around requests, pledges, and follow-through" },
+    { icon: Shield, text: "1 Professional Guidance Window included each month", subtitle: "Additional 24-hour windows are available for $399 each" },
   ];
 
   const handleCopyCode = () => {
@@ -473,8 +473,8 @@ const FamilyPurchase = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="Family Plan — FamilyBridge"
-        description="Get FamilyBridge for your family. AI-powered recovery support with communication tools, financial transparency, and meeting check-ins."
+        title="FIIS Support — FamilyBridge"
+        description="FIIS Support gives families structured guidance, accountability tools, and one included Professional Guidance Window each month inside FamilyBridge."
         canonicalPath="/family-purchase"
         structuredData={breadcrumbSchema}
       />
@@ -502,12 +502,12 @@ const FamilyPurchase = () => {
 
           <div className="text-center mb-6 sm:mb-12">
             <h1 className="text-2xl sm:text-4xl font-bold mb-2 sm:mb-4">
-              {reactivatingFamily ? 'Reactivate Your Family Group' : 'FamilyBridge Family Plan'}
+              {reactivatingFamily ? 'Reactivate Your Family Group' : 'FIIS Support for Families'}
             </h1>
             <p className="text-base sm:text-xl text-muted-foreground">
               {reactivatingFamily 
                 ? (isNative ? 'Restore your family group' : 'Purchase a subscription to restore your family group')
-                : 'Start your family\'s journey to healing and connection'
+                : 'Structured family guidance, accountability tools, and one included Professional Guidance Window each month'
               }
             </p>
           </div>
@@ -549,7 +549,7 @@ const FamilyPurchase = () => {
               </CardContent>
             </Card>
 
-            {/* Standard Plan Card */}
+            {/* FIIS Support Card */}
             <Card className="md:col-span-1 relative">
               <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
                 <span className="bg-emerald-500 text-white text-xs font-medium px-3 py-1 rounded-full">
@@ -559,10 +559,10 @@ const FamilyPurchase = () => {
               <CardHeader className="text-center">
                 <CardTitle className="flex items-center justify-center gap-2 text-xl">
                   <paymentInfo.icon className="w-5 h-5" />
-                  Standard Plan
+                  FIIS Support
                 </CardTitle>
                 <CardDescription>
-                  {isNative && isIOS ? "Essential family support tools" : "Auto-renewable subscription · Cancel anytime"}
+                  {isNative && isIOS ? "Foundational family guidance inside FamilyBridge" : "Founding family subscription · Cancel anytime"}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -588,7 +588,7 @@ const FamilyPurchase = () => {
                         <span className="text-muted-foreground">/month</span>
                       </div>
                       <p className="text-xs text-muted-foreground mt-2">
-                        Billed monthly · Cancel anytime during or after trial
+                        Founding price while active · Cancel anytime during or after trial
                       </p>
                     </div>
                   </div>
@@ -686,57 +686,16 @@ const FamilyPurchase = () => {
 
                   {isIOS ? (
                     <>
-                      {/* iOS App Store compliant: Email collection only */}
+                      {/* iOS: existing-account and invite-code access only while native IAP is being implemented */}
                       <div className="space-y-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="ios-email">Email Address</Label>
-                          <Input
-                            id="ios-email"
-                            type="email"
-                            placeholder="Enter your email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                          />
-                          <p className="text-xs text-muted-foreground">
-                            We'll send you a link to complete setup from your computer.
+                        <div className="rounded-lg border bg-muted/40 p-4 text-sm text-muted-foreground">
+                          <p className="font-medium text-foreground mb-2">This iPhone build is currently for existing members and invited family participants.</p>
+                          <p>
+                            If you already have a FamilyBridge account, sign in below. If a family admin invited you,
+                            enter your invite code above to join.
                           </p>
                         </div>
-                        <Button
-                          onClick={async () => {
-                            if (!email) {
-                              toast.error("Please enter your email address");
-                              return;
-                            }
-                            setIsLoading(true);
-                            try {
-                              const { error } = await supabase.functions.invoke("send-welcome-email", {
-                                body: { email, accountType: "family" },
-                              });
-                              if (error) throw error;
-                              toast.success("Check your email for setup instructions!");
-                            } catch (err) {
-                              console.error("Error sending email:", err);
-                              toast.error("Failed to send email. Please try again.");
-                            } finally {
-                              setIsLoading(false);
-                            }
-                          }}
-                          disabled={isLoading || !email}
-                          className="w-full"
-                          size="lg"
-                        >
-                          {isLoading ? "Sending..." : "Get Started"}
-                        </Button>
-                        
-                        <div className="relative my-4">
-                          <div className="absolute inset-0 flex items-center">
-                            <span className="w-full border-t" />
-                          </div>
-                          <div className="relative flex justify-center text-xs uppercase">
-                            <span className="bg-background px-2 text-muted-foreground">or</span>
-                          </div>
-                        </div>
-                        
+
                         <Button
                           variant="outline"
                           onClick={() => navigate("/auth")}
@@ -760,7 +719,7 @@ const FamilyPurchase = () => {
                             onChange={(e) => setEmail(e.target.value)}
                           />
                           <p className="text-xs text-muted-foreground">
-                            We'll send you a link to complete setup from your computer.
+                            We&apos;ll email setup details for your FamilyBridge access.
                           </p>
                         </div>
                         <AppStorePurchaseButton
@@ -786,7 +745,7 @@ const FamilyPurchase = () => {
                         className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-lg"
                         size="lg"
                       >
-                        {isLoading ? "Processing..." : "Try Free for 7 Days"}
+                        {isLoading ? "Processing..." : "Start FIIS Support Free for 7 Days"}
                       </Button>
                       
                       {/* Alternative - Skip Trial */}
@@ -806,7 +765,7 @@ const FamilyPurchase = () => {
                         className="w-full"
                         size="sm"
                       >
-                        {isLoading ? "Processing..." : `Subscribe Now - $${PRODUCTS.family.monthly.price}/mo`}
+                        {isLoading ? "Processing..." : `Subscribe to FIIS Support - $${PRODUCTS.family.monthly.price}/mo`}
                       </Button>
                       
                       {/* Subscription Disclosure */}
@@ -822,7 +781,7 @@ const FamilyPurchase = () => {
               </CardContent>
             </Card>
 
-            {/* Premium Plan Card */}
+            {/* FIIS Navigator Card */}
             <Card className="md:col-span-1 relative opacity-75">
               <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
                 <span className="bg-amber-500 text-white text-xs font-medium px-3 py-1 rounded-full">
@@ -832,22 +791,22 @@ const FamilyPurchase = () => {
               <CardHeader className="text-center">
                 <CardTitle className="flex items-center justify-center gap-2 text-xl">
                   <Sparkles className="w-5 h-5" />
-                  Premium Plan
+                  FIIS Navigator
                 </CardTitle>
                 <CardDescription>
-                  Enhanced features with professional moderation
+                  Advanced family intervention guidance and accountability structure
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 {/* Premium Pricing */}
                 <div className="text-center py-4 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 rounded-lg border border-amber-200/50 dark:border-amber-800/50">
-                  <p className="text-xs text-muted-foreground mb-1">Premium Plan</p>
+                  <p className="text-xs text-muted-foreground mb-1">Founding price</p>
                   <div>
-                    <span className="text-4xl font-bold text-muted-foreground">$TBD</span>
+                    <span className="text-4xl font-bold text-muted-foreground">$149.99</span>
                     <span className="text-muted-foreground">/month</span>
                   </div>
                   <p className="text-xs text-muted-foreground mt-2">
-                    Pricing available soon
+                    Includes everything in FIIS Support, plus intervention-focused guidance
                   </p>
                 </div>
 
@@ -858,8 +817,8 @@ const FamilyPurchase = () => {
                       <Check className="w-3 h-3 text-amber-600 dark:text-amber-400" />
                     </div>
                     <div>
-                      <span className="text-sm font-medium">Drug Testing Coordination</span>
-                      <p className="text-xs text-muted-foreground">Professional test scheduling and results tracking</p>
+                      <span className="text-sm font-medium">Intervention readiness tools</span>
+                      <p className="text-xs text-muted-foreground">Structured support before key family conversations and decisions</p>
                     </div>
                   </li>
                   <li className="flex items-start gap-3">
@@ -867,8 +826,8 @@ const FamilyPurchase = () => {
                       <Check className="w-3 h-3 text-amber-600 dark:text-amber-400" />
                     </div>
                     <div>
-                      <span className="text-sm font-medium">24/7 Crisis Moderation</span>
-                      <p className="text-xs text-muted-foreground">Professional interventionist support</p>
+                      <span className="text-sm font-medium">Execution and follow-through guidance</span>
+                      <p className="text-xs text-muted-foreground">Support for carrying the plan through, not just talking about it</p>
                     </div>
                   </li>
                   <li className="flex items-start gap-3">
@@ -876,8 +835,8 @@ const FamilyPurchase = () => {
                       <Check className="w-3 h-3 text-amber-600 dark:text-amber-400" />
                     </div>
                     <div>
-                      <span className="text-sm font-medium">Priority Support</span>
-                      <p className="text-xs text-muted-foreground">Dedicated family recovery specialist</p>
+                      <span className="text-sm font-medium">Outcome prediction and accountability tools</span>
+                      <p className="text-xs text-muted-foreground">More advanced structure around follow-through, slippage, and recovery risk</p>
                     </div>
                   </li>
                   <li className="flex items-start gap-3">
@@ -885,8 +844,8 @@ const FamilyPurchase = () => {
                       <Check className="w-3 h-3 text-amber-600 dark:text-amber-400" />
                     </div>
                     <div>
-                      <span className="text-sm font-medium">All Standard Features</span>
-                      <p className="text-xs text-muted-foreground">Plus everything from the Standard plan</p>
+                      <span className="text-sm font-medium">Everything in FIIS Support</span>
+                      <p className="text-xs text-muted-foreground">Including 1 Professional Guidance Window per month, with additional windows at $399 each</p>
                     </div>
                   </li>
                 </ul>
@@ -902,7 +861,7 @@ const FamilyPurchase = () => {
                 </Button>
                 
                 <p className="text-xs text-muted-foreground text-center">
-                  Join the <Button variant="link" onClick={() => navigate("/subscription")} className="p-0 h-auto text-xs">waitlist</Button> to be notified when Premium launches
+                  Join the <Button variant="link" onClick={() => navigate("/subscription")} className="p-0 h-auto text-xs">waitlist</Button> to be notified when FIIS Navigator opens
                 </p>
               </CardContent>
             </Card>

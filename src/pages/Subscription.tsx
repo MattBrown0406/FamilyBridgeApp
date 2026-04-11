@@ -21,33 +21,33 @@ const Subscription = () => {
   const features = [
     {
       icon: Shield,
-      title: 'Professional Moderation',
-      description: 'Multiple days of interventionist-moderated family support included',
+      title: 'Intervention readiness tools',
+      description: 'Structured support for families preparing for harder decisions and conversations',
     },
     {
       icon: Calendar,
-      title: 'Drug & Alcohol Testing',
-      description: 'Coordination and tracking for accountability (coming soon)',
+      title: 'Execution support structure',
+      description: 'Guidance that helps families follow through when things get tense',
     },
     {
       icon: Phone,
-      title: 'Consultations',
-      description: 'Phone & video sessions with your assigned moderator',
+      title: 'Post-intervention continuity',
+      description: 'Stay aligned after the big decision, not just during the lead-up',
     },
     {
       icon: Sparkles,
-      title: 'Priority Support',
-      description: '24/7 crisis response and escalation support',
+      title: 'Outcome prediction tools',
+      description: 'Extra visibility into drift, leverage points, and what may happen next',
     },
     {
       icon: FileText,
-      title: 'Advanced Tracking',
-      description: 'Financial tracking and accountability tools',
+      title: 'Accountability engine',
+      description: 'More structure around commitments, responses, and follow-through',
     },
     {
       icon: MessageCircle,
-      title: 'Extended Archives',
-      description: 'Full message history and communication records',
+      title: 'Everything in FIIS Support',
+      description: 'Includes one monthly Professional Guidance Window, with extra windows at $399 each',
     },
   ];
 
@@ -128,16 +128,16 @@ const Subscription = () => {
         <div className="text-center mb-8 sm:mb-12 animate-fade-in">
           <div className="inline-flex items-center gap-1.5 sm:gap-2 bg-primary/10 text-primary px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium mb-4 sm:mb-6">
             <Sparkles className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-            Premium Plan Coming Soon
+            FIIS Navigator Coming Soon
           </div>
           <h1 className="text-2xl sm:text-4xl md:text-5xl font-display font-bold text-foreground mb-3 sm:mb-4 px-2">
-            Elevate Your Family's
+            Step Into
             <span className="block bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-              Recovery Journey
+              FIIS Navigator
             </span>
           </h1>
           <p className="text-sm sm:text-lg text-muted-foreground max-w-2xl mx-auto px-2">
-            Professional support, advanced tools, and dedicated moderation to guide your family through recovery together.
+            For families who want more intervention structure, more accountability, and more help navigating what comes next.
           </p>
         </div>
 
@@ -157,12 +157,12 @@ const Subscription = () => {
                 </div>
               </div>
               
-              <h2 className="text-xl sm:text-2xl font-display font-bold text-center mb-2">Premium Plan</h2>
-              <p className="text-muted-foreground text-center text-xs sm:text-sm mb-4 sm:mb-6">Everything you need for comprehensive family support</p>
+              <h2 className="text-xl sm:text-2xl font-display font-bold text-center mb-2">FIIS Navigator</h2>
+              <p className="text-muted-foreground text-center text-xs sm:text-sm mb-4 sm:mb-6">Advanced family guidance for intervention-focused support</p>
               
               {!(isNative && isIOS) && (
                 <div className="flex items-baseline justify-center gap-1 mb-4 sm:mb-6">
-                  <span className="text-4xl sm:text-5xl font-display font-bold">TBD</span>
+                  <span className="text-4xl sm:text-5xl font-display font-bold">149.99</span>
                   <span className="text-muted-foreground">/month</span>
                 </div>
               )}
@@ -177,7 +177,7 @@ const Subscription = () => {
               
               {!(isNative && isIOS) && (
                 <p className="text-xs text-muted-foreground text-center mt-3 sm:mt-4">
-                  Billed monthly • Cancel anytime
+                  Founding price while active • Cancel anytime
                 </p>
               )}
             </CardContent>
@@ -218,9 +218,9 @@ const Subscription = () => {
               <div className="inline-flex items-center justify-center w-11 h-11 sm:w-14 sm:h-14 bg-primary/10 rounded-full mb-3 sm:mb-4">
                 <Bell className="h-5 w-5 sm:h-7 sm:w-7 text-primary" />
               </div>
-              <h3 className="text-xl sm:text-2xl font-display font-bold mb-1.5 sm:mb-2">Be the First to Know</h3>
+              <h3 className="text-xl sm:text-2xl font-display font-bold mb-1.5 sm:mb-2">Join the FIIS Navigator Waitlist</h3>
               <p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6">
-                Join our exclusive waitlist and get notified the moment Premium launches.
+                Join the list and get notified the moment FIIS Navigator opens.
               </p>
               
               {isSubscribed ? (
@@ -264,9 +264,7 @@ const Subscription = () => {
 
         {/* Footer Info */}
         <div className="text-center mt-8 text-sm text-muted-foreground">
-          <p>
-            Your subscription can be managed from your account settings.
-          </p>
+          <p>Existing subscriptions can still be managed from your account settings.</p>
         </div>
       </main>
     </div>

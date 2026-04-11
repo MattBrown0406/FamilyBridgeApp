@@ -144,7 +144,7 @@ export default function ModeratorPurchase() {
           <Card className="max-w-md mx-auto">
             <CardHeader>
               <CardTitle>Sign In Required</CardTitle>
-              <CardDescription>Please sign in to purchase moderator support.</CardDescription>
+              <CardDescription>Please sign in to purchase a Professional Guidance Window.</CardDescription>
             </CardHeader>
             <CardContent>
               <Button onClick={() => navigate("/auth")} className="w-full">
@@ -170,19 +170,19 @@ export default function ModeratorPurchase() {
               </div>
               <CardTitle className="text-2xl">Success!</CardTitle>
               <CardDescription className="text-base">
-                Your 24-hour moderator support is now active. A moderator will be assigned to your family shortly.
+                Your Professional Guidance Window is now active. A professional interventionist will be added to your family chat shortly.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-muted-foreground">
-                You will receive a notification when your moderator is ready to help.
+                You will receive a notification when your guidance window is ready.
               </p>
               <div className="flex gap-3 justify-center">
                 <Button onClick={() => navigate(familyIdParam ? `/family/${familyIdParam}` : "/dashboard")}>
                   Return to Family
                 </Button>
                 <Button variant="outline" onClick={() => navigate("/moderator-purchase")}>
-                  Get More Hours
+                  Get Another Window
                 </Button>
               </div>
             </CardContent>
@@ -196,8 +196,8 @@ export default function ModeratorPurchase() {
   return (
     <div className="min-h-screen flex flex-col">
       <SEOHead
-        title="Moderator Plan — FamilyBridge"
-        description="FamilyBridge moderator access. Professional tools for overseeing family recovery communications and providing clinical guidance."
+        title="Professional Guidance Window — FamilyBridge"
+        description="Purchase a 24-hour Professional Guidance Window for interventionist-led support inside your FamilyBridge family chat."
         canonicalPath="/moderator-purchase"
       />
       <BrandedHeader />
@@ -205,11 +205,11 @@ export default function ModeratorPurchase() {
         <div className="max-w-4xl mx-auto space-y-4 sm:space-y-8">
           {/* Hero Section */}
           <div className="text-center space-y-2 sm:space-y-4">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">Moderator Access</h1>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">Professional Guidance Window</h1>
             <p className="text-sm sm:text-lg text-muted-foreground max-w-2xl mx-auto">
               {isNative && isIOS 
-                ? "Professional moderator support for your family when you need it most."
-                : "Need more time with a professional moderator? Purchase additional 24-hour support sessions for your family."}
+                ? "Interventionist-led support inside your FamilyBridge family chat."
+                : "Purchase a 24-hour interventionist-led support window for your family chat when you need added structure and guidance."}
             </p>
           </div>
 
@@ -226,29 +226,29 @@ export default function ModeratorPurchase() {
                 <div className="flex gap-2 sm:gap-3">
                   <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-primary mt-0.5 shrink-0" />
                   <div>
-                    <p className="font-medium text-sm sm:text-base">24 Hours of Support</p>
-                    <p className="text-xs sm:text-sm text-muted-foreground">Full day of professional moderation</p>
+                    <p className="font-medium text-sm sm:text-base">24-Hour Guidance Window</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">A single structured support period inside the app</p>
                   </div>
                 </div>
                 <div className="flex gap-2 sm:gap-3">
                   <Users className="w-4 h-4 sm:w-5 sm:h-5 text-primary mt-0.5 shrink-0" />
                   <div>
-                    <p className="font-medium text-sm sm:text-base">Trained Professional</p>
-                    <p className="text-xs sm:text-sm text-muted-foreground">Expert in family recovery dynamics</p>
+                    <p className="font-medium text-sm sm:text-base">Experienced Interventionist</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Human-led guidance for family communication and boundaries</p>
                   </div>
                 </div>
                 <div className="flex gap-2 sm:gap-3">
                   <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-primary mt-0.5 shrink-0" />
                   <div>
-                    <p className="font-medium text-sm sm:text-base">Crisis Intervention</p>
-                    <p className="text-xs sm:text-sm text-muted-foreground">Help navigate difficult conversations</p>
+                    <p className="font-medium text-sm sm:text-base">In-App Only</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Support stays inside your FamilyBridge family chat</p>
                   </div>
                 </div>
                 <div className="flex gap-2 sm:gap-3">
                   <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-primary mt-0.5 shrink-0" />
                   <div>
-                    <p className="font-medium text-sm sm:text-base">Boundary Support</p>
-                    <p className="text-xs sm:text-sm text-muted-foreground">Assistance setting healthy boundaries</p>
+                    <p className="font-medium text-sm sm:text-base">Not Emergency Care</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">No off-platform texting, personal phone access, or psychiatric services</p>
                   </div>
                 </div>
               </CardContent>
@@ -257,8 +257,8 @@ export default function ModeratorPurchase() {
             {/* Purchase Card */}
             <Card>
               <CardHeader>
-              <CardTitle>{isNative ? "24-Hour Support" : "Purchase 24-Hour Support"}</CardTitle>
-                <CardDescription>{isNative ? "Professional crisis moderation" : "$150 per 24-hour session"}</CardDescription>
+              <CardTitle>{isNative ? "Professional Guidance Window" : "Purchase a Professional Guidance Window"}</CardTitle>
+                <CardDescription>{isNative ? "Interventionist-led family chat support" : "$399 per 24-hour period"}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
@@ -325,7 +325,7 @@ export default function ModeratorPurchase() {
                 ) : (
                   <>
                     <Button onClick={handlePurchase} disabled={loading || !selectedFamily} className="w-full" size="lg">
-                      {loading ? "Processing..." : "Get Support"}
+                      {loading ? "Processing..." : "Purchase Guidance Window"}
                     </Button>
                     {/* Purchase Disclosure */}
                     <SubscriptionDisclosure
@@ -364,14 +364,14 @@ export default function ModeratorPurchase() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <CheckCircle className="w-5 h-5 text-green-500" />
-                  Active Support Sessions
+                  Active Guidance Windows
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 {activeRequests.map((req) => (
-                  <div key={req.id} className="flex justify-between items-center p-3 bg-muted rounded-lg">
-                    <div>
-                      <p className="font-medium">24-Hour Session</p>
+                    <div key={req.id} className="flex justify-between items-center p-3 bg-muted rounded-lg">
+                      <div>
+                      <p className="font-medium">24-Hour Guidance Window</p>
                       <p className="text-sm text-muted-foreground">
                         Expires: {req.expires_at ? new Date(req.expires_at).toLocaleString() : "Pending activation"}
                       </p>

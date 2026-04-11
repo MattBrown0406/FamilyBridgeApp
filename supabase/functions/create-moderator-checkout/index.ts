@@ -54,7 +54,7 @@ serve(async (req) => {
     const locationId = activeLocation.id;
     console.log('Using active Square location for moderator support checkout');
 
-    // Create payment link for $150 moderator support
+    // Create payment link for a $399 Professional Guidance Window
     const checkoutResponse = await fetch('https://connect.squareup.com/v2/online-checkout/payment-links', {
       method: 'POST',
       headers: {
@@ -65,9 +65,9 @@ serve(async (req) => {
       body: JSON.stringify({
         idempotency_key: `mod-support-${requestId}-${Date.now()}`,
         quick_pay: {
-          name: 'FamilyBridge 24-Hour Crisis Moderation',
+          name: 'FamilyBridge Professional Guidance Window',
           price_money: {
-            amount: 15000, // $150.00 in cents
+            amount: 39900, // $399.00 in cents
             currency: 'USD'
           },
           location_id: locationId

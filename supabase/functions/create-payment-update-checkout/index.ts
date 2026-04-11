@@ -60,10 +60,10 @@ serve(async (req) => {
     const locationId = activeLocation.id;
 
     // Determine the price based on entity type
-    const priceInCents = entityType === 'family' ? 1999 : 25000; // $19.99 for family, $250 for provider
+    const priceInCents = entityType === 'family' ? 4999 : 25000; // $49.99 for family, $250 for provider
     const subscriptionName = entityType === 'family' 
-      ? 'FamilyBridge Family Subscription (Payment Update)'
-      : 'FamilyBridge Provider Subscription (Payment Update)';
+      ? 'FamilyBridge FIIS Support Subscription (Payment Update)'
+      : 'FamilyBridge FIIS Provider Subscription (Payment Update)';
 
     // Create a checkout link
     const idempotencyKey = crypto.randomUUID();

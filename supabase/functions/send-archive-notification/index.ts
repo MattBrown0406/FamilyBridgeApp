@@ -124,20 +124,20 @@ const handler = async (req: Request): Promise<Response> => {
             <h3 style="color: #333; font-size: 18px; margin-top: 30px;">What's Included in Your Membership:</h3>
             
             <div style="background: white; padding: 20px; border-radius: 8px; margin: 15px 0;">
-              <h4 style="color: #667eea; margin-top: 0;">🛡️ Professional Moderation Support</h4>
+              <h4 style="color: #667eea; margin-top: 0;">🛡️ Professional Guidance Window</h4>
               <p style="margin-bottom: 0;">
-                Every membership includes <strong>one 24-hour emergency moderation session per month</strong> with a trained 
-                professional interventionist. When family tensions rise or you need neutral guidance during a crisis, 
-                simply request an emergency moderator and a professional will join your family chat to help facilitate 
-                healthy communication and de-escalate conflicts.
+                Every membership includes <strong>1 Professional Guidance Window per month</strong> with a trained 
+                professional interventionist. When family tensions rise or you need neutral guidance, 
+                you can request a 24-hour support window and a professional will join your family chat to help facilitate 
+                healthier communication and stronger boundaries inside the app.
               </p>
             </div>
             
             <div style="background: white; padding: 20px; border-radius: 8px; margin: 15px 0;">
               <h4 style="color: #667eea; margin-top: 0;">➕ Need More Support?</h4>
               <p style="margin-bottom: 0;">
-                If your family needs additional moderation beyond the included monthly session, you can purchase 
-                extra 24-hour moderation days as needed. This flexibility ensures you always have access to 
+                If your family needs additional guidance beyond the included monthly window, you can purchase 
+                extra Professional Guidance Windows for $399 per 24-hour period as needed. This flexibility ensures you can add 
                 professional support during challenging times in your recovery journey.
               </p>
             </div>

@@ -14,9 +14,8 @@ interface EmailSetupButtonProps {
 }
 
 /**
- * Apple App Store compliant email collection button for native platforms.
- * Collects email and sends setup instructions via email.
- * No references to purchasing, pricing, or external checkout.
+ * Native setup-email button used for Android-style web handoff flows.
+ * iOS should avoid using this until real in-app purchases are wired.
  */
 export function AppStorePurchaseButton({
   email,
@@ -52,7 +51,7 @@ export function AppStorePurchaseButton({
     }
   };
 
-  // On native platforms, only show email collection
+  // Currently used for Android/native email handoff flows.
   if (isNative) {
     const buttonText = children || "Send Setup Information";
 
@@ -74,8 +73,7 @@ export function AppStorePurchaseButton({
 }
 
 /**
- * Sign In Button - Apple App Store compliant
- * Directs users to sign in if they already have an account.
+ * Existing-account sign-in button for native platforms.
  */
 export function RestorePurchasesButton({ 
   className,
