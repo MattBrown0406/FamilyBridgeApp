@@ -30,6 +30,13 @@ import NotFound from "./pages/NotFound";
 import SignHIPAA from "./pages/SignHIPAA";
 import UpdatePayment from "./pages/UpdatePayment";
 import InterventionReadiness from "./pages/InterventionReadiness";
+import FIISIntelligence from "./pages/features/FIISIntelligence";
+import RecoveryTrajectory from "./pages/features/RecoveryTrajectory";
+import DocumentAnalysis from "./pages/features/DocumentAnalysis";
+import MedicationCompliance from "./pages/features/MedicationCompliance";
+import FinancialCoordination from "./pages/features/FinancialCoordination";
+import CareTransitions from "./pages/features/CareTransitions";
+import ConversationCoaching from "./pages/features/ConversationCoaching";
 import ScrollToTop from "./components/ScrollToTop";
 import { usePlatform } from "@/hooks/usePlatform";
 
