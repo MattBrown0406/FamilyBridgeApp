@@ -2605,7 +2605,7 @@ APPLY THESE SETTINGS: Adjust your sensitivity thresholds accordingly. ${
     }
 
     // Add MAT context
-    const matMedications = (medicationsResult.data || []).filter((m: { is_mat?: boolean }) => m.is_mat);
+    const matMedications = (medicationsResult.data || []).filter((m: any) => m.is_mat);
     if (matMedications.length > 0) {
       const matCountsAsSobriety = providerSettings?.mat_counts_as_sobriety !== false; // default true
       familyContext += `MEDICATION-ASSISTED TREATMENT (MAT):
