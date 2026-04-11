@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
-import { ArrowLeft, Info, Loader2 } from 'lucide-react';
-import { Link, Navigate } from 'react-router-dom';
+import { ArrowLeft, Info, Loader2, Zap } from 'lucide-react';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ReadinessHeader } from '@/components/intervention/ReadinessHeader';
 import { SignalCards } from '@/components/intervention/SignalCards';
@@ -31,6 +31,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useUserFamilyRole } from '@/hooks/useUserFamilyRole';
 
 const InterventionReadiness = () => {
+  const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
   const { isRecovering, loading: roleLoading } = useUserFamilyRole();
   const [indicators, setIndicators] = useState<ObservedIndicator[]>(demoClient.indicators);
@@ -111,6 +112,33 @@ const InterventionReadiness = () => {
             suggestedStatus={suggestedStatus}
             onStatusChange={setCaseStatus}
           />
+
+          {/* Execution System Link */}
+          {totalScore >= 65 && (
+            <div
+              className="p-4 rounded-xl border-2 border-destructive/40 bg-destructive/5 cursor-pointer hover:bg-destructive/10 transition-colors"
+              onClick={() => navigate('/intervention-execution')}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-start gap-3">
+                  <Zap className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-bold text-destructive">
+                      {totalScore >= 80 ? 'Intervention Execution System — Critical Window Active' : 'Intervention Execution System — Preparation Mode'}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {totalScore >= 80
+                        ? 'Readiness threshold exceeded. Open the step-by-step execution engine to coordinate immediate action.'
+                        : 'Readiness is approaching actionable range. Begin structured preparation.'}
+                    </p>
+                  </div>
+                </div>
+                <Button variant="destructive" size="sm" className="shrink-0">
+                  Open →
+                </Button>
+              </div>
+            </div>
+          )}
 
           {/* Key Changes + Top Drivers */}
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
