@@ -113,6 +113,33 @@ const InterventionReadiness = () => {
             onStatusChange={setCaseStatus}
           />
 
+          {/* Execution System Link */}
+          {totalScore >= 65 && (
+            <div
+              className="p-4 rounded-xl border-2 border-destructive/40 bg-destructive/5 cursor-pointer hover:bg-destructive/10 transition-colors"
+              onClick={() => navigate('/intervention-execution')}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-start gap-3">
+                  <Zap className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-bold text-destructive">
+                      {totalScore >= 80 ? 'Intervention Execution System — Critical Window Active' : 'Intervention Execution System — Preparation Mode'}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {totalScore >= 80
+                        ? 'Readiness threshold exceeded. Open the step-by-step execution engine to coordinate immediate action.'
+                        : 'Readiness is approaching actionable range. Begin structured preparation.'}
+                    </p>
+                  </div>
+                </div>
+                <Button variant="destructive" size="sm" className="shrink-0">
+                  Open →
+                </Button>
+              </div>
+            </div>
+          )}
+
           {/* Key Changes + Top Drivers */}
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
             <KeyChangesPanel changes={demoClient.keyChanges} />
