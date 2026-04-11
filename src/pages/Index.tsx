@@ -21,6 +21,8 @@ const Index = () => {
   const { isNative, isIOS } = usePlatform();
   const paymentsWebOnly = isNative && isIOS;
 
+  const [activeTourTab, setActiveTourTab] = useState(0);
+
   const handleSignOut = async () => {
     await signOut();
   };
