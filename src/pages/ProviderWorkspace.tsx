@@ -197,6 +197,15 @@ const ProviderWorkspace = () => {
             <Button
               variant="outline"
               size="sm"
+              onClick={() => navigate('/accountability-engine')}
+              className="gap-1"
+            >
+              <Activity className="h-4 w-4" />
+              <span className="hidden sm:inline">Accountability</span>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => navigate('/provider-coordination')}
               className="gap-1"
             >
