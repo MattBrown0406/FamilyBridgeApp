@@ -72,6 +72,7 @@ const App = () => {
               />
               <Route path="/provider-admin" element={<ProviderAdmin />} />
               <Route path="/provider-workspace" element={<ProviderWorkspace />} />
+              <Route path="/provider-coordination" element={<ProviderCoordination />} />
               <Route
                 path="/provider-purchase"
                 element={paymentsWebOnly ? <Navigate to="/auth" replace /> : <ProviderPurchase />}
