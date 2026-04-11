@@ -30,6 +30,7 @@ import NotFound from "./pages/NotFound";
 import SignHIPAA from "./pages/SignHIPAA";
 import UpdatePayment from "./pages/UpdatePayment";
 import InterventionReadiness from "./pages/InterventionReadiness";
+import InterventionExecution from "./pages/InterventionExecution";
 import FIISIntelligence from "./pages/features/FIISIntelligence";
 import RecoveryTrajectory from "./pages/features/RecoveryTrajectory";
 import DocumentAnalysis from "./pages/features/DocumentAnalysis";
@@ -91,6 +92,7 @@ const App = () => {
               <Route path="/terms" element={<TermsOfService />} />
               <Route path="/sign-hipaa" element={<SignHIPAA />} />
               <Route path="/intervention-readiness" element={<InterventionReadiness />} />
+              <Route path="/intervention-execution" element={<InterventionExecution />} />
               <Route path="/features/fiis-intelligence" element={<FIISIntelligence />} />
               <Route path="/features/recovery-trajectory" element={<RecoveryTrajectory />} />
               <Route path="/features/document-analysis" element={<DocumentAnalysis />} />
