@@ -26,16 +26,14 @@
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>FamilyBridge uses the camera to scan receipts and medication labels you choose to upload.</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>FamilyBridge uses Face ID to help you securely sign in to your account on this device.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>FamilyBridge uses your location to support meeting check-ins and safety features you initiate.</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
-	<key>UIRequiredDeviceCapabilities</key>
-	<array>
-		<string>armv7</string>
-	</array>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
