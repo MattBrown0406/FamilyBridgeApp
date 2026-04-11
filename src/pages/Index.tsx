@@ -186,7 +186,7 @@ const Index = () => {
       {/* ━━━ THE JOURNEY — Interactive Question-Driven Feature Tour ━━━ */}
       <section
         id="journey"
-        ref={registerRef('journey')}
+        
         className={`py-12 sm:py-20 transition-all duration-700 ${isVisible('journey') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
       >
         <div className="container mx-auto px-4">
@@ -281,7 +281,7 @@ const Index = () => {
       {/* ━━━ MORE TOOLS — compact grid ━━━ */}
       <section
         id="tools"
-        ref={registerRef('tools')}
+        
         className={`py-10 sm:py-16 bg-muted/30 transition-all duration-700 ${isVisible('tools') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
       >
         <div className="container mx-auto px-4">
@@ -313,7 +313,7 @@ const Index = () => {
       {/* ━━━ PROVIDER CTA ━━━ */}
       <section
         id="provider"
-        ref={registerRef('provider')}
+        
         className={`py-12 sm:py-20 transition-all duration-700 ${isVisible('provider') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
       >
         <div className="container mx-auto px-4">
@@ -361,7 +361,7 @@ const Index = () => {
       {/* ━━━ FINAL CTA ━━━ */}
       <section
         id="cta"
-        ref={registerRef('cta')}
+        
         className={`py-12 sm:py-20 transition-all duration-700 ${isVisible('cta') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
       >
         <div className="container mx-auto px-4">
