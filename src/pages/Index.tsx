@@ -366,6 +366,76 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Interactive Feature Tour */}
+      <section className="container mx-auto px-2 sm:px-4 py-8 sm:py-16 relative">
+        <div className="text-center mb-6 sm:mb-10">
+          <h2 className="text-xl xs:text-2xl sm:text-3xl md:text-4xl font-display font-bold text-foreground mb-2 sm:mb-3 px-1">
+            How It All{' '}
+            <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Works Together</span>
+          </h2>
+          <p className="text-sm sm:text-base text-muted-foreground max-w-xl mx-auto px-2">
+            Three integrated systems that work as one to maximize recovery outcomes.
+          </p>
+        </div>
+
+        {/* Tour Tabs */}
+        <div className="max-w-4xl mx-auto">
+          <div className="flex justify-center gap-1 sm:gap-2 mb-6 sm:mb-8">
+            {tourCategories.map((cat, i) => (
+              <button
+                key={cat.tab}
+                onClick={() => setActiveTourTab(i)}
+                className={`group flex items-center gap-1.5 px-3 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-300 ${
+                  activeTourTab === i
+                    ? 'bg-gradient-to-r from-primary to-accent text-primary-foreground shadow-lg shadow-primary/25'
+                    : 'bg-card/80 border border-border/50 text-muted-foreground hover:text-foreground hover:border-primary/30'
+                }`}
+              >
+                <cat.tabIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                <span className="hidden xs:inline">{cat.tab}</span>
+                <span className="xs:hidden">{cat.tab.split(' ')[0]}</span>
+              </button>
+            ))}
+          </div>
+
+          {/* Active Tour Content */}
+          {tourCategories.map((cat, i) => (
+            activeTourTab === i && (
+              <div key={cat.tab} className="animate-fade-in">
+                <div className="bg-card/80 backdrop-blur-sm border border-border/50 rounded-xl sm:rounded-2xl p-4 sm:p-8 shadow-card">
+                  <h3 className="text-lg sm:text-2xl font-display font-bold text-foreground mb-2">
+                    {cat.headline}
+                  </h3>
+                  <p className="text-sm sm:text-base text-muted-foreground mb-5 sm:mb-8 max-w-2xl">
+                    {cat.description}
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                    {cat.capabilities.map((cap) => (
+                      <div key={cap.label} className="flex items-start gap-3 p-3 rounded-lg border border-border/30 bg-background/50 hover:border-primary/30 transition-colors">
+                        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                          <cap.icon className="h-4 w-4 text-primary" />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-sm font-semibold text-foreground">{cap.label}</span>
+                            {cap.badge && (
+                              <span className="text-[9px] bg-amber-500/15 text-amber-600 dark:text-amber-400 px-1.5 py-0.5 rounded-full font-medium border border-amber-500/20">
+                                {cap.badge}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{cap.desc}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )
+          ))}
+        </div>
+      </section>
+
       {/* Quick Links Section */}
       <section className="container mx-auto px-2 sm:px-4 py-4 sm:py-10">
         <div className="max-w-4xl mx-auto space-y-3 sm:space-y-4">
