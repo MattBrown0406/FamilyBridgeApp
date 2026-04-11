@@ -63,6 +63,18 @@ const journeySteps = [
     ],
     link: '/outcome-predictions?demo=true',
   },
+  {
+    question: 'What has the platform learned?',
+    answer: 'The AI Learning Layer identifies what tends to work and what tends to fail — using privacy-safe, de-identified pattern learning across all cases.',
+    icon: Brain,
+    color: 'from-blue-500 to-indigo-600',
+    features: [
+      { label: 'Privacy-preserving insights', icon: Shield },
+      { label: 'Cross-case pattern learning', icon: Eye },
+      { label: 'Recommendation evolution', icon: Activity },
+    ],
+    link: '/ai-learning',
+  },
 ];
 
 const trustSignals = [
