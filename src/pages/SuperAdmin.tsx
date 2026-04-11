@@ -1170,7 +1170,7 @@ const SuperAdmin = () => {
                   </div>
                   <span className="text-base sm:text-lg truncate">{familyDetails?.family?.name || 'Family Details'}</span>
                 </span>
-                {familyDetails?.family.account_number && (
+                {familyDetails?.family?.account_number && (
                   <Badge variant="outline" className="font-mono text-[10px] sm:text-xs w-fit mt-1.5">
                     {familyDetails.family.account_number}
                   </Badge>
