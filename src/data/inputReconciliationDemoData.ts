@@ -354,3 +354,150 @@ export const systemImpactSummary = {
     message: 'Some recommendations are withheld until input quality improves. Guidance may be less accurate.',
   },
 };
+
+// ========== SUPER ADMIN SITE-WIDE DATA ==========
+
+export interface OrgInputHealth {
+  id: string;
+  name: string;
+  type: 'provider' | 'private_family';
+  totalFamilies: number;
+  avgConfidence: number;
+  confidence: InputConfidence;
+  unresolvedIssues: number;
+  contradictions: number;
+  shallowInputs: number;
+  incompleteInputs: number;
+  lastActivity: string;
+  deferralsOverdue: number;
+  learningExclusions: number;
+}
+
+export interface PlatformHealthSummary {
+  totalFamilies: number;
+  totalProviders: number;
+  privateFamilies: number;
+  avgDataConfidence: number;
+  totalUnresolved: number;
+  totalContradictions: number;
+  totalShallowInputs: number;
+  totalIncomplete: number;
+  totalDeferralsOverdue: number;
+  learningDataExcluded: number;
+  confidenceDistribution: { low: number; moderate: number; high: number };
+}
+
+export const demoPlatformHealth: PlatformHealthSummary = {
+  totalFamilies: 147,
+  totalProviders: 12,
+  privateFamilies: 38,
+  avgDataConfidence: 61,
+  totalUnresolved: 89,
+  totalContradictions: 23,
+  totalShallowInputs: 41,
+  totalIncomplete: 25,
+  totalDeferralsOverdue: 14,
+  learningDataExcluded: 31,
+  confidenceDistribution: { low: 34, moderate: 72, high: 41 },
+};
+
+export const demoOrgInputHealth: OrgInputHealth[] = [
+  {
+    id: 'org-1',
+    name: 'Freedom Interventions',
+    type: 'provider',
+    totalFamilies: 24,
+    avgConfidence: 72,
+    confidence: 'moderate',
+    unresolvedIssues: 8,
+    contradictions: 2,
+    shallowInputs: 4,
+    incompleteInputs: 2,
+    lastActivity: '2026-04-11T10:15:00Z',
+    deferralsOverdue: 1,
+    learningExclusions: 3,
+  },
+  {
+    id: 'org-2',
+    name: 'Serenity Recovery Group',
+    type: 'provider',
+    totalFamilies: 31,
+    avgConfidence: 55,
+    confidence: 'moderate',
+    unresolvedIssues: 18,
+    contradictions: 6,
+    shallowInputs: 8,
+    incompleteInputs: 4,
+    lastActivity: '2026-04-11T09:45:00Z',
+    deferralsOverdue: 3,
+    learningExclusions: 7,
+  },
+  {
+    id: 'org-3',
+    name: 'Pathways Clinical Services',
+    type: 'provider',
+    totalFamilies: 18,
+    avgConfidence: 78,
+    confidence: 'high',
+    unresolvedIssues: 4,
+    contradictions: 1,
+    shallowInputs: 2,
+    incompleteInputs: 1,
+    lastActivity: '2026-04-11T08:30:00Z',
+    deferralsOverdue: 0,
+    learningExclusions: 1,
+  },
+  {
+    id: 'org-4',
+    name: 'Bridges to Hope',
+    type: 'provider',
+    totalFamilies: 15,
+    avgConfidence: 44,
+    confidence: 'low',
+    unresolvedIssues: 14,
+    contradictions: 5,
+    shallowInputs: 6,
+    incompleteInputs: 3,
+    lastActivity: '2026-04-10T22:00:00Z',
+    deferralsOverdue: 4,
+    learningExclusions: 8,
+  },
+  {
+    id: 'org-5',
+    name: 'New Day Treatment Partners',
+    type: 'provider',
+    totalFamilies: 22,
+    avgConfidence: 68,
+    confidence: 'moderate',
+    unresolvedIssues: 11,
+    contradictions: 3,
+    shallowInputs: 5,
+    incompleteInputs: 3,
+    lastActivity: '2026-04-11T07:00:00Z',
+    deferralsOverdue: 2,
+    learningExclusions: 4,
+  },
+  {
+    id: 'fam-priv-1',
+    name: 'Private Families (Self-Managed)',
+    type: 'private_family',
+    totalFamilies: 38,
+    avgConfidence: 48,
+    confidence: 'low',
+    unresolvedIssues: 34,
+    contradictions: 6,
+    shallowInputs: 16,
+    incompleteInputs: 12,
+    lastActivity: '2026-04-11T10:30:00Z',
+    deferralsOverdue: 4,
+    learningExclusions: 8,
+  },
+];
+
+export const demoTopIssueCategories = [
+  { category: 'Boundary Compliance', count: 28, pct: 31 },
+  { category: 'Financial Support', count: 19, pct: 21 },
+  { category: 'Substance Use Indicators', count: 16, pct: 18 },
+  { category: 'Communication Patterns', count: 14, pct: 16 },
+  { category: 'Behavioral Updates', count: 12, pct: 14 },
+];
