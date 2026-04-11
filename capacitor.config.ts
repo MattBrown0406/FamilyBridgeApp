@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.familybridgeapp.app',
+  appId: 'app.lovable.feec162303784a959c1635217b29129c',
   appName: 'FamilyBridge',
   webDir: 'dist',
   android: {
