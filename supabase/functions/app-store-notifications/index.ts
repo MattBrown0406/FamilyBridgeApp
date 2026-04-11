@@ -102,7 +102,7 @@ Deno.serve(async (req) => {
       );
     }
   } catch (error) {
-    console.error("Error processing notification:", error);
+    console.error("Error processing notification:", error instanceof Error ? error.message : "Unknown error");
     return new Response(
       JSON.stringify({ error: "Internal server error" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -118,7 +118,7 @@ async function handleAppleNotification(
   try {
     const body = preloadedBody || await req.json();
     
-    console.log("Apple notification received:", JSON.stringify(body, null, 2));
+    console.log("Apple notification received");
 
     // Apple sends a signed payload that we need to decode
     const signedPayload = body.signedPayload;
@@ -193,7 +193,7 @@ async function handleAppleNotification(
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
-    console.error("Error handling Apple notification:", error);
+    console.error("Error handling Apple notification:", error instanceof Error ? error.message : "Unknown error");
     return new Response(
       JSON.stringify({ error: "Failed to process notification" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -209,7 +209,7 @@ async function handleGoogleNotification(
   try {
     const body = preloadedBody || await req.json();
     
-    console.log("Google notification received:", JSON.stringify(body, null, 2));
+    console.log("Google notification received");
 
     // Handle test notifications
     if (body.testNotification) {
@@ -283,7 +283,7 @@ async function handleGoogleNotification(
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
-    console.error("Error handling Google notification:", error);
+    console.error("Error handling Google notification:", error instanceof Error ? error.message : "Unknown error");
     return new Response(
       JSON.stringify({ error: "Failed to process notification" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -311,7 +311,7 @@ async function logNotification(
       },
     });
   } catch (error) {
-    console.error("Failed to log notification:", error);
+    console.error("Failed to log notification:", error instanceof Error ? error.message : "Unknown error");
     // Don't throw - logging failure shouldn't break notification handling
   }
 }

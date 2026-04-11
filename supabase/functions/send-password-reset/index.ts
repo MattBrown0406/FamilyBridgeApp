@@ -18,6 +18,15 @@ interface PasswordResetRequest {
   userId: string;
 }
 
+const maskEmail = (email: string) => {
+  const [localPart, domain = ""] = email.split("@");
+  if (!localPart) return "[redacted]";
+  const visibleLocal = localPart.length <= 2 ? `${localPart[0]}*` : `${localPart.slice(0, 2)}***`;
+  return `${visibleLocal}@${domain || "[redacted]"}`;
+};
+
+const getErrorMessage = (error: unknown) => error instanceof Error ? error.message : 'Unknown error';
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -119,9 +128,9 @@ serve(async (req) => {
         `,
       });
       
-      console.log("Password reset email sent via Resend to:", userEmail);
+      console.log("Password reset email dispatched", { userEmail: maskEmail(userEmail), delivery: "resend" });
     } else {
-      console.log("Password reset link generated for:", userEmail, "- Link:", linkData?.properties?.action_link);
+      console.log("Password reset link generated for fallback delivery", { userEmail: maskEmail(userEmail), delivery: "link-generated" });
     }
 
     return new Response(
@@ -135,10 +144,10 @@ serve(async (req) => {
         headers: { "Content-Type": "application/json", ...corsHeaders },
       }
     );
-  } catch (error: any) {
-    console.error("Error in send-password-reset:", error);
+  } catch (error: unknown) {
+    console.error("Error in send-password-reset:", getErrorMessage(error));
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: getErrorMessage(error) }),
       {
         status: 400,
         headers: { "Content-Type": "application/json", ...corsHeaders },

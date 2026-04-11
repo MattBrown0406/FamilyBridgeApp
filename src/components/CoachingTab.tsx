@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/select';
 import ReactMarkdown from 'react-markdown';
 import { FIISDoctrineNotice } from '@/components/FIISDoctrineNotice';
+import { AIProcessingNotice } from '@/components/AIProcessingNotice';
 import {
   Mic, MicOff, Phone, MessageSquare, Image, Upload, Send, Loader2,
   AlertTriangle, Copy, CheckCircle, X, Brain, PhoneCall, Camera, Users,
@@ -305,6 +306,9 @@ export const CoachingTab = ({ familyId, members = [] }: CoachingTabProps) => {
             </div>
           </div>
           <FIISDoctrineNotice compact />
+          <AIProcessingNotice
+            subject="messages, screenshots, transcripts, and other coaching context you submit"
+          />
         </CardContent>
       </Card>
 

@@ -1,7 +1,7 @@
 // Product Configuration
 // These IDs are used for subscription management and checkout flows
 
-export const BUNDLE_ID = "app.lovable.feec162303784a959c1635217b29129c";
+export const BUNDLE_ID = "com.familybridgeapp.app";
 
 // Square Subscription Plan IDs (from Square Dashboard)
 export const SQUARE_PLAN_IDS = {

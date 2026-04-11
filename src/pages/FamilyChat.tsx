@@ -87,6 +87,7 @@ import { MedicationTab } from '@/components/MedicationTab';
 import { FamilyDocumentsTab } from '@/components/FamilyDocumentsTab';
 import { CoachingTab } from '@/components/CoachingTab';
 import { evaluateBoundaryQuality } from '@/lib/boundaryQuality';
+import { createStorageRef, parseStorageRef, resolveStorageUrl } from '@/lib/storageRefs';
 
 const REQUEST_REASONS = [
   'Electric',
@@ -1177,7 +1178,11 @@ const FamilyChat = () => {
         navigate('/dashboard');
         return;
       }
-      setFamily(familyData);
+      const resolvedAvatarUrl = await resolveStorageUrl(familyData.avatar_url);
+      setFamily({
+        ...familyData,
+        avatar_url: resolvedAvatarUrl ?? (parseStorageRef(familyData.avatar_url) ? null : familyData.avatar_url),
+      });
       
       // Apply organization branding if family belongs to an organization
       if (familyData.organization_id) {
@@ -1860,21 +1865,19 @@ const FamilyChat = () => {
       
       if (uploadError) throw uploadError;
       
-      // Get public URL
-      const { data: urlData } = supabase.storage
-        .from('family-avatars')
-        .getPublicUrl(fileName);
+      const avatarRef = createStorageRef('family-avatars', fileName);
       
       // Update family record
       const { error: updateError } = await supabase
         .from('families')
-        .update({ avatar_url: urlData.publicUrl })
+        .update({ avatar_url: avatarRef })
         .eq('id', familyId);
       
       if (updateError) throw updateError;
       
       // Update local state
-      setFamily(prev => prev ? { ...prev, avatar_url: urlData.publicUrl } : null);
+      const resolvedAvatarUrl = await resolveStorageUrl(avatarRef);
+      setFamily(prev => prev ? { ...prev, avatar_url: resolvedAvatarUrl } : null);
       
       toast({
         title: 'Avatar updated',
@@ -2011,14 +2014,21 @@ const FamilyChat = () => {
         resolved_at: req.resolved_at,
       };
     });
+
+    const requestsWithResolvedAttachments = await Promise.all(
+      requestsWithNames.map(async (request) => ({
+        ...request,
+        attachment_url: await resolveStorageUrl(request.attachment_url),
+      }))
+    );
     
     // Store all requests for archive navigation
-    setAllFinancialRequests(requestsWithNames);
+    setAllFinancialRequests(requestsWithResolvedAttachments);
     
     // Filter for current month display - show active (not completed) requests + completed from current month
     const currentMonthStart = startOfMonth(new Date());
     const currentMonthEnd = endOfMonth(new Date());
-    const filteredRequests = requestsWithNames.filter(req => {
+    const filteredRequests = requestsWithResolvedAttachments.filter(req => {
       // Always show active (non-completed) requests
       if (!req.resolved_at) return true;
       // Show completed requests from current month
@@ -2028,8 +2038,8 @@ const FamilyChat = () => {
     setFinancialRequests(filteredRequests);
     
     // Calculate lifetime totals from all requests (this already includes all history)
-    const totalRequested = requestsWithNames.reduce((sum, r) => sum + r.amount, 0);
-    const totalGiven = requestsWithNames
+    const totalRequested = requestsWithResolvedAttachments.reduce((sum, r) => sum + r.amount, 0);
+    const totalGiven = requestsWithResolvedAttachments
       .filter(r => r.payment_confirmed_at || r.status === 'approved')
       .reduce((sum, r) => r.pledges.reduce((pSum, p) => pSum + p.amount, 0) + sum, 0);
     
@@ -2368,11 +2378,7 @@ const FamilyChat = () => {
           throw new Error('Failed to upload bill attachment');
         }
 
-        const { data: urlData } = supabase.storage
-          .from('bill-attachments')
-          .getPublicUrl(fileName);
-        
-        attachmentUrl = urlData.publicUrl;
+        attachmentUrl = createStorageRef('bill-attachments', fileName);
       }
 
       const { error } = await supabase

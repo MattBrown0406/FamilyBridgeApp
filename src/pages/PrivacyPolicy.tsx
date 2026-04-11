@@ -23,7 +23,7 @@ const PrivacyPolicy = () => {
         <div className="text-center mb-4 sm:mb-8">
           <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">Privacy Policy</h1>
           <p className="text-sm sm:text-base text-muted-foreground">
-            Last updated: January 2026
+            Last updated: April 2026
           </p>
         </div>
 
@@ -58,6 +58,10 @@ const PrivacyPolicy = () => {
                   <p>Payment usernames (Venmo, PayPal, Cash App) you provide for family financial support are encrypted and stored securely. Subscription payments are processed securely through our payment provider.</p>
                 </div>
                 <div>
+                  <h3 className="font-medium text-foreground mb-1">Uploaded Files and Images</h3>
+                  <p>When you upload files, screenshots, receipts, medication label photos, avatars, or other images, we store them to operate the service and show them to the people in your FamilyBridge experience who are authorized to access them.</p>
+                </div>
+                <div>
                   <h3 className="font-medium text-foreground mb-1">Device Information</h3>
                   <p>We may collect device identifiers, operating system version, and app version for analytics and to improve our services.</p>
                 </div>
@@ -87,8 +91,24 @@ const PrivacyPolicy = () => {
                 <p>We do not sell your personal information. We may share your information in the following circumstances:</p>
                 <ul className="space-y-2 list-disc list-inside">
                   <li><strong>Within Family Groups:</strong> Information you share is visible to other members of your family group as intended by the app's functionality.</li>
-                  <li><strong>With Service Providers:</strong> We use trusted third-party services to help operate our platform (hosting, payment processing, email delivery).</li>
+                  <li><strong>With Service Providers:</strong> We use trusted third-party services to help operate our platform (hosting, storage, payment processing, email delivery, and AI processing for features you choose to use).</li>
+                  <li><strong>AI-Assisted Features:</strong> If you use coaching, communication help, document analysis, or medication-label analysis, the content you submit for those features may be processed by AI providers on our behalf to generate suggestions or structured results.</li>
                   <li><strong>Legal Requirements:</strong> We may disclose information if required by law or to protect our rights and safety.</li>
+                </ul>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="pt-6">
+              <h2 className="text-xl font-semibold text-foreground mb-3">AI Features and Sensitive Content</h2>
+              <div className="space-y-4 text-muted-foreground">
+                <p>Some FamilyBridge features use AI to help summarize documents, suggest communication, and analyze messages, screenshots, or medication labels that you choose to submit.</p>
+                <ul className="space-y-2 list-disc list-inside">
+                  <li>These features are optional.</li>
+                  <li>Use them only for content you are comfortable sending for processing.</li>
+                  <li>Please avoid including unrelated personal identifiers when they are not needed.</li>
+                  <li>AI output can be wrong or incomplete and should be reviewed by a human before you rely on it.</li>
                 </ul>
               </div>
             </CardContent>
@@ -98,7 +118,7 @@ const PrivacyPolicy = () => {
             <CardContent className="pt-6">
               <h2 className="text-xl font-semibold text-foreground mb-3">Data Security</h2>
               <p className="text-muted-foreground">
-                We implement appropriate technical and organizational security measures to protect your personal information. This includes encryption of sensitive data, secure authentication, and regular security assessments. However, no method of transmission over the internet is 100% secure, and we cannot guarantee absolute security.
+                We implement appropriate technical and organizational security measures to protect your personal information. This includes encryption of sensitive data, secure authentication, controlled file access, expiring file links where appropriate, and regular security assessments. However, no method of transmission over the internet is 100% secure, and we cannot guarantee absolute security.
               </p>
             </CardContent>
           </Card>
@@ -155,10 +175,10 @@ const PrivacyPolicy = () => {
                 If you have any questions about this Privacy Policy, please contact us at:
               </p>
               <a 
-                href="mailto:matt@freedominterventions.com"
+                href="mailto:support@familybridgeapp.com"
                 className="text-primary hover:underline font-medium"
               >
-                matt@freedominterventions.com
+                support@familybridgeapp.com
               </a>
             </CardContent>
           </Card>

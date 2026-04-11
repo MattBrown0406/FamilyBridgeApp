@@ -26,6 +26,7 @@ import {
   Shield,
 } from 'lucide-react';
 import { format } from 'date-fns';
+import { AIProcessingNotice } from '@/components/AIProcessingNotice';
 
 interface FamilyDocument {
   id: string;
@@ -353,6 +354,10 @@ export const FamilyDocumentsTab = ({ familyId, userRole }: FamilyDocumentsTabPro
 
   return (
     <div className="space-y-4">
+      {canManage && (
+        <AIProcessingNotice subject="documents you upload or analyze here, including intervention letters and discharge plans" />
+      )}
+
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold">Family Documents</h3>
         <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>

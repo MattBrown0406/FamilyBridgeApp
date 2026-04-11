@@ -158,7 +158,7 @@ serve(async (req) => {
       );
     }
 
-    console.log(`Checking liquor license for location: ${latitude}, ${longitude}`);
+    console.log('Checking location for nearby liquor-related venues');
 
     // Search for nearby places within 50 meters
     const radius = 50;
@@ -167,7 +167,7 @@ serve(async (req) => {
     const response = await fetch(nearbyUrl);
     const data: NearbySearchResponse = await response.json();
 
-    console.log(`Found ${data.results?.length || 0} nearby places`);
+    console.log('Nearby places query completed', { resultCount: data.results?.length || 0 });
 
     if (data.status !== 'OK' && data.status !== 'ZERO_RESULTS') {
       console.error('Google Places API error:', data.status);
@@ -261,7 +261,14 @@ serve(async (req) => {
         ? 'medium' 
         : 'none';
 
-    console.log(`Location check result: ${hasLiquorLicense ? 'FOUND' : 'NOT FOUND'}, confidence: ${confidence}, THC: ${hasTHCDispensary}, Liquor Store: ${hasLiquorStore}, Bar: ${hasBar}, Adult: ${hasAdultEntertainment}`);
+    console.log('Location check completed', {
+      hasLiquorLicense,
+      confidence,
+      hasTHCDispensary,
+      hasLiquorStore,
+      hasBar,
+      hasAdultEntertainment,
+    });
 
     return new Response(
       JSON.stringify({

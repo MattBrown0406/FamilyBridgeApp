@@ -2,12 +2,12 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <key>CAPACITOR_DEBUG</key>
+	<key>CAPACITOR_DEBUG</key>
 	<string>$(CAPACITOR_DEBUG)</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-        <string>FamilyBridge</string>
+	<string>FamilyBridge</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -24,6 +24,10 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>FamilyBridge uses the camera to scan receipts and medication labels you choose to upload.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>FamilyBridge uses your location to support meeting check-ins and safety features you initiate.</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
@@ -47,10 +51,5 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
-
-	<key>NSCameraUsageDescription</key>
-	<string>FamilyBridge uses the camera to scan receipts and medication labels you choose to upload.</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>FamilyBridge uses your location to support meeting check-ins and safety features you initiate.</string>
 </dict>
 </plist>

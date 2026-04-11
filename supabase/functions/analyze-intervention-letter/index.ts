@@ -16,6 +16,8 @@ interface ExtractedBoundary {
   author_name: string | null;
 }
 
+const getErrorMessage = (error: unknown) => error instanceof Error ? error.message : "Unknown error";
+
 // Convert ArrayBuffer to Base64
 function arrayBufferToBase64(buffer: ArrayBuffer): string {
   const bytes = new Uint8Array(buffer);
@@ -28,7 +30,7 @@ function arrayBufferToBase64(buffer: ArrayBuffer): string {
 
 // Extract text from PDF using Gemini Vision API (handles both digital and scanned PDFs)
 async function extractPdfText(pdfBytes: ArrayBuffer, apiKey: string): Promise<string> {
-  console.log("Extracting text from PDF using Gemini Vision...");
+  console.log("Starting PDF text extraction for intervention letter");
   
   const base64Pdf = arrayBufferToBase64(pdfBytes);
   
@@ -62,21 +64,21 @@ async function extractPdfText(pdfBytes: ArrayBuffer, apiKey: string): Promise<st
   });
 
   if (!response.ok) {
-    const errorText = await response.text();
-    console.error("PDF extraction error:", response.status, errorText);
+    await response.text();
+    console.error("PDF extraction error", { status: response.status });
     throw new Error(`Failed to extract text from PDF: ${response.status}`);
   }
 
   const result = await response.json();
   const extractedText = result.choices?.[0]?.message?.content || "";
   
-  console.log(`Extracted ${extractedText.length} characters from PDF`);
+  console.log("Completed PDF text extraction", { characters: extractedText.length });
   return extractedText;
 }
 
 // Extract text from image files using Vision API
 async function extractImageText(imageBytes: ArrayBuffer, mimeType: string, apiKey: string): Promise<string> {
-  console.log("Extracting text from image using Gemini Vision...");
+  console.log("Starting image text extraction for intervention letter");
   
   const base64Image = arrayBufferToBase64(imageBytes);
   
@@ -110,15 +112,15 @@ async function extractImageText(imageBytes: ArrayBuffer, mimeType: string, apiKe
   });
 
   if (!response.ok) {
-    const errorText = await response.text();
-    console.error("Image extraction error:", response.status, errorText);
+    await response.text();
+    console.error("Image extraction error", { status: response.status });
     throw new Error(`Failed to extract text from image: ${response.status}`);
   }
 
   const result = await response.json();
   const extractedText = result.choices?.[0]?.message?.content || "";
   
-  console.log(`Extracted ${extractedText.length} characters from image`);
+  console.log("Completed image text extraction", { characters: extractedText.length });
   return extractedText;
 }
 
@@ -249,7 +251,7 @@ serve(async (req) => {
       );
     }
 
-    console.log(`Document content extracted: ${documentContent.substring(0, 200)}...`);
+    console.log("Document text extracted for intervention-letter analysis", { characters: documentContent.length });
 
     // Call Lovable AI to extract boundaries
     const systemPrompt = `You are an expert at analyzing intervention letters and extracting boundaries that families have set.
@@ -354,8 +356,8 @@ Respond with a JSON array of boundaries. If no clear boundaries are found, retur
           { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
-      const errorText = await response.text();
-      console.error("AI gateway error:", response.status, errorText);
+      await response.text();
+      console.error("AI gateway error", { status: response.status, feature: "analyze-intervention-letter" });
       throw new Error("AI analysis failed");
     }
 
@@ -369,7 +371,7 @@ Respond with a JSON array of boundaries. If no clear boundaries are found, retur
     const extractedData = JSON.parse(toolCall.function.arguments);
     const boundaries: ExtractedBoundary[] = extractedData.boundaries || [];
 
-    console.log(`Found ${boundaries.length} boundaries in document`);
+    console.log("Intervention-letter analysis completed", { boundariesFound: boundaries.length });
 
     // Create boundaries in the database
     let boundariesCreated = 0;
@@ -416,7 +418,7 @@ Respond with a JSON array of boundaries. If no clear boundaries are found, retur
       if (!insertError) {
         boundariesCreated++;
       } else {
-        console.error("Error creating boundary:", insertError);
+        console.error("Error creating boundary", insertError.message);
       }
     }
 
@@ -430,7 +432,7 @@ Respond with a JSON array of boundaries. If no clear boundaries are found, retur
       })
       .eq("id", documentId);
 
-    console.log(`Analysis complete: ${boundariesCreated} boundaries created`);
+    console.log("Stored intervention-letter boundaries", { boundariesCreated });
 
     return new Response(
       JSON.stringify({
@@ -444,10 +446,10 @@ Respond with a JSON array of boundaries. If no clear boundaries are found, retur
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
 
-  } catch (error) {
-    console.error("Error analyzing intervention letter:", error);
+  } catch (error: unknown) {
+    console.error("Error analyzing intervention letter", getErrorMessage(error));
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Analysis failed" }),
+      JSON.stringify({ error: getErrorMessage(error) }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }

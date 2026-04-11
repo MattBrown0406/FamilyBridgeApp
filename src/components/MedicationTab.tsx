@@ -30,6 +30,8 @@ import {
 } from 'lucide-react';
 import { format, formatDistanceToNow, isToday, isPast, addHours } from 'date-fns';
 import { usePlatform } from '@/hooks/usePlatform';
+import { AIProcessingNotice } from '@/components/AIProcessingNotice';
+import { createStorageRef, resolveStorageUrl } from '@/lib/storageRefs';
 
 interface Medication {
   id: string;
@@ -176,7 +178,12 @@ export const MedicationTab = ({
     if (error) {
       console.error('Error loading medications:', error);
     } else {
-      setMedications(data || []);
+      const resolvedMedications = await Promise.all((data || []).map(async (medication) => ({
+        ...medication,
+        label_image_url: await resolveStorageUrl(medication.label_image_url),
+      })));
+
+      setMedications(resolvedMedications);
     }
   };
 
@@ -386,10 +393,7 @@ export const MedicationTab = ({
           });
 
         if (!uploadError) {
-          const { data: urlData } = supabase.storage
-            .from('medication-labels')
-            .getPublicUrl(fileName);
-          labelImageUrl = urlData.publicUrl;
+          labelImageUrl = createStorageRef('medication-labels', fileName);
         }
       }
 
@@ -835,6 +839,11 @@ export const MedicationTab = ({
                       </Button>
                     )}
                   </div>
+
+                  <AIProcessingNotice
+                    subject="medication label photos you upload for auto-fill"
+                    className="mt-3 text-xs"
+                  />
                 </div>
 
                 {/* Target User */}

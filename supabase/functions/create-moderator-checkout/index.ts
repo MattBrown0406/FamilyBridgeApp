@@ -5,6 +5,13 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+const maskEmail = (email: string) => {
+  const [localPart, domain = ''] = email.split('@');
+  if (!localPart) return '[redacted]';
+  const visibleLocal = localPart.length <= 2 ? `${localPart[0]}*` : `${localPart.slice(0, 2)}***`;
+  return `${visibleLocal}@${domain || '[redacted]'}`;
+};
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -26,7 +33,7 @@ serve(async (req) => {
       throw new Error('Missing required fields: email, redirectUrl, familyId, requestId');
     }
 
-    console.log('Creating moderator support checkout for:', email, 'familyId:', familyId);
+    console.log('Creating moderator support checkout', { buyerEmail: maskEmail(email) });
 
     // Get active locations
     const locationsResponse = await fetch('https://connect.squareup.com/v2/locations', {
@@ -45,7 +52,7 @@ serve(async (req) => {
     }
 
     const locationId = activeLocation.id;
-    console.log('Using location:', locationId);
+    console.log('Using active Square location for moderator support checkout');
 
     // Create payment link for $150 moderator support
     const checkoutResponse = await fetch('https://connect.squareup.com/v2/online-checkout/payment-links', {
@@ -77,7 +84,6 @@ serve(async (req) => {
     });
 
     const checkoutData = await checkoutResponse.json();
-    console.log('Square checkout response:', JSON.stringify(checkoutData));
 
     if (checkoutData.errors) {
       console.error('Square API errors:', checkoutData.errors);
@@ -96,7 +102,7 @@ serve(async (req) => {
     });
 
   } catch (error: unknown) {
-    console.error('Error creating moderator checkout:', error);
+    console.error('Error creating moderator checkout:', error instanceof Error ? error.message : 'Unknown error');
     const errorMessage = error instanceof Error ? error.message : 'Failed to create checkout';
     return new Response(JSON.stringify({ 
       error: errorMessage 

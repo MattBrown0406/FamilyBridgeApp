@@ -7,6 +7,7 @@ import { MessageSquareHeart, Sparkles, Loader2, ChevronDown, Copy, Check, Lightb
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { AIProcessingNotice } from '@/components/AIProcessingNotice';
 
 interface Suggestion {
   text: string;
@@ -116,6 +117,11 @@ export const CommunicationHelper: React.FC<CommunicationHelperProps> = ({
             <p className="text-xs text-muted-foreground">
               Type what you're thinking or how you'd normally say it. I'll suggest more constructive ways to express yourself while keeping your authentic voice.
             </p>
+
+            <AIProcessingNotice
+              subject="the draft message and context you enter"
+              className="text-xs"
+            />
             
             <div className="space-y-2">
               <Textarea

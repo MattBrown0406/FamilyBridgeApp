@@ -19,6 +19,8 @@ interface ExtractedAftercare {
   therapy_type: string | null;
 }
 
+const getErrorMessage = (error: unknown) => error instanceof Error ? error.message : "Unknown error";
+
 // Convert ArrayBuffer to Base64
 function arrayBufferToBase64(buffer: ArrayBuffer): string {
   const bytes = new Uint8Array(buffer);
@@ -31,7 +33,7 @@ function arrayBufferToBase64(buffer: ArrayBuffer): string {
 
 // Extract text from PDF using Gemini Vision API
 async function extractPdfText(pdfBytes: ArrayBuffer, apiKey: string): Promise<string> {
-  console.log("Extracting text from PDF using Gemini Vision...");
+  console.log("Starting PDF text extraction for aftercare document");
   
   const base64Pdf = arrayBufferToBase64(pdfBytes);
   
@@ -65,21 +67,21 @@ async function extractPdfText(pdfBytes: ArrayBuffer, apiKey: string): Promise<st
   });
 
   if (!response.ok) {
-    const errorText = await response.text();
-    console.error("PDF extraction error:", response.status, errorText);
+    await response.text();
+    console.error("PDF extraction error", { status: response.status });
     throw new Error(`Failed to extract text from PDF: ${response.status}`);
   }
 
   const result = await response.json();
   const extractedText = result.choices?.[0]?.message?.content || "";
   
-  console.log(`Extracted ${extractedText.length} characters from PDF`);
+  console.log("Completed PDF text extraction", { characters: extractedText.length });
   return extractedText;
 }
 
 // Extract text from image files using Vision API
 async function extractImageText(imageBytes: ArrayBuffer, mimeType: string, apiKey: string): Promise<string> {
-  console.log("Extracting text from image using Gemini Vision...");
+  console.log("Starting image text extraction for aftercare document");
   
   const base64Image = arrayBufferToBase64(imageBytes);
   
@@ -113,15 +115,15 @@ async function extractImageText(imageBytes: ArrayBuffer, mimeType: string, apiKe
   });
 
   if (!response.ok) {
-    const errorText = await response.text();
-    console.error("Image extraction error:", response.status, errorText);
+    await response.text();
+    console.error("Image extraction error", { status: response.status });
     throw new Error(`Failed to extract text from image: ${response.status}`);
   }
 
   const result = await response.json();
   const extractedText = result.choices?.[0]?.message?.content || "";
   
-  console.log(`Extracted ${extractedText.length} characters from image`);
+  console.log("Completed image text extraction", { characters: extractedText.length });
   return extractedText;
 }
 
@@ -246,7 +248,7 @@ serve(async (req) => {
       );
     }
 
-    console.log(`Document content extracted: ${documentContent.substring(0, 200)}...`);
+    console.log("Document text extracted for aftercare analysis", { characters: documentContent.length });
 
     // Call Lovable AI to extract aftercare recommendations
     const systemPrompt = `You are an expert at analyzing clinical discharge plans and aftercare recommendations from treatment facilities.
@@ -381,8 +383,8 @@ Respond with a JSON array of recommendations. Include ALL recommendations found 
           { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
-      const errorText = await response.text();
-      console.error("AI gateway error:", response.status, errorText);
+      await response.text();
+      console.error("AI gateway error", { status: response.status, feature: "analyze-aftercare-document" });
       throw new Error("AI analysis failed");
     }
 
@@ -398,7 +400,7 @@ Respond with a JSON array of recommendations. Include ALL recommendations found 
     const patientName = extractedData.patient_name;
     const facilityName = extractedData.facility_name;
 
-    console.log(`Found ${recommendations.length} aftercare recommendations`);
+    console.log("Aftercare analysis completed", { recommendationsFound: recommendations.length });
 
     // Try to match patient name to a family member if not explicitly provided
     let resolvedTargetUserId = targetUserId;
@@ -409,7 +411,7 @@ Respond with a JSON array of recommendations. Include ALL recommendations found 
       );
       if (matchedProfile) {
         resolvedTargetUserId = matchedProfile.id;
-        console.log(`Matched patient "${patientName}" to user ${resolvedTargetUserId}`);
+        console.log("Matched patient name to a family member");
       }
     }
 
@@ -418,7 +420,7 @@ Respond with a JSON array of recommendations. Include ALL recommendations found 
       const recoveringMember = familyMembers?.find(m => m.relationship_type === "recovering");
       if (recoveringMember) {
         resolvedTargetUserId = recoveringMember.user_id;
-        console.log(`Using recovering member as target: ${resolvedTargetUserId}`);
+        console.log("Using recovering member as target for aftercare import");
       }
     }
 
@@ -446,7 +448,7 @@ Respond with a JSON array of recommendations. Include ALL recommendations found 
 
     if (existingPlan) {
       planId = existingPlan.id;
-      console.log(`Using existing aftercare plan: ${planId}`);
+      console.log("Using existing aftercare plan for import");
     } else {
       // Create new aftercare plan
       const { data: newPlan, error: planError } = await supabase
@@ -462,12 +464,12 @@ Respond with a JSON array of recommendations. Include ALL recommendations found 
         .single();
 
       if (planError) {
-        console.error("Error creating aftercare plan:", planError);
+        console.error("Error creating aftercare plan", planError.message);
         throw new Error("Failed to create aftercare plan");
       }
 
       planId = newPlan.id;
-      console.log(`Created new aftercare plan: ${planId}`);
+      console.log("Created new aftercare plan for import");
     }
 
     // Insert recommendations
@@ -491,7 +493,7 @@ Respond with a JSON array of recommendations. Include ALL recommendations found 
       if (!insertError) {
         recommendationsCreated++;
       } else {
-        console.error("Error creating recommendation:", insertError);
+        console.error("Error creating recommendation", insertError.message);
       }
     }
 
@@ -505,7 +507,7 @@ Respond with a JSON array of recommendations. Include ALL recommendations found 
       })
       .eq("id", documentId);
 
-    console.log(`Analysis complete: ${recommendationsCreated} recommendations created`);
+    console.log("Stored aftercare recommendations", { recommendationsCreated });
 
     return new Response(
       JSON.stringify({
@@ -522,10 +524,10 @@ Respond with a JSON array of recommendations. Include ALL recommendations found 
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
 
-  } catch (error) {
-    console.error("Error analyzing aftercare document:", error);
+  } catch (error: unknown) {
+    console.error("Error analyzing aftercare document", getErrorMessage(error));
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Analysis failed" }),
+      JSON.stringify({ error: getErrorMessage(error) }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }

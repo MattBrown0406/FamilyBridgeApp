@@ -23,7 +23,7 @@ const TermsOfService = () => {
         <div className="text-center mb-4 sm:mb-8">
           <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">Terms of Service</h1>
           <p className="text-sm sm:text-base text-muted-foreground">
-            Last updated: January 2026
+            Last updated: April 2026
           </p>
         </div>
 
@@ -136,7 +136,22 @@ const TermsOfService = () => {
 
           <Card>
             <CardContent className="pt-6">
-              <h2 className="text-xl font-semibold text-foreground mb-3">9. Disclaimer of Warranties</h2>
+              <h2 className="text-xl font-semibold text-foreground mb-3">9. AI-Assisted Features</h2>
+              <div className="space-y-3 text-muted-foreground">
+                <p>Some FamilyBridge features use AI to generate suggestions or extract information from content you choose to submit, including messages, screenshots, documents, and medication-label photos.</p>
+                <ul className="list-disc list-inside space-y-1">
+                  <li>These features are optional and provided for support and convenience only.</li>
+                  <li>You are responsible for reviewing AI-generated output before relying on it or sharing it with others.</li>
+                  <li>You should avoid submitting unrelated sensitive information when it is not necessary for the feature you are using.</li>
+                  <li>AI output may be inaccurate, incomplete, or inappropriate and is not a substitute for professional judgment.</li>
+                </ul>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="pt-6">
+              <h2 className="text-xl font-semibold text-foreground mb-3">10. Disclaimer of Warranties</h2>
               <div className="space-y-3 text-muted-foreground">
                 <p>THE APP IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTIES OF ANY KIND, EXPRESS OR IMPLIED. WE DO NOT WARRANT THAT THE APP WILL BE UNINTERRUPTED, ERROR-FREE, OR SECURE.</p>
                 <p><strong>Important:</strong> FamilyBridge is not a substitute for professional medical, mental health, or addiction treatment services. If you or someone you know is in crisis, please contact emergency services or a crisis helpline immediately.</p>
@@ -146,7 +161,7 @@ const TermsOfService = () => {
 
           <Card>
             <CardContent className="pt-6">
-              <h2 className="text-xl font-semibold text-foreground mb-3">10. Limitation of Liability</h2>
+              <h2 className="text-xl font-semibold text-foreground mb-3">11. Limitation of Liability</h2>
               <p className="text-muted-foreground">
                 TO THE MAXIMUM EXTENT PERMITTED BY LAW, FAMILYBRIDGE SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, OR ANY LOSS OF PROFITS OR REVENUES, WHETHER INCURRED DIRECTLY OR INDIRECTLY, OR ANY LOSS OF DATA, USE, GOODWILL, OR OTHER INTANGIBLE LOSSES RESULTING FROM YOUR USE OF THE APP.
               </p>
@@ -155,7 +170,7 @@ const TermsOfService = () => {
 
           <Card>
             <CardContent className="pt-6">
-              <h2 className="text-xl font-semibold text-foreground mb-3">11. Indemnification</h2>
+              <h2 className="text-xl font-semibold text-foreground mb-3">12. Indemnification</h2>
               <p className="text-muted-foreground">
                 You agree to indemnify and hold harmless FamilyBridge and its officers, directors, employees, and agents from any claims, damages, losses, liabilities, and expenses arising out of your use of the App or violation of these Terms.
               </p>
@@ -164,7 +179,7 @@ const TermsOfService = () => {
 
           <Card>
             <CardContent className="pt-6">
-              <h2 className="text-xl font-semibold text-foreground mb-3">12. Termination</h2>
+              <h2 className="text-xl font-semibold text-foreground mb-3">13. Termination</h2>
               <p className="text-muted-foreground">
                 We may terminate or suspend your account and access to the App at any time, without prior notice, for conduct that we believe violates these Terms or is harmful to other users, us, or third parties, or for any other reason at our sole discretion.
               </p>
@@ -173,7 +188,7 @@ const TermsOfService = () => {
 
           <Card>
             <CardContent className="pt-6">
-              <h2 className="text-xl font-semibold text-foreground mb-3">13. Governing Law</h2>
+              <h2 className="text-xl font-semibold text-foreground mb-3">14. Governing Law</h2>
               <p className="text-muted-foreground">
                 These Terms shall be governed by and construed in accordance with the laws of the United States, without regard to its conflict of law provisions.
               </p>
@@ -182,15 +197,15 @@ const TermsOfService = () => {
 
           <Card>
             <CardContent className="pt-6">
-              <h2 className="text-xl font-semibold text-foreground mb-3">14. Contact Us</h2>
+              <h2 className="text-xl font-semibold text-foreground mb-3">15. Contact Us</h2>
               <p className="text-muted-foreground mb-3">
                 If you have any questions about these Terms, please contact us at:
               </p>
               <a 
-                href="mailto:matt@freedominterventions.com"
+                href="mailto:support@familybridgeapp.com"
                 className="text-primary hover:underline font-medium"
               >
-                matt@freedominterventions.com
+                support@familybridgeapp.com
               </a>
             </CardContent>
           </Card>
