@@ -7,7 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Users, LogOut, Loader2, Copy, ArrowRight, Crown, Home, Settings, Trash2, HelpCircle } from 'lucide-react';
+import { Users, LogOut, Loader2, Copy, ArrowRight, Crown, Home, Settings, Trash2, HelpCircle, Activity } from 'lucide-react';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 import { NotificationBell } from '@/components/NotificationBell';
 import { AdminBreadcrumbs } from '@/components/AdminBreadcrumbs';
@@ -460,6 +460,27 @@ const Dashboard = () => {
                 </Card>
               ))}
             </div>
+          )}
+
+          {/* Accountability Engine Link */}
+          {families.length > 0 && (
+            <Card
+              className="mt-4 hover:shadow-elevated transition-shadow cursor-pointer border-primary/20"
+              onClick={() => navigate('/accountability-engine')}
+            >
+              <CardContent className="py-4 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Activity className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-foreground">Accountability Engine</p>
+                    <p className="text-sm text-muted-foreground">Track commitments, scores, and system alignment</p>
+                  </div>
+                </div>
+                <ArrowRight className="h-5 w-5 text-muted-foreground" />
+              </CardContent>
+            </Card>
           )}
         </div>
       </main>
