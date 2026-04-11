@@ -100,6 +100,7 @@ const App = () => {
               <Route path="/intervention-execution" element={<InterventionExecution />} />
               <Route path="/post-intervention" element={<PostInterventionContinuity />} />
               <Route path="/accountability-engine" element={<AccountabilityEngine />} />
+              <Route path="/outcome-predictions" element={<OutcomePredictions />} />
               <Route path="/features/fiis-intelligence" element={<FIISIntelligence />} />
               <Route path="/features/recovery-trajectory" element={<RecoveryTrajectory />} />
               <Route path="/features/document-analysis" element={<DocumentAnalysis />} />
