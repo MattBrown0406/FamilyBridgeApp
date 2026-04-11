@@ -557,6 +557,256 @@ export type Database = {
           },
         ]
       }
+      coordination_ai_insights: {
+        Row: {
+          case_id: string
+          content: string
+          created_at: string
+          dismissed_by: string | null
+          id: string
+          insight_type: string
+          is_dismissed: boolean
+          severity: string
+          title: string
+        }
+        Insert: {
+          case_id: string
+          content: string
+          created_at?: string
+          dismissed_by?: string | null
+          id?: string
+          insight_type: string
+          is_dismissed?: boolean
+          severity?: string
+          title: string
+        }
+        Update: {
+          case_id?: string
+          content?: string
+          created_at?: string
+          dismissed_by?: string | null
+          id?: string
+          insight_type?: string
+          is_dismissed?: boolean
+          severity?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coordination_ai_insights_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "coordination_cases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      coordination_case_members: {
+        Row: {
+          case_id: string
+          id: string
+          joined_at: string
+          role: Database["public"]["Enums"]["coordination_role"]
+          user_id: string
+        }
+        Insert: {
+          case_id: string
+          id?: string
+          joined_at?: string
+          role: Database["public"]["Enums"]["coordination_role"]
+          user_id: string
+        }
+        Update: {
+          case_id?: string
+          id?: string
+          joined_at?: string
+          role?: Database["public"]["Enums"]["coordination_role"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coordination_case_members_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "coordination_cases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      coordination_cases: {
+        Row: {
+          created_at: string
+          created_by: string
+          family_id: string
+          id: string
+          status: Database["public"]["Enums"]["coordination_case_status"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          family_id: string
+          id?: string
+          status?: Database["public"]["Enums"]["coordination_case_status"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          family_id?: string
+          id?: string
+          status?: Database["public"]["Enums"]["coordination_case_status"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coordination_cases_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      coordination_channels: {
+        Row: {
+          case_id: string
+          channel_type: Database["public"]["Enums"]["coordination_channel_type"]
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          case_id: string
+          channel_type: Database["public"]["Enums"]["coordination_channel_type"]
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          case_id?: string
+          channel_type?: Database["public"]["Enums"]["coordination_channel_type"]
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coordination_channels_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "coordination_cases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      coordination_messages: {
+        Row: {
+          channel_id: string
+          content: string
+          created_at: string
+          id: string
+          message_type: string
+          metadata: Json | null
+          sender_id: string
+        }
+        Insert: {
+          channel_id: string
+          content: string
+          created_at?: string
+          id?: string
+          message_type?: string
+          metadata?: Json | null
+          sender_id: string
+        }
+        Update: {
+          channel_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          message_type?: string
+          metadata?: Json | null
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coordination_messages_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "coordination_channels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      coordination_tasks: {
+        Row: {
+          assigned_to: string | null
+          case_id: string
+          channel_id: string | null
+          completed_at: string | null
+          created_at: string
+          created_by: string
+          description: string | null
+          due_date: string | null
+          id: string
+          priority: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          case_id: string
+          channel_id?: string | null
+          completed_at?: string | null
+          created_at?: string
+          created_by: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          priority?: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_to?: string | null
+          case_id?: string
+          channel_id?: string | null
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          priority?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coordination_tasks_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "coordination_cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "coordination_tasks_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "coordination_channels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       crm_activities: {
         Row: {
           activity_type: string
@@ -5163,6 +5413,10 @@ export type Database = {
         Args: { checkin_time: string }
         Returns: string
       }
+      can_access_coordination_channel: {
+        Args: { _channel_id: string; _user_id: string }
+        Returns: boolean
+      }
       can_approve_in_family: {
         Args: { _family_id: string; _user_id: string }
         Returns: boolean
@@ -5365,6 +5619,14 @@ export type Database = {
         Args: { _conversation_id: string; _user_id: string }
         Returns: boolean
       }
+      is_coordination_case_member: {
+        Args: { _case_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_coordination_provider: {
+        Args: { _case_id: string; _user_id: string }
+        Returns: boolean
+      }
       is_family_admin_or_moderator: {
         Args: { _family_id: string; _user_id: string }
         Returns: boolean
@@ -5469,6 +5731,15 @@ export type Database = {
         | "outpatient"
         | "sober_living"
         | "independent"
+      coordination_case_status: "active" | "paused" | "closed"
+      coordination_channel_type: "family" | "provider" | "ai_analysis"
+      coordination_role:
+        | "interventionist"
+        | "clinician"
+        | "treatment_provider"
+        | "case_manager"
+        | "family_member"
+        | "admin"
       crm_pipeline_stage:
         | "lead"
         | "contacted"
@@ -5672,6 +5943,16 @@ export const Constants = {
         "outpatient",
         "sober_living",
         "independent",
+      ],
+      coordination_case_status: ["active", "paused", "closed"],
+      coordination_channel_type: ["family", "provider", "ai_analysis"],
+      coordination_role: [
+        "interventionist",
+        "clinician",
+        "treatment_provider",
+        "case_manager",
+        "family_member",
+        "admin",
       ],
       crm_pipeline_stage: [
         "lead",
