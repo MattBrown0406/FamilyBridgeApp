@@ -515,6 +515,21 @@ export default function AILearningLayerStage2() {
           </CardContent>
         </Card>
 
+        {/* Navigation to Governance */}
+        <Card className="border-primary/20">
+          <CardContent className="py-4 px-4 flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-foreground">AI Governance System</p>
+              <p className="text-xs text-muted-foreground">
+                See how adaptation is governed — stability engine, proportional limits, and admin controls.
+              </p>
+            </div>
+            <Button variant="outline" onClick={() => navigate('/ai-learning/governance')}>
+              View Governance <ChevronRight className="h-4 w-4 ml-1" />
+            </Button>
+          </CardContent>
+        </Card>
+
         {/* CTA */}
         <div className="text-center py-6">
           <p className="text-sm text-muted-foreground mb-3">

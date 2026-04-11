@@ -37,6 +37,7 @@ import PostInterventionContinuity from "./pages/PostInterventionContinuity";
 import OutcomePredictions from "./pages/OutcomePredictions";
 import AILearningLayer from "./pages/AILearningLayer";
 import AILearningLayerStage2 from "./pages/AILearningLayerStage2";
+import AIGovernance from "./pages/AIGovernance";
 import FIISIntelligence from "./pages/features/FIISIntelligence";
 import RecoveryTrajectory from "./pages/features/RecoveryTrajectory";
 import DocumentAnalysis from "./pages/features/DocumentAnalysis";
@@ -105,6 +106,7 @@ const App = () => {
               <Route path="/outcome-predictions" element={<OutcomePredictions />} />
               <Route path="/ai-learning" element={<AILearningLayer />} />
               <Route path="/ai-learning/stage-2" element={<AILearningLayerStage2 />} />
+              <Route path="/ai-learning/governance" element={<AIGovernance />} />
               <Route path="/features/fiis-intelligence" element={<FIISIntelligence />} />
               <Route path="/features/recovery-trajectory" element={<RecoveryTrajectory />} />
               <Route path="/features/document-analysis" element={<DocumentAnalysis />} />
