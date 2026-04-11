@@ -105,6 +105,45 @@ const Index = () => {
     },
   ];
 
+  const tourCategories = [
+    {
+      tab: 'Recovery Intelligence',
+      tabIcon: Brain,
+      headline: 'AI That Understands Recovery',
+      description: 'FIIS analyzes behavioral patterns, emotional signals, and system-wide data to surface insights that help families and providers act with precision—not guesswork.',
+      capabilities: [
+        { icon: Brain, label: 'FIIS Pattern Detection', desc: 'Identifies emotional shifts and behavioral signals before crises emerge' },
+        { icon: Activity, label: 'Recovery Trajectory', desc: 'Tracks stability over 7, 30, 90-day and all-time windows' },
+        { icon: Crosshair, label: 'Intervention Readiness', desc: 'Detects when resistance is weakening and timing is optimal', badge: 'Patent Pending' },
+        { icon: Mic, label: 'Conversation Coaching', desc: 'Real-time de-escalation guidance during difficult conversations', badge: 'Patent Pending' },
+      ],
+    },
+    {
+      tab: 'Accountability',
+      tabIcon: Target,
+      headline: 'Everyone Stays Aligned',
+      description: 'The Accountability Engine tracks commitments, scores behavioral consistency, and ensures families and providers are doing what they agreed to do—with direct, professional feedback.',
+      capabilities: [
+        { icon: Target, label: 'Family Accountability Score', desc: 'Tracks boundary adherence, emotional regulation, and follow-through' },
+        { icon: Shield, label: 'Provider Performance', desc: 'Measures response times, update frequency, and milestone completion' },
+        { icon: Users, label: 'System Alignment', desc: 'Unified view of individual, family, and provider coordination' },
+        { icon: FileText, label: 'Behavioral Contracts', desc: 'Formal agreements with tracked adherence for all parties' },
+      ],
+    },
+    {
+      tab: 'Prediction & Action',
+      tabIcon: BarChart3,
+      headline: 'See What\'s Coming Next',
+      description: 'The Outcome Prediction Engine analyzes data across every system to forecast treatment completion, relapse risk, and system failures—and tells you exactly what to do about it.',
+      capabilities: [
+        { icon: BarChart3, label: 'Outcome Predictions', desc: 'Treatment completion, relapse risk, and system failure probabilities' },
+        { icon: Zap, label: 'Actionable Insights', desc: 'What to do, what to avoid, and why risk is changing' },
+        { icon: GitBranch, label: 'Care Transitions', desc: 'Seamless provider handoffs with outcome tracking' },
+        { icon: Vote, label: 'Financial Coordination', desc: 'Family voting, receipt tracking, and pledge management' },
+      ],
+    },
+  ];
+
   const stats = [
     { value: '365', label: 'Day Recovery Goal' },
     { value: '24/7', label: 'FIIS Monitoring' },
