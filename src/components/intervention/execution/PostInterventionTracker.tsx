@@ -32,7 +32,6 @@ export const PostInterventionTracker = () => {
   const navigate = useNavigate();
   const [acceptedChecked, setAcceptedChecked] = useState<Record<string, boolean>>({});
   const [declinedChecked, setDeclinedChecked] = useState<Record<string, boolean>>({});
-  const [declinedChecked, setDeclinedChecked] = useState<Record<string, boolean>>({});
 
   return (
     <Card>
