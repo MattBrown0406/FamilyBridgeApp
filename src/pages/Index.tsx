@@ -1,106 +1,22 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usePlatform } from '@/hooks/usePlatform';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { useOrganization } from '@/hooks/useOrganization';
-import { useProviderAdmin } from '@/hooks/useProviderAdmin';
 import { BrandedHeader } from '@/components/BrandedHeader';
 import { BrandedFooter } from '@/components/BrandedFooter';
 import { SEOHead, createOrganizationSchema } from '@/components/SEOHead';
+import FeatureTiers from '@/components/home/FeatureTiers';
+import GovernanceTrustBanner from '@/components/home/GovernanceTrustBanner';
+import AdditionalTools from '@/components/home/AdditionalTools';
 import {
-  Shield, Users, ArrowRight, Building2, Check, LogOut, Brain,
-  Heart, FileText, Pill, GitBranch, Activity, Vote, Mic, Crosshair,
-  Target, BarChart3, Zap, ChevronRight, Eye, MessageSquare, ClipboardCheck,
-  AlertTriangle
+  ArrowRight, Building2, Check, LogOut, Heart,
 } from 'lucide-react';
-
-const journeySteps = [
-  {
-    question: "What's really happening?",
-    answer: 'FIIS detects behavioral shifts, emotional patterns, and risk signals across your entire family system — before a crisis hits.',
-    icon: Brain,
-    color: 'from-violet-500 to-purple-600',
-    features: [
-      { label: 'Emotional pattern detection', icon: Eye },
-      { label: 'Recovery trajectory tracking', icon: Activity },
-      { label: 'Smart document analysis', icon: FileText },
-    ],
-    link: '/features/fiis-intelligence',
-  },
-  {
-    question: 'Is it time to intervene?',
-    answer: 'The Readiness Engine identifies when resistance is weakening and intervention timing is optimal — so you act at the right moment, not the emotional one.',
-    icon: Crosshair,
-    color: 'from-rose-500 to-orange-500',
-    features: [
-      { label: 'Readiness scoring (0-100)', icon: Target },
-      { label: 'Execution planning', icon: Zap },
-      { label: 'Real-time conversation coaching', icon: Mic },
-    ],
-    link: '/intervention-readiness',
-  },
-  {
-    question: 'Is everyone doing their part?',
-    answer: 'The Accountability Engine scores behavioral consistency for families and providers — ensuring commitments are kept, not just made.',
-    icon: Target,
-    color: 'from-amber-500 to-orange-500',
-    features: [
-      { label: 'Family accountability scoring', icon: Users },
-      { label: 'Provider performance tracking', icon: Shield },
-      { label: 'Behavioral contracts', icon: FileText },
-    ],
-    link: '/accountability-engine?demo=true',
-  },
-  {
-    question: "What's going to happen next?",
-    answer: 'The Outcome Prediction Engine forecasts treatment completion, relapse risk, and system failures — and tells you exactly what to change.',
-    icon: BarChart3,
-    color: 'from-emerald-500 to-teal-600',
-    features: [
-      { label: 'Treatment completion probability', icon: BarChart3 },
-      { label: 'Relapse risk forecasting', icon: Activity },
-      { label: 'Actionable recommendations', icon: Zap },
-    ],
-    link: '/outcome-predictions?demo=true',
-  },
-  {
-    question: 'What has the platform learned?',
-    answer: 'The AI Learning Layer identifies what tends to work and what tends to fail — using privacy-safe, de-identified pattern learning across all cases.',
-    icon: Brain,
-    color: 'from-blue-500 to-indigo-600',
-    features: [
-      { label: 'Privacy-preserving insights', icon: Shield },
-      { label: 'Cross-case pattern learning', icon: Eye },
-      { label: 'Recommendation evolution', icon: Activity },
-    ],
-    link: '/ai-learning',
-  },
-  {
-    question: 'Is the data accurate?',
-    answer: 'The Input Reconciliation System detects vague, incomplete, or contradictory input — and prompts for the clarity needed to keep guidance accurate.',
-    icon: ClipboardCheck,
-    color: 'from-slate-500 to-gray-700',
-    features: [
-      { label: 'Contradiction detection', icon: AlertTriangle },
-      { label: 'Depth prompting', icon: MessageSquare },
-      { label: 'Data confidence scoring', icon: BarChart3 },
-    ],
-    link: '/input-reconciliation',
-  },
-];
 
 const trustSignals = [
   { value: 'HIPAA', label: 'Compliant' },
   { value: '24/7', label: 'AI Monitoring' },
   { value: '365', label: 'Day Journey' },
-];
-
-const additionalTools = [
-  { icon: Pill, label: 'Medication Compliance', desc: 'AI label scanning & dose tracking', link: '/features/medication-compliance' },
-  { icon: Vote, label: 'Financial Coordination', desc: 'Family voting & receipt tracking', link: '/features/financial-coordination' },
-  { icon: GitBranch, label: 'Care Transitions', desc: 'Seamless provider handoffs', link: '/features/care-transitions' },
-  { icon: MessageSquare, label: 'Conversation Coaching', desc: 'Real-time de-escalation', link: '/features/conversation-coaching' },
 ];
 
 const Index = () => {
@@ -109,13 +25,10 @@ const Index = () => {
   const navigate = useNavigate();
   const { isNative, isIOS } = usePlatform();
   const paymentsWebOnly = isNative && isIOS;
-  const [activeStep, setActiveStep] = useState(0);
 
   const tagline = isWhiteLabeled && organization?.tagline
     ? organization.tagline
     : 'A safe space for families affected by addiction to communicate, set boundaries, and support their loved ones on the path to recovery.';
-
-  const activeJourney = journeySteps[activeStep];
 
   return (
     <div className="min-h-screen bg-background">
@@ -198,110 +111,14 @@ const Index = () => {
         </div>
       </section>
 
-      {/* JOURNEY — Interactive Question-Driven Feature Tour */}
-      <section className="py-12 sm:py-20">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-8 sm:mb-12">
-            <p className="text-xs sm:text-sm font-medium text-primary uppercase tracking-wider mb-2">The Questions That Matter</p>
-            <h2 className="text-2xl sm:text-4xl font-display font-bold text-foreground">
-              Four questions. One intelligent system.
-            </h2>
-          </div>
+      {/* TIERED FEATURE SHOWCASE */}
+      <FeatureTiers />
 
-          <div className="max-w-5xl mx-auto">
-            {/* Step selector */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-6 sm:mb-8">
-              {journeySteps.map((step, i) => (
-                <button
-                  key={i}
-                  onClick={() => setActiveStep(i)}
-                  className={`relative text-left p-3 sm:p-4 rounded-xl border transition-all duration-300 ${
-                    activeStep === i
-                      ? 'bg-card border-primary/40 shadow-md ring-1 ring-primary/20'
-                      : 'bg-card/50 border-border/50 hover:border-border hover:bg-card/80'
-                  }`}
-                >
-                  {activeStep === i && (
-                    <div className={`absolute top-0 left-3 right-3 h-0.5 rounded-full bg-gradient-to-r ${step.color}`} />
-                  )}
-                  <div className="flex items-center gap-2 mb-1.5">
-                    <span className={`text-xs font-bold ${activeStep === i ? 'text-primary' : 'text-muted-foreground'}`}>
-                      {String(i + 1).padStart(2, '0')}
-                    </span>
-                  </div>
-                  <p className={`text-xs sm:text-sm font-semibold leading-tight ${activeStep === i ? 'text-foreground' : 'text-muted-foreground'}`}>
-                    {step.question}
-                  </p>
-                </button>
-              ))}
-            </div>
+      {/* AI GOVERNANCE TRUST BANNER */}
+      <GovernanceTrustBanner />
 
-            {/* Active step detail */}
-            <div className="bg-card border border-border/50 rounded-2xl p-5 sm:p-8 shadow-sm">
-              <div className="flex flex-col md:flex-row gap-6 md:gap-10">
-                <div className="flex-1">
-                  <div className={`inline-flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br ${activeJourney.color} mb-4`}>
-                    <activeJourney.icon className="h-5 w-5 text-white" />
-                  </div>
-                  <h3 className="text-xl sm:text-2xl font-display font-bold text-foreground mb-3">
-                    {activeJourney.question}
-                  </h3>
-                  <p className="text-sm sm:text-base text-muted-foreground leading-relaxed mb-5">
-                    {activeJourney.answer}
-                  </p>
-                  <Button variant="outline" size="sm" className="group" onClick={() => navigate(activeJourney.link)}>
-                    Explore
-                    <ChevronRight className="h-3.5 w-3.5 ml-1 group-hover:translate-x-0.5 transition-transform" />
-                  </Button>
-                </div>
-                <div className="md:w-64 flex flex-col gap-2.5">
-                  {activeJourney.features.map((f) => {
-                    const FeatureIcon = f.icon;
-                    return (
-                      <div key={f.label} className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border border-border/30">
-                        <div className="w-8 h-8 rounded-md bg-primary/10 flex items-center justify-center shrink-0">
-                          <FeatureIcon className="h-4 w-4 text-primary" />
-                        </div>
-                        <span className="text-sm font-medium text-foreground">{f.label}</span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* MORE TOOLS */}
-      <section className="py-10 sm:py-16 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-6 sm:mb-8">
-            <h2 className="text-xl sm:text-3xl font-display font-bold text-foreground mb-2">
-              And everything else you need
-            </h2>
-            <p className="text-sm text-muted-foreground">Purpose-built tools across the full recovery journey.</p>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-4xl mx-auto">
-            {additionalTools.map((tool) => {
-              const ToolIcon = tool.icon;
-              return (
-                <div
-                  key={tool.label}
-                  className="group p-4 rounded-xl bg-card border border-border/50 hover:border-primary/30 hover:shadow-md transition-all duration-200 cursor-pointer"
-                  onClick={() => navigate(tool.link)}
-                >
-                  <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center mb-3 group-hover:bg-primary/15 transition-colors">
-                    <ToolIcon className="h-4 w-4 text-primary" />
-                  </div>
-                  <h3 className="text-sm font-semibold text-foreground mb-0.5">{tool.label}</h3>
-                  <p className="text-xs text-muted-foreground leading-relaxed">{tool.desc}</p>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
+      {/* ADDITIONAL TOOLS */}
+      <AdditionalTools />
 
       {/* PROVIDER CTA */}
       <section className="py-12 sm:py-20">
