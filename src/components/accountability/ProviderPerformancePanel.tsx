@@ -42,11 +42,27 @@ export const ProviderPerformancePanel = ({
                     <Clock className="h-3.5 w-3.5" />
                     Performance factors
                   </h4>
-                  <ul className="space-y-1.5">
+                  <ul className="space-y-2">
                     {factors.map((f: any, i: number) => (
-                      <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
-                        <span className="text-foreground">•</span>
-                        <span>{typeof f === 'string' ? f : f.description || f.reason || JSON.stringify(f)}</span>
+                      <li key={i} className="text-sm flex items-start gap-2">
+                        <span className="text-foreground mt-0.5">•</span>
+                        <div>
+                          {typeof f === 'string' ? (
+                            <span className="text-muted-foreground">{f}</span>
+                          ) : f.name ? (
+                            <>
+                              <span className="font-medium text-foreground">{f.name}</span>
+                              {f.score != null && (
+                                <span className={`ml-1.5 text-xs font-semibold ${f.score >= 80 ? 'text-emerald-600' : f.score >= 60 ? 'text-amber-600' : 'text-destructive'}`}>
+                                  {f.score}/100
+                                </span>
+                              )}
+                              {f.detail && <p className="text-muted-foreground text-xs mt-0.5">{f.detail}</p>}
+                            </>
+                          ) : (
+                            <span className="text-muted-foreground">{f.description || f.reason || JSON.stringify(f)}</span>
+                          )}
+                        </div>
                       </li>
                     ))}
                   </ul>
