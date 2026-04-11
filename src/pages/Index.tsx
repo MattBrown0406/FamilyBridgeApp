@@ -49,7 +49,7 @@ const journeySteps = [
       { label: 'Provider performance tracking', icon: Shield },
       { label: 'Behavioral contracts', icon: FileText },
     ],
-    link: '/accountability-engine',
+    link: '/accountability-engine?demo=true',
   },
   {
     question: "What's going to happen next?",
