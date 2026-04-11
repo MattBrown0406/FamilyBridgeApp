@@ -18,6 +18,7 @@ import {
   Loader2,
   Users,
   Settings,
+  Activity,
 } from 'lucide-react';
 import { ProviderNotesPanel } from '@/components/ProviderNotesPanel';
 import { ProviderMessaging } from '@/components/ProviderMessaging';
@@ -194,6 +195,15 @@ const ProviderWorkspace = () => {
                 </SelectContent>
               </Select>
             )}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate('/accountability-engine')}
+              className="gap-1"
+            >
+              <Activity className="h-4 w-4" />
+              <span className="hidden sm:inline">Accountability</span>
+            </Button>
             <Button
               variant="outline"
               size="sm"
