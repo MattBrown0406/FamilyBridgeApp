@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, RefreshCw, Brain, AlertTriangle, TrendingUp, Lightbulb } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { ArrowLeft, RefreshCw, Brain, AlertTriangle, TrendingUp, Lightbulb, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -13,14 +14,19 @@ import { ActionableInsightPanel } from '@/components/predictions/ActionableInsig
 import { PredictionAlerts } from '@/components/predictions/PredictionAlerts';
 import { TrajectoryChart } from '@/components/predictions/TrajectoryChart';
 import { SystemAlignmentInsight } from '@/components/predictions/SystemAlignmentInsight';
+import {
+  demoPredictions, demoPredictionAlerts, demoHistoricalData,
+} from '@/data/predictionsDemoData';
 
 export default function OutcomePredictions() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const isDemo = searchParams.get('demo') === 'true';
   const [familyId, setFamilyId] = useState<string>();
 
   useEffect(() => {
-    if (!user) return;
+    if (isDemo || !user) return;
     supabase
       .from('family_members')
       .select('family_id')
@@ -29,18 +35,26 @@ export default function OutcomePredictions() {
       .limit(1)
       .single()
       .then(({ data }) => { if (data) setFamilyId(data.family_id); });
-  }, [user]);
+  }, [user, isDemo]);
 
   const {
     predictions, alerts, loading, calculating,
     calculatePredictions, dismissAlert, getHistorical,
-  } = useOutcomePredictions(familyId);
+  } = useOutcomePredictions(isDemo ? undefined : familyId);
 
-  // Aggregate risk drivers and protective factors
-  const allDrivers = [...new Set(predictions.flatMap(p => p.risk_drivers || []))].slice(0, 5);
-  const allFactors = [...new Set(predictions.flatMap(p => p.protective_factors || []))].slice(0, 5);
+  // Demo mode helpers
+  const demoGetHistorical = useCallback(async (type: string) => {
+    return demoHistoricalData[type] || demoHistoricalData.treatment_completion;
+  }, []);
 
-  if (!user) {
+  const activePredictions = isDemo ? demoPredictions : predictions;
+  const activeAlerts = isDemo ? demoPredictionAlerts : alerts;
+  const activeGetHistorical = isDemo ? demoGetHistorical : getHistorical;
+
+  const allDrivers = [...new Set(activePredictions.flatMap(p => p.risk_drivers || []))].slice(0, 5);
+  const allFactors = [...new Set(activePredictions.flatMap(p => p.protective_factors || []))].slice(0, 5);
+
+  if (!isDemo && !user) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <p className="text-muted-foreground">Please sign in to access predictions.</p>
@@ -48,41 +62,57 @@ export default function OutcomePredictions() {
     );
   }
 
+  const showContent = isDemo || activePredictions.length > 0;
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="border-b bg-card sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+            <Button variant="ghost" size="icon" onClick={() => navigate(isDemo ? '/' : -1 as any)}>
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div>
               <h1 className="text-lg font-bold flex items-center gap-2">
                 <Brain className="h-5 w-5 text-primary" />
                 Outcome Predictions
+                {isDemo && (
+                  <Badge variant="outline" className="gap-1 text-xs border-primary/30 text-primary">
+                    <Eye className="h-3 w-3" />
+                    Demo
+                  </Badge>
+                )}
               </h1>
-              <p className="text-xs text-muted-foreground">Forward-looking recovery intelligence</p>
+              <p className="text-xs text-muted-foreground">
+                {isDemo ? 'Brown Family — Sample prediction data' : 'Forward-looking recovery intelligence'}
+              </p>
             </div>
           </div>
-          <Button size="sm" onClick={calculatePredictions} disabled={calculating || !familyId}>
-            <RefreshCw className={`h-4 w-4 mr-1.5 ${calculating ? 'animate-spin' : ''}`} />
-            {calculating ? 'Calculating...' : 'Calculate'}
-          </Button>
+          {isDemo ? (
+            <Button size="sm" onClick={() => navigate('/family-purchase')}>
+              Get Started
+            </Button>
+          ) : (
+            <Button size="sm" onClick={calculatePredictions} disabled={calculating || !familyId}>
+              <RefreshCw className={`h-4 w-4 mr-1.5 ${calculating ? 'animate-spin' : ''}`} />
+              {calculating ? 'Calculating...' : 'Calculate'}
+            </Button>
+          )}
         </div>
       </div>
 
       <div className="max-w-4xl mx-auto px-4 py-4 space-y-4">
         {/* Alerts */}
-        <PredictionAlerts alerts={alerts} onDismiss={dismissAlert} />
+        <PredictionAlerts alerts={activeAlerts} onDismiss={isDemo ? async () => {} : dismissAlert} />
 
-        {!familyId ? (
+        {!isDemo && !familyId ? (
           <div className="text-center py-12 text-muted-foreground text-sm">
             No eligible family found. You need to be a non-recovering family member to view predictions.
           </div>
-        ) : loading ? (
+        ) : !isDemo && loading ? (
           <div className="text-center py-12 text-muted-foreground text-sm">Loading predictions...</div>
-        ) : predictions.length === 0 ? (
+        ) : !showContent ? (
           <div className="text-center py-12 space-y-3">
             <Brain className="h-10 w-10 mx-auto text-muted-foreground" />
             <p className="text-muted-foreground text-sm">No predictions calculated yet.</p>
@@ -110,9 +140,9 @@ export default function OutcomePredictions() {
 
             <TabsContent value="overview" className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {predictions.map(p => <OutcomePredictionCard key={p.id} prediction={p} />)}
+                {activePredictions.map(p => <OutcomePredictionCard key={p.id} prediction={p} />)}
               </div>
-              <SystemAlignmentInsight predictions={predictions} />
+              <SystemAlignmentInsight predictions={activePredictions} />
             </TabsContent>
 
             <TabsContent value="risk" className="space-y-4">
@@ -122,17 +152,17 @@ export default function OutcomePredictions() {
               </div>
               <div className="p-3 rounded-lg border bg-muted/30">
                 <p className="text-xs text-muted-foreground italic">
-                  Predictions are directional estimates based on available behavioral data. They support decision-making but do not guarantee outcomes. Patterns may shift if current trends reverse.
+                  Predictions are directional estimates based on available behavioral data. They support decision-making but do not guarantee outcomes.
                 </p>
               </div>
             </TabsContent>
 
             <TabsContent value="trajectory">
-              <TrajectoryChart getHistorical={getHistorical} />
+              <TrajectoryChart getHistorical={activeGetHistorical} />
             </TabsContent>
 
             <TabsContent value="actions">
-              <ActionableInsightPanel predictions={predictions} />
+              <ActionableInsightPanel predictions={activePredictions} />
             </TabsContent>
           </Tabs>
         )}
