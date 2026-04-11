@@ -32,6 +32,7 @@ import SignHIPAA from "./pages/SignHIPAA";
 import UpdatePayment from "./pages/UpdatePayment";
 import InterventionReadiness from "./pages/InterventionReadiness";
 import InterventionExecution from "./pages/InterventionExecution";
+import AccountabilityEngine from "./pages/AccountabilityEngine";
 import PostInterventionContinuity from "./pages/PostInterventionContinuity";
 import FIISIntelligence from "./pages/features/FIISIntelligence";
 import RecoveryTrajectory from "./pages/features/RecoveryTrajectory";
