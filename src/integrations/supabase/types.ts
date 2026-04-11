@@ -2397,6 +2397,263 @@ export type Database = {
           },
         ]
       }
+      intervention_alerts: {
+        Row: {
+          contributing_signals: string[] | null
+          created_at: string
+          explanation: string | null
+          family_id: string
+          id: string
+          is_dismissed: boolean
+          profile_id: string
+          threshold: number
+          title: string
+          urgency: string
+        }
+        Insert: {
+          contributing_signals?: string[] | null
+          created_at?: string
+          explanation?: string | null
+          family_id: string
+          id?: string
+          is_dismissed?: boolean
+          profile_id: string
+          threshold: number
+          title: string
+          urgency?: string
+        }
+        Update: {
+          contributing_signals?: string[] | null
+          created_at?: string
+          explanation?: string | null
+          family_id?: string
+          id?: string
+          is_dismissed?: boolean
+          profile_id?: string
+          threshold?: number
+          title?: string
+          urgency?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "intervention_alerts_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "intervention_alerts_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "intervention_readiness_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      intervention_clinician_notes: {
+        Row: {
+          category: string | null
+          created_at: string
+          created_by: string
+          family_id: string
+          follow_up: boolean
+          id: string
+          note_type: string
+          profile_id: string
+          text: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          created_by: string
+          family_id: string
+          follow_up?: boolean
+          id?: string
+          note_type?: string
+          profile_id: string
+          text: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          created_by?: string
+          family_id?: string
+          follow_up?: boolean
+          id?: string
+          note_type?: string
+          profile_id?: string
+          text?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "intervention_clinician_notes_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "intervention_clinician_notes_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "intervention_readiness_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      intervention_readiness_profiles: {
+        Row: {
+          case_status: string
+          client_name: string
+          created_at: string
+          created_by: string
+          family_id: string
+          id: string
+          summary: string | null
+          updated_at: string
+        }
+        Insert: {
+          case_status?: string
+          client_name: string
+          created_at?: string
+          created_by: string
+          family_id: string
+          id?: string
+          summary?: string | null
+          updated_at?: string
+        }
+        Update: {
+          case_status?: string
+          client_name?: string
+          created_at?: string
+          created_by?: string
+          family_id?: string
+          id?: string
+          summary?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "intervention_readiness_profiles_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      intervention_readiness_scores: {
+        Row: {
+          consequence_awareness: number
+          created_at: string
+          distress: number
+          family_id: string
+          help_proximity: number
+          id: string
+          instability: number
+          profile_id: string
+          recorded_at: string
+          resistance_fatigue: number
+          status_label: string
+          total_score: number
+        }
+        Insert: {
+          consequence_awareness?: number
+          created_at?: string
+          distress?: number
+          family_id: string
+          help_proximity?: number
+          id?: string
+          instability?: number
+          profile_id: string
+          recorded_at?: string
+          resistance_fatigue?: number
+          status_label?: string
+          total_score?: number
+        }
+        Update: {
+          consequence_awareness?: number
+          created_at?: string
+          distress?: number
+          family_id?: string
+          help_proximity?: number
+          id?: string
+          instability?: number
+          profile_id?: string
+          recorded_at?: string
+          resistance_fatigue?: number
+          status_label?: string
+          total_score?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "intervention_readiness_scores_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "intervention_readiness_scores_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "intervention_readiness_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      intervention_signals: {
+        Row: {
+          category_tags: string[]
+          created_at: string
+          created_by: string
+          description: string
+          family_id: string
+          id: string
+          impact_direction: string
+          profile_id: string
+          source_type: string
+        }
+        Insert: {
+          category_tags?: string[]
+          created_at?: string
+          created_by: string
+          description: string
+          family_id: string
+          id?: string
+          impact_direction?: string
+          profile_id: string
+          source_type?: string
+        }
+        Update: {
+          category_tags?: string[]
+          created_at?: string
+          created_by?: string
+          description?: string
+          family_id?: string
+          id?: string
+          impact_direction?: string
+          profile_id?: string
+          source_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "intervention_signals_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "intervention_signals_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "intervention_readiness_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       liquor_license_warnings: {
         Row: {
           acknowledged_at: string | null
@@ -5138,6 +5395,10 @@ export type Database = {
       }
       is_moderator_of_family_member: {
         Args: { _member_id: string; _moderator_id: string }
+        Returns: boolean
+      }
+      is_non_recovering_family_member: {
+        Args: { _family_id: string; _user_id: string }
         Returns: boolean
       }
       is_org_admin: {
