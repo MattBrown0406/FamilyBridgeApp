@@ -2,27 +2,34 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useProviderAdmin } from '@/hooks/useProviderAdmin';
+import { useOrganizationBranding } from '@/hooks/useOrganizationBranding';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { toast } from '@/components/ui/use-toast';
-import { ArrowLeft, Plus, Loader2, Shield, Users, Brain, ListTodo } from 'lucide-react';
+import { ArrowLeft, Plus, Loader2, Shield, Users } from 'lucide-react';
 import { CoordinationCaseList } from '@/components/coordination/CoordinationCaseList';
 import { CoordinationCaseView } from '@/components/coordination/CoordinationCaseView';
 import { CreateCaseDialog } from '@/components/coordination/CreateCaseDialog';
+import familyBridgeLogo from '@/assets/familybridge-logo.png';
 
 const ProviderCoordination = () => {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
   const { organizations, isLoading: orgsLoading, isProvider } = useProviderAdmin();
+  const { branding, applyBranding, resetBranding } = useOrganizationBranding();
   const [selectedCaseId, setSelectedCaseId] = useState<string | null>(null);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) navigate('/auth');
   }, [user, authLoading, navigate]);
+
+  // Apply org branding
+  useEffect(() => {
+    applyBranding();
+    return () => resetBranding();
+  }, [branding]);
 
   if (authLoading || orgsLoading) {
     return (
@@ -49,6 +56,9 @@ const ProviderCoordination = () => {
     );
   }
 
+  const currentOrg = organizations[0];
+  const logoUrl = currentOrg?.logo_url || familyBridgeLogo;
+
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b bg-card px-4 py-3">
@@ -57,8 +67,15 @@ const ProviderCoordination = () => {
             <Button variant="ghost" size="icon" onClick={() => navigate('/provider-workspace')}>
               <ArrowLeft className="h-5 w-5" />
             </Button>
+            <img
+              src={logoUrl}
+              alt={currentOrg?.name || 'Provider'}
+              className="h-8 object-contain"
+            />
             <div>
-              <h1 className="text-xl font-bold text-foreground">Provider Coordination</h1>
+              <h1 className="text-xl font-bold text-foreground">
+                {currentOrg?.name ? `${currentOrg.name} Coordination` : 'Provider Coordination'}
+              </h1>
               <p className="text-sm text-muted-foreground">
                 Unified communication & care coordination
               </p>
