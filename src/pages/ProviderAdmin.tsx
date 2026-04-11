@@ -1125,38 +1125,31 @@ const ProviderAdmin = () => {
     <div className="min-h-screen bg-background">
       {/* Header with org branding */}
       <header className="border-b border-border bg-primary text-primary-foreground">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+        <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <img 
                   src={branding?.logo_url || familyBridgeLogo} 
                   alt={branding?.name || "FamilyBridge"} 
                   className="h-7 w-auto object-contain" 
                 />
-                <span className="text-xl font-display font-semibold">
+                <span className="text-lg sm:text-xl font-display font-semibold truncate max-w-[150px] sm:max-w-none">
                   {branding?.name || "Provider Admin"}
                 </span>
               </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={() => navigate('/super-admin')}
-                className="text-primary-foreground hover:bg-primary-foreground/10"
-              >
-                <Shield className="h-4 w-4" />
-                <span className="hidden sm:inline ml-2">Super Admin</span>
+              <Button variant="ghost" size="sm" onClick={() => navigate('/dashboard')} className="sm:hidden text-primary-foreground hover:bg-primary-foreground/10">
+                <ArrowLeft className="h-4 w-4" />
               </Button>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={() => navigate('/moderator-dashboard')}
-                className="text-primary-foreground hover:bg-primary-foreground/10"
-              >
+            </div>
+            <div className="flex items-center gap-1 sm:gap-2 overflow-x-auto pb-1 sm:pb-0">
+              <Button variant="ghost" size="sm" onClick={() => navigate('/super-admin')} className="text-primary-foreground hover:bg-primary-foreground/10 shrink-0">
+                <Shield className="h-4 w-4" />
+                <span className="hidden md:inline ml-2">Super Admin</span>
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => navigate('/moderator-dashboard')} className="text-primary-foreground hover:bg-primary-foreground/10 shrink-0">
                 <Users className="h-4 w-4" />
-                <span className="hidden sm:inline ml-2">Moderator</span>
+                <span className="hidden md:inline ml-2">Moderator</span>
               </Button>
               {currentOrg && (
                 <ProviderAdminSupport 
@@ -1174,22 +1167,22 @@ const ProviderAdmin = () => {
                   if (org?.id) params.set('orgId', org.id);
                   navigate(`/support?${params.toString()}`);
                 }}
-                className="text-primary-foreground hover:bg-primary-foreground/10"
+                className="text-primary-foreground hover:bg-primary-foreground/10 shrink-0"
               >
                 <HelpCircle className="h-4 w-4" />
-                <span className="hidden sm:inline ml-2">General Support</span>
+                <span className="hidden md:inline ml-2">Support</span>
               </Button>
-              <Button variant="ghost" size="sm" onClick={() => navigate('/provider-workspace')} className="text-primary-foreground hover:bg-primary-foreground/10">
+              <Button variant="ghost" size="sm" onClick={() => navigate('/provider-workspace')} className="text-primary-foreground hover:bg-primary-foreground/10 shrink-0">
                 <MessageSquare className="h-4 w-4" />
-                <span className="hidden sm:inline ml-2">Workspace</span>
+                <span className="hidden md:inline ml-2">Workspace</span>
               </Button>
-              <Button variant="ghost" size="sm" onClick={() => navigate('/provider-coordination')} className="text-primary-foreground hover:bg-primary-foreground/10">
+              <Button variant="ghost" size="sm" onClick={() => navigate('/provider-coordination')} className="text-primary-foreground hover:bg-primary-foreground/10 shrink-0">
                 <Users className="h-4 w-4" />
-                <span className="hidden sm:inline ml-2">Coordination</span>
+                <span className="hidden md:inline ml-2">Coordination</span>
               </Button>
-              <Button variant="ghost" size="sm" onClick={() => navigate('/dashboard')} className="text-primary-foreground hover:bg-primary-foreground/10">
+              <Button variant="ghost" size="sm" onClick={() => navigate('/dashboard')} className="hidden sm:flex text-primary-foreground hover:bg-primary-foreground/10 shrink-0">
                 <ArrowLeft className="h-4 w-4 mr-2" />
-                <span className="hidden sm:inline">Dashboard</span>
+                <span className="hidden md:inline">Dashboard</span>
               </Button>
             </div>
           </div>
