@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -19,6 +19,7 @@ import {
   type DetectedIssue, type InputConfidence, type TrackingState,
 } from '@/data/inputReconciliationDemoData';
 import { useSuperAdmin } from '@/hooks/useSuperAdmin';
+import { useInputReconciliation, type PlatformHealthData } from '@/hooks/useInputReconciliation';
 import { format } from 'date-fns';
 
 const confidenceBadge = (c: InputConfidence) => {
