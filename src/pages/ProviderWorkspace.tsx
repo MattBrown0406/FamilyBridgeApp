@@ -200,7 +200,25 @@ const ProviderWorkspace = () => {
               className="gap-1"
             >
               <Users className="h-4 w-4" />
-              Coordination Hub
+              <span className="hidden sm:inline">Coordination Hub</span>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate('/provider-admin')}
+              className="gap-1"
+            >
+              <Settings className="h-4 w-4" />
+              <span className="hidden sm:inline">Admin</span>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate('/dashboard')}
+              className="gap-1"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              <span className="hidden sm:inline">Dashboard</span>
             </Button>
           </div>
         </div>
