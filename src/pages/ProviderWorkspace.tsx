@@ -17,6 +17,7 @@ import {
   Building2,
   Loader2,
   Users,
+  Settings,
 } from 'lucide-react';
 import { ProviderNotesPanel } from '@/components/ProviderNotesPanel';
 import { ProviderMessaging } from '@/components/ProviderMessaging';
