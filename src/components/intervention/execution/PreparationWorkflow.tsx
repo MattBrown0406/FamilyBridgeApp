@@ -26,7 +26,7 @@ const prepChecklist = [
   { id: 'interventionist', label: 'Interventionist secured (if applicable)' },
   { id: 'roles', label: 'Family roles identified and assigned' },
   { id: 'letters', label: 'Intervention letters: Impact letters drafted (or in progress)' },
-  { id: 'consequences', label: 'Consequences defined and agreed upon' },
+  { id: 'consequences', label: 'Boundaries and resulting consequences defined and agreed upon' },
   { id: 'timeline', label: 'Target timeline established' },
 ];
 
