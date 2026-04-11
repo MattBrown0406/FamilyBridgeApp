@@ -12,11 +12,18 @@ import { ReadinessTrends } from '@/components/intervention/ReadinessTrends';
 import { ClinicianNotes } from '@/components/intervention/ClinicianNotes';
 import { CaseWorkflow, getSuggestedStatus } from '@/components/intervention/CaseWorkflow';
 import { ScoringLogicPanel } from '@/components/intervention/ScoringLogicPanel';
+import { KeyChangesPanel } from '@/components/intervention/KeyChangesPanel';
+import { TopDriversPanel } from '@/components/intervention/TopDriversPanel';
+import { MisTimingRiskPanel } from '@/components/intervention/MisTimingRiskPanel';
+import { Next72HourStrategyPanel } from '@/components/intervention/Next72HourStrategyPanel';
+import { InterventionPrepChecklist } from '@/components/intervention/InterventionPrepChecklist';
+import { InterventionistModePanel } from '@/components/intervention/InterventionistModePanel';
 import {
   demoClient,
   calculateReadinessScore,
   getStatusLabel,
   getRecommendation,
+  getWindowStability,
 } from '@/data/interventionReadinessData';
 import type { ObservedIndicator, ClinicianNote, CaseStatus } from '@/data/interventionReadinessData';
 import { SEOHead } from '@/components/SEOHead';
@@ -35,6 +42,7 @@ const InterventionReadiness = () => {
   const statusLabel = useMemo(() => getStatusLabel(totalScore), [totalScore]);
   const recommendation = useMemo(() => getRecommendation(totalScore), [totalScore]);
   const suggestedStatus = useMemo(() => getSuggestedStatus(totalScore), [totalScore]);
+  const windowStability = useMemo(() => getWindowStability(demoClient.history), []);
 
   // Block recovering users from accessing this page
   if (authLoading || roleLoading) {
@@ -69,7 +77,7 @@ const InterventionReadiness = () => {
       />
       <div className="min-h-screen bg-background">
         {/* Top bar */}
-        <div className="border-b bg-card/50">
+        <div className="border-b bg-card/50 sticky top-0 z-10">
           <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Link to="/dashboard">
@@ -87,11 +95,12 @@ const InterventionReadiness = () => {
           {/* Alerts banner */}
           <InterventionAlerts alerts={demoClient.alerts} />
 
-          {/* Header with score */}
+          {/* Header with score + window stability */}
           <ReadinessHeader
             clientName={demoClient.name}
             totalScore={totalScore}
             statusLabel={statusLabel}
+            windowStability={windowStability}
             lastUpdated={demoClient.lastUpdated}
             summary={demoClient.summary}
           />
@@ -103,13 +112,31 @@ const InterventionReadiness = () => {
             onStatusChange={setCaseStatus}
           />
 
+          {/* Key Changes + Top Drivers */}
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+            <KeyChangesPanel changes={demoClient.keyChanges} />
+            <TopDriversPanel drivers={demoClient.topDrivers} />
+          </div>
+
           {/* Five signal cards */}
           <SignalCards signals={signals} />
 
-          {/* Recommendation + Family guidance */}
+          {/* Interventionist Mode */}
+          <InterventionistModePanel insight={demoClient.interventionistInsight} />
+
+          {/* Recommendation + Mis-Timing Risk */}
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
             <RecommendationPanel recommendation={recommendation} statusLabel={statusLabel} />
+            <MisTimingRiskPanel risk={demoClient.misTimingRisk} />
+          </div>
+
+          {/* 72-Hour Strategy */}
+          <Next72HourStrategyPanel strategy={demoClient.next72HourStrategy} />
+
+          {/* Family Guidance + Prep Checklist */}
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
             <FamilyGuidancePanel statusLabel={statusLabel} />
+            <InterventionPrepChecklist items={demoClient.prepChecklist} score={totalScore} />
           </div>
 
           {/* Trends */}

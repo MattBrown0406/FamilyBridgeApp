@@ -1,12 +1,14 @@
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import type { ReadinessStatusLabel } from '@/data/interventionReadinessData';
+import { WindowStabilityBadge } from './WindowStabilityBadge';
+import type { ReadinessStatusLabel, WindowStability } from '@/data/interventionReadinessData';
 
 interface ReadinessHeaderProps {
   clientName: string;
   totalScore: number;
   statusLabel: ReadinessStatusLabel;
+  windowStability: WindowStability;
   lastUpdated: string;
   summary: string;
 }
@@ -25,16 +27,16 @@ const scoreRingColor = (score: number) => {
   return 'stroke-destructive';
 };
 
-export function ReadinessHeader({ clientName, totalScore, statusLabel, lastUpdated, summary }: ReadinessHeaderProps) {
+export function ReadinessHeader({ clientName, totalScore, statusLabel, windowStability, lastUpdated, summary }: ReadinessHeaderProps) {
   const circumference = 2 * Math.PI * 54;
   const offset = circumference - (totalScore / 100) * circumference;
 
   return (
     <Card>
       <CardContent className="p-6">
-        <div className="flex flex-col md:flex-row md:items-center gap-6">
+        <div className="flex flex-col md:flex-row md:items-start gap-6">
           {/* Score ring */}
-          <div className="flex-shrink-0 flex items-center justify-center">
+          <div className="flex-shrink-0 flex flex-col items-center gap-2">
             <div className="relative w-32 h-32">
               <svg className="w-32 h-32 -rotate-90" viewBox="0 0 120 120">
                 <circle cx="60" cy="60" r="54" fill="none" strokeWidth="8" className="stroke-muted" />
@@ -52,6 +54,7 @@ export function ReadinessHeader({ clientName, totalScore, statusLabel, lastUpdat
                 <span className="text-xs text-muted-foreground">/ 100</span>
               </div>
             </div>
+            <WindowStabilityBadge stability={windowStability} />
           </div>
 
           {/* Info */}

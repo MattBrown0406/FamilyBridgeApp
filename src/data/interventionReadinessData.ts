@@ -1,5 +1,7 @@
 export type ReadinessStatusLabel = 'Not Ready' | 'Emerging Window' | 'Active Window' | 'Critical Window';
 
+export type WindowStability = 'Low' | 'Moderate' | 'High';
+
 export type SignalCategoryName =
   | 'Distress Elevation'
   | 'Consequence Awareness'
@@ -91,6 +93,44 @@ export interface ReadinessSnapshot {
   helpProximity: number;
 }
 
+export interface KeyChange {
+  id: string;
+  description: string;
+  delta: string;
+  direction: 'up' | 'down';
+  category: SignalCategoryName;
+}
+
+export interface TopDriver {
+  label: string;
+  explanation: string;
+  category: SignalCategoryName;
+}
+
+export interface MisTimingRisk {
+  tooEarly: string;
+  tooLate: string;
+}
+
+export interface Next72HourStrategy {
+  objective: string;
+  doActions: string[];
+  avoidActions: string[];
+  prepareActions: string[];
+}
+
+export interface PrepChecklistItem {
+  id: string;
+  label: string;
+  completed: boolean;
+}
+
+export interface InterventionistInsight {
+  assessment: string;
+  tacticalNote: string;
+  confidence: string;
+}
+
 export interface ClientProfile {
   id: string;
   name: string;
@@ -98,6 +138,7 @@ export interface ClientProfile {
   lastUpdated: string;
   totalScore: number;
   statusLabel: ReadinessStatusLabel;
+  windowStability: WindowStability;
   summary: string;
   signals: SignalCategory[];
   indicators: ObservedIndicator[];
@@ -105,6 +146,12 @@ export interface ClientProfile {
   alerts: InterventionAlert[];
   notes: ClinicianNote[];
   history: ReadinessSnapshot[];
+  keyChanges: KeyChange[];
+  topDrivers: TopDriver[];
+  misTimingRisk: MisTimingRisk;
+  next72HourStrategy: Next72HourStrategy;
+  prepChecklist: PrepChecklistItem[];
+  interventionistInsight: InterventionistInsight;
 }
 
 export const SIGNAL_WEIGHTS: Record<SignalCategoryName, number> = {
@@ -122,6 +169,18 @@ export function getStatusLabel(score: number): ReadinessStatusLabel {
   return 'Critical Window';
 }
 
+export function getWindowStability(history: ReadinessSnapshot[]): WindowStability {
+  if (history.length < 5) return 'Low';
+  const recent = history.slice(-5);
+  const scores = recent.map(h => h.totalScore);
+  const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
+  const variance = scores.reduce((sum, s) => sum + Math.pow(s - avg, 2), 0) / scores.length;
+  const stdDev = Math.sqrt(variance);
+  if (stdDev > 12) return 'Low';
+  if (stdDev > 6) return 'Moderate';
+  return 'High';
+}
+
 export function calculateReadinessScore(signals: SignalCategory[]): number {
   let total = 0;
   for (const s of signals) {
@@ -133,54 +192,186 @@ export function calculateReadinessScore(signals: SignalCategory[]): number {
 export function getRecommendation(score: number): Recommendation {
   if (score <= 40) {
     return {
-      summary: 'Intervention risk remains high due to active resistance and low help-proximity. The individual is not currently in a receptive window.',
-      actionNow: 'Focus on consistent boundaries and continued observation. Support the family in maintaining their own stability. Document patterns and prepare for future windows.',
-      avoidNow: 'Avoid premature confrontation, emotional appeals, or ultimatums. Do not attempt a formal intervention during this period.',
-      reassessWhen: 'Reassess in 5–7 days or sooner if a significant life event occurs (legal issue, health crisis, relationship break).',
+      summary: 'Resistance is active and denial is intact. The individual is not in a receptive state. Attempting intervention now carries a high probability of rejection and may reinforce defensive patterns.',
+      actionNow: 'Hold boundaries without escalation. Document patterns. Support family members in maintaining their own stability. Begin identifying treatment placement options quietly.',
+      avoidNow: 'Do not confront, lecture, plead, or issue ultimatums. Do not attempt a formal intervention. Any premature action risks hardening resistance further.',
+      reassessWhen: 'Reassess in 5–7 days, or immediately if a significant consequence event occurs (arrest, health crisis, job loss, relationship rupture).',
     };
   }
   if (score <= 65) {
     return {
-      summary: 'Readiness is emerging. Cracks in denial and resistance may be forming. This is a preparation window, not an action window.',
-      actionNow: 'Continue consequence clarity and begin quiet intervention preparation. Identify treatment placement options. Ensure the family team is aligned and ready.',
-      avoidNow: 'Avoid direct pressure, lectures, or emotional confrontation. Do not tip the individual off to intervention planning.',
-      reassessWhen: 'Reassess in 48–72 hours. Monitor for acceleration in distress or help-proximity signals.',
+      summary: 'Cracks are forming. Distress is rising and resistance is softening, but the individual has not yet reached a point of genuine openness. This is a preparation window — not an action window. Move too early and you risk closing what is still opening.',
+      actionNow: 'Begin quiet intervention coordination. Verify treatment bed availability and insurance. Align the family team. Continue holding boundaries — this pressure is working.',
+      avoidNow: 'Do not tip your hand. Avoid emotional appeals, confrontation, or any behavior that signals an upcoming intervention. Do not soften boundaries because "things seem better."',
+      reassessWhen: 'Reassess in 48–72 hours. Watch for acceleration in distress, help-proximity signals, or a triggering event.',
     };
   }
   if (score <= 80) {
     return {
-      summary: 'Readiness is elevated. Multiple signals indicate weakening resistance and increasing consequence awareness. This is an active intervention preparation window.',
-      actionNow: 'Begin active intervention coordination. Confirm treatment placement availability. Finalize intervention team roles. Prepare letters and logistics.',
-      avoidNow: 'Avoid delays that could allow the window to close. Do not allow enabling behaviors to re-stabilize the individual prematurely.',
-      reassessWhen: 'Reassess daily. Be prepared to act within 24–48 hours if signals continue to strengthen.',
+      summary: 'Multiple signals are converging: resistance is weakening, consequence awareness is elevated, and help-proximity behaviors are emerging. This is an active preparation window. The individual is more reachable now than at any recent point.',
+      actionNow: 'Confirm treatment placement and bed availability now. Finalize intervention team roles and logistics. Complete letters. Have bags packed and transportation arranged for immediate departure if accepted.',
+      avoidNow: 'Do not delay. Every hour of inaction risks the window closing. Do not allow enabling behaviors to re-stabilize the situation. Do not negotiate — maintain boundaries firmly.',
+      reassessWhen: 'Reassess daily. Be prepared to execute within 24–48 hours if trajectory holds or strengthens.',
     };
   }
   return {
-    summary: 'A high-probability intervention window is open. Resistance is at its lowest observed level and multiple readiness signals are converging.',
-    actionNow: 'Immediate intervention action is recommended within the next 24–72 hours. Confirm treatment bed availability. Brief the intervention team. Execute the plan.',
-    avoidNow: 'Do not wait. Do not allow the family to second-guess timing. Avoid re-negotiation or wavering on consequences.',
-    reassessWhen: 'Continuous monitoring. If intervention is not executed within 72 hours, reassess whether the window is closing.',
+    summary: 'This is a high-probability intervention window. Resistance is at its lowest observed level. Distress, consequence awareness, and help-proximity are all elevated simultaneously. These conditions rarely sustain — this window will close.',
+    actionNow: 'Execute the intervention plan within 24–72 hours. Confirm bed availability today. Brief the team. The offer should be simple and immediate: "We have a place for you. Will you go today?"',
+    avoidNow: 'Do not wait. Do not allow second-guessing. Do not pile on emotional guilt if they say yes — just move. Avoid negotiation. The answer is yes or no.',
+    reassessWhen: 'Continuous monitoring. If intervention is not executed within 72 hours, assume the window is closing and reassess strategy.',
   };
 }
 
-// Generate realistic 30-day history
+function getMisTimingRisk(score: number): MisTimingRisk {
+  if (score <= 40) {
+    return {
+      tooEarly: 'Resistance is fully active. An intervention now will likely be rejected outright and may reinforce the individual\'s belief that they don\'t need help. It can also fracture family unity if the attempt fails.',
+      tooLate: 'Not applicable at this stage. Focus on building conditions for a future window.',
+    };
+  }
+  if (score <= 65) {
+    return {
+      tooEarly: 'The individual is starting to feel pressure, but denial is still partially intact. Moving now risks a defensive reaction that could reset weeks of progress. The cracks need more time to widen.',
+      tooLate: 'If family members resume enabling behaviors (financial rescue, emotional rescue, softening boundaries), the emerging pressure dissipates. The individual re-stabilizes and the window closes.',
+    };
+  }
+  if (score <= 80) {
+    return {
+      tooEarly: 'Resistance is weakening but not gone. A premature push could trigger a last-resort defensive response. Wait for one more confirming signal before full execution.',
+      tooLate: 'This window is active but not permanent. If external pressures decrease — a friend lends money, a family member breaks rank — stability returns and readiness drops rapidly.',
+    };
+  }
+  return {
+    tooEarly: 'At this score, hesitation is the greater risk. The individual is as reachable as they are likely to be. Delaying is the equivalent of "too late."',
+    tooLate: 'Windows at this level typically last 24–72 hours. After that, the individual either adapts to the new level of pain or an enabling event resets the system. Act now.',
+  };
+}
+
+function getNext72Strategy(score: number): Next72HourStrategy {
+  if (score <= 40) {
+    return {
+      objective: 'Maintain containment. Create conditions for future readiness without premature action.',
+      doActions: [
+        'Hold all established boundaries consistently',
+        'Continue documenting behavioral patterns and incidents',
+        'Attend your own support groups and therapy sessions',
+        'Keep communication simple, brief, and non-reactive',
+      ],
+      avoidActions: [
+        'Emotional confrontation or repeated pleading',
+        'Financial rescue of any kind',
+        'Threatening consequences you are unwilling to enforce',
+        'Gathering family for an unplanned intervention attempt',
+      ],
+      prepareActions: [
+        'Research treatment facilities and verify insurance coverage',
+        'Identify potential intervention team members',
+        'Begin pre-reading intervention team letters (do not share)',
+      ],
+    };
+  }
+  if (score <= 65) {
+    return {
+      objective: 'Sustain building pressure without escalation. Prepare intervention logistics quietly.',
+      doActions: [
+        'Maintain all financial and behavioral boundaries without exception',
+        'Begin aligning family members privately on intervention plan',
+        'Verify treatment placement options and bed availability',
+        'Let natural consequences continue uninterrupted',
+      ],
+      avoidActions: [
+        'Revealing intervention planning to anyone outside the team',
+        'Softening boundaries because the individual seems to be improving',
+        'Over-communicating concern — let the pressure do the work',
+        'Engaging in arguments or debates about substance use',
+      ],
+      prepareActions: [
+        'Confirm insurance authorization and treatment bed hold',
+        'Draft or finalize intervention letters',
+        'Arrange travel/transportation logistics',
+        'Schedule intervention team rehearsal call',
+      ],
+    };
+  }
+  return {
+    objective: 'Move to execution posture. All preparation should be finalized and the team ready to act.',
+    doActions: [
+      'Confirm treatment bed is held and intake is expecting the call',
+      'Finalize intervention team roles and rehearse the process',
+      'Have bags packed and transportation arranged',
+      'Maintain boundaries firmly — this pressure is creating the window',
+    ],
+    avoidActions: [
+      'Allowing any enabling behavior to re-stabilize the individual',
+      'Delaying execution to "wait for a better time"',
+      'Adding emotional guilt beyond what is already in letters',
+      'Giving the individual extended time to "think about it"',
+    ],
+    prepareActions: [
+      'Verify bed availability one final time',
+      'Confirm all team members are available within 24 hours',
+      'Prepare post-intervention family support plan',
+      'Have a backup treatment option identified',
+    ],
+  };
+}
+
+// Generate realistic 30-day history with messy, imperfect data
 function generateHistory(): ReadinessSnapshot[] {
   const history: ReadinessSnapshot[] = [];
   const now = new Date();
-  // Start low and trend upward with realistic variation
-  const baseScores = {
-    distress: 3, consequence: 2, resistance: 2, instability: 3, helpProximity: 1,
-  };
-  for (let i = 29; i >= 0; i--) {
+
+  // Realistic trajectory: low start, false hope around day 10, crisis spike day 18, gradual climb with volatility
+  const trajectoryPoints = [
+    // Days 0-7: Low baseline with minor fluctuation
+    { d: 3.0, c: 2.5, r: 2.0, i: 3.5, h: 1.0 },
+    { d: 2.8, c: 2.2, r: 2.3, i: 3.0, h: 0.8 },
+    { d: 3.2, c: 2.8, r: 1.8, i: 3.2, h: 1.2 },
+    { d: 3.5, c: 2.5, r: 2.5, i: 2.8, h: 1.0 },
+    { d: 3.0, c: 3.0, r: 2.0, i: 3.5, h: 0.5 },
+    { d: 3.8, c: 2.8, r: 2.2, i: 3.0, h: 1.5 },
+    { d: 4.0, c: 3.2, r: 2.5, i: 3.2, h: 1.0 },
+    { d: 3.5, c: 3.0, r: 2.8, i: 2.5, h: 1.2 },
+    // Days 8-12: False improvement (family softened boundaries)
+    { d: 2.5, c: 2.0, r: 3.5, i: 2.0, h: 0.5 },
+    { d: 2.0, c: 1.8, r: 4.0, i: 1.5, h: 0.3 },
+    { d: 2.2, c: 2.0, r: 3.8, i: 2.0, h: 0.5 },
+    { d: 2.5, c: 2.2, r: 3.5, i: 2.2, h: 0.8 },
+    { d: 3.0, c: 2.5, r: 3.0, i: 2.5, h: 0.5 },
+    // Days 13-17: Boundaries re-established, slow climb
+    { d: 3.5, c: 3.5, r: 2.8, i: 3.0, h: 1.0 },
+    { d: 4.0, c: 4.0, r: 3.0, i: 3.5, h: 1.5 },
+    { d: 4.2, c: 4.5, r: 3.2, i: 3.8, h: 1.8 },
+    { d: 4.5, c: 4.8, r: 3.5, i: 4.0, h: 2.0 },
+    { d: 5.0, c: 5.0, r: 3.8, i: 4.2, h: 2.2 },
+    // Day 18: Crisis spike (DUI arrest)
+    { d: 7.5, c: 7.0, r: 4.0, i: 7.5, h: 3.5 },
+    // Days 19-22: Post-crisis elevated but volatile
+    { d: 7.0, c: 7.5, r: 4.5, i: 6.0, h: 3.0 },
+    { d: 6.0, c: 6.5, r: 5.0, i: 5.5, h: 3.5 },
+    { d: 5.5, c: 6.0, r: 5.5, i: 5.0, h: 3.0 },
+    { d: 6.0, c: 6.5, r: 5.0, i: 5.5, h: 4.0 },
+    // Days 23-26: Steady climbing — boundaries holding
+    { d: 6.5, c: 7.0, r: 5.5, i: 5.5, h: 4.0 },
+    { d: 6.8, c: 7.2, r: 6.0, i: 5.8, h: 4.5 },
+    { d: 7.0, c: 7.5, r: 6.0, i: 5.5, h: 4.8 },
+    { d: 7.0, c: 7.8, r: 6.2, i: 6.0, h: 5.0 },
+    // Days 27-29: Current — active window
+    { d: 7.2, c: 8.0, r: 6.5, i: 6.0, h: 5.2 },
+    { d: 7.5, c: 8.0, r: 6.5, i: 5.8, h: 5.5 },
+    { d: 7.5, c: 8.2, r: 6.8, i: 6.0, h: 5.5 },
+  ];
+
+  for (let i = 0; i < 30; i++) {
     const date = new Date(now);
-    date.setDate(date.getDate() - i);
-    const progress = (29 - i) / 29;
-    const noise = () => (Math.random() - 0.5) * 1.5;
-    const d = Math.min(10, Math.max(0, Math.round((baseScores.distress + progress * 4.5 + noise()) * 10) / 10));
-    const c = Math.min(10, Math.max(0, Math.round((baseScores.consequence + progress * 5 + noise()) * 10) / 10));
-    const r = Math.min(10, Math.max(0, Math.round((baseScores.resistance + progress * 4 + noise()) * 10) / 10));
-    const inst = Math.min(10, Math.max(0, Math.round((baseScores.instability + progress * 3 + noise()) * 10) / 10));
-    const h = Math.min(10, Math.max(0, Math.round((baseScores.helpProximity + progress * 3.5 + noise()) * 10) / 10));
+    date.setDate(date.getDate() - (29 - i));
+    const p = trajectoryPoints[i];
+    const noise = () => (Math.random() - 0.5) * 0.6;
+    const d = Math.min(10, Math.max(0, Math.round((p.d + noise()) * 10) / 10));
+    const c = Math.min(10, Math.max(0, Math.round((p.c + noise()) * 10) / 10));
+    const r = Math.min(10, Math.max(0, Math.round((p.r + noise()) * 10) / 10));
+    const inst = Math.min(10, Math.max(0, Math.round((p.i + noise()) * 10) / 10));
+    const h = Math.min(10, Math.max(0, Math.round((p.h + noise()) * 10) / 10));
     const total = Math.round(
       d * 0.20 * 10 + c * 0.25 * 10 + r * 0.25 * 10 + inst * 0.15 * 10 + h * 0.15 * 10
     );
@@ -197,6 +388,8 @@ function generateHistory(): ReadinessSnapshot[] {
   return history;
 }
 
+const history = generateHistory();
+
 export const demoClient: ClientProfile = {
   id: 'demo-client-001',
   name: 'Michael R.',
@@ -204,42 +397,79 @@ export const demoClient: ClientProfile = {
   lastUpdated: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
   totalScore: 72,
   statusLabel: 'Active Window',
-  summary: 'Readiness is elevated due to increased distress, reduced resistance language, and rising consequence awareness over the last 72 hours. Financial consequences and relationship strain are creating sustained pressure. Help-proximity behaviors are emerging for the first time in two weeks.',
+  windowStability: getWindowStability(history),
+  summary: 'Distress has increased steadily over the last 72 hours while defensive language has decreased by roughly 40%. This combination — rising pain with falling resistance — is one of the most reliable precursors to a short window of receptivity. Financial boundary enforcement 48 hours ago created a consequence spike that has not been rescued. Help-proximity behaviors appeared for the first time in three weeks. This window is real but may be unstable.',
+
+  keyChanges: [
+    { id: 'kc-1', description: 'Defensive language decreased', delta: '~40% reduction over 5 days', direction: 'down', category: 'Resistance Fatigue' },
+    { id: 'kc-2', description: 'First treatment-related question in 3 weeks', delta: 'New signal', direction: 'up', category: 'Help-Proximity Behavior' },
+    { id: 'kc-3', description: 'Financial boundary enforced — no rescue', delta: '48 hrs holding', direction: 'up', category: 'Consequence Awareness' },
+    { id: 'kc-4', description: 'Missed two scheduled commitments', delta: '2 missed in 5 days', direction: 'up', category: 'Instability / System Disruption' },
+    { id: 'kc-5', description: 'Emotional exhaustion language elevated', delta: 'Multiple expressions', direction: 'up', category: 'Distress Elevation' },
+  ],
+
+  topDrivers: [
+    { label: 'Consequence awareness rising after financial boundary', explanation: 'Family enforced a clear financial boundary 48 hours ago. The individual has not been rescued. This sustained discomfort is the primary driver of current score elevation.', category: 'Consequence Awareness' },
+    { label: 'Resistance intensity declining', explanation: 'Combative pushback has been replaced by quiet withdrawal over the last 5 days. This pattern — fighting less, isolating more — often indicates exhaustion with denial maintenance.', category: 'Resistance Fatigue' },
+    { label: 'First help-proximity behavior in weeks', explanation: 'Asked a family member how long inpatient treatment lasts. This was unprompted and marks the first treatment-related inquiry in 3 weeks. Not a commitment — but a significant shift from prior total refusal.', category: 'Help-Proximity Behavior' },
+  ],
+
+  misTimingRisk: getMisTimingRisk(72),
+
+  next72HourStrategy: getNext72Strategy(72),
+
+  prepChecklist: [
+    { id: 'pc-1', label: 'Treatment placement identified', completed: true },
+    { id: 'pc-2', label: 'Bed availability confirmed (within 48 hrs)', completed: true },
+    { id: 'pc-3', label: 'Insurance verification completed', completed: true },
+    { id: 'pc-4', label: 'Travel/transportation logistics arranged', completed: false },
+    { id: 'pc-5', label: 'Intervention team aligned and rehearsed', completed: false },
+    { id: 'pc-6', label: 'All letters finalized', completed: false },
+    { id: 'pc-7', label: 'Bags packed and ready for immediate departure', completed: false },
+    { id: 'pc-8', label: 'Timing window identified and communicated', completed: false },
+  ],
+
+  interventionistInsight: {
+    assessment: 'Resistance is weakening but not gone. He is tired of fighting, but he has not yet reached the point of genuine surrender. The financial pressure is doing its job — do not relieve it. The treatment question was significant: he is thinking about it even if he would deny it. Best opportunity likely follows the next consequence event or after 48 more hours of sustained boundary holding.',
+    tacticalNote: 'Watch for the quiet moment. When the anger stops and the exhaustion shows — that is your window. Do not intervene during a conflict. Intervene during the silence after it.',
+    confidence: 'Pattern suggests 65–75% probability of acceptance if intervention is timed correctly within the next 3–5 days. Probability drops significantly if any family member breaks rank on boundaries.',
+  },
+
   signals: [
     {
       name: 'Distress Elevation',
       currentScore: 7.5,
       weight: 0.20,
       trend: 'up',
-      explanation: 'Emotional exhaustion language has increased significantly. Multiple expressions of fatigue and hopelessness noted in the last 72 hours.',
+      explanation: 'Emotional exhaustion is escalating. Multiple expressions of fatigue, hopelessness, and frustration in the last 72 hours. Sleep disruption and irritability reported by family. This is not performance distress — the pattern is sustained.',
       recentSignals: [
-        '"I\'m tired of this. Nothing is working."',
-        'Increased emotional volatility reported by family',
-        'Sleep disruption and irritability noted',
+        '"I\'m exhausted. I can\'t keep doing this." — said to mother unprompted',
+        'Sleep disruption — up until 3–4 AM for three consecutive nights',
+        'Visible emotional volatility: anger followed by tears within same conversation',
       ],
     },
     {
       name: 'Consequence Awareness',
-      currentScore: 8.0,
+      currentScore: 8.2,
       weight: 0.25,
       trend: 'up',
-      explanation: 'Growing acknowledgment of relationship damage and financial instability. First mention of potential job loss in two weeks.',
+      explanation: 'Growing acknowledgment that actions are producing real consequences. First mention of potential job loss. Acknowledged relationship damage to spouse directly. Financial boundary enforcement is forcing awareness that was previously avoidable.',
       recentSignals: [
-        'Acknowledged relationship strain with spouse',
-        'Mentioned potential job consequences for first time',
-        'Expressed concern about finances after boundary enforcement',
+        'Acknowledged marriage strain: "She\'s not going to put up with this much longer"',
+        'Mentioned potential job consequences for first time in two weeks',
+        'Visibly frustrated when financial request was denied — but did not escalate',
       ],
     },
     {
       name: 'Resistance Fatigue',
-      currentScore: 6.5,
+      currentScore: 6.8,
       weight: 0.25,
       trend: 'up',
-      explanation: 'Defensive language frequency has decreased over the past 5 days. Less argumentative pushback when boundaries are mentioned.',
+      explanation: 'The most important signal right now. Defensive language frequency has decreased roughly 40% over 5 days. He is fighting less — not because he agrees, but because maintaining denial is becoming exhausting. Quiet withdrawal is replacing combative responses.',
       recentSignals: [
-        'Defensive language frequency decreased over 5 days',
-        'Less aggressive refusal of family conversations',
-        'Quiet withdrawal replacing combative responses',
+        'Defensive language frequency down ~40% over 5-day rolling window',
+        'Replaced combative responses with quiet withdrawal',
+        'Did not argue when sister mentioned treatment options — just left the room',
       ],
     },
     {
@@ -247,11 +477,11 @@ export const demoClient: ClientProfile = {
       currentScore: 6.0,
       weight: 0.15,
       trend: 'stable',
-      explanation: 'Daily structure showing signs of breakdown. Missed commitments and increasing isolation from support network.',
+      explanation: 'Daily structure is deteriorating. Missed commitments, social isolation increasing, and conflict spikes after boundary enforcement. The system that was holding his life together is fraying — this instability feeds readiness.',
       recentSignals: [
         'Missed second scheduled check-in this week',
-        'Skipped regular social commitment',
-        'Conflict spike after financial boundary enforcement',
+        'Skipped regular social commitment — second time in 10 days',
+        'Conflict spike after financial boundary enforcement (did not result in rescue)',
       ],
     },
     {
@@ -259,36 +489,37 @@ export const demoClient: ClientProfile = {
       currentScore: 5.5,
       weight: 0.15,
       trend: 'up',
-      explanation: 'First indirect inquiries about treatment observed. Asking questions without committing — a significant shift from prior complete refusal.',
+      explanation: 'First indirect treatment inquiries in three weeks. Asking questions without committing — testing the idea without owning it. This is how openness starts. He would deny any interest if asked directly, but the questions are significant.',
       recentSignals: [
-        'Asked how long inpatient treatment usually lasts',
-        'Mentioned a friend who went to rehab "and it helped"',
-        'Did not shut down when family mentioned therapy options',
+        'Asked mother: "How long does inpatient treatment usually last?"',
+        'Referenced a friend who went to rehab: "It seemed like it helped him"',
+        'Did not shut down or leave when family mentioned therapy options',
       ],
     },
   ],
+
   indicators: [
     {
       id: 'ind-001',
       timestamp: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
       sourceType: 'Communication analysis',
-      description: 'Client stated: "I\'m exhausted and can\'t keep doing this." Distress language elevated.',
+      description: '"I\'m exhausted and I can\'t keep doing this." Said to mother unprompted during a calm moment. Not during conflict. This is significant — distress expressed outside of arguments carries more weight.',
       categoryTags: ['Distress Elevation'],
       impactDirection: 'positive',
     },
     {
       id: 'ind-002',
-      timestamp: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(),
-      sourceType: 'Attendance/check-in pattern',
-      description: 'Missed second scheduled check-in this week. Pattern of disengagement from commitments.',
-      categoryTags: ['Instability / System Disruption'],
+      timestamp: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
+      sourceType: 'AI pattern detection',
+      description: 'Defensive language frequency decreased approximately 40% over 5-day rolling window. Combative responses declining, replaced by silence and withdrawal. Pattern consistent with resistance exhaustion.',
+      categoryTags: ['Resistance Fatigue'],
       impactDirection: 'positive',
     },
     {
       id: 'ind-003',
       timestamp: new Date(Date.now() - 14 * 60 * 60 * 1000).toISOString(),
       sourceType: 'Family-reported event',
-      description: 'Asked family member how long inpatient treatment usually lasts. First treatment-related inquiry.',
+      description: 'Asked mother how long inpatient treatment usually lasts. First treatment-related inquiry in three weeks. Did not follow up, but the question was unprompted.',
       categoryTags: ['Help-Proximity Behavior'],
       impactDirection: 'positive',
     },
@@ -296,23 +527,23 @@ export const demoClient: ClientProfile = {
       id: 'ind-004',
       timestamp: new Date(Date.now() - 20 * 60 * 60 * 1000).toISOString(),
       sourceType: 'Financial event',
-      description: 'Family enforced financial boundary. Client expressed frustration but did not escalate.',
+      description: 'Requested $200 from mother for "car repair." Mother held financial boundary. Client expressed frustration but did not escalate to anger or threats. Previous pattern was aggressive escalation when denied.',
       categoryTags: ['Consequence Awareness', 'Resistance Fatigue'],
       impactDirection: 'positive',
     },
     {
       id: 'ind-005',
-      timestamp: new Date(Date.now() - 26 * 60 * 60 * 1000).toISOString(),
-      sourceType: 'AI pattern detection',
-      description: 'Defensive language frequency decreased 35% over 5-day rolling window.',
-      categoryTags: ['Resistance Fatigue'],
+      timestamp: new Date(Date.now() - 28 * 60 * 60 * 1000).toISOString(),
+      sourceType: 'Attendance/check-in pattern',
+      description: 'Missed second scheduled check-in this week. Pattern of disengagement from previously maintained commitments. Structure breakdown accelerating.',
+      categoryTags: ['Instability / System Disruption'],
       impactDirection: 'positive',
     },
     {
       id: 'ind-006',
       timestamp: new Date(Date.now() - 36 * 60 * 60 * 1000).toISOString(),
       sourceType: 'Family-reported event',
-      description: 'Family conflict escalated after financial boundary was enforced. Increased household tension.',
+      description: 'Household conflict spike after financial boundary enforcement. Lasted approximately 20 minutes, then client went silent and isolated in room. Previous pattern was extended escalation (1+ hours).',
       categoryTags: ['Consequence Awareness', 'Instability / System Disruption'],
       impactDirection: 'positive',
     },
@@ -320,46 +551,73 @@ export const demoClient: ClientProfile = {
       id: 'ind-007',
       timestamp: new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString(),
       sourceType: 'Behavior/compliance tracking',
-      description: 'Mentioned a friend who went to rehab "and it seems like it helped them."',
+      description: 'Referenced a friend who completed treatment: "It seemed like it helped him." Unsolicited. Said during casual conversation, not during a confrontation. Context matters — this was not coerced.',
       categoryTags: ['Help-Proximity Behavior'],
       impactDirection: 'positive',
     },
     {
       id: 'ind-008',
-      timestamp: new Date(Date.now() - 60 * 60 * 60 * 1000).toISOString(),
+      timestamp: new Date(Date.now() - 54 * 60 * 60 * 1000).toISOString(),
       sourceType: 'Communication analysis',
-      description: 'Acknowledged relationship strain with spouse. First direct admission of impact on marriage.',
+      description: '"She\'s not going to put up with this much longer." First direct acknowledgment that marriage consequences are real. Previously dismissed spouse\'s concerns as "overreacting."',
       categoryTags: ['Consequence Awareness'],
       impactDirection: 'positive',
     },
     {
       id: 'ind-009',
-      timestamp: new Date(Date.now() - 72 * 60 * 60 * 1000).toISOString(),
-      sourceType: 'Manual clinician note',
-      description: 'Clinical observation: client appears more emotionally fatigued than previous sessions. Less guarded.',
-      categoryTags: ['Distress Elevation', 'Resistance Fatigue'],
+      timestamp: new Date(Date.now() - 60 * 60 * 60 * 1000).toISOString(),
+      sourceType: 'Family-reported event',
+      description: 'Sister mentioned therapy options during family dinner. Client did not shut down, argue, or leave the table — sat quietly and changed the subject after 30 seconds. Previous response was immediate anger.',
+      categoryTags: ['Resistance Fatigue', 'Help-Proximity Behavior'],
       impactDirection: 'positive',
     },
     {
       id: 'ind-010',
-      timestamp: new Date(Date.now() - 96 * 60 * 60 * 1000).toISOString(),
+      timestamp: new Date(Date.now() - 72 * 60 * 60 * 1000).toISOString(),
+      sourceType: 'Manual clinician note',
+      description: 'Clinical observation: client appears more emotionally fatigued than in previous sessions. Less guarded. Eye contact improved. Speech less rehearsed. Impression: denial structure is weakening but not collapsed.',
+      categoryTags: ['Distress Elevation', 'Resistance Fatigue'],
+      impactDirection: 'positive',
+    },
+    {
+      id: 'ind-011',
+      timestamp: new Date(Date.now() - 80 * 60 * 60 * 1000).toISOString(),
       sourceType: 'Attendance/check-in pattern',
-      description: 'Skipped regular social commitment for second time in a week.',
+      description: 'Skipped regular social commitment for second time in 10 days. Previously maintained this commitment consistently. Increasing isolation from non-using social network.',
       categoryTags: ['Instability / System Disruption'],
       impactDirection: 'positive',
     },
+    {
+      id: 'ind-012',
+      timestamp: new Date(Date.now() - 96 * 60 * 60 * 1000).toISOString(),
+      sourceType: 'Family-reported event',
+      description: 'Father reported that client called him "just to talk" for the first time in months. Conversation was brief (8 minutes) and did not include any requests for money. Father described tone as "tired, not angry."',
+      categoryTags: ['Distress Elevation', 'Help-Proximity Behavior'],
+      impactDirection: 'positive',
+    },
+    {
+      id: 'ind-n01',
+      timestamp: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+      sourceType: 'Family-reported event',
+      description: 'Mother gave client $150 after emotional plea. Boundary violation. Consequence pressure temporarily relieved. Score dropped as a result.',
+      categoryTags: ['Consequence Awareness'],
+      impactDirection: 'negative',
+    },
   ],
+
   recommendation: getRecommendation(72),
+
   alerts: [
     {
       id: 'alert-001',
       threshold: 65,
-      title: 'Readiness nearing viable intervention window',
-      explanation: 'Readiness score has crossed the 65-point threshold, indicating an emerging intervention window. Multiple signals are converging.',
+      title: 'Active Intervention Window Detected',
+      explanation: 'Readiness score has crossed into the Active Window range (66–80). Multiple signal categories are converging. Resistance fatigue and consequence awareness are both elevated simultaneously — this convergence is the key indicator.',
       contributingSignals: [
-        'Consequence awareness elevated to 8.0',
-        'Resistance fatigue trending upward',
-        'First help-proximity behaviors observed',
+        'Consequence awareness elevated to 8.2 — highest observed',
+        'Resistance fatigue trending up for 5 consecutive days',
+        'First help-proximity behavior in 3 weeks',
+        'Financial boundary held for 48 hours without family rescue',
       ],
       urgency: 'high',
       timestamp: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
@@ -367,22 +625,23 @@ export const demoClient: ClientProfile = {
     {
       id: 'alert-002',
       threshold: 65,
-      title: 'Emerging readiness window detected',
-      explanation: 'Score moved from "Not Ready" to "Emerging Window" range. Distress and consequence awareness are primary drivers.',
+      title: 'Emerging Window — Preparation Phase',
+      explanation: 'Score moved from "Not Ready" to "Emerging Window" 4 days ago. This alert was the signal to begin quiet preparation. Preparation has been initiated.',
       contributingSignals: [
-        'Distress elevation increased 2 points in 48 hours',
-        'Financial boundary enforcement creating consequence pressure',
+        'Distress elevation increased 2 points in 48 hours following DUI',
+        'Financial boundary enforcement creating sustained consequence pressure',
       ],
       urgency: 'moderate',
-      timestamp: new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString(),
+      timestamp: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
     },
   ],
+
   notes: [
     {
       id: 'note-001',
       createdAt: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
       noteType: 'Timing judgment',
-      text: 'Window is strengthening. Recommend moving to active preparation within 48 hours if trajectory continues. Family team alignment call scheduled for tomorrow.',
+      text: 'Window is real but potentially unstable. The rapid escalation post-DUI created conditions, but sustained readiness requires family to hold boundaries without faltering. Mother is the weak link — she came close to sending money yesterday. If she holds for 48 more hours, probability of successful intervention increases significantly. Team alignment call scheduled for tomorrow.',
       category: 'General',
       followUp: true,
     },
@@ -390,7 +649,7 @@ export const demoClient: ClientProfile = {
       id: 'note-002',
       createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
       noteType: 'Pattern observation',
-      text: 'Notable shift in resistance patterns. Client is replacing combative responses with quiet withdrawal — a common pre-acceptance behavior. This aligns with increasing distress fatigue.',
+      text: 'Notable shift in resistance pattern: combative responses → quiet withdrawal. This is textbook pre-acceptance behavior. He is not ready to say yes, but he has stopped fighting as hard to say no. The energy required to maintain denial is depleting. Watch for the "quiet moment" — that is when he is most reachable.',
       category: 'Resistance Fatigue',
       followUp: false,
     },
@@ -398,7 +657,7 @@ export const demoClient: ClientProfile = {
       id: 'note-003',
       createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
       noteType: 'Family coaching',
-      text: 'Reinforced with family: maintain financial boundaries without emotional escalation. Mother is struggling — provided additional support resources.',
+      text: 'Reinforced with family: the financial boundary is working. Do not cave. Mother is struggling — she interprets his distress as evidence she should help. Reframed: his distress is evidence that the boundary is effective. Provided additional support resources and scheduled a check-in call with mother specifically.',
       category: 'Consequence Awareness',
       followUp: true,
     },
@@ -406,10 +665,19 @@ export const demoClient: ClientProfile = {
       id: 'note-004',
       createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
       noteType: 'Placement planning',
-      text: 'Pre-screened two residential programs in the region. Both have availability within 48 hours. Insurance verification initiated.',
+      text: 'Pre-screened two residential programs. Both have beds available within 48 hours. Insurance verification completed — 30-day residential covered with $500 deductible. Family has agreed to cover. Backup option identified in case primary facility has an intake delay.',
       category: 'General',
       followUp: false,
     },
+    {
+      id: 'note-005',
+      createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+      noteType: 'Risk flag',
+      text: 'CAUTION: Family boundary breach on Day 10 (mother sent $150) caused a 15-point score drop that took 5 days to recover. The system is fragile. One more enabling event could reset the entire trajectory. Mother has been briefed but remains emotionally volatile.',
+      category: 'Consequence Awareness',
+      followUp: true,
+    },
   ],
-  history: generateHistory(),
+
+  history,
 };
