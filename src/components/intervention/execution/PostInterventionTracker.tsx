@@ -29,7 +29,9 @@ const declinedSteps = [
 ];
 
 export const PostInterventionTracker = () => {
+  const navigate = useNavigate();
   const [acceptedChecked, setAcceptedChecked] = useState<Record<string, boolean>>({});
+  const [declinedChecked, setDeclinedChecked] = useState<Record<string, boolean>>({});
   const [declinedChecked, setDeclinedChecked] = useState<Record<string, boolean>>({});
 
   return (
@@ -90,6 +92,17 @@ export const PostInterventionTracker = () => {
             </div>
           </TabsContent>
         </Tabs>
+
+        {/* Link to full Continuity Engine */}
+        <div className="mt-4 pt-4 border-t">
+          <Button
+            variant="outline"
+            className="w-full gap-2"
+            onClick={() => navigate('/post-intervention')}
+          >
+            Open Full Post-Intervention Continuity Engine <ArrowRight className="h-4 w-4" />
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );
