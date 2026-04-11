@@ -31,6 +31,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useUserFamilyRole } from '@/hooks/useUserFamilyRole';
 
 const InterventionReadiness = () => {
+  const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
   const { isRecovering, loading: roleLoading } = useUserFamilyRole();
   const [indicators, setIndicators] = useState<ObservedIndicator[]>(demoClient.indicators);
