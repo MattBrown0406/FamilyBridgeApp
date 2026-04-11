@@ -79,8 +79,8 @@ export default function AIGovernance() {
       {/* Header */}
       <div className="border-b bg-card">
         <div className="max-w-6xl mx-auto px-4 py-6">
-          <Button variant="ghost" size="sm" onClick={() => navigate('/ai-learning/stage-2')} className="mb-4">
-            <ArrowLeft className="h-4 w-4 mr-1" /> Back to Adaptive Learning
+          <Button variant="ghost" size="sm" onClick={() => navigate('/')} className="mb-4">
+            <ArrowLeft className="h-4 w-4 mr-1" /> Home
           </Button>
           <div className="flex items-center gap-3 mb-2">
             <div className="p-2 rounded-lg bg-primary/10">

@@ -308,8 +308,8 @@ const InputReconciliation = () => {
       {/* Header */}
       <div className="bg-gradient-to-r from-slate-800 to-slate-900 text-white">
         <div className="max-w-7xl mx-auto px-4 py-6">
-          <Button variant="ghost" size="sm" className="text-white/70 hover:text-white mb-4" onClick={() => navigate(-1)}>
-            <ArrowLeft className="h-4 w-4 mr-1" /> Back
+          <Button variant="ghost" size="sm" className="text-white/70 hover:text-white mb-4" onClick={() => navigate('/')}>
+            <ArrowLeft className="h-4 w-4 mr-1" /> Home
           </Button>
           <div className="flex items-start justify-between flex-wrap gap-4">
             <div>

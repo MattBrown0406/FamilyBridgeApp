@@ -113,7 +113,7 @@ export default function AILearningLayer() {
       <div className="border-b bg-card">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <Button variant="ghost" size="sm" onClick={() => navigate('/')} className="mb-3">
-            <ArrowLeft className="h-4 w-4 mr-1" /> Back
+            <ArrowLeft className="h-4 w-4 mr-1" /> Home
           </Button>
 
           <div className="flex items-start justify-between flex-wrap gap-4">
