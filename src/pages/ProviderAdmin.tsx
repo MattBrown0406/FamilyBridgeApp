@@ -1226,43 +1226,9 @@ const ProviderAdmin = () => {
       </header>
 
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
-        <div className="grid lg:grid-cols-4 gap-4 sm:gap-6">
-          {/* Organization selector */}
-          <div className="lg:col-span-1 space-y-2">
-            <h2 className="text-sm font-medium text-muted-foreground mb-2 sm:mb-3">
-              Your Organizations
-            </h2>
-            <div className="flex lg:flex-col gap-2 overflow-x-auto pb-2 lg:pb-0">
-              {organizations.map((org) => (
-                <Card 
-                  key={org.id}
-                  className={`cursor-pointer transition-colors shrink-0 lg:shrink ${
-                    selectedOrg === org.id ? 'ring-2 ring-primary' : 'hover:bg-muted/50'
-                  }`}
-                  onClick={() => handleSelectOrg(org.id)}
-                >
-                  <CardContent className="p-3 sm:p-4">
-                    <div className="flex items-center gap-2 sm:gap-3">
-                      {org.logo_url ? (
-                        <img src={org.logo_url} alt={org.name} className="h-8 w-8 sm:h-10 sm:w-10 rounded object-contain" />
-                      ) : (
-                        <div className="h-8 w-8 sm:h-10 sm:w-10 rounded bg-primary/10 flex items-center justify-center">
-                          <Building2 className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
-                        </div>
-                      )}
-                      <div className="min-w-0">
-                        <p className="font-medium text-foreground text-sm sm:text-base truncate">{org.name}</p>
-                        <p className="text-[10px] sm:text-xs text-muted-foreground truncate">{org.subdomain}.familybridgeapp.com</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-
+        <div>
           {/* Main content */}
-          <div className="lg:col-span-3">
+          <div>
             {selectedOrg && currentOrg ? (
               <Tabs defaultValue="families" className="space-y-4">
                 <TabsList className="flex flex-wrap h-auto gap-1 w-full bg-primary/10">
