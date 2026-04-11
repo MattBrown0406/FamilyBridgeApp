@@ -274,8 +274,9 @@ const Index = () => {
           {features.map((feature, index) => (
             <div
               key={feature.title}
-              className="group relative rounded-lg sm:rounded-xl p-3 sm:p-4 bg-card/80 backdrop-blur-sm border border-border/50 shadow-card hover:shadow-elevated transition-all duration-300 hover:-translate-y-1 animate-fade-in overflow-hidden"
+              className="group relative rounded-lg sm:rounded-xl p-3 sm:p-4 bg-card/80 backdrop-blur-sm border border-border/50 shadow-card hover:shadow-elevated transition-all duration-300 hover:-translate-y-1 animate-fade-in overflow-hidden cursor-pointer"
               style={{ animationDelay: `${index * 50}ms` }}
+              onClick={() => navigate(feature.link)}
             >
               {/* Gradient overlay on hover */}
               <div className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-300`} />
