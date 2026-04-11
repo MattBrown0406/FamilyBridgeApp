@@ -50,7 +50,7 @@ export const CoachingTab = ({ familyId, members = [] }: CoachingTabProps) => {
 
   // Live coaching state
   const [isListening, setIsListening] = useState(false);
-  const [liveMode, setLiveMode] = useState<'speakerphone' | 'text'>('text');
+  const [liveMode, setLiveMode] = useState<'speakerphone' | 'inroom' | 'text'>('text');
   const [liveInput, setLiveInput] = useState('');
   const [liveMessages, setLiveMessages] = useState<ChatMessage[]>([]);
   const [isLiveLoading, setIsLiveLoading] = useState(false);
