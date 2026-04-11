@@ -14,6 +14,280 @@ export type Database = {
   }
   public: {
     Tables: {
+      accountability_alerts: {
+        Row: {
+          alert_type: string
+          created_at: string
+          dismissed_at: string | null
+          dismissed_by: string | null
+          family_id: string | null
+          id: string
+          is_dismissed: boolean
+          message: string
+          organization_id: string | null
+          severity: string
+          source_type: string
+          title: string
+        }
+        Insert: {
+          alert_type: string
+          created_at?: string
+          dismissed_at?: string | null
+          dismissed_by?: string | null
+          family_id?: string | null
+          id?: string
+          is_dismissed?: boolean
+          message: string
+          organization_id?: string | null
+          severity?: string
+          source_type?: string
+          title: string
+        }
+        Update: {
+          alert_type?: string
+          created_at?: string
+          dismissed_at?: string | null
+          dismissed_by?: string | null
+          family_id?: string | null
+          id?: string
+          is_dismissed?: boolean
+          message?: string
+          organization_id?: string | null
+          severity?: string
+          source_type?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "accountability_alerts_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "accountability_alerts_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "accountability_alerts_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations_member_view"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      accountability_commitments: {
+        Row: {
+          commitment_type: string
+          created_at: string
+          created_by: string
+          description: string | null
+          due_date: string | null
+          family_id: string | null
+          id: string
+          organization_id: string | null
+          review_notes: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          commitment_type?: string
+          created_at?: string
+          created_by: string
+          description?: string | null
+          due_date?: string | null
+          family_id?: string | null
+          id?: string
+          organization_id?: string | null
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          commitment_type?: string
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          due_date?: string | null
+          family_id?: string | null
+          id?: string
+          organization_id?: string | null
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "accountability_commitments_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "accountability_commitments_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "accountability_commitments_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations_member_view"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      accountability_contracts: {
+        Row: {
+          acknowledged_by: string[] | null
+          contract_type: string
+          created_at: string
+          created_by: string
+          expires_at: string | null
+          family_id: string | null
+          id: string
+          organization_id: string | null
+          status: string
+          terms: Json
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          acknowledged_by?: string[] | null
+          contract_type?: string
+          created_at?: string
+          created_by: string
+          expires_at?: string | null
+          family_id?: string | null
+          id?: string
+          organization_id?: string | null
+          status?: string
+          terms?: Json
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          acknowledged_by?: string[] | null
+          contract_type?: string
+          created_at?: string
+          created_by?: string
+          expires_at?: string | null
+          family_id?: string | null
+          id?: string
+          organization_id?: string | null
+          status?: string
+          terms?: Json
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "accountability_contracts_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "accountability_contracts_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "accountability_contracts_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations_member_view"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      accountability_scores: {
+        Row: {
+          ai_insight: string | null
+          calculated_at: string
+          created_at: string
+          factors: Json
+          family_id: string | null
+          id: string
+          organization_id: string | null
+          positive_feedback: string[] | null
+          previous_score: number | null
+          score: number
+          score_type: string
+          trend: string
+        }
+        Insert: {
+          ai_insight?: string | null
+          calculated_at?: string
+          created_at?: string
+          factors?: Json
+          family_id?: string | null
+          id?: string
+          organization_id?: string | null
+          positive_feedback?: string[] | null
+          previous_score?: number | null
+          score?: number
+          score_type: string
+          trend?: string
+        }
+        Update: {
+          ai_insight?: string | null
+          calculated_at?: string
+          created_at?: string
+          factors?: Json
+          family_id?: string | null
+          id?: string
+          organization_id?: string | null
+          positive_feedback?: string[] | null
+          previous_score?: number | null
+          score?: number
+          score_type?: string
+          trend?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "accountability_scores_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "accountability_scores_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "accountability_scores_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations_member_view"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       activation_code_access_log: {
         Row: {
           access_type: string
