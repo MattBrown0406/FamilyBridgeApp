@@ -332,17 +332,17 @@ const InputReconciliation = () => {
                 <>
                   <Card className="bg-white/10 border-white/20 text-white px-4 py-2">
                     <p className="text-xs text-white/60">Platform Confidence</p>
-                    <p className={`text-xl font-bold ${demoPlatformHealth.avgDataConfidence >= 70 ? 'text-emerald-300' : demoPlatformHealth.avgDataConfidence >= 50 ? 'text-amber-300' : 'text-red-300'}`}>
-                      {demoPlatformHealth.avgDataConfidence}%
+                    <p className={`text-xl font-bold ${activePlatformData.avgDataConfidence >= 70 ? 'text-emerald-300' : activePlatformData.avgDataConfidence >= 50 ? 'text-amber-300' : 'text-red-300'}`}>
+                      {activePlatformData.avgDataConfidence}%
                     </p>
                   </Card>
                   <Card className="bg-white/10 border-white/20 text-white px-4 py-2">
                     <p className="text-xs text-white/60">Unresolved</p>
-                    <p className="text-xl font-bold text-red-300">{demoPlatformHealth.totalUnresolved}</p>
+                    <p className="text-xl font-bold text-red-300">{activePlatformData.totalUnresolved}</p>
                   </Card>
                   <Card className="bg-white/10 border-white/20 text-white px-4 py-2">
                     <p className="text-xs text-white/60">Families</p>
-                    <p className="text-xl font-bold">{demoPlatformHealth.totalFamilies}</p>
+                    <p className="text-xl font-bold">{activePlatformData.totalFamilies}</p>
                   </Card>
                 </>
               ) : (
@@ -388,7 +388,7 @@ const InputReconciliation = () => {
 
       <div className="max-w-7xl mx-auto px-4 py-6 space-y-6">
         {/* Platform Health (Super Admin) */}
-        {showPlatformView && viewMode === 'platform' && <PlatformHealthOverview />}
+        {showPlatformView && viewMode === 'platform' && <PlatformHealthOverview data={activePlatformData} />}
 
         {/* Case-Level View (original tabs) */}
         {(!showPlatformView || viewMode === 'case') && (
