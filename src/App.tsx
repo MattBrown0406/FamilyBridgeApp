@@ -30,6 +30,13 @@ import NotFound from "./pages/NotFound";
 import SignHIPAA from "./pages/SignHIPAA";
 import UpdatePayment from "./pages/UpdatePayment";
 import InterventionReadiness from "./pages/InterventionReadiness";
+import FIISIntelligence from "./pages/features/FIISIntelligence";
+import RecoveryTrajectory from "./pages/features/RecoveryTrajectory";
+import DocumentAnalysis from "./pages/features/DocumentAnalysis";
+import MedicationCompliance from "./pages/features/MedicationCompliance";
+import FinancialCoordination from "./pages/features/FinancialCoordination";
+import CareTransitions from "./pages/features/CareTransitions";
+import ConversationCoaching from "./pages/features/ConversationCoaching";
 import ScrollToTop from "./components/ScrollToTop";
 import { usePlatform } from "@/hooks/usePlatform";
 
@@ -84,6 +91,13 @@ const App = () => {
               <Route path="/terms" element={<TermsOfService />} />
               <Route path="/sign-hipaa" element={<SignHIPAA />} />
               <Route path="/intervention-readiness" element={<InterventionReadiness />} />
+              <Route path="/features/fiis-intelligence" element={<FIISIntelligence />} />
+              <Route path="/features/recovery-trajectory" element={<RecoveryTrajectory />} />
+              <Route path="/features/document-analysis" element={<DocumentAnalysis />} />
+              <Route path="/features/medication-compliance" element={<MedicationCompliance />} />
+              <Route path="/features/financial-coordination" element={<FinancialCoordination />} />
+              <Route path="/features/care-transitions" element={<CareTransitions />} />
+              <Route path="/features/conversation-coaching" element={<ConversationCoaching />} />
               <Route
                 path="/update-payment"
                 element={paymentsWebOnly ? <Navigate to="/auth" replace /> : <UpdatePayment />}
