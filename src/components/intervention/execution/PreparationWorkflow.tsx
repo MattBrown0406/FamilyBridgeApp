@@ -25,7 +25,7 @@ const prepChecklist = [
   { id: 'travel', label: 'Travel logistics considered' },
   { id: 'interventionist', label: 'Interventionist secured (if applicable)' },
   { id: 'roles', label: 'Family roles identified and assigned' },
-  { id: 'letters', label: 'Intervention letters: Impact letters drafted (or in progress)' },
+  { id: 'letters', label: 'Intervention letters drafted (or in progress)' },
   { id: 'consequences', label: 'Boundaries and resulting consequences defined and agreed upon' },
   { id: 'timeline', label: 'Target timeline established' },
 ];
