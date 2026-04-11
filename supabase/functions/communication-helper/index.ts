@@ -58,7 +58,7 @@ TRAUMA-INFORMED: Prioritize safety, trustworthiness, choice.
 `;
 
 // Fetch family context including goals, values, boundaries
-async function fetchFamilyContext(supabase: ReturnType<typeof createClient>, familyId: string) {
+async function fetchFamilyContext(supabase: any, familyId: string) {
   const [sobrietyResult, boundariesResult, emotionalCheckinsResult, coachingSessionsResult, valuesResult, commonGoalsResult] = await Promise.all([
     supabase.from("sobriety_journeys").select("start_date, reset_count").eq("family_id", familyId).eq("is_active", true).maybeSingle(),
     supabase.from("family_boundaries").select("content").eq("family_id", familyId).eq("status", "approved"),

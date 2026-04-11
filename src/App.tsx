@@ -29,6 +29,7 @@ import TermsOfService from "./pages/TermsOfService";
 import NotFound from "./pages/NotFound";
 import SignHIPAA from "./pages/SignHIPAA";
 import UpdatePayment from "./pages/UpdatePayment";
+import InterventionReadiness from "./pages/InterventionReadiness";
 import ScrollToTop from "./components/ScrollToTop";
 import { usePlatform } from "@/hooks/usePlatform";
 
@@ -82,6 +83,7 @@ const App = () => {
               <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="/terms" element={<TermsOfService />} />
               <Route path="/sign-hipaa" element={<SignHIPAA />} />
+              <Route path="/intervention-readiness" element={<InterventionReadiness />} />
               <Route
                 path="/update-payment"
                 element={paymentsWebOnly ? <Navigate to="/auth" replace /> : <UpdatePayment />}

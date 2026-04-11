@@ -82,7 +82,7 @@ CRISIS: If suicide/self-harm detected → recommend 988 immediately. Never manag
 `;
 
 // Fetch comprehensive family context including goals, values, and boundaries
-async function fetchFamilyContext(supabase: ReturnType<typeof createClient>, familyId: string) {
+async function fetchFamilyContext(supabase: any, familyId: string) {
   const [
     sobrietyResult, boundariesResult, emotionalCheckinsResult, meetingCheckinsResult,
     messagesResult, financialRequestsResult, coachingSessionsResult, medicationsResult,
