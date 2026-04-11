@@ -34,6 +34,7 @@ import InterventionReadiness from "./pages/InterventionReadiness";
 import InterventionExecution from "./pages/InterventionExecution";
 import AccountabilityEngine from "./pages/AccountabilityEngine";
 import PostInterventionContinuity from "./pages/PostInterventionContinuity";
+import OutcomePredictions from "./pages/OutcomePredictions";
 import FIISIntelligence from "./pages/features/FIISIntelligence";
 import RecoveryTrajectory from "./pages/features/RecoveryTrajectory";
 import DocumentAnalysis from "./pages/features/DocumentAnalysis";
