@@ -230,8 +230,6 @@ export const CoachingTab = ({ familyId, members = [] }: CoachingTabProps) => {
 
   // Send live coaching request (streaming)
   const sendLiveCoaching = async () => {
-    const text = (liveMode === 'speakerphone' ? transcribedText : liveInput).trim();
-    if (!text) return;
     const text = ((liveMode === 'speakerphone' || liveMode === 'inroom') ? transcribedText : liveInput).trim();
     if (!text) return;
 
