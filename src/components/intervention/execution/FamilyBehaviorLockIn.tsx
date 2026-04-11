@@ -12,7 +12,7 @@ const rules = [
   },
   {
     title: 'No Backing Out of Boundaries and the Consequences Attached to Them',
-    detail: 'If you stated a consequence, you must follow through. Failing to enforce even one consequence undermines the entire intervention.',
+    detail: 'A boundary without a consequence isn\'t a boundary. It\'s merely a request. Boundaries are not punishment, they are love. Both for you and the individual who\'s addicted.',
   },
   {
     title: 'No Side Conversations',
