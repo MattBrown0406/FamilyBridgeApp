@@ -2,69 +2,66 @@ import { Users, ShieldCheck } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import type { ReadinessStatusLabel } from '@/data/interventionReadinessData';
 
-const guidanceByStatus: Record<ReadinessStatusLabel, { dos: string[]; donts: string[] }> = {
+interface GuidanceItem {
+  action: string;
+  why: string;
+}
+
+const guidanceByStatus: Record<ReadinessStatusLabel, { dos: GuidanceItem[]; donts: GuidanceItem[] }> = {
   'Not Ready': {
     dos: [
-      'Maintain calm and consistent consequences.',
-      'Focus on your own emotional health and stability.',
-      'Continue documenting patterns and behaviors.',
-      'Attend your own support groups and therapy.',
-      'Keep communication simple and non-reactive.',
+      { action: 'Maintain all established boundaries without exception.', why: 'Consistency is what creates future readiness. Every enforced boundary accumulates pressure.' },
+      { action: 'Focus on your own emotional health and attend your support groups.', why: 'Family burnout is the #1 reason interventions fail. You must be stable when the window opens.' },
+      { action: 'Document patterns and behaviors — dates, times, specifics.', why: 'This data will inform intervention timing and letter content when the window arrives.' },
+      { action: 'Keep communication simple, brief, and non-reactive.', why: 'Long conversations give the individual opportunities to manipulate or escalate.' },
     ],
     donts: [
-      'Do not rescue financially during this period.',
-      'Avoid emotional confrontation or repeated pleading.',
-      'Do not over-explain or negotiate boundaries.',
-      'Do not threaten consequences you are unwilling to enforce.',
-      'Avoid gathering family for a surprise intervention.',
+      { action: 'Do not provide financial support for any reason.', why: 'Financial rescue is the most common way families close readiness windows before they open.' },
+      { action: 'Do not engage in emotional confrontation or repeated pleading.', why: 'Pleading signals that you will eventually cave. It reduces — not increases — the pressure.' },
+      { action: 'Do not threaten consequences you are unwilling to enforce.', why: 'Empty threats teach the individual that your words don\'t match your actions.' },
+      { action: 'Do not attempt a surprise intervention.', why: 'Without readiness signals, a premature intervention has a high probability of rejection.' },
     ],
   },
   'Emerging Window': {
     dos: [
-      'Maintain calm and consistent consequences.',
-      'Begin quietly aligning family members on the intervention plan.',
-      'Research treatment options and verify insurance/availability.',
-      'Keep communication brief, warm, and non-pressuring.',
-      'Let natural consequences continue without interference.',
+      { action: 'Hold all boundaries without softening — this pressure is working.', why: 'The emerging window exists because of sustained pressure. Relieving it now resets progress.' },
+      { action: 'Begin quietly aligning family members on the intervention plan.', why: 'When the window opens fully, you need to move fast. Preparation now buys you speed later.' },
+      { action: 'Research treatment options and verify insurance/availability.', why: 'Treatment bed availability can change in hours. Having options confirmed saves critical time.' },
+      { action: 'Let natural consequences continue without interference.', why: 'Every unrescued consequence increases the individual\'s awareness of the cost of their behavior.' },
     ],
     donts: [
-      'Do not rescue financially during this period.',
-      'Avoid emotional confrontation or repeated pleading.',
-      'Do not reveal intervention planning to the individual.',
-      'Do not soften boundaries because things seem to be improving.',
-      'Avoid over-communicating concern — let the pressure work.',
+      { action: 'Do not reveal intervention planning to anyone outside the team.', why: 'If the individual learns an intervention is coming, they will pre-emptively harden their defenses.' },
+      { action: 'Do not soften boundaries because "things seem better."', why: 'Emerging readiness can look like improvement. It is not. It is exhaustion. Softening kills the window.' },
+      { action: 'Do not over-communicate concern — let the pressure do the work.', why: 'Constant expressions of worry give the individual something to push against. Silence is more powerful.' },
+      { action: 'Do not engage in arguments about substance use.', why: 'Debates reinforce the individual\'s intellectual defenses. You cannot argue someone into recovery.' },
     ],
   },
   'Active Window': {
     dos: [
-      'Finalize treatment placement and confirm bed availability.',
-      'Complete intervention team preparation and letter writing.',
-      'Have bags packed and logistics ready for immediate departure.',
-      'Maintain boundaries firmly — this pressure is working.',
-      'If treatment is offered, keep the offer simple and immediate.',
+      { action: 'Confirm treatment placement and bed availability today.', why: 'This window may last 48–72 hours. If you don\'t have a bed when they say yes, you lose the moment.' },
+      { action: 'Finalize intervention letters and team roles.', why: 'Every team member must know exactly what they will say and do. Rehearsal prevents chaos.' },
+      { action: 'Have bags packed and transportation arranged for immediate departure.', why: 'If they say yes, the answer is "let\'s go now." Every hour of delay is an opportunity for the window to close.' },
+      { action: 'Maintain boundaries firmly — this pressure is creating the window.', why: 'The instinct to reward "improvement" with kindness will destroy the conditions that made this window possible.' },
     ],
     donts: [
-      'Do not allow enabling behaviors to re-stabilize the situation.',
-      'Avoid delays that could allow the window to close.',
-      'Do not add emotional guilt or pressure beyond boundaries.',
-      'Do not give the person too much time to "think about it."',
-      'Avoid arguments — stay calm, clear, and compassionate.',
+      { action: 'Do not allow any enabling behavior to re-stabilize the situation.', why: 'One rescue — money, shelter, emotional validation of denial — can close this window immediately.' },
+      { action: 'Do not delay to "wait for a better time."', why: 'There is no better time. This is the window. Waiting is choosing to let it close.' },
+      { action: 'Do not add emotional pressure beyond established boundaries.', why: 'Boundaries create productive discomfort. Emotional guilt creates defensive rage. Know the difference.' },
+      { action: 'Do not give extended time to "think about it."', why: 'Thinking time is planning-to-refuse time. The offer should be immediate: today, now, let\'s go.' },
     ],
   },
   'Critical Window': {
     dos: [
-      'Execute the intervention plan now.',
-      'Keep the offer simple: "We have a place for you. Will you go today?"',
-      'Have transportation and treatment intake ready immediately.',
-      'Stay compassionate but firm — this is the moment.',
-      'Support immediate transition to care without delays.',
+      { action: 'Execute the intervention plan within 24–72 hours.', why: 'This level of readiness rarely sustains. The individual is as reachable as they are likely to be.' },
+      { action: 'Keep the offer simple: "We have a place for you. Will you go today?"', why: 'Complexity creates objections. Simplicity forces a yes or no. That\'s all you need.' },
+      { action: 'Have transportation and treatment intake ready immediately.', why: 'If they say yes, leave within the hour. Every minute of delay introduces doubt.' },
+      { action: 'Stay compassionate but direct — this is the moment.', why: 'Compassion keeps the door open. Directness ensures they walk through it.' },
     ],
     donts: [
-      'Do not wait. Delays risk the window closing.',
-      'Do not allow family to second-guess timing.',
-      'Avoid negotiation — the answer is yes or no.',
-      'Do not pile on emotional appeals if they say yes — just go.',
-      'Do not threaten — offer help with love and clarity.',
+      { action: 'Do not wait. This window will close.', why: 'Critical windows typically last 24–72 hours. Hesitation is the most common reason families miss them.' },
+      { action: 'Do not allow the family to second-guess timing.', why: 'Fear will tell the family "maybe tomorrow." Tomorrow, the window may be gone.' },
+      { action: 'Do not negotiate terms or accommodate conditions.', why: 'Negotiation is the individual\'s last defense. The answer is the program, or no program. Period.' },
+      { action: 'Do not pile on emotional appeals if they say yes — just move.', why: 'Once they agree, words become obstacles. Stop talking and start driving to the facility.' },
     ],
   },
 };
@@ -83,6 +80,7 @@ export function FamilyGuidancePanel({ statusLabel }: FamilyGuidancePanelProps) {
           <Users className="h-5 w-5 text-primary" />
           Family Guidance — {statusLabel}
         </CardTitle>
+        <p className="text-xs text-muted-foreground">Tactical instructions for authorized family members</p>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -90,11 +88,16 @@ export function FamilyGuidancePanel({ statusLabel }: FamilyGuidancePanelProps) {
             <h4 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
               <ShieldCheck className="h-4 w-4 text-primary" /> Do
             </h4>
-            <ul className="space-y-2">
+            <ul className="space-y-3">
               {guidance.dos.map((item, i) => (
-                <li key={i} className="text-xs text-foreground/70 leading-relaxed flex gap-2">
-                  <span className="text-primary mt-0.5">✓</span>
-                  {item}
+                <li key={i} className="text-xs leading-relaxed">
+                  <div className="flex gap-2">
+                    <span className="text-primary mt-0.5 flex-shrink-0">✓</span>
+                    <div>
+                      <span className="text-foreground font-medium">{item.action}</span>
+                      <p className="text-muted-foreground mt-0.5 italic">{item.why}</p>
+                    </div>
+                  </div>
                 </li>
               ))}
             </ul>
@@ -103,11 +106,16 @@ export function FamilyGuidancePanel({ statusLabel }: FamilyGuidancePanelProps) {
             <h4 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
               <ShieldCheck className="h-4 w-4 text-destructive" /> Don't
             </h4>
-            <ul className="space-y-2">
+            <ul className="space-y-3">
               {guidance.donts.map((item, i) => (
-                <li key={i} className="text-xs text-foreground/70 leading-relaxed flex gap-2">
-                  <span className="text-destructive mt-0.5">✗</span>
-                  {item}
+                <li key={i} className="text-xs leading-relaxed">
+                  <div className="flex gap-2">
+                    <span className="text-destructive mt-0.5 flex-shrink-0">✗</span>
+                    <div>
+                      <span className="text-foreground font-medium">{item.action}</span>
+                      <p className="text-muted-foreground mt-0.5 italic">{item.why}</p>
+                    </div>
+                  </div>
                 </li>
               ))}
             </ul>
