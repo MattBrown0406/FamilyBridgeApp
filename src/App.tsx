@@ -29,6 +29,7 @@ import TermsOfService from "./pages/TermsOfService";
 import NotFound from "./pages/NotFound";
 import SignHIPAA from "./pages/SignHIPAA";
 import UpdatePayment from "./pages/UpdatePayment";
+import InterventionReadiness from "./pages/InterventionReadiness";
 import ScrollToTop from "./components/ScrollToTop";
 import { usePlatform } from "@/hooks/usePlatform";
 
