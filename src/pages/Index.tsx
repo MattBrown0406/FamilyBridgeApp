@@ -61,7 +61,7 @@ const journeySteps = [
       { label: 'Relapse risk forecasting', icon: Activity },
       { label: 'Actionable recommendations', icon: Zap },
     ],
-    link: '/outcome-predictions',
+    link: '/outcome-predictions?demo=true',
   },
 ];
 
