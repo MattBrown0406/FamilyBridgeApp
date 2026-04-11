@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
+import { RevenueCatProvider } from "@/hooks/useRevenueCat";
 import { OrganizationProvider } from "@/hooks/useOrganization";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
@@ -59,12 +60,13 @@ const App = () => {
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <AuthProvider>
-        <OrganizationProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <ScrollToTop />
-            <Routes>
+        <RevenueCatProvider>
+          <OrganizationProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <ScrollToTop />
+              <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/dashboard" element={<Dashboard />} />
@@ -121,9 +123,10 @@ const App = () => {
                 element={paymentsWebOnly ? <Navigate to="/auth" replace /> : <UpdatePayment />}
               />
               <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </OrganizationProvider>
+              </Routes>
+            </BrowserRouter>
+          </OrganizationProvider>
+        </RevenueCatProvider>
       </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
