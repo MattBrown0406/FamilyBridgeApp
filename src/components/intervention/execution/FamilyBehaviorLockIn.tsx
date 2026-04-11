@@ -11,7 +11,7 @@ const rules = [
     detail: 'The individual will use guilt, anger, tears, and promises to change. These are predictable resistance behaviors—not genuine turning points. Stay the course.',
   },
   {
-    title: 'No Backing Out of Consequences',
+    title: 'No Backing Out of Boundaries and the Consequences Attached to Them',
     detail: 'If you stated a consequence, you must follow through. Failing to enforce even one consequence undermines the entire intervention.',
   },
   {
