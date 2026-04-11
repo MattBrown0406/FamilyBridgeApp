@@ -40,6 +40,7 @@ import {
   ArrowRightLeft,
   FileText,
   Target,
+  MessageSquare,
 } from 'lucide-react';
 import { ArchivedFamiliesPanel } from '@/components/ArchivedFamiliesPanel';
 import { BroadcastMessage } from '@/components/BroadcastMessage';
@@ -1177,6 +1178,14 @@ const ProviderAdmin = () => {
               >
                 <HelpCircle className="h-4 w-4" />
                 <span className="hidden sm:inline ml-2">General Support</span>
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => navigate('/provider-workspace')} className="text-primary-foreground hover:bg-primary-foreground/10">
+                <MessageSquare className="h-4 w-4" />
+                <span className="hidden sm:inline ml-2">Workspace</span>
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => navigate('/provider-coordination')} className="text-primary-foreground hover:bg-primary-foreground/10">
+                <Users className="h-4 w-4" />
+                <span className="hidden sm:inline ml-2">Coordination</span>
               </Button>
               <Button variant="ghost" size="sm" onClick={() => navigate('/dashboard')} className="text-primary-foreground hover:bg-primary-foreground/10">
                 <ArrowLeft className="h-4 w-4 mr-2" />
