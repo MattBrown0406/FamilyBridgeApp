@@ -226,6 +226,14 @@ export const CoachingTab = ({ familyId, members = [] }: CoachingTabProps) => {
 
       if (screenshotError) throw screenshotError;
     }
+
+    try {
+      await supabase.functions.invoke('calculate-fiis-learning', {
+        body: { family_id: familyId },
+      });
+    } catch (learningError) {
+      console.warn('Unable to refresh FIIS learning snapshot after coaching save', learningError);
+    }
   };
 
   // Send live coaching request (streaming)

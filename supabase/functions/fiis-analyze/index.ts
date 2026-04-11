@@ -5,6 +5,7 @@ import {
   buildFIISDoctrinePrompt,
   selectAdaptiveLenses,
 } from "../_shared/fiis-doctrine.ts";
+import { buildFIISLearningContext } from "../_shared/fiis-learning.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -3241,6 +3242,8 @@ APPLY THESE LEARNINGS: Adjust your analysis based on moderator corrections. If m
 
 `;
     }
+
+    familyContext += await buildFIISLearningContext(supabase, familyId);
 
     // Add document analysis context
     if (documentsResult.data && documentsResult.data.length > 0) {

@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { buildFIISDoctrinePrompt, buildModeratorEscalationTriggersPrompt } from "../_shared/fiis-doctrine.ts";
+import { buildFIISLearningContext } from "../_shared/fiis-learning.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -247,6 +248,8 @@ async function fetchFamilyContext(supabase: any, familyId: string) {
       return `${i + 1}. [${f.feedback_type}] ${corrections}`;
     }).join('\n')}\n`;
   }
+
+  context += await buildFIISLearningContext(supabase, familyId);
 
   return context;
 }

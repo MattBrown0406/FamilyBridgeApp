@@ -110,6 +110,14 @@ export function FIISFeedbackDialog({
 
       if (error) throw error;
 
+      try {
+        await supabase.functions.invoke('calculate-fiis-learning', {
+          body: { family_id: familyId },
+        });
+      } catch (learningError) {
+        console.warn('Unable to refresh FIIS learning snapshot after feedback submission', learningError);
+      }
+
       toast.success("Feedback submitted! FIIS will learn from your correction.");
       setOpen(false);
       onFeedbackSubmitted?.();
