@@ -11,7 +11,8 @@ import { SEOHead, createOrganizationSchema } from '@/components/SEOHead';
 import {
   Shield, Users, ArrowRight, Building2, Check, LogOut, Brain,
   Heart, FileText, Pill, GitBranch, Activity, Vote, Mic, Crosshair,
-  Target, BarChart3, Zap, ChevronRight, Eye, MessageSquare, ClipboardCheck
+  Target, BarChart3, Zap, ChevronRight, Eye, MessageSquare, ClipboardCheck,
+  AlertTriangle
 } from 'lucide-react';
 
 const journeySteps = [
