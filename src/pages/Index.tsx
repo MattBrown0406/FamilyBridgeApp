@@ -60,11 +60,13 @@ const Index = () => {
       gradient: 'from-amber-500 to-orange-600',
     },
     {
-      icon: MapPin,
-      title: 'Meeting Check-Ins',
-      description: 'GPS-verified recovery meeting attendance with automatic family notifications.',
-      gradient: 'from-blue-500 to-cyan-600',
-      forFamily: true,
+      icon: Crosshair,
+      title: 'Intervention Readiness Engine',
+      description: 'Pattern-recognition system that identifies when resistance is weakening and intervention timing is optimal.',
+      highlight: true,
+      gradient: 'from-red-500 to-orange-600',
+      badge: 'Patent Pending',
+      forProvider: true,
     },
     {
       icon: Vote,
