@@ -86,10 +86,21 @@ export const CoachingTab = ({ familyId, members = [] }: CoachingTabProps) => {
   };
 
   // Speech recognition for speakerphone mode
-  const startListening = useCallback(() => {
+  const startListening = useCallback(async () => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) {
       toast({ title: "Not supported", description: "Speech recognition is not supported in this browser. Please use Chrome or Edge.", variant: "destructive" });
+      return;
+    }
+
+    // Request microphone permission before starting speech recognition
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      // Stop the stream immediately — we just needed the permission grant
+      stream.getTracks().forEach(track => track.stop());
+    } catch (err) {
+      console.error('Microphone permission denied:', err);
+      toast({ title: "Microphone access required", description: "Please allow microphone access in your browser or device settings to use speakerphone mode.", variant: "destructive" });
       return;
     }
 
@@ -120,7 +131,7 @@ export const CoachingTab = ({ familyId, members = [] }: CoachingTabProps) => {
 
     recognition.onerror = (event: any) => {
       console.error('Speech recognition error:', event.error);
-      if (event.error !== 'no-speech') {
+      if (event.error !== 'no-speech' && event.error !== 'not-allowed') {
         toast({ title: "Listening error", description: `Speech recognition error: ${event.error}`, variant: "destructive" });
       }
     };
