@@ -79,7 +79,7 @@ const tiers: {
           { label: 'Execution planning', icon: Zap },
           { label: 'Real-time conversation coaching', icon: Mic },
         ],
-        link: '/intervention-readiness',
+        link: '/intervention-readiness?demo=true',
       },
       {
         title: 'Accountability Engine',

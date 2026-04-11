@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
-import { ArrowLeft, Info, Loader2, Zap } from 'lucide-react';
-import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { ArrowLeft, Info, Loader2, Zap, Eye } from 'lucide-react';
+import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ReadinessHeader } from '@/components/intervention/ReadinessHeader';
 import { SignalCards } from '@/components/intervention/SignalCards';
@@ -32,6 +32,8 @@ import { useUserFamilyRole } from '@/hooks/useUserFamilyRole';
 
 const InterventionReadiness = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const isDemo = searchParams.get('demo') === 'true';
   const { user, loading: authLoading } = useAuth();
   const { isRecovering, loading: roleLoading } = useUserFamilyRole();
   const [indicators, setIndicators] = useState<ObservedIndicator[]>(demoClient.indicators);
@@ -45,21 +47,23 @@ const InterventionReadiness = () => {
   const suggestedStatus = useMemo(() => getSuggestedStatus(totalScore), [totalScore]);
   const windowStability = useMemo(() => getWindowStability(demoClient.history), []);
 
-  // Block recovering users from accessing this page
-  if (authLoading || roleLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
+  // Skip auth checks in demo mode
+  if (!isDemo) {
+    if (authLoading || roleLoading) {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-background">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      );
+    }
 
-  if (!user) {
-    return <Navigate to="/auth" replace />;
-  }
+    if (!user) {
+      return <Navigate to="/auth" replace />;
+    }
 
-  if (isRecovering) {
-    return <Navigate to="/dashboard" replace />;
+    if (isRecovering) {
+      return <Navigate to="/dashboard" replace />;
+    }
   }
 
   const handleAddIndicator = (ind: ObservedIndicator) => {
@@ -77,13 +81,29 @@ const InterventionReadiness = () => {
         description="Strategic decision-support tool for timing interventions based on pattern recognition and readiness signals."
       />
       <div className="min-h-screen bg-background">
+        {/* Demo banner */}
+        {isDemo && (
+          <div className="bg-amber-50 border-b border-amber-200 dark:bg-amber-950/30 dark:border-amber-800/50">
+            <div className="max-w-7xl mx-auto px-4 py-2.5 flex items-center justify-between">
+              <div className="flex items-center gap-2 text-sm">
+                <Eye className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                <span className="font-medium text-amber-800 dark:text-amber-300">Demo Mode</span>
+                <span className="text-amber-600 dark:text-amber-400 hidden sm:inline">— Viewing sample intervention readiness data</span>
+              </div>
+              <Button size="sm" className="h-7 text-xs bg-primary text-primary-foreground" onClick={() => navigate('/family-purchase')}>
+                Get Started
+              </Button>
+            </div>
+          </div>
+        )}
+
         {/* Top bar */}
         <div className="border-b bg-card/50 sticky top-0 z-10">
           <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Link to="/dashboard">
+              <Link to={isDemo ? '/' : '/dashboard'}>
                 <Button variant="ghost" size="sm" className="h-8 gap-1.5">
-                  <ArrowLeft className="h-4 w-4" /> Back
+                  <ArrowLeft className="h-4 w-4" /> {isDemo ? 'Home' : 'Back'}
                 </Button>
               </Link>
               <h2 className="text-sm font-semibold text-foreground">Intervention Readiness Engine</h2>
