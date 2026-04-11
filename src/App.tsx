@@ -16,6 +16,7 @@ import Subscription from "./pages/Subscription";
 import ProviderAdmin from "./pages/ProviderAdmin";
 import ProviderPurchase from "./pages/ProviderPurchase";
 import ProviderWorkspace from "./pages/ProviderWorkspace";
+import ProviderCoordination from "./pages/ProviderCoordination";
 import FamilyPurchase from "./pages/FamilyPurchase";
 import FamilySetup from "./pages/FamilySetup";
 import ModeratorPurchase from "./pages/ModeratorPurchase";
@@ -71,6 +72,7 @@ const App = () => {
               />
               <Route path="/provider-admin" element={<ProviderAdmin />} />
               <Route path="/provider-workspace" element={<ProviderWorkspace />} />
+              <Route path="/provider-coordination" element={<ProviderCoordination />} />
               <Route
                 path="/provider-purchase"
                 element={paymentsWebOnly ? <Navigate to="/auth" replace /> : <ProviderPurchase />}

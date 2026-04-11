@@ -193,6 +193,15 @@ const ProviderWorkspace = () => {
                 </SelectContent>
               </Select>
             )}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate('/provider-coordination')}
+              className="gap-1"
+            >
+              <Users className="h-4 w-4" />
+              Coordination Hub
+            </Button>
           </div>
         </div>
       </header>
