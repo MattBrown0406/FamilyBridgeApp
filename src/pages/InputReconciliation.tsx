@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -19,6 +19,7 @@ import {
   type DetectedIssue, type InputConfidence, type TrackingState,
 } from '@/data/inputReconciliationDemoData';
 import { useSuperAdmin } from '@/hooks/useSuperAdmin';
+import { useInputReconciliation, type PlatformHealthData } from '@/hooks/useInputReconciliation';
 import { format } from 'date-fns';
 
 const confidenceBadge = (c: InputConfidence) => {
@@ -52,19 +53,34 @@ const typeIcon = (t: DetectedIssue['type']) => {
 /* =============================================
    SUPER ADMIN SITE-WIDE OVERVIEW COMPONENT
    ============================================= */
-const PlatformHealthOverview = () => {
-  const ph = demoPlatformHealth;
+const PlatformHealthOverview = ({ data }: { data: PlatformHealthData }) => {
+  const ph = data;
   const totalConf = ph.confidenceDistribution;
   const totalFamiliesWithConf = totalConf.low + totalConf.moderate + totalConf.high;
+
+  const hasData = totalFamiliesWithConf > 0 || ph.totalUnresolved > 0;
+
+  if (!hasData) {
+    return (
+      <Card className="border-slate-200">
+        <CardContent className="py-8 text-center">
+          <Shield className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+          <p className="font-medium text-sm">No input reconciliation data yet</p>
+          <p className="text-xs text-muted-foreground mt-1 max-w-md mx-auto">
+            As families and providers submit updates, the system will track data quality, detect inconsistencies, and report health metrics here.
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <div className="space-y-6">
       {/* Top-level stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
         {[
           { label: 'Total Families', value: ph.totalFamilies, icon: Users },
           { label: 'Providers', value: ph.totalProviders, icon: Building2 },
-          { label: 'Private Families', value: ph.privateFamilies, icon: Shield },
           { label: 'Avg Confidence', value: `${ph.avgDataConfidence}%`, icon: BarChart3, color: ph.avgDataConfidence >= 70 ? 'text-emerald-600' : ph.avgDataConfidence >= 50 ? 'text-amber-600' : 'text-red-600' },
           { label: 'Unresolved Issues', value: ph.totalUnresolved, icon: AlertTriangle, color: 'text-red-600' },
           { label: 'Deferrals Overdue', value: ph.totalDeferralsOverdue, icon: Clock, color: 'text-amber-600' },
@@ -140,7 +156,7 @@ const PlatformHealthOverview = () => {
             <CardTitle className="text-sm">Top Issue Categories</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
-            {demoTopIssueCategories.map(cat => (
+            {ph.topCategories.map(cat => (
               <div key={cat.category}>
                 <div className="flex justify-between text-xs mb-0.5">
                   <span>{cat.category}</span>
@@ -170,12 +186,11 @@ const PlatformHealthOverview = () => {
                   <th className="pb-2 pr-3 text-center">Unresolved</th>
                   <th className="pb-2 pr-3 text-center">Contradictions</th>
                   <th className="pb-2 pr-3 text-center">Shallow</th>
-                  <th className="pb-2 pr-3 text-center">Overdue</th>
-                  <th className="pb-2 text-center">Learning Excluded</th>
+                  <th className="pb-2 text-center">Overdue</th>
                 </tr>
               </thead>
               <tbody>
-                {demoOrgInputHealth.map(org => (
+                {ph.orgHealth.map(org => (
                   <tr key={org.id} className="border-b last:border-b-0 hover:bg-muted/30">
                     <td className="py-2.5 pr-4">
                       <div className="flex items-center gap-2">
@@ -203,9 +218,6 @@ const PlatformHealthOverview = () => {
                     <td className="py-2.5 pr-3 text-center">
                       <span className={org.deferralsOverdue > 0 ? 'text-amber-600 font-semibold' : 'text-emerald-600'}>{org.deferralsOverdue}</span>
                     </td>
-                    <td className="py-2.5 text-center">
-                      <span className={org.learningExclusions > 5 ? 'text-red-600 font-semibold' : ''}>{org.learningExclusions}</span>
-                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -215,19 +227,21 @@ const PlatformHealthOverview = () => {
       </Card>
 
       {/* Learning Impact */}
-      <Card className="border-slate-200 bg-slate-50">
-        <CardContent className="py-4">
-          <div className="flex items-start gap-3">
-            <Eye className="h-5 w-5 text-muted-foreground mt-0.5" />
-            <div>
-              <p className="font-medium text-sm mb-1">Learning Layer Impact</p>
-              <p className="text-sm text-muted-foreground">
-                <span className="font-semibold text-red-600">{ph.learningDataExcluded} families</span> currently have data excluded from cross-case pattern learning due to low input confidence. Improving data quality in these families will strengthen the platform's ability to generate reliable, privacy-safe insights.
-              </p>
+      {ph.confidenceDistribution.low > 0 && (
+        <Card className="border-slate-200 bg-slate-50">
+          <CardContent className="py-4">
+            <div className="flex items-start gap-3">
+              <Eye className="h-5 w-5 text-muted-foreground mt-0.5" />
+              <div>
+                <p className="font-medium text-sm mb-1">Learning Layer Impact</p>
+                <p className="text-sm text-muted-foreground">
+                  <span className="font-semibold text-red-600">{ph.confidenceDistribution.low} families</span> currently have low data confidence, which may reduce their contribution to cross-case pattern learning. Improving data quality will strengthen privacy-safe insights.
+                </p>
+              </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
 
       <Card className="border-slate-200 bg-slate-50">
         <CardContent className="py-3">
@@ -246,17 +260,46 @@ const PlatformHealthOverview = () => {
 const InputReconciliation = () => {
   const navigate = useNavigate();
   const { isAdmin, isVerifying } = useSuperAdmin();
+  const { platformHealth, loading: healthLoading, loadPlatformHealth } = useInputReconciliation();
   const [expandedIssue, setExpandedIssue] = useState<string | null>(null);
   const [expandedPrompt, setExpandedPrompt] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'platform' | 'case'>('platform');
+
+  const isDemo = new URLSearchParams(window.location.search).has('demo');
+  const showPlatformView = isAdmin || isDemo;
+
+  // Load real data for super admins
+  useEffect(() => {
+    if (isAdmin && !isDemo) {
+      loadPlatformHealth();
+    }
+  }, [isAdmin, isDemo, loadPlatformHealth]);
+
+  // Use real data if available, otherwise demo data for demo mode
+  const activePlatformData: PlatformHealthData = (!isDemo && platformHealth) ? platformHealth : {
+    totalFamilies: demoPlatformHealth.totalFamilies,
+    totalProviders: demoPlatformHealth.totalProviders,
+    avgDataConfidence: demoPlatformHealth.avgDataConfidence,
+    totalUnresolved: demoPlatformHealth.totalUnresolved,
+    totalContradictions: demoPlatformHealth.totalContradictions,
+    totalShallowInputs: demoPlatformHealth.totalShallowInputs,
+    totalIncomplete: demoPlatformHealth.totalIncomplete,
+    totalDeferralsOverdue: demoPlatformHealth.totalDeferralsOverdue,
+    confidenceDistribution: demoPlatformHealth.confidenceDistribution,
+    orgHealth: demoOrgInputHealth.map(o => ({
+      id: o.id, name: o.name, type: o.type, totalFamilies: o.totalFamilies,
+      avgConfidence: o.avgConfidence, confidence: o.confidence,
+      unresolvedIssues: o.unresolvedIssues, contradictions: o.contradictions,
+      shallowInputs: o.shallowInputs, incompleteInputs: o.incompleteInputs,
+      deferralsOverdue: o.deferralsOverdue,
+    })),
+    topCategories: demoTopIssueCategories,
+  };
 
   const overallConfidence = Math.round(
     demoDataConfidence.reduce((s, d) => s + d.overall, 0) / demoDataConfidence.length
   );
   const unresolvedCount = demoDetectedIssues.filter(i => i.trackingState !== 'resolved').length;
-
-  // Show platform view for super admins by default
-  const showPlatformView = isAdmin || new URLSearchParams(window.location.search).has('demo');
 
   return (
     <div className="min-h-screen bg-background">
@@ -289,17 +332,17 @@ const InputReconciliation = () => {
                 <>
                   <Card className="bg-white/10 border-white/20 text-white px-4 py-2">
                     <p className="text-xs text-white/60">Platform Confidence</p>
-                    <p className={`text-xl font-bold ${demoPlatformHealth.avgDataConfidence >= 70 ? 'text-emerald-300' : demoPlatformHealth.avgDataConfidence >= 50 ? 'text-amber-300' : 'text-red-300'}`}>
-                      {demoPlatformHealth.avgDataConfidence}%
+                    <p className={`text-xl font-bold ${activePlatformData.avgDataConfidence >= 70 ? 'text-emerald-300' : activePlatformData.avgDataConfidence >= 50 ? 'text-amber-300' : 'text-red-300'}`}>
+                      {activePlatformData.avgDataConfidence}%
                     </p>
                   </Card>
                   <Card className="bg-white/10 border-white/20 text-white px-4 py-2">
                     <p className="text-xs text-white/60">Unresolved</p>
-                    <p className="text-xl font-bold text-red-300">{demoPlatformHealth.totalUnresolved}</p>
+                    <p className="text-xl font-bold text-red-300">{activePlatformData.totalUnresolved}</p>
                   </Card>
                   <Card className="bg-white/10 border-white/20 text-white px-4 py-2">
                     <p className="text-xs text-white/60">Families</p>
-                    <p className="text-xl font-bold">{demoPlatformHealth.totalFamilies}</p>
+                    <p className="text-xl font-bold">{activePlatformData.totalFamilies}</p>
                   </Card>
                 </>
               ) : (
@@ -345,7 +388,7 @@ const InputReconciliation = () => {
 
       <div className="max-w-7xl mx-auto px-4 py-6 space-y-6">
         {/* Platform Health (Super Admin) */}
-        {showPlatformView && viewMode === 'platform' && <PlatformHealthOverview />}
+        {showPlatformView && viewMode === 'platform' && <PlatformHealthOverview data={activePlatformData} />}
 
         {/* Case-Level View (original tabs) */}
         {(!showPlatformView || viewMode === 'case') && (
