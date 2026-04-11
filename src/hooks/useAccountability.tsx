@@ -71,33 +71,29 @@ export function useAccountability(familyId?: string, organizationId?: string) {
     if (!user) return;
     setLoading(true);
     try {
-      const queries: Promise<any>[] = [];
-
-      // Load commitments
+      // Build queries
       let commitQ = supabase.from('accountability_commitments').select('*');
       if (familyId) commitQ = commitQ.eq('family_id', familyId);
       if (organizationId) commitQ = commitQ.eq('organization_id', organizationId);
-      queries.push(commitQ.order('created_at', { ascending: false }));
 
-      // Load latest scores
       let scoreQ = supabase.from('accountability_scores').select('*');
       if (familyId) scoreQ = scoreQ.eq('family_id', familyId);
       if (organizationId) scoreQ = scoreQ.eq('organization_id', organizationId);
-      queries.push(scoreQ.order('calculated_at', { ascending: false }).limit(10));
 
-      // Load active alerts
       let alertQ = supabase.from('accountability_alerts').select('*').eq('is_dismissed', false);
       if (familyId) alertQ = alertQ.eq('family_id', familyId);
       if (organizationId) alertQ = alertQ.eq('organization_id', organizationId);
-      queries.push(alertQ.order('created_at', { ascending: false }));
 
-      // Load contracts
       let contractQ = supabase.from('accountability_contracts').select('*');
       if (familyId) contractQ = contractQ.eq('family_id', familyId);
       if (organizationId) contractQ = contractQ.eq('organization_id', organizationId);
-      queries.push(contractQ.order('created_at', { ascending: false }));
 
-      const [commitRes, scoreRes, alertRes, contractRes] = await Promise.all(queries);
+      const [commitRes, scoreRes, alertRes, contractRes] = await Promise.all([
+        commitQ.order('created_at', { ascending: false }),
+        scoreQ.order('calculated_at', { ascending: false }).limit(10),
+        alertQ.order('created_at', { ascending: false }),
+        contractQ.order('created_at', { ascending: false }),
+      ]);
 
       setCommitments((commitRes.data || []) as AccountabilityCommitment[]);
       setScores((scoreRes.data || []) as AccountabilityScore[]);
