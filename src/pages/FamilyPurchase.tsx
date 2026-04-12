@@ -180,7 +180,7 @@ const FamilyPurchase = () => {
   const handleSquarePurchase = async (withTrial = true) => {
     // Apple App Store compliance: Never execute payment flows on native
     if (isNative) {
-      toast.error("This feature is not available on mobile. Please use the web version.");
+      toast.error("Purchases on this device must be completed with the in-app App Store flow.");
       return;
     }
 
@@ -423,7 +423,7 @@ const FamilyPurchase = () => {
       return {
         icon: CreditCard,
         label: "Web Checkout",
-        description: "Secure payment on our website",
+        description: "Secure payment after continuing from the app",
       };
     }
     return {
@@ -704,7 +704,7 @@ const FamilyPurchase = () => {
                       <span>Web Setup</span>
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">
-                      Complete setup on our website
+                      Continue setup after leaving the app
                     </p>
                   </div>
                 )}
@@ -819,7 +819,7 @@ const FamilyPurchase = () => {
                           <>
                             <div className="rounded-lg border bg-muted/40 p-4 text-sm text-muted-foreground">
                               <p className="font-medium text-foreground mb-2">One family admin subscription covers the whole family.</p>
-                              <p>After setup, the rest of the family can still join with invite codes on iPhone, Android, or the web.</p>
+                              <p>After setup, the rest of the family can join with invite codes on any supported device.</p>
                             </div>
                             <Button
                               onClick={handleNativePurchase}
@@ -837,6 +837,9 @@ const FamilyPurchase = () => {
                             >
                               {isNativeRestoring ? "Restoring..." : "Restore Purchases"}
                             </Button>
+                            <p className="text-xs text-center text-muted-foreground">
+                              Already subscribed with this Apple ID? Restore first, then continue to family setup.
+                            </p>
                             <Button
                               variant="ghost"
                               onClick={() => navigate("/auth")}

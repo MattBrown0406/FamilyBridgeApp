@@ -240,7 +240,7 @@ const FamilySetup = () => {
                     className="font-mono"
                   />
                   <p className="text-xs text-muted-foreground">
-                    This is the code you received when your account was set up
+                    Enter the invite code from your purchase confirmation or from a family admin
                   </p>
                 </div>
               )}
@@ -248,7 +248,7 @@ const FamilySetup = () => {
               {hasFamilyRevenueCatAccess && (
                 <div className="rounded-lg border border-emerald-500/30 bg-emerald-50/60 p-4 text-sm text-emerald-900 dark:bg-emerald-950/20 dark:text-emerald-100">
                   <p className="font-medium mb-1">FIIS Support is active on this account.</p>
-                  <p>You can create the family directly here. After setup, everyone else will still join with your family invite code.</p>
+                  <p>You can create the family directly here. After setup, everyone else can join with your family invite code.</p>
                 </div>
               )}
 

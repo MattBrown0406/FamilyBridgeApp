@@ -25,15 +25,17 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>FamilyBridge uses the camera to scan receipts and medication labels you choose to upload.</string>
+	<string>FamilyBridge uses the camera when you choose to capture receipts, medication labels, or other family support documents in the app.</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>FamilyBridge uses Face ID to help you securely sign in to your account on this device.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>FamilyBridge uses your location to support meeting check-ins and safety features you initiate.</string>
+	<string>FamilyBridge uses your location only when you choose meeting check-ins or other location-aware safety features.</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>FamilyBridge uses the microphone during live coaching so FIIS can transcribe conversations you choose to analyze.</string>
+	<string>FamilyBridge uses the microphone for live coaching and voice features you start inside the app.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>FamilyBridge uses your photo library when you choose an existing receipt, medication label, or document to upload.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>FamilyBridge uses speech recognition during live coaching to turn conversations into text and suggest grounded responses.</string>
+	<string>FamilyBridge uses speech recognition for live coaching sessions you start so spoken words can be turned into text in the app.</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>

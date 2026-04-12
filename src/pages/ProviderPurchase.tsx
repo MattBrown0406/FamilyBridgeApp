@@ -81,7 +81,7 @@ const ProviderPurchase = () => {
   const handleSquarePurchase = async () => {
     // Apple App Store compliance: Never execute payment flows on native
     if (isNative) {
-      toast.error("This feature is not available on mobile. Please use the web version.");
+      toast.error("Purchases on this device must be completed with the in-app App Store flow.");
       return;
     }
 
@@ -205,7 +205,7 @@ const ProviderPurchase = () => {
       return {
         icon: CreditCard,
         label: "Web Checkout",
-        description: "Secure payment on our website",
+        description: "Secure payment after continuing from the app",
       };
     }
     return {
@@ -618,7 +618,7 @@ const ProviderPurchase = () => {
                           <>
                             <div className="rounded-lg border bg-muted/40 p-4 text-sm text-muted-foreground">
                               <p className="font-medium text-foreground mb-2">Choose the provider subscription that fits your team.</p>
-                              <p>Annual stays web-only for now. iPhone supports monthly and quarterly provider plans.</p>
+                              <p>Monthly and quarterly provider plans are available on iPhone today.</p>
                             </div>
                             <Button
                               onClick={handleNativePurchase}
@@ -636,6 +636,9 @@ const ProviderPurchase = () => {
                             >
                               {isNativeRestoring ? "Restoring..." : "Restore Purchases"}
                             </Button>
+                            <p className="text-xs text-center text-muted-foreground">
+                              Already subscribed with this Apple ID? Restore first, then continue to provider setup.
+                            </p>
                             <Button
                               variant="ghost"
                               onClick={() => navigate("/auth")}

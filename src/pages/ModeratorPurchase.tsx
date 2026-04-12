@@ -293,15 +293,15 @@ export default function ModeratorPurchase() {
                   <>
                     <div className="text-center py-4 bg-muted/50 rounded-lg">
                       <p className="text-sm text-muted-foreground">
-                        This guidance window is currently arranged through the web. You can still sign in on iPhone and return to your family chat here.
+                        Professional Guidance Windows are not available for in-app purchase on iPhone yet. You can still sign in here and use any active window in your family chat.
                       </p>
                     </div>
                     <Button
                       variant="outline"
-                      onClick={() => navigate("/auth")}
+                      onClick={() => navigate(familyIdParam ? `/family/${familyIdParam}` : "/dashboard")}
                       className="w-full"
                     >
-                      Sign In
+                      Return to FamilyBridge
                     </Button>
                   </>
                 ) : isAndroid ? (
