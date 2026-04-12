@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usePlatform } from '@/hooks/usePlatform';
 import { useProviderAdmin } from '@/hooks/useProviderAdmin';
+import { useRevenueCat } from '@/hooks/useRevenueCat';
 import { useAuth } from '@/hooks/useAuth';
 import { useOrganizationBranding } from '@/hooks/useOrganizationBranding';
 import { Button } from '@/components/ui/button';
@@ -53,6 +54,7 @@ import { ProviderNotesPanel } from '@/components/ProviderNotesPanel';
 import { ProviderMessaging } from '@/components/ProviderMessaging';
 import { CRMDashboard } from '@/components/CRMDashboard';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
+import { REVENUECAT_ENTITLEMENT_IDS } from '@/lib/revenuecat';
 
 // Helper to convert hex to HSL string
 const hexToHsl = (hex: string): string => {
@@ -86,6 +88,7 @@ const ProviderAdmin = () => {
   const { isNative, isIOS } = usePlatform();
   const paymentsWebOnly = isNative && isIOS;
   const { user, loading: authLoading } = useAuth();
+  const { isSupported: revenueCatSupported, isReady: revenueCatReady, hasEntitlement, restorePurchases } = useRevenueCat();
   const { branding, applyBranding, resetBranding } = useOrganizationBranding();
   const { 
     organizations, 
@@ -118,6 +121,7 @@ const ProviderAdmin = () => {
   const [activationCode, setActivationCode] = useState('');
   const [isValidatingCode, setIsValidatingCode] = useState(false);
   const [isActivated, setIsActivated] = useState(false);
+  const [isRestoringRevenueCat, setIsRestoringRevenueCat] = useState(false);
   
   // Family group management state
   const [orgFamilies, setOrgFamilies] = useState<any[]>([]);
@@ -187,6 +191,13 @@ const ProviderAdmin = () => {
   });
 
   const currentOrg = organizations.find(o => o.id === selectedOrg);
+  const hasProviderRevenueCatAccess = isIOS && revenueCatSupported && hasEntitlement(REVENUECAT_ENTITLEMENT_IDS.provider);
+
+  useEffect(() => {
+    if (hasProviderRevenueCatAccess) {
+      setIsActivated(true);
+    }
+  }, [hasProviderRevenueCatAccess]);
 
   // Auto-select the first organization when organizations are loaded
   useEffect(() => {
@@ -629,6 +640,30 @@ const ProviderAdmin = () => {
     }
   };
 
+  const handleRestoreRevenueCatAccess = async () => {
+    if (!hasProviderRevenueCatAccess && (!isIOS || !revenueCatSupported)) {
+      toast({ title: 'Error', description: 'RevenueCat restore is only available on iPhone purchases.', variant: 'destructive' });
+      return;
+    }
+
+    setIsRestoringRevenueCat(true);
+    try {
+      const customerInfo = await restorePurchases();
+      if (customerInfo?.entitlements.active?.[REVENUECAT_ENTITLEMENT_IDS.provider]?.isActive) {
+        setIsActivated(true);
+        setIsCreating(true);
+        toast({ title: 'Success', description: 'Provider subscription restored. You can now create your organization.' });
+      } else {
+        toast({ title: 'Error', description: 'No active provider subscription was found to restore.', variant: 'destructive' });
+      }
+    } catch (err: any) {
+      console.error('RevenueCat restore error:', err);
+      toast({ title: 'Error', description: 'Failed to restore App Store purchases', variant: 'destructive' });
+    } finally {
+      setIsRestoringRevenueCat(false);
+    }
+  };
+
   // Extract branding from website
   const handleExtractBranding = async () => {
     if (!newOrg.website_url) {
@@ -794,7 +829,24 @@ const ProviderAdmin = () => {
               Perfect for treatment centers, therapists, sober coaches, and interventionists.
             </p>
             
-            {/* Activation Code Input */}
+            {hasProviderRevenueCatAccess ? (
+              <Card className="max-w-md mx-auto">
+                <CardHeader>
+                  <CardTitle className="flex items-center justify-center gap-2">
+                    <Check className="h-5 w-5" />
+                    Provider Access Active
+                  </CardTitle>
+                  <CardDescription>
+                    Your iPhone subscription is active. You can create your organization now.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <Button onClick={() => setIsCreating(true)} className="w-full" size="lg">
+                    Continue to Organization Setup
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : (
             <Card className="max-w-md mx-auto">
               <CardHeader>
                 <CardTitle className="flex items-center justify-center gap-2">
@@ -835,16 +887,34 @@ const ProviderAdmin = () => {
                 </Button>
               </CardContent>
             </Card>
+            )}
             
             {/* Purchase Link */}
             <div className="mt-8">
-              <p className="text-muted-foreground mb-4">
-                Don't have an activation code?
-              </p>
-              <Button variant="outline" onClick={() => navigate(paymentsWebOnly ? '/auth' : '/provider-purchase')} size="lg">
-                <CreditCard className="h-5 w-5 mr-2" />
-                Get Activation Code
-              </Button>
+              {isIOS && revenueCatSupported ? (
+                <div className="space-y-3">
+                  <p className="text-muted-foreground">
+                    Already purchased on iPhone?
+                  </p>
+                  <Button variant="outline" onClick={handleRestoreRevenueCatAccess} size="lg" disabled={isRestoringRevenueCat || !revenueCatReady}>
+                    <CreditCard className="h-5 w-5 mr-2" />
+                    {isRestoringRevenueCat ? 'Restoring...' : 'Restore App Store Purchase'}
+                  </Button>
+                  <Button variant="ghost" onClick={() => navigate('/provider-purchase')} size="lg">
+                    View Provider Plans
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  <p className="text-muted-foreground mb-4">
+                    Don't have an activation code?
+                  </p>
+                  <Button variant="outline" onClick={() => navigate(paymentsWebOnly ? '/auth' : '/provider-purchase')} size="lg">
+                    <CreditCard className="h-5 w-5 mr-2" />
+                    Get Activation Code
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         </div>

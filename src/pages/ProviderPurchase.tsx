@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { usePlatform } from "@/hooks/usePlatform";
+import { useRevenueCat } from "@/hooks/useRevenueCat";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,6 +16,13 @@ import { SEOHead } from "@/components/SEOHead";
 
 import { SubscriptionDisclosure } from "@/components/SubscriptionDisclosure";
 import { PRODUCTS } from "@/lib/products";
+import {
+  getOfferingPackageByProductId,
+  hasRevenueCatEntitlement,
+  REVENUECAT_ENTITLEMENT_IDS,
+  REVENUECAT_OFFERING_IDS,
+  REVENUECAT_PRODUCT_IDS,
+} from "@/lib/revenuecat";
 
 const ProviderPurchase = () => {
   const { user } = useAuth();
@@ -22,12 +30,16 @@ const ProviderPurchase = () => {
   const [searchParams] = useSearchParams();
   const status = searchParams.get("status");
   const { isNative, isIOS, isAndroid, paymentMethod } = usePlatform();
+  const { isSupported, isReady, getOffering, purchasePackage, restorePurchases, hasEntitlement } = useRevenueCat();
 
   const [email, setEmail] = useState(user?.email || "");
   const [couponCode, setCouponCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
   const [generatedCode, setGeneratedCode] = useState<string | null>(null);
+  const [isNativePurchasing, setIsNativePurchasing] = useState(false);
+  const [isNativeRestoring, setIsNativeRestoring] = useState(false);
+  const [providerOffering, setProviderOffering] = useState<any | null>(null);
   // Billing period - default to quarterly which works on all platforms
   // Annual is web-only due to pricing constraints
   const [billingPeriod, setBillingPeriod] = useState<"monthly" | "quarterly" | "annual">("quarterly");
@@ -41,6 +53,22 @@ const ProviderPurchase = () => {
 
   // Never show annual option on native platforms
   const showAnnualOption = !isNative;
+  const showNativeRevenueCat = isIOS && isSupported;
+  const hasProviderAccess = hasEntitlement(REVENUECAT_ENTITLEMENT_IDS.provider);
+
+  useEffect(() => {
+    if (!showNativeRevenueCat || !user) {
+      setProviderOffering(null);
+      return;
+    }
+
+    void getOffering(REVENUECAT_OFFERING_IDS.provider)
+      .then(setProviderOffering)
+      .catch((error) => {
+        console.error("Failed to load provider offering:", error);
+        setProviderOffering(null);
+      });
+  }, [getOffering, showNativeRevenueCat, user]);
 
   const handleSquarePurchase = async () => {
     // Apple App Store compliance: Never execute payment flows on native
@@ -190,6 +218,72 @@ const ProviderPurchase = () => {
         return PRODUCTS.provider.quarterly.id;
       default:
         return PRODUCTS.provider.monthly.id;
+    }
+  };
+
+  const handleNativePurchase = async () => {
+    if (!showNativeRevenueCat) {
+      toast.error("Native App Store purchase is not available on this device yet.");
+      return;
+    }
+
+    if (!user) {
+      navigate("/auth");
+      return;
+    }
+
+    if (!isReady) {
+      toast.error("Still connecting to the App Store. Please try again in a moment.");
+      return;
+    }
+
+    const selectedPackage = getOfferingPackageByProductId(providerOffering, getProductIdForPurchase());
+    if (!selectedPackage) {
+      toast.error("That subscription option is not available yet. Please refresh and try again.");
+      return;
+    }
+
+    setIsNativePurchasing(true);
+    try {
+      const customerInfo = await purchasePackage(selectedPackage);
+
+      if (hasRevenueCatEntitlement(customerInfo, REVENUECAT_ENTITLEMENT_IDS.provider)) {
+        toast.success("Subscription active. You can now set up your organization.");
+        navigate("/provider-admin");
+        return;
+      }
+
+      toast.error("Purchase completed, but access has not updated yet. Please try Restore Purchases.");
+    } catch (error) {
+      console.error("Native provider purchase error:", error);
+      toast.error("We couldn't complete the App Store purchase.");
+    } finally {
+      setIsNativePurchasing(false);
+    }
+  };
+
+  const handleNativeRestore = async () => {
+    if (!showNativeRevenueCat || !user) {
+      navigate("/auth");
+      return;
+    }
+
+    setIsNativeRestoring(true);
+    try {
+      const customerInfo = await restorePurchases();
+
+      if (hasRevenueCatEntitlement(customerInfo, REVENUECAT_ENTITLEMENT_IDS.provider)) {
+        toast.success("Provider subscription restored. You can continue to setup.");
+        navigate("/provider-admin");
+        return;
+      }
+
+      toast.error("No active provider subscription was found to restore.");
+    } catch (error) {
+      console.error("Native provider restore error:", error);
+      toast.error("We couldn't restore purchases right now.");
+    } finally {
+      setIsNativeRestoring(false);
     }
   };
 
@@ -346,8 +440,8 @@ const ProviderPurchase = () => {
                   </div>
                 )}
 
-                {/* Billing Toggle - Apple App Store compliance: Web only */}
-                {!isNative && (
+                {/* Billing Toggle */}
+                {(!isNative || showNativeRevenueCat) && (
                   <div className="flex justify-center">
                     <div className="inline-flex items-center bg-muted rounded-lg p-1">
                       <button
@@ -386,8 +480,8 @@ const ProviderPurchase = () => {
                   </div>
                 )}
 
-                {/* Pricing Display - Apple App Store compliance: Web only */}
-                {!isNative && (
+                {/* Pricing Display */}
+                {(!isNative || showNativeRevenueCat) && (
                   <div className="text-center py-4 bg-primary/5 rounded-lg border border-primary/10">
                     <p className="text-xs text-muted-foreground mb-1">
                       {billingPeriod === "monthly" ? "Monthly Subscription" : 
@@ -486,23 +580,62 @@ const ProviderPurchase = () => {
                   {/* Platform-specific purchase button */}
                   {isIOS ? (
                     <>
-                      {/* iOS: existing-account access only while native IAP is being implemented */}
                       <div className="space-y-4">
-                        <div className="rounded-lg border bg-muted/40 p-4 text-sm text-muted-foreground">
-                          <p className="font-medium text-foreground mb-2">Provider access on iPhone is currently for existing organizations and active accounts.</p>
-                          <p>
-                            If your organization already uses FamilyBridge, sign in below. New provider subscriptions
-                            will need the dedicated native purchase flow before they should be enabled in this build.
-                          </p>
-                        </div>
-
-                        <Button
-                          variant="outline"
-                          onClick={() => navigate("/auth")}
-                          className="w-full"
-                        >
-                          Already have an account? Sign In
-                        </Button>
+                        {!user ? (
+                          <>
+                            <div className="rounded-lg border bg-muted/40 p-4 text-sm text-muted-foreground">
+                              <p className="font-medium text-foreground mb-2">Sign in first to purchase a provider subscription on iPhone.</p>
+                              <p>Your RevenueCat subscription is tied to your FamilyBridge account, so login comes first.</p>
+                            </div>
+                            <Button
+                              variant="outline"
+                              onClick={() => navigate("/auth")}
+                              className="w-full"
+                            >
+                              Sign In or Create Account
+                            </Button>
+                          </>
+                        ) : hasProviderAccess ? (
+                          <>
+                            <div className="rounded-lg border border-emerald-500/30 bg-emerald-50/60 p-4 text-sm text-emerald-900 dark:bg-emerald-950/20 dark:text-emerald-100">
+                              <p className="font-medium mb-2">Your provider subscription is active.</p>
+                              <p>You can move straight into organization setup.</p>
+                            </div>
+                            <Button onClick={() => navigate("/provider-admin")} className="w-full" size="lg">
+                              Continue to Provider Setup
+                            </Button>
+                          </>
+                        ) : (
+                          <>
+                            <div className="rounded-lg border bg-muted/40 p-4 text-sm text-muted-foreground">
+                              <p className="font-medium text-foreground mb-2">Choose the provider subscription that fits your team.</p>
+                              <p>Annual stays web-only for now. iPhone supports monthly and quarterly provider plans.</p>
+                            </div>
+                            <Button
+                              onClick={handleNativePurchase}
+                              disabled={isNativePurchasing || !isReady || !providerOffering}
+                              className="w-full"
+                              size="lg"
+                            >
+                              {isNativePurchasing ? "Opening App Store..." : billingPeriod === "monthly" ? `Subscribe Monthly - $${PRODUCTS.provider.monthly.price}/mo` : `Subscribe Quarterly - $${PRODUCTS.provider.quarterly.price}/quarter`}
+                            </Button>
+                            <Button
+                              variant="outline"
+                              onClick={handleNativeRestore}
+                              disabled={isNativeRestoring || !isReady}
+                              className="w-full"
+                            >
+                              {isNativeRestoring ? "Restoring..." : "Restore Purchases"}
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              onClick={() => navigate("/auth")}
+                              className="w-full"
+                            >
+                              Switch Account
+                            </Button>
+                          </>
+                        )}
                       </div>
                     </>
                   ) : isAndroid ? (
