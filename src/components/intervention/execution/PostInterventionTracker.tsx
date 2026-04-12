@@ -25,7 +25,7 @@ const declinedSteps = [
   { id: 'selfcare', label: 'Family self-care plan activated' },
   { id: 'next', label: 'Next intervention attempt timeline discussed (typically 2–6 weeks)' },
   { id: 'style', label: 'Alternative intervention approach considered for next attempt' },
-  { id: 'professional', label: 'Does a professional interventionist need to be engaged if this hasn\'t happened already?' },
+  { id: 'professional', label: 'Would outside intervention support help if it has not been engaged already?' },
 ];
 
 export const PostInterventionTracker = () => {

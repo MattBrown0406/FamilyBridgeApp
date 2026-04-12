@@ -51,7 +51,7 @@ export const PRODUCTS = {
       price: 399,
       period: "24 hours",
       displayName: "Professional Guidance Window",
-      description: "24-hour interventionist-led support window inside your FamilyBridge family chat",
+      description: "24-hour human guidance window inside your FamilyBridge family chat",
     },
   },
 } as const;

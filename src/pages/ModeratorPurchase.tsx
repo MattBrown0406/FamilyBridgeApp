@@ -197,7 +197,7 @@ export default function ModeratorPurchase() {
     <div className="min-h-screen flex flex-col">
       <SEOHead
         title="Professional Guidance Window — FamilyBridge"
-        description="Purchase a 24-hour Professional Guidance Window for interventionist-led support inside your FamilyBridge family chat."
+        description="Request a 24-hour Professional Guidance Window for human support inside your FamilyBridge family chat."
         canonicalPath="/moderator-purchase"
       />
       <BrandedHeader />

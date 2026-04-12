@@ -993,7 +993,7 @@ export const DAVIS_FIIS_ANALYSIS = {
       percentage_change: -75,
       time_period: '30 days',
       clinical_implication: 'Fractured family system is enabling continued use',
-      suggested_intervention: 'Family intervention to address enabling; may need professional interventionist',
+      suggested_intervention: 'Family intervention to address enabling; may benefit from outside intervention support',
       urgency: 'priority_action' as const
     },
     {
@@ -1040,7 +1040,7 @@ export const DAVIS_FIIS_ANALYSIS = {
     },
     {
       title: "Connect with a Professional Interventionist",
-      description: "Based on the patterns observed—inconsistent meeting attendance, fake check-ins, active use at a bar, and a fractured family response—Ashley's current level of care is not meeting her needs. A professional interventionist can help unite the family (especially addressing Richard's enabling) and facilitate Ashley's transition to a higher level of care such as inpatient treatment or a structured sober living environment. The current approach of outpatient meetings is insufficient given the severity of the situation.",
+      description: "Based on the patterns observed—inconsistent meeting attendance, fake check-ins, active use at a bar, and a fractured family response—Ashley's current level of care is not meeting her needs. Experienced outside intervention support could help unite the family, especially around Richard's enabling, and support Ashley's transition to a higher level of care such as inpatient treatment or a structured sober living environment. The current approach of outpatient meetings appears insufficient for the severity of the situation.",
       related_to: "Higher Level of Care Needed"
     },
     {
@@ -1941,7 +1941,7 @@ export const MITCHELL_COMMON_GOALS = [
 
 // FIIS Analysis for Mitchell Family - In Treatment, Positive Trajectory
 export const MITCHELL_FIIS_ANALYSIS = {
-  what_seeing: "I'm observing a family system that successfully executed a professional intervention and is now 26 days into recovery. Tyler resisted for 4 days post-intervention but the family held their unified boundaries - refusing all communication outside the app, denying financial requests, and maintaining the treatment-or-nothing stance. This unified approach, supported by professional interventionist Matt Sullivan, created the conditions for Tyler's eventual decision to enter treatment. The handoff from Freedom Interventions to Recovery Partners has been smooth, with Dr. Chen now providing primary clinical oversight while Matt remains as a consulting presence.",
+  what_seeing: "I'm observing a family system that successfully completed a structured intervention and is now 26 days into recovery. Tyler resisted for 4 days post-intervention, but the family held unified boundaries by denying financial requests and maintaining a clear treatment-first stance. This unified approach, supported by outside intervention guidance from Matt Sullivan, created the conditions for Tyler's eventual decision to enter treatment. The handoff from Freedom Interventions to Recovery Partners has been smooth, with Dr. Chen now providing primary clinical oversight while Matt remains in a consulting role.",
   pattern_signals: [
     {
       signal_type: 'intervention_success',

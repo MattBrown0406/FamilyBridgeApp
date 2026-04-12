@@ -188,7 +188,7 @@ export const TemporaryModeratorRequest = ({
 
       toast({
         title: 'Request Submitted',
-        description: 'A professional interventionist has been assigned to your family for the next 24 hours.',
+        description: 'A FamilyBridge moderator has been assigned to your family for the next 24 hours.',
       });
 
       setDialogOpen(false);
@@ -268,7 +268,7 @@ export const TemporaryModeratorRequest = ({
                 <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-4">
                   <p className="font-semibold text-destructive">Call 911 first.</p>
                   <p className="text-sm mt-1">
-                    This help request is for follow-on moderator/interventionist support after emergency services have been contacted.
+                    This help request is for follow-on FamilyBridge moderator support after emergency services have been contacted.
                   </p>
                 </div>
               )}
@@ -277,20 +277,20 @@ export const TemporaryModeratorRequest = ({
                 <div className="rounded-lg border border-warning/40 bg-warning/10 p-4">
                   <p className="font-semibold text-foreground">Level 3 strain detected</p>
                   <p className="text-sm mt-1">
-                    Moderator or interventionist involvement is strongly recommended now so the family is not carrying this alone.
+                    Moderator involvement is strongly recommended now so the family is not carrying this alone.
                   </p>
                 </div>
               )}
 
               <p>
-                You are about to request a 24-hour Professional Guidance Window with a professional
-                interventionist inside your FamilyBridge family chat.
+                You are about to request a 24-hour Professional Guidance Window with a FamilyBridge
+                moderator inside your family chat.
               </p>
               
               <div className="bg-muted p-4 rounded-lg space-y-2">
                 <p className="font-medium text-foreground">What happens next:</p>
                 <ul className="list-disc list-inside text-sm space-y-1">
-                  <li>A professional interventionist will be notified for your family</li>
+                  <li>A FamilyBridge moderator will be notified for your family</li>
                   <li>They will have moderator access to your family group for one 24-hour window</li>
                   <li>They will provide guidance inside the FamilyBridge family chat</li>
                 </ul>

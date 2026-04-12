@@ -8,7 +8,7 @@ const immediateActions = [
   { id: 'consequences', label: 'Activate pre-defined consequences', detail: 'Every stated consequence must be enforced immediately. Delay signals that boundaries are negotiable.' },
   { id: 'enabling', label: 'Remove enabling behaviors', detail: 'Cut financial support, housing assistance, transportation, and any other behaviors that reduce natural consequences.' },
   { id: 'communication', label: 'Maintain calm, consistent communication', detail: 'Do not argue, plead, or emotionally escalate. Keep communication brief, clear, and boundary-focused.' },
-  { id: 'professional', label: 'Assess whether professional interventionist should be engaged', detail: 'If not already involved, a professional may improve the next attempt through strategic guidance.' },
+  { id: 'professional', label: 'Assess whether outside intervention support should be engaged', detail: 'If not already involved, experienced outside support may improve the next attempt through strategic guidance.' },
 ];
 
 const consistencyTrackers = [

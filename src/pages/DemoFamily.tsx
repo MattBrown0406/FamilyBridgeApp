@@ -429,7 +429,7 @@ const DemoFamily = () => {
                           <div className="bg-muted p-4 rounded-lg space-y-2">
                             <p className="font-medium text-foreground">What happens next:</p>
                             <ul className="list-disc list-inside text-sm space-y-1">
-                              <li>A professional interventionist will be notified for your family</li>
+                              <li>A FamilyBridge moderator will be notified for your family</li>
                               <li>They will have moderator access to your family group for one 24-hour window</li>
                               <li>They will provide guidance inside the FamilyBridge family chat</li>
                             </ul>

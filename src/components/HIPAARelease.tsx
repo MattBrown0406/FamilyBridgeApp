@@ -92,7 +92,7 @@ export function HIPAARelease({
         <div className="p-4 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50 flex gap-3">
           <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
           <p className="text-sm text-amber-800 dark:text-amber-200">
-            This family group is supervised by a certified professional interventionist.
+            This family group is supervised by a FamilyBridge moderator or provider.
             If you choose to share treatment or recovery information with the moderator and family members,
             you may be asked to sign an authorization.
           </p>
