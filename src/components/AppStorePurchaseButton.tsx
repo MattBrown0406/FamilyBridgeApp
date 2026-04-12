@@ -14,8 +14,8 @@ interface EmailSetupButtonProps {
 }
 
 /**
- * Native setup-email button used for Android-style web handoff flows.
- * iOS should avoid using this until real in-app purchases are wired.
+ * Native setup-email button used for Android support and account handoff flows.
+ * Keep purchase initiation out of this component.
  */
 export function AppStorePurchaseButton({
   email,
@@ -42,7 +42,7 @@ export function AppStorePurchaseButton({
       
       if (error) throw error;
       
-      toast.success("Check your email for setup instructions!");
+      toast.success("Check your email for FamilyBridge setup details.");
     } catch (error) {
       console.error("Failed to send setup info:", error);
       toast.error("Failed to send setup information. Please try again.");
@@ -51,7 +51,7 @@ export function AppStorePurchaseButton({
     }
   };
 
-  // Currently used for Android/native email handoff flows.
+  // Currently used for Android/native support handoff flows.
   if (isNative) {
     const buttonText = children || "Send Setup Information";
 

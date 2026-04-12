@@ -305,12 +305,20 @@ export const TemporaryModeratorRequest = ({
                   <p className="text-sm text-destructive mt-2 font-medium">
                     ⚠️ You&apos;ve already used your included window this month.{' '}
                     {isNative && isIOS ? (
-                      <span>Please sign in on the web for additional support options.</span>
+                      <button
+                        onClick={() => {
+                          setDialogOpen(false);
+                          navigate(`/support?type=family`);
+                        }}
+                        className="underline hover:no-underline"
+                      >
+                        Contact FamilyBridge support for additional guidance options.
+                      </button>
                     ) : (
                       <button 
                         onClick={() => {
                           setDialogOpen(false);
-                          navigate(isNative && isIOS ? `/support?type=family` : `/moderator-purchase?familyId=${familyId}`);
+                          navigate(`/moderator-purchase?familyId=${familyId}`);
                         }}
                         className="underline hover:no-underline"
                       >

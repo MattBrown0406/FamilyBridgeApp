@@ -208,7 +208,7 @@ export default function ModeratorPurchase() {
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">Professional Guidance Window</h1>
             <p className="text-sm sm:text-lg text-muted-foreground max-w-2xl mx-auto">
               {isNative && isIOS 
-                ? "Structured human guidance inside your FamilyBridge family chat."
+                ? "Contact FamilyBridge support for help with additional guidance options for your family chat."
                 : "Purchase a 24-hour human guidance window for your family chat when you need added structure and support."}
             </p>
           </div>
@@ -257,8 +257,8 @@ export default function ModeratorPurchase() {
             {/* Purchase Card */}
             <Card>
               <CardHeader>
-              <CardTitle>{isNative ? "Professional Guidance Window" : "Purchase a Professional Guidance Window"}</CardTitle>
-                <CardDescription>{isNative ? "Human guidance inside the family chat" : "$399 one-time purchase • 24-hour period"}</CardDescription>
+              <CardTitle>{isNative && isIOS ? "Contact Support" : isNative ? "Professional Guidance Window" : "Purchase a Professional Guidance Window"}</CardTitle>
+                <CardDescription>{isNative && isIOS ? "We can help review guidance options for your family." : isNative ? "Human guidance inside the family chat" : "$399 one-time purchase • 24-hour period"}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
@@ -278,24 +278,32 @@ export default function ModeratorPurchase() {
                   </select>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email for Receipt</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="your@email.com"
-                  />
-                </div>
+                {(!isIOS || !isNative) && (
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email for Receipt</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="your@email.com"
+                    />
+                  </div>
+                )}
 
                 {isIOS ? (
                   <>
                     <div className="text-center py-4 bg-muted/50 rounded-lg">
                       <p className="text-sm text-muted-foreground">
-                        Professional Guidance Windows are not available for in-app purchase on iPhone yet. You can still sign in here and use any active window in your family chat.
+                        If your family needs extra professional guidance, contact FamilyBridge support and we&apos;ll help with the next step.
                       </p>
                     </div>
+                    <Button
+                      onClick={() => navigate(`/support?type=family`)}
+                      className="w-full"
+                    >
+                      Contact Support
+                    </Button>
                     <Button
                       variant="outline"
                       onClick={() => navigate(familyIdParam ? `/family/${familyIdParam}` : "/dashboard")}
@@ -309,7 +317,7 @@ export default function ModeratorPurchase() {
                     {/* Android: Email collection for web setup */}
                     <div className="text-center py-4 bg-muted/50 rounded-lg">
                       <p className="text-sm text-muted-foreground">
-                        To access this feature, please finish setup outside the app, then return here.
+                        We&apos;ll email next-step instructions for this request.
                       </p>
                     </div>
                     <AppStorePurchaseButton
