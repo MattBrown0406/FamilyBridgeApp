@@ -233,11 +233,11 @@ async function fetchFamilyContext(supabase: any, familyId: string) {
   // Calibration patterns
   if (calibrationPatternsResult.data && calibrationPatternsResult.data.length > 0) {
     const patterns = calibrationPatternsResult.data.slice(0, 10);
-    context += `\nCALIBRATED WARNING PATTERNS:\n${patterns.map(p => `- ${p.pattern_name}: ${p.pattern_description}${p.suggested_response ? ` → ${p.suggested_response}` : ''}`).join('\n')}\n`;
+    context += `\nCALIBRATED WARNING PATTERNS:\n${patterns.map((p: any) => `- ${p.pattern_name}: ${p.pattern_description}${p.suggested_response ? ` → ${p.suggested_response}` : ''}`).join('\n')}\n`;
   }
 
   if (feedbackResult.data && feedbackResult.data.length > 0) {
-    context += `\nMODERATOR CALIBRATION FEEDBACK (apply these corrections when coaching):\n${feedbackResult.data.slice(0, 8).map((f, i) => {
+    context += `\nMODERATOR CALIBRATION FEEDBACK (apply these corrections when coaching):\n${feedbackResult.data.slice(0, 8).map((f: any, i: number) => {
       const corrections = [
         f.correction_reasoning,
         f.missed_patterns?.length ? `Missed: ${f.missed_patterns.join(', ')}` : '',
