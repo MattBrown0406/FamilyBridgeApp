@@ -250,7 +250,7 @@ const DEMO_CLINICAL_NOTES = [
     confidence: 'high',
     time_horizon: 'immediate',
     include_in_ai: true,
-    content: 'Tyler\'s initial resistance during intervention was textbook - denial, anger, attempted manipulation. The family\'s complete communication block was the key factor in his eventual agreement to treatment.',
+    content: 'Tyler showed familiar resistance during the intervention, including denial, anger, and attempted manipulation. The family\'s consistent communication pause appeared to help create enough space for eventual agreement to treatment.',
     created_at: format(subDays(now, 26), 'MMM d, yyyy h:mm a')
   },
   {
@@ -262,7 +262,7 @@ const DEMO_CLINICAL_NOTES = [
     confidence: 'moderate',
     time_horizon: 'emerging',
     include_in_ai: true,
-    content: 'Robert (Dad) shows signs of codependency. He was the most reluctant to block Tyler and voted to approve early financial requests. Committed to Al-Anon per intervention letter. Need to monitor follow-through.',
+    content: 'Robert (Dad) appears to be over-functioning in ways that may weaken boundaries. He was the most reluctant to block Tyler and voted to approve early financial requests. He committed to Al-Anon per the intervention letter, so follow-through is worth revisiting.',
     created_at: format(subDays(now, 25), 'MMM d, yyyy h:mm a')
   },
   {
@@ -274,7 +274,7 @@ const DEMO_CLINICAL_NOTES = [
     confidence: 'high',
     time_horizon: 'longitudinal',
     include_in_ai: true,
-    content: 'Underlying trauma from parents\' divorce at age 12 appears to be core wound. Tyler began using shortly after. Family therapy should address this directly - healing the family system, not just the identified patient.',
+    content: 'The parents\' divorce at age 12 may still be an important part of the family story. Tyler began using shortly after. Family therapy may want to address that period directly, with attention to the whole family system, not just Tyler.',
     created_at: format(subDays(now, 15), 'MMM d, yyyy h:mm a')
   },
   {
@@ -286,7 +286,7 @@ const DEMO_CLINICAL_NOTES = [
     confidence: 'high',
     time_horizon: 'immediate',
     include_in_ai: false,
-    content: 'Tyler testing boundaries around sober living (asked to stay with sister instead). Family held unified response. Reinforce in next session why sober living is clinically necessary, not punitive.',
+    content: 'Tyler is testing boundaries around sober living and asked to stay with his sister instead. The family held a unified response. Reinforce in the next session why sober living remains an important support step, not a punishment.',
     created_at: format(subDays(now, 3), 'MMM d, yyyy h:mm a')
   },
   {
@@ -298,7 +298,7 @@ const DEMO_CLINICAL_NOTES = [
     confidence: 'very_high',
     time_horizon: 'immediate',
     include_in_ai: true,
-    content: 'GPS check-in matched bar with liquor license, not claimed meeting location. Combined with 15-min checkout and escalating financial requests, strongly suggests active use. Family (except Richard) recognizes this.',
+    content: 'GPS check-in matched a bar with a liquor license rather than the claimed meeting location. Combined with a 15-minute checkout and escalating financial requests, this raises meaningful concern about current use. Most of the family, except Richard, recognizes that concern.',
     created_at: format(subDays(now, 5), 'MMM d, yyyy h:mm a')
   }
 ];
@@ -310,7 +310,7 @@ const DEMO_FIIS_INTERACTIONS = [
     family: 'Mitchell Family',
     moderator: 'Matt Sullivan',
     query: 'What should I watch for as Tyler approaches the end of residential treatment?',
-    response: 'Key areas to monitor: 1) Continued boundary testing around sober living - Tyler has already asked to skip it. 2) "Pink cloud" mentality - he\'s feeling better and may underestimate ongoing need for structure. 3) Robert (Dad) potentially backsliding on his Al-Anon commitment. 4) Ensure sober living placement is secured BEFORE discharge to prevent gap in care.',
+    response: 'Key areas to watch: 1) Continued boundary testing around sober living, since Tyler has already asked to skip it. 2) A possible "pink cloud" phase, where he may underestimate the need for structure. 3) Robert (Dad) easing off his Al-Anon commitment. 4) Securing sober living placement before discharge to avoid a support gap.',
     timestamp: format(subDays(now, 5), 'MMM d, yyyy h:mm a')
   },
   {
@@ -326,7 +326,7 @@ const DEMO_FIIS_INTERACTIONS = [
     family: 'Davis Family',
     moderator: 'Hope Harbor Interventions Consult',
     query: 'Richard is still giving money outside the app. How do I address this with the family?',
-    response: 'Richard\'s enabling is a critical barrier to Ashley\'s recovery. Approach: 1) Don\'t shame him - he\'s acting from love, just misdirected. 2) Frame it clinically: "When we give money outside agreed boundaries, we\'re helping the addiction, not Ashley." 3) Share the bar check-in data - concrete evidence of active use. 4) Consider whether Richard needs individual support (Al-Anon or codependency counseling) before Ashley can succeed.',
+    response: 'Richard\'s pattern of giving money outside the agreed plan is a major barrier right now. Approach: 1) Do not shame him, since he is acting from love. 2) Keep the framing plain: "When we give money outside agreed boundaries, it can undercut Ashley\'s recovery support." 3) Share the bar check-in data as a concrete concern to review together. 4) Consider whether Richard needs his own support, such as Al-Anon or counseling focused on boundaries.',
     timestamp: format(subDays(now, 4), 'MMM d, yyyy h:mm a')
   }
 ];

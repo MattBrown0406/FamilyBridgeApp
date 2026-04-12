@@ -37,7 +37,7 @@ const tiers: {
       {
         title: 'FIIS™ Pattern Detection',
         question: "What's really happening?",
-        answer: 'Highlights behavioral shifts, emotional patterns, and risk signals across your family system so you can respond earlier and more calmly.',
+        answer: 'Highlights behavioral shifts, emotional patterns, and concern signals across your family system so you can respond earlier and more calmly.',
         icon: Brain,
         gradient: 'from-violet-500 to-purple-600',
         features: [
@@ -49,8 +49,8 @@ const tiers: {
       },
       {
         title: 'Outcome Predictions',
-        question: "What's going to happen next?",
-        answer: 'Estimates likely friction points, treatment follow-through, and recovery risks, then suggests areas to review with human judgment.',
+        question: "What might happen next?",
+        answer: 'Estimates likely friction points, treatment follow-through, and recovery strain, then suggests areas to review with human judgment.',
         icon: BarChart3,
         gradient: 'from-emerald-500 to-teal-600',
         features: [
@@ -105,7 +105,7 @@ const tiers: {
       {
         title: 'AI Learning Layer',
         question: 'What has the platform learned?',
-        answer: 'Privacy-safe, de-identified pattern learning identifies what works and what fails across all cases.',
+        answer: 'Privacy-safe, de-identified pattern learning highlights what seems to help and what may not across cases.',
         icon: Brain,
         gradient: 'from-blue-500 to-indigo-600',
         features: [

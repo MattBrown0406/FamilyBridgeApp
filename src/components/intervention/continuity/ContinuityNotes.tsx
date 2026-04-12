@@ -19,14 +19,14 @@ const demoNotes: Note[] = [
     id: '1',
     author: 'Dr. Sarah Chen',
     role: 'Clinician',
-    content: 'Family alignment is strong post-intervention. Recommend maintaining current boundary structure for at least 2 weeks before re-evaluating. Mom is showing signs of emotional fatigue—proactive support recommended.',
+    content: 'Family alignment is strong post-intervention. Recommend maintaining the current boundary structure for at least 2 weeks before re-evaluating. Mom appears emotionally tired, so extra support may help.',
     timestamp: '1 day ago',
   },
   {
     id: '2',
     author: 'Mark Thompson',
     role: 'Interventionist',
-    content: 'Intervention went as planned. Individual showed initial resistance but softened toward the end. Even with the decline, I expect a re-engagement window within 2–3 weeks if the family holds boundaries.',
+    content: 'Intervention went as planned. The individual showed initial resistance but softened toward the end. If the family holds boundaries, a re-engagement opening may emerge within 2–3 weeks.',
     timestamp: '3 days ago',
   },
 ];

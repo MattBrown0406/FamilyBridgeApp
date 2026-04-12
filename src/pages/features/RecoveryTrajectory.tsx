@@ -21,7 +21,7 @@ const features = [
   { icon: Target, title: '365-Day Sobriety Milestone', description: 'A clear milestone families can track together over time, alongside other recovery-support indicators.' },
   { icon: Calendar, title: 'Phase-Based Progression', description: 'Recovery is tracked across six distinct phases, each with different support needs and milestone markers.' },
   { icon: TrendingUp, title: 'Visual Progress Tracking', description: 'Charts showing sobriety counter, meeting attendance trends, boundary follow-through, and emotional pattern trajectories.' },
-  { icon: Shield, title: 'Phase-Sensitive Risk Detection', description: 'Risk review adjusts based on recovery phase. What is normal at Day 15 may deserve more attention at Day 150.' },
+  { icon: Shield, title: 'Phase-Sensitive Concern Review', description: 'Concern review adjusts based on recovery phase. What is normal at Day 15 may deserve more attention at Day 150.' },
   { icon: Award, title: 'Milestone Celebrations', description: 'Automated celebrations at key milestones (30, 60, 90, 180, 365 days) with family notifications and visual rewards that reinforce positive momentum.' },
 ];
 
@@ -30,7 +30,7 @@ const RecoveryTrajectory = () => {
 
   return (
     <>
-      <SEOHead title="Recovery Trajectory Tracking | FamilyBridge" description="Visual progress tracking toward the 1-year sobriety milestone with AI-assisted phase progression and risk review." />
+      <SEOHead title="Recovery Trajectory Tracking | FamilyBridge" description="Visual progress tracking toward the 1-year sobriety milestone with AI-assisted phase progression and concern review." />
       <div className="min-h-screen bg-background">
         <div className="border-b bg-card/50">
           <div className="max-w-5xl mx-auto px-4 py-3 flex items-center gap-3">
@@ -48,7 +48,7 @@ const RecoveryTrajectory = () => {
             </div>
             <h1 className="text-3xl md:text-4xl font-bold text-foreground">Recovery Trajectory Tracking</h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Visual, data-driven progress tracking from Day 1 through the 365-day sobriety milestone, with phase-aware coaching that adapts as recovery evolves.
+              Visual progress tracking from Day 1 through the 365-day sobriety milestone, with phase-aware coaching that adapts as recovery evolves.
             </p>
           </div>
 

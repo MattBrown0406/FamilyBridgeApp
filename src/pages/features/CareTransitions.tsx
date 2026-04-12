@@ -17,12 +17,12 @@ const transitionDemo = [
 ];
 
 const features = [
-  { icon: ArrowRightLeft, title: 'Provider-to-Provider Handoff', description: 'Structured transition summaries that travel with the patient between treatment providers, supporting continuity of care without information gaps.' },
+  { icon: ArrowRightLeft, title: 'Provider-to-Provider Handoff', description: 'Structured transition summaries that travel with the individual between treatment providers, supporting continuity without avoidable information gaps.' },
   { icon: ShieldCheck, title: 'Consent Management', description: 'Consent recording with digital signatures and auditable access controls. Families and providers can document what information should be shared during a transition.' },
-  { icon: FileText, title: 'Transition Summaries', description: 'Comprehensive care summaries including treatment history, medication lists, boundary agreements, family dynamics, and FIIS risk reviews.' },
-  { icon: BarChart3, title: 'Outcome Tracking', description: 'Post-transition outcome scoring measures success rates across providers, identifying which handoff patterns lead to better long-term outcomes.' },
+  { icon: FileText, title: 'Transition Summaries', description: 'Structured transition summaries including treatment history, medication lists, boundary agreements, family dynamics, and FIIS concern reviews.' },
+  { icon: BarChart3, title: 'Outcome Tracking', description: 'Post-transition outcome tracking helps teams review handoff patterns and see which approaches are holding up over time.' },
   { icon: Users, title: 'Family Continuity', description: 'Families maintain their group, communication history, and boundaries across provider transitions — no starting over from scratch.' },
-  { icon: Clock, title: 'Readiness Scoring', description: 'AI-assisted transition readiness indicators help providers assess when a patient may be ready for step-down care without premature discharge.' },
+  { icon: Clock, title: 'Readiness Review', description: 'AI-assisted transition readiness indicators help providers assess when someone may be ready for step-down care without rushing discharge.' },
 ];
 
 const CareTransitions = () => {
@@ -48,7 +48,7 @@ const CareTransitions = () => {
             </div>
             <h1 className="text-3xl md:text-4xl font-bold text-foreground">Care Transitions</h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Seamless handoffs between treatment providers with structured transition summaries, consent management, and outcome tracking to support safer transitions.
+              Seamless handoffs between treatment providers with structured transition summaries, consent management, and outcome tracking to support steadier transitions.
             </p>
           </div>
 

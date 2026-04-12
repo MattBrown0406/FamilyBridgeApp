@@ -8,12 +8,12 @@ import { BrandedFooter } from '@/components/BrandedFooter';
 import PublicCrisisHelp from '@/components/PublicCrisisHelp';
 
 const features = [
-  { icon: Eye, title: 'Real-Time Pattern Detection', description: 'FIIS reviews communication patterns, emotional tone shifts, and behavioral signals across family interactions, surfacing insights people may miss in the moment.' },
-  { icon: AlertTriangle, title: '5-Level Risk Framework', description: 'A weighted risk framework (Low → Guarded → Elevated → High → Critical) that helps families and providers decide when to slow down, tighten boundaries, or seek in-person help.' },
+  { icon: Eye, title: 'Pattern Review', description: 'FIIS reviews communication patterns, emotional tone shifts, and behavioral signals across family interactions, surfacing insights people may miss in the moment.' },
+  { icon: AlertTriangle, title: '5-Level Concern Framework', description: 'A weighted concern framework (Low → Guarded → Elevated → High → Critical) that helps families and providers decide when to slow down, tighten boundaries, or seek in-person help.' },
   { icon: BarChart3, title: 'Recovery Trajectory Analysis', description: 'Tracks consistency trends, recovery friction, and transition readiness indicators across key stages of recovery support.' },
   { icon: Users, title: 'Family System Coaching', description: 'Highlights enabling patterns, family strain, and role behaviors, then offers practical coaching prompts to strengthen the family system.' },
-  { icon: Shield, title: 'Escalation Support', description: 'Flags concerning patterns, surfaces crisis resources, and prompts families to involve qualified local professionals or emergency services when needed.' },
-  { icon: Zap, title: 'Early Warning Signals', description: 'Highlights behavioral changes that may call for closer attention, using communication patterns, meeting attendance drops, and boundary follow-through.' },
+  { icon: Shield, title: 'Escalation Support', description: 'Highlights concerning patterns, surfaces crisis resources, and prompts families to involve qualified local professionals or emergency services when needed.' },
+  { icon: Zap, title: 'Early Shift Signals', description: 'Highlights behavioral changes that may call for closer attention, using communication patterns, meeting attendance drops, and boundary follow-through.' },
 ];
 
 const knowledgeBases = [
@@ -66,7 +66,7 @@ const FIISIntelligence = () => {
                 <div className="p-4 rounded-lg bg-primary/5 border border-primary/10 text-center">
                   <div className="text-2xl font-bold text-primary mb-1">2</div>
                   <h3 className="font-semibold text-foreground mb-1">Analyze</h3>
-                  <p className="text-xs text-muted-foreground">Cross-references behavioral signals against structured recovery frameworks to identify risk patterns, enabling behaviors, and trajectory shifts for human review.</p>
+                  <p className="text-xs text-muted-foreground">Cross-references behavioral signals against structured recovery frameworks to identify concern patterns, enabling behaviors, and trajectory shifts for human review.</p>
                 </div>
                 <div className="p-4 rounded-lg bg-primary/5 border border-primary/10 text-center">
                   <div className="text-2xl font-bold text-primary mb-1">3</div>

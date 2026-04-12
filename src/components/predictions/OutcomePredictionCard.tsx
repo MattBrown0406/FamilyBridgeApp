@@ -5,13 +5,13 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import type { OutcomePrediction } from '@/hooks/useOutcomePredictions';
 
 const LABELS: Record<string, { label: string; desc: string; inverse?: boolean }> = {
-  treatment_completion: { label: 'Treatment Completion', desc: 'Probability of completing treatment program', inverse: true },
-  early_discharge: { label: 'Early Discharge Risk', desc: 'Risk of leaving treatment early' },
-  relapse_30: { label: '30-Day Relapse Risk', desc: 'Relapse probability within 30 days post-treatment' },
-  relapse_60: { label: '60-Day Relapse Risk', desc: 'Relapse probability within 60 days post-treatment' },
-  relapse_90: { label: '90-Day Relapse Risk', desc: 'Relapse probability within 90 days post-treatment' },
-  readmission: { label: 'Readmission Probability', desc: 'Likelihood of requiring readmission' },
-  system_failure: { label: 'System Failure Risk', desc: 'Risk of breakdown from misalignment across family, provider, and individual' },
+  treatment_completion: { label: 'Treatment Completion Outlook', desc: 'Estimated likelihood of completing the current treatment program', inverse: true },
+  early_discharge: { label: 'Early Discharge Outlook', desc: 'Estimated chance of leaving treatment early' },
+  relapse_30: { label: '30-Day Relapse Outlook', desc: 'Estimated chance of relapse within 30 days after treatment' },
+  relapse_60: { label: '60-Day Relapse Outlook', desc: 'Estimated chance of relapse within 60 days after treatment' },
+  relapse_90: { label: '90-Day Relapse Outlook', desc: 'Estimated chance of relapse within 90 days after treatment' },
+  readmission: { label: 'Readmission Outlook', desc: 'Estimated likelihood of needing readmission' },
+  system_failure: { label: 'System Strain Outlook', desc: 'Estimated chance of breakdown from misalignment across family, provider, and individual' },
 };
 
 function getColor(type: string, prob: number): string {
@@ -66,12 +66,12 @@ export function OutcomePredictionCard({ prediction }: { prediction: OutcomePredi
             </div>
             {prediction.previous_probability !== null && (
               <p className="text-xs text-muted-foreground mt-0.5">
-                Previous: {Math.round(prediction.previous_probability)}%
+                Prior estimate: {Math.round(prediction.previous_probability)}%
               </p>
             )}
           </div>
           <Badge variant="outline" className="text-[10px] shrink-0 capitalize">
-            {prediction.confidence} conf.
+            {prediction.confidence} confidence
           </Badge>
         </div>
       </CardContent>

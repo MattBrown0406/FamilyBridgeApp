@@ -24,7 +24,7 @@ const features = [
   { icon: Vote, title: 'Family Voting', description: 'Financial requests go to all family members for approval or denial with reasoning. Transparency eliminates secret enabling and one-person rescues.' },
   { icon: DollarSign, title: 'Pledge Tracking', description: 'Approving family members can pledge specific amounts. The system tracks who pledged, who paid, and whether the total was met, reducing ambiguity.' },
   { icon: Receipt, title: 'Receipt Verification', description: 'The requester uploads a receipt after spending. Moderators can verify the money was used for the stated purpose before closing the request.' },
-  { icon: ShieldCheck, title: 'FIIS Enabling Detection', description: 'AI reviews financial request patterns and flags possible enabling concerns, such as repeated requests, escalating amounts, or vague reasons.' },
+  { icon: ShieldCheck, title: 'FIIS Enabling Review', description: 'AI reviews financial request patterns and highlights possible enabling concerns, such as repeated requests, escalating amounts, or vague reasons.' },
   { icon: Users, title: 'Moderator Oversight', description: 'Family moderators and assigned providers can review, close, or flag financial requests. All actions are logged and visible to the family group.' },
   { icon: BarChart3, title: 'Financial History', description: 'Complete request history with approval rates, total disbursed, and trend analysis, giving families a clearer picture of financial support patterns.' },
 ];
@@ -34,7 +34,7 @@ const FinancialCoordination = () => {
 
   return (
     <>
-      <SEOHead title="Financial Coordination | FamilyBridge" description="Family voting on financial requests with pledge tracking, receipt verification, and AI-assisted enabling review." />
+      <SEOHead title="Financial Coordination | FamilyBridge" description="Family voting on financial requests with pledge tracking, receipt verification, and AI-assisted pattern review." />
       <div className="min-h-screen bg-background">
         <div className="border-b bg-card/50">
           <div className="max-w-5xl mx-auto px-4 py-3 flex items-center gap-3">

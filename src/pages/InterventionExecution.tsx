@@ -72,10 +72,10 @@ const InterventionExecution = () => {
               <div className="flex items-start gap-3">
                 <Zap className="h-6 w-6 text-destructive flex-shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-lg font-bold text-destructive">Critical Intervention Window Active</p>
+                  <p className="text-lg font-bold text-destructive">High-Attention Intervention Window</p>
                   <p className="text-sm text-foreground mt-1">
-                    Readiness score is {Math.round(totalScore)}. The window for successful intervention is likely 24–72 hours.
-                    Execute with urgency—not panic.
+                    Readiness score is {Math.round(totalScore)}. Current signals suggest a narrower planning window over the next 24–72 hours.
+                    Move with urgency, not panic.
                   </p>
                 </div>
               </div>
@@ -88,7 +88,7 @@ const InterventionExecution = () => {
                   <p className="text-lg font-bold text-amber-800 dark:text-amber-300">Preparation Mode</p>
                   <p className="text-sm text-foreground mt-1">
                     Readiness score is {Math.round(totalScore)}. Begin quiet preparation. Do not confront or destabilize the individual.
-                    Monitor for escalation into a critical window.
+                    Watch for signs that the situation is moving into a higher-attention window.
                   </p>
                 </div>
               </div>
@@ -141,8 +141,8 @@ const InterventionExecution = () => {
             <Shield className="h-4 w-4 flex-shrink-0 mt-0.5" />
             <p>
               This system supports strategic intervention planning. It does not promote coercion or forced treatment.
-              All actions are designed to increase the likelihood that an individual will voluntarily accept help
-              by aligning family behavior and timing with windows of reduced resistance.
+              All actions are designed to support the chance that an individual may voluntarily accept help
+              by aligning family behavior and timing with periods of greater openness.
             </p>
           </div>
         </div>

@@ -9,18 +9,18 @@ import PublicCrisisHelp from '@/components/PublicCrisisHelp';
 
 const coachingDemo = [
   { role: 'them', text: '"You don\'t understand what I\'m going through. Nobody does."', time: '2:14 PM' },
-  { role: 'fiis', text: 'De-escalation opportunity detected. Avoid defending yourself. Try: "You\'re right — I may not fully understand. Can you help me?"', time: '2:14 PM', type: 'coaching' },
+  { role: 'fiis', text: 'Possible de-escalation opening. Avoid defending yourself. You could try: "You\'re right, I may not fully understand. Can you help me?"', time: '2:14 PM', type: 'coaching' },
   { role: 'you', text: '"You\'re right, I probably don\'t fully understand. I want to though. Can you help me see what you\'re dealing with?"', time: '2:15 PM' },
   { role: 'them', text: '"...I\'m just tired. Everything feels impossible right now."', time: '2:16 PM' },
-  { role: 'fiis', text: 'Resistance dropping. They shifted from defensive to vulnerable. Do NOT push for solutions yet. Validate the feeling. Stay in the moment.', time: '2:16 PM', type: 'coaching' },
+  { role: 'fiis', text: 'The tone appears to be softening. Do not push for solutions yet. Validate the feeling and stay in the moment.', time: '2:16 PM', type: 'coaching' },
 ];
 
 const features = [
-  { icon: Zap, title: 'Real-Time Guidance', description: 'FIIS reviews the conversation as it happens and surfaces coaching prompts within seconds, helping you navigate difficult moments more carefully.' },
+  { icon: Zap, title: 'Real-Time Guidance', description: 'FIIS reviews the conversation as it happens and surfaces coaching prompts quickly, helping you navigate difficult moments more carefully.' },
   { icon: Brain, title: 'De-Escalation Scripts', description: 'Language patterns informed by CRAFT, motivational interviewing, and family guidance frameworks. Practical suggestions, not one-size-fits-all scripts.' },
-  { icon: Eye, title: 'Tone Detection', description: 'AI reads emotional tone in text messages and flags shifts like defensive to vulnerable, angry to exhausted, or resistant to curious.' },
+  { icon: Eye, title: 'Tone Review', description: 'AI reviews emotional tone in text messages and highlights shifts like defensive to vulnerable, angry to exhausted, or resistant to curious.' },
   { icon: Shield, title: '"Warm Exit" Strategies', description: 'When a conversation is heading toward damage, FIIS provides exit strategies that preserve the relationship while protecting your boundaries.' },
-  { icon: AlertTriangle, title: 'Enabling Detection', description: 'Flags moments when language patterns may be sliding toward enabling, such as over-explaining, apologizing for boundaries, or offering to rescue.' },
+  { icon: AlertTriangle, title: 'Enabling Review', description: 'Highlights moments when language patterns may be sliding toward enabling, such as over-explaining, apologizing for boundaries, or offering to rescue.' },
   { icon: MessageSquare, title: 'Screenshot Coaching', description: 'Upload a screenshot of a text conversation. FIIS reviews the exchange and offers context-aware suggestions for what to say next.' },
 ];
 
@@ -29,7 +29,7 @@ const ConversationCoaching = () => {
 
   return (
     <>
-      <SEOHead title="Conversation Coaching | FamilyBridge" description="Real-time AI-assisted de-escalation guidance during difficult conversations with a loved one." />
+      <SEOHead title="Conversation Coaching | FamilyBridge" description="AI-assisted de-escalation guidance during difficult conversations with a loved one." />
       <div className="min-h-screen bg-background">
         <div className="border-b bg-card/50">
           <div className="max-w-5xl mx-auto px-4 py-3 flex items-center gap-3">
@@ -48,7 +48,7 @@ const ConversationCoaching = () => {
             </div>
             <h1 className="text-3xl md:text-4xl font-bold text-foreground">Conversation Coaching</h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Real-time FIIS coaching during live conversations with a loved one. Get grounded suggestions for what to say next, while remembering that judgment and safety decisions still belong to humans.
+              FIIS offers in-the-moment coaching during live conversations with a loved one. Get grounded suggestions for what to say next, while remembering that judgment and safety decisions still belong to humans.
             </p>
           </div>
 
@@ -56,7 +56,7 @@ const ConversationCoaching = () => {
           <Card>
             <CardContent className="p-6">
               <h2 className="text-xl font-bold text-foreground mb-2">Demo: Live Coaching Session</h2>
-              <p className="text-sm text-muted-foreground mb-4">FIIS provides real-time guidance during a text conversation</p>
+              <p className="text-sm text-muted-foreground mb-4">FIIS offers in-the-moment guidance during a text conversation</p>
               <div className="space-y-3 max-w-lg mx-auto">
                 {coachingDemo.map((msg, i) => (
                   <div key={i} className={`flex ${msg.role === 'you' ? 'justify-end' : msg.role === 'fiis' ? 'justify-center' : 'justify-start'}`}>

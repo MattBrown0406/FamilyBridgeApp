@@ -12,13 +12,13 @@ export function SystemAlignmentInsight({ predictions }: { predictions: OutcomePr
   }
 
   const issues: string[] = [];
-  if (systemFailure && systemFailure.probability > 50) issues.push('system misalignment is elevated');
-  if (completion && completion.probability < 50) issues.push('treatment completion probability is low');
-  if (relapse30 && relapse30.probability > 50) issues.push('short-term relapse risk is concerning');
+  if (systemFailure && systemFailure.probability > 50) issues.push('system misalignment looks elevated');
+  if (completion && completion.probability < 50) issues.push('treatment follow-through looks less stable');
+  if (relapse30 && relapse30.probability > 50) issues.push('short-term relapse concerns are elevated');
 
   const summary = issues.length > 0
-    ? `Attention needed: ${issues.join(', ')}. Review accountability scores and coordination gaps to stabilize trajectory.`
-    : 'System alignment appears stable. Continue monitoring trends and reinforcing current approach.';
+    ? `Attention needed: ${issues.join(', ')}. Review accountability scores and coordination gaps to steady the trajectory.`
+    : 'System alignment appears stable. Continue reviewing trends and reinforcing the current approach.';
 
   return (
     <Card>
@@ -32,7 +32,7 @@ export function SystemAlignmentInsight({ predictions }: { predictions: OutcomePr
         <p className="text-sm text-foreground/80 leading-relaxed">{summary}</p>
         {predictions.length > 0 && predictions[0].confidence === 'low' && (
           <p className="text-xs text-muted-foreground mt-2 italic">
-            Note: Predictions may shift as more behavioral data becomes available.
+            Note: These estimates may shift as more behavioral data becomes available.
           </p>
         )}
       </CardContent>

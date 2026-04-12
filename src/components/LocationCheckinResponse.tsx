@@ -159,7 +159,7 @@ export const LocationCheckinResponse = ({ familyId, userRole }: LocationCheckinR
       await supabase.from('messages').insert({
         family_id: familyId,
         sender_id: user?.id,
-        content: `⚠️ **Location Check-In Alert**\n\n${userName} shared their location from a flagged area:\n📍 ${locationAddress || 'Location shared'}\n\n${alerts.join('\n')}\n\n_This is an automated safety alert._`,
+        content: `⚠️ **Location Check-In Notice**\n\n${userName} shared their location near a place your family may want to review:\n📍 ${locationAddress || 'Location shared'}\n\n${alerts.join('\n')}\n\n_This is an automated notice for human follow-up._`,
       });
     }
   };

@@ -85,7 +85,7 @@ export default function OutcomePredictions() {
                 )}
               </h1>
               <p className="text-xs text-muted-foreground">
-                {isDemo ? 'Brown Family — Sample prediction data' : 'Forward-looking recovery intelligence'}
+                {isDemo ? 'Brown Family — Sample outlook data' : 'Forward-looking recovery outlook'}
               </p>
             </div>
           </div>
@@ -108,17 +108,17 @@ export default function OutcomePredictions() {
 
         {!isDemo && !familyId ? (
           <div className="text-center py-12 text-muted-foreground text-sm">
-            No eligible family found. You need to be a non-recovering family member to view predictions.
+            No eligible family found. You need to be a non-recovering family member to view these outlook estimates.
           </div>
         ) : !isDemo && loading ? (
           <div className="text-center py-12 text-muted-foreground text-sm">Loading predictions...</div>
         ) : !showContent ? (
           <div className="text-center py-12 space-y-3">
             <Brain className="h-10 w-10 mx-auto text-muted-foreground" />
-            <p className="text-muted-foreground text-sm">No predictions calculated yet.</p>
+            <p className="text-muted-foreground text-sm">No outlook estimates calculated yet.</p>
             <Button onClick={calculatePredictions} disabled={calculating}>
               <RefreshCw className={`h-4 w-4 mr-1.5 ${calculating ? 'animate-spin' : ''}`} />
-              Generate First Predictions
+              Generate First Outlook
             </Button>
           </div>
         ) : (
@@ -152,7 +152,7 @@ export default function OutcomePredictions() {
               </div>
               <div className="p-3 rounded-lg border bg-muted/30">
                 <p className="text-xs text-muted-foreground italic">
-                  Predictions are directional estimates based on available behavioral data. They support decision-making but do not guarantee outcomes.
+                  These outlooks are directional estimates based on available behavioral data. They support decision-making but do not guarantee outcomes.
                 </p>
               </div>
             </TabsContent>

@@ -83,7 +83,7 @@ export const AIInsightsPanel = ({ caseId, channelId, userId }: Props) => {
           </Badge>
         </div>
         <p className="text-sm text-muted-foreground">
-          System-generated insights from cross-channel analysis. Visible to providers only.
+          System-generated observations from cross-channel analysis. Visible to providers only.
         </p>
       </CardHeader>
 
@@ -92,7 +92,7 @@ export const AIInsightsPanel = ({ caseId, channelId, userId }: Props) => {
         <div className="p-3 bg-muted/30 rounded-lg border">
           <p className="text-xs text-muted-foreground">
             <strong>How this works:</strong> The AI analysis layer aggregates patterns across family and provider
-            channels to detect communication gaps, alignment issues, and risk indicators. Insights are generated
+            channels to highlight communication gaps, alignment issues, and concern indicators. Observations are generated
             automatically as coordination activity occurs.
           </p>
         </div>
@@ -101,7 +101,7 @@ export const AIInsightsPanel = ({ caseId, channelId, userId }: Props) => {
           <div className="text-center py-8">
             <Brain className="h-10 w-10 mx-auto mb-3 text-muted-foreground/50" />
             <p className="text-sm text-muted-foreground">
-              No active insights yet. The AI will generate insights as coordination activity occurs.
+              No active observations yet. The AI will generate them as coordination activity occurs.
             </p>
           </div>
         )}

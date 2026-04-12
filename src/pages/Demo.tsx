@@ -173,13 +173,13 @@ const Demo = () => {
     {
       icon: Sparkles,
       title: 'FIIS Recovery Intelligence',
-      description: 'AI-powered pattern recognition tracks recovery trajectory and provides structured insights for providers.',
+      description: 'AI-assisted pattern review highlights recovery trends and structured observations for providers.',
       badge: 'AI',
     },
     {
       icon: Pill,
       title: 'Medication Compliance',
-      description: 'AI scans medication labels, tracks doses, and alerts family when medications are missed.',
+      description: 'AI helps read medication labels, track doses, and notify authorized supporters about missed check-ins.',
       badge: 'AI',
     },
     {
@@ -203,7 +203,7 @@ const Demo = () => {
     {
       icon: Shield,
       title: 'Boundary Management',
-      description: 'Smart document analysis extracts boundaries from intervention letters automatically.',
+      description: 'AI-assisted document review pulls out likely boundaries from intervention letters for human review.',
       badge: 'AI',
     },
     {
@@ -215,7 +215,7 @@ const Demo = () => {
     {
       icon: Users,
       title: 'Provider Handoffs',
-      description: 'Seamless family transfers between organizations with clinical context preservation.',
+      description: 'Structured family handoffs between organizations with key context preserved for the next team.',
       badge: 'Provider',
     },
   ];
@@ -492,7 +492,7 @@ const Demo = () => {
                   Provider Dashboard Demo
                 </CardTitle>
                 <CardDescription>
-                  Experience the provider workspace with CRM pipeline, team communication, clinical notes, and FIIS AI
+                  Experience the provider workspace with CRM pipeline, team communication, provider notes, and FIIS support tools
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -514,7 +514,7 @@ const Demo = () => {
                       </div>
                       <div className="flex items-center gap-2">
                         <Check className="h-4 w-4 text-green-600" />
-                        <span>Clinical notes with AI inclusion</span>
+                        <span>Provider notes with optional AI inclusion</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <Check className="h-4 w-4 text-green-600" />
