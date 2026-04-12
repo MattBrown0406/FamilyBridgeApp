@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { usePlatform } from "@/hooks/usePlatform";
+import { useRevenueCat } from "@/hooks/useRevenueCat";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import { Plus, Trash2, Users, Loader2, Check } from "lucide-react";
 import { BrandedHeader } from "@/components/BrandedHeader";
+import { REVENUECAT_ENTITLEMENT_IDS } from "@/lib/revenuecat";
 
 type RelationshipType = 
   | 'recovering'
@@ -48,6 +50,7 @@ const FamilySetup = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { isNative, isIOS } = usePlatform();
+  const { isSupported: revenueCatSupported, hasEntitlement } = useRevenueCat();
   const paymentsWebOnly = isNative && isIOS;
   const [searchParams] = useSearchParams();
   
@@ -55,13 +58,20 @@ const FamilySetup = () => {
   const [familyName, setFamilyName] = useState("");
   const [familyDescription, setFamilyDescription] = useState("");
   const [adminName, setAdminName] = useState("");
-  const [adminEmail, setAdminEmail] = useState("");
+  const [adminEmail, setAdminEmail] = useState(user?.email || "");
   const [members, setMembers] = useState<FamilyMember[]>([
     { id: crypto.randomUUID(), name: "", email: "", relationship: "" }
   ]);
   const [isLoading, setIsLoading] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
   const [createdFamilyInviteCode, setCreatedFamilyInviteCode] = useState("");
+  const hasFamilyRevenueCatAccess = isIOS && revenueCatSupported && hasEntitlement(REVENUECAT_ENTITLEMENT_IDS.family);
+
+  useEffect(() => {
+    if (user?.email && !adminEmail) {
+      setAdminEmail(user.email);
+    }
+  }, [adminEmail, user?.email]);
 
   // Auto-fill invite code from URL parameters
   useEffect(() => {
@@ -88,7 +98,7 @@ const FamilySetup = () => {
   };
 
   const validateForm = () => {
-    if (!inviteCode.trim()) {
+    if (!inviteCode.trim() && !hasFamilyRevenueCatAccess) {
       toast.error("Please enter your invite code");
       return false;
     }
@@ -130,11 +140,12 @@ const FamilySetup = () => {
       
       const { data, error } = await supabase.functions.invoke("create-family-group", {
         body: {
-          inviteCode: inviteCode.trim(),
+          inviteCode: hasFamilyRevenueCatAccess ? null : inviteCode.trim(),
           familyName: familyName.trim(),
           familyDescription: familyDescription.trim(),
           adminName: adminName.trim(),
           adminEmail: adminEmail.trim(),
+          useRevenueCatEntitlement: hasFamilyRevenueCatAccess,
           members: validMembers.map(m => ({
             name: m.name.trim(),
             email: m.email.trim(),
@@ -202,7 +213,7 @@ const FamilySetup = () => {
           <div className="text-center mb-6 sm:mb-8">
             <h1 className="text-2xl sm:text-3xl font-bold mb-2">Set Up Your Family Group</h1>
             <p className="text-sm sm:text-base text-muted-foreground">
-              Enter your invite code and add your family members
+              {hasFamilyRevenueCatAccess ? "Your FIIS Support subscription is active. Create your family group and invite the rest of your family." : "Enter your invite code and add your family members"}
             </p>
           </div>
 
@@ -213,24 +224,33 @@ const FamilySetup = () => {
                 Family Information
               </CardTitle>
               <CardDescription>
-                Start by entering your invite code
+                {hasFamilyRevenueCatAccess ? "Start by naming your family group" : "Start by entering your invite code"}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               {/* Invite Code */}
-              <div className="space-y-2">
-                <Label htmlFor="inviteCode">Invite Code *</Label>
-                <Input
-                  id="inviteCode"
-                  placeholder="Enter your invite code (e.g., ABC1-DEF2-GHI3)"
-                  value={inviteCode}
-                  onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
-                  className="font-mono"
-                />
-                <p className="text-xs text-muted-foreground">
-                  This is the code you received when your account was set up
-                </p>
-              </div>
+              {!hasFamilyRevenueCatAccess && (
+                <div className="space-y-2">
+                  <Label htmlFor="inviteCode">Invite Code *</Label>
+                  <Input
+                    id="inviteCode"
+                    placeholder="Enter your invite code (e.g., ABC1-DEF2-GHI3)"
+                    value={inviteCode}
+                    onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
+                    className="font-mono"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    This is the code you received when your account was set up
+                  </p>
+                </div>
+              )}
+
+              {hasFamilyRevenueCatAccess && (
+                <div className="rounded-lg border border-emerald-500/30 bg-emerald-50/60 p-4 text-sm text-emerald-900 dark:bg-emerald-950/20 dark:text-emerald-100">
+                  <p className="font-medium mb-1">FIIS Support is active on this account.</p>
+                  <p>You can create the family directly here. After setup, everyone else will still join with your family invite code.</p>
+                </div>
+              )}
 
               {/* Admin Info */}
               <div className="border rounded-lg p-4 bg-muted/30 space-y-4">

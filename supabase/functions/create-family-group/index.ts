@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { Resend } from "https://esm.sh/resend@2.0.0";
+import { getRevenueCatSubscriber, hasActiveRevenueCatEntitlement } from "../_shared/revenuecat.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -18,6 +19,8 @@ interface AdminInfo {
   email: string;
 }
 
+const FAMILY_ENTITLEMENT_ID = "fiis_support";
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -30,40 +33,77 @@ serve(async (req) => {
     
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    const { inviteCode, familyName, familyDescription, adminName, adminEmail, members } = await req.json();
+    const { inviteCode, familyName, familyDescription, adminName, adminEmail, members, useRevenueCatEntitlement } = await req.json();
 
-    if (!inviteCode || !familyName || !members || members.length === 0) {
-      throw new Error('Invite code, family name, and at least one member are required');
+    let authenticatedUserId: string | null = null;
+    let authenticatedUserEmail: string | null = null;
+
+    if ((!inviteCode && !useRevenueCatEntitlement) || !familyName || !members || members.length === 0) {
+      throw new Error('A valid purchase path, family name, and at least one member are required');
     }
 
     if (!adminName || !adminEmail) {
       throw new Error('Admin name and email are required');
     }
 
-    console.log('Creating family group:', familyName, 'with invite code:', inviteCode);
+    console.log('Creating family group:', familyName, useRevenueCatEntitlement ? 'via RevenueCat entitlement' : `with invite code: ${inviteCode}`);
 
-    // Verify the invite code exists and is not used
-    // SECURITY: select only what we need (avoid pulling any sensitive fields)
-    const { data: codeData, error: codeError } = await supabase
-      .from('activation_codes')
-      .select('id')
-      .eq('code', inviteCode.trim().toUpperCase())
-      .eq('is_used', false)
-      .maybeSingle();
+    let codeData: { id: string } | null = null;
 
-    if (codeError) {
-      console.error('Error checking invite code:', codeError);
-      throw new Error('Failed to verify invite code');
-    }
+    if (useRevenueCatEntitlement) {
+      const authHeader = req.headers.get('authorization');
+      if (!authHeader?.startsWith('Bearer ')) {
+        throw new Error('Authorization required for RevenueCat family setup');
+      }
 
-    if (!codeData) {
-      return new Response(JSON.stringify({ 
-        success: false, 
-        error: 'Invalid or already used invite code' 
-      }), {
-        status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+      const token = authHeader.replace('Bearer ', '');
+      const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+
+      if (authError || !user) {
+        throw new Error('Invalid authentication');
+      }
+
+      const subscriber = await getRevenueCatSubscriber(user.id);
+      const hasEntitlement = hasActiveRevenueCatEntitlement(subscriber, FAMILY_ENTITLEMENT_ID);
+
+      if (!hasEntitlement) {
+        return new Response(JSON.stringify({
+          success: false,
+          error: 'No active FIIS Support subscription was found for this account',
+        }), {
+          status: 200,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      authenticatedUserId = user.id;
+      authenticatedUserEmail = user.email ?? null;
+    } else {
+      // Verify the invite code exists and is not used
+      // SECURITY: select only what we need (avoid pulling any sensitive fields)
+      const { data, error: codeError } = await supabase
+        .from('activation_codes')
+        .select('id')
+        .eq('code', inviteCode.trim().toUpperCase())
+        .eq('is_used', false)
+        .maybeSingle();
+
+      if (codeError) {
+        console.error('Error checking invite code:', codeError);
+        throw new Error('Failed to verify invite code');
+      }
+
+      if (!data) {
+        return new Response(JSON.stringify({ 
+          success: false, 
+          error: 'Invalid or already used invite code' 
+        }), {
+          status: 200,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      codeData = data;
     }
 
     // Generate a new member invite code for the family
@@ -80,6 +120,7 @@ serve(async (req) => {
         name: familyName,
         description: familyDescription || null,
         invite_code: memberInviteCode,
+        created_by: authenticatedUserId,
       })
       .select()
       .single();
@@ -103,17 +144,34 @@ serve(async (req) => {
       console.error('Error creating family invite code:', inviteCodeError);
     }
 
-    // Mark the purchase invite code as used
-    const { error: updateError } = await supabase
-      .from('activation_codes')
-      .update({
-        is_used: true,
-        used_at: new Date().toISOString(),
-      })
-      .eq('id', codeData.id);
+    if (authenticatedUserId) {
+      const { error: memberError } = await supabase
+        .from('family_members')
+        .insert({
+          family_id: familyData.id,
+          user_id: authenticatedUserId,
+          role: 'admin',
+        });
 
-    if (updateError) {
-      console.error('Error updating invite code:', updateError);
+      if (memberError) {
+        console.error('Error linking family admin membership:', memberError);
+        throw new Error('Failed to link the family admin to the new family group');
+      }
+    }
+
+    if (codeData) {
+      // Mark the purchase invite code as used
+      const { error: updateError } = await supabase
+        .from('activation_codes')
+        .update({
+          is_used: true,
+          used_at: new Date().toISOString(),
+        })
+        .eq('id', codeData.id);
+
+      if (updateError) {
+        console.error('Error updating invite code:', updateError);
+      }
     }
 
     // Send emails via Resend
@@ -154,7 +212,7 @@ serve(async (req) => {
                 
                 <h3 style="color: #2d7d6f; margin-top: 30px;">📱 Getting Started</h3>
                 <ol style="color: #555; padding-left: 20px;">
-                  <li style="margin-bottom: 10px;"><strong>Create your account</strong> - Visit FamilyBridge and sign up with this email address (${adminEmail})</li>
+                  <li style="margin-bottom: 10px;"><strong>${authenticatedUserId ? 'Open your account' : 'Create your account'}</strong> - Visit FamilyBridge ${authenticatedUserId ? 'and sign in with' : 'and sign up with'} this email address (${authenticatedUserEmail || adminEmail})</li>
                   <li style="margin-bottom: 10px;"><strong>Join your family</strong> - Use the invite code above when prompted</li>
                   <li style="margin-bottom: 10px;"><strong>Complete your profile</strong> - Add your details and set your preferences</li>
                   <li style="margin-bottom: 10px;"><strong>Sign the HIPAA release</strong> - If applicable, this helps protect everyone's privacy</li>

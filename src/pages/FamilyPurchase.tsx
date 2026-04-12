@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { usePlatform } from "@/hooks/usePlatform";
+import { useRevenueCat } from "@/hooks/useRevenueCat";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,6 +16,13 @@ import { AppStorePurchaseButton, RestorePurchasesButton } from "@/components/App
 
 import { SubscriptionDisclosure } from "@/components/SubscriptionDisclosure";
 import { PRODUCTS } from "@/lib/products";
+import {
+  getOfferingPackageByProductId,
+  hasRevenueCatEntitlement,
+  REVENUECAT_ENTITLEMENT_IDS,
+  REVENUECAT_OFFERING_IDS,
+  REVENUECAT_PRODUCT_IDS,
+} from "@/lib/revenuecat";
 
 const FamilyPurchase = () => {
   const { user } = useAuth();
@@ -23,6 +31,7 @@ const FamilyPurchase = () => {
   const status = searchParams.get("status");
   const reactivateFamilyId = searchParams.get("reactivate");
   const { isNative, isIOS, isAndroid, paymentMethod } = usePlatform();
+  const { isSupported, isReady, getOffering, purchasePackage, restorePurchases, hasEntitlement } = useRevenueCat();
 
   const [email, setEmail] = useState(user?.email || "");
   const [couponCode, setCouponCode] = useState("");
@@ -34,6 +43,25 @@ const FamilyPurchase = () => {
   const [generatedCode, setGeneratedCode] = useState<string | null>(null);
   const [reactivatingFamily, setReactivatingFamily] = useState<{ id: string; name: string } | null>(null);
   const [isReactivating, setIsReactivating] = useState(false);
+  const [isNativePurchasing, setIsNativePurchasing] = useState(false);
+  const [isNativeRestoring, setIsNativeRestoring] = useState(false);
+  const [familyOffering, setFamilyOffering] = useState<any | null>(null);
+  const showNativeRevenueCat = isIOS && isSupported;
+  const hasFamilyAccess = hasEntitlement(REVENUECAT_ENTITLEMENT_IDS.family);
+
+  useEffect(() => {
+    if (!showNativeRevenueCat || !user) {
+      setFamilyOffering(null);
+      return;
+    }
+
+    void getOffering(REVENUECAT_OFFERING_IDS.family)
+      .then(setFamilyOffering)
+      .catch((error) => {
+        console.error("Failed to load family offering:", error);
+        setFamilyOffering(null);
+      });
+  }, [getOffering, showNativeRevenueCat, user]);
 
   // Fetch family info if reactivating
   useEffect(() => {
@@ -249,6 +277,72 @@ const FamilyPurchase = () => {
       toast.error("Failed to apply coupon. Please try again.");
     } finally {
       setIsApplyingCoupon(false);
+    }
+  };
+
+  const handleNativePurchase = async () => {
+    if (!showNativeRevenueCat) {
+      toast.error("Native App Store purchase is not available on this device yet.");
+      return;
+    }
+
+    if (!user) {
+      navigate("/auth");
+      return;
+    }
+
+    if (!isReady) {
+      toast.error("Still connecting to the App Store. Please try again in a moment.");
+      return;
+    }
+
+    const monthlyPackage = getOfferingPackageByProductId(familyOffering, REVENUECAT_PRODUCT_IDS.familyMonthly);
+    if (!monthlyPackage) {
+      toast.error("The family subscription is not available yet. Please refresh and try again.");
+      return;
+    }
+
+    setIsNativePurchasing(true);
+    try {
+      const customerInfo = await purchasePackage(monthlyPackage);
+
+      if (hasRevenueCatEntitlement(customerInfo, REVENUECAT_ENTITLEMENT_IDS.family)) {
+        toast.success("Subscription active. You can now create your family group.");
+        navigate("/family-setup");
+        return;
+      }
+
+      toast.error("Purchase completed, but access has not updated yet. Please try Restore Purchases.");
+    } catch (error) {
+      console.error("Native family purchase error:", error);
+      toast.error("We couldn't complete the App Store purchase.");
+    } finally {
+      setIsNativePurchasing(false);
+    }
+  };
+
+  const handleNativeRestore = async () => {
+    if (!showNativeRevenueCat || !user) {
+      navigate("/auth");
+      return;
+    }
+
+    setIsNativeRestoring(true);
+    try {
+      const customerInfo = await restorePurchases();
+
+      if (hasRevenueCatEntitlement(customerInfo, REVENUECAT_ENTITLEMENT_IDS.family)) {
+        toast.success("Family subscription restored. You can continue to family setup.");
+        navigate("/family-setup");
+        return;
+      }
+
+      toast.error("No active family subscription was found to restore.");
+    } catch (error) {
+      console.error("Native family restore error:", error);
+      toast.error("We couldn't restore purchases right now.");
+    } finally {
+      setIsNativeRestoring(false);
     }
   };
 
@@ -686,23 +780,62 @@ const FamilyPurchase = () => {
 
                   {isIOS ? (
                     <>
-                      {/* iOS: existing-account and invite-code access only while native IAP is being implemented */}
                       <div className="space-y-4">
-                        <div className="rounded-lg border bg-muted/40 p-4 text-sm text-muted-foreground">
-                          <p className="font-medium text-foreground mb-2">This iPhone build is currently for existing members and invited family participants.</p>
-                          <p>
-                            If you already have a FamilyBridge account, sign in below. If a family admin invited you,
-                            enter your invite code above to join.
-                          </p>
-                        </div>
-
-                        <Button
-                          variant="outline"
-                          onClick={() => navigate("/auth")}
-                          className="w-full"
-                        >
-                          Already have an account? Sign In
-                        </Button>
+                        {!user ? (
+                          <>
+                            <div className="rounded-lg border bg-muted/40 p-4 text-sm text-muted-foreground">
+                              <p className="font-medium text-foreground mb-2">Sign in first to purchase FIIS Support on iPhone.</p>
+                              <p>Your subscription is tied to your FamilyBridge account, and invited family members can still use the invite code above.</p>
+                            </div>
+                            <Button
+                              variant="outline"
+                              onClick={() => navigate("/auth")}
+                              className="w-full"
+                            >
+                              Sign In or Create Account
+                            </Button>
+                          </>
+                        ) : hasFamilyAccess ? (
+                          <>
+                            <div className="rounded-lg border border-emerald-500/30 bg-emerald-50/60 p-4 text-sm text-emerald-900 dark:bg-emerald-950/20 dark:text-emerald-100">
+                              <p className="font-medium mb-2">Your family subscription is active.</p>
+                              <p>You can create your family group now, and everyone else can still join with invite codes.</p>
+                            </div>
+                            <Button onClick={() => navigate("/family-setup")} className="w-full" size="lg">
+                              Continue to Family Setup
+                            </Button>
+                          </>
+                        ) : (
+                          <>
+                            <div className="rounded-lg border bg-muted/40 p-4 text-sm text-muted-foreground">
+                              <p className="font-medium text-foreground mb-2">One family admin subscription covers the whole family.</p>
+                              <p>After setup, the rest of the family can still join with invite codes on iPhone, Android, or the web.</p>
+                            </div>
+                            <Button
+                              onClick={handleNativePurchase}
+                              disabled={isNativePurchasing || !isReady || !familyOffering}
+                              className="w-full"
+                              size="lg"
+                            >
+                              {isNativePurchasing ? "Opening App Store..." : `Subscribe to FIIS Support - $${PRODUCTS.family.monthly.price}/mo`}
+                            </Button>
+                            <Button
+                              variant="outline"
+                              onClick={handleNativeRestore}
+                              disabled={isNativeRestoring || !isReady}
+                              className="w-full"
+                            >
+                              {isNativeRestoring ? "Restoring..." : "Restore Purchases"}
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              onClick={() => navigate("/auth")}
+                              className="w-full"
+                            >
+                              Switch Account
+                            </Button>
+                          </>
+                        )}
                       </div>
                     </>
                   ) : isAndroid ? (
