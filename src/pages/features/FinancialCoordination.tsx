@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { SEOHead } from '@/components/SEOHead';
 import { BrandedFooter } from '@/components/BrandedFooter';
+import PublicCrisisHelp from '@/components/PublicCrisisHelp';
 
 const demoRequest = {
   requester: 'Tyler B.',
@@ -21,11 +22,11 @@ const demoRequest = {
 
 const features = [
   { icon: Vote, title: 'Family Voting', description: 'Financial requests go to all family members for approval or denial with reasoning. Transparency eliminates secret enabling and one-person rescues.' },
-  { icon: DollarSign, title: 'Pledge Tracking', description: 'Approving family members can pledge specific amounts. The system tracks who pledged, who paid, and whether the total was met — eliminating ambiguity.' },
+  { icon: DollarSign, title: 'Pledge Tracking', description: 'Approving family members can pledge specific amounts. The system tracks who pledged, who paid, and whether the total was met, reducing ambiguity.' },
   { icon: Receipt, title: 'Receipt Verification', description: 'The requester uploads a receipt after spending. Moderators can verify the money was used for the stated purpose before closing the request.' },
-  { icon: ShieldCheck, title: 'FIIS Enabling Detection', description: 'AI analyzes financial request patterns and flags potential enabling behavior: repeated requests, escalating amounts, vague reasons, or patterns that correlate with relapse risk.' },
+  { icon: ShieldCheck, title: 'FIIS Enabling Detection', description: 'AI reviews financial request patterns and flags possible enabling concerns, such as repeated requests, escalating amounts, or vague reasons.' },
   { icon: Users, title: 'Moderator Oversight', description: 'Family moderators and assigned providers can review, close, or flag financial requests. All actions are logged and visible to the family group.' },
-  { icon: BarChart3, title: 'Financial History', description: 'Complete request history with approval rates, total disbursed, compliance rates, and trend analysis — giving families a clear picture of financial support patterns.' },
+  { icon: BarChart3, title: 'Financial History', description: 'Complete request history with approval rates, total disbursed, and trend analysis, giving families a clearer picture of financial support patterns.' },
 ];
 
 const FinancialCoordination = () => {
@@ -33,7 +34,7 @@ const FinancialCoordination = () => {
 
   return (
     <>
-      <SEOHead title="Financial Coordination | FamilyBridge" description="Family voting on financial requests with pledge tracking, receipt verification, and AI-powered enabling detection." />
+      <SEOHead title="Financial Coordination | FamilyBridge" description="Family voting on financial requests with pledge tracking, receipt verification, and AI-assisted enabling review." />
       <div className="min-h-screen bg-background">
         <div className="border-b bg-card/50">
           <div className="max-w-5xl mx-auto px-4 py-3 flex items-center gap-3">
@@ -51,7 +52,7 @@ const FinancialCoordination = () => {
             </div>
             <h1 className="text-3xl md:text-4xl font-bold text-foreground">Financial Coordination</h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Transparent financial request management that prevents secret enabling. Every request, every vote, every dollar — visible to the entire family.
+              Transparent financial request management that reduces secret enabling and keeps decisions visible to the family group.
             </p>
           </div>
 
@@ -95,6 +96,8 @@ const FinancialCoordination = () => {
               ))}
             </div>
           </div>
+
+          <PublicCrisisHelp />
 
           <Card className="border-primary/20">
             <CardContent className="p-6 text-center space-y-4">

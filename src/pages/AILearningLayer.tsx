@@ -11,6 +11,7 @@ import {
   Eye, Lock, ArrowLeft, Lightbulb, AlertTriangle, CheckCircle2,
   BarChart3, RefreshCw, Users, Building2, Link2, Target, Zap,
 } from 'lucide-react';
+import PublicCrisisHelp from '@/components/PublicCrisisHelp';
 import {
   domainSummaries,
   positiveInsights,
@@ -128,15 +129,15 @@ export default function AILearningLayer() {
               </div>
               <p className="text-sm text-muted-foreground max-w-2xl">
                 Privacy-preserving, cross-case pattern learning. The platform learns from aggregated,
-                de-identified patterns to improve recommendations — without exposing protected health
-                information across families, providers, or organizations.
+                de-identified patterns to improve recommendations without exposing sensitive information
+                across families, providers, or organizations.
               </p>
             </div>
 
             <div className="flex items-center gap-2">
               <Shield className="h-4 w-4 text-emerald-600" />
               <span className="text-xs text-emerald-700 dark:text-emerald-400 font-medium">
-                HIPAA Compliant · All outputs de-identified
+                Privacy-safe · All outputs de-identified
               </span>
             </div>
           </div>
@@ -154,7 +155,7 @@ export default function AILearningLayer() {
               </p>
               <p className="text-emerald-700 dark:text-emerald-400">
                 This platform uses aggregated, de-identified pattern learning to improve decision support.
-                It does not share protected health information across unrelated users or organizations.
+                It does not share sensitive information across unrelated users or organizations.
                 All insights shown are generalized, non-inferable, and based on sufficiently large sample sets.
               </p>
             </div>
@@ -381,7 +382,7 @@ export default function AILearningLayer() {
                 <ul className="space-y-1 list-disc pl-4">
                   <li>Make fully autonomous decisions</li>
                   <li>Claim certainty or treat correlation as causation</li>
-                  <li>Expose raw cross-case data or protected health information</li>
+                  <li>Expose raw cross-case data or sensitive personal information</li>
                   <li>Rewrite core scoring models without human review</li>
                   <li>Create leaderboards or cross-org comparisons</li>
                 </ul>
@@ -391,7 +392,7 @@ export default function AILearningLayer() {
             <p className="text-xs text-muted-foreground italic">
               The platform has observed these patterns across aggregated, de-identified data.
               All insights are generalized, non-inferable, and privacy-safe.
-              Correlation does not imply certainty — human judgment remains essential.
+              Correlation does not imply certainty, and human judgment remains essential.
             </p>
           </CardContent>
         </Card>
@@ -410,6 +411,8 @@ export default function AILearningLayer() {
             </Button>
           </CardContent>
         </Card>
+
+        <PublicCrisisHelp className="max-w-3xl mx-auto" />
 
         {/* CTA for demo */}
         <div className="text-center py-6">

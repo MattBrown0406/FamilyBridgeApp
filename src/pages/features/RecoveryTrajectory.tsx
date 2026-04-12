@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { SEOHead } from '@/components/SEOHead';
 import { BrandedFooter } from '@/components/BrandedFooter';
+import PublicCrisisHelp from '@/components/PublicCrisisHelp';
 
 const phases = [
   { name: 'Early Recovery', range: '0–30 days', progress: 100, status: 'Complete' },
@@ -17,10 +18,10 @@ const phases = [
 ];
 
 const features = [
-  { icon: Target, title: '365-Day Sobriety Milestone', description: 'The primary objective is achieving one full year of continuous sobriety. Every feature, metric, and coaching interaction is calibrated toward this benchmark.' },
-  { icon: Calendar, title: 'Phase-Based Progression', description: 'Recovery is tracked across six distinct phases, each with specific risk profiles, coaching adjustments, and milestone markers.' },
-  { icon: TrendingUp, title: 'Visual Progress Tracking', description: 'Real-time charts showing sobriety counter, meeting attendance trends, boundary compliance rates, and emotional pattern trajectories.' },
-  { icon: Shield, title: 'Phase-Sensitive Risk Detection', description: 'Risk scoring adjusts based on recovery phase. What is normal at Day 15 may be a warning sign at Day 150. The system adapts its sensitivity accordingly.' },
+  { icon: Target, title: '365-Day Sobriety Milestone', description: 'A clear milestone families can track together over time, alongside other recovery-support indicators.' },
+  { icon: Calendar, title: 'Phase-Based Progression', description: 'Recovery is tracked across six distinct phases, each with different support needs and milestone markers.' },
+  { icon: TrendingUp, title: 'Visual Progress Tracking', description: 'Charts showing sobriety counter, meeting attendance trends, boundary follow-through, and emotional pattern trajectories.' },
+  { icon: Shield, title: 'Phase-Sensitive Risk Detection', description: 'Risk review adjusts based on recovery phase. What is normal at Day 15 may deserve more attention at Day 150.' },
   { icon: Award, title: 'Milestone Celebrations', description: 'Automated celebrations at key milestones (30, 60, 90, 180, 365 days) with family notifications and visual rewards that reinforce positive momentum.' },
 ];
 
@@ -29,7 +30,7 @@ const RecoveryTrajectory = () => {
 
   return (
     <>
-      <SEOHead title="Recovery Trajectory Tracking | FamilyBridge" description="Visual progress tracking toward the 1-year sobriety milestone with AI-powered phase progression and risk detection." />
+      <SEOHead title="Recovery Trajectory Tracking | FamilyBridge" description="Visual progress tracking toward the 1-year sobriety milestone with AI-assisted phase progression and risk review." />
       <div className="min-h-screen bg-background">
         <div className="border-b bg-card/50">
           <div className="max-w-5xl mx-auto px-4 py-3 flex items-center gap-3">
@@ -47,7 +48,7 @@ const RecoveryTrajectory = () => {
             </div>
             <h1 className="text-3xl md:text-4xl font-bold text-foreground">Recovery Trajectory Tracking</h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Visual, data-driven progress tracking from Day 1 through the 365-day sobriety milestone — with phase-aware coaching that adapts as recovery evolves.
+              Visual, data-driven progress tracking from Day 1 through the 365-day sobriety milestone, with phase-aware coaching that adapts as recovery evolves.
             </p>
           </div>
 
@@ -98,6 +99,8 @@ const RecoveryTrajectory = () => {
               ))}
             </div>
           </div>
+
+          <PublicCrisisHelp />
 
           <Card className="border-primary/20">
             <CardContent className="p-6 text-center space-y-4">

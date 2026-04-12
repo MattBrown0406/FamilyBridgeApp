@@ -2,6 +2,7 @@ import { BrandedHeader } from "@/components/BrandedHeader";
 import { BrandedFooter } from "@/components/BrandedFooter";
 import { Card, CardContent } from "@/components/ui/card";
 import { SEOHead, createBreadcrumbSchema } from "@/components/SEOHead";
+import PublicCrisisHelp from "@/components/PublicCrisisHelp";
 
 const TermsOfService = () => {
   const breadcrumbSchema = createBreadcrumbSchema([
@@ -154,7 +155,7 @@ const TermsOfService = () => {
               <h2 className="text-xl font-semibold text-foreground mb-3">10. Disclaimer of Warranties</h2>
               <div className="space-y-3 text-muted-foreground">
                 <p>THE APP IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTIES OF ANY KIND, EXPRESS OR IMPLIED. WE DO NOT WARRANT THAT THE APP WILL BE UNINTERRUPTED, ERROR-FREE, OR SECURE.</p>
-                <p><strong>Important:</strong> FamilyBridge is not a substitute for professional medical, mental health, or addiction treatment services. If you or someone you know is in crisis, please contact emergency services or a crisis helpline immediately.</p>
+                <p><strong>Important:</strong> FamilyBridge is not a substitute for professional medical, mental health, or addiction treatment services. If you or someone you know may be in immediate danger, call 911 now. In the U.S. and Canada, call or text 988 for immediate crisis support.</p>
               </div>
             </CardContent>
           </Card>
@@ -202,16 +203,17 @@ const TermsOfService = () => {
                 If you have any questions about these Terms, please contact us at:
               </p>
               <a 
-                href="mailto:support@familybridgeapp.com"
+                href="mailto:matt@freedominterventions.com"
                 className="text-primary hover:underline font-medium"
               >
-                support@familybridgeapp.com
+                matt@freedominterventions.com
               </a>
             </CardContent>
           </Card>
 
-          <div className="text-center mt-8">
-            <p className="text-xs text-muted-foreground max-w-md mx-auto">
+          <div className="mt-8">
+            <PublicCrisisHelp className="max-w-2xl mx-auto mb-4" />
+            <p className="text-xs text-muted-foreground max-w-md mx-auto text-center">
               FamilyBridge provides educational and support-focused content only. It does not offer medical, mental health, or crisis services.
             </p>
           </div>

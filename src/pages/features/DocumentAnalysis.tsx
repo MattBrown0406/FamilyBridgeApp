@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { SEOHead } from '@/components/SEOHead';
 import { BrandedFooter } from '@/components/BrandedFooter';
+import PublicCrisisHelp from '@/components/PublicCrisisHelp';
 
 const extractionDemo = [
   { type: 'Boundary', text: '"I will no longer provide money for rent if Tyler is not attending outpatient treatment."', author: 'Linda (Mother)', confidence: '94%' },
@@ -14,9 +15,9 @@ const extractionDemo = [
 ];
 
 const features = [
-  { icon: Scan, title: 'AI-Powered Extraction', description: 'FIIS reads uploaded intervention letters and automatically identifies boundaries, commitments, consequences, and action items — with confidence scoring for each extraction.' },
-  { icon: ShieldCheck, title: 'Boundary Tracking', description: 'Extracted boundaries are automatically added to the family\'s boundary tracker, enabling automated compliance monitoring and enforcement alerts.' },
-  { icon: BookOpen, title: 'Aftercare Plan Analysis', description: 'Upload aftercare documents from treatment facilities. FIIS parses treatment recommendations, follow-up schedules, and medication protocols.' },
+  { icon: Scan, title: 'AI-Assisted Extraction', description: 'FIIS reads uploaded intervention letters and identifies boundaries, commitments, consequences, and action items, with confidence scoring for each extraction.' },
+  { icon: ShieldCheck, title: 'Boundary Tracking', description: 'Extracted boundaries can be added to the family\'s boundary tracker so families can review them in one place.' },
+  { icon: BookOpen, title: 'Aftercare Plan Analysis', description: 'Upload aftercare documents from treatment facilities. FIIS parses recommendations, follow-up schedules, and medication details for easier review.' },
   { icon: Upload, title: 'Multi-Format Support', description: 'Accepts PDFs, Word documents, images of handwritten letters, and text uploads. AI handles formatting inconsistencies and handwriting recognition.' },
 ];
 
@@ -25,7 +26,7 @@ const DocumentAnalysis = () => {
 
   return (
     <>
-      <SEOHead title="Smart Document Analysis | FamilyBridge" description="AI-powered document analysis that extracts boundaries, commitments, and action items from intervention letters and aftercare plans." />
+      <SEOHead title="Smart Document Analysis | FamilyBridge" description="AI-assisted document analysis that extracts boundaries, commitments, and action items from intervention letters and aftercare plans." />
       <div className="min-h-screen bg-background">
         <div className="border-b bg-card/50">
           <div className="max-w-5xl mx-auto px-4 py-3 flex items-center gap-3">
@@ -43,7 +44,7 @@ const DocumentAnalysis = () => {
             </div>
             <h1 className="text-3xl md:text-4xl font-bold text-foreground">Smart Document Analysis</h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Upload intervention letters and aftercare plans. FIIS automatically extracts boundaries, commitments, and consequences — turning static documents into actionable, trackable items.
+              Upload intervention letters and aftercare plans. FIIS helps organize boundaries, commitments, and consequences so families and providers can review them more clearly.
             </p>
           </div>
 
@@ -88,6 +89,8 @@ const DocumentAnalysis = () => {
               ))}
             </div>
           </div>
+
+          <PublicCrisisHelp />
 
           <Card className="border-primary/20">
             <CardContent className="p-6 text-center space-y-4">

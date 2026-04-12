@@ -1,22 +1,20 @@
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Shield, Lock, Eye, RotateCcw } from 'lucide-react';
 
 const pillars = [
   { icon: Shield, label: 'Volatility-Aware', desc: 'Adapts only when signals stabilize' },
-  { icon: Lock, label: 'Privacy-Safe', desc: 'HIPAA-compliant, de-identified learning' },
+  { icon: Lock, label: 'Privacy-Safe', desc: 'De-identified, privacy-safe learning' },
   { icon: Eye, label: 'Fully Transparent', desc: 'Every AI change is explainable' },
   { icon: RotateCcw, label: 'Auditable & Reversible', desc: 'Full history with rollback capability' },
 ];
 
 const GovernanceTrustBanner = () => {
-  const navigate = useNavigate();
-
   return (
     <section className="py-10 sm:py-14">
       <div className="container mx-auto px-4">
-        <div
-          className="max-w-5xl mx-auto bg-muted/40 border border-border/50 rounded-2xl p-6 sm:p-8 cursor-pointer hover:border-primary/20 transition-colors"
-          onClick={() => navigate('/ai-governance')}
+        <Link
+          to="/ai-learning/governance"
+          className="block max-w-5xl mx-auto bg-muted/40 border border-border/50 rounded-2xl p-6 sm:p-8 hover:border-primary/20 transition-colors"
         >
           <div className="text-center mb-6">
             <div className="inline-flex items-center gap-2 bg-primary/10 text-primary text-xs font-semibold px-3 py-1.5 rounded-full mb-3">
@@ -44,7 +42,7 @@ const GovernanceTrustBanner = () => {
               );
             })}
           </div>
-        </div>
+        </Link>
       </div>
     </section>
   );

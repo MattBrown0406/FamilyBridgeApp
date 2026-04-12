@@ -14,6 +14,7 @@ import {
   Activity, Layers, Scale, Bell, Settings, Eye, BarChart3, Combine,
   TrendingUp, TrendingDown, Gauge, ShieldCheck, Database,
 } from 'lucide-react';
+import PublicCrisisHelp from '@/components/PublicCrisisHelp';
 import {
   systemOverview, dataTiers, recentAdaptations, pendingChanges,
   suppressedAdaptations, interactionGovernance, auditLog,
@@ -97,12 +98,12 @@ export default function AIGovernance() {
       </div>
 
       <div className="max-w-6xl mx-auto px-4 py-6 space-y-6">
-        {/* HIPAA Notice */}
+        {/* Privacy Notice */}
         <Card className="border-primary/20 bg-primary/5">
           <CardContent className="py-3 px-4 flex items-start gap-3">
             <Lock className="h-4 w-4 text-primary mt-0.5 shrink-0" />
             <p className="text-xs text-muted-foreground">
-              This system adapts using aggregated, de-identified learning. All changes are bounded, transparent, and privacy-safe. No protected health information is exposed or shared across unrelated users or organizations.
+              This system adapts using aggregated, de-identified learning. All changes are bounded, transparent, and privacy-safe. No sensitive personal information is exposed or shared across unrelated users or organizations.
             </p>
           </CardContent>
         </Card>
@@ -624,13 +625,15 @@ export default function AIGovernance() {
             </div>
             <Separator />
             <ul className="text-xs text-muted-foreground space-y-1 list-disc list-inside">
-              <li>Adaptation is governed by signal stability, evidence strength, and proportional limits — not by fixed time delays.</li>
+              <li>Adaptation is governed by signal stability, evidence strength, and proportional limits, not by fixed time delays.</li>
               <li>All changes are bounded, explainable, and auditable.</li>
-              <li>No protected health information is used in learning or exposed in outputs.</li>
-              <li>Human judgment remains essential — this system supports decision-making, it does not replace it.</li>
+              <li>No sensitive personal information is used in learning or exposed in outputs.</li>
+              <li>Human judgment remains essential. This system supports decision-making, it does not replace it.</li>
             </ul>
           </CardContent>
         </Card>
+
+        <PublicCrisisHelp className="max-w-3xl mx-auto" />
 
         {/* CTA */}
         <div className="text-center py-6">

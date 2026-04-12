@@ -2,6 +2,7 @@ import { BrandedHeader } from "@/components/BrandedHeader";
 import { BrandedFooter } from "@/components/BrandedFooter";
 import { Card, CardContent } from "@/components/ui/card";
 import { SEOHead, createBreadcrumbSchema } from "@/components/SEOHead";
+import PublicCrisisHelp from "@/components/PublicCrisisHelp";
 
 const PrivacyPolicy = () => {
   const breadcrumbSchema = createBreadcrumbSchema([
@@ -175,16 +176,17 @@ const PrivacyPolicy = () => {
                 If you have any questions about this Privacy Policy, please contact us at:
               </p>
               <a 
-                href="mailto:support@familybridgeapp.com"
+                href="mailto:matt@freedominterventions.com"
                 className="text-primary hover:underline font-medium"
               >
-                support@familybridgeapp.com
+                matt@freedominterventions.com
               </a>
             </CardContent>
           </Card>
 
-          <div className="text-center mt-8">
-            <p className="text-xs text-muted-foreground max-w-md mx-auto">
+          <div className="mt-8">
+            <PublicCrisisHelp className="max-w-2xl mx-auto mb-4" />
+            <p className="text-xs text-muted-foreground max-w-md mx-auto text-center">
               FamilyBridge provides educational and support-focused content only. It does not offer medical, mental health, or crisis services.
             </p>
           </div>

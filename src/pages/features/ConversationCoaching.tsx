@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { SEOHead } from '@/components/SEOHead';
 import { BrandedFooter } from '@/components/BrandedFooter';
+import PublicCrisisHelp from '@/components/PublicCrisisHelp';
 
 const coachingDemo = [
   { role: 'them', text: '"You don\'t understand what I\'m going through. Nobody does."', time: '2:14 PM' },
@@ -15,12 +16,12 @@ const coachingDemo = [
 ];
 
 const features = [
-  { icon: Zap, title: 'Real-Time Guidance', description: 'FIIS analyzes the conversation as it happens and surfaces coaching prompts within seconds — helping you navigate difficult moments without saying the wrong thing.' },
-  { icon: Brain, title: 'De-Escalation Scripts', description: 'Proven language patterns drawn from CRAFT, motivational interviewing, and clinical intervention frameworks. Not generic advice — specific words for specific moments.' },
-  { icon: Eye, title: 'Tone Detection', description: 'AI reads emotional tone in text messages and flags shifts: defensive → vulnerable, angry → exhausted, resistant → curious. Each shift is a coaching opportunity.' },
+  { icon: Zap, title: 'Real-Time Guidance', description: 'FIIS reviews the conversation as it happens and surfaces coaching prompts within seconds, helping you navigate difficult moments more carefully.' },
+  { icon: Brain, title: 'De-Escalation Scripts', description: 'Language patterns informed by CRAFT, motivational interviewing, and family guidance frameworks. Practical suggestions, not one-size-fits-all scripts.' },
+  { icon: Eye, title: 'Tone Detection', description: 'AI reads emotional tone in text messages and flags shifts like defensive to vulnerable, angry to exhausted, or resistant to curious.' },
   { icon: Shield, title: '"Warm Exit" Strategies', description: 'When a conversation is heading toward damage, FIIS provides exit strategies that preserve the relationship while protecting your boundaries.' },
-  { icon: AlertTriangle, title: 'Enabling Detection', description: 'Real-time alerts when your language patterns shift toward enabling: over-explaining, apologizing for boundaries, or offering to rescue.' },
-  { icon: MessageSquare, title: 'Screenshot Coaching', description: 'Upload a screenshot of a text conversation. FIIS analyzes the exchange and provides coaching on what to say next — with context-aware suggestions.' },
+  { icon: AlertTriangle, title: 'Enabling Detection', description: 'Flags moments when language patterns may be sliding toward enabling, such as over-explaining, apologizing for boundaries, or offering to rescue.' },
+  { icon: MessageSquare, title: 'Screenshot Coaching', description: 'Upload a screenshot of a text conversation. FIIS reviews the exchange and offers context-aware suggestions for what to say next.' },
 ];
 
 const ConversationCoaching = () => {
@@ -28,7 +29,7 @@ const ConversationCoaching = () => {
 
   return (
     <>
-      <SEOHead title="Conversation Coaching | FamilyBridge" description="Real-time AI-powered de-escalation guidance during difficult conversations with a resistant loved one." />
+      <SEOHead title="Conversation Coaching | FamilyBridge" description="Real-time AI-assisted de-escalation guidance during difficult conversations with a loved one." />
       <div className="min-h-screen bg-background">
         <div className="border-b bg-card/50">
           <div className="max-w-5xl mx-auto px-4 py-3 flex items-center gap-3">
@@ -47,7 +48,7 @@ const ConversationCoaching = () => {
             </div>
             <h1 className="text-3xl md:text-4xl font-bold text-foreground">Conversation Coaching</h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Real-time FIIS coaching during live conversations with a resistant loved one. Know exactly what to say — and what not to say — when every word matters.
+              Real-time FIIS coaching during live conversations with a loved one. Get grounded suggestions for what to say next, while remembering that judgment and safety decisions still belong to humans.
             </p>
           </div>
 
@@ -97,6 +98,8 @@ const ConversationCoaching = () => {
               ))}
             </div>
           </div>
+
+          <PublicCrisisHelp />
 
           <Card className="border-primary/20">
             <CardContent className="p-6 text-center space-y-4">

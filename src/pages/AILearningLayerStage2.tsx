@@ -11,6 +11,7 @@ import {
   Lock, ArrowLeft, AlertTriangle, CheckCircle2, BarChart3, RefreshCw,
   Scale, Bell, Combine, ClipboardCheck, ScrollText, Clock, X, Check,
 } from 'lucide-react';
+import PublicCrisisHelp from '@/components/PublicCrisisHelp';
 import {
   adaptiveWeights,
   thresholdAdjustments,
@@ -111,14 +112,14 @@ export default function AILearningLayerStage2() {
                 <Badge className="bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200">Demo</Badge>
               </div>
               <p className="text-sm text-muted-foreground max-w-2xl">
-                Controlled adaptive learning — the platform refines scoring weights, alert thresholds, and recommendation
+                Controlled adaptive learning. The platform refines scoring weights, alert thresholds, and recommendation
                 priorities using aggregated, de-identified outcome data. All changes are bounded, explainable, and auditable.
               </p>
             </div>
             <div className="flex items-center gap-2">
               <Shield className="h-4 w-4 text-emerald-600" />
               <span className="text-xs text-emerald-700 dark:text-emerald-400 font-medium">
-                HIPAA Compliant · Bounded · Auditable
+                Privacy-safe · Bounded · Auditable
               </span>
             </div>
           </div>
@@ -136,7 +137,7 @@ export default function AILearningLayerStage2() {
               </p>
               <p className="text-emerald-700 dark:text-emerald-400">
                 This platform uses aggregated, de-identified learning to improve scoring, alerts, and recommendations
-                over time. Adaptive changes are bounded, privacy-safe, and reviewable. No protected health information
+                over time. Adaptive changes are bounded, privacy-safe, and reviewable. No sensitive personal information
                 is exposed across unrelated users or organizations.
               </p>
             </div>
@@ -502,7 +503,7 @@ export default function AILearningLayerStage2() {
                   <li>No adaptation from small or identifiable sample sets</li>
                   <li>No opaque or unexplainable model changes</li>
                   <li>No deterministic claims — correlation ≠ certainty</li>
-                  <li>No exposure of protected health information</li>
+                  <li>No exposure of sensitive personal information</li>
                   <li>No cross-org benchmarking or comparison</li>
                 </ul>
               </div>
@@ -510,7 +511,7 @@ export default function AILearningLayerStage2() {
             <Separator />
             <p className="text-xs text-muted-foreground italic">
               Adaptive changes are based on aggregated, de-identified outcome learning.
-              Human judgment remains essential — this system supports decision-making, it does not replace it.
+              Human judgment remains essential. This system supports decision-making, it does not replace it.
             </p>
           </CardContent>
         </Card>
@@ -529,6 +530,8 @@ export default function AILearningLayerStage2() {
             </Button>
           </CardContent>
         </Card>
+
+        <PublicCrisisHelp className="max-w-3xl mx-auto" />
 
         {/* CTA */}
         <div className="text-center py-6">

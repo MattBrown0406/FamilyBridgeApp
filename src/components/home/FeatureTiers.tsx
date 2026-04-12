@@ -31,13 +31,13 @@ const tiers: {
   {
     label: 'Core Intelligence',
     tagline: 'See what others miss',
-    description: 'Pattern detection and predictive analytics that transform raw signals into actionable family intelligence.',
+    description: 'Pattern spotting and decision support that turn raw signals into clearer family context.',
     accentColor: 'from-violet-500 to-indigo-600',
     cards: [
       {
         title: 'FIIS™ Pattern Detection',
         question: "What's really happening?",
-        answer: 'Detects behavioral shifts, emotional patterns, and risk signals across your entire family system — before a crisis hits.',
+        answer: 'Highlights behavioral shifts, emotional patterns, and risk signals across your family system so you can respond earlier and more calmly.',
         icon: Brain,
         gradient: 'from-violet-500 to-purple-600',
         features: [
@@ -50,7 +50,7 @@ const tiers: {
       {
         title: 'Outcome Predictions',
         question: "What's going to happen next?",
-        answer: 'Forecasts treatment completion, relapse risk, and system failures — and tells you exactly what to change.',
+        answer: 'Estimates likely friction points, treatment follow-through, and recovery risks, then suggests areas to review with human judgment.',
         icon: BarChart3,
         gradient: 'from-emerald-500 to-teal-600',
         features: [
@@ -65,13 +65,13 @@ const tiers: {
   {
     label: 'Action Systems',
     tagline: 'Act at the right moment',
-    description: 'Tools that turn intelligence into coordinated action — for families, providers, and interventionists.',
+    description: 'Tools that turn insight into coordinated action for families, providers, and interventionists.',
     accentColor: 'from-rose-500 to-orange-500',
     cards: [
       {
         title: 'Intervention Readiness',
         question: 'Is it time to intervene?',
-        answer: 'Identifies when resistance is weakening and timing is optimal — so you act at the right moment, not the emotional one.',
+        answer: 'Surfaces timing and readiness signals so families can plan carefully, not react only from emotion.',
         icon: Crosshair,
         gradient: 'from-rose-500 to-orange-500',
         features: [
@@ -84,7 +84,7 @@ const tiers: {
       {
         title: 'Accountability Engine',
         question: 'Is everyone doing their part?',
-        answer: 'Scores behavioral consistency for families and providers — ensuring commitments are kept, not just made.',
+        answer: 'Tracks behavioral consistency for families and providers so commitments can be reviewed more clearly over time.',
         icon: Target,
         gradient: 'from-amber-500 to-orange-500',
         features: [
@@ -99,7 +99,7 @@ const tiers: {
   {
     label: 'Platform Integrity',
     tagline: 'Trust the system',
-    description: 'Systems that ensure the platform learns safely, data stays clean, and every recommendation is grounded in reality.',
+    description: 'Systems that help the platform learn carefully, keep data cleaner, and ground recommendations in reviewable signals.',
     accentColor: 'from-blue-500 to-slate-600',
     cards: [
       {
@@ -146,7 +146,7 @@ const FeatureTiers = () => {
             Six questions. Three layers. One intelligent platform.
           </h2>
           <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto">
-            Every layer builds on the last — from seeing what's happening, to acting on it, to ensuring the system itself stays trustworthy.
+            Every layer builds on the last, from seeing what is happening, to acting on it, to keeping the system itself trustworthy.
           </p>
         </div>
 

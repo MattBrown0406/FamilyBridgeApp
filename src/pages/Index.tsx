@@ -12,13 +12,14 @@ import { SEOHead, createOrganizationSchema } from '@/components/SEOHead';
 import FeatureTiers from '@/components/home/FeatureTiers';
 import GovernanceTrustBanner from '@/components/home/GovernanceTrustBanner';
 import AdditionalTools from '@/components/home/AdditionalTools';
+import PublicCrisisHelp from '@/components/PublicCrisisHelp';
 import {
   ArrowRight, Building2, Check, LogOut, Heart,
 } from 'lucide-react';
 
 const trustSignals = [
-  { value: 'HIPAA', label: 'Compliant' },
-  { value: '24/7', label: 'AI Monitoring' },
+  { value: 'Private', label: 'By Design' },
+  { value: '24/7', label: 'Pattern Support' },
   { value: '365', label: 'Day Journey' },
 ];
 
@@ -71,13 +72,13 @@ const Index = () => {
 
   const tagline = isWhiteLabeled && organization?.tagline
     ? organization.tagline
-    : 'A safe space for families affected by addiction to communicate, set boundaries, and support their loved ones on the path to recovery.';
+    : 'A private space for families affected by addiction to communicate, set boundaries, and support loved ones with more clarity and consistency.';
 
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
         title="FamilyBridge — Recovery Support for Families Affected by Addiction"
-        description="FamilyBridge helps families support loved ones in recovery with AI-powered pattern detection, transparent communication, financial coordination, and accountability tools."
+        description="FamilyBridge helps families support loved ones in recovery with AI-assisted pattern spotting, transparent communication, financial coordination, and accountability tools."
         canonicalPath="/"
         structuredData={createOrganizationSchema()}
       />
@@ -120,7 +121,7 @@ const Index = () => {
           <div className="max-w-3xl mx-auto text-center">
             <div className="mb-4 text-center">
               <p className="text-base sm:text-lg font-semibold text-primary tracking-wide uppercase">
-                Powered by FIIS™ — Patent-Pending AI
+                Powered by FIIS™, patent-pending decision support
               </p>
               <p className="text-xs sm:text-sm text-muted-foreground mt-1">
                 Family Insight & Intervention System
@@ -181,7 +182,7 @@ const Index = () => {
                   Help families in your care with professional-grade tools for communication, accountability, and outcome tracking.
                 </p>
                 <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-6">
-                  {['FIIS clinical insights dashboard', 'Care transition & handoff management', 'Provider outcome success scoring', 'Custom branding & white-label'].map((item) => (
+                  {['FIIS pattern insights dashboard', 'Care transition & handoff management', 'Provider outcome tracking', 'Custom branding & white-label'].map((item) => (
                     <li key={item} className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Check className="h-4 w-4 text-primary shrink-0" />
                       {item}
@@ -195,6 +196,12 @@ const Index = () => {
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      <section className="pb-4 sm:pb-8">
+        <div className="container mx-auto px-4 max-w-3xl">
+          <PublicCrisisHelp />
         </div>
       </section>
 
@@ -212,7 +219,7 @@ const Index = () => {
                 Recovery starts with seeing clearly.
               </h2>
               <p className="text-sm sm:text-base text-primary-foreground/80 mb-8 max-w-md mx-auto">
-                Join families and providers who are using intelligence — not guesswork — to support recovery.
+                Join families and providers who are using better information, not guesswork, to support recovery.
               </p>
               <Button size="lg" className="h-12 px-6 bg-card text-foreground hover:bg-card/90 shadow-xl group" onClick={() => navigate(paymentsWebOnly ? '/auth' : '/family-purchase')}>
                 Create Your Family Group

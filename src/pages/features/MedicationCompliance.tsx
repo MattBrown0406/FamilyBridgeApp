@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { SEOHead } from '@/components/SEOHead';
 import { BrandedFooter } from '@/components/BrandedFooter';
+import PublicCrisisHelp from '@/components/PublicCrisisHelp';
 
 const demoSchedule = [
   { time: '8:00 AM', med: 'Naltrexone 50mg', status: 'taken', takenAt: '8:12 AM' },
@@ -15,12 +16,12 @@ const demoSchedule = [
 ];
 
 const features = [
-  { icon: Camera, title: 'AI Label Scanning', description: 'Take a photo of any medication label. AI extracts the medication name, dosage, frequency, prescriber, and pharmacy — automatically creating a tracked medication entry.' },
-  { icon: Clock, title: 'Smart Dose Scheduling', description: 'Automated reminders based on prescribed frequency. Tracks scheduled vs. actual take times and identifies patterns of non-compliance.' },
-  { icon: Bell, title: 'Family Alerts', description: 'When a scheduled dose is missed, authorized family members and providers receive notifications — ensuring accountability without confrontation.' },
-  { icon: BarChart3, title: 'Compliance Reporting', description: 'Weekly and monthly compliance rates with visual trends. Providers see compliance data alongside recovery trajectory and emotional patterns.' },
-  { icon: ShieldCheck, title: 'Refill Monitoring', description: 'Tracks medication refill schedules and alerts when a refill is due or overdue — catching potential gaps before they become missed doses.' },
-  { icon: AlertTriangle, title: 'Pattern Detection', description: 'FIIS identifies compliance patterns: specific days or times medications are frequently missed, correlations with emotional state, and risk signals from sudden non-compliance.' },
+  { icon: Camera, title: 'AI Label Scanning', description: 'Take a photo of any medication label. AI extracts the medication name, dosage, frequency, prescriber, and pharmacy to create a draft medication entry for review.' },
+  { icon: Clock, title: 'Smart Dose Scheduling', description: 'Automated reminders based on prescribed frequency. Tracks scheduled vs. actual take times and highlights missed-dose patterns over time.' },
+  { icon: Bell, title: 'Family Alerts', description: 'When a scheduled dose is missed, authorized family members and providers can receive notifications for follow-up.' },
+  { icon: BarChart3, title: 'Compliance Reporting', description: 'Weekly and monthly consistency trends that providers can review alongside other recovery-support signals.' },
+  { icon: ShieldCheck, title: 'Refill Monitoring', description: 'Tracks medication refill schedules and alerts when a refill is due or overdue, helping catch potential gaps before they become missed doses.' },
+  { icon: AlertTriangle, title: 'Pattern Detection', description: 'FIIS highlights consistency patterns, such as specific days or times medications are frequently missed, for human review.' },
 ];
 
 const MedicationCompliance = () => {
@@ -28,7 +29,7 @@ const MedicationCompliance = () => {
 
   return (
     <>
-      <SEOHead title="Medication Compliance | FamilyBridge" description="AI-powered medication tracking with label scanning, dose scheduling, family alerts, and compliance reporting." />
+      <SEOHead title="Medication Compliance | FamilyBridge" description="AI-assisted medication tracking with label scanning, dose scheduling, family alerts, and consistency reporting." />
       <div className="min-h-screen bg-background">
         <div className="border-b bg-card/50">
           <div className="max-w-5xl mx-auto px-4 py-3 flex items-center gap-3">
@@ -46,7 +47,7 @@ const MedicationCompliance = () => {
             </div>
             <h1 className="text-3xl md:text-4xl font-bold text-foreground">Medication Compliance</h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              AI-powered medication management that tracks every dose, alerts family members on missed medications, and gives providers a clear compliance picture — without micromanaging the individual.
+              AI-assisted medication support that tracks doses, alerts authorized supporters to missed medications, and gives providers a clearer consistency picture without replacing medical advice.
             </p>
           </div>
 
@@ -67,7 +68,7 @@ const MedicationCompliance = () => {
                 ))}
               </div>
               <div className="mt-4 p-3 rounded-lg bg-muted/50 border border-border">
-                <p className="text-xs text-muted-foreground"><strong>FIIS Note:</strong> Gabapentin noon dose has been missed 3 of the last 5 days. Pattern: midday doses are consistently lower compliance than morning and evening. Consider discussing with prescriber about consolidating to twice-daily dosing.</p>
+                <p className="text-xs text-muted-foreground"><strong>FIIS Note:</strong> Gabapentin noon dose has been missed 3 of the last 5 days. Pattern: midday doses are consistently lower than morning and evening. Consider reviewing the schedule with the prescriber.</p>
               </div>
             </CardContent>
           </Card>
@@ -90,6 +91,8 @@ const MedicationCompliance = () => {
               ))}
             </div>
           </div>
+
+          <PublicCrisisHelp />
 
           <Card className="border-primary/20">
             <CardContent className="p-6 text-center space-y-4">

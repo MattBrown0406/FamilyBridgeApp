@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Mail, Clock, MessageCircle, Loader2, Send, CheckCircle, ArrowLeft } from "lucide-react";
+import PublicCrisisHelp from "@/components/PublicCrisisHelp";
 
 const Support = () => {
   const [searchParams] = useSearchParams();
@@ -126,6 +127,10 @@ const Support = () => {
           <p className="text-sm sm:text-base text-muted-foreground">
             We're here to help you with any questions or concerns.
           </p>
+        </div>
+
+        <div className="mb-6">
+          <PublicCrisisHelp className="max-w-3xl mx-auto" />
         </div>
 
         <div className="grid gap-6 lg:grid-cols-2">

@@ -5,20 +5,21 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { SEOHead } from '@/components/SEOHead';
 import { BrandedFooter } from '@/components/BrandedFooter';
+import PublicCrisisHelp from '@/components/PublicCrisisHelp';
 
 const features = [
-  { icon: Eye, title: 'Real-Time Pattern Detection', description: 'FIIS continuously monitors communication patterns, emotional tone shifts, and behavioral signals across all family interactions — surfacing insights that humans often miss in the moment.' },
-  { icon: AlertTriangle, title: '5-Level Risk Framework', description: 'A weighted risk accumulation model (Low → Guarded → Elevated → High → Critical) that scales AI coaching tone from gentle guidance to directive, action-oriented emergency protocols.' },
-  { icon: BarChart3, title: 'Recovery Trajectory Analysis', description: 'Tracks compliance trends, risk trajectories, and transition readiness indicators across six recovery phases, from Early Recovery through Building Resilience.' },
-  { icon: Users, title: 'Family System Coaching', description: 'Identifies enabling patterns, codependency dynamics, and family role behaviors — then provides actionable coaching to strengthen the entire family system.' },
-  { icon: Shield, title: 'Crisis Detection & Response', description: 'Automated crisis protocols including suicide risk assessment, psychiatric emergency detection, overdose guidance (Narcan/988), and involuntary commitment criteria.' },
-  { icon: Zap, title: 'Relapse Prediction', description: 'Identifies behavioral patterns 2–4 weeks before a crisis through communication analysis, meeting attendance drops, and boundary enforcement patterns.' },
+  { icon: Eye, title: 'Real-Time Pattern Detection', description: 'FIIS reviews communication patterns, emotional tone shifts, and behavioral signals across family interactions, surfacing insights people may miss in the moment.' },
+  { icon: AlertTriangle, title: '5-Level Risk Framework', description: 'A weighted risk framework (Low → Guarded → Elevated → High → Critical) that helps families and providers decide when to slow down, tighten boundaries, or seek in-person help.' },
+  { icon: BarChart3, title: 'Recovery Trajectory Analysis', description: 'Tracks consistency trends, recovery friction, and transition readiness indicators across key stages of recovery support.' },
+  { icon: Users, title: 'Family System Coaching', description: 'Highlights enabling patterns, family strain, and role behaviors, then offers practical coaching prompts to strengthen the family system.' },
+  { icon: Shield, title: 'Escalation Support', description: 'Flags concerning patterns, surfaces crisis resources, and prompts families to involve qualified local professionals or emergency services when needed.' },
+  { icon: Zap, title: 'Early Warning Signals', description: 'Highlights behavioral changes that may call for closer attention, using communication patterns, meeting attendance drops, and boundary follow-through.' },
 ];
 
 const knowledgeBases = [
-  'DSM-5 Diagnostic Criteria', 'CRAFT Method', 'Bowen Family Systems Theory',
-  'Stages of Change Model', 'Trauma-Informed Care (ACE)', 'AA/NA/SMART Recovery Literature',
-  'DBT / EMDR / CBT Modalities', 'IDDT Integrated Treatment Model',
+  'CRAFT Method', 'Bowen Family Systems Theory',
+  'Stages of Change Model', 'Trauma-Informed Care principles', 'AA/NA/SMART Recovery Literature',
+  'Motivational interviewing and de-escalation practices', 'Family recovery education resources',
 ];
 
 const FIISIntelligence = () => {
@@ -26,7 +27,7 @@ const FIISIntelligence = () => {
 
   return (
     <>
-      <SEOHead title="FIIS Recovery Intelligence | FamilyBridge" description="AI-powered behavioral pattern detection and family systems coaching engine for addiction recovery." />
+      <SEOHead title="FIIS Recovery Intelligence | FamilyBridge" description="AI-assisted behavioral pattern detection and family systems coaching tools for recovery support." />
       <div className="min-h-screen bg-background">
         <div className="border-b bg-card/50">
           <div className="max-w-5xl mx-auto px-4 py-3 flex items-center gap-3">
@@ -46,7 +47,7 @@ const FIISIntelligence = () => {
             </div>
             <h1 className="text-3xl md:text-4xl font-bold text-foreground">Family Intervention Intelligence System</h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              FIIS operates as a behavioral pattern intelligence and family systems coaching engine — not a medical provider. It detects what humans miss, coaches in real time, and keeps families grounded through the hardest moments of recovery.
+              FIIS operates as a behavioral pattern intelligence and family systems coaching engine, not a medical or crisis service. It helps families notice patterns sooner, communicate more clearly, and stay grounded during recovery.
             </p>
           </div>
 
@@ -60,17 +61,17 @@ const FIISIntelligence = () => {
                 <div className="p-4 rounded-lg bg-primary/5 border border-primary/10 text-center">
                   <div className="text-2xl font-bold text-primary mb-1">1</div>
                   <h3 className="font-semibold text-foreground mb-1">Observe</h3>
-                  <p className="text-xs text-muted-foreground">Monitors messages, check-ins, emotional tone, meeting attendance, and financial patterns across the family system.</p>
+                  <p className="text-xs text-muted-foreground">Reviews messages, check-ins, emotional tone, meeting attendance, and financial patterns across the family system.</p>
                 </div>
                 <div className="p-4 rounded-lg bg-primary/5 border border-primary/10 text-center">
                   <div className="text-2xl font-bold text-primary mb-1">2</div>
                   <h3 className="font-semibold text-foreground mb-1">Analyze</h3>
-                  <p className="text-xs text-muted-foreground">Cross-references behavioral signals against clinical knowledge bases to identify risk patterns, enabling behaviors, and recovery trajectory shifts.</p>
+                  <p className="text-xs text-muted-foreground">Cross-references behavioral signals against structured recovery frameworks to identify risk patterns, enabling behaviors, and trajectory shifts for human review.</p>
                 </div>
                 <div className="p-4 rounded-lg bg-primary/5 border border-primary/10 text-center">
                   <div className="text-2xl font-bold text-primary mb-1">3</div>
                   <h3 className="font-semibold text-foreground mb-1">Coach</h3>
-                  <p className="text-xs text-muted-foreground">Delivers real-time, actionable guidance to families and providers — scaling tone from gentle to directive based on risk level.</p>
+                  <p className="text-xs text-muted-foreground">Delivers guidance to families and providers, scaling from gentle prompts to stronger recommendations when more human support may be needed.</p>
                 </div>
               </div>
             </CardContent>
@@ -99,8 +100,8 @@ const FIISIntelligence = () => {
           {/* Knowledge base */}
           <Card>
             <CardContent className="p-6">
-              <h2 className="text-xl font-bold text-foreground mb-4">Clinical Knowledge Base</h2>
-              <p className="text-sm text-muted-foreground mb-4">FIIS is trained on established clinical frameworks and recovery literature:</p>
+              <h2 className="text-xl font-bold text-foreground mb-4">Recovery Knowledge Base</h2>
+              <p className="text-sm text-muted-foreground mb-4">FIIS is informed by established recovery-support frameworks and family guidance literature:</p>
               <div className="flex flex-wrap gap-2">
                 {knowledgeBases.map((kb) => (
                   <Badge key={kb} variant="secondary" className="text-xs">{kb}</Badge>
@@ -109,11 +110,13 @@ const FIISIntelligence = () => {
             </CardContent>
           </Card>
 
+          <PublicCrisisHelp />
+
           {/* Demo preview */}
           <Card className="border-primary/20">
             <CardContent className="p-6 text-center space-y-4">
               <h2 className="text-xl font-bold text-foreground">See FIIS in Action</h2>
-              <p className="text-sm text-muted-foreground">Explore demo family scenarios showing real-time FIIS analysis, risk detection, and coaching in practice.</p>
+              <p className="text-sm text-muted-foreground">Explore demo family scenarios showing FIIS analysis, risk review, and coaching in practice.</p>
               <Button onClick={() => navigate('/demo')} className="gap-2">
                 View Demo Scenarios <ArrowLeft className="h-4 w-4 rotate-180" />
               </Button>

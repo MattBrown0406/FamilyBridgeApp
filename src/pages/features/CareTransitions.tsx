@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { SEOHead } from '@/components/SEOHead';
 import { BrandedFooter } from '@/components/BrandedFooter';
+import PublicCrisisHelp from '@/components/PublicCrisisHelp';
 
 const transitionDemo = [
   { step: 'Transition Summary Created', by: 'Hope Harbor Interventions', date: '3 days ago', status: 'complete' },
@@ -16,12 +17,12 @@ const transitionDemo = [
 ];
 
 const features = [
-  { icon: ArrowRightLeft, title: 'Provider-to-Provider Handoff', description: 'Structured transition summaries that travel with the patient between treatment providers — ensuring continuity of care without information gaps.' },
-  { icon: ShieldCheck, title: 'Patient Consent Management', description: 'HIPAA-compliant consent recording with digital signatures. Patients control exactly which data is shared with each receiving provider.' },
-  { icon: FileText, title: 'Transition Summaries', description: 'Comprehensive care summaries including treatment history, medication lists, boundary agreements, family dynamics, and FIIS risk assessments.' },
+  { icon: ArrowRightLeft, title: 'Provider-to-Provider Handoff', description: 'Structured transition summaries that travel with the patient between treatment providers, supporting continuity of care without information gaps.' },
+  { icon: ShieldCheck, title: 'Patient Consent Management', description: 'Consent recording with digital signatures and auditable access controls. Patients control exactly which data is shared with each receiving provider.' },
+  { icon: FileText, title: 'Transition Summaries', description: 'Comprehensive care summaries including treatment history, medication lists, boundary agreements, family dynamics, and FIIS risk reviews.' },
   { icon: BarChart3, title: 'Outcome Tracking', description: 'Post-transition outcome scoring measures success rates across providers, identifying which handoff patterns lead to better long-term outcomes.' },
   { icon: Users, title: 'Family Continuity', description: 'Families maintain their group, communication history, and boundaries across provider transitions — no starting over from scratch.' },
-  { icon: Clock, title: 'Readiness Scoring', description: 'AI-powered transition readiness indicators help providers determine when a patient is ready for step-down care without premature discharge.' },
+  { icon: Clock, title: 'Readiness Scoring', description: 'AI-assisted transition readiness indicators help providers assess when a patient may be ready for step-down care without premature discharge.' },
 ];
 
 const CareTransitions = () => {
@@ -47,7 +48,7 @@ const CareTransitions = () => {
             </div>
             <h1 className="text-3xl md:text-4xl font-bold text-foreground">Care Transitions</h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Seamless handoffs between treatment providers with HIPAA-compliant transition summaries, patient consent management, and outcome tracking — so no one falls through the cracks.
+              Seamless handoffs between treatment providers with structured transition summaries, patient consent management, and outcome tracking to support safer transitions.
             </p>
           </div>
 
@@ -91,6 +92,8 @@ const CareTransitions = () => {
               ))}
             </div>
           </div>
+
+          <PublicCrisisHelp />
 
           <Card className="border-primary/20">
             <CardContent className="p-6 text-center space-y-4">

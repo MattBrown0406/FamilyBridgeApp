@@ -138,7 +138,7 @@ export const createOrganizationSchema = () => ({
   name: 'FamilyBridge',
   url: 'https://familybridgeapp.com',
   logo: 'https://familybridgeapp.com/favicon.png',
-  description: 'FamilyBridge helps families support loved ones in recovery with AI-powered pattern detection, transparent communication, financial coordination, and accountability tools.',
+  description: 'FamilyBridge helps families support loved ones in recovery with AI-assisted pattern spotting, transparent communication, financial coordination, and accountability tools.',
   contactPoint: {
     '@type': 'ContactPoint',
     email: 'matt@freedominterventions.com',
