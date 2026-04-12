@@ -1,4 +1,3 @@
-import { corsHeaders } from "https://esm.sh/@supabase/supabase-js@2.49.1/dist/module/lib/cors.js";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
 
 const corsHeaders2 = {
@@ -158,7 +157,7 @@ Deno.serve(async (req) => {
   } catch (err) {
     console.error("Error:", err);
     return new Response(
-      JSON.stringify({ error: err.message }),
+      JSON.stringify({ error: (err as Error).message }),
       { status: 500, headers: { ...corsHeaders2, "Content-Type": "application/json" } }
     );
   }

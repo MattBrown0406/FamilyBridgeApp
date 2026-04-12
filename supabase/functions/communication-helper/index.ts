@@ -71,18 +71,18 @@ async function fetchFamilyContext(supabase: any, familyId: string) {
   let ctx = "";
 
   // Goals first (drives focus)
-  const activeGoals = (commonGoalsResult.data || []).filter(g => !g.completed_at);
+  const activeGoals = (commonGoalsResult.data || []).filter((g: any) => !g.completed_at);
   if (activeGoals.length > 0) {
-    ctx += `Family goals: ${activeGoals.map(g => GOAL_LABELS[g.goal_key] || g.goal_key.replace(/_/g, ' ')).join(', ')}. `;
+    ctx += `Family goals: ${activeGoals.map((g: any) => GOAL_LABELS[g.goal_key] || g.goal_key.replace(/_/g, ' ')).join(', ')}. `;
   }
 
   // Values
   if (valuesResult.data?.length) {
-    ctx += `Family values: ${valuesResult.data.map(v => VALUE_LABELS[v.value_key] || v.value_key.replace(/_/g, ' ')).join(', ')}. `;
+    ctx += `Family values: ${valuesResult.data.map((v: any) => VALUE_LABELS[v.value_key] || v.value_key.replace(/_/g, ' ')).join(', ')}. `;
   }
 
   // Boundaries
-  if (boundariesResult.data?.length) ctx += `Boundaries: ${boundariesResult.data.map(b => b.content).join('; ')}. `;
+  if (boundariesResult.data?.length) ctx += `Boundaries: ${boundariesResult.data.map((b: any) => b.content).join('; ')}. `;
 
   if (sobrietyResult.data) {
     const days = Math.max(0, Math.floor((Date.now() - new Date(sobrietyResult.data.start_date).getTime()) / 86400000));
@@ -90,7 +90,7 @@ async function fetchFamilyContext(supabase: any, familyId: string) {
   }
   if (emotionalCheckinsResult.data?.length) {
     const feelings: Record<string, number> = {};
-    emotionalCheckinsResult.data.forEach(c => { if (c.feeling) feelings[c.feeling] = (feelings[c.feeling] || 0) + 1; });
+    emotionalCheckinsResult.data.forEach((c: any) => { if (c.feeling) feelings[c.feeling] = (feelings[c.feeling] || 0) + 1; });
     ctx += `Recent feelings: ${Object.entries(feelings).map(([f, c]) => `${f}(${c})`).join(', ')}. `;
   }
   if (coachingSessionsResult.data?.length) ctx += `Prior coaching: ${coachingSessionsResult.data.length} sessions. `;

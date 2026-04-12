@@ -111,26 +111,26 @@ async function fetchFamilyContext(supabase: any, familyId: string) {
   let context = "";
 
   // Family Goals (most important — drives coaching focus)
-  const activeGoals = (commonGoalsResult.data || []).filter(g => !g.completed_at);
-  const completedGoals = (commonGoalsResult.data || []).filter(g => g.completed_at);
+  const activeGoals = (commonGoalsResult.data || []).filter((g: any) => !g.completed_at);
+  const completedGoals = (commonGoalsResult.data || []).filter((g: any) => g.completed_at);
   if (activeGoals.length > 0 || completedGoals.length > 0) {
     context += `\nFAMILY GOALS (guide ALL coaching around these):\n`;
     if (activeGoals.length > 0) {
-      context += `Active goals: ${activeGoals.map(g => GOAL_LABELS[g.goal_key] || g.goal_key.replace(/_/g, ' ')).join(', ')}\n`;
+      context += `Active goals: ${activeGoals.map((g: any) => GOAL_LABELS[g.goal_key] || g.goal_key.replace(/_/g, ' ')).join(', ')}\n`;
     }
     if (completedGoals.length > 0) {
-      context += `Completed: ${completedGoals.map(g => GOAL_LABELS[g.goal_key] || g.goal_key.replace(/_/g, ' ')).join(', ')}\n`;
+      context += `Completed: ${completedGoals.map((g: any) => GOAL_LABELS[g.goal_key] || g.goal_key.replace(/_/g, ' ')).join(', ')}\n`;
     }
   }
 
   // Family Values
   if (valuesResult.data && valuesResult.data.length > 0) {
-    context += `\nFAMILY VALUES (reference these when coaching): ${valuesResult.data.map(v => VALUE_LABELS[v.value_key] || v.value_key.replace(/_/g, ' ')).join(', ')}\n`;
+    context += `\nFAMILY VALUES (reference these when coaching): ${valuesResult.data.map((v: any) => VALUE_LABELS[v.value_key] || v.value_key.replace(/_/g, ' ')).join(', ')}\n`;
   }
 
   // Approved boundaries
   if (boundariesResult.data && boundariesResult.data.length > 0) {
-    context += `\nFAMILY BOUNDARIES:\n${boundariesResult.data.map((b, i) => `${i + 1}. ${b.content}`).join("\n")}\n`;
+    context += `\nFAMILY BOUNDARIES:\n${boundariesResult.data.map((b: any, i: number) => `${i + 1}. ${b.content}`).join("\n")}\n`;
   }
 
   // Sobriety journey
@@ -154,11 +154,11 @@ async function fetchFamilyContext(supabase: any, familyId: string) {
   // Emotional check-in patterns
   if (emotionalCheckinsResult.data && emotionalCheckinsResult.data.length > 0) {
     const checkins = emotionalCheckinsResult.data;
-    const bypassedCount = checkins.filter(c => c.was_bypassed).length;
+    const bypassedCount = checkins.filter((c: any) => c.was_bypassed).length;
     const feelings: Record<string, number> = {};
-    checkins.forEach(c => { if (c.feeling) feelings[c.feeling] = (feelings[c.feeling] || 0) + 1; });
+    checkins.forEach((c: any) => { if (c.feeling) feelings[c.feeling] = (feelings[c.feeling] || 0) + 1; });
     const negativeFeelings = ['awful', 'struggling', 'anxious', 'sad', 'angry', 'overwhelmed'];
-    const negativeCount = checkins.filter(c => negativeFeelings.includes(c.feeling?.toLowerCase() || '')).length;
+    const negativeCount = checkins.filter((c: any) => negativeFeelings.includes(c.feeling?.toLowerCase() || '')).length;
     context += `\nEMOTIONAL STATE (Last 30 check-ins): ${checkins.length} total. Bypassed: ${bypassedCount}. Negative states: ${negativeCount}. Distribution: ${Object.entries(feelings).map(([f, c]) => `${f}(${c})`).join(', ')}\n`;
   }
 
@@ -168,8 +168,8 @@ async function fetchFamilyContext(supabase: any, familyId: string) {
     const now = new Date();
     const last7 = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
     const last30 = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-    const recent7 = checkins.filter(c => new Date(c.checked_in_at) >= last7).length;
-    const recent30 = checkins.filter(c => new Date(c.checked_in_at) >= last30).length;
+    const recent7 = checkins.filter((c: any) => new Date(c.checked_in_at) >= last7).length;
+    const recent30 = checkins.filter((c: any) => new Date(c.checked_in_at) >= last30).length;
     context += `\nMEETING ATTENDANCE: Last 7 days: ${recent7}. Last 30 days: ${recent30}.\n`;
   }
 
@@ -185,7 +185,7 @@ async function fetchFamilyContext(supabase: any, familyId: string) {
     };
     const categoryMentions: Record<string, number> = {};
     Object.keys(keywordCategories).forEach(cat => categoryMentions[cat] = 0);
-    messagesResult.data.forEach(m => {
+    messagesResult.data.forEach((m: any) => {
       const content = (m.content || '').toLowerCase();
       Object.entries(keywordCategories).forEach(([category, keywords]) => {
         keywords.forEach(kw => { if (content.includes(kw)) categoryMentions[category]++; });
@@ -200,7 +200,7 @@ async function fetchFamilyContext(supabase: any, familyId: string) {
   // Financial patterns
   if (financialRequestsResult.data && financialRequestsResult.data.length > 0) {
     const requests = financialRequestsResult.data;
-    const totalAmount = requests.reduce((sum, r) => sum + (r.amount || 0), 0);
+    const totalAmount = requests.reduce((sum: number, r: any) => sum + (r.amount || 0), 0);
     context += `\nFINANCIAL PATTERNS: ${requests.length} recent requests totaling $${totalAmount}.\n`;
   }
 
@@ -211,20 +211,20 @@ async function fetchFamilyContext(supabase: any, familyId: string) {
 
   // Medications
   if (medicationsResult.data && medicationsResult.data.length > 0) {
-    context += `\nACTIVE MEDICATIONS: ${medicationsResult.data.map(m => `${m.medication_name}${m.dosage ? ` (${m.dosage})` : ''}`).join(', ')}\n`;
+    context += `\nACTIVE MEDICATIONS: ${medicationsResult.data.map((m: any) => `${m.medication_name}${m.dosage ? ` (${m.dosage})` : ''}`).join(', ')}\n`;
   }
 
   // Provider notes
   if (providerNotesResult.data && providerNotesResult.data.length > 0) {
-    context += `\nPROVIDER NOTES:\n${providerNotesResult.data.map((n, i) => `${i + 1}. [${n.note_type}] ${n.content}`).join('\n')}\n`;
+    context += `\nPROVIDER NOTES:\n${providerNotesResult.data.map((n: any, i: number) => `${i + 1}. [${n.note_type}] ${n.content}`).join('\n')}\n`;
   }
 
   // Aftercare compliance
   if (aftercarePlansResult.data && aftercarePlansResult.data.length > 0) {
-    const activePlanIds = aftercarePlansResult.data.map(p => p.id);
-    const relevantRecs = (aftercareRecsResult.data || []).filter(r => activePlanIds.includes(r.plan_id));
+    const activePlanIds = aftercarePlansResult.data.map((p: any) => p.id);
+    const relevantRecs = (aftercareRecsResult.data || []).filter((r: any) => activePlanIds.includes(r.plan_id));
     if (relevantRecs.length > 0) {
-      const completed = relevantRecs.filter(r => r.is_completed).length;
+      const completed = relevantRecs.filter((r: any) => r.is_completed).length;
       const rate = Math.round((completed / relevantRecs.length) * 100);
       context += `\nAFTERCARE COMPLIANCE: ${completed}/${relevantRecs.length} recommendations completed (${rate}%).\n`;
     }
