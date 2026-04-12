@@ -234,7 +234,7 @@ export const FamilyHandoffDialog = ({
             Handoff to Another Provider
           </DialogTitle>
           <DialogDescription>
-            Transfer care responsibility for this family group to another provider organization. Handoffs can occur to any level of care (higher or lower).
+            Transfer provider oversight for this family group to another organization. Handoffs can occur across different levels of care.
           </DialogDescription>
         </DialogHeader>
 

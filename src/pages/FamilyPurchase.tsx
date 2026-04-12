@@ -404,7 +404,7 @@ const FamilyPurchase = () => {
   const features = [
     { icon: Brain, text: "FIIS pattern guidance", subtitle: "Bounded AI coaching that helps families spot strain and respond earlier", highlight: true },
     { icon: MessageSquareWarning, text: "Protected family communication", subtitle: "Conversation tools that support calmer, more accountable dialogue", highlight: true },
-    { icon: TrendingUp, text: "Behavior and risk visibility", subtitle: "Track check-ins, requests, and family dynamics in one place", highlight: true },
+    { icon: TrendingUp, text: "Pattern visibility", subtitle: "Track check-ins, requests, and family dynamics in one place", highlight: true },
     { icon: Users, text: "Unlimited family participation" },
     { icon: DollarSign, text: "Financial accountability tools", subtitle: "More clarity around requests, pledges, and follow-through" },
     { icon: Shield, text: "1 Professional Guidance Window included each month", subtitle: "Additional 24-hour windows are available for $399 each" },
@@ -624,7 +624,7 @@ const FamilyPurchase = () => {
                 </div>
                 <CardTitle>What's Included</CardTitle>
                 <CardDescription>
-                  Intelligent tools that help families catch warning signs early
+                  Support tools that help families notice patterns earlier
                 </CardDescription>
               </CardHeader>
               <CardContent>

@@ -185,7 +185,7 @@ const ProviderPurchase = () => {
 
   const features = [
     { icon: Brain, text: "Provider-level FIIS tools", subtitle: "Monitor family dynamics with structured intelligence and oversight", highlight: true },
-    { icon: TrendingUp, text: "Cross-family visibility", subtitle: "See patterns, strain points, and momentum across your caseload", highlight: true },
+    { icon: TrendingUp, text: "Cross-family visibility", subtitle: "Review patterns, strain points, and activity across your caseload", highlight: true },
     { icon: MessageSquareWarning, text: "Protected communication workflows", subtitle: "Support more families without losing clarity or guardrails", highlight: true },
     { icon: Building2, text: "Organization workspace access" },
     { icon: Users, text: "Onboard and manage multiple families" },
@@ -396,7 +396,7 @@ const ProviderPurchase = () => {
                 </div>
                 <CardTitle>What's Included</CardTitle>
                 <CardDescription>
-                  AI-powered tools to help you support more families, more effectively
+                  AI-assisted tools to help your team stay organized and support families with more consistency
                 </CardDescription>
               </CardHeader>
               <CardContent>

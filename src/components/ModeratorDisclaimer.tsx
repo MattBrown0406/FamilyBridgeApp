@@ -21,17 +21,16 @@ export function ModeratorDisclaimer({ moderatorName }: ModeratorDisclaimerProps)
           <div className="text-sm text-blue-700 dark:text-blue-300 space-y-2">
             <p>
               <strong>Important Notice:</strong> While a formal HIPAA authorization is not typically required for
-              a family-initiated group, your moderator will treat what you share as sensitive and confidential.
+              a family-initiated group, your moderator is expected to handle what you share with care and discretion.
             </p>
             <p>
-              This means information shared within this group will be treated as confidential.
-              Your moderator is bound by professional ethics to:
+              Your moderator is expected to follow professional standards, including:
             </p>
             <ul className="list-disc ml-5 space-y-1 text-sm">
-              <li>Keep all family communications strictly confidential</li>
-              <li>Not disclose any information to third parties without explicit consent</li>
-              <li>Maintain professional boundaries and ethical standards</li>
-              <li>Act in the best interest of the family's recovery journey</li>
+              <li>Handling family communications with care and discretion</li>
+              <li>Respecting privacy expectations and applicable consent requirements</li>
+              <li>Maintaining professional boundaries and ethical standards</li>
+              <li>Supporting the family within the scope of the FamilyBridge service</li>
             </ul>
             <p className="mt-2 italic">
               If you have any questions about confidentiality, please reach out to your moderator directly.

@@ -170,7 +170,7 @@ export default function ModeratorPurchase() {
               </div>
               <CardTitle className="text-2xl">Success!</CardTitle>
               <CardDescription className="text-base">
-                Your Professional Guidance Window is now active. A professional interventionist will be added to your family chat shortly.
+                Your Professional Guidance Window is now active. A FamilyBridge moderator will join your family chat soon.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -208,8 +208,8 @@ export default function ModeratorPurchase() {
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">Professional Guidance Window</h1>
             <p className="text-sm sm:text-lg text-muted-foreground max-w-2xl mx-auto">
               {isNative && isIOS 
-                ? "Interventionist-led support inside your FamilyBridge family chat."
-                : "Purchase a 24-hour interventionist-led support window for your family chat when you need added structure and guidance."}
+                ? "Structured human guidance inside your FamilyBridge family chat."
+                : "Purchase a 24-hour human guidance window for your family chat when you need added structure and support."}
             </p>
           </div>
 
@@ -233,8 +233,8 @@ export default function ModeratorPurchase() {
                 <div className="flex gap-2 sm:gap-3">
                   <Users className="w-4 h-4 sm:w-5 sm:h-5 text-primary mt-0.5 shrink-0" />
                   <div>
-                    <p className="font-medium text-sm sm:text-base">Experienced Interventionist</p>
-                    <p className="text-xs sm:text-sm text-muted-foreground">Human-led guidance for family communication and boundaries</p>
+                    <p className="font-medium text-sm sm:text-base">Experienced Moderator</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Human guidance for family communication and boundaries</p>
                   </div>
                 </div>
                 <div className="flex gap-2 sm:gap-3">
@@ -258,7 +258,7 @@ export default function ModeratorPurchase() {
             <Card>
               <CardHeader>
               <CardTitle>{isNative ? "Professional Guidance Window" : "Purchase a Professional Guidance Window"}</CardTitle>
-                <CardDescription>{isNative ? "Interventionist-led family chat support" : "$399 one-time purchase • 24-hour period"}</CardDescription>
+                <CardDescription>{isNative ? "Human guidance inside the family chat" : "$399 one-time purchase • 24-hour period"}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">

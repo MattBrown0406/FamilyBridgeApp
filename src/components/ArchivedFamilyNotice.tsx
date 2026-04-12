@@ -222,26 +222,37 @@ export const ArchivedFamilyNotice = () => {
                       variant="default"
                     >
                       <RotateCcw className="h-4 w-4 mr-2" />
-                      Reactivate as Independent
+                      {paymentsWebOnly ? 'Contact Support About Reactivation' : 'Reactivate as Independent'}
                     </Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
                       <AlertDialogTitle>Reactivate as Independent Family?</AlertDialogTitle>
                       <AlertDialogDescription>
-                        To reactivate "{family.name}" as an independent family group, 
-                        you'll need an active family plan.
-                        <br /><br />
-                        <strong>Note:</strong> If you want to remain with {family.organization_name || 'the provider'}, 
-                        please contact them to reactivate your family at no additional cost.
+                        {paymentsWebOnly ? (
+                          <>
+                            To discuss reactivating &quot;{family.name}&quot; as an independent family group, contact support from the app.
+                            <br /><br />
+                            <strong>Note:</strong> If you want to remain with {family.organization_name || 'the provider'}, 
+                            please contact them to reactivate your family at no additional cost.
+                          </>
+                        ) : (
+                          <>
+                            To reactivate &quot;{family.name}&quot; as an independent family group, 
+                            you'll need an active family plan.
+                            <br /><br />
+                            <strong>Note:</strong> If you want to remain with {family.organization_name || 'the provider'}, 
+                            please contact them to reactivate your family at no additional cost.
+                          </>
+                        )}
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                       <AlertDialogCancel>Cancel</AlertDialogCancel>
                       <AlertDialogAction 
-                        onClick={() => navigate(paymentsWebOnly ? `/support?type=family` : `/family-purchase?reactivate=${family.id}`)}
+                        onClick={() => navigate(paymentsWebOnly ? `/support` : `/family-purchase?reactivate=${family.id}`)}
                       >
-                        Continue to Reactivate
+                        {paymentsWebOnly ? 'Contact Support' : 'Continue to Reactivate'}
                       </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>

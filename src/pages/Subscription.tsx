@@ -44,8 +44,8 @@ const Subscription = () => {
     },
     {
       icon: Sparkles,
-      title: 'Outcome prediction tools',
-      description: 'Extra visibility into drift, leverage points, and what may happen next',
+      title: 'Outcome forecast tools',
+      description: 'Extra visibility into drift, leverage points, and possible next-step scenarios',
     },
     {
       icon: FileText,
@@ -145,7 +145,7 @@ const Subscription = () => {
             </span>
           </h1>
           <p className="text-sm sm:text-lg text-muted-foreground max-w-2xl mx-auto px-2">
-            For families who want more intervention structure, more accountability, and more help navigating what comes next.
+            For families who want more structure, more accountability, and more help navigating what comes next.
           </p>
         </div>
 
