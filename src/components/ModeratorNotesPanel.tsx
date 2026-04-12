@@ -285,7 +285,7 @@ export const ModeratorNotesPanel = ({ families }: ModeratorNotesPanelProps) => {
               ))}
             </SelectContent>
           </Select>
-          <p className="text-xs text-muted-foreground">Only families under an organization can have clinical notes</p>
+          <p className="text-xs text-muted-foreground">Only families under an organization can have provider notes</p>
         </div>
       )}
 
@@ -361,8 +361,8 @@ export const ModeratorNotesPanel = ({ families }: ModeratorNotesPanelProps) => {
       <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
         <Brain className="h-5 w-5 text-primary" />
         <div className="flex-1">
-          <Label htmlFor="ai-toggle" className="text-sm font-medium">Include in AI Analysis</Label>
-          <p className="text-xs text-muted-foreground">This note will be used by FIIS for pattern recognition</p>
+          <Label htmlFor="ai-toggle" className="text-sm font-medium">Include in AI Review</Label>
+          <p className="text-xs text-muted-foreground">This note may be used by FIIS for pattern review</p>
         </div>
         <Switch
           id="ai-toggle"
@@ -376,7 +376,7 @@ export const ModeratorNotesPanel = ({ families }: ModeratorNotesPanelProps) => {
         <Textarea
           value={note.content}
           onChange={(e) => setNote({ ...note, content: e.target.value })}
-          placeholder="Detailed notes, observations, or clinical insights..."
+          placeholder="Detailed notes, observations, or provider context..."
           rows={5}
         />
       </div>
@@ -391,9 +391,9 @@ export const ModeratorNotesPanel = ({ families }: ModeratorNotesPanelProps) => {
       <Card className="border-dashed">
         <CardContent className="py-12 text-center">
           <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-          <h3 className="text-lg font-medium mb-2">Clinical Notes Not Available</h3>
+          <h3 className="text-lg font-medium mb-2">Provider Notes Not Available</h3>
           <p className="text-muted-foreground">
-            Clinical notes require families to be part of a provider organization. 
+            Provider notes require families to be part of a provider organization. 
             Contact your administrator to link your families to an organization.
           </p>
         </CardContent>

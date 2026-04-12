@@ -344,8 +344,8 @@ export const ProviderNotesPanel = ({ organizationId, families = [], selectedFami
       <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
         <Brain className="h-5 w-5 text-primary" />
         <div className="flex-1">
-          <Label htmlFor="ai-toggle" className="text-sm font-medium">Include in AI Analysis</Label>
-          <p className="text-xs text-muted-foreground">This note will be used by FIIS for pattern recognition</p>
+          <Label htmlFor="ai-toggle" className="text-sm font-medium">Include in AI Review</Label>
+          <p className="text-xs text-muted-foreground">This note may be used by FIIS for pattern review</p>
         </div>
         <Switch
           id="ai-toggle"
@@ -359,7 +359,7 @@ export const ProviderNotesPanel = ({ organizationId, families = [], selectedFami
         <Textarea
           value={note.content}
           onChange={(e) => setNote({ ...note, content: e.target.value })}
-          placeholder="Detailed notes, observations, or clinical insights..."
+          placeholder="Detailed notes, observations, or provider context..."
           rows={5}
         />
       </div>

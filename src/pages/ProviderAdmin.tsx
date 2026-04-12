@@ -2029,7 +2029,7 @@ const ProviderAdmin = () => {
                             Team Notes & Messaging
                           </CardTitle>
                           <CardDescription>
-                            Private clinical notes and team conversations - not visible to families
+                            Private provider notes and team conversations, not visible to families
                           </CardDescription>
                         </div>
                         <Button variant="outline" onClick={() => navigate('/provider-workspace')}>
@@ -2039,7 +2039,7 @@ const ProviderAdmin = () => {
                     </CardHeader>
                     <CardContent className="space-y-6">
                       <div className="space-y-4">
-                        <h4 className="font-medium">Clinical Notes</h4>
+                        <h4 className="font-medium">Provider Notes</h4>
                         <ProviderNotesPanel 
                           organizationId={selectedOrg}
                           families={orgFamilies.map(f => ({ id: f.id, name: f.name }))}

@@ -96,7 +96,7 @@ export const recentAdaptations: GovernanceAdaptation[] = [
   {
     id: 'ga-1',
     title: 'Family boundary consistency weight increased',
-    description: 'Weight of family boundary consistency in 30-day relapse prediction increased from 0.18 to 0.21.',
+    description: 'Weight of family boundary consistency in the 30-day recovery outlook increased from 0.18 to 0.21.',
     affectedEngine: 'Outcome Prediction',
     tier: 'predictive',
     stability: 'strong',
@@ -107,7 +107,7 @@ export const recentAdaptations: GovernanceAdaptation[] = [
     sampleCount: 412,
     status: 'auto_applied',
     timestamp: '2 hours ago',
-    rationale: 'Across 412 de-identified cases, family boundary consistency showed a persistent, strong correlation with reduced 30-day relapse risk. Pattern confirmed over 6 observation periods.',
+    rationale: 'Across 412 de-identified cases, family boundary consistency showed a persistent, strong association with a steadier 30-day recovery outlook. Pattern confirmed over 6 observation periods.',
     canRollback: true,
   },
   {
@@ -164,7 +164,7 @@ export const recentAdaptations: GovernanceAdaptation[] = [
   {
     id: 'ga-5',
     title: 'Disengagement trend weight rolled back',
-    description: 'A previous +4% increase to disengagement weighting in relapse prediction was rolled back after accuracy dropped.',
+    description: 'A previous +4% increase to disengagement weighting in the recovery outlook was rolled back after accuracy dropped.',
     affectedEngine: 'Outcome Prediction',
     tier: 'predictive',
     stability: 'volatile',
@@ -175,7 +175,7 @@ export const recentAdaptations: GovernanceAdaptation[] = [
     sampleCount: 134,
     status: 'rolled_back',
     timestamp: '1 week ago',
-    rationale: 'After applying the disengagement weight increase, prediction accuracy for 30-day relapse declined by 2.1%. The signal was reclassified as volatile and the change was automatically reverted.',
+    rationale: 'After applying the disengagement weight increase, short-term recovery-outlook accuracy declined by 2.1%. The signal was reclassified as volatile and the change was automatically reverted.',
     canRollback: false,
   },
 ];
@@ -221,7 +221,7 @@ export const pendingChanges: GovernanceAdaptation[] = [
 export const suppressedAdaptations: SuppressedAdaptation[] = [
   {
     id: 'sa-1',
-    title: 'MAT compliance impact on 90-day relapse',
+    title: 'MAT adherence impact on 90-day recovery outlook',
     reason: 'Insufficient sample size (28 cases)',
     affectedEngine: 'Outcome Prediction',
     sampleCount: 28,
@@ -297,7 +297,7 @@ export const interactionGovernance: VariableInteractionGov[] = [
   {
     id: 'ig-4',
     variables: ['Disengagement', 'Negative Family Contact'],
-    effect: 'May amplify relapse risk during first 30 days post-treatment',
+    effect: 'May increase strain during the first 30 days post-treatment',
     stability: 'volatile',
     sampleCount: 45,
     adaptationAllowed: false,
@@ -306,7 +306,7 @@ export const interactionGovernance: VariableInteractionGov[] = [
 ];
 
 export const auditLog: GovernanceAuditEntry[] = [
-  { id: 'al-1', action: 'Adaptation Applied', detail: 'Family boundary consistency weight +3% in relapse prediction', actor: 'System (auto)', timestamp: '2 hours ago', engine: 'Outcome Prediction', tier: 'predictive' },
+  { id: 'al-1', action: 'Adaptation Applied', detail: 'Family boundary consistency weight +3% in the 30-day recovery outlook', actor: 'System (auto)', timestamp: '2 hours ago', engine: 'Outcome Prediction', tier: 'predictive' },
   { id: 'al-2', action: 'Admin Approved', detail: 'Provider delay alert threshold lowered to 72 hours', actor: 'Admin: M. Torres', timestamp: '1 day ago', engine: 'Continuity Engine', tier: 'predictive' },
   { id: 'al-3', action: 'Adaptation Applied', detail: 'Escalation recommendation priority raised in discharge-risk scenarios', actor: 'System (auto)', timestamp: '3 days ago', engine: 'Recommendation System', tier: 'tactical' },
   { id: 'al-4', action: 'Change Submitted', detail: 'Help-proximity weight adjustment proposed for readiness scoring', actor: 'System (auto)', timestamp: '5 days ago', engine: 'Intervention Readiness', tier: 'structural' },

@@ -309,7 +309,7 @@ export default function ModeratorPurchase() {
                     {/* Android: Email collection for web setup */}
                     <div className="text-center py-4 bg-muted/50 rounded-lg">
                       <p className="text-sm text-muted-foreground">
-                        To access this feature, please complete setup on our website.
+                        To access this feature, please finish setup outside the app, then return here.
                       </p>
                     </div>
                     <AppStorePurchaseButton

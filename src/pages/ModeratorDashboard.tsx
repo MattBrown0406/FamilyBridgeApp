@@ -729,10 +729,10 @@ const ModeratorDashboard = () => {
                   <CardHeader className="bg-primary/5 rounded-t-lg">
                     <CardTitle className="flex items-center gap-2 text-primary">
                       <Brain className="h-5 w-5" />
-                      FIIS Clinical Coaching
+                      FIIS Coaching Support
                     </CardTitle>
                     <CardDescription>
-                      Analyze live or uploaded conversations. Coaching insights are saved as clinical notes — conversations are never recorded.
+                      Analyze live or uploaded conversations. Coaching insights are saved as provider notes, and conversations are never recorded.
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-6">

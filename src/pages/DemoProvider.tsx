@@ -681,7 +681,7 @@ const DemoProvider = () => {
                 </div>
                 <div className="flex justify-between items-center mt-3">
                   <p className="text-xs text-muted-foreground">
-                    FIIS will analyze family data, patterns, and clinical notes to provide guidance.
+                    FIIS will review family data, patterns, and provider notes to provide guidance.
                   </p>
                   <Button onClick={handleAskFIIS} className="gap-2">
                     <Sparkles className="h-4 w-4" />

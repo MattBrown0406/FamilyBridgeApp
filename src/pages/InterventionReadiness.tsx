@@ -78,7 +78,7 @@ const InterventionReadiness = () => {
     <>
       <SEOHead
         title="Intervention Readiness Engine | FamilyBridge"
-        description="Strategic decision-support tool for timing interventions based on pattern recognition and readiness signals."
+        description="Strategic decision-support tool for timing interventions based on family patterns and readiness signals."
       />
       <div className="min-h-screen bg-background">
         {/* Demo banner */}

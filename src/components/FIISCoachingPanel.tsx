@@ -456,10 +456,10 @@ export const FIISCoachingPanel = ({ families, members = {} }: FIISCoachingPanelP
           <div className="flex items-start gap-3">
             <Brain className="h-5 w-5 text-primary mt-0.5 shrink-0" />
             <div>
-              <p className="font-semibold text-sm">FIIS Clinical Coaching</p>
+              <p className="font-semibold text-sm">FIIS Coaching Support</p>
               <p className="text-xs text-muted-foreground mt-1">
                 Analyze conversations with or about family members in real-time. Upload emails, text screenshots, 
-                or use speakerphone mode during live calls. Coaching insights are saved as clinical notes in the family file — 
+                or use speakerphone mode during live calls. Coaching insights are saved as provider notes in the family file, 
                 conversations are never recorded or stored.
               </p>
             </div>
