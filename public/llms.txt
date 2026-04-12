@@ -2,7 +2,7 @@
 
 > Recovery Support for Families Affected by Addiction
 
-FamilyBridge is an AI-powered platform helping families support loved ones in recovery through transparent communication, financial coordination, verified meeting check-ins, and optional provider or moderator oversight tools.
+FamilyBridge is a recovery support platform that helps families support a loved one in recovery through transparent communication, financial coordination, meeting check-ins, and optional provider or moderator oversight tools. FamilyBridge uses AI-assisted insights in parts of the platform and is not a medical, mental health, or crisis service.
 
 ## Key Pages
 
@@ -17,17 +17,16 @@ FamilyBridge is an AI-powered platform helping families support loved ones in re
 
 ## About
 
-Founded by Matt Brown, a 20+ year addiction interventionist. FamilyBridge was built because families navigating a loved one's addiction need structure, transparency, and professional support — not just hope.
+Founded by Matt Brown, an addiction interventionist. FamilyBridge was built because families navigating a loved one's addiction need structure, transparency, and professional support.
 
-Features include AI-powered pattern detection, moderated family communication, transparent financial requests, GPS-verified meeting check-ins, and provider-facing coordination tools. FamilyBridge is a support platform, not a medical, mental health, or crisis service.
+Features include AI-assisted pattern insights, moderated family communication, transparent financial requests, meeting check-ins, and provider-facing coordination tools. FamilyBridge is a support platform, not a medical, mental health, or crisis service.
 
 ## Pricing
 
-- Family Plan: $19.99/month
-- Provider Plan: Contact for pricing
-- Moderator Plan: Contact for pricing
+Pricing and plan details may change. For current pricing, refer to the purchase pages on the website.
 
 ## Contact
 
+Primary contact: Matt Brown
 Email: matt@freedominterventions.com
 Website: https://familybridgeapp.com

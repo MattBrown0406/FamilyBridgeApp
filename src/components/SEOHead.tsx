@@ -16,7 +16,7 @@ interface SEOHeadProps {
  */
 export const SEOHead = ({
   title = 'FamilyBridge - Recovery Support for Families',
-  description = 'FamilyBridge helps families support loved ones in recovery with transparent communication, financial coordination, and accountability tools.',
+  description = 'FamilyBridge helps families support a loved one in recovery with AI-assisted pattern insights, transparent communication, financial coordination, and accountability tools. FamilyBridge is a support platform, not a medical, mental health, or crisis service.',
   canonicalPath = '/',
   ogImage = '/og-image.png',
   ogType = 'website',
@@ -138,12 +138,18 @@ export const createOrganizationSchema = () => ({
   name: 'FamilyBridge',
   url: 'https://familybridgeapp.com',
   logo: 'https://familybridgeapp.com/favicon.png',
-  description: 'FamilyBridge helps families support loved ones in recovery with AI-assisted pattern spotting, transparent communication, financial coordination, and accountability tools.',
+  description: 'FamilyBridge is a recovery support platform for families. It provides communication, coordination, and accountability tools and is not a medical, mental health, or crisis service.',
+  founder: {
+    '@type': 'Person',
+    name: 'Matt Brown',
+  },
   contactPoint: {
     '@type': 'ContactPoint',
     email: 'matt@freedominterventions.com',
     contactType: 'customer support',
+    availableLanguage: 'English',
   },
+  email: 'matt@freedominterventions.com',
   knowsAbout: [
     'Addiction Recovery',
     'Family Support', 
@@ -154,7 +160,7 @@ export const createOrganizationSchema = () => ({
   sameAs: [],
 });
 
-// AEO-optimized product schema
+// Product schema helper for pages with current, verifiable offer details
 export const createProductSchema = (product: {
   name: string;
   description: string;
@@ -173,7 +179,6 @@ export const createProductSchema = (product: {
     '@type': 'Offer',
     price: product.price,
     priceCurrency: product.priceCurrency || 'USD',
-    availability: 'https://schema.org/InStock',
     seller: {
       '@type': 'Organization',
       name: 'FamilyBridge',
@@ -181,12 +186,12 @@ export const createProductSchema = (product: {
   },
 });
 
-// AEO-optimized service schema for providers
+// Service schema helper for provider-facing pages
 export const createServiceSchema = () => ({
   '@context': 'https://schema.org',
   '@type': 'Service',
   name: 'FamilyBridge Provider Platform',
-  description: 'White-label recovery support platform for treatment centers, sober living facilities, and recovery professionals.',
+  description: 'Recovery support software for treatment programs, sober living teams, and recovery professionals.',
   provider: {
     '@type': 'Organization',
     name: 'FamilyBridge',
@@ -195,17 +200,15 @@ export const createServiceSchema = () => ({
   areaServed: 'United States',
   hasOfferCatalog: {
     '@type': 'OfferCatalog',
-    name: 'Provider Subscriptions',
+    name: 'Provider Plans',
     itemListElement: [
       {
         '@type': 'Offer',
         itemOffered: {
           '@type': 'Service',
-          name: 'FIIS Provider Monthly Subscription',
-          description: 'Provider-level FIIS tools, organization workspace access, and moderator-managed support workflows',
+          name: 'FamilyBridge Provider Access',
+          description: 'Organization workspace access and provider coordination tools for supporting families.',
         },
-        price: '250',
-        priceCurrency: 'USD',
       },
     ],
   },
