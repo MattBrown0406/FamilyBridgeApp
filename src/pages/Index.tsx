@@ -6,13 +6,13 @@ import { useAuth } from '@/hooks/useAuth';
 import { useOrganization } from '@/hooks/useOrganization';
 import { useProviderAdmin } from '@/hooks/useProviderAdmin';
 import { supabase } from '@/integrations/supabase/client';
-import { BrandedHeader } from '@/components/BrandedHeader';
 import { BrandedFooter } from '@/components/BrandedFooter';
 import { SEOHead, createOrganizationSchema } from '@/components/SEOHead';
 import FeatureTiers from '@/components/home/FeatureTiers';
 import GovernanceTrustBanner from '@/components/home/GovernanceTrustBanner';
 import AdditionalTools from '@/components/home/AdditionalTools';
 import PublicCrisisHelp from '@/components/PublicCrisisHelp';
+import familyBridgeLogo from '@/assets/familybridge-logo.png';
 import {
   ArrowRight, Building2, Check, LogOut, Heart,
 } from 'lucide-react';
@@ -86,7 +86,21 @@ const Index = () => {
       {/* NAV */}
       <header className="sticky top-0 z-50 backdrop-blur-md bg-background/80 border-b border-border/40">
         <nav className="container mx-auto px-4 py-2.5 flex items-center justify-between">
-          <BrandedHeader showHomeButton={false} />
+          <button
+            type="button"
+            onClick={() => navigate('/')}
+            className="flex items-center gap-2 text-left"
+            aria-label="FamilyBridge home"
+          >
+            <img
+              src={familyBridgeLogo}
+              alt="FamilyBridge"
+              className="h-7 sm:h-8 w-auto object-contain"
+            />
+            <span className="text-base sm:text-lg font-display font-semibold text-foreground">
+              FamilyBridge
+            </span>
+          </button>
           <div className="flex items-center gap-1.5 sm:gap-3">
             <Button variant="ghost" size="sm" className="h-8 text-xs sm:text-sm text-muted-foreground" onClick={() => navigate('/demo')}>
               Demo

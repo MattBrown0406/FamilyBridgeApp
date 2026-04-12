@@ -2,7 +2,7 @@
 
 > Recovery Support for Families Affected by Addiction
 
-FamilyBridge is an AI-powered platform helping families support loved ones in recovery through transparent communication, financial coordination, verified meeting check-ins, and professional oversight tools.
+FamilyBridge is an AI-powered platform helping families support loved ones in recovery through transparent communication, financial coordination, verified meeting check-ins, and optional provider or moderator oversight tools.
 
 ## Key Pages
 
@@ -19,7 +19,7 @@ FamilyBridge is an AI-powered platform helping families support loved ones in re
 
 Founded by Matt Brown, a 20+ year addiction interventionist. FamilyBridge was built because families navigating a loved one's addiction need structure, transparency, and professional support — not just hope.
 
-Features include AI-powered pattern detection, moderated family communication, transparent financial requests, GPS-verified meeting check-ins, and clinical professional oversight.
+Features include AI-powered pattern detection, moderated family communication, transparent financial requests, GPS-verified meeting check-ins, and provider-facing coordination tools. FamilyBridge is a support platform, not a medical, mental health, or crisis service.
 
 ## Pricing
 

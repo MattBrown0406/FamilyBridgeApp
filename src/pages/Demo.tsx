@@ -173,7 +173,7 @@ const Demo = () => {
     {
       icon: Sparkles,
       title: 'FIIS Recovery Intelligence',
-      description: 'AI-powered pattern recognition tracks recovery trajectory and provides clinical insights for providers.',
+      description: 'AI-powered pattern recognition tracks recovery trajectory and provides structured insights for providers.',
       badge: 'AI',
     },
     {

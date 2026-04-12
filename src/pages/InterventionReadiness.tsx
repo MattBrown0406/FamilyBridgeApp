@@ -200,10 +200,10 @@ const InterventionReadiness = () => {
           <div className="flex items-start gap-3 p-4 rounded-lg bg-muted/50 border border-border text-xs text-muted-foreground">
             <Info className="h-4 w-4 flex-shrink-0 mt-0.5" />
             <p>
-              This tool supports clinical and intervention decision-making through pattern recognition.
-              It does not diagnose substance use disorder, predict behavior with certainty, or replace
-              professional judgment. Scores are directional and interpretive. Humans remain responsible
-              for all final clinical and intervention decisions.
+              This tool supports intervention planning and pattern review. It does not diagnose substance
+              use disorder, predict behavior with certainty, or replace medical, legal, or emergency
+              judgment. Scores are directional and interpretive. Humans remain responsible for all final
+              decisions and should involve qualified local professionals when needed.
             </p>
           </div>
         </div>

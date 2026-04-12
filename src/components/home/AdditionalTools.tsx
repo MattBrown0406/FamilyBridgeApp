@@ -7,7 +7,7 @@ const tools = [
   { icon: GitBranch, label: 'Care Transitions', desc: 'Seamless provider handoffs', link: '/features/care-transitions' },
   { icon: MessageSquare, label: 'Conversation Coaching', desc: 'Real-time de-escalation', link: '/features/conversation-coaching' },
   { icon: Activity, label: 'Recovery Trajectory', desc: 'Long-term progress mapping', link: '/features/recovery-trajectory' },
-  { icon: FileText, label: 'Document Analysis', desc: 'AI-powered clinical review', link: '/features/document-analysis' },
+  { icon: FileText, label: 'Document Analysis', desc: 'AI-assisted document review', link: '/features/document-analysis' },
 ];
 
 const AdditionalTools = () => {
