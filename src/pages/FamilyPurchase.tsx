@@ -24,6 +24,14 @@ import {
   REVENUECAT_PRODUCT_IDS,
 } from "@/lib/revenuecat";
 
+const formatPrice = (price: number) =>
+  price.toLocaleString("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: price % 1 === 0 ? 0 : 2,
+    maximumFractionDigits: 2,
+  });
+
 const FamilyPurchase = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -678,7 +686,7 @@ const FamilyPurchase = () => {
                     <div className="text-center py-4 bg-primary/5 rounded-lg border border-primary/10">
                       <p className="text-xs text-muted-foreground mb-1">Then just</p>
                       <div>
-                        <span className="text-4xl font-bold">${PRODUCTS.family.monthly.price}</span>
+                        <span className="text-4xl font-bold">{formatPrice(PRODUCTS.family.monthly.price)}</span>
                         <span className="text-muted-foreground">/month</span>
                       </div>
                       <p className="text-xs text-muted-foreground mt-2">
@@ -723,7 +731,7 @@ const FamilyPurchase = () => {
                   {!isNative && (
                     <div className="space-y-2">
                       <Label htmlFor="coupon">Coupon Code (Optional)</Label>
-                      <div className="flex gap-2">
+                      <div className="flex flex-col gap-2 sm:flex-row">
                         <Input
                           id="coupon"
                           placeholder="Enter coupon code"
@@ -736,6 +744,7 @@ const FamilyPurchase = () => {
                           variant="outline"
                           onClick={handleApplyCoupon}
                           disabled={isApplyingCoupon || !couponCode.trim() || !email}
+                          className="w-full sm:w-auto"
                         >
                           {isApplyingCoupon ? (
                             <Loader2 className="h-4 w-4 animate-spin mr-2" />
@@ -754,7 +763,7 @@ const FamilyPurchase = () => {
                     <p className="text-xs text-muted-foreground">
                       If someone invited you to their family group, enter the code here
                     </p>
-                    <div className="flex gap-2">
+                    <div className="flex flex-col gap-2 sm:flex-row">
                       <Input
                         id="familyInvite"
                         placeholder="Enter family invite code"
@@ -767,6 +776,7 @@ const FamilyPurchase = () => {
                         variant="outline"
                         onClick={handleValidateInviteCode}
                         disabled={isValidatingInvite || !familyInviteCode.trim()}
+                        className="w-full sm:w-auto"
                       >
                         {isValidatingInvite ? (
                           <Loader2 className="h-4 w-4 animate-spin mr-2" />
@@ -817,7 +827,7 @@ const FamilyPurchase = () => {
                               className="w-full"
                               size="lg"
                             >
-                              {isNativePurchasing ? "Opening App Store..." : `Subscribe to FIIS Support - $${PRODUCTS.family.monthly.price}/mo`}
+                              {isNativePurchasing ? "Opening App Store..." : `Subscribe to FIIS Support - ${formatPrice(PRODUCTS.family.monthly.price)}/month`}
                             </Button>
                             <Button
                               variant="outline"
@@ -898,13 +908,13 @@ const FamilyPurchase = () => {
                         className="w-full"
                         size="sm"
                       >
-                        {isLoading ? "Processing..." : `Subscribe to FIIS Support - $${PRODUCTS.family.monthly.price}/mo`}
+                        {isLoading ? "Processing..." : `Subscribe to FIIS Support - ${formatPrice(PRODUCTS.family.monthly.price)}/month`}
                       </Button>
                       
                       {/* Subscription Disclosure */}
                       <SubscriptionDisclosure
                         subscriptionTitle={PRODUCTS.family.monthly.displayName}
-                        price={`$${PRODUCTS.family.monthly.price}`}
+                        price={formatPrice(PRODUCTS.family.monthly.price)}
                         period="1 month auto-renewable subscription"
                         isNative={isNative}
                       />
@@ -935,7 +945,7 @@ const FamilyPurchase = () => {
                 <div className="text-center py-4 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 rounded-lg border border-amber-200/50 dark:border-amber-800/50">
                   <p className="text-xs text-muted-foreground mb-1">Founding price</p>
                   <div>
-                    <span className="text-4xl font-bold text-muted-foreground">$149.99</span>
+                    <span className="text-4xl font-bold text-muted-foreground">{formatPrice(149.99)}</span>
                     <span className="text-muted-foreground">/month</span>
                   </div>
                   <p className="text-xs text-muted-foreground mt-2">

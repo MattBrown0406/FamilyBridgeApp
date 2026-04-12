@@ -10,6 +10,14 @@ import { toast } from 'sonner';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 import { usePlatform } from '@/hooks/usePlatform';
 
+const formatPrice = (price: number) =>
+  price.toLocaleString('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: price % 1 === 0 ? 0 : 2,
+    maximumFractionDigits: 2,
+  });
+
 const Subscription = () => {
   const { isNative, isIOS } = usePlatform();
   const navigate = useNavigate();
@@ -162,7 +170,7 @@ const Subscription = () => {
               
               {!(isNative && isIOS) && (
                 <div className="flex items-baseline justify-center gap-1 mb-4 sm:mb-6">
-                  <span className="text-4xl sm:text-5xl font-display font-bold">149.99</span>
+                  <span className="text-4xl sm:text-5xl font-display font-bold">{formatPrice(149.99)}</span>
                   <span className="text-muted-foreground">/month</span>
                 </div>
               )}
@@ -177,7 +185,7 @@ const Subscription = () => {
               
               {!(isNative && isIOS) && (
                 <p className="text-xs text-muted-foreground text-center mt-3 sm:mt-4">
-                  Founding price while active • Cancel anytime
+                  Founding price while active • Monthly plan when available
                 </p>
               )}
             </CardContent>

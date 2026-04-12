@@ -74,26 +74,14 @@ const App = () => {
               <Route path="/family/:familyId" element={<FamilyChat />} />
               <Route path="/meetings" element={<Meetings />} />
               <Route path="/enabling-exercise" element={<EnablingExercise />} />
-              <Route
-                path="/subscription"
-                element={paymentsWebOnly ? <Navigate to="/auth" replace /> : <Subscription />}
-              />
+              <Route path="/subscription" element={<Subscription />} />
               <Route path="/provider-admin" element={<ProviderAdmin />} />
               <Route path="/provider-workspace" element={<ProviderWorkspace />} />
               <Route path="/provider-coordination" element={<ProviderCoordination />} />
-              <Route
-                path="/provider-purchase"
-                element={paymentsWebOnly ? <Navigate to="/auth" replace /> : <ProviderPurchase />}
-              />
-              <Route
-                path="/family-purchase"
-                element={paymentsWebOnly ? <Navigate to="/auth" replace /> : <FamilyPurchase />}
-              />
+              <Route path="/provider-purchase" element={<ProviderPurchase />} />
+              <Route path="/family-purchase" element={<FamilyPurchase />} />
               <Route path="/family-setup" element={<FamilySetup />} />
-              <Route
-                path="/moderator-purchase"
-                element={paymentsWebOnly ? <Navigate to="/auth" replace /> : <ModeratorPurchase />}
-              />
+              <Route path="/moderator-purchase" element={<ModeratorPurchase />} />
               <Route path="/super-admin" element={<SuperAdmin />} />
               <Route path="/demo" element={<Demo />} />
               <Route path="/demo/family" element={<DemoFamily />} />

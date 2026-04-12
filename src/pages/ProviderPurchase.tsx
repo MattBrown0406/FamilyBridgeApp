@@ -24,6 +24,14 @@ import {
   REVENUECAT_PRODUCT_IDS,
 } from "@/lib/revenuecat";
 
+const formatPrice = (price: number) =>
+  price.toLocaleString("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: price % 1 === 0 ? 0 : 2,
+    maximumFractionDigits: 2,
+  });
+
 const ProviderPurchase = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -491,7 +499,7 @@ const ProviderPurchase = () => {
                     {billingPeriod === "monthly" ? (
                       <>
                         <div>
-                          <span className="text-4xl font-bold">${PRODUCTS.provider.monthly.price}</span>
+                          <span className="text-4xl font-bold">{formatPrice(PRODUCTS.provider.monthly.price)}</span>
                           <span className="text-muted-foreground">/month</span>
                         </div>
                         <p className="text-xs text-muted-foreground mt-2">
@@ -501,12 +509,12 @@ const ProviderPurchase = () => {
                     ) : billingPeriod === "quarterly" ? (
                       <div className="space-y-2">
                         <div>
-                          <span className="text-4xl font-bold">${PRODUCTS.provider.quarterly.price}</span>
-                          <span className="text-muted-foreground">/quarter</span>
+                          <span className="text-4xl font-bold">{formatPrice(PRODUCTS.provider.quarterly.price)}</span>
+                          <span className="text-muted-foreground">/3 months</span>
                         </div>
                         <div className="inline-flex items-center gap-2 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-3 py-1 rounded-full text-sm font-medium">
                           <Check className="w-4 h-4" />
-                          4 payments = $2,516/year
+                          4 payments = {formatPrice(PRODUCTS.provider.quarterly.price * 4)}/year
                         </div>
                         <p className="text-xs text-muted-foreground">
                           Billed every 3 months · Auto-renews until cancelled
@@ -515,7 +523,7 @@ const ProviderPurchase = () => {
                     ) : (
                       <div className="space-y-2">
                         <div>
-                          <span className="text-4xl font-bold">${PRODUCTS.provider.annual.price.toLocaleString()}</span>
+                          <span className="text-4xl font-bold">{formatPrice(PRODUCTS.provider.annual.price)}</span>
                           <span className="text-muted-foreground">/year</span>
                         </div>
                         <div className="inline-flex items-center gap-2 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-3 py-1 rounded-full text-sm font-medium">
@@ -552,7 +560,7 @@ const ProviderPurchase = () => {
                   {!isNative && (
                     <div className="space-y-2">
                       <Label htmlFor="coupon">Coupon Code (Optional)</Label>
-                      <div className="flex gap-2">
+                      <div className="flex flex-col gap-2 sm:flex-row">
                         <Input
                           id="coupon"
                           placeholder="Enter coupon code"
@@ -565,6 +573,7 @@ const ProviderPurchase = () => {
                           variant="outline"
                           onClick={handleApplyCoupon}
                           disabled={isApplyingCoupon || !couponCode.trim() || !email}
+                          className="w-full sm:w-auto"
                         >
                           {isApplyingCoupon ? (
                             <Loader2 className="h-4 w-4 animate-spin mr-2" />
@@ -617,7 +626,7 @@ const ProviderPurchase = () => {
                               className="w-full"
                               size="lg"
                             >
-                              {isNativePurchasing ? "Opening App Store..." : billingPeriod === "monthly" ? `Subscribe Monthly - $${PRODUCTS.provider.monthly.price}/mo` : `Subscribe Quarterly - $${PRODUCTS.provider.quarterly.price}/quarter`}
+                              {isNativePurchasing ? "Opening App Store..." : billingPeriod === "monthly" ? `Subscribe Monthly - ${formatPrice(PRODUCTS.provider.monthly.price)}/month` : `Subscribe Quarterly - ${formatPrice(PRODUCTS.provider.quarterly.price)}/3 months`}
                             </Button>
                             <Button
                               variant="outline"
@@ -687,9 +696,9 @@ const ProviderPurchase = () => {
                           PRODUCTS.provider.annual.displayName
                         }
                         price={
-                          billingPeriod === "monthly" ? `$${PRODUCTS.provider.monthly.price}` :
-                          billingPeriod === "quarterly" ? `$${PRODUCTS.provider.quarterly.price}` :
-                          `$${PRODUCTS.provider.annual.price.toLocaleString()}`
+                          billingPeriod === "monthly" ? formatPrice(PRODUCTS.provider.monthly.price) :
+                          billingPeriod === "quarterly" ? formatPrice(PRODUCTS.provider.quarterly.price) :
+                          formatPrice(PRODUCTS.provider.annual.price)
                         }
                         period={
                           billingPeriod === "monthly" ? "1 month auto-renewable subscription" :
@@ -719,15 +728,15 @@ const ProviderPurchase = () => {
               <div className="grid gap-3 sm:grid-cols-3">
                 <div className="rounded-lg border bg-background/70 p-4 text-center">
                   <p className="text-xs text-muted-foreground">Founding monthly</p>
-                  <p className="text-2xl font-bold">$499</p>
+                  <p className="text-2xl font-bold">{formatPrice(499)}</p>
                 </div>
                 <div className="rounded-lg border bg-background/70 p-4 text-center">
                   <p className="text-xs text-muted-foreground">Quarterly</p>
-                  <p className="text-2xl font-bold">$1,299</p>
+                  <p className="text-2xl font-bold">{formatPrice(1299)}</p>
                 </div>
                 <div className="rounded-lg border bg-background/70 p-4 text-center">
                   <p className="text-xs text-muted-foreground">Annual</p>
-                  <p className="text-2xl font-bold">$4,990</p>
+                  <p className="text-2xl font-bold">{formatPrice(4990)}</p>
                 </div>
               </div>
 

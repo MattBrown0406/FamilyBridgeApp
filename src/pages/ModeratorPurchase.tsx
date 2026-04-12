@@ -258,7 +258,7 @@ export default function ModeratorPurchase() {
             <Card>
               <CardHeader>
               <CardTitle>{isNative ? "Professional Guidance Window" : "Purchase a Professional Guidance Window"}</CardTitle>
-                <CardDescription>{isNative ? "Interventionist-led family chat support" : "$399 per 24-hour period"}</CardDescription>
+                <CardDescription>{isNative ? "Interventionist-led family chat support" : "$399 one-time purchase • 24-hour period"}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
@@ -291,10 +291,9 @@ export default function ModeratorPurchase() {
 
                 {isIOS ? (
                   <>
-                    {/* iOS App Store compliant: No purchase buttons, pricing, or external links */}
                     <div className="text-center py-4 bg-muted/50 rounded-lg">
                       <p className="text-sm text-muted-foreground">
-                        To access this feature, please sign in with your existing account.
+                        This guidance window is currently arranged through the web. You can still sign in on iPhone and return to your family chat here.
                       </p>
                     </div>
                     <Button
