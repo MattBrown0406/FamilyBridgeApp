@@ -314,8 +314,8 @@ const DemoProvider = () => {
   const [activeArea, setActiveArea] = useState('workspace');
   const [workspaceTab, setWorkspaceTab] = useState('notes');
   const [adminTab, setAdminTab] = useState('families');
-  const [selectedThreadId, setSelectedThreadId] = useState(DEMO_THREADS[0].id);
-  const [selectedCaseId, setSelectedCaseId] = useState(DEMO_COORDINATION_CASES[0].id);
+  const [selectedThreadId, setSelectedThreadId] = useState<string>(DEMO_THREADS[0].id);
+  const [selectedCaseId, setSelectedCaseId] = useState<string>(DEMO_COORDINATION_CASES[0].id);
 
   const selectedThread = useMemo(
     () => DEMO_THREADS.find((thread) => thread.id === selectedThreadId) ?? DEMO_THREADS[0],
