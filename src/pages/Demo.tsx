@@ -133,7 +133,7 @@ const Demo = () => {
         });
         setBrandingStep(2);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Branding extraction error:', err);
       toast({
         title: 'Extraction Failed',
@@ -220,17 +220,44 @@ const Demo = () => {
     },
   ];
 
-  const demoFamily = {
-    name: 'The Johnson Family',
-    members: [
-      { name: 'Matt Brown', role: 'moderator', relationship: 'Case Manager' },
-      { name: 'Sarah Johnson', role: 'member', relationship: 'Parent' },
-      { name: 'Michael Johnson', role: 'recovering', relationship: 'Recovering' },
-      { name: 'David Johnson', role: 'member', relationship: 'Sibling' },
-      { name: 'Emily Johnson', role: 'member', relationship: 'Spouse' },
-      { name: 'Robert Johnson', role: 'member', relationship: 'Grandparent' },
-    ],
-  };
+  const demoFamilies = [
+    {
+      id: 'johnson',
+      name: 'Johnson Family',
+      scenario: 'Positive recovery and aftercare',
+      description: 'A stable family using chat, check-ins, coaching, financial requests, documents, and recovery tracking after treatment and sober living.',
+      members: [
+        { name: 'Matt Brown', role: 'moderator', relationship: 'Case Manager' },
+        { name: 'Sarah Johnson', role: 'member', relationship: 'Parent' },
+        { name: 'Michael Johnson', role: 'recovering', relationship: 'Person in Recovery' },
+        { name: 'Emily Johnson', role: 'member', relationship: 'Spouse' },
+      ],
+    },
+    {
+      id: 'davis',
+      name: 'Davis Family',
+      scenario: 'Active crisis and boundary stress',
+      description: 'A high-friction family showing what the app looks like when active addiction, money requests, and safety concerns are still in play.',
+      members: [
+        { name: 'Tasha Miller', role: 'moderator', relationship: 'Support Moderator' },
+        { name: 'Linda Davis', role: 'member', relationship: 'Parent' },
+        { name: 'Chris Davis', role: 'recovering', relationship: 'Loved One' },
+        { name: 'Mark Davis', role: 'member', relationship: 'Parent' },
+      ],
+    },
+    {
+      id: 'mitchell',
+      name: 'Mitchell Family',
+      scenario: 'Treatment transition and discharge planning',
+      description: 'A realistic provider-supported family moving from intervention into treatment, sober living, and aftercare planning.',
+      members: [
+        { name: 'Matt Brown', role: 'moderator', relationship: 'Interventionist' },
+        { name: 'Jessica Mitchell', role: 'member', relationship: 'Sister' },
+        { name: 'Tyler Mitchell', role: 'recovering', relationship: 'Loved One' },
+        { name: 'Robert Mitchell', role: 'member', relationship: 'Parent' },
+      ],
+    },
+  ];
 
   const breadcrumbSchema = createBreadcrumbSchema([
     { name: 'Home', url: '/' },
@@ -492,7 +519,7 @@ const Demo = () => {
                   Provider Dashboard Demo
                 </CardTitle>
                 <CardDescription>
-                  Experience the provider workspace with CRM pipeline, team communication, provider notes, and FIIS support tools
+                  Experience the current provider workspace with notes, messaging, coordination, admin views, CRM context, and FIIS support tools.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -500,28 +527,27 @@ const Demo = () => {
                   <div className="space-y-4">
                     <h4 className="font-medium text-lg">Hope Harbor Interventions Demo</h4>
                     <p className="text-sm text-muted-foreground">
-                      See how professional recovery organizations manage leads, coordinate care across families, 
-                      and leverage AI-powered insights to improve outcomes.
+                      See how professional recovery organizations now move between workspace, coordination, and admin surfaces while staying synced with the family-facing experience.
                     </p>
                     <div className="space-y-2 text-sm">
                       <div className="flex items-center gap-2">
                         <Check className="h-4 w-4 text-green-600" />
-                        <span>CRM Pipeline with 5 leads across stages</span>
+                        <span>Provider workspace with notes, messaging, and FIIS summaries</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <Check className="h-4 w-4 text-green-600" />
-                        <span>Team communication threads</span>
+                        <span>Coordination cases for crisis, transition, and aftercare</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <Check className="h-4 w-4 text-green-600" />
-                        <span>Provider notes with optional AI inclusion</span>
+                        <span>Admin views for families, moderators, CRM, branding, and analytics</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <Check className="h-4 w-4 text-green-600" />
-                        <span>FIIS AI interaction history</span>
+                        <span>Three realistic demo families mapped to provider-side context</span>
                       </div>
                     </div>
-                    <Button onClick={() => navigate('/demo/provider')} className="w-full">
+                    <Button onClick={() => navigate('/demo/provider', { state: { branding: { primaryColor: demoPrimaryColor, logo: demoLogo, logoNeedsBackground, name: demoName } } })} className="w-full">
                       <Play className="h-4 w-4 mr-2" />
                       Enter Provider Demo
                     </Button>
@@ -538,12 +564,12 @@ const Demo = () => {
                     </div>
                     <div className="grid grid-cols-2 gap-3 text-center">
                       <div className="bg-white/50 dark:bg-white/10 rounded-lg p-3">
-                        <p className="text-2xl font-bold text-violet-600">5</p>
-                        <p className="text-xs text-muted-foreground">Active Leads</p>
+                        <p className="text-2xl font-bold text-violet-600">3</p>
+                        <p className="text-xs text-muted-foreground">Active Families</p>
                       </div>
                       <div className="bg-white/50 dark:bg-white/10 rounded-lg p-3">
                         <p className="text-2xl font-bold text-violet-600">3</p>
-                        <p className="text-xs text-muted-foreground">Active Families</p>
+                        <p className="text-xs text-muted-foreground">Open Coordination Cases</p>
                       </div>
                     </div>
                   </div>
@@ -563,7 +589,7 @@ const Demo = () => {
                   Demo Family Group
                 </CardTitle>
                 <CardDescription>
-                  Explore a pre-populated family group to see how the platform works
+                  Explore three pre-populated family journeys so prospects can see how the live app changes across crisis, treatment transition, and aftercare.
                 </CardDescription>
                 {!isNative && (
                 <div className="mt-3 p-3 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 border border-green-200 dark:border-green-800 rounded-lg">
@@ -578,86 +604,78 @@ const Demo = () => {
                 )}
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="grid md:grid-cols-2 gap-6">
-                  {/* Family Info */}
-                  <div className="space-y-4">
-                    <h4 className="font-medium text-lg">{demoFamily.name}</h4>
-                    <p className="text-sm text-muted-foreground">
-                      A sample family group demonstrating all features of the platform including 
-                      group chat, financial requests, meeting check-ins, and boundary setting.
-                    </p>
-                    <Button 
-                      onClick={() => navigate('/demo/family', { 
-                        state: { 
-                          branding: {
-                            primaryColor: demoPrimaryColor,
-                            logo: demoLogo,
-                            logoNeedsBackground,
-                            name: demoName
-                          }
-                        }
-                      })} 
-                      className="w-full"
-                    >
-                      <Play className="h-4 w-4 mr-2" />
-                      Enter Demo Family
-                    </Button>
-                  </div>
-
-                  {/* Members */}
-                  <div className="space-y-3">
-                    <h4 className="font-medium">Family Members</h4>
-                    {demoFamily.members.map((member, index) => (
-                      <div 
-                        key={index}
-                        className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                            <span className="text-sm font-medium text-primary">
-                              {member.name.charAt(0)}
-                            </span>
-                          </div>
+                <div className="grid gap-4 md:grid-cols-3">
+                  {demoFamilies.map((family) => (
+                    <Card key={family.id} className="border bg-muted/20 shadow-sm">
+                      <CardHeader className="pb-3">
+                        <div className="flex items-start justify-between gap-3">
                           <div>
-                            <p className="text-sm font-medium">{member.name}</p>
-                            <p className="text-xs text-muted-foreground">{member.relationship}</p>
+                            <CardTitle className="text-base">{family.name}</CardTitle>
+                            <CardDescription>{family.scenario}</CardDescription>
                           </div>
+                          <Badge variant="outline">Demo</Badge>
                         </div>
-                        <Badge variant={
-                          member.role === 'moderator' ? 'default' : 
-                          member.role === 'recovering' ? 'secondary' : 
-                          'outline'
-                        }>
-                          {member.role}
-                        </Badge>
-                      </div>
-                    ))}
-                  </div>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <p className="text-sm text-muted-foreground">{family.description}</p>
+                        <div className="space-y-2">
+                          {family.members.map((member, index) => (
+                            <div key={index} className="flex items-center justify-between rounded-lg bg-background p-2.5 border">
+                              <div>
+                                <p className="text-sm font-medium">{member.name}</p>
+                                <p className="text-xs text-muted-foreground">{member.relationship}</p>
+                              </div>
+                              <Badge variant={member.role === 'moderator' ? 'default' : member.role === 'recovering' ? 'secondary' : 'outline'}>
+                                {member.role}
+                              </Badge>
+                            </div>
+                          ))}
+                        </div>
+                        <Button 
+                          onClick={() => navigate('/demo/family', { 
+                            state: { 
+                              branding: {
+                                primaryColor: demoPrimaryColor,
+                                logo: demoLogo,
+                                logoNeedsBackground,
+                                name: demoName
+                              },
+                              initialFamily: family.id,
+                            }
+                          })} 
+                          className="w-full"
+                        >
+                          <Play className="h-4 w-4 mr-2" />
+                          Open {family.name}
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  ))}
                 </div>
               </CardContent>
             </Card>
 
             {/* Quick Actions */}
             <div className="grid md:grid-cols-3 gap-4 mt-6">
-              <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/demo/family')}>
+              <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/demo/family', { state: { branding: { primaryColor: demoPrimaryColor, logo: demoLogo, logoNeedsBackground, name: demoName }, initialFamily: 'johnson' } })}>
                 <CardContent className="pt-6">
                   <MessageCircle className="h-8 w-8 text-primary mb-3" />
-                  <h4 className="font-medium">Group Chat</h4>
-                  <p className="text-sm text-muted-foreground">See moderated messaging in action</p>
+                  <h4 className="font-medium">Johnson Family</h4>
+                  <p className="text-sm text-muted-foreground">Stable aftercare view with realistic chat and recovery tracking</p>
                 </CardContent>
               </Card>
-              <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/demo/family')}>
+              <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/demo/family', { state: { branding: { primaryColor: demoPrimaryColor, logo: demoLogo, logoNeedsBackground, name: demoName }, initialFamily: 'davis' } })}>
                 <CardContent className="pt-6">
                   <DollarSign className="h-8 w-8 text-primary mb-3" />
-                  <h4 className="font-medium">Financial Requests</h4>
-                  <p className="text-sm text-muted-foreground">Group voting and pledges</p>
+                  <h4 className="font-medium">Davis Family</h4>
+                  <p className="text-sm text-muted-foreground">Crisis demo with boundary stress, urgent requests, and active FIIS signals</p>
                 </CardContent>
               </Card>
-              <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/demo/family')}>
+              <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/demo/family', { state: { branding: { primaryColor: demoPrimaryColor, logo: demoLogo, logoNeedsBackground, name: demoName }, initialFamily: 'mitchell' } })}>
                 <CardContent className="pt-6">
                   <MapPin className="h-8 w-8 text-primary mb-3" />
-                  <h4 className="font-medium">Check-ins</h4>
-                  <p className="text-sm text-muted-foreground">Meeting and location tracking</p>
+                  <h4 className="font-medium">Mitchell Family</h4>
+                  <p className="text-sm text-muted-foreground">Treatment transition demo with discharge planning and provider coordination</p>
                 </CardContent>
               </Card>
             </div>

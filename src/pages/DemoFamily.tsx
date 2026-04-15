@@ -43,6 +43,7 @@ import {
   Crown,
   LifeBuoy,
   Brain,
+  PhoneCall,
   Home,
   Building2,
   Heart,
@@ -152,6 +153,25 @@ interface DemoBranding {
   name: string;
 }
 
+interface DemoCoachingSession {
+  id: string;
+  target: string;
+  mode: 'speakerphone' | 'in-room' | 'screenshot';
+  updatedAt: string;
+  summary: string;
+  suggestedResponse: string;
+  boundaryAnchor: string;
+}
+
+interface DemoCoachingState {
+  title: string;
+  description: string;
+  livePrompt: string;
+  bestNextMove: string;
+  watchFor: string[];
+  recentSessions: DemoCoachingSession[];
+}
+
 type FamilyType = 'johnson' | 'davis' | 'mitchell';
 
 const getFamilyData = (family: FamilyType) => {
@@ -234,12 +254,114 @@ const getFamilyData = (family: FamilyType) => {
   }
 };
 
+const getCoachingDemo = (family: FamilyType): DemoCoachingState => {
+  switch (family) {
+    case 'johnson':
+      return {
+        title: 'Positive recovery maintenance',
+        description: 'The family is out of crisis. Coaching now focuses on encouragement without rescuing, handling day-to-day requests, and protecting the recovery structure that is working.',
+        livePrompt: 'Help me respond supportively when Michael asks for help, without slipping back into over-managing.',
+        bestNextMove: 'Use warm affirmation first, then redirect to the shared plan, meeting schedule, and approved financial/request process.',
+        watchFor: [
+          'Family praise turning into pressure or over-monitoring',
+          'Unstructured cash help outside the request workflow',
+          'Skipping routines because things seem “better now”',
+        ],
+        recentSessions: [
+          {
+            id: 'johnson-coaching-1',
+            target: 'Michael Johnson',
+            mode: 'speakerphone',
+            updatedAt: 'Today at 8:05 AM',
+            summary: 'Michael wanted reassurance before his morning meeting and hinted he felt guilty about needing continued structure.',
+            suggestedResponse: 'We are proud of your consistency. Keep following the plan that is working today, meeting first, then we can revisit the rest together.',
+            boundaryAnchor: 'Support the routine, do not replace it.',
+          },
+          {
+            id: 'johnson-coaching-2',
+            target: 'Sarah Johnson',
+            mode: 'screenshot',
+            updatedAt: 'Yesterday at 6:20 PM',
+            summary: 'Coaching helped Sarah respond to a small financial ask without sounding controlling.',
+            suggestedResponse: 'Please put it through the request tab so the family can stay consistent. I want to help in the same structured way we agreed on.',
+            boundaryAnchor: 'Consistency matters more than urgency theater.',
+          },
+        ],
+      };
+    case 'davis':
+      return {
+        title: 'High-conflict crisis coaching',
+        description: 'This family is still actively destabilized. Coaching should keep everyone out of circular arguments, reduce enabling, and tighten the wording around boundaries and safety.',
+        livePrompt: 'Help me answer without escalating, shaming, or accidentally funding the crisis.',
+        bestNextMove: 'Use short, calm replies that repeat the boundary, name the next safe option, and avoid debating the addicted person’s version of reality.',
+        watchFor: [
+          'Threat-based messages pulling the family into panic mode',
+          'One member privately breaking family agreements',
+          'Money requests framed as emergencies without documentation',
+        ],
+        recentSessions: [
+          {
+            id: 'davis-coaching-1',
+            target: 'Chris Davis',
+            mode: 'in-room',
+            updatedAt: 'Today at 7:40 AM',
+            summary: 'Coached mom before a likely confrontation after a missed check-in and suspected drinking.',
+            suggestedResponse: 'I love you and I am not arguing. We are not sending money today. If you want help, the next step is the treatment call we already discussed.',
+            boundaryAnchor: 'Connection without negotiation.',
+          },
+          {
+            id: 'davis-coaching-2',
+            target: 'Mark Davis',
+            mode: 'screenshot',
+            updatedAt: 'Yesterday at 9:10 PM',
+            summary: 'Dad drafted a rescuing text after Chris blamed the family for being stranded.',
+            suggestedResponse: 'I’m sorry you’re having a hard night. I’m not sending cash. If you want a ride to treatment or a meeting, I will help with that.',
+            boundaryAnchor: 'Offer help toward recovery, not relief from consequences.',
+          },
+        ],
+      };
+    case 'mitchell':
+      return {
+        title: 'Post-intervention transition coaching',
+        description: 'The family is stabilizing after treatment entry. Coaching now centers on discharge planning, sober living expectations, and how to respond when the recovering member tests new limits.',
+        livePrompt: 'Help me keep the family aligned as Tyler moves from treatment into the next phase.',
+        bestNextMove: 'Translate treatment recommendations into plain family language, then anchor every reply to the same discharge plan and housing/financial boundaries.',
+        watchFor: [
+          'Family members making side deals during transition stress',
+          'Recovering member shopping for softer rules after discharge',
+          'Aftercare tasks living in notes instead of shared visibility',
+        ],
+        recentSessions: [
+          {
+            id: 'mitchell-coaching-1',
+            target: 'Jessica Mitchell',
+            mode: 'speakerphone',
+            updatedAt: 'Today at 10:15 AM',
+            summary: 'Jessica wanted wording for a calm response when Tyler asked to stay with her instead of sober living.',
+            suggestedResponse: 'I love you and I want the best for you. I am not changing the discharge plan. We can support you most by helping you follow it exactly.',
+            boundaryAnchor: 'No private exceptions during transition.',
+          },
+          {
+            id: 'mitchell-coaching-2',
+            target: 'Robert Mitchell',
+            mode: 'screenshot',
+            updatedAt: '2 days ago',
+            summary: 'Dad needed help replying to a guilt-heavy message about treatment costs and next-step housing.',
+            suggestedResponse: 'We are committed to helping in the ways the whole family agreed to. Housing support is tied to the sober living recommendation and continued participation.',
+            boundaryAnchor: 'Funding follows the plan, not the pressure.',
+          },
+        ],
+      };
+  }
+};
+
 const DemoFamily = () => {
   const navigate = useNavigate();
   const { isNative, isIOS } = usePlatform();
   const paymentsWebOnly = isNative && isIOS;
   const location = useLocation();
-  const branding = (location.state as { branding?: DemoBranding })?.branding;
+  const locationState = (location.state as { branding?: DemoBranding; initialFamily?: FamilyType } | null) ?? null;
+  const branding = locationState?.branding;
   const [activeTab, setActiveTab] = useState('messages');
   const [newMessage, setNewMessage] = useState('');
   const [selectedMember, setSelectedMember] = useState<typeof JOHNSON_MEMBERS[0] | null>(null);
@@ -247,10 +369,11 @@ const DemoFamily = () => {
   const [showModeratorDialog, setShowModeratorDialog] = useState(false);
   
   // Family selection state
-  const [selectedFamily, setSelectedFamily] = useState<FamilyType>('johnson');
+  const [selectedFamily, setSelectedFamily] = useState<FamilyType>(locationState?.initialFamily ?? 'johnson');
   
   // Get current family data based on selection
   const currentFamily = getFamilyData(selectedFamily);
+  const currentCoaching = getCoachingDemo(selectedFamily);
   
   const [messages, setMessages] = useState(currentFamily.messages);
   
@@ -507,8 +630,8 @@ const DemoFamily = () => {
       <div className="container mx-auto px-1.5 sm:px-4 py-3 sm:py-6">
         <div className="max-w-5xl mx-auto">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            {/* Mobile: Use grid for better spacing, Desktop: flex row - 10 tabs like live FamilyChat */}
-            <TabsList className="grid grid-cols-5 md:grid-cols-10 grid-rows-2 md:grid-rows-1 h-auto gap-0.5 w-full mb-2 sm:mb-4 shrink-0 bg-card/50 backdrop-blur-sm border border-border/50 p-0.5 sm:p-1.5 rounded-lg sm:rounded-xl shadow-soft">
+            {/* Demo tabs aligned to the current family experience */}
+            <TabsList className="grid grid-cols-5 md:grid-cols-11 grid-rows-3 md:grid-rows-1 h-auto gap-0.5 w-full mb-2 sm:mb-4 shrink-0 bg-card/50 backdrop-blur-sm border border-border/50 p-0.5 sm:p-1.5 rounded-lg sm:rounded-xl shadow-soft">
               <TabsTrigger 
                 value="messages" 
                 className="flex items-center justify-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-1.5 sm:py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
@@ -524,14 +647,11 @@ const DemoFamily = () => {
                 <span className="hidden md:inline text-xs">Check-in</span>
               </TabsTrigger>
               <TabsTrigger 
-                value="financial"
-                className="relative flex items-center justify-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-1.5 sm:py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
+                value="boundaries"
+                className="flex items-center justify-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-1.5 sm:py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
               >
-                <DollarSign className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                <span className="hidden md:inline text-xs">Financial</span>
-                {selectedFamily === 'davis' && (
-                  <Badge variant="destructive" className="absolute -top-1 -right-1 h-3.5 w-3.5 sm:h-4 sm:w-4 p-0 flex items-center justify-center text-[7px] sm:text-[8px]">5</Badge>
-                )}
+                <ShieldCheck className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                <span className="hidden md:inline text-xs">Boundaries</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="values"
@@ -541,11 +661,21 @@ const DemoFamily = () => {
                 <span className="hidden md:inline text-xs">Goals</span>
               </TabsTrigger>
               <TabsTrigger 
-                value="boundaries"
+                value="coaching"
                 className="flex items-center justify-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-1.5 sm:py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
               >
-                <ShieldCheck className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                <span className="hidden md:inline text-xs">Boundaries</span>
+                <PhoneCall className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                <span className="hidden md:inline text-xs">Coaching</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="financial"
+                className="relative flex items-center justify-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-1.5 sm:py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-md sm:rounded-lg transition-all duration-200"
+              >
+                <DollarSign className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                <span className="hidden md:inline text-xs">Financial</span>
+                {selectedFamily === 'davis' && (
+                  <Badge variant="destructive" className="absolute -top-1 -right-1 h-3.5 w-3.5 sm:h-4 sm:w-4 p-0 flex items-center justify-center text-[7px] sm:text-[8px]">5</Badge>
+                )}
               </TabsTrigger>
               <TabsTrigger 
                 value="aftercare"
@@ -1265,6 +1395,121 @@ const DemoFamily = () => {
                         )}
                       </div>
                     ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="coaching" className="animate-fade-in space-y-4">
+              <Card className="border-0 shadow-lg bg-gradient-to-br from-card via-card to-primary/5 overflow-hidden">
+                <div className="h-1 bg-gradient-to-r from-primary via-primary/80 to-violet-500" />
+                <CardHeader className="pb-3">
+                  <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                    <div>
+                      <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                        <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary to-violet-500 flex items-center justify-center">
+                          <PhoneCall className="h-4 w-4 text-white" />
+                        </div>
+                        Conversation Coaching
+                      </CardTitle>
+                      <p className="mt-2 text-sm text-muted-foreground">
+                        {currentCoaching.description}
+                      </p>
+                    </div>
+                    <Badge variant="secondary" className="w-fit bg-primary/10 text-primary border-primary/20">
+                      Mirrors the live Coaching tab
+                    </Badge>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid gap-3 md:grid-cols-3">
+                    <Card className="border-primary/15 bg-primary/5">
+                      <CardContent className="pt-4 space-y-2">
+                        <div className="flex items-center gap-2 text-sm font-medium">
+                          <PhoneCall className="h-4 w-4 text-primary" />
+                          Live speakerphone coaching
+                        </div>
+                        <p className="text-xs text-muted-foreground">Coach a conversation in real time while keeping boundaries and tone aligned.</p>
+                        <Button size="sm" className="w-full" onClick={() => toast.info('Demo: live speakerphone coaching would start here')}>
+                          Start Demo Session
+                        </Button>
+                      </CardContent>
+                    </Card>
+                    <Card className="border-violet-200 bg-violet-50/60 dark:bg-violet-950/20">
+                      <CardContent className="pt-4 space-y-2">
+                        <div className="flex items-center gap-2 text-sm font-medium">
+                          <Mail className="h-4 w-4 text-violet-600" />
+                          Screenshot or pasted text analysis
+                        </div>
+                        <p className="text-xs text-muted-foreground">Upload a thread or paste an email and get suggested responses plus warning flags.</p>
+                        <Button size="sm" variant="outline" className="w-full" onClick={() => toast.info('Demo: screenshot / email coaching flow would open here')}>
+                          Analyze Conversation
+                        </Button>
+                      </CardContent>
+                    </Card>
+                    <Card className="border-emerald-200 bg-emerald-50/70 dark:bg-emerald-950/20">
+                      <CardContent className="pt-4 space-y-2">
+                        <div className="flex items-center gap-2 text-sm font-medium">
+                          <Sparkles className="h-4 w-4 text-emerald-600" />
+                          Current coaching focus
+                        </div>
+                        <p className="text-sm font-medium text-foreground">{currentCoaching.title}</p>
+                        <p className="text-xs text-muted-foreground">{currentCoaching.bestNextMove}</p>
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
+                    <Card>
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-sm">Recent coaching sessions</CardTitle>
+                        <CardDescription>Dummy data showing the kinds of saved coaching support families see in the live app.</CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-3">
+                        {currentCoaching.recentSessions.map((session) => (
+                          <div key={session.id} className="rounded-xl border bg-muted/20 p-4 space-y-3">
+                            <div className="flex flex-wrap items-center gap-2 justify-between">
+                              <div>
+                                <p className="font-medium text-sm">Talking to {session.target}</p>
+                                <p className="text-xs text-muted-foreground">{session.updatedAt}</p>
+                              </div>
+                              <Badge variant="outline" className="capitalize">{session.mode.replace('-', ' ')}</Badge>
+                            </div>
+                            <p className="text-sm text-muted-foreground">{session.summary}</p>
+                            <div className="rounded-lg bg-primary/5 border border-primary/10 p-3">
+                              <p className="text-[11px] uppercase tracking-wide text-primary font-semibold mb-1">Suggested response</p>
+                              <p className="text-sm">{session.suggestedResponse}</p>
+                            </div>
+                            <p className="text-xs text-muted-foreground">
+                              <span className="font-medium text-foreground">Boundary anchor:</span> {session.boundaryAnchor}
+                            </p>
+                          </div>
+                        ))}
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-sm">Live coaching prompt</CardTitle>
+                        <CardDescription>Representative starter prompt a family member could use right now.</CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div className="rounded-lg border bg-muted/20 p-3 text-sm">
+                          {currentCoaching.livePrompt}
+                        </div>
+                        <div>
+                          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">What coaching would watch for</p>
+                          <div className="space-y-2">
+                            {currentCoaching.watchFor.map((item) => (
+                              <div key={item} className="flex items-start gap-2 text-sm text-muted-foreground">
+                                <AlertCircle className="h-4 w-4 text-amber-500 mt-0.5 shrink-0" />
+                                <span>{item}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
                   </div>
                 </CardContent>
               </Card>

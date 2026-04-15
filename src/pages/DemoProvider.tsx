@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useMemo, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -8,7 +8,6 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import {
   ArrowLeft,
   Building2,
@@ -16,8 +15,6 @@ import {
   MessageSquare,
   Brain,
   ClipboardList,
-  TrendingUp,
-  TrendingDown,
   Activity,
   Send,
   Phone,
@@ -27,703 +24,807 @@ import {
   CheckCircle,
   AlertCircle,
   AlertTriangle,
-  ChevronDown,
-  ChevronRight,
-  Plus,
   Sparkles,
   Target,
   BarChart3,
   FileText,
   UserPlus,
   DollarSign,
-  GripVertical,
-  Eye,
-  Star
+  Settings,
+  Shield,
 } from 'lucide-react';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
-import { format, subDays, subHours } from 'date-fns';
 import { toast } from 'sonner';
 
-const now = new Date();
+interface DemoBranding {
+  primaryColor: string;
+  logo: string | null;
+  logoNeedsBackground?: boolean;
+  name: string;
+}
 
-// Demo Referral Sources
-const DEMO_REFERRAL_SOURCES = [
-  { id: 'ref-1', name: 'Hope Harbor Interventions', type: 'intervention_company', contact: 'David Martinez' },
-  { id: 'ref-2', name: 'City General Hospital', type: 'hospital', contact: 'Dr. Sarah Kim' },
-  { id: 'ref-3', name: 'Self-Referral', type: 'website', contact: null },
-  { id: 'ref-4', name: 'Serenity Counseling Center', type: 'therapist', contact: 'Dr. Michelle Brooks' }
-];
+const DEMO_FAMILIES = [
+  {
+    id: 'johnson',
+    name: 'Johnson Family',
+    stage: 'Aftercare',
+    status: 'Stable progress',
+    moderator: 'Matt Brown',
+    health: 'improving',
+    lastActivity: 'Michael checked into an AA meeting 12 min ago',
+    members: 7,
+    activeTasks: 3,
+    pendingFinancials: 1,
+    fiisSignal: 'Low concern, strong consistency',
+    note: '125 days sober, family alignment is holding, aftercare structure is working.',
+  },
+  {
+    id: 'davis',
+    name: 'Davis Family',
+    stage: 'Crisis stabilization',
+    status: 'Needs close support',
+    moderator: 'Tasha Miller',
+    health: 'high-risk',
+    lastActivity: 'Boundary dispute in chat 48 min ago',
+    members: 5,
+    activeTasks: 6,
+    pendingFinancials: 2,
+    fiisSignal: 'Escalation risk around money and safety',
+    note: 'Active addiction, repeated emergency-style asks, one family member still wavering.',
+  },
+  {
+    id: 'mitchell',
+    name: 'Mitchell Family',
+    stage: 'Treatment transition',
+    status: 'Transition planning',
+    moderator: 'Matt Brown',
+    health: 'watch',
+    lastActivity: 'Discharge planning note updated 2h ago',
+    members: 6,
+    activeTasks: 5,
+    pendingFinancials: 0,
+    fiisSignal: 'Watch for side deals during sober living handoff',
+    note: 'Intervention succeeded, treatment entry complete, family is preparing for sober living and aftercare.',
+  },
+] as const;
 
-// Demo CRM Pipeline Data
-const DEMO_CRM_LEADS = [
+const DEMO_TEAM = [
+  {
+    id: 'team-1',
+    name: 'Matt Brown',
+    role: 'Lead Interventionist',
+    workload: '2 active families, 1 transition case',
+    focus: 'Johnson aftercare cadence + Mitchell discharge plan',
+    coverage: 'Primary moderator',
+  },
+  {
+    id: 'team-2',
+    name: 'Tasha Miller',
+    role: 'Family Support Moderator',
+    workload: '1 crisis family, 2 observation families',
+    focus: 'Davis crisis de-escalation and consistent money boundaries',
+    coverage: 'Evenings + weekends',
+  },
+  {
+    id: 'team-3',
+    name: 'Dr. Sarah Thompson',
+    role: 'Clinical Partner',
+    workload: 'Therapy and treatment handoff review',
+    focus: 'Mitchell transition risks and Johnson ongoing recovery support',
+    coverage: 'Treatment / therapy coordination',
+  },
+] as const;
+
+const DEMO_NOTES = [
+  {
+    id: 'note-1',
+    family: 'Johnson Family',
+    member: 'Michael Johnson',
+    author: 'Matt Brown',
+    type: 'Progress note',
+    includeInAi: true,
+    createdAt: 'Today, 8:32 AM',
+    content:
+      'Michael is responding well to accountability without appearing overly managed. Family praise is healthy right now, but I want to keep redirecting support back to routines instead of emotional over-parenting.',
+  },
+  {
+    id: 'note-2',
+    family: 'Davis Family',
+    member: 'Chris Davis',
+    author: 'Tasha Miller',
+    type: 'Risk note',
+    includeInAi: true,
+    createdAt: 'Today, 7:14 AM',
+    content:
+      'Pattern remains the same: urgent money asks, blame, and attempts to split the family. Dad still drafts softer replies in private. He needs direct coaching before the next likely flare-up.',
+  },
+  {
+    id: 'note-3',
+    family: 'Mitchell Family',
+    member: 'Tyler Mitchell',
+    author: 'Dr. Sarah Thompson',
+    type: 'Transition note',
+    includeInAi: false,
+    createdAt: 'Yesterday, 4:10 PM',
+    content:
+      'Treatment team wants sober living to remain non-negotiable. Family should expect Tyler to test for private exceptions during the first discharge conversation.',
+  },
+] as const;
+
+const DEMO_THREADS = [
+  {
+    id: 'thread-1',
+    title: 'Johnson aftercare team',
+    family: 'Johnson Family',
+    participants: ['Matt Brown', 'Dr. Sarah Thompson'],
+    preview: 'Keep the family affirming progress, but don’t let support turn into rescuing.',
+    messages: [
+      { sender: 'Dr. Sarah Thompson', at: '8:05 AM', content: 'Michael sounds grounded. I would keep the family focused on meeting cadence and the request workflow.' },
+      { sender: 'Matt Brown', at: '8:11 AM', content: 'Agreed. Sarah is supportive, but I want to keep her from jumping in too fast when he feels anxious.' },
+      { sender: 'Dr. Sarah Thompson', at: '8:14 AM', content: 'That matches what I’m seeing. He benefits from support that reinforces structure, not relief from discomfort.' },
+    ],
+  },
+  {
+    id: 'thread-2',
+    title: 'Davis crisis response',
+    family: 'Davis Family',
+    participants: ['Tasha Miller', 'Matt Brown'],
+    preview: 'Need tighter wording before the next emergency-style request lands.',
+    messages: [
+      { sender: 'Tasha Miller', at: '7:32 AM', content: 'Chris sent another “I’m stranded” text. Same pattern as last week, no proof, trying to trigger panic.' },
+      { sender: 'Matt Brown', at: '7:36 AM', content: 'Let’s keep the reply short. No money. Offer transportation only toward treatment, meeting, or a verified safe option.' },
+      { sender: 'Tasha Miller', at: '7:42 AM', content: 'I’ll coach dad before he responds. He is still the one most likely to break ranks.' },
+    ],
+  },
+  {
+    id: 'thread-3',
+    title: 'Mitchell discharge planning',
+    family: 'Mitchell Family',
+    participants: ['Matt Brown', 'Dr. Sarah Thompson', 'Jessica Mitchell'],
+    preview: 'Family needs one clean plan before Tyler starts shopping for softer options.',
+    messages: [
+      { sender: 'Matt Brown', at: 'Yesterday', content: 'We should assume Tyler will ask to bypass sober living and stay with family instead.' },
+      { sender: 'Dr. Sarah Thompson', at: 'Yesterday', content: 'Yes. The cleaner the family wording is now, the less chance there is of triangulation after discharge.' },
+      { sender: 'Jessica Mitchell', at: 'Yesterday', content: 'Understood. I’ll keep my answer aligned with the written plan and won’t negotiate privately.' },
+    ],
+  },
+] as const;
+
+const DEMO_COORDINATION_CASES = [
+  {
+    id: 'case-1',
+    family: 'Mitchell Family',
+    title: 'Treatment to sober living handoff',
+    owner: 'Matt Brown',
+    phase: 'Transition planning',
+    priority: 'High',
+    summary: 'Treatment is finishing this week. Family needs one shared plan for sober living, finances, and communication boundaries before discharge.',
+    blockers: ['Waiting on final discharge packet', 'Need sober living intake time confirmed'],
+    nextSteps: [
+      'Confirm sober living bed and intake window',
+      'Share discharge summary with all approved family members',
+      'Lock in first-week aftercare check-ins inside FamilyBridge',
+    ],
+    timeline: [
+      'Intervention completed successfully 26 days ago',
+      'Treatment team reports solid engagement',
+      'Discharge call scheduled for tomorrow at 11:00 AM',
+    ],
+  },
+  {
+    id: 'case-2',
+    family: 'Davis Family',
+    title: 'Crisis containment and family alignment',
+    owner: 'Tasha Miller',
+    phase: 'Active crisis',
+    priority: 'Urgent',
+    summary: 'Family needs tighter alignment before the next likely money / housing flare-up. Current risk is one member privately overriding group boundaries.',
+    blockers: ['Dad still softening replies in private', 'No verified transportation plan if treatment is accepted'],
+    nextSteps: [
+      'Coach both parents on the exact response script',
+      'Create transportation-only contingency plan',
+      'Flag any private side deals immediately in team messaging',
+    ],
+    timeline: [
+      'Threat-based money ask yesterday evening',
+      'Family remained aligned publicly',
+      'Private rescue attempt detected and corrected this morning',
+    ],
+  },
+  {
+    id: 'case-3',
+    family: 'Johnson Family',
+    title: 'Aftercare maintenance review',
+    owner: 'Matt Brown',
+    phase: 'Aftercare',
+    priority: 'Routine',
+    summary: 'Family is doing well. Main job is keeping support healthy without over-functioning.',
+    blockers: ['None'],
+    nextSteps: [
+      'Keep financial requests routed through the app',
+      'Review check-in consistency next week',
+      'Continue reinforcing meeting and therapy cadence',
+    ],
+    timeline: [
+      '125 days sober today',
+      'Family engagement remains high',
+      'No concerning FIIS trend this week',
+    ],
+  },
+] as const;
+
+const DEMO_PIPELINE = [
   {
     id: 'lead-1',
-    contact_name: 'Sandra Williams',
-    contact_email: 'sandra.w@email.com',
-    contact_phone: '(555) 123-4567',
-    patient_name: 'Marcus Williams',
-    patient_age: '24',
-    stage: 'new',
-    presenting_issue: 'Opioid dependency, recent overdose scare',
-    notes: 'Referred by Hope Harbor Interventions. Son was brought to ER after suspected overdose. Mother is desperate for help. David Martinez did initial consult.',
-    created_at: format(subHours(now, 4), 'yyyy-MM-dd HH:mm'),
-    priority: 'high',
-    estimated_value: 9500,
-    referral_source: 'Hope Harbor Interventions',
-    tags: ['urgent', 'intervention-referral']
+    name: 'Sandra Williams',
+    patient: 'Marcus Williams',
+    stage: 'New',
+    value: '$9,500',
+    source: 'Hope Harbor Interventions',
+    note: 'Opioid use, recent overdose scare, family highly motivated.',
   },
   {
     id: 'lead-2',
-    contact_name: 'Michael Chen',
-    contact_email: 'mchen@email.com',
-    contact_phone: '(555) 234-5678',
-    patient_name: 'Emily Chen',
-    patient_age: '19',
-    stage: 'contacted',
-    presenting_issue: 'College student, alcohol and benzodiazepine abuse',
-    notes: 'Referred by Hope Harbor Interventions after family consultation. Father called after getting call from university. Daughter was placed on academic probation.',
-    created_at: format(subDays(now, 2), 'yyyy-MM-dd HH:mm'),
-    priority: 'medium',
-    estimated_value: 8500,
-    referral_source: 'Hope Harbor Interventions',
-    tags: ['college-student', 'intervention-referral']
+    name: 'Michael Chen',
+    patient: 'Emily Chen',
+    stage: 'Contacted',
+    value: '$8,500',
+    source: 'Provider referral',
+    note: 'College family seeking intervention guidance after campus incident.',
   },
   {
     id: 'lead-3',
-    contact_name: 'Jennifer Rodriguez',
-    contact_email: 'jen.rodriguez@email.com',
-    contact_phone: '(555) 345-6789',
-    patient_name: 'Self',
-    patient_age: '35',
-    stage: 'qualified',
-    presenting_issue: 'Alcohol dependency, seeking help voluntarily',
-    notes: 'Self-referral via website. Has tried AA but struggles with consistency. Looking for more structured support. Very motivated.',
-    created_at: format(subDays(now, 5), 'yyyy-MM-dd HH:mm'),
-    priority: 'medium',
-    estimated_value: 7500,
-    referral_source: 'Self-Referral',
-    tags: ['self-referral', 'motivated']
+    name: 'Jennifer Rodriguez',
+    patient: 'Self referral',
+    stage: 'Qualified',
+    value: '$7,500',
+    source: 'Website',
+    note: 'Motivated prospect, wants structure after inconsistent AA attendance.',
   },
   {
     id: 'lead-4',
-    contact_name: 'Thomas & Linda Baker',
-    contact_email: 'bakerfamily@email.com',
-    contact_phone: '(555) 456-7890',
-    patient_name: 'Jason Baker',
-    patient_age: '28',
-    stage: 'proposal',
-    presenting_issue: 'Methamphetamine addiction, lost job, estranged from family',
-    notes: 'Referred by Hope Harbor Interventions. Parents attended family education workshop. Ready to proceed with intervention. Scheduling for next week.',
-    created_at: format(subDays(now, 8), 'yyyy-MM-dd HH:mm'),
-    priority: 'high',
-    estimated_value: 10000,
-    referral_source: 'Hope Harbor Interventions',
-    tags: ['intervention-scheduled']
+    name: 'Baker Family',
+    patient: 'Jason Baker',
+    stage: 'Proposal',
+    value: '$10,000',
+    source: 'Hope Harbor Interventions',
+    note: 'Intervention likely next week, family already attended education call.',
   },
-  {
-    id: 'lead-5',
-    contact_name: 'Patricia Mitchell',
-    contact_email: 'patricia.m@email.com',
-    contact_phone: '(555) 567-8901',
-    patient_name: 'Tyler Mitchell',
-    patient_age: '27',
-    stage: 'active',
-    presenting_issue: 'Heroin/opioid addiction, in treatment',
-    notes: 'Referred by Hope Harbor Interventions. Intervention completed successfully. Tyler is now at Recovery Partners. Transitioned to FamilyBridge for ongoing support.',
-    created_at: format(subDays(now, 35), 'yyyy-MM-dd HH:mm'),
-    priority: 'medium',
-    estimated_value: 9000,
-    referral_source: 'Hope Harbor Interventions',
-    tags: ['converted', 'active-client']
-  },
-  {
-    id: 'lead-6',
-    contact_name: 'Robert & Nancy Clark',
-    contact_email: 'clarkfamily@email.com',
-    contact_phone: '(555) 678-9012',
-    patient_name: 'Daniel Clark',
-    patient_age: '31',
-    stage: 'new',
-    presenting_issue: 'Cocaine and alcohol abuse, gambling debts',
-    notes: 'Referred by City General Hospital social worker after ER visit for chest pains linked to substance use. Family unaware of gambling issue.',
-    created_at: format(subHours(now, 12), 'yyyy-MM-dd HH:mm'),
-    priority: 'high',
-    estimated_value: 8750,
-    referral_source: 'City General Hospital',
-    tags: ['hospital-referral', 'dual-diagnosis']
-  },
-  {
-    id: 'lead-7',
-    contact_name: 'Angela Foster',
-    contact_email: 'afoster@email.com',
-    contact_phone: '(555) 789-0123',
-    patient_name: 'Kevin Foster',
-    patient_age: '22',
-    stage: 'contacted',
-    presenting_issue: 'Prescription painkiller addiction after sports injury',
-    notes: 'Referred by Dr. Michelle Brooks at Serenity Counseling. Kevin has been seeing therapist but not disclosing full extent of use to family.',
-    created_at: format(subDays(now, 3), 'yyyy-MM-dd HH:mm'),
-    priority: 'medium',
-    estimated_value: 7850,
-    referral_source: 'Serenity Counseling Center',
-    tags: ['therapist-referral', 'young-adult']
-  }
-];
+] as const;
 
-// Demo Provider Communications
-const DEMO_PROVIDER_MESSAGES = [
-  {
-    id: 'pm-1',
-    thread_type: 'team',
-    participants: ['Matt Sullivan', 'Dr. Amanda Chen'],
-    family_linked: 'Mitchell Family',
-    messages: [
-      {
-        id: 'm1',
-        sender: 'Matt Sullivan',
-        content: 'Dr. Chen, wanted to give you a heads up before Tyler\'s family session today. The family did exceptional work during the intervention - they maintained complete unity for 4 days before Tyler agreed to treatment.',
-        time: format(subDays(now, 7), 'h:mm a'),
-        date: format(subDays(now, 7), 'MMM d')
-      },
-      {
-        id: 'm2',
-        sender: 'Dr. Amanda Chen',
-        content: 'Thanks Matt. I noticed in the FIIS data that all financial requests during the resistance period were denied unanimously except by Tyler himself. That level of coordination is rare.',
-        time: format(subDays(now, 7), 'h:mm a'),
-        date: format(subDays(now, 7), 'MMM d')
-      },
-      {
-        id: 'm3',
-        sender: 'Matt Sullivan',
-        content: 'The dad, Robert, was the weak link initially - classic enabler. But he stepped up during the intervention. I\'d watch him during the transition to sober living though.',
-        time: format(subDays(now, 7), 'h:mm a'),
-        date: format(subDays(now, 7), 'MMM d')
-      },
-      {
-        id: 'm4',
-        sender: 'Dr. Amanda Chen',
-        content: 'Good insight. I\'ll make sure to address that in our family work. Tyler has been testing the sober living boundary already - asked his sister if he could stay with her.',
-        time: format(subDays(now, 3), 'h:mm a'),
-        date: format(subDays(now, 3), 'MMM d')
-      },
-      {
-        id: 'm5',
-        sender: 'Matt Sullivan',
-        content: 'I saw that in the chat. Jessica handled it perfectly - redirected back to the group boundary. The FamilyBridge visibility really helps.',
-        time: format(subDays(now, 3), 'h:mm a'),
-        date: format(subDays(now, 3), 'MMM d')
-      }
-    ]
-  },
-  {
-    id: 'pm-2',
-    thread_type: 'team',
-    participants: ['Matt Sullivan', 'Sarah Thompson'],
-    family_linked: 'Johnson Family',
-    messages: [
-      {
-        id: 'm1',
-        sender: 'Sarah Thompson',
-        content: 'Michael Johnson hit 125 days today. His transition from sober living has been remarkably smooth.',
-        time: format(subDays(now, 1), 'h:mm a'),
-        date: format(subDays(now, 1), 'MMM d')
-      },
-      {
-        id: 'm2',
-        sender: 'Matt Sullivan',
-        content: 'Great news! I remember he was resistant to the sober living idea initially too. Glad the family held that boundary.',
-        time: format(subDays(now, 1), 'h:mm a'),
-        date: format(subDays(now, 1), 'MMM d')
-      }
-    ]
-  }
-];
+const DEMO_ANALYTICS = [
+  { label: 'Active families', value: '3', subtext: '2 moderated by Matt, 1 by Tasha' },
+  { label: 'Open coordination cases', value: '3', subtext: '1 urgent, 1 high, 1 routine' },
+  { label: 'Pending financial requests', value: '3', subtext: '2 Davis, 1 Johnson' },
+  { label: 'Families needing attention today', value: '2', subtext: 'Davis and Mitchell' },
+] as const;
 
-// Demo Clinical Notes
-const DEMO_CLINICAL_NOTES = [
-  {
-    id: 'cn-1',
-    family: 'Mitchell Family',
-    member: 'Tyler Mitchell',
-    author: 'Matt Sullivan',
-    note_type: 'observation',
-    confidence: 'high',
-    time_horizon: 'immediate',
-    include_in_ai: true,
-    content: 'Tyler showed familiar resistance during the intervention, including denial, anger, and attempted manipulation. The family\'s consistent communication pause appeared to help create enough space for eventual agreement to treatment.',
-    created_at: format(subDays(now, 26), 'MMM d, yyyy h:mm a')
-  },
-  {
-    id: 'cn-2',
-    family: 'Mitchell Family',
-    member: 'Robert Mitchell',
-    author: 'Matt Sullivan',
-    note_type: 'concern',
-    confidence: 'moderate',
-    time_horizon: 'emerging',
-    include_in_ai: true,
-    content: 'Robert (Dad) appears to be over-functioning in ways that may weaken boundaries. He was the most reluctant to block Tyler and voted to approve early financial requests. He committed to Al-Anon per the intervention letter, so follow-through is worth revisiting.',
-    created_at: format(subDays(now, 25), 'MMM d, yyyy h:mm a')
-  },
-  {
-    id: 'cn-3',
-    family: 'Mitchell Family',
-    member: 'Tyler Mitchell',
-    author: 'Dr. Amanda Chen',
-    note_type: 'hypothesis',
-    confidence: 'high',
-    time_horizon: 'longitudinal',
-    include_in_ai: true,
-    content: 'The parents\' divorce at age 12 may still be an important part of the family story. Tyler began using shortly after. Family therapy may want to address that period directly, with attention to the whole family system, not just Tyler.',
-    created_at: format(subDays(now, 15), 'MMM d, yyyy h:mm a')
-  },
-  {
-    id: 'cn-4',
-    family: 'Mitchell Family',
-    member: 'Tyler Mitchell',
-    author: 'Dr. Amanda Chen',
-    note_type: 'action',
-    confidence: 'high',
-    time_horizon: 'immediate',
-    include_in_ai: false,
-    content: 'Tyler is testing boundaries around sober living and asked to stay with his sister instead. The family held a unified response. Reinforce in the next session why sober living remains an important support step, not a punishment.',
-    created_at: format(subDays(now, 3), 'MMM d, yyyy h:mm a')
-  },
-  {
-    id: 'cn-5',
-    family: 'Davis Family',
-    member: 'Ashley Davis',
-    author: 'Hope Harbor Interventions Consult',
-    note_type: 'concern',
-    confidence: 'very_high',
-    time_horizon: 'immediate',
-    include_in_ai: true,
-    content: 'GPS check-in matched a bar with a liquor license rather than the claimed meeting location. Combined with a 15-minute checkout and escalating financial requests, this raises meaningful concern about current use. Most of the family, except Richard, recognizes that concern.',
-    created_at: format(subDays(now, 5), 'MMM d, yyyy h:mm a')
-  }
-];
-
-// Demo FIIS Interaction History
-const DEMO_FIIS_INTERACTIONS = [
-  {
-    id: 'fi-1',
-    family: 'Mitchell Family',
-    moderator: 'Matt Sullivan',
-    query: 'What should I watch for as Tyler approaches the end of residential treatment?',
-    response: 'Key areas to watch: 1) Continued boundary testing around sober living, since Tyler has already asked to skip it. 2) A possible "pink cloud" phase, where he may underestimate the need for structure. 3) Robert (Dad) easing off his Al-Anon commitment. 4) Securing sober living placement before discharge to avoid a support gap.',
-    timestamp: format(subDays(now, 5), 'MMM d, yyyy h:mm a')
-  },
-  {
-    id: 'fi-2',
-    family: 'Mitchell Family',
-    moderator: 'Dr. Amanda Chen',
-    query: 'How should I frame the divorce trauma in family therapy without Tyler feeling blamed?',
-    response: 'Frame the divorce as a family wound, not anyone\'s fault. Use language like "The divorce was hard on everyone, and each of you coped differently. Tyler found substances. Robert buried himself in work. Patricia over-functioned." This distributes the pain across the system and opens space for collective healing rather than Tyler feeling singled out.',
-    timestamp: format(subDays(now, 10), 'MMM d, yyyy h:mm a')
-  },
-  {
-    id: 'fi-3',
-    family: 'Davis Family',
-    moderator: 'Hope Harbor Interventions Consult',
-    query: 'Richard is still giving money outside the app. How do I address this with the family?',
-    response: 'Richard\'s pattern of giving money outside the agreed plan is a major barrier right now. Approach: 1) Do not shame him, since he is acting from love. 2) Keep the framing plain: "When we give money outside agreed boundaries, it can undercut Ashley\'s recovery support." 3) Share the bar check-in data as a concrete concern to review together. 4) Consider whether Richard needs his own support, such as Al-Anon or counseling focused on boundaries.',
-    timestamp: format(subDays(now, 4), 'MMM d, yyyy h:mm a')
-  }
-];
-
-const PIPELINE_STAGES = [
-  { key: 'new', label: 'New', color: 'bg-blue-100 text-blue-700 border-blue-200' },
-  { key: 'contacted', label: 'Contacted', color: 'bg-cyan-100 text-cyan-700 border-cyan-200' },
-  { key: 'qualified', label: 'Qualified', color: 'bg-violet-100 text-violet-700 border-violet-200' },
-  { key: 'proposal', label: 'Proposal', color: 'bg-amber-100 text-amber-700 border-amber-200' },
-  { key: 'active', label: 'Active', color: 'bg-green-100 text-green-700 border-green-200' }
-];
+const statusTone = {
+  improving: 'bg-emerald-100 text-emerald-700 border-emerald-200',
+  watch: 'bg-amber-100 text-amber-700 border-amber-200',
+  'high-risk': 'bg-rose-100 text-rose-700 border-rose-200',
+} as const;
 
 const DemoProvider = () => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('pipeline');
-  const [selectedThread, setSelectedThread] = useState<typeof DEMO_PROVIDER_MESSAGES[0] | null>(null);
-  const [newMessage, setNewMessage] = useState('');
-  const [expandedNotes, setExpandedNotes] = useState<Set<string>>(new Set());
-  const [fiisQuery, setFiisQuery] = useState('');
+  const location = useLocation();
+  const locationState = (location.state as { branding?: DemoBranding } | null) ?? null;
+  const branding = locationState?.branding;
 
-  const handleSendMessage = () => {
-    if (!newMessage.trim()) return;
-    toast.success('Message sent (Demo)', { description: 'In the live app, this would notify the recipient.' });
-    setNewMessage('');
-  };
+  const [activeArea, setActiveArea] = useState('workspace');
+  const [workspaceTab, setWorkspaceTab] = useState('notes');
+  const [adminTab, setAdminTab] = useState('families');
+  const [selectedThreadId, setSelectedThreadId] = useState(DEMO_THREADS[0].id);
+  const [selectedCaseId, setSelectedCaseId] = useState(DEMO_COORDINATION_CASES[0].id);
 
-  const handleAskFIIS = () => {
-    if (!fiisQuery.trim()) return;
-    toast.info('FIIS Query Submitted', { description: 'In the live app, AI would analyze family data and respond.' });
-    setFiisQuery('');
-  };
+  const selectedThread = useMemo(
+    () => DEMO_THREADS.find((thread) => thread.id === selectedThreadId) ?? DEMO_THREADS[0],
+    [selectedThreadId]
+  );
 
-  const getLeadsByStage = (stage: string) => DEMO_CRM_LEADS.filter(l => l.stage === stage);
+  const selectedCase = useMemo(
+    () => DEMO_COORDINATION_CASES.find((item) => item.id === selectedCaseId) ?? DEMO_COORDINATION_CASES[0],
+    [selectedCaseId]
+  );
+
+  const accentStyle = branding ? { backgroundColor: branding.primaryColor } : undefined;
+  const accentBorderStyle = branding ? { borderColor: branding.primaryColor } : undefined;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
-      {/* Header */}
-      <header className="border-b backdrop-blur-md bg-background/80 sticky top-0 z-50 shadow-sm">
-        <div className="container mx-auto px-4 py-3">
-          <div className="flex items-center justify-between">
+    <div className="min-h-screen bg-background">
+      <header className="border-b bg-card sticky top-0 z-20 backdrop-blur-sm">
+        <div className="container mx-auto px-4 py-4 space-y-4">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex items-center gap-3">
-              <Button variant="ghost" size="sm" onClick={() => navigate('/demo')} className="hover-lift">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Demo
+              <Button variant="ghost" size="icon" onClick={() => navigate('/demo')}>
+                <ArrowLeft className="h-5 w-5" />
               </Button>
-              <div className="h-6 w-px bg-border/50" />
-              <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg">
-                  <Building2 className="h-5 w-5 text-white" />
-                </div>
-                <div>
-                  <h1 className="font-semibold text-foreground">Hope Harbor Interventions</h1>
-                  <p className="text-xs text-muted-foreground">Provider Dashboard Demo</p>
-                </div>
+              <div className={`h-11 w-11 rounded-xl border bg-white flex items-center justify-center overflow-hidden ${branding?.logoNeedsBackground ? 'p-2' : 'p-0'}`}>
+                <img src={branding?.logo || familyBridgeLogo} alt={branding?.name || 'FamilyBridge'} className="max-h-full max-w-full object-contain" />
+              </div>
+              <div>
+                <h1 className="text-xl font-semibold">{branding?.name || 'Hope Harbor Interventions'} provider demo</h1>
+                <p className="text-sm text-muted-foreground">Demo workspace shaped to match the current provider-facing FamilyBridge experience.</p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Badge variant="secondary" className="bg-violet-100 text-violet-700 border-violet-200">
-                <Sparkles className="h-3 w-3 mr-1" />
-                Demo Mode
-              </Badge>
+            <div className="flex flex-wrap gap-2">
+              <Button variant={activeArea === 'workspace' ? 'default' : 'outline'} style={activeArea === 'workspace' ? accentStyle : undefined} onClick={() => setActiveArea('workspace')}>
+                <MessageSquare className="h-4 w-4 mr-2" />
+                Workspace
+              </Button>
+              <Button variant={activeArea === 'coordination' ? 'default' : 'outline'} style={activeArea === 'coordination' ? accentStyle : undefined} onClick={() => setActiveArea('coordination')}>
+                <ClipboardList className="h-4 w-4 mr-2" />
+                Coordination
+              </Button>
+              <Button variant={activeArea === 'admin' ? 'default' : 'outline'} style={activeArea === 'admin' ? accentStyle : undefined} onClick={() => setActiveArea('admin')}>
+                <Settings className="h-4 w-4 mr-2" />
+                Admin
+              </Button>
             </div>
+          </div>
+
+          <div className="grid gap-3 md:grid-cols-4">
+            {DEMO_ANALYTICS.map((metric) => (
+              <Card key={metric.label} className="shadow-sm">
+                <CardContent className="pt-5">
+                  <p className="text-xs uppercase tracking-wide text-muted-foreground">{metric.label}</p>
+                  <p className="mt-1 text-2xl font-semibold">{metric.value}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{metric.subtext}</p>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="container mx-auto px-4 py-6">
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid grid-cols-4 w-full max-w-2xl mb-6 h-12 p-1 bg-card border rounded-xl shadow-sm">
-            <TabsTrigger value="pipeline" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg">
-              <BarChart3 className="h-4 w-4" />
-              <span className="hidden sm:inline">Pipeline</span>
-            </TabsTrigger>
-            <TabsTrigger value="communication" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg">
-              <MessageSquare className="h-4 w-4" />
-              <span className="hidden sm:inline">Team Chat</span>
-            </TabsTrigger>
-            <TabsTrigger value="notes" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg">
-              <ClipboardList className="h-4 w-4" />
-              <span className="hidden sm:inline">Clinical Notes</span>
-            </TabsTrigger>
-            <TabsTrigger value="fiis" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg">
-              <Brain className="h-4 w-4" />
-              <span className="hidden sm:inline">FIIS AI</span>
-            </TabsTrigger>
-          </TabsList>
-
-          {/* Pipeline Tab */}
-          <TabsContent value="pipeline" className="space-y-6">
-            {/* Pipeline Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-              {PIPELINE_STAGES.map(stage => {
-                const leads = getLeadsByStage(stage.key);
-                const value = leads.reduce((sum, l) => sum + (l.estimated_value || 0), 0);
-                return (
-                  <Card key={stage.key} className={`border ${stage.color.replace('text-', 'border-').replace('100', '200')}`}>
-                    <CardContent className="pt-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <Badge className={stage.color}>{stage.label}</Badge>
-                        <span className="text-2xl font-bold">{leads.length}</span>
-                      </div>
-                      <p className="text-xs text-muted-foreground">${value.toLocaleString()} value</p>
-                    </CardContent>
-                  </Card>
-                );
-              })}
+        {activeArea === 'workspace' && (
+          <div className="space-y-6">
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+              <div>
+                <h2 className="text-lg font-semibold">Provider workspace</h2>
+                <p className="text-sm text-muted-foreground">Notes, team messaging, and FIIS summaries grouped the way providers actually work.</p>
+              </div>
+              <Tabs value={workspaceTab} onValueChange={setWorkspaceTab} className="w-full lg:w-auto">
+                <TabsList>
+                  <TabsTrigger value="notes">Notes</TabsTrigger>
+                  <TabsTrigger value="messaging">Messaging</TabsTrigger>
+                  <TabsTrigger value="fiis">FIIS</TabsTrigger>
+                </TabsList>
+              </Tabs>
             </div>
 
-            {/* Kanban Board */}
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-              {PIPELINE_STAGES.map(stage => (
-                <div key={stage.key} className="space-y-3">
-                  <div className={`p-2 rounded-lg ${stage.color} font-medium text-sm flex items-center justify-between`}>
-                    <span>{stage.label}</span>
-                    <Badge variant="secondary" className="bg-white/50">{getLeadsByStage(stage.key).length}</Badge>
-                  </div>
-                  <div className="space-y-2">
-                    {getLeadsByStage(stage.key).map(lead => (
-                      <Card key={lead.id} className="cursor-pointer hover:shadow-md transition-shadow">
-                        <CardContent className="p-3">
-                          <div className="flex items-start justify-between mb-2">
-                            <div>
-                              <p className="font-medium text-sm">{lead.contact_name}</p>
-                              <p className="text-xs text-muted-foreground">{lead.patient_name}</p>
-                            </div>
-                            {lead.priority === 'high' && (
-                              <Badge variant="destructive" className="text-[10px] h-5">Urgent</Badge>
-                            )}
+            {workspaceTab === 'notes' && (
+              <div className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
+                <div className="space-y-4">
+                  {DEMO_NOTES.map((note) => (
+                    <Card key={note.id} className="shadow-sm">
+                      <CardHeader className="pb-3">
+                        <div className="flex flex-wrap items-start justify-between gap-3">
+                          <div>
+                            <CardTitle className="text-base">{note.family}</CardTitle>
+                            <CardDescription>{note.member} • {note.type}</CardDescription>
                           </div>
-                          <p className="text-xs text-muted-foreground line-clamp-2 mb-2">{lead.presenting_issue}</p>
-                          <div className="flex items-center justify-between text-xs">
-                            <span className="text-muted-foreground">${lead.estimated_value?.toLocaleString()}</span>
-                            <div className="flex gap-1">
-                              {lead.tags?.slice(0, 2).map(tag => (
-                                <Badge key={tag} variant="outline" className="text-[10px] px-1">{tag}</Badge>
-                              ))}
-                            </div>
+                          <div className="flex gap-2">
+                            <Badge variant="outline">{note.author}</Badge>
+                            <Badge variant={note.includeInAi ? 'default' : 'secondary'}>{note.includeInAi ? 'Included in AI' : 'Private note'}</Badge>
                           </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="space-y-3">
+                        <p className="text-sm text-muted-foreground">{note.content}</p>
+                        <p className="text-xs text-muted-foreground">{note.createdAt}</p>
+                      </CardContent>
+                    </Card>
+                  ))}
                 </div>
-              ))}
-            </div>
-          </TabsContent>
 
-          {/* Communication Tab */}
-          <TabsContent value="communication" className="space-y-4">
-            <div className="grid md:grid-cols-3 gap-4">
-              {/* Thread List */}
-              <Card className="md:col-span-1">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm flex items-center justify-between">
-                    Team Conversations
-                    <Button size="icon" variant="ghost" className="h-8 w-8">
-                      <Plus className="h-4 w-4" />
-                    </Button>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-0">
-                  <div className="divide-y">
-                    {DEMO_PROVIDER_MESSAGES.map(thread => (
+                <Card className="shadow-sm h-fit">
+                  <CardHeader>
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <FileText className="h-4 w-4" />
+                      Add provider note
+                    </CardTitle>
+                    <CardDescription>Static demo composer to show the current provider note flow.</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <Input value="Johnson Family" readOnly />
+                    <Input value="Michael Johnson" readOnly />
+                    <Textarea
+                      readOnly
+                      value="Observed consistent structure and healthy family reinforcement. Recommend continuing to redirect support through the agreed recovery plan."
+                      className="min-h-[140px]"
+                    />
+                    <div className="flex items-center justify-between rounded-lg border p-3 text-sm">
+                      <span>Include this note in FIIS / AI context</span>
+                      <Badge>Enabled</Badge>
+                    </div>
+                    <Button className="w-full" onClick={() => toast.info('Demo mode: note creation is disabled')}>Save Demo Note</Button>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+            {workspaceTab === 'messaging' && (
+              <div className="grid gap-4 xl:grid-cols-[360px_minmax(0,1fr)]">
+                <Card className="shadow-sm">
+                  <CardHeader>
+                    <CardTitle className="text-base">Team threads</CardTitle>
+                    <CardDescription>Provider-to-provider coordination around active families.</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    {DEMO_THREADS.map((thread) => (
                       <button
                         key={thread.id}
-                        className={`w-full p-3 text-left hover:bg-muted/50 transition-colors ${selectedThread?.id === thread.id ? 'bg-primary/10' : ''}`}
-                        onClick={() => setSelectedThread(thread)}
+                        type="button"
+                        onClick={() => setSelectedThreadId(thread.id)}
+                        className={`w-full rounded-xl border p-3 text-left transition ${selectedThreadId === thread.id ? 'border-primary bg-primary/5' : 'hover:bg-muted/40'}`}
+                        style={selectedThreadId === thread.id ? accentBorderStyle : undefined}
                       >
-                        <div className="flex items-center gap-2 mb-1">
-                          <Avatar className="h-8 w-8">
-                            <AvatarFallback className="bg-violet-100 text-violet-700 text-xs">
-                              {thread.participants[0].split(' ').map(n => n[0]).join('')}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="flex-1 min-w-0">
-                            <p className="font-medium text-sm truncate">{thread.participants.join(', ')}</p>
-                            <p className="text-xs text-muted-foreground">{thread.family_linked}</p>
-                          </div>
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="font-medium text-sm">{thread.title}</p>
+                          <Badge variant="outline">{thread.family}</Badge>
                         </div>
-                        <p className="text-xs text-muted-foreground line-clamp-1">
-                          {thread.messages[thread.messages.length - 1]?.content}
-                        </p>
+                        <p className="mt-2 text-xs text-muted-foreground">{thread.preview}</p>
                       </button>
                     ))}
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
 
-              {/* Message View */}
-              <Card className="md:col-span-2">
-                {selectedThread ? (
-                  <>
-                    <CardHeader className="pb-2 border-b">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <CardTitle className="text-sm">{selectedThread.participants.join(' & ')}</CardTitle>
-                          <CardDescription>Linked to: {selectedThread.family_linked}</CardDescription>
-                        </div>
-                        <Badge variant="outline">Team Chat</Badge>
+                <Card className="shadow-sm min-w-0">
+                  <CardHeader>
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div>
+                        <CardTitle className="text-base">{selectedThread.title}</CardTitle>
+                        <CardDescription>{selectedThread.family} • {selectedThread.participants.join(', ')}</CardDescription>
                       </div>
-                    </CardHeader>
-                    <CardContent className="p-0">
-                      <ScrollArea className="h-[400px] p-4">
-                        <div className="space-y-4">
-                          {selectedThread.messages.map(msg => (
-                            <div key={msg.id} className="flex gap-3">
-                              <Avatar className="h-8 w-8 shrink-0">
-                                <AvatarFallback className="bg-violet-100 text-violet-700 text-xs">
-                                  {msg.sender.split(' ').map(n => n[0]).join('')}
-                                </AvatarFallback>
-                              </Avatar>
-                              <div className="flex-1">
-                                <div className="flex items-center gap-2">
-                                  <span className="font-medium text-sm">{msg.sender}</span>
-                                  <span className="text-xs text-muted-foreground">{msg.date} at {msg.time}</span>
-                                </div>
-                                <p className="text-sm mt-1">{msg.content}</p>
+                      <div className="flex gap-2">
+                        <Button variant="outline" size="sm" onClick={() => toast.info('Demo mode: call actions are disabled')}>
+                          <Phone className="h-4 w-4 mr-2" />
+                          Call
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={() => toast.info('Demo mode: email actions are disabled')}>
+                          <Mail className="h-4 w-4 mr-2" />
+                          Email
+                        </Button>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-4 min-w-0">
+                    <ScrollArea className="h-[420px] pr-4">
+                      <div className="space-y-4">
+                        {selectedThread.messages.map((message, index) => (
+                          <div key={`${message.sender}-${index}`} className="flex gap-3">
+                            <Avatar className="h-9 w-9">
+                              <AvatarFallback>{message.sender.split(' ').map((part) => part[0]).join('').slice(0, 2)}</AvatarFallback>
+                            </Avatar>
+                            <div className="min-w-0 flex-1">
+                              <div className="flex flex-wrap items-center gap-2">
+                                <p className="text-sm font-medium">{message.sender}</p>
+                                <span className="text-xs text-muted-foreground">{message.at}</span>
+                              </div>
+                              <div className="mt-1 rounded-xl border bg-muted/20 p-3 text-sm text-muted-foreground">
+                                {message.content}
                               </div>
                             </div>
-                          ))}
+                          </div>
+                        ))}
+                      </div>
+                    </ScrollArea>
+                    <div className="flex gap-2">
+                      <Input readOnly value="Add a team update or handoff note…" />
+                      <Button onClick={() => toast.info('Demo mode: messages are read-only')}>
+                        <Send className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+            {workspaceTab === 'fiis' && (
+              <div className="grid gap-4 lg:grid-cols-3">
+                {DEMO_FAMILIES.map((family) => (
+                  <Card key={family.id} className="shadow-sm">
+                    <CardHeader>
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <CardTitle className="text-base">{family.name}</CardTitle>
+                          <CardDescription>{family.stage}</CardDescription>
                         </div>
-                      </ScrollArea>
-                      <div className="p-4 border-t">
-                        <div className="flex gap-2">
-                          <Input
-                            placeholder="Type a message..."
-                            value={newMessage}
-                            onChange={(e) => setNewMessage(e.target.value)}
-                            onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-                          />
-                          <Button onClick={handleSendMessage}>
-                            <Send className="h-4 w-4" />
-                          </Button>
+                        <Badge className={statusTone[family.health]} variant="outline">{family.status}</Badge>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <div className="rounded-xl border bg-muted/20 p-3">
+                        <p className="text-[11px] uppercase tracking-wide text-muted-foreground">FIIS signal</p>
+                        <p className="mt-1 text-sm font-medium">{family.fiisSignal}</p>
+                      </div>
+                      <p className="text-sm text-muted-foreground">{family.note}</p>
+                      <div className="grid grid-cols-2 gap-2 text-sm">
+                        <div className="rounded-lg border p-3">
+                          <p className="text-xs text-muted-foreground">Open tasks</p>
+                          <p className="text-lg font-semibold">{family.activeTasks}</p>
+                        </div>
+                        <div className="rounded-lg border p-3">
+                          <p className="text-xs text-muted-foreground">Pending financials</p>
+                          <p className="text-lg font-semibold">{family.pendingFinancials}</p>
                         </div>
                       </div>
                     </CardContent>
-                  </>
-                ) : (
-                  <CardContent className="h-[500px] flex items-center justify-center text-muted-foreground">
-                    <div className="text-center">
-                      <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                      <p>Select a conversation to view messages</p>
-                    </div>
-                  </CardContent>
-                )}
-              </Card>
-            </div>
-          </TabsContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
-          {/* Clinical Notes Tab */}
-          <TabsContent value="notes" className="space-y-4">
-            <Card>
+        {activeArea === 'coordination' && (
+          <div className="grid gap-4 xl:grid-cols-[360px_minmax(0,1fr)]">
+            <Card className="shadow-sm">
               <CardHeader>
-                <div className="flex items-center justify-between">
+                <CardTitle className="text-base">Coordination cases</CardTitle>
+                <CardDescription>Current provider-side handoffs, discharge work, and crisis coordination.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                {DEMO_COORDINATION_CASES.map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => setSelectedCaseId(item.id)}
+                    className={`w-full rounded-xl border p-3 text-left transition ${selectedCaseId === item.id ? 'border-primary bg-primary/5' : 'hover:bg-muted/30'}`}
+                    style={selectedCaseId === item.id ? accentBorderStyle : undefined}
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="font-medium text-sm">{item.family}</p>
+                      <Badge variant={item.priority === 'Urgent' ? 'destructive' : item.priority === 'High' ? 'default' : 'secondary'}>{item.priority}</Badge>
+                    </div>
+                    <p className="mt-1 text-sm">{item.title}</p>
+                    <p className="mt-2 text-xs text-muted-foreground">{item.phase} • Owner: {item.owner}</p>
+                  </button>
+                ))}
+              </CardContent>
+            </Card>
+
+            <Card className="shadow-sm min-w-0">
+              <CardHeader>
+                <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
-                    <CardTitle className="flex items-center gap-2">
-                      <ClipboardList className="h-5 w-5 text-violet-600" />
-                      Clinical Notes
-                    </CardTitle>
-                    <CardDescription>Provider observations linked to FIIS analysis</CardDescription>
+                    <CardTitle className="text-base">{selectedCase.title}</CardTitle>
+                    <CardDescription>{selectedCase.family} • {selectedCase.phase}</CardDescription>
                   </div>
-                  <Button className="gap-2">
-                    <Plus className="h-4 w-4" />
-                    Add Note
-                  </Button>
+                  <Badge variant={selectedCase.priority === 'Urgent' ? 'destructive' : selectedCase.priority === 'High' ? 'default' : 'secondary'}>{selectedCase.priority}</Badge>
                 </div>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {DEMO_CLINICAL_NOTES.map(note => (
-                    <Collapsible
-                      key={note.id}
-                      open={expandedNotes.has(note.id)}
-                      onOpenChange={(open) => {
-                        const newSet = new Set(expandedNotes);
-                        if (open) newSet.add(note.id);
-                        else newSet.delete(note.id);
-                        setExpandedNotes(newSet);
-                      }}
-                    >
-                      <div className={`p-4 rounded-lg border ${
-                        note.note_type === 'concern' ? 'border-amber-200 bg-amber-50' :
-                        note.note_type === 'action' ? 'border-blue-200 bg-blue-50' :
-                        note.note_type === 'hypothesis' ? 'border-violet-200 bg-violet-50' :
-                        'border-border bg-muted/30'
-                      }`}>
-                        <CollapsibleTrigger className="w-full">
-                          <div className="flex items-start justify-between text-left">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-1">
-                                <Badge variant="outline" className={`text-xs ${
-                                  note.note_type === 'concern' ? 'bg-amber-100 text-amber-700 border-amber-200' :
-                                  note.note_type === 'action' ? 'bg-blue-100 text-blue-700 border-blue-200' :
-                                  note.note_type === 'hypothesis' ? 'bg-violet-100 text-violet-700 border-violet-200' :
-                                  ''
-                                }`}>
-                                  {note.note_type}
-                                </Badge>
-                                <Badge variant="outline" className="text-xs">{note.confidence}</Badge>
-                                {note.include_in_ai && (
-                                  <Badge className="bg-primary/10 text-primary border-primary/20 text-xs gap-1">
-                                    <Brain className="h-3 w-3" />
-                                    AI-Linked
-                                  </Badge>
-                                )}
-                              </div>
-                              <p className="font-medium text-sm">{note.family} - {note.member}</p>
-                              <p className="text-xs text-muted-foreground">{note.author} • {note.created_at}</p>
-                            </div>
-                            {expandedNotes.has(note.id) ? (
-                              <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />
-                            ) : (
-                              <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
-                            )}
+              <CardContent className="space-y-5">
+                <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
+                  <div className="space-y-4">
+                    <div className="rounded-xl border bg-muted/20 p-4">
+                      <p className="text-xs uppercase tracking-wide text-muted-foreground">Case summary</p>
+                      <p className="mt-2 text-sm text-muted-foreground">{selectedCase.summary}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium mb-2">Next steps</p>
+                      <div className="space-y-2">
+                        {selectedCase.nextSteps.map((step) => (
+                          <div key={step} className="flex items-start gap-2 rounded-lg border p-3 text-sm">
+                            <CheckCircle className="h-4 w-4 text-emerald-600 mt-0.5 shrink-0" />
+                            <span>{step}</span>
                           </div>
-                        </CollapsibleTrigger>
-                        <CollapsibleContent>
-                          <p className="text-sm mt-3 pt-3 border-t">{note.content}</p>
-                        </CollapsibleContent>
-                      </div>
-                    </Collapsible>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* FIIS AI Tab */}
-          <TabsContent value="fiis" className="space-y-6">
-            {/* FIIS Query Interface */}
-            <Card className="border-violet-200 bg-gradient-to-r from-violet-50/50 to-purple-50/50">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
-                    <Brain className="h-5 w-5 text-white" />
-                  </div>
-                  FIIS AI Assistant
-                </CardTitle>
-                <CardDescription>
-                  Ask questions about family dynamics, communication strategies, or clinical considerations.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex gap-2">
-                  <Textarea
-                    placeholder="Example: What should I watch for as Tyler approaches the end of residential treatment?"
-                    value={fiisQuery}
-                    onChange={(e) => setFiisQuery(e.target.value)}
-                    className="min-h-[80px]"
-                  />
-                </div>
-                <div className="flex justify-between items-center mt-3">
-                  <p className="text-xs text-muted-foreground">
-                    FIIS will review family data, patterns, and provider notes to provide guidance.
-                  </p>
-                  <Button onClick={handleAskFIIS} className="gap-2">
-                    <Sparkles className="h-4 w-4" />
-                    Ask FIIS
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Previous Interactions */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-sm">Recent FIIS Consultations</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {DEMO_FIIS_INTERACTIONS.map(interaction => (
-                    <div key={interaction.id} className="p-4 rounded-lg bg-muted/50 border">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <Badge variant="outline">{interaction.family}</Badge>
-                          <span className="text-xs text-muted-foreground">{interaction.moderator}</span>
-                        </div>
-                        <span className="text-xs text-muted-foreground">{interaction.timestamp}</span>
-                      </div>
-                      <div className="space-y-3">
-                        <div>
-                          <p className="text-xs font-medium text-muted-foreground mb-1">Question:</p>
-                          <p className="text-sm italic">"{interaction.query}"</p>
-                        </div>
-                        <div>
-                          <p className="text-xs font-medium text-muted-foreground mb-1">FIIS Response:</p>
-                          <p className="text-sm">{interaction.response}</p>
-                        </div>
+                        ))}
                       </div>
                     </div>
-                  ))}
+                  </div>
+                  <div className="space-y-4">
+                    <div>
+                      <p className="text-sm font-medium mb-2">Blockers</p>
+                      <div className="space-y-2">
+                        {selectedCase.blockers.map((blocker) => (
+                          <div key={blocker} className="flex items-start gap-2 rounded-lg border p-3 text-sm">
+                            <AlertCircle className="h-4 w-4 text-amber-500 mt-0.5 shrink-0" />
+                            <span>{blocker}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium mb-2">Timeline</p>
+                      <div className="space-y-2">
+                        {selectedCase.timeline.map((event) => (
+                          <div key={event} className="flex items-start gap-2 rounded-lg border p-3 text-sm">
+                            <Clock className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                            <span>{event}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
-          </TabsContent>
-        </Tabs>
+          </div>
+        )}
+
+        {activeArea === 'admin' && (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-lg font-semibold">Provider admin</h2>
+              <p className="text-sm text-muted-foreground">Families, moderators, CRM, branding, and reporting in one place.</p>
+            </div>
+
+            <Tabs value={adminTab} onValueChange={setAdminTab}>
+              <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 h-auto">
+                <TabsTrigger value="families">Families</TabsTrigger>
+                <TabsTrigger value="moderators">Moderators</TabsTrigger>
+                <TabsTrigger value="crm">CRM</TabsTrigger>
+                <TabsTrigger value="branding">Branding</TabsTrigger>
+                <TabsTrigger value="analytics">Analytics</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="families" className="mt-4">
+                <div className="grid gap-4 lg:grid-cols-3">
+                  {DEMO_FAMILIES.map((family) => (
+                    <Card key={family.id} className="shadow-sm">
+                      <CardHeader>
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <CardTitle className="text-base">{family.name}</CardTitle>
+                            <CardDescription>{family.stage}</CardDescription>
+                          </div>
+                          <Badge className={statusTone[family.health]} variant="outline">{family.status}</Badge>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="space-y-3">
+                        <div className="text-sm text-muted-foreground space-y-1">
+                          <p><span className="font-medium text-foreground">Moderator:</span> {family.moderator}</p>
+                          <p><span className="font-medium text-foreground">Members:</span> {family.members}</p>
+                          <p><span className="font-medium text-foreground">Last activity:</span> {family.lastActivity}</p>
+                        </div>
+                        <div className="rounded-lg border bg-muted/20 p-3 text-sm text-muted-foreground">{family.note}</div>
+                        <div className="flex gap-2">
+                          <Button variant="outline" className="flex-1" onClick={() => navigate('/demo/family', { state: { branding, initialFamily: family.id } })}>Open family demo</Button>
+                          <Button className="flex-1" onClick={() => toast.info('Demo mode: family management actions are disabled')}>Manage</Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </TabsContent>
+
+              <TabsContent value="moderators" className="mt-4">
+                <div className="grid gap-4 lg:grid-cols-3">
+                  {DEMO_TEAM.map((member) => (
+                    <Card key={member.id} className="shadow-sm">
+                      <CardHeader>
+                        <CardTitle className="text-base">{member.name}</CardTitle>
+                        <CardDescription>{member.role}</CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-3 text-sm text-muted-foreground">
+                        <p><span className="font-medium text-foreground">Current workload:</span> {member.workload}</p>
+                        <p><span className="font-medium text-foreground">Focus:</span> {member.focus}</p>
+                        <p><span className="font-medium text-foreground">Coverage:</span> {member.coverage}</p>
+                        <Button variant="outline" className="w-full" onClick={() => toast.info('Demo mode: moderator management is disabled')}>
+                          <UserPlus className="h-4 w-4 mr-2" />
+                          Adjust Coverage
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </TabsContent>
+
+              <TabsContent value="crm" className="mt-4">
+                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                  {DEMO_PIPELINE.map((lead) => (
+                    <Card key={lead.id} className="shadow-sm">
+                      <CardHeader className="pb-3">
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <CardTitle className="text-base">{lead.name}</CardTitle>
+                            <CardDescription>{lead.patient}</CardDescription>
+                          </div>
+                          <Badge variant="outline">{lead.stage}</Badge>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="space-y-3 text-sm text-muted-foreground">
+                        <p><span className="font-medium text-foreground">Estimated value:</span> {lead.value}</p>
+                        <p><span className="font-medium text-foreground">Source:</span> {lead.source}</p>
+                        <p>{lead.note}</p>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </TabsContent>
+
+              <TabsContent value="branding" className="mt-4">
+                <div className="grid gap-4 xl:grid-cols-[0.9fr_1.1fr]">
+                  <Card className="shadow-sm">
+                    <CardHeader>
+                      <CardTitle className="text-base">Organization branding</CardTitle>
+                      <CardDescription>What providers edit here also reshapes the family-facing demo surfaces.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="flex items-center gap-3 rounded-xl border p-4">
+                        <div className={`h-14 w-14 rounded-xl border bg-white flex items-center justify-center overflow-hidden ${branding?.logoNeedsBackground ? 'p-2' : 'p-0'}`}>
+                          <img src={branding?.logo || familyBridgeLogo} alt={branding?.name || 'Organization'} className="max-h-full max-w-full object-contain" />
+                        </div>
+                        <div>
+                          <p className="font-medium">{branding?.name || 'Hope Harbor Interventions'}</p>
+                          <p className="text-sm text-muted-foreground">Current provider demo organization</p>
+                        </div>
+                      </div>
+                      <div className="rounded-lg border p-4">
+                        <p className="text-sm font-medium">Primary color</p>
+                        <div className="mt-3 flex items-center gap-3">
+                          <div className="h-10 w-10 rounded-full border" style={accentStyle} />
+                          <p className="text-sm text-muted-foreground">{branding?.primaryColor || '#7c3aed'}</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="shadow-sm">
+                    <CardHeader>
+                      <CardTitle className="text-base">Family experience preview</CardTitle>
+                      <CardDescription>The demo now keeps provider context aligned with what families see in the live app.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="grid gap-3 md:grid-cols-2 text-sm">
+                      <div className="rounded-xl border p-4">
+                        <p className="font-medium flex items-center gap-2"><MessageSquare className="h-4 w-4" /> Family chat</p>
+                        <p className="mt-2 text-muted-foreground">Same family-level messages, check-ins, financial requests, boundaries, and coaching context shown in the demo family dashboards.</p>
+                      </div>
+                      <div className="rounded-xl border p-4">
+                        <p className="font-medium flex items-center gap-2"><Brain className="h-4 w-4" /> FIIS support</p>
+                        <p className="mt-2 text-muted-foreground">Provider notes, coaching summaries, and family patterns stay synchronized with the provider-side view.</p>
+                      </div>
+                      <div className="rounded-xl border p-4">
+                        <p className="font-medium flex items-center gap-2"><Shield className="h-4 w-4" /> Boundaries + transitions</p>
+                        <p className="mt-2 text-muted-foreground">Crisis, treatment transition, and aftercare states are represented across multiple demo families instead of one generic mock.</p>
+                      </div>
+                      <div className="rounded-xl border p-4">
+                        <p className="font-medium flex items-center gap-2"><Sparkles className="h-4 w-4" /> Sales realism</p>
+                        <p className="mt-2 text-muted-foreground">Prospects can see both the family app and the provider operational layer in a believable end-to-end flow.</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="analytics" className="mt-4">
+                <div className="grid gap-4 lg:grid-cols-4">
+                  <Card className="shadow-sm">
+                    <CardContent className="pt-5">
+                      <p className="text-xs uppercase tracking-wide text-muted-foreground">Recovery momentum</p>
+                      <p className="mt-1 text-2xl font-semibold">78%</p>
+                      <p className="text-xs text-muted-foreground mt-1">Families are mostly aligned this week.</p>
+                    </CardContent>
+                  </Card>
+                  <Card className="shadow-sm">
+                    <CardContent className="pt-5">
+                      <p className="text-xs uppercase tracking-wide text-muted-foreground">Check-in completion</p>
+                      <p className="mt-1 text-2xl font-semibold">91%</p>
+                      <p className="text-xs text-muted-foreground mt-1">Johnson is carrying the average upward.</p>
+                    </CardContent>
+                  </Card>
+                  <Card className="shadow-sm">
+                    <CardContent className="pt-5">
+                      <p className="text-xs uppercase tracking-wide text-muted-foreground">Team response time</p>
+                      <p className="mt-1 text-2xl font-semibold">14m</p>
+                      <p className="text-xs text-muted-foreground mt-1">Fast enough for demo realism without looking fake.</p>
+                    </CardContent>
+                  </Card>
+                  <Card className="shadow-sm">
+                    <CardContent className="pt-5">
+                      <p className="text-xs uppercase tracking-wide text-muted-foreground">Pipeline value</p>
+                      <p className="mt-1 text-2xl font-semibold">$35.5k</p>
+                      <p className="text-xs text-muted-foreground mt-1">Open opportunities across new through proposal.</p>
+                    </CardContent>
+                  </Card>
+                </div>
+              </TabsContent>
+            </Tabs>
+          </div>
+        )}
       </main>
     </div>
   );
