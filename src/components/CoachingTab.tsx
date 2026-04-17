@@ -485,8 +485,8 @@ export const CoachingTab = ({ familyId, members = [] }: CoachingTabProps) => {
 
         {/* Ask FIIS Tab - On-demand coaching */}
         <TabsContent value="ask" className="space-y-4 mt-4">
-          <Card className="flex flex-col" style={{ minHeight: '300px' }}>
-            <ScrollArea className="flex-1 p-4" style={{ maxHeight: '400px' }}>
+          <Card className="flex flex-col">
+            <ScrollArea className="p-4 h-[400px]">
               {liveMessages.length === 0 && !liveStreamText && (
                 <div className="text-center text-muted-foreground py-8">
                   <Brain className="h-10 w-10 mx-auto mb-3 opacity-30" />
