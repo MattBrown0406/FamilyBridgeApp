@@ -504,9 +504,14 @@ const ProviderOutcomes = () => {
                     <p className="font-medium text-foreground">Phase 3</p>
                     <p className="mt-1">Benchmark segmentation by level of care, age band, gender, and aftercare adherence.</p>
                   </div>
-                  <Button className="w-full" onClick={() => navigate('/demo/provider')}>
-                    Open provider demo
-                  </Button>
+                  <div className="flex flex-col gap-2">
+                    <Button className="w-full" onClick={() => navigate('/demo/provider')}>
+                      Open provider demo
+                    </Button>
+                    <Button variant="outline" className="w-full" onClick={() => navigate('/features/intervention-outcomes')}>
+                      View intervention outcomes
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             </div>
