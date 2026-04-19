@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { buildFIISDoctrinePrompt, buildModeratorEscalationTriggersPrompt } from "../_shared/fiis-doctrine.ts";
+import { buildModeratorEscalationTriggersPrompt } from "../_shared/fiis-doctrine.ts";
+import { buildFIISRuntimeContext } from "../_shared/fiis-runtime.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -119,6 +120,33 @@ serve(async (req) => {
       .order('created_at', { ascending: false })
       .limit(10);
 
+    const { data: sobrietyJourney } = await supabase
+      .from('sobriety_journeys')
+      .select('start_date, reset_count, is_active')
+      .eq('family_id', familyId)
+      .eq('is_active', true)
+      .maybeSingle();
+
+    const { data: aftercarePlans } = await supabase
+      .from('aftercare_plans')
+      .select('id, target_user_id, is_active, created_at')
+      .eq('family_id', familyId)
+      .eq('is_active', true);
+
+    const aftercarePlanIds = aftercarePlans?.map((plan) => plan.id) || [];
+    const { data: aftercareRecommendations } = aftercarePlanIds.length > 0
+      ? await supabase
+          .from('aftercare_recommendations')
+          .select('plan_id, is_completed')
+          .in('plan_id', aftercarePlanIds)
+      : { data: [] as any[] };
+
+    const { data: familyMeetingCheckins } = await supabase
+      .from('meeting_checkins')
+      .select('user_id, checked_in_at, meeting_type')
+      .eq('family_id', familyId)
+      .order('checked_in_at', { ascending: false });
+
     // Build family context summary
     const membersContext = members?.map(m => {
       const name = profileMap.get(m.user_id) || 'Unknown';
@@ -138,14 +166,76 @@ serve(async (req) => {
       `- [${n.note_type}/${n.confidence_level}] ${n.content}`
     ).join('\n') || 'No provider notes';
 
-    const doctrinePrompt = buildFIISDoctrinePrompt({
+    const currentDays = sobrietyJourney?.start_date
+      ? Math.max(0, Math.floor((Date.now() - new Date(sobrietyJourney.start_date).getTime()) / (1000 * 60 * 60 * 24)))
+      : 0;
+    const benchmarkDefinitions = [
+      { label: '30 days', days: 30 },
+      { label: '90 days', days: 90 },
+      { label: '6 months', days: 180 },
+      { label: '9 months', days: 270 },
+      { label: '12 months', days: 365 },
+    ];
+    const supportMeetingTypes = new Set(['Al-Anon', 'Nar-Anon', 'Therapy', 'Support Group']);
+    const recsByPlan = new Map<string, any[]>();
+    (aftercareRecommendations || []).forEach((rec) => {
+      const existing = recsByPlan.get(rec.plan_id) || [];
+      existing.push(rec);
+      recsByPlan.set(rec.plan_id, existing);
+    });
+    const roleBucketLabel = (relationshipType: string | null) => {
+      if (relationshipType === 'parent') return 'parents';
+      if (relationshipType === 'spouse_partner') return 'spouses/partners';
+      if (relationshipType === 'sibling') return 'siblings';
+      if (relationshipType === 'child') return 'children';
+      return 'other support';
+    };
+
+    const benchmarkContext = benchmarkDefinitions.map((benchmark) => {
+      const familySupportMembers = (members || []).filter((member) => member.role !== 'recovering');
+      const eligibleSupport = familySupportMembers.filter((member) => {
+        const joinedDays = member.user_id ? currentDays : 0;
+        return joinedDays >= benchmark.days;
+      });
+      const bucketSummary: Record<string, { eligible: number; engaged: number }> = {};
+      eligibleSupport.forEach((member) => {
+        const bucket = roleBucketLabel(member.relationship_type || null);
+        if (!bucketSummary[bucket]) bucketSummary[bucket] = { eligible: 0, engaged: 0 };
+        bucketSummary[bucket].eligible += 1;
+        const hasEngagedCheckin = (familyMeetingCheckins || []).some((checkin) => checkin.user_id === member.user_id && supportMeetingTypes.has(checkin.meeting_type));
+        if (hasEngagedCheckin) bucketSummary[bucket].engaged += 1;
+      });
+
+      const totalEligible = Object.values(bucketSummary).reduce((sum, bucket) => sum + bucket.eligible, 0);
+      const totalEngaged = Object.values(bucketSummary).reduce((sum, bucket) => sum + bucket.engaged, 0);
+      const activePlan = (aftercarePlans || [])[0];
+      const activeRecs = activePlan ? (recsByPlan.get(activePlan.id) || []) : [];
+      const aftercareAdherence = activeRecs.length > 0
+        ? Math.round((activeRecs.filter((rec) => rec.is_completed).length / activeRecs.length) * 100)
+        : 0;
+
+      return `- ${benchmark.label}: client ${currentDays >= benchmark.days ? 'is' : 'is not yet'} measurable, family engagement ${totalEngaged}/${totalEligible} (${totalEligible > 0 ? Math.round((totalEngaged / totalEligible) * 100) : 0}%), aftercare adherence ${aftercareAdherence}%${Object.entries(bucketSummary).length ? `, buckets: ${Object.entries(bucketSummary).map(([label, stats]) => `${label} ${stats.engaged}/${stats.eligible}`).join('; ')}` : ''}`;
+    }).join('\n');
+
+    const runtimePrompt = await buildFIISRuntimeContext({
+      supabase,
+      familyId,
       audience: "moderator",
       mode: "moderator_chat",
       plainLanguageSurface: false,
       contextText: `${message}\n${observationsContext}\n${notesContext}`,
+      extraContext: [
+        `**Family Context - ${family?.name || 'Unknown Family'}**\n${family?.description || 'No description available'}`,
+        `**Family Members:**\n${membersContext}`,
+        `**Current Health Status:** ${healthStatus?.status || 'Unknown'}\n${healthStatus?.status_reason || ''}`,
+        `**Recent Emotional Check-ins:**\n${checkinsContext}`,
+        `**Recent Observations:**\n${observationsContext}`,
+        `**Provider Notes (AI-flagged):**\n${notesContext}`,
+        `**Benchmark Milestone Context:**\n${benchmarkContext}`,
+      ],
     });
 
-    const systemPrompt = `${doctrinePrompt}
+    const systemPrompt = `${runtimePrompt}
 
 You are FIIS — Family Intervention Intelligence System. You function as a behavioral pattern intelligence engine, relapse prevention analytics system, family systems coaching engine, boundary integrity monitor, and moderator-level decision support tool.
 
@@ -189,23 +279,7 @@ PHASE-SENSITIVE WEIGHTING:
 
 EMOTIONAL EXHAUSTION TRACKING: Monitor hopeless language, cynicism, irritability spikes, withdrawal, boundary fatigue, passive disengagement across all family members.
 
-**Family Context - ${family?.name || 'Unknown Family'}**
-${family?.description || 'No description available'}
-
-**Family Members:**
-${membersContext}
-
-**Current Health Status:** ${healthStatus?.status || 'Unknown'}
-${healthStatus?.status_reason || ''}
-
-**Recent Emotional Check-ins:**
-${checkinsContext}
-
-**Recent Observations:**
-${observationsContext}
-
-**Provider Notes (AI-flagged):**
-${notesContext}
+Interpret benchmark milestones as structured client and family progress signals. Pay special attention to parent and spouse/partner engagement, and explicitly comment when benchmark engagement weakness threatens the path to one year sober.
 
 **Your Role in This Chat:**
 - Help the moderator understand family dynamics and individual roles

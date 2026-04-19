@@ -1,7 +1,8 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { buildFIISDoctrinePrompt, buildModeratorEscalationTriggersPrompt } from "../_shared/fiis-doctrine.ts";
+import { buildModeratorEscalationTriggersPrompt } from "../_shared/fiis-doctrine.ts";
 import { buildFIISLearningContext } from "../_shared/fiis-learning.ts";
+import { buildFIISRuntimeContext } from "../_shared/fiis-runtime.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -244,14 +245,17 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    const doctrinePrompt = buildFIISDoctrinePrompt({
+    const runtimePrompt = await buildFIISRuntimeContext({
+      supabase,
+      familyId,
       audience: "family",
       mode: "coaching",
       plainLanguageSurface: true,
       contextText: `${pastedConversation || ''}\n${additionalContext || ''}\n${familyObservations}`,
+      extraContext: [familyObservations],
     });
 
-    const systemPrompt = `${doctrinePrompt}
+    const systemPrompt = `${runtimePrompt}
 
 You are a text conversation coach helping families navigate difficult conversations during addiction recovery. You speak like a wise, caring friend — NOT like a therapist.
 
