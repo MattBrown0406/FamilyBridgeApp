@@ -26,7 +26,7 @@ import {
 } from '@/components/ui/select';
 import {
   Pill, Camera, Plus, Loader2, Phone, User, Building2, Calendar,
-  RefreshCw, Clock, Check, X, AlertTriangle, Trash2, Edit, ChevronDown, ChevronUp, ScanLine, Layers3
+  RefreshCw, Clock, Check, X, AlertTriangle, Trash2, Edit, ChevronDown, ChevronUp, ScanLine, Layers3, ShieldAlert
 } from 'lucide-react';
 import { format, formatDistanceToNow, isToday, isPast, addHours } from 'date-fns';
 import { usePlatform } from '@/hooks/usePlatform';
@@ -139,6 +139,7 @@ export const MedicationTab = ({
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [expandedMedications, setExpandedMedications] = useState<Set<string>>(new Set());
+  const [correctedFields, setCorrectedFields] = useState<Set<string>>(new Set());
   
   // Form state
   const [labelImage, setLabelImage] = useState<string | null>(null);
@@ -505,7 +506,10 @@ export const MedicationTab = ({
           label_image_urls: uploadedRefs,
           label_analysis_confidence: labelAnalysis?.confidence ?? null,
           label_analysis_raw_text: labelAnalysis?.raw_text ?? null,
-          label_analysis_field_confidence: labelAnalysis?.field_confidence ?? {},
+          label_analysis_field_confidence: {
+            ...(labelAnalysis?.field_confidence ?? {}),
+            ...Object.fromEntries(Array.from(correctedFields).map((field) => [field, 'corrected']))
+          },
           label_capture_mode: captureMode,
           quantity_dispensed: formData.quantity_dispensed ? parseInt(formData.quantity_dispensed) : null,
           units_remaining: formData.units_remaining ? parseFloat(formData.units_remaining) : null,
@@ -675,6 +679,7 @@ export const MedicationTab = ({
     setLabelImage(null);
     setLabelImages([]);
     setLabelAnalysis(null);
+    setCorrectedFields(new Set());
     setCaptureMode('bottle');
   };
 
@@ -1028,6 +1033,12 @@ export const MedicationTab = ({
 
                   {labelAnalysis && (
                     <div className="mt-3 rounded-lg border bg-muted/40 p-3 space-y-2">
+                      <div className="flex items-start gap-2 rounded-md border border-amber-500/30 bg-amber-500/10 p-2 text-xs text-muted-foreground">
+                        <ShieldAlert className="h-4 w-4 mt-0.5 text-amber-600" />
+                        <div>
+                          Medication labels can contain PHI. Keep this limited to the recovering member and authorized family/admin viewers, avoid showing thumbnails in shared surfaces, and prefer deletion after structured data is verified if long-term image retention is not necessary.
+                        </div>
+                      </div>
                       <div className="flex items-center justify-between gap-2">
                         <div className="text-sm font-medium">Label Review</div>
                         <Badge variant={labelAnalysis.confidence && labelAnalysis.confidence >= 85 ? 'default' : 'secondary'}>
@@ -1044,10 +1055,10 @@ export const MedicationTab = ({
                           {Object.entries(labelAnalysis.field_confidence).map(([field, confidence]) => (
                             <Badge
                               key={field}
-                              variant="outline"
+                              variant={correctedFields.has(field) ? 'default' : 'outline'}
                               className="text-[10px]"
                             >
-                              {field.replace(/_/g, ' ')}: {confidence}
+                              {field.replace(/_/g, ' ')}: {correctedFields.has(field) ? 'corrected' : confidence}
                             </Badge>
                           ))}
                         </div>
@@ -1095,7 +1106,10 @@ export const MedicationTab = ({
                     <Label>Medication Name *</Label>
                     <Input
                       value={formData.medication_name}
-                      onChange={(e) => setFormData(prev => ({ ...prev, medication_name: e.target.value }))}
+                      onChange={(e) => {
+                        setCorrectedFields(prev => new Set(prev).add('medication_name'));
+                        setFormData(prev => ({ ...prev, medication_name: e.target.value }));
+                      }}
                       placeholder="e.g., Lisinopril"
                       className="mt-1"
                     />
@@ -1104,7 +1118,10 @@ export const MedicationTab = ({
                     <Label>Dosage</Label>
                     <Input
                       value={formData.dosage}
-                      onChange={(e) => setFormData(prev => ({ ...prev, dosage: e.target.value }))}
+                      onChange={(e) => {
+                        setCorrectedFields(prev => new Set(prev).add('dosage'));
+                        setFormData(prev => ({ ...prev, dosage: e.target.value }));
+                      }}
                       placeholder="e.g., 10mg"
                       className="mt-1"
                     />
@@ -1188,7 +1205,10 @@ export const MedicationTab = ({
                     <Label>Pharmacy Name</Label>
                     <Input
                       value={formData.pharmacy_name}
-                      onChange={(e) => setFormData(prev => ({ ...prev, pharmacy_name: e.target.value }))}
+                      onChange={(e) => {
+                        setCorrectedFields(prev => new Set(prev).add('pharmacy_name'));
+                        setFormData(prev => ({ ...prev, pharmacy_name: e.target.value }));
+                      }}
                       placeholder="CVS, Walgreens..."
                       className="mt-1"
                     />
@@ -1197,7 +1217,10 @@ export const MedicationTab = ({
                     <Label>Pharmacy Phone</Label>
                     <Input
                       value={formData.pharmacy_phone}
-                      onChange={(e) => setFormData(prev => ({ ...prev, pharmacy_phone: e.target.value }))}
+                      onChange={(e) => {
+                        setCorrectedFields(prev => new Set(prev).add('pharmacy_phone'));
+                        setFormData(prev => ({ ...prev, pharmacy_phone: e.target.value }));
+                      }}
                       placeholder="555-123-4567"
                       className="mt-1"
                     />
@@ -1206,7 +1229,10 @@ export const MedicationTab = ({
                     <Label>Doctor Name</Label>
                     <Input
                       value={formData.doctor_name}
-                      onChange={(e) => setFormData(prev => ({ ...prev, doctor_name: e.target.value }))}
+                      onChange={(e) => {
+                        setCorrectedFields(prev => new Set(prev).add('doctor_name'));
+                        setFormData(prev => ({ ...prev, doctor_name: e.target.value }));
+                      }}
                       placeholder="Dr. Smith"
                       className="mt-1"
                     />
@@ -1215,7 +1241,10 @@ export const MedicationTab = ({
                     <Label>Doctor Phone</Label>
                     <Input
                       value={formData.doctor_phone}
-                      onChange={(e) => setFormData(prev => ({ ...prev, doctor_phone: e.target.value }))}
+                      onChange={(e) => {
+                        setCorrectedFields(prev => new Set(prev).add('doctor_phone'));
+                        setFormData(prev => ({ ...prev, doctor_phone: e.target.value }));
+                      }}
                       placeholder="555-123-4567"
                       className="mt-1"
                     />
@@ -1229,7 +1258,10 @@ export const MedicationTab = ({
                     <Input
                       type="date"
                       value={formData.last_refill_date}
-                      onChange={(e) => setFormData(prev => ({ ...prev, last_refill_date: e.target.value }))}
+                      onChange={(e) => {
+                        setCorrectedFields(prev => new Set(prev).add('last_refill_date'));
+                        setFormData(prev => ({ ...prev, last_refill_date: e.target.value }));
+                      }}
                       className="mt-1"
                     />
                   </div>
@@ -1239,7 +1271,10 @@ export const MedicationTab = ({
                       type="number"
                       min="0"
                       value={formData.refills_remaining}
-                      onChange={(e) => setFormData(prev => ({ ...prev, refills_remaining: e.target.value }))}
+                      onChange={(e) => {
+                        setCorrectedFields(prev => new Set(prev).add('refills_remaining'));
+                        setFormData(prev => ({ ...prev, refills_remaining: e.target.value }));
+                      }}
                       placeholder="3"
                       className="mt-1"
                     />
