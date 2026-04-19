@@ -203,10 +203,15 @@ const Index = () => {
                     </li>
                   ))}
                 </ul>
-                <Button onClick={() => navigate(paymentsWebOnly ? '/auth' : '/provider-purchase')} className="bg-primary text-primary-foreground hover:bg-primary/90 group">
-                  Learn More
-                  <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
-                </Button>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <Button onClick={() => navigate(paymentsWebOnly ? '/auth' : '/provider-purchase')} className="bg-primary text-primary-foreground hover:bg-primary/90 group">
+                    Learn More
+                    <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                  <Button variant="outline" onClick={() => navigate('/features/provider-outcomes')}>
+                    See outcomes demo
+                  </Button>
+                </div>
               </div>
             </div>
           </div>

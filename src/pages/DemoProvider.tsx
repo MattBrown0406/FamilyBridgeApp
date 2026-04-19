@@ -32,6 +32,9 @@ import {
   DollarSign,
   Settings,
   Shield,
+  LineChart,
+  GitBranch,
+  HeartPulse,
 } from 'lucide-react';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 import { toast } from 'sonner';
@@ -316,6 +319,7 @@ const DemoProvider = () => {
   const [adminTab, setAdminTab] = useState('families');
   const [selectedThreadId, setSelectedThreadId] = useState<string>(DEMO_THREADS[0].id);
   const [selectedCaseId, setSelectedCaseId] = useState<string>(DEMO_COORDINATION_CASES[0].id);
+  const [analyticsTab, setAnalyticsTab] = useState('overview');
 
   const selectedThread = useMemo(
     () => DEMO_THREADS.find((thread) => thread.id === selectedThreadId) ?? DEMO_THREADS[0],
@@ -790,37 +794,201 @@ const DemoProvider = () => {
                 </div>
               </TabsContent>
 
-              <TabsContent value="analytics" className="mt-4">
+              <TabsContent value="analytics" className="mt-4 space-y-4">
                 <div className="grid gap-4 lg:grid-cols-4">
                   <Card className="shadow-sm">
                     <CardContent className="pt-5">
-                      <p className="text-xs uppercase tracking-wide text-muted-foreground">Recovery momentum</p>
-                      <p className="mt-1 text-2xl font-semibold">78%</p>
-                      <p className="text-xs text-muted-foreground mt-1">Families are mostly aligned this week.</p>
+                      <p className="text-xs uppercase tracking-wide text-muted-foreground">Treatment completion</p>
+                      <p className="mt-1 text-2xl font-semibold">72%</p>
+                      <p className="text-xs text-muted-foreground mt-1">Across all demo episodes tracked in FamilyBridge.</p>
                     </CardContent>
                   </Card>
                   <Card className="shadow-sm">
                     <CardContent className="pt-5">
-                      <p className="text-xs uppercase tracking-wide text-muted-foreground">Check-in completion</p>
-                      <p className="mt-1 text-2xl font-semibold">91%</p>
-                      <p className="text-xs text-muted-foreground mt-1">Johnson is carrying the average upward.</p>
+                      <p className="text-xs uppercase tracking-wide text-muted-foreground">1-year sober</p>
+                      <p className="mt-1 text-2xl font-semibold">47%</p>
+                      <p className="text-xs text-muted-foreground mt-1">Unified apples-to-apples benchmark across levels of care.</p>
                     </CardContent>
                   </Card>
                   <Card className="shadow-sm">
                     <CardContent className="pt-5">
-                      <p className="text-xs uppercase tracking-wide text-muted-foreground">Team response time</p>
-                      <p className="mt-1 text-2xl font-semibold">14m</p>
-                      <p className="text-xs text-muted-foreground mt-1">Fast enough for demo realism without looking fake.</p>
+                      <p className="text-xs uppercase tracking-wide text-muted-foreground">Aftercare adherence</p>
+                      <p className="mt-1 text-2xl font-semibold">61%</p>
+                      <p className="text-xs text-muted-foreground mt-1">Started the recommended next step within 7 days.</p>
                     </CardContent>
                   </Card>
                   <Card className="shadow-sm">
                     <CardContent className="pt-5">
-                      <p className="text-xs uppercase tracking-wide text-muted-foreground">Pipeline value</p>
-                      <p className="mt-1 text-2xl font-semibold">$35.5k</p>
-                      <p className="text-xs text-muted-foreground mt-1">Open opportunities across new through proposal.</p>
+                      <p className="text-xs uppercase tracking-wide text-muted-foreground">Readmission anywhere</p>
+                      <p className="mt-1 text-2xl font-semibold">19%</p>
+                      <p className="text-xs text-muted-foreground mt-1">Any treatment readmission within 365 days.</p>
                     </CardContent>
                   </Card>
                 </div>
+
+                <Tabs value={analyticsTab} onValueChange={setAnalyticsTab}>
+                  <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 h-auto">
+                    <TabsTrigger value="overview">Overview</TabsTrigger>
+                    <TabsTrigger value="collection">Collection</TabsTrigger>
+                    <TabsTrigger value="reporting">Reporting</TabsTrigger>
+                    <TabsTrigger value="pitch">Provider Pitch</TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="overview" className="mt-4">
+                    <div className="grid gap-4 xl:grid-cols-2">
+                      <Card className="shadow-sm">
+                        <CardHeader>
+                          <CardTitle className="text-base flex items-center gap-2"><LineChart className="h-4 w-4" /> Outcomes this center can track</CardTitle>
+                          <CardDescription>Built-in longitudinal measurement across residential, outpatient, and sober living.</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-3 text-sm text-muted-foreground">
+                          <div className="rounded-xl border p-4">
+                            <p className="font-medium text-foreground">Treatment completion by level of care</p>
+                            <p className="mt-1">30-day residential, 90-day residential, outpatient, and sober living all tracked using the same definitions.</p>
+                          </div>
+                          <div className="rounded-xl border p-4">
+                            <p className="font-medium text-foreground">1-year sobriety benchmarking</p>
+                            <p className="mt-1">Use sober at 365 days as the clean universal comparison point instead of a dozen inconsistent success definitions.</p>
+                          </div>
+                          <div className="rounded-xl border p-4">
+                            <p className="font-medium text-foreground">Aftercare follow-through</p>
+                            <p className="mt-1">Track whether the patient actually followed the step-down plan after discharge, not just whether it was recommended.</p>
+                          </div>
+                          <div className="rounded-xl border p-4">
+                            <p className="font-medium text-foreground">Readmission honesty</p>
+                            <p className="mt-1">Separate same-provider readmission from any-program readmission so the metrics stay honest.</p>
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      <Card className="shadow-sm">
+                        <CardHeader>
+                          <CardTitle className="text-base flex items-center gap-2"><Users className="h-4 w-4" /> Age and gender segmentation</CardTitle>
+                          <CardDescription>Providers can see performance by age band and gender without pretending those are the only drivers.</CardDescription>
+                        </CardHeader>
+                        <CardContent className="grid gap-3 sm:grid-cols-2 text-sm">
+                          <div className="rounded-xl border p-4">
+                            <p className="font-medium">Men 18-30</p>
+                            <p className="text-muted-foreground mt-1">Completion 62%, 1-year sober 31%, aftercare 44%</p>
+                          </div>
+                          <div className="rounded-xl border p-4">
+                            <p className="font-medium">Women 18-30</p>
+                            <p className="text-muted-foreground mt-1">Completion 68%, 1-year sober 37%, aftercare 51%</p>
+                          </div>
+                          <div className="rounded-xl border p-4">
+                            <p className="font-medium">Men 30+</p>
+                            <p className="text-muted-foreground mt-1">Completion 74%, 1-year sober 46%, aftercare 63%</p>
+                          </div>
+                          <div className="rounded-xl border p-4">
+                            <p className="font-medium">Women 30+</p>
+                            <p className="text-muted-foreground mt-1">Completion 77%, 1-year sober 49%, aftercare 67%</p>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="collection" className="mt-4">
+                    <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-4 text-sm text-muted-foreground">
+                      <Card className="shadow-sm">
+                        <CardHeader>
+                          <CardTitle className="text-base">Episode intake</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-2">
+                          <p>Level of care</p>
+                          <p>Age band and gender</p>
+                          <p>Admit date and primary substance</p>
+                          <p>Provider and facility</p>
+                        </CardContent>
+                      </Card>
+                      <Card className="shadow-sm">
+                        <CardHeader>
+                          <CardTitle className="text-base">Discharge capture</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-2">
+                          <p>Completed vs left early</p>
+                          <p>Discharge date</p>
+                          <p>Recommended next step</p>
+                          <p>Family engagement at discharge</p>
+                        </CardContent>
+                      </Card>
+                      <Card className="shadow-sm">
+                        <CardHeader>
+                          <CardTitle className="text-base">Follow-up checkpoints</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-2">
+                          <p>30 / 90 / 180 / 365 day sobriety</p>
+                          <p>Aftercare participation</p>
+                          <p>Living environment</p>
+                          <p>Relapse or return-to-use signals</p>
+                        </CardContent>
+                      </Card>
+                      <Card className="shadow-sm">
+                        <CardHeader>
+                          <CardTitle className="text-base">Confidence labels</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-2">
+                          <p>Family-reported</p>
+                          <p>Self-reported</p>
+                          <p>Provider-confirmed</p>
+                          <p>Multi-source confirmed</p>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="reporting" className="mt-4">
+                    <div className="grid gap-4 xl:grid-cols-2 text-sm text-muted-foreground">
+                      <Card className="shadow-sm">
+                        <CardHeader>
+                          <CardTitle className="text-base flex items-center gap-2"><GitBranch className="h-4 w-4" /> Benchmark reporting</CardTitle>
+                          <CardDescription>What FamilyBridge can report back to each treatment center.</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-3">
+                          <div className="rounded-xl border p-4">Center-specific completion rates vs network average</div>
+                          <div className="rounded-xl border p-4">1-year sobriety by level of care</div>
+                          <div className="rounded-xl border p-4">Aftercare adherence impact on outcomes</div>
+                          <div className="rounded-xl border p-4">Age and gender breakdowns</div>
+                          <div className="rounded-xl border p-4">Same-provider vs any-program readmission</div>
+                        </CardContent>
+                      </Card>
+                      <Card className="shadow-sm">
+                        <CardHeader>
+                          <CardTitle className="text-base flex items-center gap-2"><HeartPulse className="h-4 w-4" /> Why providers care</CardTitle>
+                          <CardDescription>This is not just a family app anymore. It becomes a performance intelligence layer.</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-3">
+                          <div className="rounded-xl border p-4">Providers usually lose visibility after discharge. FamilyBridge keeps it.</div>
+                          <div className="rounded-xl border p-4">Centers can see whether their aftercare plans are actually being followed.</div>
+                          <div className="rounded-xl border p-4">Leadership gets private scorecards without public shaming.</div>
+                          <div className="rounded-xl border p-4">Over time they learn what pathways produce the best long-term outcomes.</div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="pitch" className="mt-4">
+                    <Card className="shadow-sm border-primary/20 bg-primary/5">
+                      <CardContent className="pt-6 space-y-4 text-sm text-muted-foreground">
+                        <p className="text-primary font-medium">Provider-facing positioning</p>
+                        <p>
+                          FamilyBridge gives treatment providers a private outcomes intelligence layer that follows families beyond discharge,
+                          tracks treatment completion, aftercare adherence, 30/90/180/365-day sobriety, and readmission, and benchmarks each center against anonymized network-wide performance.
+                        </p>
+                        <p>
+                          That means providers can finally answer questions like: which levels of care perform best, which patient segments need stronger follow-through,
+                          and whether their discharge plans are producing long-term recovery or just good discharge-day optics.
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          <Button onClick={() => navigate('/features/provider-outcomes')}>Open full demo page</Button>
+                          <Button variant="outline" onClick={() => toast.info('Demo mode: exporting analytics is disabled')}>
+                            Export sample report
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+                </Tabs>
               </TabsContent>
             </Tabs>
           </div>

@@ -47,6 +47,7 @@ import MedicationCompliance from "./pages/features/MedicationCompliance";
 import FinancialCoordination from "./pages/features/FinancialCoordination";
 import CareTransitions from "./pages/features/CareTransitions";
 import ConversationCoaching from "./pages/features/ConversationCoaching";
+import ProviderOutcomes from "./pages/features/ProviderOutcomes";
 import ScrollToTop from "./components/ScrollToTop";
 import { usePlatform } from "@/hooks/usePlatform";
 
@@ -109,6 +110,7 @@ const App = () => {
               <Route path="/features/financial-coordination" element={<FinancialCoordination />} />
               <Route path="/features/care-transitions" element={<CareTransitions />} />
               <Route path="/features/conversation-coaching" element={<ConversationCoaching />} />
+              <Route path="/features/provider-outcomes" element={<ProviderOutcomes />} />
               <Route
                 path="/update-payment"
                 element={paymentsWebOnly ? <Navigate to="/auth" replace /> : <UpdatePayment />}
