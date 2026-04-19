@@ -793,7 +793,19 @@ const ProviderAdmin = () => {
     
     setIsSaving(true);
     try {
-      await updateOrganization(selectedOrg, editForm);
+      const parsedDuration = editOnboarding.primary_service_duration_days
+        ? parseInt(editOnboarding.primary_service_duration_days, 10)
+        : null;
+      await updateOrganization(selectedOrg, {
+        ...editForm,
+        provider_category: editOnboarding.provider_category || null,
+        levels_of_care: editOnboarding.levels_of_care,
+        primary_service_duration_days: Number.isFinite(parsedDuration as number) ? parsedDuration : null,
+        outcome_tracking_enabled: editOnboarding.outcome_tracking_enabled,
+        intervention_tracking_enabled: editOnboarding.intervention_tracking_enabled,
+        benchmark_opt_in: editOnboarding.benchmark_opt_in,
+        intake_notes: editOnboarding.intake_notes || null,
+      } as any);
       toast({ title: 'Success', description: 'Changes saved!' });
     } catch (err: any) {
       toast({ title: 'Error', description: err.message || 'Failed to save changes', variant: 'destructive' });
@@ -1210,6 +1222,12 @@ const ProviderAdmin = () => {
                 </Button>
               )}
               
+              <div className="space-y-2 pt-4 border-t">
+                <h3 className="text-sm font-semibold">Service profile & outcomes</h3>
+                <p className="text-xs text-muted-foreground">Used for outcome tracking and benchmark guidance.</p>
+              </div>
+              <OnboardingFieldsForm value={newOrgOnboarding} onChange={setNewOrgOnboarding} />
+
               <Button onClick={handleCreateOrg} disabled={isSaving || isExtractingBranding} className="w-full">
                 {isSaving ? 'Creating...' : 'Create Organization'}
               </Button>
@@ -1561,6 +1579,12 @@ const ProviderAdmin = () => {
                           onChange={(e) => setEditForm({ ...editForm, website_url: e.target.value })}
                         />
                       </div>
+                      <div className="space-y-2 pt-4 border-t">
+                        <h3 className="text-sm font-semibold">Service profile & outcomes</h3>
+                        <p className="text-xs text-muted-foreground">Used for outcome tracking and benchmark guidance.</p>
+                      </div>
+                      <OnboardingFieldsForm value={editOnboarding} onChange={setEditOnboarding} />
+
                       <Button onClick={handleSaveChanges} disabled={isSaving}>
                         {isSaving ? 'Saving...' : 'Save Changes'}
                       </Button>
