@@ -41,6 +41,8 @@ interface Medication {
   pharmacy_phone: string | null;
   doctor_name: string | null;
   doctor_phone: string | null;
+  prescriber_name?: string | null;
+  prescriber_phone?: string | null;
   last_refill_date: string | null;
   refills_remaining: number | null;
   instructions: string | null;
@@ -51,6 +53,20 @@ interface Medication {
   is_active: boolean;
   created_at: string;
   user_id: string;
+  quantity_dispensed?: number | null;
+  units_remaining?: number | null;
+  unit_type?: string | null;
+  doses_per_administration?: number | null;
+  days_supply?: number | null;
+  expected_runout_date?: string | null;
+  refill_reminder_days?: number | null;
+  risk_level?: string;
+  is_prn?: boolean;
+  max_daily_doses?: number | null;
+  min_hours_between_doses?: number | null;
+  out_of_medication_at?: string | null;
+  last_inventory_reconciled_at?: string | null;
+  inventory_notes?: string | null;
 }
 
 interface MedicationDose {
@@ -61,6 +77,10 @@ interface MedicationDose {
   taken_at: string | null;
   skipped: boolean;
   skip_reason: string | null;
+  status?: string | null;
+  confirmation_type?: string | null;
+  inventory_delta?: number | null;
+  taken_notes?: string | null;
   medication?: Medication;
 }
 
@@ -121,7 +141,19 @@ export const MedicationTab = ({
     frequency: 'once daily',
     times_per_day: 1,
     specific_times: ['08:00'],
-    target_user_id: recoveringMemberId || ''
+    target_user_id: recoveringMemberId || '',
+    quantity_dispensed: '',
+    units_remaining: '',
+    unit_type: 'tablets',
+    doses_per_administration: '1',
+    days_supply: '',
+    refill_reminder_days: '7',
+    low_supply_threshold: '',
+    risk_level: 'standard',
+    is_prn: false,
+    max_daily_doses: '',
+    min_hours_between_doses: '',
+    inventory_notes: ''
   });
 
   const recoveringMembers = members.filter(m => m.role === 'recovering');
@@ -340,7 +372,8 @@ export const MedicationTab = ({
           last_refill_date: data.last_refill_date || prev.last_refill_date,
           refills_remaining: data.refills_remaining?.toString() || prev.refills_remaining,
           instructions: data.instructions || prev.instructions,
-          frequency: data.frequency || prev.frequency
+          frequency: data.frequency || prev.frequency,
+          is_prn: (data.frequency || prev.frequency || '').toLowerCase() === 'as needed'
         }));
 
         toast({
@@ -409,13 +442,27 @@ export const MedicationTab = ({
           pharmacy_phone: formData.pharmacy_phone || null,
           doctor_name: formData.doctor_name || null,
           doctor_phone: formData.doctor_phone || null,
+          prescriber_name: formData.doctor_name || null,
+          prescriber_phone: formData.doctor_phone || null,
           last_refill_date: formData.last_refill_date || null,
           refills_remaining: formData.refills_remaining ? parseInt(formData.refills_remaining) : null,
           instructions: formData.instructions || null,
           frequency: formData.frequency,
-          times_per_day: formData.times_per_day,
-          specific_times: formData.specific_times,
-          label_image_url: labelImageUrl
+          times_per_day: formData.is_prn ? 0 : formData.times_per_day,
+          specific_times: formData.is_prn ? [] : formData.specific_times,
+          label_image_url: labelImageUrl,
+          quantity_dispensed: formData.quantity_dispensed ? parseInt(formData.quantity_dispensed) : null,
+          units_remaining: formData.units_remaining ? parseFloat(formData.units_remaining) : null,
+          unit_type: formData.unit_type || null,
+          doses_per_administration: formData.doses_per_administration ? parseFloat(formData.doses_per_administration) : 1,
+          days_supply: formData.days_supply ? parseInt(formData.days_supply) : null,
+          refill_reminder_days: formData.refill_reminder_days ? parseInt(formData.refill_reminder_days) : 7,
+          low_supply_threshold: formData.low_supply_threshold ? parseInt(formData.low_supply_threshold) : null,
+          risk_level: formData.risk_level,
+          is_prn: formData.is_prn,
+          max_daily_doses: formData.max_daily_doses ? parseInt(formData.max_daily_doses) : null,
+          min_hours_between_doses: formData.min_hours_between_doses ? parseFloat(formData.min_hours_between_doses) : null,
+          inventory_notes: formData.inventory_notes || null
         })
         .select()
         .single();
@@ -455,11 +502,17 @@ export const MedicationTab = ({
   };
 
   const handleMarkDoseTaken = async (doseId: string) => {
+    const dose = todaysDoses.find(d => d.id === doseId);
+    const inventoryDelta = dose?.inventory_delta ?? dose?.medication?.doses_per_administration ?? 1;
+
     const { error } = await supabase
       .from('medication_doses')
       .update({
         taken_at: new Date().toISOString(),
-        confirmed_by: currentUserId
+        confirmed_by: currentUserId,
+        confirmation_type: 'self',
+        status: 'taken',
+        inventory_delta: inventoryDelta
       })
       .eq('id', doseId);
 
@@ -470,8 +523,11 @@ export const MedicationTab = ({
         variant: 'destructive'
       });
     } else {
+      if (dose?.medication_id) {
+        await supabase.rpc('recalculate_medication_inventory', { _medication_id: dose.medication_id });
+      }
       toast({ title: 'Dose recorded!' });
-      loadTodaysDoses();
+      loadData();
     }
   };
 
@@ -481,7 +537,8 @@ export const MedicationTab = ({
       .update({
         skipped: true,
         skip_reason: reason,
-        confirmed_by: currentUserId
+        confirmed_by: currentUserId,
+        status: reason.toLowerCase().includes('out') ? 'out_of_medication' : 'skipped'
       })
       .eq('id', doseId);
 
@@ -492,7 +549,7 @@ export const MedicationTab = ({
         variant: 'destructive'
       });
     } else {
-      loadTodaysDoses();
+      loadData();
     }
   };
 
@@ -545,7 +602,19 @@ export const MedicationTab = ({
       frequency: 'once daily',
       times_per_day: 1,
       specific_times: ['08:00'],
-      target_user_id: recoveringMemberId || ''
+      target_user_id: recoveringMemberId || '',
+      quantity_dispensed: '',
+      units_remaining: '',
+      unit_type: 'tablets',
+      doses_per_administration: '1',
+      days_supply: '',
+      refill_reminder_days: '7',
+      low_supply_threshold: '',
+      risk_level: 'standard',
+      is_prn: false,
+      max_daily_doses: '',
+      min_hours_between_doses: '',
+      inventory_notes: ''
     });
     setLabelImage(null);
   };
@@ -915,38 +984,57 @@ export const MedicationTab = ({
                   </div>
                 </div>
 
-                {/* Times per day */}
-                <div>
-                  <Label>Times Per Day</Label>
-                  <div className="flex gap-2 mt-1">
-                    {[1, 2, 3, 4].map(n => (
-                      <Button
-                        key={n}
-                        type="button"
-                        variant={formData.times_per_day === n ? 'default' : 'outline'}
-                        size="sm"
-                        onClick={() => updateTimesPerDay(n)}
-                      >
-                        {n}x
-                      </Button>
-                    ))}
+                <div className="flex items-center justify-between rounded-lg border p-3">
+                  <div>
+                    <Label className="text-sm font-medium">PRN / As Needed</Label>
+                    <p className="text-xs text-muted-foreground">Disable rigid missed-dose alerts for medications that are only taken when needed.</p>
                   </div>
+                  <Button
+                    type="button"
+                    variant={formData.is_prn ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setFormData(prev => ({ ...prev, is_prn: !prev.is_prn, frequency: !prev.is_prn ? 'as needed' : 'once daily' }))}
+                  >
+                    {formData.is_prn ? 'PRN Enabled' : 'Set PRN'}
+                  </Button>
                 </div>
 
-                {/* Specific times */}
-                <div>
-                  <Label>Schedule Times</Label>
-                  <div className="grid grid-cols-2 gap-2 mt-1">
-                    {formData.specific_times.map((time, i) => (
-                      <Input
-                        key={i}
-                        type="time"
-                        value={time}
-                        onChange={(e) => updateSpecificTime(i, e.target.value)}
-                      />
-                    ))}
-                  </div>
-                </div>
+                {!formData.is_prn && (
+                  <>
+                    {/* Times per day */}
+                    <div>
+                      <Label>Times Per Day</Label>
+                      <div className="flex gap-2 mt-1">
+                        {[1, 2, 3, 4].map(n => (
+                          <Button
+                            key={n}
+                            type="button"
+                            variant={formData.times_per_day === n ? 'default' : 'outline'}
+                            size="sm"
+                            onClick={() => updateTimesPerDay(n)}
+                          >
+                            {n}x
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Specific times */}
+                    <div>
+                      <Label>Schedule Times</Label>
+                      <div className="grid grid-cols-2 gap-2 mt-1">
+                        {formData.specific_times.map((time, i) => (
+                          <Input
+                            key={i}
+                            type="time"
+                            value={time}
+                            onChange={(e) => updateSpecificTime(i, e.target.value)}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  </>
+                )}
 
                 {/* Pharmacy & Doctor Info */}
                 <div className="grid grid-cols-2 gap-3">
@@ -1012,6 +1100,125 @@ export const MedicationTab = ({
                   </div>
                 </div>
 
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label>Quantity Dispensed</Label>
+                    <Input
+                      type="number"
+                      min="0"
+                      value={formData.quantity_dispensed}
+                      onChange={(e) => setFormData(prev => ({ ...prev, quantity_dispensed: e.target.value, units_remaining: prev.units_remaining || e.target.value }))}
+                      placeholder="30"
+                      className="mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label>Units Remaining</Label>
+                    <Input
+                      type="number"
+                      min="0"
+                      step="0.1"
+                      value={formData.units_remaining}
+                      onChange={(e) => setFormData(prev => ({ ...prev, units_remaining: e.target.value }))}
+                      placeholder="30"
+                      className="mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label>Unit Type</Label>
+                    <Input
+                      value={formData.unit_type}
+                      onChange={(e) => setFormData(prev => ({ ...prev, unit_type: e.target.value }))}
+                      placeholder="tablets"
+                      className="mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label>Doses Per Administration</Label>
+                    <Input
+                      type="number"
+                      min="0"
+                      step="0.5"
+                      value={formData.doses_per_administration}
+                      onChange={(e) => setFormData(prev => ({ ...prev, doses_per_administration: e.target.value }))}
+                      placeholder="1"
+                      className="mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label>Days Supply</Label>
+                    <Input
+                      type="number"
+                      min="0"
+                      value={formData.days_supply}
+                      onChange={(e) => setFormData(prev => ({ ...prev, days_supply: e.target.value }))}
+                      placeholder="30"
+                      className="mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label>Refill Reminder Days</Label>
+                    <Input
+                      type="number"
+                      min="1"
+                      value={formData.refill_reminder_days}
+                      onChange={(e) => setFormData(prev => ({ ...prev, refill_reminder_days: e.target.value }))}
+                      className="mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label>Low Supply Threshold</Label>
+                    <Input
+                      type="number"
+                      min="0"
+                      value={formData.low_supply_threshold}
+                      onChange={(e) => setFormData(prev => ({ ...prev, low_supply_threshold: e.target.value }))}
+                      placeholder="5"
+                      className="mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label>Risk Level</Label>
+                    <Select value={formData.risk_level} onValueChange={(v) => setFormData(prev => ({ ...prev, risk_level: v }))}>
+                      <SelectTrigger className="mt-1">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="standard">Standard</SelectItem>
+                        <SelectItem value="high">High</SelectItem>
+                        <SelectItem value="critical">Critical</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  {formData.is_prn && (
+                    <>
+                      <div>
+                        <Label>Max Daily Doses</Label>
+                        <Input
+                          type="number"
+                          min="1"
+                          value={formData.max_daily_doses}
+                          onChange={(e) => setFormData(prev => ({ ...prev, max_daily_doses: e.target.value }))}
+                          placeholder="3"
+                          className="mt-1"
+                        />
+                      </div>
+                      <div>
+                        <Label>Minimum Hours Between Doses</Label>
+                        <Input
+                          type="number"
+                          min="0"
+                          step="0.5"
+                          value={formData.min_hours_between_doses}
+                          onChange={(e) => setFormData(prev => ({ ...prev, min_hours_between_doses: e.target.value }))}
+                          placeholder="4"
+                          className="mt-1"
+                        />
+                      </div>
+                    </>
+                  )}
+                </div>
+
                 {/* Instructions */}
                 <div>
                   <Label>Instructions</Label>
@@ -1019,6 +1226,17 @@ export const MedicationTab = ({
                     value={formData.instructions}
                     onChange={(e) => setFormData(prev => ({ ...prev, instructions: e.target.value }))}
                     placeholder="Take with food..."
+                    className="mt-1"
+                    rows={2}
+                  />
+                </div>
+
+                <div>
+                  <Label>Inventory Notes</Label>
+                  <Textarea
+                    value={formData.inventory_notes}
+                    onChange={(e) => setFormData(prev => ({ ...prev, inventory_notes: e.target.value }))}
+                    placeholder="Bottle count corrected, partial fill, lockbox note..."
                     className="mt-1"
                     rows={2}
                   />
@@ -1176,11 +1394,16 @@ const MedicationCard = ({ medication, expanded, onToggle, onDelete, getMemberNam
           </div>
           <div>
             <p className="font-medium">{medication.medication_name}</p>
-            <p className="text-xs text-muted-foreground">
-              {medication.dosage && `${medication.dosage} • `}
-              {medication.frequency}
+            <p className="text-xs text-muted-foreground flex flex-wrap items-center gap-2">
+              <span>
+                {medication.dosage && `${medication.dosage} • `}
+                {medication.is_prn ? 'As needed' : medication.frequency}
+              </span>
+              {medication.risk_level && medication.risk_level !== 'standard' && (
+                <Badge variant="secondary" className="text-[10px] uppercase">{medication.risk_level}</Badge>
+              )}
               {medication.refills_remaining !== null && medication.refills_remaining <= 2 && (
-                <Badge variant="destructive" className="ml-2 text-[10px]">
+                <Badge variant="destructive" className="text-[10px]">
                   {medication.refills_remaining} refills left
                 </Badge>
               )}
@@ -1240,13 +1463,29 @@ const MedicationCard = ({ medication, expanded, onToggle, onDelete, getMemberNam
           )}
 
           {/* Refill info */}
-          {medication.last_refill_date && (
-            <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm">
-                Last refill: {format(new Date(medication.last_refill_date), 'MMM d, yyyy')}
-                {medication.refills_remaining !== null && ` • ${medication.refills_remaining} refills remaining`}
-              </span>
+          {(medication.last_refill_date || medication.expected_runout_date || medication.units_remaining !== null) && (
+            <div className="space-y-1">
+              {medication.last_refill_date && (
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm">
+                    Last refill: {format(new Date(medication.last_refill_date), 'MMM d, yyyy')}
+                    {medication.refills_remaining !== null && ` • ${medication.refills_remaining} refills remaining`}
+                  </span>
+                </div>
+              )}
+              {medication.expected_runout_date && (
+                <div className="flex items-center gap-2 text-sm">
+                  <AlertTriangle className="h-4 w-4 text-muted-foreground" />
+                  <span>Expected runout: {format(new Date(medication.expected_runout_date), 'MMM d, yyyy')}</span>
+                </div>
+              )}
+              {medication.units_remaining !== null && (
+                <div className="flex items-center gap-2 text-sm">
+                  <Pill className="h-4 w-4 text-muted-foreground" />
+                  <span>{medication.units_remaining} {medication.unit_type || 'units'} remaining</span>
+                </div>
+              )}
             </div>
           )}
 
@@ -1254,6 +1493,12 @@ const MedicationCard = ({ medication, expanded, onToggle, onDelete, getMemberNam
           {medication.instructions && (
             <p className="text-sm text-muted-foreground italic">
               "{medication.instructions}"
+            </p>
+          )}
+
+          {medication.inventory_notes && (
+            <p className="text-xs text-muted-foreground">
+              Inventory note: {medication.inventory_notes}
             </p>
           )}
 
