@@ -939,7 +939,339 @@ const DIAGRAM_AI_COACHING_FLOW = `flowchart TD
         AC2 --> AC
     end`;
 
-// ========== COMPONENT ==========
+// ========== 2026 UPDATE — NEW INTELLIGENCE SYSTEMS ==========
+
+const DIAGRAM_OUTCOME_PREDICTION_ENGINE = `flowchart TD
+    subgraph "Per-Family Inputs"
+        I1[Accountability Scores<br/>Family + Provider]
+        I2[Commitment Adherence<br/>Adhered vs Broken]
+        I3[Daily Emotional Check-ins<br/>Trajectory + Bypasses]
+        I4[Boundary Adherence<br/>Enforced vs Failed]
+        I5[Active Alerts<br/>Critical / Warning]
+        I6[Current Care Phase<br/>Detox - Independent]
+        I7[Coaching Engagement<br/>Sessions + Frequency]
+        I8[Sobriety Journey<br/>Days + Reset Count]
+    end
+
+    subgraph "Prediction Engine"
+        E1[Family-Scoped Aggregator<br/>family_id strict isolation]
+        E2[Risk Driver Extractor]
+        E3[Protective Factor Extractor]
+        E4[Trajectory Modeler<br/>30/60/90 day horizons]
+        E5[System Alignment Scorer]
+    end
+
+    subgraph "Output Layers"
+        O1[Outcome Probability<br/>Stable / Progress / Reset]
+        O2[Risk Drivers Panel<br/>Top contributing factors]
+        O3[Protective Factors Panel]
+        O4[Actionable Insights<br/>Provider-Restricted]
+        O5[Trajectory Chart<br/>Qualitative bands]
+        O6[Prediction Alerts<br/>Threshold-based]
+    end
+
+    subgraph "Future Reserved"
+        F1[benchmark_opt_in flag<br/>Cross-org anonymized<br/>NOT YET WIRED]
+    end
+
+    I1 --> E1
+    I2 --> E1
+    I3 --> E1
+    I4 --> E1
+    I5 --> E1
+    I6 --> E1
+    I7 --> E1
+    I8 --> E1
+
+    E1 --> E2
+    E1 --> E3
+    E1 --> E4
+    E1 --> E5
+
+    E2 --> O2
+    E3 --> O3
+    E4 --> O5
+    E4 --> O1
+    E5 --> O4
+    O1 --> O6
+    F1 -.-> E1`;
+
+const DIAGRAM_ACCOUNTABILITY_ENGINE = `flowchart TD
+    subgraph "Behavioral Inputs"
+        A1[Family Commitments<br/>Created + Reviewed]
+        A2[Provider Commitments]
+        A3[Behavioral Contracts<br/>Acknowledgments]
+        A4[Boundary Events<br/>Enforced / Failed / Violated]
+        A5[Meeting + Life Check-ins]
+        A6[Communication Tone Signals]
+    end
+
+    subgraph "Scoring Layer"
+        S1[Family Accountability Score<br/>0-100]
+        S2[Provider Accountability Score<br/>0-100]
+        S3[System Alignment Score<br/>Family x Provider Coherence]
+        S4[Trend Analyzer<br/>Up / Stable / Down]
+        S5[AI Insight Generator]
+    end
+
+    subgraph "Surfaces"
+        SU1[Score Gauge UI<br/>Banded for family / numeric for provider]
+        SU2[Accountability Alerts<br/>Severity-tiered]
+        SU3[Family Accountability Panel]
+        SU4[Provider Performance Panel]
+        SU5[System Alignment Dashboard]
+        SU6[Commitment Tracker]
+        SU7[Behavioral Contract Manager]
+    end
+
+    A1 --> S1
+    A4 --> S1
+    A5 --> S1
+    A6 --> S1
+    A2 --> S2
+    A3 --> S2
+    A4 --> S2
+    S1 --> S3
+    S2 --> S3
+    S1 --> S4
+    S2 --> S4
+    S3 --> S5
+
+    S1 --> SU1
+    S2 --> SU1
+    S3 --> SU5
+    S4 --> SU2
+    S5 --> SU2
+    S1 --> SU3
+    S2 --> SU4
+    A1 --> SU6
+    A3 --> SU7`;
+
+const DIAGRAM_POST_INTERVENTION_CONTINUITY = `flowchart TD
+    subgraph "Outcome Selection"
+        O1[Intervention Outcome<br/>Accepted / Declined]
+    end
+
+    subgraph "Accepted Treatment Path"
+        AT1[Treatment Path Tracker]
+        AT2[Care Phase Progression<br/>Detox - IOP - Aftercare]
+        AT3[Continuity Timeline]
+        AT4[Continuity Alerts<br/>Drift detection]
+        AT5[Continuity Notes]
+    end
+
+    subgraph "Declined Treatment Path"
+        DT1[Family Recovery Mode]
+        DT2[Boundary Reinforcement]
+        DT3[Family-side Coaching Focus]
+        DT4[Re-Approach Readiness Signals]
+    end
+
+    subgraph "Cross-Path Engines"
+        CP1[Continuity Readiness Score<br/>Multi-dimensional]
+        CP2[Transition Consent + HIPAA]
+        CP3[Provider Handoff Manager]
+        CP4[Transition Summary Form<br/>Re-auth gated]
+    end
+
+    O1 -->|Accepted| AT1
+    O1 -->|Declined| DT1
+    AT1 --> AT2
+    AT2 --> AT3
+    AT2 --> AT4
+    AT2 --> AT5
+    AT2 --> CP1
+    DT1 --> DT2
+    DT2 --> DT3
+    DT3 --> DT4
+    DT4 --> CP1
+    CP1 --> CP3
+    CP3 --> CP2
+    CP2 --> CP4`;
+
+const DIAGRAM_PROVIDER_COORDINATION = `graph TD
+    subgraph "Case Container"
+        C1[Coordination Case<br/>family-linked]
+        C2[Case Members<br/>roles: interventionist /<br/>clinician / treatment_provider /<br/>case_manager / admin]
+    end
+
+    subgraph "Channels"
+        CH1[Channel: Clinical]
+        CH2[Channel: Family-Facing]
+        CH3[Channel: Treatment Team]
+        CH4[Coordination Messages<br/>per channel]
+    end
+
+    subgraph "Workflow"
+        W1[Coordination Tasks<br/>assigned + due-dated]
+        W2[Case Status Lifecycle]
+        W3[AI Insights Panel<br/>case-scoped]
+    end
+
+    subgraph "Cross-Org Reach"
+        X1[Multi-Org Membership<br/>strict org isolation]
+        X2[Provider Handoff Hooks]
+    end
+
+    C1 --> C2
+    C1 --> CH1
+    C1 --> CH2
+    C1 --> CH3
+    CH1 --> CH4
+    CH2 --> CH4
+    CH3 --> CH4
+    C1 --> W1
+    C1 --> W2
+    C1 --> W3
+    C2 --> X1
+    W2 --> X2`;
+
+const DIAGRAM_AI_GOVERNANCE_LEARNING = `flowchart TD
+    subgraph "Stage 1 — Aggregated Learning"
+        L1[Anonymized Family Patterns<br/>via security-definer RPC]
+        L2[FIIS Calibration Patterns<br/>moderator-corrected]
+        L3[FIIS Analysis Feedback<br/>false pos / false neg / missed]
+        L4[Telemetry Aggregator<br/>helpful_rate, fp_rate,<br/>boundary_hold_rate]
+    end
+
+    subgraph "Stage 2 — Adaptation Proposals"
+        A1[Learning Snapshots]
+        A2[Adaptation Proposals<br/>parameter_key + value]
+        A3[Confidence Scoring]
+        A4[Status: proposed /<br/>active / rejected]
+    end
+
+    subgraph "Governance Layer"
+        G1[Signal Stability Gate]
+        G2[Evidence Strength Gate]
+        G3[Doctrine Compliance Check<br/>fiis-doctrine.ts]
+        G4[Approval Workflow<br/>moderator/super-admin]
+    end
+
+    subgraph "Runtime Application"
+        R1[FIIS Runtime Context Builder]
+        R2[Per-Audience Prompt Surfaces<br/>family / moderator / mixed]
+        R3[Guidance Style Selector<br/>brief_concrete / boundary_forward /<br/>deescalation_first / balanced]
+        R4[Escalation Level Modulator]
+    end
+
+    L1 --> L4
+    L2 --> L4
+    L3 --> L4
+    L4 --> A1
+    A1 --> A2
+    A2 --> A3
+    A3 --> G1
+    G1 --> G2
+    G2 --> G3
+    G3 --> G4
+    G4 --> A4
+    A4 -->|active| R1
+    R1 --> R2
+    R1 --> R3
+    R1 --> R4`;
+
+const DIAGRAM_INPUT_RECONCILIATION = `flowchart TD
+    subgraph "Input Capture"
+        IC1[Structured User Inputs<br/>check-ins / commitments /<br/>boundaries / financial / docs]
+        IC2[System-Detected Events<br/>auto-events / location /<br/>medication / coaching]
+    end
+
+    subgraph "Reconciliation Engine"
+        RE1[Cross-Source Comparator]
+        RE2[Consistency Scorer]
+        RE3[Drift / Contradiction Detector]
+        RE4[Confidence Weighting]
+    end
+
+    subgraph "Outputs"
+        OU1[Reconciled Truth Record]
+        OU2[Inconsistency Flags<br/>for moderator review]
+        OU3[Trust Score per Source]
+        OU4[Feeds back into FIIS<br/>and Accountability Engine]
+    end
+
+    IC1 --> RE1
+    IC2 --> RE1
+    RE1 --> RE2
+    RE2 --> RE3
+    RE3 --> RE4
+    RE4 --> OU1
+    RE4 --> OU2
+    RE4 --> OU3
+    OU1 --> OU4`;
+
+const DIAGRAM_CARE_PHASE_LIFECYCLE = `stateDiagram-v2
+    [*] --> Pre_Intervention
+    Pre_Intervention --> Intervention_Readiness: readiness >= 65
+    Intervention_Readiness --> Intervention_Execution: scheduled
+    Intervention_Execution --> Detox: accepted
+    Intervention_Execution --> Family_Recovery_Mode: declined
+    Detox --> Residential
+    Residential --> PHP
+    PHP --> IOP
+    IOP --> Sober_Living
+    Sober_Living --> Aftercare
+    Aftercare --> Independent
+    Independent --> [*]
+
+    Family_Recovery_Mode --> Re_Approach: readiness signals
+    Re_Approach --> Intervention_Readiness
+
+    Residential --> Reset: relapse event
+    PHP --> Reset
+    IOP --> Reset
+    Sober_Living --> Reset
+    Aftercare --> Reset
+    Independent --> Reset
+    Reset --> Detox: re-entry
+    Reset --> Family_Recovery_Mode: re-entry declined`;
+
+const DIAGRAM_FIIS_RUNTIME_DOCTRINE = `flowchart TD
+    subgraph "Doctrine Sources"
+        D1[fiis-doctrine.ts<br/>core anchors + lenses<br/>guardrails + escalation ladder]
+        D2[Provider FIIS Settings<br/>per-org overrides]
+        D3[Family Goals + Values<br/>+ Approved Boundaries]
+    end
+
+    subgraph "Runtime Context Builder"
+        RC1[Audience Selector<br/>family / moderator / mixed]
+        RC2[Mode Selector<br/>analysis / coaching /<br/>moderator_chat / comm_helper]
+        RC3[Lens Selector<br/>boundary_enabling /<br/>pattern_detection /<br/>relapse_support / etc.]
+        RC4[Plain-Language Surface Toggle]
+        RC5[Telemetry Modulator<br/>guidance_style + escalation_level]
+    end
+
+    subgraph "Surfaces Consuming Doctrine"
+        S1[live-coaching]
+        S2[screenshot-coaching]
+        S3[fiis-analyze]
+        S4[fiis-moderator-chat]
+        S5[communication-helper]
+        S6[FIIS Tab + Coaching Panels]
+    end
+
+    D1 --> RC1
+    D1 --> RC3
+    D2 --> RC1
+    D2 --> RC5
+    D3 --> RC2
+    D3 --> RC3
+    RC1 --> S1
+    RC1 --> S2
+    RC1 --> S3
+    RC1 --> S4
+    RC1 --> S5
+    RC2 --> S1
+    RC2 --> S2
+    RC3 --> S3
+    RC4 --> S1
+    RC4 --> S2
+    RC5 --> S1
+    RC5 --> S3
+    S1 --> S6
+    S3 --> S6`;
+
 
 interface SectionProps {
   title: string;
