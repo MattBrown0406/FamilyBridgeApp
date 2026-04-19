@@ -7,8 +7,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, CheckCircle, MapPin, Briefcase, Stethoscope, Scale, Calendar, Sparkles, Users, PartyPopper } from 'lucide-react';
+import { Loader2, CheckCircle, MapPin, Briefcase, Stethoscope, Scale, Calendar, Sparkles, Users, PartyPopper, AlertTriangle } from 'lucide-react';
 import { LocationData } from '@/components/LocationCapture';
+import { checkLocationRisk, notifyFamilyLocationRisk, persistLocationRiskWarning, type LocationRiskResult } from '@/lib/locationRisk';
 
 const APPOINTMENT_TYPES = [
   { value: 'Therapy', label: 'Therapy / Counseling', icon: Sparkles, category: 'Healthcare' },
@@ -41,12 +42,40 @@ export const LifeAppointmentCheckin = ({ familyId, onCheckinComplete, capturedLo
   const [appointmentAddress, setAppointmentAddress] = useState('');
   const [notes, setNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [locationRisk, setLocationRisk] = useState<LocationRiskResult | null>(null);
+  const [isCheckingLocationRisk, setIsCheckingLocationRisk] = useState(false);
 
   // Update address when location is captured
   useEffect(() => {
     if (capturedLocation?.address) {
       setAppointmentAddress(capturedLocation.address);
     }
+  }, [capturedLocation]);
+
+  useEffect(() => {
+    const runRiskCheck = async () => {
+      if (!capturedLocation) {
+        setLocationRisk(null);
+        return;
+      }
+
+      setIsCheckingLocationRisk(true);
+      try {
+        const result = await checkLocationRisk(
+          capturedLocation.latitude,
+          capturedLocation.longitude,
+          capturedLocation.address,
+        );
+        setLocationRisk(result);
+      } catch (error) {
+        console.error('Error checking location risk:', error);
+        setLocationRisk(null);
+      } finally {
+        setIsCheckingLocationRisk(false);
+      }
+    };
+
+    runRiskCheck();
   }, [capturedLocation]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -73,7 +102,7 @@ export const LifeAppointmentCheckin = ({ familyId, onCheckinComplete, capturedLo
     setIsSubmitting(true);
 
     try {
-      const { error } = await supabase.from('meeting_checkins').insert({
+      const { data, error } = await supabase.from('meeting_checkins').insert({
         user_id: user?.id,
         family_id: familyId,
         meeting_type: appointmentType as any,
@@ -82,13 +111,34 @@ export const LifeAppointmentCheckin = ({ familyId, onCheckinComplete, capturedLo
         latitude: capturedLocation.latitude,
         longitude: capturedLocation.longitude,
         notes: notes.trim() || null,
-      });
+      }).select('id').single();
 
       if (error) throw error;
 
+      if (locationRisk?.hasLiquorLicense && data?.id && user?.id) {
+        await notifyFamilyLocationRisk({
+          familyId,
+          actorUserId: user.id,
+          relatedId: data.id,
+          result: locationRisk,
+          locationAddress: appointmentAddress.trim() || capturedLocation.address || 'Location shared',
+          mode: 'notification',
+        });
+
+        await persistLocationRiskWarning({
+          familyId,
+          checkinId: data.id,
+          userId: user.id,
+          locationAddress: appointmentAddress.trim() || capturedLocation.address || null,
+          result: locationRisk,
+        });
+      }
+
       toast({
         title: 'Check-in successful! 🎉',
-        description: 'Your family has been notified of your appointment.',
+        description: locationRisk?.hasLiquorLicense
+          ? 'Your family has been notified of your appointment and the flagged nearby location.'
+          : 'Your family has been notified of your appointment.',
       });
 
       // Reset form
@@ -96,6 +146,7 @@ export const LifeAppointmentCheckin = ({ familyId, onCheckinComplete, capturedLo
       setAppointmentName('');
       setAppointmentAddress('');
       setNotes('');
+      setLocationRisk(null);
       
       onCheckinComplete?.();
     } catch (error) {
@@ -123,14 +174,38 @@ export const LifeAppointmentCheckin = ({ familyId, onCheckinComplete, capturedLo
     <form onSubmit={handleSubmit} className="space-y-4">
       {/* Location Status */}
       {capturedLocation ? (
-        <div className="flex items-center gap-2 p-3 bg-primary/10 rounded-lg">
-          <MapPin className="h-5 w-5 text-primary shrink-0" />
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-primary">Location ready</p>
-            <p className="text-xs text-muted-foreground truncate">
-              {capturedLocation.address || `${capturedLocation.latitude.toFixed(6)}, ${capturedLocation.longitude.toFixed(6)}`}
-            </p>
+        <div className="space-y-2">
+          <div className="flex items-center gap-2 p-3 bg-primary/10 rounded-lg">
+            <MapPin className="h-5 w-5 text-primary shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-primary">Location ready</p>
+              <p className="text-xs text-muted-foreground truncate">
+                {capturedLocation.address || `${capturedLocation.latitude.toFixed(6)}, ${capturedLocation.longitude.toFixed(6)}`}
+              </p>
+            </div>
           </div>
+
+          {isCheckingLocationRisk && (
+            <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg">
+              <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">Checking location...</span>
+            </div>
+          )}
+
+          {locationRisk?.hasLiquorLicense && (
+            <div className="flex items-start gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
+              <AlertTriangle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-destructive">Flagged nearby location detected</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Nearby: {locationRisk.places.map((p) => p.name).join(', ')}
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Your family will be notified of this appointment check-in location.
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       ) : (
         <div className="p-3 bg-muted/50 rounded-lg text-sm text-muted-foreground">

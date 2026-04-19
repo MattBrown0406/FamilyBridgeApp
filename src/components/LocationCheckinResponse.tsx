@@ -10,6 +10,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Loader2, Navigation, XCircle, AlertTriangle } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { useLocationCapture } from '@/components/LocationCapture';
+import { checkLocationRisk, notifyFamilyLocationRisk, persistLocationRiskWarning } from '@/lib/locationRisk';
 
 interface PendingRequest {
   id: string;
@@ -103,66 +104,6 @@ export const LocationCheckinResponse = ({ familyId, userRole }: LocationCheckinR
     }
   };
 
-  const checkFlaggedLocation = async (latitude: number, longitude: number, address?: string) => {
-    try {
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/check-liquor-license`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-          },
-          body: JSON.stringify({ latitude, longitude, address }),
-        }
-      );
-
-      if (response.ok) {
-        return await response.json();
-      }
-    } catch (error) {
-      console.error('Error checking flagged location:', error);
-    }
-    return null;
-  };
-
-  const postFlaggedLocationAlert = async (flaggedResult: any, locationAddress: string) => {
-    if (!flaggedResult?.hasLiquorLicense && !flaggedResult?.hasAdultEntertainment) return;
-
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('full_name')
-      .eq('id', user?.id)
-      .single();
-
-    const userName = profile?.full_name || 'A family member';
-    const alerts: string[] = [];
-
-    if (flaggedResult.hasAdultEntertainment) {
-      const places = flaggedResult.places.filter((p: any) => p.category === 'adult_entertainment');
-      alerts.push(`🚨 Adult Entertainment: ${places.map((p: any) => p.name).join(', ')}`);
-    }
-    if (flaggedResult.hasTHCDispensary) {
-      const places = flaggedResult.places.filter((p: any) => p.category === 'thc_dispensary');
-      alerts.push(`🌿 THC Dispensary: ${places.map((p: any) => p.name).join(', ')}`);
-    }
-    if (flaggedResult.hasLiquorStore) {
-      const places = flaggedResult.places.filter((p: any) => p.category === 'liquor_store');
-      alerts.push(`🍺 Liquor Store: ${places.map((p: any) => p.name).join(', ')}`);
-    }
-    if (flaggedResult.hasBar) {
-      const places = flaggedResult.places.filter((p: any) => p.category === 'bar');
-      alerts.push(`🍸 Bar/Restaurant: ${places.map((p: any) => p.name).join(', ')}`);
-    }
-
-    if (alerts.length > 0) {
-      await supabase.from('messages').insert({
-        family_id: familyId,
-        sender_id: user?.id,
-        content: `⚠️ **Location Check-In Notice**\n\n${userName} shared their location near a place your family may want to review:\n📍 ${locationAddress || 'Location shared'}\n\n${alerts.join('\n')}\n\n_This is an automated notice for human follow-up._`,
-      });
-    }
-  };
 
   const handleShareLocation = async (requestId: string) => {
     setRespondingTo(requestId);
@@ -171,7 +112,7 @@ export const LocationCheckinResponse = ({ familyId, userRole }: LocationCheckinR
       const location = await getLocation();
 
       // Check for flagged locations
-      const flaggedResult = await checkFlaggedLocation(
+      const flaggedResult = await checkLocationRisk(
         location.latitude,
         location.longitude,
         location.address
@@ -192,8 +133,41 @@ export const LocationCheckinResponse = ({ familyId, userRole }: LocationCheckinR
 
       if (error) throw error;
 
-      // Post alert if at flagged location
-      await postFlaggedLocationAlert(flaggedResult, location.address || '');
+      if (flaggedResult?.hasLiquorLicense && user?.id) {
+        await notifyFamilyLocationRisk({
+          familyId,
+          actorUserId: user.id,
+          relatedId: requestId,
+          result: flaggedResult,
+          locationAddress: location.address || 'Location shared',
+          mode: 'message',
+        });
+
+        const { data: syntheticCheckin } = await supabase
+          .from('meeting_checkins')
+          .insert({
+            user_id: user.id,
+            family_id: familyId,
+            meeting_type: 'Other',
+            meeting_name: 'Requested location check-in',
+            meeting_address: location.address || null,
+            latitude: location.latitude,
+            longitude: location.longitude,
+            notes: responseNote.trim() || 'Requested family location check-in',
+          })
+          .select('id')
+          .single();
+
+        if (syntheticCheckin?.id) {
+          await persistLocationRiskWarning({
+            familyId,
+            checkinId: syntheticCheckin.id,
+            userId: user.id,
+            locationAddress: location.address || null,
+            result: flaggedResult,
+          });
+        }
+      }
 
       toast({
         title: 'Location shared',

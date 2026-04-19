@@ -82,6 +82,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2, MapPin, AlertTriangle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { checkLocationRisk, getLocationRiskSummary, notifyFamilyLocationRisk, persistLocationRiskWarning, type LocationRiskResult } from '@/lib/locationRisk';
 
 const MEETING_TYPES = [
   { value: 'AA', label: 'Alcoholics Anonymous (AA)' },
@@ -97,11 +98,7 @@ const MEETING_TYPES = [
   { value: 'Other', label: 'Other Recovery Meeting' },
 ];
 
-interface LiquorCheckResult {
-  hasLiquorLicense: boolean;
-  confidence: string;
-  places: Array<{ name: string; type: string; reason: string }>;
-}
+type LiquorCheckResult = LocationRiskResult;
 
 interface MeetingCheckinFormProps {
   familyId: string;
@@ -138,28 +135,12 @@ const MeetingCheckinForm = ({ familyId, onCheckinComplete, capturedLocation }: M
 
       setIsCheckingLiquor(true);
       try {
-        const response = await fetch(
-          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/check-liquor-license`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-            },
-            body: JSON.stringify({
-              latitude: capturedLocation.latitude,
-              longitude: capturedLocation.longitude,
-              address: capturedLocation.address,
-            }),
-          }
+        const result = await checkLocationRisk(
+          capturedLocation.latitude,
+          capturedLocation.longitude,
+          capturedLocation.address,
         );
-
-        if (response.ok) {
-          const result = await response.json();
-          setLiquorCheck(result);
-        } else {
-          setLiquorCheck(null);
-        }
+        setLiquorCheck(result);
       } catch (error) {
         console.error('Error checking liquor license:', error);
         setLiquorCheck(null);
@@ -171,43 +152,6 @@ const MeetingCheckinForm = ({ familyId, onCheckinComplete, capturedLocation }: M
     checkLiquorLicense();
   }, [capturedLocation]);
 
-  const notifyModerators = async (checkinId: string, liquorPlaces: Array<{ name: string; type: string; reason: string }>) => {
-    try {
-      const { data: moderators, error: modError } = await supabase
-        .from('family_members')
-        .select('user_id')
-        .eq('family_id', familyId)
-        .eq('role', 'moderator');
-
-      if (modError) throw modError;
-
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('full_name')
-        .eq('id', user?.id)
-        .single();
-
-      const userName = profile?.full_name || 'A family member';
-      const placeNames = liquorPlaces.map(p => p.name).join(', ');
-
-      const notifications = moderators
-        ?.filter(m => m.user_id !== user?.id)
-        .map(moderator => ({
-          user_id: moderator.user_id,
-          family_id: familyId,
-          type: 'liquor_alert',
-          title: '⚠️ Liquor License Alert',
-          body: `${userName} checked in near a location with a liquor license: ${placeNames}`,
-          related_id: checkinId,
-        })) || [];
-
-      if (notifications.length > 0) {
-        await supabase.from('notifications').insert(notifications);
-      }
-    } catch (error) {
-      console.error('Error notifying moderators:', error);
-    }
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -246,17 +190,22 @@ const MeetingCheckinForm = ({ familyId, onCheckinComplete, capturedLocation }: M
 
       if (error) throw error;
 
-      if (liquorCheck?.hasLiquorLicense && data?.id) {
-        await notifyModerators(data.id, liquorCheck.places);
-        
-        // Create a liquor license warning record
-        const placeNames = liquorCheck.places.map(p => p.name).join(', ');
-        await supabase.from('liquor_license_warnings').insert({
-          family_id: familyId,
-          checkin_id: data.id,
-          user_id: user?.id,
-          location_address: meetingAddress.trim() || placeNames,
-          license_type: liquorCheck.places[0]?.type || 'liquor_license',
+      if (liquorCheck?.hasLiquorLicense && data?.id && user?.id) {
+        await notifyFamilyLocationRisk({
+          familyId,
+          actorUserId: user.id,
+          relatedId: data.id,
+          result: liquorCheck,
+          locationAddress: meetingAddress.trim() || capturedLocation.address || 'Location shared',
+          mode: 'notification',
+        });
+
+        await persistLocationRiskWarning({
+          familyId,
+          checkinId: data.id,
+          userId: user.id,
+          locationAddress: meetingAddress.trim() || capturedLocation.address || null,
+          result: liquorCheck,
         });
       }
 
@@ -314,14 +263,18 @@ const MeetingCheckinForm = ({ familyId, onCheckinComplete, capturedLocation }: M
               <AlertTriangle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <p className="text-sm font-medium text-destructive">Liquor License Detected</p>
+                  <p className="text-sm font-medium text-destructive">Flagged nearby location detected</p>
                   <Badge variant="destructive" className="text-xs">
                     {liquorCheck.confidence === 'high' ? 'High Confidence' : 'Possible Match'}
                   </Badge>
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Nearby: {liquorCheck.places.map(p => p.name).join(', ')}
-                </p>
+                <div className="mt-1 space-y-1">
+                  {getLocationRiskSummary(liquorCheck).map((item) => (
+                    <p key={item.category} className="text-xs text-muted-foreground">
+                      {item.emoji} {item.label}: {item.places.join(', ')}
+                    </p>
+                  ))}
+                </div>
                 <p className="text-xs text-muted-foreground mt-1">
                   Moderators will be notified of this check-in location.
                 </p>
