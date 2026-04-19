@@ -18,6 +18,8 @@ interface MedicationLabelData {
   frequency: string | null;
   confidence: number;
   raw_text?: string;
+  field_confidence?: Record<string, 'high' | 'medium' | 'low' | 'missing'>;
+  review_flags?: string[];
 }
 
 serve(async (req) => {
@@ -77,7 +79,20 @@ Respond with this exact JSON structure:
   "instructions": "string or null",
   "frequency": "string or null",
   "confidence": number from 0-100 (how confident you are in the extraction),
-  "raw_text": "all visible text from the label for reference"
+  "raw_text": "all visible text from the label for reference",
+  "field_confidence": {
+    "medication_name": "high|medium|low|missing",
+    "dosage": "high|medium|low|missing",
+    "pharmacy_name": "high|medium|low|missing",
+    "pharmacy_phone": "high|medium|low|missing",
+    "doctor_name": "high|medium|low|missing",
+    "doctor_phone": "high|medium|low|missing",
+    "last_refill_date": "high|medium|low|missing",
+    "refills_remaining": "high|medium|low|missing",
+    "instructions": "high|medium|low|missing",
+    "frequency": "high|medium|low|missing"
+  },
+  "review_flags": ["strings describing fields that need human review"]
 }
 
 Important:
@@ -85,7 +100,9 @@ Important:
 - Format phone numbers consistently as XXX-XXX-XXXX
 - Format dates as YYYY-MM-DD
 - For refills_remaining, return only the number (e.g., 3, not "3 refills")
-- The confidence score should reflect how much of the label was readable`;
+- The confidence score should reflect how much of the label was readable
+- field_confidence should reflect confidence for each extracted field individually
+- review_flags should call out anything that looks ambiguous, incomplete, cut off, or worth manual confirmation`;
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -170,7 +187,9 @@ Important:
         instructions: null,
         frequency: null,
         confidence: 0,
-        raw_text: content
+        raw_text: content,
+        field_confidence: {},
+        review_flags: ['Unable to reliably parse structured label data.']
       };
     }
 
@@ -195,7 +214,9 @@ Important:
         refills_remaining: null,
         instructions: null,
         frequency: null,
-        confidence: 0
+        confidence: 0,
+        field_confidence: {},
+        review_flags: ['Medication label analysis failed. Please review manually.']
       }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );

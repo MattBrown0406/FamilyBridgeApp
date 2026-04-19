@@ -50,6 +50,11 @@ interface Medication {
   times_per_day: number;
   specific_times: string[] | null;
   label_image_url: string | null;
+  label_image_urls?: string[] | null;
+  label_analysis_confidence?: number | null;
+  label_analysis_raw_text?: string | null;
+  label_analysis_field_confidence?: Record<string, string> | null;
+  label_capture_mode?: string | null;
   is_active: boolean;
   created_at: string;
   user_id: string;
@@ -67,6 +72,13 @@ interface Medication {
   out_of_medication_at?: string | null;
   last_inventory_reconciled_at?: string | null;
   inventory_notes?: string | null;
+}
+
+interface LabelAnalysisResult {
+  confidence?: number;
+  raw_text?: string;
+  field_confidence?: Record<string, string>;
+  review_flags?: string[];
 }
 
 interface MedicationDose {
@@ -130,6 +142,7 @@ export const MedicationTab = ({
   
   // Form state
   const [labelImage, setLabelImage] = useState<string | null>(null);
+  const [labelAnalysis, setLabelAnalysis] = useState<LabelAnalysisResult | null>(null);
   const [formData, setFormData] = useState({
     medication_name: '',
     dosage: '',
@@ -215,6 +228,9 @@ export const MedicationTab = ({
       const resolvedMedications = await Promise.all((data || []).map(async (medication) => ({
         ...medication,
         label_image_url: await resolveStorageUrl(medication.label_image_url),
+        label_image_urls: medication.label_image_urls
+          ? await Promise.all((medication.label_image_urls as string[]).map((url: string) => resolveStorageUrl(url)))
+          : [],
       })));
 
       setMedications(resolvedMedications);
@@ -392,9 +408,22 @@ export const MedicationTab = ({
           is_prn: (data.frequency || prev.frequency || '').toLowerCase() === 'as needed'
         }));
 
+        setLabelAnalysis({
+          confidence: data.confidence,
+          raw_text: data.raw_text,
+          field_confidence: data.field_confidence || {},
+          review_flags: data.review_flags || []
+        });
+
+        const weakFields = Object.entries(data.field_confidence || {})
+          .filter(([, value]) => value === 'low' || value === 'missing')
+          .map(([key]) => key.replace(/_/g, ' '));
+
         toast({
           title: images.length > 1 ? 'Label images analyzed!' : 'Label analyzed!',
-          description: `Confidence: ${data.confidence}%. Please verify the extracted information.`
+          description: weakFields.length > 0
+            ? `Confidence: ${data.confidence}%. Please review: ${weakFields.join(', ')}.`
+            : `Confidence: ${data.confidence}%. Please verify the extracted information.`
         });
       }
     } catch (error) {
@@ -432,8 +461,8 @@ export const MedicationTab = ({
     try {
       // Upload label image if present
       let labelImageUrl = null;
+      let uploadedRefs: string[] = [];
       if (labelImages.length > 0) {
-        const uploadedRefs: string[] = [];
 
         for (const [index, image] of labelImages.entries()) {
           const fileName = `${familyId}/${Date.now()}-medication-label-${index + 1}.jpg`;
@@ -473,6 +502,11 @@ export const MedicationTab = ({
           times_per_day: formData.is_prn ? 0 : formData.times_per_day,
           specific_times: formData.is_prn ? [] : formData.specific_times,
           label_image_url: labelImageUrl,
+          label_image_urls: uploadedRefs,
+          label_analysis_confidence: labelAnalysis?.confidence ?? null,
+          label_analysis_raw_text: labelAnalysis?.raw_text ?? null,
+          label_analysis_field_confidence: labelAnalysis?.field_confidence ?? {},
+          label_capture_mode: captureMode,
           quantity_dispensed: formData.quantity_dispensed ? parseInt(formData.quantity_dispensed) : null,
           units_remaining: formData.units_remaining ? parseFloat(formData.units_remaining) : null,
           unit_type: formData.unit_type || null,
@@ -640,6 +674,7 @@ export const MedicationTab = ({
     });
     setLabelImage(null);
     setLabelImages([]);
+    setLabelAnalysis(null);
     setCaptureMode('bottle');
   };
 
@@ -873,7 +908,11 @@ export const MedicationTab = ({
                   </div>
                   <p className="mt-2 text-xs text-muted-foreground">
                     {captureMode === 'bottle'
-                      ? `Bottle Mode works best for skinny bottles. Add 2 to 3 angles so the label can be reconstructed.`
+                      ? `Bottle Mode works best for skinny bottles. ${[
+                          'Start with the medication name and strength.',
+                          'Rotate right and capture the pharmacy and refill section.',
+                          'Finish with prescriber and instructions if still hidden.'
+                        ][Math.min(labelImages.length, 2)]}`
                       : 'Flat Label Mode is best when the full label fits in one clear shot.'}
                   </p>
                   <div className="mt-2 flex flex-col items-center gap-2">
@@ -986,6 +1025,35 @@ export const MedicationTab = ({
                       </Button>
                     )}
                   </div>
+
+                  {labelAnalysis && (
+                    <div className="mt-3 rounded-lg border bg-muted/40 p-3 space-y-2">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="text-sm font-medium">Label Review</div>
+                        <Badge variant={labelAnalysis.confidence && labelAnalysis.confidence >= 85 ? 'default' : 'secondary'}>
+                          {labelAnalysis.confidence ?? 0}% confidence
+                        </Badge>
+                      </div>
+                      {labelAnalysis.review_flags && labelAnalysis.review_flags.length > 0 && (
+                        <div className="text-xs text-muted-foreground">
+                          Review: {labelAnalysis.review_flags.join(' • ')}
+                        </div>
+                      )}
+                      {labelAnalysis.field_confidence && Object.keys(labelAnalysis.field_confidence).length > 0 && (
+                        <div className="flex flex-wrap gap-2">
+                          {Object.entries(labelAnalysis.field_confidence).map(([field, confidence]) => (
+                            <Badge
+                              key={field}
+                              variant="outline"
+                              className="text-[10px]"
+                            >
+                              {field.replace(/_/g, ' ')}: {confidence}
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
 
                   <AIProcessingNotice
                     subject="medication label photos you upload for auto-fill"
@@ -1580,11 +1648,34 @@ const MedicationCard = ({ medication, expanded, onToggle, onDelete, getMemberNam
             </p>
           )}
 
-          {/* Label image */}
-          {medication.label_image_url && (
-            <a href={medication.label_image_url} target="_blank" rel="noopener noreferrer" className="text-primary text-sm hover:underline">
-              View Label Photo →
-            </a>
+          {/* Label images */}
+          {((medication.label_image_urls && medication.label_image_urls.length > 0) || medication.label_image_url) && (
+            <div className="space-y-2">
+              <div className="flex flex-wrap gap-2">
+                {(medication.label_image_urls && medication.label_image_urls.length > 0
+                  ? medication.label_image_urls
+                  : medication.label_image_url
+                    ? [medication.label_image_url]
+                    : []
+                ).map((url, index) => (
+                  <a
+                    key={url}
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary text-sm hover:underline"
+                  >
+                    View Label Photo {index + 1} →
+                  </a>
+                ))}
+              </div>
+              {(medication.label_analysis_confidence !== null && medication.label_analysis_confidence !== undefined) && (
+                <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+                  <span>OCR confidence: {medication.label_analysis_confidence}%</span>
+                  {medication.label_capture_mode && <span>Capture mode: {medication.label_capture_mode}</span>}
+                </div>
+              )}
+            </div>
           )}
 
           {/* Actions */}
