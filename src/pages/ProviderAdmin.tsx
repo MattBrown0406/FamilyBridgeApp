@@ -55,6 +55,7 @@ import { ProviderMessaging } from '@/components/ProviderMessaging';
 import { CRMDashboard } from '@/components/CRMDashboard';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 import { REVENUECAT_ENTITLEMENT_IDS } from '@/lib/revenuecat';
+import { OnboardingFieldsForm, defaultOnboardingFields, type OnboardingFieldsValue, PROVIDER_CATEGORIES } from '@/components/provider/OnboardingFieldsForm';
 
 // Helper to convert hex to HSL string
 const hexToHsl = (hex: string): string => {
@@ -157,6 +158,7 @@ const ProviderAdmin = () => {
     website_url: '',
     phone: '',
   });
+  const [newOrgOnboarding, setNewOrgOnboarding] = useState<OnboardingFieldsValue>(defaultOnboardingFields);
   
   // Manual branding inputs (when no website)
   const [manualBranding, setManualBranding] = useState({
@@ -189,6 +191,7 @@ const ProviderAdmin = () => {
     heading_font: '',
     body_font: '',
   });
+  const [editOnboarding, setEditOnboarding] = useState<OnboardingFieldsValue>(defaultOnboardingFields);
 
   const currentOrg = organizations.find(o => o.id === selectedOrg);
   const hasProviderRevenueCatAccess = isIOS && revenueCatSupported && hasEntitlement(REVENUECAT_ENTITLEMENT_IDS.provider);
@@ -225,6 +228,18 @@ const ProviderAdmin = () => {
         foreground_color: org.foreground_color,
         heading_font: org.heading_font,
         body_font: org.body_font,
+      });
+      setEditOnboarding({
+        provider_category: (org as any).provider_category || '',
+        levels_of_care: (org as any).levels_of_care || [],
+        primary_service_duration_days:
+          (org as any).primary_service_duration_days != null
+            ? String((org as any).primary_service_duration_days)
+            : '',
+        outcome_tracking_enabled: (org as any).outcome_tracking_enabled ?? true,
+        intervention_tracking_enabled: (org as any).intervention_tracking_enabled ?? false,
+        benchmark_opt_in: (org as any).benchmark_opt_in ?? true,
+        intake_notes: (org as any).intake_notes || '',
       });
       // Load families and moderators for this org
       await Promise.all([fetchOrgFamilies(orgId), fetchOrgModerators(orgId)]);
@@ -733,7 +748,19 @@ const ProviderAdmin = () => {
       if (manualBranding.primary_color) {
         orgData.primary_color = manualBranding.primary_color;
       }
-      
+
+      // Apply onboarding/intake fields
+      const parsedDuration = newOrgOnboarding.primary_service_duration_days
+        ? parseInt(newOrgOnboarding.primary_service_duration_days, 10)
+        : null;
+      orgData.provider_category = newOrgOnboarding.provider_category || null;
+      orgData.levels_of_care = newOrgOnboarding.levels_of_care;
+      orgData.primary_service_duration_days = Number.isFinite(parsedDuration as number) ? parsedDuration : null;
+      orgData.outcome_tracking_enabled = newOrgOnboarding.outcome_tracking_enabled;
+      orgData.intervention_tracking_enabled = newOrgOnboarding.intervention_tracking_enabled;
+      orgData.benchmark_opt_in = newOrgOnboarding.benchmark_opt_in;
+      orgData.intake_notes = newOrgOnboarding.intake_notes || null;
+
       const org = await createOrganization(orgData);
       
       // Upload manual logo if provided
@@ -748,6 +775,7 @@ const ProviderAdmin = () => {
       toast({ title: 'Success', description: 'Organization created!' });
       setIsCreating(false);
       setNewOrg({ name: '', subdomain: '', tagline: '', support_email: '', website_url: '', phone: '' });
+      setNewOrgOnboarding(defaultOnboardingFields);
       setExtractedBranding(null);
       setManualBranding({ primary_color: '', logo_file: null });
       setShowManualBranding(false);
@@ -765,7 +793,19 @@ const ProviderAdmin = () => {
     
     setIsSaving(true);
     try {
-      await updateOrganization(selectedOrg, editForm);
+      const parsedDuration = editOnboarding.primary_service_duration_days
+        ? parseInt(editOnboarding.primary_service_duration_days, 10)
+        : null;
+      await updateOrganization(selectedOrg, {
+        ...editForm,
+        provider_category: editOnboarding.provider_category || null,
+        levels_of_care: editOnboarding.levels_of_care,
+        primary_service_duration_days: Number.isFinite(parsedDuration as number) ? parsedDuration : null,
+        outcome_tracking_enabled: editOnboarding.outcome_tracking_enabled,
+        intervention_tracking_enabled: editOnboarding.intervention_tracking_enabled,
+        benchmark_opt_in: editOnboarding.benchmark_opt_in,
+        intake_notes: editOnboarding.intake_notes || null,
+      } as any);
       toast({ title: 'Success', description: 'Changes saved!' });
     } catch (err: any) {
       toast({ title: 'Error', description: err.message || 'Failed to save changes', variant: 'destructive' });
@@ -1182,6 +1222,12 @@ const ProviderAdmin = () => {
                 </Button>
               )}
               
+              <div className="space-y-2 pt-4 border-t">
+                <h3 className="text-sm font-semibold">Service profile & outcomes</h3>
+                <p className="text-xs text-muted-foreground">Used for outcome tracking and benchmark guidance.</p>
+              </div>
+              <OnboardingFieldsForm value={newOrgOnboarding} onChange={setNewOrgOnboarding} />
+
               <Button onClick={handleCreateOrg} disabled={isSaving || isExtractingBranding} className="w-full">
                 {isSaving ? 'Creating...' : 'Create Organization'}
               </Button>
@@ -1533,6 +1579,12 @@ const ProviderAdmin = () => {
                           onChange={(e) => setEditForm({ ...editForm, website_url: e.target.value })}
                         />
                       </div>
+                      <div className="space-y-2 pt-4 border-t">
+                        <h3 className="text-sm font-semibold">Service profile & outcomes</h3>
+                        <p className="text-xs text-muted-foreground">Used for outcome tracking and benchmark guidance.</p>
+                      </div>
+                      <OnboardingFieldsForm value={editOnboarding} onChange={setEditOnboarding} />
+
                       <Button onClick={handleSaveChanges} disabled={isSaving}>
                         {isSaving ? 'Saving...' : 'Save Changes'}
                       </Button>
