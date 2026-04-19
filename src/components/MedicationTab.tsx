@@ -25,8 +25,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import {
-  Pill, Camera, Plus, Loader2, Phone, User, Building2, Calendar, 
-  RefreshCw, Clock, Check, X, AlertTriangle, Trash2, Edit, ChevronDown, ChevronUp
+  Pill, Camera, Plus, Loader2, Phone, User, Building2, Calendar,
+  RefreshCw, Clock, Check, X, AlertTriangle, Trash2, Edit, ChevronDown, ChevronUp, ScanLine, Layers3
 } from 'lucide-react';
 import { format, formatDistanceToNow, isToday, isPast, addHours } from 'date-fns';
 import { usePlatform } from '@/hooks/usePlatform';
@@ -116,6 +116,8 @@ export const MedicationTab = ({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [showCameraPreview, setShowCameraPreview] = useState(false);
   const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
+  const [captureMode, setCaptureMode] = useState<'bottle' | 'flat'>('bottle');
+  const [labelImages, setLabelImages] = useState<string[]>([]);
   
   const [medications, setMedications] = useState<Medication[]>([]);
   const [todaysDoses, setTodaysDoses] = useState<MedicationDose[]>([]);
@@ -262,19 +264,25 @@ export const MedicationTab = ({
   };
 
   const handleImageCapture = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
 
-    // Reset the input value so the same file can be selected again
     e.target.value = '';
 
-    const reader = new FileReader();
-    reader.onload = async (event) => {
-      const base64 = event.target?.result as string;
-      setLabelImage(base64);
-      await analyzeLabelImage(base64);
-    };
-    reader.readAsDataURL(file);
+    const encodedImages = await Promise.all(files.map(file => new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (event) => resolve(event.target?.result as string);
+      reader.onerror = () => reject(new Error('Failed to read image'));
+      reader.readAsDataURL(file);
+    })));
+
+    setLabelImages(prev => {
+      const next = captureMode === 'flat' ? [encodedImages[0]] : [...prev, ...encodedImages].slice(0, 3);
+      const primaryImage = next[0] || null;
+      setLabelImage(primaryImage);
+      analyzeLabelImages(next);
+      return next;
+    });
   };
 
   // Robust camera opening function with iOS/iPadOS fallback
@@ -339,8 +347,10 @@ export const MedicationTab = ({
 
         const base64 = canvas.toDataURL('image/jpeg', 0.9);
         stopCamera();
-        setLabelImage(base64);
-        analyzeLabelImage(base64);
+        const nextImages = captureMode === 'flat' ? [base64] : [...labelImages, base64].slice(0, 3);
+        setLabelImages(nextImages);
+        setLabelImage(nextImages[0] || null);
+        analyzeLabelImages(nextImages);
       } else {
         toast({
           title: 'Capture failed',
@@ -351,11 +361,17 @@ export const MedicationTab = ({
     }
   };
 
-  const analyzeLabelImage = async (imageData: string) => {
+  const analyzeLabelImages = async (images: string[]) => {
+    if (images.length === 0) return;
+
     setIsAnalyzing(true);
     try {
       const { data, error } = await supabase.functions.invoke('analyze-medication-label', {
-        body: { image: imageData }
+        body: {
+          image: images[0],
+          images,
+          capture_mode: captureMode
+        }
       });
 
       if (error) throw error;
@@ -377,7 +393,7 @@ export const MedicationTab = ({
         }));
 
         toast({
-          title: 'Label analyzed!',
+          title: images.length > 1 ? 'Label images analyzed!' : 'Label analyzed!',
           description: `Confidence: ${data.confidence}%. Please verify the extracted information.`
         });
       }
@@ -416,18 +432,24 @@ export const MedicationTab = ({
     try {
       // Upload label image if present
       let labelImageUrl = null;
-      if (labelImage) {
-        const fileName = `${familyId}/${Date.now()}-medication-label.jpg`;
-        const base64Data = labelImage.split(',')[1];
-        const { error: uploadError } = await supabase.storage
-          .from('medication-labels')
-          .upload(fileName, decode(base64Data), {
-            contentType: 'image/jpeg'
-          });
+      if (labelImages.length > 0) {
+        const uploadedRefs: string[] = [];
 
-        if (!uploadError) {
-          labelImageUrl = createStorageRef('medication-labels', fileName);
+        for (const [index, image] of labelImages.entries()) {
+          const fileName = `${familyId}/${Date.now()}-medication-label-${index + 1}.jpg`;
+          const base64Data = image.split(',')[1];
+          const { error: uploadError } = await supabase.storage
+            .from('medication-labels')
+            .upload(fileName, decode(base64Data), {
+              contentType: 'image/jpeg'
+            });
+
+          if (!uploadError) {
+            uploadedRefs.push(createStorageRef('medication-labels', fileName));
+          }
         }
+
+        labelImageUrl = uploadedRefs[0] || null;
       }
 
       const { data, error } = await supabase
@@ -617,6 +639,8 @@ export const MedicationTab = ({
       inventory_notes: ''
     });
     setLabelImage(null);
+    setLabelImages([]);
+    setCaptureMode('bottle');
   };
 
   const updateTimesPerDay = (count: number) => {
@@ -813,6 +837,45 @@ export const MedicationTab = ({
               <div className="space-y-4">
                 <div>
                   <Label>Medication Label Photo</Label>
+                  <div className="mt-2 grid grid-cols-2 gap-2">
+                    <Button
+                      type="button"
+                      variant={captureMode === 'bottle' ? 'default' : 'outline'}
+                      className="justify-start gap-2 h-auto py-3"
+                      onClick={() => {
+                        setCaptureMode('bottle');
+                        setLabelImages([]);
+                        setLabelImage(null);
+                      }}
+                    >
+                      <Layers3 className="h-4 w-4" />
+                      <div className="text-left">
+                        <div>Bottle Mode</div>
+                        <div className="text-xs opacity-80">Take 2 to 3 guided photos around the bottle</div>
+                      </div>
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={captureMode === 'flat' ? 'default' : 'outline'}
+                      className="justify-start gap-2 h-auto py-3"
+                      onClick={() => {
+                        setCaptureMode('flat');
+                        setLabelImages([]);
+                        setLabelImage(null);
+                      }}
+                    >
+                      <ScanLine className="h-4 w-4" />
+                      <div className="text-left">
+                        <div>Flat Label Mode</div>
+                        <div className="text-xs opacity-80">Single photo for flat packaging or unfolded labels</div>
+                      </div>
+                    </Button>
+                  </div>
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    {captureMode === 'bottle'
+                      ? `Bottle Mode works best for skinny bottles. Add 2 to 3 angles so the label can be reconstructed.`
+                      : 'Flat Label Mode is best when the full label fits in one clear shot.'}
+                  </p>
                   <div className="mt-2 flex flex-col items-center gap-2">
                     {/* Camera Preview Mode */}
                     {showCameraPreview ? (
@@ -845,27 +908,43 @@ export const MedicationTab = ({
                           </Button>
                         </div>
                       </div>
-                    ) : labelImage ? (
-                      <div className="relative w-full">
-                        <img 
-                          src={labelImage} 
-                          alt="Medication label" 
-                          className="w-full h-40 object-cover rounded-lg"
-                        />
+                    ) : labelImages.length > 0 ? (
+                      <div className="relative w-full space-y-2">
+                        <div className={`grid gap-2 ${labelImages.length > 1 ? 'grid-cols-3' : 'grid-cols-1'}`}>
+                          {labelImages.map((image, index) => (
+                            <img
+                              key={index}
+                              src={image}
+                              alt={`Medication label ${index + 1}`}
+                              className="w-full h-32 object-cover rounded-lg border"
+                            />
+                          ))}
+                        </div>
                         {isAnalyzing && (
                           <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-lg">
                             <Loader2 className="h-8 w-8 animate-spin text-white" />
                             <span className="ml-2 text-white">Analyzing...</span>
                           </div>
                         )}
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          className="absolute top-2 right-2"
-                          onClick={() => setLabelImage(null)}
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
+                        <div className="flex gap-2">
+                          {captureMode === 'bottle' && labelImages.length < 3 && (
+                            <Button type="button" variant="outline" onClick={openCamera}>
+                              <Camera className="h-4 w-4 mr-1" />
+                              Add Another Angle
+                            </Button>
+                          )}
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => {
+                              setLabelImage(null);
+                              setLabelImages([]);
+                            }}
+                          >
+                            <X className="h-4 w-4 mr-1" />
+                            Clear Photos
+                          </Button>
+                        </div>
                       </div>
                     ) : (
                       <Button
@@ -875,28 +954,27 @@ export const MedicationTab = ({
                         onClick={openCamera}
                       >
                         <Camera className="h-8 w-8" />
-                        <span>Take Photo of Label</span>
+                        <span>{captureMode === 'bottle' ? 'Take Bottle Photo' : 'Take Photo of Label'}</span>
                       </Button>
                     )}
-                    {/* Hidden file input for gallery selection */}
                     <input
                       ref={fileInputRef}
                       type="file"
                       accept="image/*"
+                      multiple={captureMode === 'bottle'}
                       className="hidden"
                       onChange={handleImageCapture}
                     />
-                    {/* Hidden camera input for native camera capture (iOS/Android fallback) */}
                     <input
                       ref={cameraInputRef}
                       type="file"
                       accept="image/*"
                       capture="environment"
+                      multiple={captureMode === 'bottle'}
                       className="hidden"
                       onChange={handleImageCapture}
                     />
-                    {/* Option to select from gallery if camera not showing */}
-                    {!showCameraPreview && !labelImage && (
+                    {!showCameraPreview && labelImages.length === 0 && (
                       <Button
                         type="button"
                         variant="ghost"
@@ -904,7 +982,7 @@ export const MedicationTab = ({
                         onClick={() => fileInputRef.current?.click()}
                         className="text-muted-foreground"
                       >
-                        Or select from gallery
+                        {captureMode === 'bottle' ? 'Or select 2 to 3 images from gallery' : 'Or select from gallery'}
                       </Button>
                     )}
                   </div>

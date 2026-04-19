@@ -27,9 +27,11 @@ serve(async (req) => {
   }
 
   try {
-    const { image } = await req.json();
+    const { image, images, capture_mode } = await req.json();
 
-    if (!image) {
+    const imageList = Array.isArray(images) && images.length > 0 ? images : (image ? [image] : []);
+
+    if (imageList.length === 0) {
       return new Response(
         JSON.stringify({ error: 'No image provided' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -46,7 +48,9 @@ serve(async (req) => {
       );
     }
 
-    const analysisPrompt = `Analyze this prescription medication label image and extract all relevant information. You must respond with ONLY a valid JSON object (no markdown, no code blocks, no extra text).
+    const analysisPrompt = `Analyze ${capture_mode === 'bottle' ? 'these prescription bottle label images taken from multiple angles' : 'this prescription medication label image'} and extract all relevant information. You must respond with ONLY a valid JSON object (no markdown, no code blocks, no extra text).
+
+${capture_mode === 'bottle' ? 'These images may show overlapping sections of a wrapped pharmacy label. Merge the visible details across all images, deduplicate repeated text, and prefer the clearest value when fields conflict.' : ''}
 
 Extract the following fields from the medication label:
 1. medication_name - The name of the medication (brand or generic)
@@ -99,12 +103,10 @@ Important:
                 type: 'text',
                 text: analysisPrompt
               },
-              {
+              ...imageList.map((url: string) => ({
                 type: 'image_url',
-                image_url: {
-                  url: image
-                }
-              }
+                image_url: { url }
+              }))
             ]
           }
         ],
