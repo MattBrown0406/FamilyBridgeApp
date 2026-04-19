@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { Suspense, lazy, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSuperAdmin } from '@/hooks/useSuperAdmin';
 import { useAuth } from '@/hooks/useAuth';
@@ -45,11 +45,11 @@ import {
   Archive,
   KeyRound
 } from 'lucide-react';
-import { PatentDocumentation } from '@/components/PatentDocumentation';
-import { ArchivedFamiliesPanel } from '@/components/ArchivedFamiliesPanel';
-import { SuperAdminBroadcast } from '@/components/SuperAdminBroadcast';
-import { SuperAdminRequests } from '@/components/SuperAdminRequests';
-import { SuperAdminOutcomesDashboard } from '@/components/SuperAdminOutcomesDashboard';
+const PatentDocumentation = lazy(() => import('@/components/PatentDocumentation'));
+const ArchivedFamiliesPanel = lazy(() => import('@/components/ArchivedFamiliesPanel'));
+const SuperAdminBroadcast = lazy(() => import('@/components/SuperAdminBroadcast'));
+const SuperAdminRequests = lazy(() => import('@/components/SuperAdminRequests'));
+const SuperAdminOutcomesDashboard = lazy(() => import('@/components/SuperAdminOutcomesDashboard'));
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { format } from 'date-fns';
@@ -670,8 +670,10 @@ const SuperAdmin = () => {
                 <Plus className="h-3.5 w-3.5" />
                 <span className="hidden sm:inline">Family</span>
               </Button>
-              <SuperAdminBroadcast />
-              <SuperAdminRequests />
+              <Suspense fallback={null}>
+                <SuperAdminBroadcast />
+                <SuperAdminRequests />
+              </Suspense>
               <Button variant="ghost" size="icon" onClick={refetch} disabled={isLoadingStats} className="h-8 w-8">
                 <RefreshCw className={`h-4 w-4 ${isLoadingStats ? 'animate-spin' : ''}`} />
               </Button>
@@ -1169,25 +1171,31 @@ const SuperAdmin = () => {
               </TabsContent>
 
               <TabsContent value="outcomes" className="mt-0">
-                {stats.outcomes ? (
-                  <SuperAdminOutcomesDashboard outcomes={stats.outcomes as any} />
-                ) : (
-                  <Card className="border-0 shadow-sm">
-                    <CardContent className="pt-6 text-sm text-muted-foreground">
-                      Outcomes data is not available yet.
-                    </CardContent>
-                  </Card>
-                )}
+                <Suspense fallback={<Card className="border-0 shadow-sm"><CardContent className="pt-6 text-sm text-muted-foreground">Loading outcomes dashboard...</CardContent></Card>}>
+                  {stats.outcomes ? (
+                    <SuperAdminOutcomesDashboard outcomes={stats.outcomes as any} />
+                  ) : (
+                    <Card className="border-0 shadow-sm">
+                      <CardContent className="pt-6 text-sm text-muted-foreground">
+                        Outcomes data is not available yet.
+                      </CardContent>
+                    </Card>
+                  )}
+                </Suspense>
               </TabsContent>
 
               <TabsContent value="archived" className="mt-0">
-                <ArchivedFamiliesPanel onReactivate={refetch} />
+                <Suspense fallback={<Card className="border-0 shadow-sm"><CardContent className="pt-6 text-sm text-muted-foreground">Loading archived families...</CardContent></Card>}>
+                  <ArchivedFamiliesPanel onReactivate={refetch} />
+                </Suspense>
               </TabsContent>
 
               <TabsContent value="patent-docs" className="mt-0">
-                <Card className="border-0 shadow-sm p-6">
-                  <PatentDocumentation />
-                </Card>
+                <Suspense fallback={<Card className="border-0 shadow-sm"><CardContent className="pt-6 text-sm text-muted-foreground">Loading patent documentation...</CardContent></Card>}>
+                  <Card className="border-0 shadow-sm p-6">
+                    <PatentDocumentation />
+                  </Card>
+                </Suspense>
               </TabsContent>
             </Tabs>
           </div>

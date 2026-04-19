@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense, lazy } from 'react';
 import type { ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usePlatform } from '@/hooks/usePlatform';
@@ -49,7 +49,7 @@ import {
 } from 'lucide-react';
 import { ArchivedFamiliesPanel } from '@/components/ArchivedFamiliesPanel';
 import { BroadcastMessage } from '@/components/BroadcastMessage';
-import { ProviderAdminSupport } from '@/components/ProviderAdminSupport';
+const ProviderAdminSupport = lazy(() => import('@/components/ProviderAdminSupport'));
 import { FamilyHandoffDialog } from '@/components/FamilyHandoffDialog';
 import { ProviderOutcomeReports } from '@/components/ProviderOutcomeReports';
 import { ProviderNotesPanel } from '@/components/ProviderNotesPanel';
@@ -1484,10 +1484,12 @@ const ProviderAdmin = () => {
                 <span className="hidden md:inline ml-2">Moderator</span>
               </Button>
               {currentOrg && (
-                <ProviderAdminSupport 
-                  organizationId={currentOrg.id} 
-                  organizationName={currentOrg.name} 
-                />
+                <Suspense fallback={null}>
+                  <ProviderAdminSupport 
+                    organizationId={currentOrg.id} 
+                    organizationName={currentOrg.name} 
+                  />
+                </Suspense>
               )}
               <Button 
                 variant="ghost" 
