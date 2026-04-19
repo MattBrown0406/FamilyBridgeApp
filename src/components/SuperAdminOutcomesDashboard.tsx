@@ -58,7 +58,6 @@ interface OrganizationOutcome {
   handoffs_initiated: number;
   handoffs_received: number;
   handoffs_completed: number;
-  success_score: number;
   score_trend: string;
   critical_alert_count: number;
   warning_alert_count: number;
@@ -91,13 +90,6 @@ interface Props {
     families: FamilyOutcome[];
   };
 }
-
-const scoreTone = (score: number) => {
-  if (score >= 8) return 'text-green-600 border-green-200 bg-green-50';
-  if (score >= 6) return 'text-amber-600 border-amber-200 bg-amber-50';
-  if (score >= 4) return 'text-orange-600 border-orange-200 bg-orange-50';
-  return 'text-red-600 border-red-200 bg-red-50';
-};
 
 const phaseLabel = (phase: string | null) => {
   if (!phase) return 'Unknown';
@@ -210,8 +202,8 @@ export function SuperAdminOutcomesDashboard({ outcomes }: Props) {
                         {provider.provider_category ? <span>{provider.provider_category}</span> : null}
                       </div>
                     </div>
-                    <Badge variant="outline" className={scoreTone(provider.success_score)}>
-                      {provider.success_score}/10
+                    <Badge variant="outline">
+                      {provider.score_trend || 'tracked'}
                     </Badge>
                   </div>
 
@@ -235,13 +227,6 @@ export function SuperAdminOutcomesDashboard({ outcomes }: Props) {
                   </div>
 
                   <div className="space-y-2">
-                    <div>
-                      <div className="flex items-center justify-between text-[11px] text-muted-foreground mb-1">
-                        <span>Provider success score</span>
-                        <span>{provider.success_score}/10</span>
-                      </div>
-                      <Progress value={provider.success_score * 10} className="h-2" />
-                    </div>
                     <div className="flex flex-wrap gap-2 text-[11px]">
                       <Badge variant="secondary">{provider.handoffs_completed} completed handoffs</Badge>
                       <Badge variant="secondary">{provider.reset_rate}% resets</Badge>
