@@ -108,3 +108,31 @@ Prompt surfaces now have a shared doctrinal core instead of drifting independent
 - No data-model redesign
 - No replacement of current AI providers
 - No hidden clinical positioning beyond stated guardrails
+
+## 2026 Implementation Status Update
+
+As of April 2026, the doctrine has been operationalized across the platform:
+
+### Shared runtime plumbing (live)
+- `supabase/functions/_shared/fiis-doctrine.ts` — core anchors, lenses, escalation ladder, guardrails
+- `supabase/functions/_shared/fiis-runtime.ts` — audience + mode + lens selection, plain-language surface toggle
+- `supabase/functions/_shared/fiis-family-context.ts` — per-family context aggregation (sobriety, boundaries, emotional check-ins, meetings, messages, financial, coaching, medications, provider notes, aftercare, calibration patterns, feedback, values, goals)
+- `supabase/functions/_shared/fiis-telemetry.ts` — runtime flags (helpful_rate, false_positive_rate, false_negative_rate, boundary_hold_rate) → guidance style + escalation level
+- `supabase/functions/_shared/fiis-learning.ts` — Stage 1/2 learning context
+
+### Edge functions consuming the shared runtime
+- `live-coaching`, `screenshot-coaching`, `fiis-analyze`, `fiis-moderator-chat`, `communication-helper`
+
+### New intelligence systems wired into the platform (2026)
+- **Outcome Prediction Engine** (`calculate-outcome-predictions`) — strictly per-family, professional-restricted; `benchmark_opt_in` reserved for future cross-org benchmarking but intentionally not yet wired
+- **Accountability Engine** (`calculate-accountability-scores`) — family + provider scores, system-alignment scoring, commitments, behavioral contracts, severity-tiered alerts
+- **Post-Intervention Continuity Engine** (`/post-intervention`) — Accepted Treatment Path vs Family Recovery Mode (declined), shared continuity readiness scoring + handoff + re-auth-gated transition summaries
+- **Provider Coordination System** (`/provider-coordination`) — multi-org cases, role-typed members, channel-typed messaging, tasks, AI insights, strict org isolation
+- **AI Governance + Learning Layer** (`/ai-governance`, `/ai-learning-layer`, `/ai-learning-layer-stage-2`) — proposals → governance gates (signal stability + evidence strength + doctrine compliance + approval) → active adaptations modulating runtime
+- **Structured Input Accountability + Reconciliation** (`/input-reconciliation`) — cross-source comparator, drift/contradiction detector, confidence-weighted reconciled truth feeding FIIS + Accountability Engine
+- **Care Phase Lifecycle** — formalized state machine across Pre-Intervention → Intervention Readiness → Execution → clinical phases → Independent, with Reset and Re-Approach loops
+
+### Boundary doctrine — fully enforced
+- `src/lib/boundaryQuality.ts` validates clarity, measurability, enforceability, and consequence realism at boundary creation time
+- `consequence_events` records (enforced / failed / violated) feed both FIIS pattern analysis and the Accountability Engine
+
