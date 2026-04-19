@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, Suspense, lazy } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { usePlatform } from '@/hooks/usePlatform';
 import { Button } from '@/components/ui/button';
@@ -89,7 +89,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { filterContent } from '@/lib/contentFilter';
-import { RecoveryTrajectoryPanel } from '@/components/RecoveryTrajectoryPanel';
+const RecoveryTrajectoryPanel = lazy(() => import('@/components/RecoveryTrajectoryPanel'));
 
 // Import comprehensive demo data
 import {
@@ -1658,19 +1658,21 @@ const DemoFamily = () => {
 
                 {/* Recovery Trajectory Panel */}
                 {(currentFamily.fiisObservations.length > 0 || currentFamily.fiisAutoEvents.length > 0) && (
-                  <RecoveryTrajectoryPanel 
-                    data={{
-                      observations: currentFamily.fiisObservations.map(o => ({
-                        occurred_at: o.occurred_at,
-                        observation_type: o.observation_type,
-                      })),
-                      autoEvents: currentFamily.fiisAutoEvents.map(e => ({
-                        occurred_at: e.occurred_at,
-                        event_type: e.event_type,
-                        event_data: e.event_data,
-                      })),
-                    }}
-                  />
+                  <Suspense fallback={null}>
+                    <RecoveryTrajectoryPanel 
+                      data={{
+                        observations: currentFamily.fiisObservations.map(o => ({
+                          occurred_at: o.occurred_at,
+                          observation_type: o.observation_type,
+                        })),
+                        autoEvents: currentFamily.fiisAutoEvents.map(e => ({
+                          occurred_at: e.occurred_at,
+                          event_type: e.event_type,
+                          event_data: e.event_data,
+                        })),
+                      }}
+                    />
+                  </Suspense>
                 )}
 
                 {currentFamily.fiisAnalysis && (

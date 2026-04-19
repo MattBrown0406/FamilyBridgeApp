@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense, lazy } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -48,7 +48,7 @@ import {
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { format, formatDistanceToNow } from "date-fns";
-import { RecoveryTrajectoryPanel } from "@/components/RecoveryTrajectoryPanel";
+const RecoveryTrajectoryPanel = lazy(() => import("@/components/RecoveryTrajectoryPanel"));
 import { PatternShiftAlerts } from "@/components/PatternShiftAlerts";
 import { ContinuityTransitionPanel } from "@/components/ContinuityTransitionPanel";
 import { FIISFeedbackDialog } from "@/components/FIISFeedbackDialog";
@@ -736,22 +736,24 @@ export function FIISTab({ familyId, members, excludeUserIds = [], onView, isMode
 
       {/* Recovery Trajectory Panel */}
       {(observations.length > 0 || autoEvents.length > 0) && (
-        <RecoveryTrajectoryPanel 
-          data={{
-            observations: observations.map(o => ({
-              occurred_at: o.occurred_at,
-              observation_type: o.observation_type,
-            })),
-            autoEvents: autoEvents.map(e => ({
-              occurred_at: e.occurred_at,
-              event_type: e.event_type,
-              event_data: e.event_data,
-            })),
-            riskTrajectory: analysis?.risk_trajectory,
-          }}
-          analysisRiskLevel={analysis?.risk_level}
-          analysisRiskLevelName={analysis?.risk_level_name}
-        />
+        <Suspense fallback={null}>
+          <RecoveryTrajectoryPanel 
+            data={{
+              observations: observations.map(o => ({
+                occurred_at: o.occurred_at,
+                observation_type: o.observation_type,
+              })),
+              autoEvents: autoEvents.map(e => ({
+                occurred_at: e.occurred_at,
+                event_type: e.event_type,
+                event_data: e.event_data,
+              })),
+              riskTrajectory: analysis?.risk_trajectory,
+            }}
+            analysisRiskLevel={analysis?.risk_level}
+            analysisRiskLevelName={analysis?.risk_level_name}
+          />
+        </Suspense>
       )}
 
       {/* Pattern Shift Alerts - Early warnings without alarmism */}
