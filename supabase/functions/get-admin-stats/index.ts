@@ -919,7 +919,7 @@ Deno.serve(async (req) => {
         const directSupportEngaged = (directFamilySupportCountByFamily.get(member.family_id) || 0) > 0;
         const familyCoachingSessions = coachingSessionsByFamily.get(member.family_id) || [];
         const coachingEngaged = familyCoachingSessions.length > 0;
-        const familyEngaged = directSupportEngaged || coachingEngaged || recentMessageCountByFamily.get(member.family_id) > 0;
+        const familyEngaged = directSupportEngaged || coachingEngaged || (recentMessageCountByFamily.get(member.family_id) ?? 0) > 0;
         const supportiveScore = aiCommunication.supportive_score;
         const concerningScore = Math.max(aiCommunication.criticism_score || 0, aiCommunication.enabling_score || 0);
         const communicationValence = aiCommunication.communication_valence;
@@ -984,9 +984,9 @@ Deno.serve(async (req) => {
         score_trend: scoreByOrganization.get(org.id)?.trend ?? "stable",
         critical_alert_count: alertsByOrganization.get(org.id)?.critical || 0,
         warning_alert_count: alertsByOrganization.get(org.id)?.warning || 0,
-        benchmark_opt_in: org.benchmark_opt_in ?? false,
-        provider_category: org.provider_category ?? null,
-        levels_of_care: org.levels_of_care ?? [],
+        benchmark_opt_in: (org as any).benchmark_opt_in ?? false,
+        provider_category: (org as any).provider_category ?? null,
+        levels_of_care: (org as any).levels_of_care ?? [],
         benchmark_timelines: buildBenchmarkSummary(orgBenchmarkRows),
       });
     });
@@ -1035,7 +1035,7 @@ Deno.serve(async (req) => {
       const directSupportEngaged = (directFamilySupportCountByFamily.get(member.family_id) || 0) > 0;
       const familyCoachingSessions = coachingSessionsByFamily.get(member.family_id) || [];
       const coachingEngaged = familyCoachingSessions.length > 0;
-      const familyEngaged = directSupportEngaged || coachingEngaged || recentMessageCountByFamily.get(member.family_id) > 0;
+      const familyEngaged = directSupportEngaged || coachingEngaged || (recentMessageCountByFamily.get(member.family_id) ?? 0) > 0;
       const supportiveScore = aiCommunication.supportive_score;
       const concerningScore = Math.max(aiCommunication.criticism_score || 0, aiCommunication.enabling_score || 0);
       const communicationValence = aiCommunication.communication_valence;
@@ -1075,8 +1075,8 @@ Deno.serve(async (req) => {
     const globalOutcomes = {
       total_recovering_members: totalRecoveringMembers,
       active_recovering_members: activeJourneys.length,
-      providers_with_outcome_tracking: (orgData || []).filter((org) => org.outcome_tracking_enabled).length,
-      providers_opted_into_benchmarks: (orgData || []).filter((org) => org.benchmark_opt_in).length,
+      providers_with_outcome_tracking: (orgData || []).filter((org: any) => org.outcome_tracking_enabled).length,
+      providers_opted_into_benchmarks: (orgData || []).filter((org: any) => org.benchmark_opt_in).length,
       total_completed_handoffs: completedHandoffs.length,
       critical_alert_count: activeCriticalAlerts.length,
       warning_alert_count: activeWarningAlerts.length,

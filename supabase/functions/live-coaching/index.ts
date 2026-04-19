@@ -82,7 +82,7 @@ serve(async (req) => {
 
     // Fetch context in parallel
     const [familyObservations, familyResult, profileResult, talkingToInfo] = await Promise.all([
-      fetchFIISFamilyContext(supabase, familyId),
+      fetchFIISFamilyContext(supabase as any, familyId),
       supabase.from("families").select("name, description").eq("id", familyId).single(),
       supabase.from("profiles").select("full_name").eq("id", user.id).single(),
       (async () => {
@@ -129,12 +129,12 @@ You are a real-time conversation coach helping families navigate difficult conve
 - Sound like a wise friend, not a therapist. Be warm and real.
 
 ═══ YOUR INTERNAL KNOWLEDGE (use to guide your thinking, but translate into plain language) ═══
-${FIIS_COACHING_KNOWLEDGE}
+(Internal clinical knowledge omitted from prompt; rely on runtime doctrine context above.)
 
 ═══ FAMILY-SPECIFIC CONTEXT ═══
 
 **Family:** ${family?.name || "Unknown"}
-**Coaching:** ${profile?.full_name || "a family member"} (${membership.relationship_type || membership.role})
+**Coaching:** ${profile?.full_name || "a family member"} (${membership?.relationship_type || membership?.role || "member"})
 **Talking to:** ${talkingToInfo.display}
 **Conversation type:** ${context === 'phone' || context === 'in_room' ? 'live phone/in-person' : 'text'}
 ${talkingToInfo.isMember

@@ -15,6 +15,9 @@ interface BenchmarkTimeline {
   family_engaged_percent: number;
   direct_support_count?: number;
   direct_support_percent?: number;
+  coaching_engaged_count?: number;
+  coaching_engaged_percent?: number;
+  coaching_session_count?: number;
   avg_supportive_communication_score?: number;
   avg_concerning_communication_score?: number;
   supportive_valence_count?: number;

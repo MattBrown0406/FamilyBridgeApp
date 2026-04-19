@@ -44,7 +44,7 @@ export async function loadFIISRuntimeTelemetry(supabase: any, familyId: string):
     ? "brief_concrete"
     : runtimeFlags.weak_boundary_followthrough
       ? "boundary_forward"
-      : activeAdaptations.some((item) => item.parameter_key === "deescalation_script_priority")
+      : activeAdaptations.some((item: any) => item.parameter_key === "deescalation_script_priority")
         ? "deescalation_first"
         : "balanced";
 
