@@ -29,6 +29,13 @@ export interface AccountabilityScore {
   factors: any[];
   ai_insight: string | null;
   positive_feedback: string[] | null;
+  supportiveness_score?: number | null;
+  criticism_score?: number | null;
+  enabling_score?: number | null;
+  emotional_regulation_score?: number | null;
+  boundary_consistency_score?: number | null;
+  recovery_alignment_score?: number | null;
+  communication_valence?: string | null;
   calculated_at: string;
 }
 

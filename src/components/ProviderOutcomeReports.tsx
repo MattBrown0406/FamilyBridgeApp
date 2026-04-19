@@ -49,6 +49,10 @@ interface BenchmarkTimeline {
   soberPercent: number;
   familyEngagedCount: number;
   familyEngagedPercent: number;
+  directSupportCount?: number;
+  directSupportPercent?: number;
+  avgSupportiveCommunicationScore?: number;
+  avgConcerningCommunicationScore?: number;
   aftercareAdherentCount: number;
   aftercareAdherentPercent: number;
 }
@@ -280,13 +284,13 @@ export const ProviderOutcomeReports = ({
 
       const { data: recentMessages } = await supabase
         .from("messages")
-        .select("family_id")
+        .select("family_id, content")
         .in("family_id", familyIds)
         .gte("created_at", subMonths(new Date(), 3).toISOString());
 
       const { data: recentCheckins } = await supabase
         .from("meeting_checkins")
-        .select("family_id")
+        .select("family_id, meeting_type")
         .in("family_id", familyIds)
         .gte("checked_in_at", subMonths(new Date(), 3).toISOString());
 
@@ -457,9 +461,29 @@ export const ProviderOutcomeReports = ({
         recommendationsByPlan.set(recommendation.plan_id, existing);
       });
       const messageCounts = new Map<string, number>();
-      (recentMessages || []).forEach((message) => messageCounts.set(message.family_id, (messageCounts.get(message.family_id) || 0) + 1));
+      const communicationMetrics = new Map<string, { supportive: number; concerning: number; critical: number; boundaryAligned: number; enabling: number; total: number }>();
+      const supportivePatterns = [/\bproud of you\b/i, /\bwe love you\b/i, /\bi love you\b/i, /\bhere for you\b/i, /\bkeep going\b/i, /\bthank you for sharing\b/i, /\bwe support you\b/i];
+      const boundaryPatterns = [/\bnot sending money\b/i, /\bwe are not paying\b/i, /\bwe can't do that\b/i, /\bthat is your responsibility\b/i, /\bboundary\b/i, /\bconsequence\b/i, /\baccountab/i];
+      const enablingPatterns = [/\bjust this once\b/i, /\bwe'll fix it\b/i, /\bcome home and we'll take care of it\b/i, /\bi'll cover for you\b/i];
+      const criticalPatterns = [/\byou always\b/i, /\byou never\b/i, /\bwhat is wrong with you\b/i, /\bpathetic\b/i, /\bshame on you\b/i];
+      const concerningPatterns = [/\bfurious\b/i, /\bangry\b/i, /\bcan't trust you\b/i, /\bliar\b/i, /\blying\b/i, /\bmanipulat/i];
+      (recentMessages || []).forEach((message) => {
+        messageCounts.set(message.family_id, (messageCounts.get(message.family_id) || 0) + 1);
+        const existing = communicationMetrics.get(message.family_id) || { supportive: 0, concerning: 0, critical: 0, boundaryAligned: 0, enabling: 0, total: 0 };
+        const content = message.content || "";
+        existing.total += 1;
+        if (supportivePatterns.some((pattern) => pattern.test(content))) existing.supportive += 1;
+        if (boundaryPatterns.some((pattern) => pattern.test(content))) existing.boundaryAligned += 1;
+        if (enablingPatterns.some((pattern) => pattern.test(content))) existing.enabling += 1;
+        if (criticalPatterns.some((pattern) => pattern.test(content))) existing.critical += 1;
+        if (concerningPatterns.some((pattern) => pattern.test(content))) existing.concerning += 1;
+        communicationMetrics.set(message.family_id, existing);
+      });
       const checkinCounts = new Map<string, number>();
-      (recentCheckins || []).forEach((checkin) => checkinCounts.set(checkin.family_id, (checkinCounts.get(checkin.family_id) || 0) + 1));
+      const directSupportMeetingTypes = new Set(["AA", "Al-Anon", "NA", "Nar-Anon", "Refuge Recovery", "Smart Recovery", "ACA", "CoDA", "Families Anonymous", "Celebrate Recovery", "Therapy", "Support Group", "Other"]);
+      (recentCheckins || []).forEach((checkin) => {
+        checkinCounts.set(checkin.family_id, (checkinCounts.get(checkin.family_id) || 0) + 1);
+      });
 
       const benchmarkRows = userIds.map((userId) => {
         const member = members?.find((m) => m.user_id === userId);
@@ -477,6 +501,13 @@ export const ProviderOutcomeReports = ({
           sobrietyDays: journey ? differenceInDays(new Date(), new Date(journey.start_date)) : 0,
           hadReset: (journey?.reset_count || 0) > 0,
           familyEngaged: member ? ((messageCounts.get(member.family_id) || 0) + (checkinCounts.get(member.family_id) || 0)) > 0 : false,
+          directSupportEngaged: member ? (recentCheckins || []).some((checkin) => checkin.family_id === member.family_id && directSupportMeetingTypes.has(checkin.meeting_type)) : false,
+          supportiveCommunicationScore: member && communicationMetrics.get(member.family_id)?.total
+            ? Math.max(0, Math.min(100, Math.round(((((communicationMetrics.get(member.family_id)?.supportive || 0) + (communicationMetrics.get(member.family_id)?.boundaryAligned || 0)) - ((communicationMetrics.get(member.family_id)?.critical || 0) + (communicationMetrics.get(member.family_id)?.enabling || 0))) / (communicationMetrics.get(member.family_id)?.total || 1)) * 100 + 50)))
+            : 0,
+          concerningCommunicationScore: member && communicationMetrics.get(member.family_id)?.total
+            ? Math.max(0, Math.min(100, Math.round((((communicationMetrics.get(member.family_id)?.critical || 0) + (communicationMetrics.get(member.family_id)?.concerning || 0) + (communicationMetrics.get(member.family_id)?.enabling || 0)) / (communicationMetrics.get(member.family_id)?.total || 1)) * 100)))
+            : 0,
           aftercareAdherent: recs.length > 0 ? completedRecs / recs.length >= 0.7 : false,
         };
       });
@@ -486,7 +517,10 @@ export const ProviderOutcomeReports = ({
         const totalClients = eligible.length;
         const soberCount = eligible.filter((row) => row.sobrietyDays >= benchmark.days && !row.hadReset).length;
         const familyEngagedCount = eligible.filter((row) => row.familyEngaged).length;
+        const directSupportCount = eligible.filter((row) => row.directSupportEngaged).length;
         const aftercareAdherentCount = eligible.filter((row) => row.aftercareAdherent).length;
+        const avgSupportiveCommunicationScore = totalClients > 0 ? Math.round(eligible.reduce((sum, row) => sum + (row.supportiveCommunicationScore || 0), 0) / totalClients) : 0;
+        const avgConcerningCommunicationScore = totalClients > 0 ? Math.round(eligible.reduce((sum, row) => sum + (row.concerningCommunicationScore || 0), 0) / totalClients) : 0;
         return {
           key: benchmark.key,
           label: benchmark.label,
@@ -496,6 +530,10 @@ export const ProviderOutcomeReports = ({
           soberPercent: totalClients > 0 ? Math.round((soberCount / totalClients) * 100) : 0,
           familyEngagedCount,
           familyEngagedPercent: totalClients > 0 ? Math.round((familyEngagedCount / totalClients) * 100) : 0,
+          directSupportCount,
+          directSupportPercent: totalClients > 0 ? Math.round((directSupportCount / totalClients) * 100) : 0,
+          avgSupportiveCommunicationScore,
+          avgConcerningCommunicationScore,
           aftercareAdherentCount,
           aftercareAdherentPercent: totalClients > 0 ? Math.round((aftercareAdherentCount / totalClients) * 100) : 0,
         };
@@ -764,6 +802,14 @@ export const ProviderOutcomeReports = ({
                   <div>
                     <div className="flex items-center justify-between mb-1"><span>Family engagement</span><span>{benchmark.familyEngagedPercent}% ({benchmark.familyEngagedCount})</span></div>
                     <Progress value={benchmark.familyEngagedPercent} className="h-2" />
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between mb-1"><span>Direct support</span><span>{benchmark.directSupportPercent ?? 0}% ({benchmark.directSupportCount ?? 0})</span></div>
+                    <Progress value={benchmark.directSupportPercent ?? 0} className="h-2" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 text-[11px] text-muted-foreground">
+                    <div>Supportive comms: <span className="font-medium text-foreground">{benchmark.avgSupportiveCommunicationScore ?? 0}</span></div>
+                    <div>Concerning comms: <span className="font-medium text-foreground">{benchmark.avgConcerningCommunicationScore ?? 0}</span></div>
                   </div>
                   <div>
                     <div className="flex items-center justify-between mb-1"><span>Aftercare adherence</span><span>{benchmark.aftercareAdherentPercent}% ({benchmark.aftercareAdherentCount})</span></div>

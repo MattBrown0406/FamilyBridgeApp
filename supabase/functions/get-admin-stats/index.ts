@@ -546,6 +546,7 @@ Deno.serve(async (req) => {
       aftercareRecommendationsResult,
       messages90DayResult,
       checkins90DayResult,
+      coachingSessionsResult,
     ] = await Promise.all([
       adminClient
         .from("family_members")
@@ -575,12 +576,16 @@ Deno.serve(async (req) => {
         .select("id, plan_id, is_completed, completed_at, created_at"),
       adminClient
         .from("messages")
-        .select("family_id, created_at")
+        .select("family_id, created_at, content")
         .gte("created_at", weekAgo.toISOString()),
       adminClient
         .from("meeting_checkins")
-        .select("family_id, checked_in_at")
+        .select("family_id, checked_in_at, meeting_type")
         .gte("checked_in_at", weekAgo.toISOString()),
+      adminClient
+        .from("coaching_sessions")
+        .select("family_id, session_type, started_at, user_id, talking_to_name, talking_to_user_id")
+        .gte("started_at", weekAgo.toISOString()),
     ]);
 
     const recoveringMembers = recoveringMembersResult.data || [];
@@ -593,6 +598,7 @@ Deno.serve(async (req) => {
     const aftercareRecommendations = aftercareRecommendationsResult.data || [];
     const recentMessages = messages90DayResult.data || [];
     const recentCheckins = checkins90DayResult.data || [];
+    const coachingSessions = coachingSessionsResult.data || [];
 
     const uniqueRecoveringUserIds = Array.from(new Set(recoveringMembers.map((member) => member.user_id)));
     const activeJourneys = sobrietyJourneys.filter((journey) => journey.is_active);
@@ -649,6 +655,8 @@ Deno.serve(async (req) => {
       recommendationsByPlan.set(recommendation.plan_id, existing);
     });
 
+    const openAIApiKey = Deno.env.get("OPENAI_API_KEY") || Deno.env.get("OPENAI_APIKEY") || "";
+
     const recentMessageCountByFamily = new Map<string, number>();
     recentMessages.forEach((message) => {
       recentMessageCountByFamily.set(message.family_id, (recentMessageCountByFamily.get(message.family_id) || 0) + 1);
@@ -658,6 +666,32 @@ Deno.serve(async (req) => {
     recentCheckins.forEach((checkin) => {
       recentCheckinCountByFamily.set(checkin.family_id, (recentCheckinCountByFamily.get(checkin.family_id) || 0) + 1);
     });
+
+    const supportEngagementMeetingTypes = new Set([
+      "AA",
+      "Al-Anon",
+      "NA",
+      "Nar-Anon",
+      "Refuge Recovery",
+      "Smart Recovery",
+      "ACA",
+      "CoDA",
+      "Families Anonymous",
+      "Celebrate Recovery",
+      "Therapy",
+      "Support Group",
+      "Other",
+    ]);
+
+    const directFamilySupportCountByFamily = new Map<string, number>();
+    recentCheckins.forEach((checkin) => {
+      if (!supportEngagementMeetingTypes.has(checkin.meeting_type)) return;
+      directFamilySupportCountByFamily.set(
+        checkin.family_id,
+        (directFamilySupportCountByFamily.get(checkin.family_id) || 0) + 1,
+      );
+    });
+
 
     let progressedUsers = 0;
     let regressedUsers = 0;
@@ -733,6 +767,12 @@ Deno.serve(async (req) => {
       sobriety_days: number;
       had_reset: boolean;
       family_engaged: boolean;
+      direct_support_engaged?: boolean;
+      coaching_engaged?: boolean;
+      coaching_session_count?: number;
+      supportive_communication_score?: number;
+      concerning_communication_score?: number;
+      communication_valence?: string;
       aftercare_adherent: boolean;
     }>) => {
       return benchmarkDefinitions.map((benchmark) => {
@@ -745,7 +785,20 @@ Deno.serve(async (req) => {
         const totalClients = eligibleRows.length;
         const soberCount = eligibleRows.filter((row) => row.sobriety_days >= benchmark.days && !row.had_reset).length;
         const familyEngagedCount = eligibleRows.filter((row) => row.family_engaged).length;
+        const directSupportCount = eligibleRows.filter((row) => row.direct_support_engaged).length;
+        const coachingEngagedCount = eligibleRows.filter((row) => row.coaching_engaged).length;
+        const coachingSessionCount = eligibleRows.reduce((sum, row) => sum + (row.coaching_session_count || 0), 0);
         const aftercareAdherentCount = eligibleRows.filter((row) => row.aftercare_adherent).length;
+        const avgSupportiveCommunication = totalClients > 0
+          ? Math.round(eligibleRows.reduce((sum, row) => sum + (row.supportive_communication_score || 0), 0) / totalClients)
+          : 0;
+        const avgConcerningCommunication = totalClients > 0
+          ? Math.round(eligibleRows.reduce((sum, row) => sum + (row.concerning_communication_score || 0), 0) / totalClients)
+          : 0;
+        const supportiveValenceCount = eligibleRows.filter((row) => row.communication_valence === "supportive").length;
+        const mixedValenceCount = eligibleRows.filter((row) => row.communication_valence === "mixed").length;
+        const strainedValenceCount = eligibleRows.filter((row) => row.communication_valence === "strained").length;
+        const destabilizingValenceCount = eligibleRows.filter((row) => row.communication_valence === "destabilizing").length;
 
         return {
           key: benchmark.key,
@@ -756,11 +809,37 @@ Deno.serve(async (req) => {
           sober_percent: totalClients > 0 ? Math.round((soberCount / totalClients) * 100) : 0,
           family_engaged_count: familyEngagedCount,
           family_engaged_percent: totalClients > 0 ? Math.round((familyEngagedCount / totalClients) * 100) : 0,
+          direct_support_count: directSupportCount,
+          direct_support_percent: totalClients > 0 ? Math.round((directSupportCount / totalClients) * 100) : 0,
+          avg_supportive_communication_score: avgSupportiveCommunication,
+          avg_concerning_communication_score: avgConcerningCommunication,
+          coaching_engaged_count: coachingEngagedCount,
+          coaching_engaged_percent: totalClients > 0 ? Math.round((coachingEngagedCount / totalClients) * 100) : 0,
+          coaching_session_count: coachingSessionCount,
+          supportive_valence_count: supportiveValenceCount,
+          mixed_valence_count: mixedValenceCount,
+          strained_valence_count: strainedValenceCount,
+          destabilizing_valence_count: destabilizingValenceCount,
           aftercare_adherent_count: aftercareAdherentCount,
           aftercare_adherent_percent: totalClients > 0 ? Math.round((aftercareAdherentCount / totalClients) * 100) : 0,
         };
       });
     };
+
+    const communicationAnalysisByFamily = new Map<string, any>();
+    for (const familyId of Array.from(new Set(recoveringMembers.map((member) => member.family_id)))) {
+      const familyMessages = recentMessages.filter((message) => message.family_id === familyId);
+      const { analyzeFamilyCommunicationBatch } = await import("../_shared/family-engagement-analysis.ts");
+      const analysis = await analyzeFamilyCommunicationBatch(familyMessages, openAIApiKey);
+      communicationAnalysisByFamily.set(familyId, analysis);
+    }
+
+    const coachingSessionsByFamily = new Map<string, any[]>();
+    (coachingSessions || []).forEach((session) => {
+      const existing = coachingSessionsByFamily.get(session.family_id) || [];
+      existing.push(session);
+      coachingSessionsByFamily.set(session.family_id, existing);
+    });
 
     const outcomesByOrganization = new Map<string, any>();
 
@@ -826,7 +905,24 @@ Deno.serve(async (req) => {
         const sobrietyDays = journey?.start_date
           ? Math.max(0, Math.floor((Date.now() - new Date(journey.start_date).getTime()) / (1000 * 60 * 60 * 24)))
           : 0;
-        const familyEngaged = ((recentMessageCountByFamily.get(member.family_id) || 0) + (recentCheckinCountByFamily.get(member.family_id) || 0)) > 0;
+        const aiCommunication = communicationAnalysisByFamily.get(member.family_id) || {
+          supportive_score: 0,
+          criticism_score: 0,
+          enabling_score: 0,
+          emotional_regulation_score: 0,
+          boundary_consistency_score: 0,
+          recovery_alignment_score: 0,
+          communication_valence: "mixed",
+          signals: [],
+          summary: "",
+        };
+        const directSupportEngaged = (directFamilySupportCountByFamily.get(member.family_id) || 0) > 0;
+        const familyCoachingSessions = coachingSessionsByFamily.get(member.family_id) || [];
+        const coachingEngaged = familyCoachingSessions.length > 0;
+        const familyEngaged = directSupportEngaged || coachingEngaged || recentMessageCountByFamily.get(member.family_id) > 0;
+        const supportiveScore = aiCommunication.supportive_score;
+        const concerningScore = Math.max(aiCommunication.criticism_score || 0, aiCommunication.enabling_score || 0);
+        const communicationValence = aiCommunication.communication_valence;
         const aftercarePlan = aftercarePlanByUserFamily.get(`${member.family_id}:${member.user_id}`);
         const planRecommendations = aftercarePlan ? (recommendationsByPlan.get(aftercarePlan.id) || []) : [];
         const completedRecommendations = planRecommendations.filter((recommendation) => recommendation.is_completed).length;
@@ -842,6 +938,12 @@ Deno.serve(async (req) => {
           sobriety_days: sobrietyDays,
           had_reset: (journey?.reset_count || 0) > 0,
           family_engaged: familyEngaged,
+          direct_support_engaged: directSupportEngaged,
+          coaching_engaged: coachingEngaged,
+          coaching_session_count: familyCoachingSessions.length,
+          supportive_communication_score: supportiveScore,
+          concerning_communication_score: concerningScore,
+          communication_valence: communicationValence,
           aftercare_adherent: aftercareAdherent,
         };
       });
@@ -921,7 +1023,22 @@ Deno.serve(async (req) => {
         .slice()
         .sort((a, b) => new Date(b.ended_at).getTime() - new Date(a.ended_at).getTime())[0] || null;
       const treatmentCompletionDate = treatmentCompletionPhase?.ended_at || null;
-      const familyEngaged = ((recentMessageCountByFamily.get(member.family_id) || 0) + (recentCheckinCountByFamily.get(member.family_id) || 0)) > 0;
+      const aiCommunication = communicationAnalysisByFamily.get(member.family_id) || {
+        supportive_score: 0,
+        criticism_score: 0,
+        enabling_score: 0,
+        emotional_regulation_score: 0,
+        boundary_consistency_score: 0,
+        recovery_alignment_score: 0,
+        communication_valence: "mixed",
+      };
+      const directSupportEngaged = (directFamilySupportCountByFamily.get(member.family_id) || 0) > 0;
+      const familyCoachingSessions = coachingSessionsByFamily.get(member.family_id) || [];
+      const coachingEngaged = familyCoachingSessions.length > 0;
+      const familyEngaged = directSupportEngaged || coachingEngaged || recentMessageCountByFamily.get(member.family_id) > 0;
+      const supportiveScore = aiCommunication.supportive_score;
+      const concerningScore = Math.max(aiCommunication.criticism_score || 0, aiCommunication.enabling_score || 0);
+      const communicationValence = aiCommunication.communication_valence;
       const aftercarePlan = aftercarePlanByUserFamily.get(`${member.family_id}:${member.user_id}`);
       const planRecommendations = aftercarePlan ? (recommendationsByPlan.get(aftercarePlan.id) || []) : [];
       const completedRecommendations = planRecommendations.filter((recommendation) => recommendation.is_completed).length;
@@ -945,6 +1062,12 @@ Deno.serve(async (req) => {
         was_handed_off: providerHandoffs.some((handoff) => handoff.user_id === member.user_id && handoff.family_id === member.family_id && handoff.status === "completed"),
         treatment_completion_date: treatmentCompletionDate,
         family_engaged: familyEngaged,
+        direct_support_engaged: directSupportEngaged,
+        coaching_engaged: coachingEngaged,
+        coaching_session_count: familyCoachingSessions.length,
+        supportive_communication_score: supportiveScore,
+        concerning_communication_score: concerningScore,
+        communication_valence: communicationValence,
         aftercare_adherent: aftercareAdherent,
       };
     });

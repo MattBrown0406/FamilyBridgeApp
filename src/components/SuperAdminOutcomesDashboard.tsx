@@ -13,6 +13,14 @@ interface BenchmarkTimeline {
   sober_percent: number;
   family_engaged_count: number;
   family_engaged_percent: number;
+  direct_support_count?: number;
+  direct_support_percent?: number;
+  avg_supportive_communication_score?: number;
+  avg_concerning_communication_score?: number;
+  supportive_valence_count?: number;
+  mixed_valence_count?: number;
+  strained_valence_count?: number;
+  destabilizing_valence_count?: number;
   aftercare_adherent_count: number;
   aftercare_adherent_percent: number;
 }
@@ -152,6 +160,14 @@ export function SuperAdminOutcomesDashboard({ outcomes }: Props) {
                     <Progress value={benchmark.family_engaged_percent} className="h-2" />
                   </div>
                   <div>
+                    <div className="flex items-center justify-between mb-1"><span>Direct support</span><span>{benchmark.direct_support_percent ?? 0}% ({benchmark.direct_support_count ?? 0})</span></div>
+                    <Progress value={benchmark.direct_support_percent ?? 0} className="h-2" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 text-[11px] text-muted-foreground">
+                    <div>Supportive comms: <span className="font-medium text-foreground">{benchmark.avg_supportive_communication_score ?? 0}</span></div>
+                    <div>Concerning comms: <span className="font-medium text-foreground">{benchmark.avg_concerning_communication_score ?? 0}</span></div>
+                  </div>
+                  <div>
                     <div className="flex items-center justify-between mb-1"><span>Aftercare adherence</span><span>{benchmark.aftercare_adherent_percent}% ({benchmark.aftercare_adherent_count})</span></div>
                     <Progress value={benchmark.aftercare_adherent_percent} className="h-2" />
                   </div>
@@ -243,6 +259,8 @@ export function SuperAdminOutcomesDashboard({ outcomes }: Props) {
                           </div>
                           <div>Sober: {benchmark.sober_percent}% ({benchmark.sober_count})</div>
                           <div>Family: {benchmark.family_engaged_percent}% ({benchmark.family_engaged_count})</div>
+                          <div>Direct support: {benchmark.direct_support_percent ?? 0}% ({benchmark.direct_support_count ?? 0})</div>
+                          <div>Comms: +{benchmark.avg_supportive_communication_score ?? 0} / -{benchmark.avg_concerning_communication_score ?? 0}</div>
                           <div>Aftercare: {benchmark.aftercare_adherent_percent}% ({benchmark.aftercare_adherent_count})</div>
                         </div>
                       ))}

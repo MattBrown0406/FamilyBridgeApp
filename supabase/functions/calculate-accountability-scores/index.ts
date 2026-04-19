@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
+import { analyzeFamilyCommunicationBatch } from "../_shared/family-engagement-analysis.ts";
 
 const corsHeaders2 = {
   "Access-Control-Allow-Origin": "*",
@@ -30,17 +31,21 @@ Deno.serve(async (req) => {
     const data: Record<string, any> = {};
 
     if (family_id) {
-      const [boundariesRes, checkinsRes, consequencesRes, commitmentsRes] = await Promise.all([
+      const [boundariesRes, checkinsRes, consequencesRes, commitmentsRes, messagesRes, coachingSessionsRes] = await Promise.all([
         supabase.from("family_boundaries").select("*").eq("family_id", family_id).order("created_at", { ascending: false }).limit(50),
         supabase.from("daily_emotional_checkins").select("*").eq("family_id", family_id).order("created_at", { ascending: false }).limit(30),
         supabase.from("consequence_events").select("*").eq("family_id", family_id).order("created_at", { ascending: false }).limit(30),
         supabase.from("accountability_commitments").select("*").eq("family_id", family_id).order("created_at", { ascending: false }).limit(20),
+        supabase.from("messages").select("content, created_at").eq("family_id", family_id).order("created_at", { ascending: false }).limit(40),
+        supabase.from("coaching_sessions").select("id, session_type, started_at").eq("family_id", family_id).order("started_at", { ascending: false }).limit(30),
       ]);
 
       data.boundaries = boundariesRes.data || [];
       data.checkins = checkinsRes.data || [];
       data.consequences = consequencesRes.data || [];
       data.commitments = commitmentsRes.data || [];
+      data.messages = messagesRes.data || [];
+      data.coaching_sessions = coachingSessionsRes.data || [];
     }
 
     // Calculate family score
@@ -97,6 +102,27 @@ Deno.serve(async (req) => {
         }
       }
 
+      const communicationAnalysis = await analyzeFamilyCommunicationBatch(
+        (data.messages || []).map((message: any) => ({ content: message.content })),
+        Deno.env.get("OPENAI_API_KEY") || Deno.env.get("OPENAI_APIKEY") || undefined,
+      );
+      const coachingSessions = data.coaching_sessions || [];
+      const coachingBoost = Math.min(8, coachingSessions.length * 2);
+      familyScore += coachingBoost;
+      if (coachingSessions.length > 0) {
+        positiveFeedback.push(`FIIS coaching used ${coachingSessions.length} time(s) recently`);
+      }
+      if (communicationAnalysis.recovery_alignment_score >= 70) {
+        familyScore += 8;
+        positiveFeedback.push("Recent family communication is recovery-aligned");
+      } else if (communicationAnalysis.communication_valence === "destabilizing") {
+        familyScore -= 12;
+        familyFactors.push("Recent family communication may be destabilizing recovery support");
+      } else if (communicationAnalysis.communication_valence === "strained") {
+        familyScore -= 6;
+        familyFactors.push("Recent family communication appears strained and would benefit from calmer boundaries");
+      }
+
       // Determine trend
       const { data: prevScores } = await supabase
         .from("accountability_scores")
@@ -137,8 +163,15 @@ Deno.serve(async (req) => {
         previous_score: previousScore,
         trend: familyTrend,
         factors: familyFactors,
-        ai_insight: aiInsight,
+        ai_insight: `${aiInsight} ${communicationAnalysis.summary}`.trim(),
         positive_feedback: positiveFeedback,
+        supportiveness_score: communicationAnalysis.supportive_score,
+        criticism_score: communicationAnalysis.criticism_score,
+        enabling_score: communicationAnalysis.enabling_score,
+        emotional_regulation_score: communicationAnalysis.emotional_regulation_score,
+        boundary_consistency_score: communicationAnalysis.boundary_consistency_score,
+        recovery_alignment_score: communicationAnalysis.recovery_alignment_score,
+        communication_valence: communicationAnalysis.communication_valence,
       });
     }
 
