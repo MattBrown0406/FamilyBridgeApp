@@ -4026,6 +4026,7 @@ export type Database = {
         Row: {
           accent_color: string | null
           background_color: string | null
+          benchmark_opt_in: boolean
           body_font: string | null
           created_at: string
           created_by: string | null
@@ -4033,11 +4034,17 @@ export type Database = {
           foreground_color: string | null
           heading_font: string | null
           id: string
+          intake_notes: string | null
+          intervention_tracking_enabled: boolean
+          levels_of_care: string[]
           logo_url: string | null
           name: string
+          outcome_tracking_enabled: boolean
           phone: string | null
           primary_color: string | null
           primary_foreground_color: string | null
+          primary_service_duration_days: number | null
+          provider_category: string | null
           secondary_color: string | null
           subdomain: string
           support_email: string | null
@@ -4048,6 +4055,7 @@ export type Database = {
         Insert: {
           accent_color?: string | null
           background_color?: string | null
+          benchmark_opt_in?: boolean
           body_font?: string | null
           created_at?: string
           created_by?: string | null
@@ -4055,11 +4063,17 @@ export type Database = {
           foreground_color?: string | null
           heading_font?: string | null
           id?: string
+          intake_notes?: string | null
+          intervention_tracking_enabled?: boolean
+          levels_of_care?: string[]
           logo_url?: string | null
           name: string
+          outcome_tracking_enabled?: boolean
           phone?: string | null
           primary_color?: string | null
           primary_foreground_color?: string | null
+          primary_service_duration_days?: number | null
+          provider_category?: string | null
           secondary_color?: string | null
           subdomain: string
           support_email?: string | null
@@ -4070,6 +4084,7 @@ export type Database = {
         Update: {
           accent_color?: string | null
           background_color?: string | null
+          benchmark_opt_in?: boolean
           body_font?: string | null
           created_at?: string
           created_by?: string | null
@@ -4077,11 +4092,17 @@ export type Database = {
           foreground_color?: string | null
           heading_font?: string | null
           id?: string
+          intake_notes?: string | null
+          intervention_tracking_enabled?: boolean
+          levels_of_care?: string[]
           logo_url?: string | null
           name?: string
+          outcome_tracking_enabled?: boolean
           phone?: string | null
           primary_color?: string | null
           primary_foreground_color?: string | null
+          primary_service_duration_days?: number | null
+          provider_category?: string | null
           secondary_color?: string | null
           subdomain?: string
           support_email?: string | null
@@ -5946,6 +5967,7 @@ export type Database = {
         Row: {
           accent_color: string | null
           background_color: string | null
+          benchmark_opt_in: boolean | null
           body_font: string | null
           created_at: string | null
           created_by: string | null
@@ -5953,11 +5975,17 @@ export type Database = {
           foreground_color: string | null
           heading_font: string | null
           id: string | null
+          intake_notes: string | null
+          intervention_tracking_enabled: boolean | null
+          levels_of_care: string[] | null
           logo_url: string | null
           name: string | null
+          outcome_tracking_enabled: boolean | null
           phone: string | null
           primary_color: string | null
           primary_foreground_color: string | null
+          primary_service_duration_days: number | null
+          provider_category: string | null
           secondary_color: string | null
           subdomain: string | null
           support_email: string | null
@@ -5968,6 +5996,7 @@ export type Database = {
         Insert: {
           accent_color?: string | null
           background_color?: string | null
+          benchmark_opt_in?: boolean | null
           body_font?: string | null
           created_at?: string | null
           created_by?: string | null
@@ -5975,11 +6004,17 @@ export type Database = {
           foreground_color?: string | null
           heading_font?: string | null
           id?: string | null
+          intake_notes?: string | null
+          intervention_tracking_enabled?: boolean | null
+          levels_of_care?: string[] | null
           logo_url?: string | null
           name?: string | null
+          outcome_tracking_enabled?: boolean | null
           phone?: never
           primary_color?: string | null
           primary_foreground_color?: string | null
+          primary_service_duration_days?: number | null
+          provider_category?: string | null
           secondary_color?: string | null
           subdomain?: string | null
           support_email?: never
@@ -5990,6 +6025,7 @@ export type Database = {
         Update: {
           accent_color?: string | null
           background_color?: string | null
+          benchmark_opt_in?: boolean | null
           body_font?: string | null
           created_at?: string | null
           created_by?: string | null
@@ -5997,11 +6033,17 @@ export type Database = {
           foreground_color?: string | null
           heading_font?: string | null
           id?: string | null
+          intake_notes?: string | null
+          intervention_tracking_enabled?: boolean | null
+          levels_of_care?: string[] | null
           logo_url?: string | null
           name?: string | null
+          outcome_tracking_enabled?: boolean | null
           phone?: never
           primary_color?: string | null
           primary_foreground_color?: string | null
+          primary_service_duration_days?: number | null
+          provider_category?: string | null
           secondary_color?: string | null
           subdomain?: string | null
           support_email?: never
