@@ -1479,6 +1479,7 @@ export const MedicationTab = ({
                   onDelete={() => handleDeleteMedication(med.id)}
                   getMemberName={getMemberName}
                   isAdminOrModerator={isAdminOrModerator}
+                  actingUserId={currentUserId}
                 />
               ))}
             </div>
@@ -1588,9 +1589,10 @@ interface MedicationCardProps {
   onDelete: () => void;
   getMemberName: (id: string) => string;
   isAdminOrModerator: boolean;
+  actingUserId: string;
 }
 
-const MedicationCard = ({ medication, expanded, onToggle, onDelete, getMemberName, isAdminOrModerator }: MedicationCardProps) => {
+const MedicationCard = ({ medication, expanded, onToggle, onDelete, getMemberName, isAdminOrModerator, actingUserId }: MedicationCardProps) => {
   const handleVerifyAndDeleteImages = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
     if (!isAdminOrModerator) return;
@@ -1618,9 +1620,9 @@ const MedicationCard = ({ medication, expanded, onToggle, onDelete, getMemberNam
       .from('medications')
       .update({
         label_images_verified_at: new Date().toISOString(),
-        label_images_verified_by: medication.user_id,
+        label_images_verified_by: actingUserId,
         label_images_deleted_at: new Date().toISOString(),
-        label_images_deleted_by: medication.user_id,
+        label_images_deleted_by: actingUserId,
         label_image_url: null,
         label_image_urls: []
       })
