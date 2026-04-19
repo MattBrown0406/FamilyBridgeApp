@@ -55,6 +55,11 @@ interface Medication {
   label_analysis_raw_text?: string | null;
   label_analysis_field_confidence?: Record<string, string> | null;
   label_capture_mode?: string | null;
+  label_images_verified_at?: string | null;
+  label_images_verified_by?: string | null;
+  label_images_deleted_at?: string | null;
+  label_images_deleted_by?: string | null;
+  label_disclaimer_accepted_at?: string | null;
   is_active: boolean;
   created_at: string;
   user_id: string;
@@ -140,6 +145,7 @@ export const MedicationTab = ({
   const [isSaving, setIsSaving] = useState(false);
   const [expandedMedications, setExpandedMedications] = useState<Set<string>>(new Set());
   const [correctedFields, setCorrectedFields] = useState<Set<string>>(new Set());
+  const [disclaimerAccepted, setDisclaimerAccepted] = useState(false);
   
   // Form state
   const [labelImage, setLabelImage] = useState<string | null>(null);
@@ -458,6 +464,15 @@ export const MedicationTab = ({
       return;
     }
 
+    if (!disclaimerAccepted) {
+      toast({
+        title: 'Acknowledge privacy notice',
+        description: 'Please confirm the medication label disclaimer before saving.',
+        variant: 'destructive'
+      });
+      return;
+    }
+
     setIsSaving(true);
     try {
       // Upload label image if present
@@ -511,6 +526,7 @@ export const MedicationTab = ({
             ...Object.fromEntries(Array.from(correctedFields).map((field) => [field, 'corrected']))
           },
           label_capture_mode: captureMode,
+          label_disclaimer_accepted_at: new Date().toISOString(),
           quantity_dispensed: formData.quantity_dispensed ? parseInt(formData.quantity_dispensed) : null,
           units_remaining: formData.units_remaining ? parseFloat(formData.units_remaining) : null,
           unit_type: formData.unit_type || null,
@@ -1031,45 +1047,57 @@ export const MedicationTab = ({
                     )}
                   </div>
 
-                  {labelAnalysis && (
-                    <div className="mt-3 rounded-lg border bg-muted/40 p-3 space-y-2">
-                      <div className="flex items-start gap-2 rounded-md border border-amber-500/30 bg-amber-500/10 p-2 text-xs text-muted-foreground">
-                        <ShieldAlert className="h-4 w-4 mt-0.5 text-amber-600" />
-                        <div>
-                          Medication labels can contain PHI. Keep this limited to the recovering member and authorized family/admin viewers, avoid showing thumbnails in shared surfaces, and prefer deletion after structured data is verified if long-term image retention is not necessary.
-                        </div>
+                  <div className="mt-3 rounded-lg border bg-muted/40 p-3 space-y-2">
+                    <div className="flex items-start gap-2 rounded-md border border-amber-500/30 bg-amber-500/10 p-2 text-xs text-muted-foreground">
+                      <ShieldAlert className="h-4 w-4 mt-0.5 text-amber-600" />
+                      <div>
+                        <div className="font-medium text-foreground">Medication Label Disclaimer</div>
+                        FamilyBridge stores medication label images only to extract and verify prescription details. This feature is organizational support only, not medical advice, diagnosis, pharmacy services, or medication-management direction. Only authorized users should upload or review these images, and source images should be deleted once verified unless retention is clearly necessary.
                       </div>
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="text-sm font-medium">Label Review</div>
-                        <Badge variant={labelAnalysis.confidence && labelAnalysis.confidence >= 85 ? 'default' : 'secondary'}>
-                          {labelAnalysis.confidence ?? 0}% confidence
-                        </Badge>
-                      </div>
-                      {labelAnalysis.review_flags && labelAnalysis.review_flags.length > 0 && (
-                        <div className="text-xs text-muted-foreground">
-                          Review: {labelAnalysis.review_flags.join(' • ')}
-                        </div>
-                      )}
-                      {labelAnalysis.field_confidence && Object.keys(labelAnalysis.field_confidence).length > 0 && (
-                        <div className="flex flex-wrap gap-2">
-                          {Object.entries(labelAnalysis.field_confidence).map(([field, confidence]) => (
-                            <Badge
-                              key={field}
-                              variant={correctedFields.has(field) ? 'default' : 'outline'}
-                              className="text-[10px]"
-                            >
-                              {field.replace(/_/g, ' ')}: {correctedFields.has(field) ? 'corrected' : confidence}
-                            </Badge>
-                          ))}
-                        </div>
-                      )}
                     </div>
-                  )}
+                    <label className="flex items-start gap-2 text-xs text-muted-foreground">
+                      <input
+                        type="checkbox"
+                        checked={disclaimerAccepted}
+                        onChange={(e) => setDisclaimerAccepted(e.target.checked)}
+                        className="mt-0.5"
+                      />
+                      <span>I understand this tool stores sensitive medication label information for verification only and should not be used as medical advice or a substitute for professional review.</span>
+                    </label>
+                    {labelAnalysis && (
+                      <>
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="text-sm font-medium">Label Review</div>
+                          <Badge variant={labelAnalysis.confidence && labelAnalysis.confidence >= 85 ? 'default' : 'secondary'}>
+                            {labelAnalysis.confidence ?? 0}% confidence
+                          </Badge>
+                        </div>
+                        {labelAnalysis.review_flags && labelAnalysis.review_flags.length > 0 && (
+                          <div className="text-xs text-muted-foreground">
+                            Review: {labelAnalysis.review_flags.join(' • ')}
+                          </div>
+                        )}
+                        {labelAnalysis.field_confidence && Object.keys(labelAnalysis.field_confidence).length > 0 && (
+                          <div className="flex flex-wrap gap-2">
+                            {Object.entries(labelAnalysis.field_confidence).map(([field, confidence]) => (
+                              <Badge
+                                key={field}
+                                variant={correctedFields.has(field) ? 'default' : 'outline'}
+                                className="text-[10px]"
+                              >
+                                {field.replace(/_/g, ' ')}: {correctedFields.has(field) ? 'corrected' : confidence}
+                              </Badge>
+                            ))}
+                          </div>
+                        )}
+                      </>
+                    )}
 
-                  <AIProcessingNotice
-                    subject="medication label photos you upload for auto-fill"
-                    className="mt-3 text-xs"
-                  />
+                    <AIProcessingNotice
+                      subject="medication label photos you upload for auto-fill"
+                      className="mt-3 text-xs"
+                    />
+                  </div>
                 </div>
 
                 {/* Target User */}
@@ -1563,6 +1591,40 @@ interface MedicationCardProps {
 }
 
 const MedicationCard = ({ medication, expanded, onToggle, onDelete, getMemberName, isAdminOrModerator }: MedicationCardProps) => {
+  const handleVerifyAndDeleteImages = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+    if (!isAdminOrModerator) return;
+
+    const imageRefs = medication.label_image_urls && medication.label_image_urls.length > 0
+      ? medication.label_image_urls
+      : medication.label_image_url
+        ? [medication.label_image_url]
+        : [];
+
+    if (imageRefs.length > 0) {
+      const storagePaths = imageRefs
+        .map((url) => {
+          const match = url.match(/medication-labels\/(.+)$/);
+          return match ? match[1] : null;
+        })
+        .filter((value): value is string => Boolean(value));
+
+      if (storagePaths.length > 0) {
+        await supabase.storage.from('medication-labels').remove(storagePaths);
+      }
+    }
+
+    await supabase
+      .from('medications')
+      .update({
+        label_images_verified_at: new Date().toISOString(),
+        label_images_deleted_at: new Date().toISOString(),
+        label_image_url: null,
+        label_image_urls: []
+      })
+      .eq('id', medication.id);
+  };
+
   return (
     <div className="border rounded-lg overflow-hidden">
       <div 
@@ -1684,7 +1746,7 @@ const MedicationCard = ({ medication, expanded, onToggle, onDelete, getMemberNam
           )}
 
           {/* Label images */}
-          {((medication.label_image_urls && medication.label_image_urls.length > 0) || medication.label_image_url) && (
+          {((medication.label_image_urls && medication.label_image_urls.length > 0) || medication.label_image_url || medication.label_images_verified_at) && (
             <div className="space-y-2">
               <div className="flex flex-wrap gap-2">
                 {(medication.label_image_urls && medication.label_image_urls.length > 0
@@ -1708,6 +1770,8 @@ const MedicationCard = ({ medication, expanded, onToggle, onDelete, getMemberNam
                 <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
                   <span>OCR confidence: {medication.label_analysis_confidence}%</span>
                   {medication.label_capture_mode && <span>Capture mode: {medication.label_capture_mode}</span>}
+                  {medication.label_images_verified_at && <span>Verified: {format(new Date(medication.label_images_verified_at), 'MMM d, yyyy')}</span>}
+                  {medication.label_images_deleted_at && <span>Source images deleted</span>}
                 </div>
               )}
             </div>
@@ -1715,7 +1779,13 @@ const MedicationCard = ({ medication, expanded, onToggle, onDelete, getMemberNam
 
           {/* Actions */}
           {isAdminOrModerator && (
-            <div className="flex justify-end pt-2 border-t">
+            <div className="flex justify-end gap-2 pt-2 border-t">
+              {((medication.label_image_urls && medication.label_image_urls.length > 0) || medication.label_image_url) && (
+                <Button size="sm" variant="outline" onClick={handleVerifyAndDeleteImages}>
+                  <Check className="h-4 w-4 mr-1" />
+                  Verify + Delete Images
+                </Button>
+              )}
               <Button size="sm" variant="destructive" onClick={(e) => { e.stopPropagation(); onDelete(); }}>
                 <Trash2 className="h-4 w-4 mr-1" />
                 Discontinue
