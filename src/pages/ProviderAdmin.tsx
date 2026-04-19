@@ -55,6 +55,7 @@ import { ProviderMessaging } from '@/components/ProviderMessaging';
 import { CRMDashboard } from '@/components/CRMDashboard';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 import { REVENUECAT_ENTITLEMENT_IDS } from '@/lib/revenuecat';
+import { OnboardingFieldsForm, defaultOnboardingFields, type OnboardingFieldsValue, PROVIDER_CATEGORIES } from '@/components/provider/OnboardingFieldsForm';
 
 // Helper to convert hex to HSL string
 const hexToHsl = (hex: string): string => {
@@ -157,6 +158,7 @@ const ProviderAdmin = () => {
     website_url: '',
     phone: '',
   });
+  const [newOrgOnboarding, setNewOrgOnboarding] = useState<OnboardingFieldsValue>(defaultOnboardingFields);
   
   // Manual branding inputs (when no website)
   const [manualBranding, setManualBranding] = useState({
@@ -189,6 +191,7 @@ const ProviderAdmin = () => {
     heading_font: '',
     body_font: '',
   });
+  const [editOnboarding, setEditOnboarding] = useState<OnboardingFieldsValue>(defaultOnboardingFields);
 
   const currentOrg = organizations.find(o => o.id === selectedOrg);
   const hasProviderRevenueCatAccess = isIOS && revenueCatSupported && hasEntitlement(REVENUECAT_ENTITLEMENT_IDS.provider);
