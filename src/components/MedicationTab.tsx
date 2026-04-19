@@ -1618,7 +1618,9 @@ const MedicationCard = ({ medication, expanded, onToggle, onDelete, getMemberNam
       .from('medications')
       .update({
         label_images_verified_at: new Date().toISOString(),
+        label_images_verified_by: medication.user_id,
         label_images_deleted_at: new Date().toISOString(),
+        label_images_deleted_by: medication.user_id,
         label_image_url: null,
         label_image_urls: []
       })

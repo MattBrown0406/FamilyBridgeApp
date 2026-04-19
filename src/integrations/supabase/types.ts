@@ -3748,8 +3748,13 @@ export type Database = {
           label_analysis_field_confidence: Json
           label_analysis_raw_text: string | null
           label_capture_mode: string | null
+          label_disclaimer_accepted_at: string | null
           label_image_url: string | null
           label_image_urls: string[] | null
+          label_images_deleted_at: string | null
+          label_images_deleted_by: string | null
+          label_images_verified_at: string | null
+          label_images_verified_by: string | null
           last_inventory_reconciled_at: string | null
           last_refill_date: string | null
           low_supply_notified_at: string | null
@@ -3797,8 +3802,13 @@ export type Database = {
           label_analysis_field_confidence?: Json
           label_analysis_raw_text?: string | null
           label_capture_mode?: string | null
+          label_disclaimer_accepted_at?: string | null
           label_image_url?: string | null
           label_image_urls?: string[] | null
+          label_images_deleted_at?: string | null
+          label_images_deleted_by?: string | null
+          label_images_verified_at?: string | null
+          label_images_verified_by?: string | null
           last_inventory_reconciled_at?: string | null
           last_refill_date?: string | null
           low_supply_notified_at?: string | null
@@ -3846,8 +3856,13 @@ export type Database = {
           label_analysis_field_confidence?: Json
           label_analysis_raw_text?: string | null
           label_capture_mode?: string | null
+          label_disclaimer_accepted_at?: string | null
           label_image_url?: string | null
           label_image_urls?: string[] | null
+          label_images_deleted_at?: string | null
+          label_images_deleted_by?: string | null
+          label_images_verified_at?: string | null
+          label_images_verified_by?: string | null
           last_inventory_reconciled_at?: string | null
           last_refill_date?: string | null
           low_supply_notified_at?: string | null
