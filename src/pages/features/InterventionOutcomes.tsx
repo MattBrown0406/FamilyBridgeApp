@@ -145,9 +145,12 @@ const InterventionOutcomes = () => {
               </p>
             </div>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             <Button variant="outline" onClick={() => navigate('/features/provider-outcomes')}>
               Provider outcomes
+            </Button>
+            <Button variant="outline" onClick={() => navigate('/features/fiis-guidance')}>
+              FIIS guidance
             </Button>
             <Button onClick={() => navigate('/demo/provider')}>
               Provider demo

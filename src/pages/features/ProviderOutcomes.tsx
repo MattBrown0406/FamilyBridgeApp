@@ -511,6 +511,9 @@ const ProviderOutcomes = () => {
                     <Button variant="outline" className="w-full" onClick={() => navigate('/features/intervention-outcomes')}>
                       View intervention outcomes
                     </Button>
+                    <Button variant="outline" className="w-full" onClick={() => navigate('/features/fiis-guidance')}>
+                      View FIIS guidance
+                    </Button>
                   </div>
                 </CardContent>
               </Card>

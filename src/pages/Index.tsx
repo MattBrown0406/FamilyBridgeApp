@@ -214,6 +214,9 @@ const Index = () => {
                   <Button variant="outline" onClick={() => navigate('/features/intervention-outcomes')}>
                     Intervention outcomes demo
                   </Button>
+                  <Button variant="outline" onClick={() => navigate('/features/fiis-guidance')}>
+                    FIIS guidance demo
+                  </Button>
                 </div>
               </div>
             </div>

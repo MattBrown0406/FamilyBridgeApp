@@ -49,6 +49,7 @@ import CareTransitions from "./pages/features/CareTransitions";
 import ConversationCoaching from "./pages/features/ConversationCoaching";
 import ProviderOutcomes from "./pages/features/ProviderOutcomes";
 import InterventionOutcomes from "./pages/features/InterventionOutcomes";
+import FIISGuidance from "./pages/features/FIISGuidance";
 import ScrollToTop from "./components/ScrollToTop";
 import { usePlatform } from "@/hooks/usePlatform";
 
@@ -113,6 +114,7 @@ const App = () => {
               <Route path="/features/conversation-coaching" element={<ConversationCoaching />} />
               <Route path="/features/provider-outcomes" element={<ProviderOutcomes />} />
               <Route path="/features/intervention-outcomes" element={<InterventionOutcomes />} />
+              <Route path="/features/fiis-guidance" element={<FIISGuidance />} />
               <Route
                 path="/update-payment"
                 element={paymentsWebOnly ? <Navigate to="/auth" replace /> : <UpdatePayment />}
