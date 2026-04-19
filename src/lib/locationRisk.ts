@@ -66,7 +66,7 @@ export async function persistLocationRiskWarning(params: {
   result: LocationRiskResult;
 }) {
   const primaryPlace = params.result.places[0];
-  return supabase.from('liquor_license_warnings').insert({
+  return supabase.from('location_risk_warnings').insert({
     family_id: params.familyId,
     checkin_id: params.checkinId,
     user_id: params.userId,

@@ -133,7 +133,7 @@ export const MeetingCheckin = ({ familyId, onCheckinComplete, capturedLocation }
         .map(moderator => ({
           user_id: moderator.user_id,
           family_id: familyId,
-          type: 'liquor_alert',
+          type: 'location_risk_alert',
           title: '⚠️ Liquor License Alert',
           body: `${userName} checked in near a location with a liquor license: ${placeNames}`,
           related_id: checkinId,

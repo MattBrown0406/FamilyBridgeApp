@@ -75,7 +75,7 @@ const MeetingFinder = lazy(() => import('@/components/MeetingFinder'));
 const BillReceiptCapture = lazy(() => import('@/components/BillReceiptCapture'));
 import { useFIISNotifications } from '@/hooks/useFIISNotifications';
 import { FamilyHealthBadge } from '@/components/FamilyHealthBadge';
-const LiquorLicenseWarnings = lazy(() => import('@/components/LiquorLicenseWarnings'));
+const LocationRiskWarnings = lazy(() => import('@/components/LocationRiskWarnings'));
 import { SobrietyCounter } from '@/components/SobrietyCounter';
 import { useFamilyMemberJourney } from '@/hooks/useSobrietyJourney';
 const CommunicationHelper = lazy(() => import('@/components/CommunicationHelper'));
@@ -3194,7 +3194,7 @@ const FamilyChat = () => {
                   
                   {/* Show location risk warnings */}
                   {familyId && (
-                    <LiquorLicenseWarnings 
+                    <LocationRiskWarnings 
                       familyId={familyId}
                       members={members.map(m => ({ user_id: m.user_id, full_name: m.full_name }))}
                       isAdminOrModerator={isAdminOrModerator}

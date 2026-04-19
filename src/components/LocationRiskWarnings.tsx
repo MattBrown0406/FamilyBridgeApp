@@ -6,7 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { AlertTriangle, MapPin, ShieldAlert, Check } from 'lucide-react';
 import { format } from 'date-fns';
 
-interface LiquorLicenseWarning {
+interface LocationRiskWarning {
   id: string;
   checkin_id: string;
   user_id: string;
@@ -17,20 +17,20 @@ interface LiquorLicenseWarning {
   acknowledged_by: string | null;
 }
 
-interface LiquorLicenseWarningsProps {
+interface LocationRiskWarningsProps {
   familyId: string;
   members: { user_id: string; full_name: string }[];
   isAdminOrModerator: boolean;
 }
 
-export function LiquorLicenseWarnings({ familyId, members, isAdminOrModerator }: LiquorLicenseWarningsProps) {
-  const [warnings, setWarnings] = useState<LiquorLicenseWarning[]>([]);
+export function LocationRiskWarnings({ familyId, members, isAdminOrModerator }: LocationRiskWarningsProps) {
+  const [warnings, setWarnings] = useState<LocationRiskWarning[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchWarnings = async () => {
     try {
       const { data, error } = await supabase
-        .from('liquor_license_warnings')
+        .from('location_risk_warnings')
         .select('*')
         .eq('family_id', familyId)
         .is('acknowledged_at', null)
@@ -54,7 +54,7 @@ export function LiquorLicenseWarnings({ familyId, members, isAdminOrModerator }:
     if (!user) return;
 
     const { error } = await supabase
-      .from('liquor_license_warnings')
+      .from('location_risk_warnings')
       .update({
         acknowledged_at: new Date().toISOString(),
         acknowledged_by: user.id,
@@ -76,18 +76,18 @@ export function LiquorLicenseWarnings({ familyId, members, isAdminOrModerator }:
   // Set up realtime subscription
   useEffect(() => {
     const channel = supabase
-      .channel(`liquor-warnings-${familyId}`)
+      .channel(`location-risk-warnings-${familyId}`)
       .on(
         'postgres_changes',
         {
           event: 'INSERT',
           schema: 'public',
-          table: 'liquor_license_warnings',
+          table: 'location_risk_warnings',
           filter: `family_id=eq.${familyId}`,
         },
         (payload) => {
-          console.log('New liquor license warning:', payload);
-          setWarnings(prev => [payload.new as LiquorLicenseWarning, ...prev]);
+          console.log('New location risk warning:', payload);
+          setWarnings(prev => [payload.new as LocationRiskWarning, ...prev]);
         }
       )
       .on(
@@ -95,11 +95,11 @@ export function LiquorLicenseWarnings({ familyId, members, isAdminOrModerator }:
         {
           event: 'UPDATE',
           schema: 'public',
-          table: 'liquor_license_warnings',
+          table: 'location_risk_warnings',
           filter: `family_id=eq.${familyId}`,
         },
         (payload) => {
-          const updated = payload.new as LiquorLicenseWarning;
+          const updated = payload.new as LocationRiskWarning;
           if (updated.acknowledged_at) {
             setWarnings(prev => prev.filter(w => w.id !== updated.id));
           }

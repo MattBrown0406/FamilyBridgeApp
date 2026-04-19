@@ -3455,7 +3455,7 @@ export type Database = {
           },
         ]
       }
-      liquor_license_warnings: {
+      location_risk_warnings: {
         Row: {
           acknowledged_at: string | null
           acknowledged_by: string | null
@@ -3494,28 +3494,28 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "liquor_license_warnings_checkin_id_fkey"
+            foreignKeyName: "location_risk_warnings_checkin_id_fkey"
             columns: ["checkin_id"]
             isOneToOne: false
             referencedRelation: "meeting_checkins"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "liquor_license_warnings_checkin_id_fkey"
+            foreignKeyName: "location_risk_warnings_checkin_id_fkey"
             columns: ["checkin_id"]
             isOneToOne: false
             referencedRelation: "meeting_checkins_moderator_view"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "liquor_license_warnings_checkin_id_fkey"
+            foreignKeyName: "location_risk_warnings_checkin_id_fkey"
             columns: ["checkin_id"]
             isOneToOne: false
             referencedRelation: "meeting_checkins_user_view"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "liquor_license_warnings_family_id_fkey"
+            foreignKeyName: "location_risk_warnings_family_id_fkey"
             columns: ["family_id"]
             isOneToOne: false
             referencedRelation: "families"

@@ -301,7 +301,7 @@ serve(async (req) => {
 
     // Fetch location risk warnings (last 7 days)
     const { data: liquorWarnings, error: liquorError } = await supabase
-      .from('liquor_license_warnings')
+      .from('location_risk_warnings')
       .select('id')
       .eq('family_id', familyId)
       .gte('warned_at', sevenDaysAgo.toISOString())
