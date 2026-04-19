@@ -68,9 +68,10 @@ export async function fetchFIISFamilyContext(supabase: ReturnType<typeof createC
   if (boundariesResult.data?.length) ctx += `BOUNDARIES: ${boundariesResult.data.map((b: any, i: number) => `${i + 1}. ${b.content}`).join('; ')}\n`;
 
   if (sobrietyResult.data) {
-    const days = Math.max(0, Math.floor((Date.now() - new Date(sobrietyResult.data.start_date).getTime()) / 86400000));
+    const sobriety = sobrietyResult.data as any;
+    const days = Math.max(0, Math.floor((Date.now() - new Date(sobriety.start_date).getTime()) / 86400000));
     const phase = days <= 30 ? "Early Recovery" : days <= 90 ? "Building Foundation" : days <= 180 ? "Developing Resilience" : days <= 365 ? "Strengthening" : "Maintenance";
-    ctx += `SOBRIETY: ${days} days. Phase: ${phase}. ${sobrietyResult.data.reset_count > 0 ? `Attempt #${sobrietyResult.data.reset_count + 1}.` : ''}\n`;
+    ctx += `SOBRIETY: ${days} days. Phase: ${phase}. ${(sobriety.reset_count || 0) > 0 ? `Attempt #${(sobriety.reset_count || 0) + 1}.` : ''}\n`;
   }
   if (emotionalCheckinsResult.data?.length) {
     const feelings: Record<string, number> = {};

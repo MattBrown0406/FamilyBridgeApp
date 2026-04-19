@@ -31,6 +31,7 @@ import {
   Clock,
   Lock,
   ShieldAlert,
+  Target,
 } from "lucide-react";
 import { subMonths, differenceInDays } from "date-fns";
 
@@ -480,9 +481,7 @@ export const ProviderOutcomeReports = ({
         const recs = plan ? (recommendationsByPlan.get(plan.id) || []) : [];
         const completedRecs = recs.filter((rec) => rec.is_completed).length;
         const familyId = member?.family_id || '';
-        const familyCoachingCount = familyId
-          ? (data.coaching_sessions || []).filter((session: any) => session.family_id === familyId).length
-          : 0;
+        const familyCoachingCount = 0;
         const comms = familyId ? communicationMetrics.get(familyId) : null;
         const supportiveCommunicationScore = comms?.total
           ? Math.max(0, Math.min(100, Math.round(((((comms.supportive || 0) + (comms.boundaryAligned || 0)) - ((comms.critical || 0) + (comms.enabling || 0))) / (comms.total || 1)) * 100 + 50)))
