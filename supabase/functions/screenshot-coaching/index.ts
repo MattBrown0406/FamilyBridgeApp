@@ -70,7 +70,7 @@ serve(async (req) => {
     }
 
     const [familyObservations, profileResult, talkingToDisplay, runtimeTelemetry] = await Promise.all([
-      fetchFIISFamilyContext(supabase, familyId),
+      fetchFIISFamilyContext(supabase as any, familyId),
       supabase.from("profiles").select("full_name").eq("id", user.id).single(),
       (async () => {
         let display = talkingToName || "their loved one";
@@ -111,7 +111,7 @@ You are a text conversation coach helping families navigate difficult conversati
   • Say "Sometimes the kindest thing is to let them figure it out" NOT "Stop enabling"
 
 ═══ INTERNAL CLINICAL REFERENCE (never surface these terms) ═══
-${FIIS_COACHING_KNOWLEDGE}
+(Internal clinical knowledge omitted from prompt; rely on runtime doctrine context above.)
 
 ═══ CONTEXT ═══
 Coaching: ${profileResult.data?.full_name || "a team member"} (${userRelationship || userRole})

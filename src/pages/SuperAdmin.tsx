@@ -1170,7 +1170,7 @@ const SuperAdmin = () => {
 
               <TabsContent value="outcomes" className="mt-0">
                 {stats.outcomes ? (
-                  <SuperAdminOutcomesDashboard outcomes={stats.outcomes} />
+                  <SuperAdminOutcomesDashboard outcomes={stats.outcomes as any} />
                 ) : (
                   <Card className="border-0 shadow-sm">
                     <CardContent className="pt-6 text-sm text-muted-foreground">
