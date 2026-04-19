@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, Suspense, lazy } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { usePlatform } from '@/hooks/usePlatform';
 import { useAuth } from '@/hooks/useAuth';
@@ -67,25 +67,25 @@ import { CheckinHistory } from '@/components/CheckinHistory';
 import { LocationCheckinRequest } from '@/components/LocationCheckinRequest';
 import { LocationCheckinResponse } from '@/components/LocationCheckinResponse';
 import { LocationCapture, LocationData } from '@/components/LocationCapture';
-import { PrivateMessagingV2 } from '@/components/PrivateMessagingV2';
-import { ConversationStarters } from '@/components/ConversationStarters';
-import { TemporaryModeratorRequest } from '@/components/TemporaryModeratorRequest';
-import { FIISTab } from '@/components/FIISTab';
-import { MeetingFinder } from '@/components/MeetingFinder';
-import { BillReceiptCapture } from '@/components/BillReceiptCapture';
+const PrivateMessagingV2 = lazy(() => import('@/components/PrivateMessagingV2'));
+const ConversationStarters = lazy(() => import('@/components/ConversationStarters'));
+const TemporaryModeratorRequest = lazy(() => import('@/components/TemporaryModeratorRequest'));
+const FIISTab = lazy(() => import('@/components/FIISTab'));
+const MeetingFinder = lazy(() => import('@/components/MeetingFinder'));
+const BillReceiptCapture = lazy(() => import('@/components/BillReceiptCapture'));
 import { useFIISNotifications } from '@/hooks/useFIISNotifications';
 import { FamilyHealthBadge } from '@/components/FamilyHealthBadge';
-import { LiquorLicenseWarnings } from '@/components/LiquorLicenseWarnings';
+const LiquorLicenseWarnings = lazy(() => import('@/components/LiquorLicenseWarnings'));
 import { SobrietyCounter } from '@/components/SobrietyCounter';
 import { useFamilyMemberJourney } from '@/hooks/useSobrietyJourney';
-import { CommunicationHelper } from '@/components/CommunicationHelper';
-import { DailyEmotionalCheckin } from '@/components/DailyEmotionalCheckin';
-import { EmotionalToneIndicator } from '@/components/EmotionalToneIndicator';
+const CommunicationHelper = lazy(() => import('@/components/CommunicationHelper'));
+const DailyEmotionalCheckin = lazy(() => import('@/components/DailyEmotionalCheckin'));
+const EmotionalToneIndicator = lazy(() => import('@/components/EmotionalToneIndicator'));
 import { AdminBreadcrumbs } from '@/components/AdminBreadcrumbs';
-import { AftercarePlanTab } from '@/components/AftercarePlanTab';
-import { MedicationTab } from '@/components/MedicationTab';
-import { FamilyDocumentsTab } from '@/components/FamilyDocumentsTab';
-import { CoachingTab } from '@/components/CoachingTab';
+const AftercarePlanTab = lazy(() => import('@/components/AftercarePlanTab'));
+const MedicationTab = lazy(() => import('@/components/MedicationTab'));
+const FamilyDocumentsTab = lazy(() => import('@/components/FamilyDocumentsTab'));
+const CoachingTab = lazy(() => import('@/components/CoachingTab'));
 import { evaluateBoundaryQuality } from '@/lib/boundaryQuality';
 import { createStorageRef, parseStorageRef, resolveStorageUrl } from '@/lib/storageRefs';
 
@@ -3321,10 +3321,12 @@ const FamilyChat = () => {
                     </Button>
                   </div>
                   <div className="flex items-center justify-between mt-3">
-                    <ConversationStarters 
-                      onSelect={(prompt) => setNewMessage(prompt)}
-                      disabled={cooldownRemaining > 0}
-                    />
+                    <Suspense fallback={null}>
+                      <ConversationStarters 
+                        onSelect={(prompt) => setNewMessage(prompt)}
+                        disabled={cooldownRemaining > 0}
+                      />
+                    </Suspense>
                     <p className="text-xs text-muted-foreground flex items-center gap-1">
                       <Shield className="h-3 w-3" />
                       Messages are permanent
@@ -3333,10 +3335,12 @@ const FamilyChat = () => {
                   
                   {/* AI Communication Helper */}
                   <div className="mt-3">
-                    <CommunicationHelper 
-                      familyId={familyId!}
-                      onUseSuggestion={(text) => setNewMessage(text)}
-                    />
+                    <Suspense fallback={null}>
+                      <CommunicationHelper 
+                        familyId={familyId!}
+                        onUseSuggestion={(text) => setNewMessage(text)}
+                      />
+                    </Suspense>
                   </div>
                 </form>
               ) : (
@@ -5242,40 +5246,48 @@ const FamilyChat = () => {
 
           {/* Medications Tab */}
           <TabsContent value="medications" className="mt-0 space-y-4 overflow-auto">
-            <MedicationTab
-              familyId={familyId!}
-              currentUserId={user?.id || ''}
-              isAdminOrModerator={isAdminOrModerator}
-              recoveringMemberId={members.find(m => m.role === 'recovering')?.user_id}
-              members={members.map(m => ({ user_id: m.user_id, full_name: m.full_name, role: m.role }))}
-            />
+            <Suspense fallback={<Card><CardContent className="pt-6 text-sm text-muted-foreground">Loading medications...</CardContent></Card>}>
+              <MedicationTab
+                familyId={familyId!}
+                currentUserId={user?.id || ''}
+                isAdminOrModerator={isAdminOrModerator}
+                recoveringMemberId={members.find(m => m.role === 'recovering')?.user_id}
+                members={members.map(m => ({ user_id: m.user_id, full_name: m.full_name, role: m.role }))}
+              />
+            </Suspense>
           </TabsContent>
 
           {/* Documents Tab */}
           <TabsContent value="docs" className="mt-0 space-y-4 overflow-auto">
-            <FamilyDocumentsTab
-              familyId={familyId!}
-              userRole={currentUserRole}
-            />
+            <Suspense fallback={<Card><CardContent className="pt-6 text-sm text-muted-foreground">Loading documents...</CardContent></Card>}>
+              <FamilyDocumentsTab
+                familyId={familyId!}
+                userRole={currentUserRole}
+              />
+            </Suspense>
           </TabsContent>
 
           <TabsContent value="aftercare" className="mt-0 space-y-4 overflow-auto">
-            <AftercarePlanTab
-              familyId={familyId!}
-              members={members.map(m => ({ 
-                id: m.id, 
-                user_id: m.user_id, 
-                role: m.role, 
-                full_name: m.full_name 
-              }))}
-              isModerator={isAdminOrModerator}
-            />
+            <Suspense fallback={<Card><CardContent className="pt-6 text-sm text-muted-foreground">Loading aftercare plan...</CardContent></Card>}>
+              <AftercarePlanTab
+                familyId={familyId!}
+                members={members.map(m => ({ 
+                  id: m.id, 
+                  user_id: m.user_id, 
+                  role: m.role, 
+                  full_name: m.full_name 
+                }))}
+                isModerator={isAdminOrModerator}
+              />
+            </Suspense>
           </TabsContent>
 
           {/* FIIS Tab - Hidden from recovering individuals */}
           {/* Coaching Tab */}
           <TabsContent value="coaching" className="mt-0 space-y-4 overflow-auto">
-            <CoachingTab familyId={familyId!} members={members.map(m => ({ user_id: m.user_id, full_name: m.full_name }))} />
+            <Suspense fallback={<Card><CardContent className="pt-6 text-sm text-muted-foreground">Loading coaching...</CardContent></Card>}>
+              <CoachingTab familyId={familyId!} members={members.map(m => ({ user_id: m.user_id, full_name: m.full_name }))} />
+            </Suspense>
           </TabsContent>
 
           {currentUserRole !== 'recovering' && (
@@ -5284,15 +5296,17 @@ const FamilyChat = () => {
               className="mt-0 space-y-4 overflow-auto"
               onFocus={() => markFIISViewed()}
             >
-              <FIISTab 
-                familyId={familyId!} 
-                members={members
-                  .filter(m => !professionalModeratorIds.includes(m.user_id))
-                  .map(m => ({ user_id: m.user_id, full_name: m.full_name }))}
-                excludeUserIds={professionalModeratorIds}
-                onView={markFIISViewed}
-                isModerator={isAdminOrModerator}
-              />
+              <Suspense fallback={<Card><CardContent className="pt-6 text-sm text-muted-foreground">Loading FIIS...</CardContent></Card>}>
+                <FIISTab 
+                  familyId={familyId!} 
+                  members={members
+                    .filter(m => !professionalModeratorIds.includes(m.user_id))
+                    .map(m => ({ user_id: m.user_id, full_name: m.full_name }))}
+                  excludeUserIds={professionalModeratorIds}
+                  onView={markFIISViewed}
+                  isModerator={isAdminOrModerator}
+                />
+              </Suspense>
             </TabsContent>
           )}
 
@@ -5838,17 +5852,19 @@ const FamilyChat = () => {
 
       {/* Private Messaging V2 - iMessage Style */}
       {user && familyId && (
-        <PrivateMessagingV2
-          familyId={familyId}
-          currentUserId={user.id}
-          currentUserRole={currentUserRole}
-          currentUserMessagingEnabled={members.find(m => m.user_id === user.id)?.private_messaging_enabled ?? false}
-          hasProfessionalModerator={hasProfessionalModerator}
-          members={members}
-          isOpen={privateMessagingOpen}
-          onClose={() => setPrivateMessagingOpen(false)}
-          onUnreadCountChange={setUnreadPrivateMessages}
-        />
+        <Suspense fallback={null}>
+          <PrivateMessagingV2
+            familyId={familyId}
+            currentUserId={user.id}
+            currentUserRole={currentUserRole}
+            currentUserMessagingEnabled={members.find(m => m.user_id === user.id)?.private_messaging_enabled ?? false}
+            hasProfessionalModerator={hasProfessionalModerator}
+            members={members}
+            isOpen={privateMessagingOpen}
+            onClose={() => setPrivateMessagingOpen(false)}
+            onUnreadCountChange={setUnreadPrivateMessages}
+          />
+        </Suspense>
       )}
 
       {/* Boundary Acknowledgment Confirmation Dialog */}
