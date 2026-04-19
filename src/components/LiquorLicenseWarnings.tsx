@@ -3,7 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
-import { AlertTriangle, MapPin, Wine, X, Check } from 'lucide-react';
+import { AlertTriangle, MapPin, ShieldAlert, Check } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface LiquorLicenseWarning {
@@ -129,12 +129,12 @@ export function LiquorLicenseWarnings({ familyId, members, isAdminOrModerator }:
           <CardContent className="p-4">
             <div className="flex items-start gap-3">
               <div className="h-10 w-10 rounded-full bg-orange-100 dark:bg-orange-900/50 flex items-center justify-center shrink-0">
-                <Wine className="h-5 w-5 text-orange-600" />
+                <ShieldAlert className="h-5 w-5 text-orange-600" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
                   <h4 className="font-semibold text-orange-800 dark:text-orange-200">
-                    Liquor License Location Detected
+                    Location Risk Detected
                   </h4>
                   <Badge variant="outline" className="bg-orange-100 text-orange-700 border-orange-200">
                     <AlertTriangle className="h-3 w-3 mr-1" />
@@ -142,11 +142,16 @@ export function LiquorLicenseWarnings({ familyId, members, isAdminOrModerator }:
                   </Badge>
                 </div>
                 <p className="text-sm text-orange-700 dark:text-orange-300 mt-1">
-                  <strong>{getMemberName(warning.user_id)}</strong> checked in at a location with an active liquor license.
+                  <strong>{getMemberName(warning.user_id)}</strong> checked in near a flagged location that may need family review.
                 </p>
                 <div className="flex items-center gap-1 text-xs text-orange-600 dark:text-orange-400 mt-2">
                   <MapPin className="h-3 w-3" />
                   <span className="truncate">{warning.location_address || 'Location details unavailable'}</span>
+                </div>
+                <p className="text-xs text-orange-600 dark:text-orange-400 mt-1 capitalize">
+                  Category: {(warning.license_type || 'location risk').replace(/_/g, ' ')}
+                </p>
+                <div className="flex items-center gap-1 text-xs text-orange-600 dark:text-orange-400 mt-2">
                 </div>
                 <p className="text-xs text-orange-500 mt-1">
                   {format(new Date(warning.warned_at), 'MMM d, yyyy h:mm a')}

@@ -19,7 +19,7 @@ interface HealthMetrics {
   goalsTotal: number;
   boundaryViolations: number;
   recentActivity: number;
-  liquorLicenseWarnings: number;
+  locationRiskWarnings: number;
   recentMessageSamples?: string[];
   previousStatus?: string;
   daysSinceLastCrisis?: number;
@@ -50,7 +50,7 @@ async function analyzeWithAI(metrics: HealthMetrics): Promise<AIAnalysis | null>
 
 IMPORTANT STATUS DEFINITIONS:
 - "crisis": Active emergency requiring immediate intervention. Multiple severe indicators present (3+ missed checkouts, 4+ boundary violations, high conflict with many filtered messages).
-- "concern": Early warning signs detected that could escalate to crisis if unaddressed. Patterns emerging that warrant close monitoring (liquor license visits, 2 missed checkouts, escalating conflicts, increasing filtered messages).
+- "concern": Early warning signs detected that could escalate to crisis if unaddressed. Patterns emerging that warrant close monitoring (flagged location-risk visits, 2 missed checkouts, escalating conflicts, increasing filtered messages).
 - "tension": Friction present but manageable. Some disagreements or communication issues but not escalating (vote conflicts, some filtered messages, low attendance).
 - "stable": Normal functioning. No significant issues, routine patterns maintained.
 - "improving": Positive momentum detected. Consistent positive patterns over time (high check-in rates, goals being completed, low conflicts, active engagement, no concerning locations visited).
@@ -58,7 +58,7 @@ IMPORTANT STATUS DEFINITIONS:
 PATTERN ANALYSIS GUIDELINES:
 1. Look for TRENDS not just snapshots - is the situation getting better or worse?
 2. Consider combinations of factors - a single metric rarely tells the whole story
-3. Early warning signs for "concern": liquor license visits, increasing filtered messages, declining check-in rates
+3. Early warning signs for "concern": flagged location-risk visits, increasing filtered messages, declining check-in rates
 4. Positive patterns for "improving": consistent high check-ins (80%+), goals being achieved, minimal conflicts, active family engagement
 5. "Stable" is the default when no clear positive or negative trends exist
 
@@ -75,7 +75,7 @@ METRICS:
 - Goals completed: ${metrics.goalsCompleted} of ${metrics.goalsTotal}
 - Boundary violations (denied requests): ${metrics.boundaryViolations}
 - Recent message activity: ${metrics.recentActivity} messages
-- Liquor license location warnings: ${metrics.liquorLicenseWarnings}
+- Location risk warnings: ${metrics.locationRiskWarnings}
 ${metrics.previousStatus ? `- Previous status: ${metrics.previousStatus}` : ''}
 ${metrics.daysSinceLastCrisis !== undefined ? `- Days since last crisis: ${metrics.daysSinceLastCrisis}` : ''}
 
@@ -143,7 +143,7 @@ function calculateHealthStatusRuleBased(metrics: HealthMetrics): HealthResult {
     goalsTotal,
     boundaryViolations,
     recentActivity,
-    liquorLicenseWarnings,
+    locationRiskWarnings,
   } = metrics;
 
   // Crisis indicators (most severe)
@@ -162,13 +162,13 @@ function calculateHealthStatusRuleBased(metrics: HealthMetrics): HealthResult {
 
   // Concern indicators (between crisis and tension - early warning)
   if (
-    liquorLicenseWarnings >= 1 || 
+    locationRiskWarnings >= 1 || 
     missedCheckouts >= 2 || 
     (boundaryViolations >= 2 && voteConflictRate > 0.3) ||
     (filteredMessageCount >= 4)
   ) {
     const reasons: string[] = [];
-    if (liquorLicenseWarnings >= 1) reasons.push(`${liquorLicenseWarnings} liquor license location${liquorLicenseWarnings > 1 ? 's' : ''} visited`);
+    if (locationRiskWarnings >= 1) reasons.push(`${locationRiskWarnings} flagged location${locationRiskWarnings > 1 ? 's' : ''} visited`);
     if (missedCheckouts >= 2) reasons.push(`${missedCheckouts} missed checkouts`);
     if (boundaryViolations >= 2) reasons.push('boundary concerns with voting conflicts');
     if (filteredMessageCount >= 4) reasons.push('elevated communication friction');
@@ -203,7 +203,7 @@ function calculateHealthStatusRuleBased(metrics: HealthMetrics): HealthResult {
     voteConflictRate < 0.2 && 
     filteredMessageCount <= 1 &&
     recentActivity >= 5 &&
-    liquorLicenseWarnings === 0 &&
+    locationRiskWarnings === 0 &&
     missedCheckouts === 0
   ) {
     return {
@@ -216,7 +216,7 @@ function calculateHealthStatusRuleBased(metrics: HealthMetrics): HealthResult {
   // Stable - no concerning patterns, consistent normal behavior
   if (
     missedCheckouts === 0 &&
-    liquorLicenseWarnings === 0 &&
+    locationRiskWarnings === 0 &&
     filteredMessageCount <= 2 &&
     voteConflictRate <= 0.3
   ) {
@@ -299,7 +299,7 @@ serve(async (req) => {
     )?.length || 0;
     const checkinCompletionRate = totalCheckins > 0 ? completedCheckins / totalCheckins : 1;
 
-    // Fetch liquor license warnings (last 7 days)
+    // Fetch location risk warnings (last 7 days)
     const { data: liquorWarnings, error: liquorError } = await supabase
       .from('liquor_license_warnings')
       .select('id')
@@ -311,7 +311,7 @@ serve(async (req) => {
       console.error('Error fetching liquor warnings:', liquorError);
     }
 
-    const liquorLicenseWarnings = liquorWarnings?.length || 0;
+    const locationRiskWarnings = liquorWarnings?.length || 0;
 
     // Fetch financial requests and votes (last 30 days)
     const { data: financialRequests, error: financialError } = await supabase
@@ -402,7 +402,7 @@ serve(async (req) => {
       goalsTotal,
       boundaryViolations,
       recentActivity,
-      liquorLicenseWarnings,
+      locationRiskWarnings,
       previousStatus,
       daysSinceLastCrisis,
     };

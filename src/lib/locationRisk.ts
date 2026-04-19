@@ -71,7 +71,7 @@ export async function persistLocationRiskWarning(params: {
     checkin_id: params.checkinId,
     user_id: params.userId,
     location_address: params.locationAddress,
-    license_type: primaryPlace?.category || primaryPlace?.type || 'liquor_license',
+    license_type: primaryPlace?.category || primaryPlace?.type || 'location_risk',
   });
 }
 
@@ -105,7 +105,7 @@ export async function notifyFamilyLocationRisk(params: {
       .map((moderator) => ({
         user_id: moderator.user_id,
         family_id: params.familyId,
-        type: 'liquor_alert',
+        type: 'location_risk_alert',
         title: '⚠️ Location Risk Alert',
         body: `${userName} checked in near: ${placeNames}`,
         related_id: params.relatedId,

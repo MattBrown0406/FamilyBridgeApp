@@ -3192,7 +3192,7 @@ const FamilyChat = () => {
                     <ModeratorDisclaimer moderatorName={moderatorDisclaimer.moderatorName} />
                   )}
                   
-                  {/* Show liquor license warnings */}
+                  {/* Show location risk warnings */}
                   {familyId && (
                     <LiquorLicenseWarnings 
                       familyId={familyId}

@@ -125,7 +125,7 @@ const MeetingCheckinForm = ({ familyId, onCheckinComplete, capturedLocation }: M
     }
   }, [capturedLocation]);
 
-  // Check for liquor license when location is captured
+  // Check for nearby location risks when location is captured
   useEffect(() => {
     const checkLiquorLicense = async () => {
       if (!capturedLocation) {
@@ -142,7 +142,7 @@ const MeetingCheckinForm = ({ familyId, onCheckinComplete, capturedLocation }: M
         );
         setLiquorCheck(result);
       } catch (error) {
-        console.error('Error checking liquor license:', error);
+        console.error('Error checking location risk:', error);
         setLiquorCheck(null);
       } finally {
         setIsCheckingLiquor(false);
@@ -212,7 +212,7 @@ const MeetingCheckinForm = ({ familyId, onCheckinComplete, capturedLocation }: M
       toast({
         title: 'Check-in successful! 🎉',
         description: liquorCheck?.hasLiquorLicense 
-          ? 'Your family has been notified. Note: This location is near an establishment with a liquor license.'
+          ? 'Your family has been notified. Note: This location is near a flagged place that may need review.'
           : 'Your family has been notified of your meeting attendance.',
       });
 
@@ -250,7 +250,7 @@ const MeetingCheckinForm = ({ familyId, onCheckinComplete, capturedLocation }: M
             </div>
           </div>
 
-          {/* Liquor License Warning */}
+          {/* Location Risk Warning */}
           {isCheckingLiquor && (
             <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg">
               <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
