@@ -1857,6 +1857,14 @@ export const PatentDocumentation = () => {
       { title: 'Value Proposition', chart: DIAGRAM_VALUE_PROPOSITION },
       { title: 'User Ecosystem', chart: DIAGRAM_USER_ECOSYSTEM },
       { title: 'Competitive Advantage', chart: DIAGRAM_COMPETITIVE_ADVANTAGE },
+      { title: '2026 — Outcome Prediction Engine', chart: DIAGRAM_OUTCOME_PREDICTION_ENGINE },
+      { title: '2026 — Accountability Engine', chart: DIAGRAM_ACCOUNTABILITY_ENGINE },
+      { title: '2026 — Post-Intervention Continuity', chart: DIAGRAM_POST_INTERVENTION_CONTINUITY },
+      { title: '2026 — Provider Coordination System', chart: DIAGRAM_PROVIDER_COORDINATION },
+      { title: '2026 — AI Governance + Learning Layer', chart: DIAGRAM_AI_GOVERNANCE_LEARNING },
+      { title: '2026 — Input Reconciliation System', chart: DIAGRAM_INPUT_RECONCILIATION },
+      { title: '2026 — Care Phase Lifecycle', chart: DIAGRAM_CARE_PHASE_LIFECYCLE },
+      { title: '2026 — FIIS Runtime Doctrine Plumbing', chart: DIAGRAM_FIIS_RUNTIME_DOCTRINE },
     ];
 
     const diagramHtmlBlocks = await Promise.all(
