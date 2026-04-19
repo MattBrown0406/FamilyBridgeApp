@@ -682,8 +682,6 @@ export const ProviderOutcomeReports = ({
           </div>
         </CardContent>
       </Card>
-        </CardContent>
-      </Card>
 
       <Card>
         <CardHeader>
