@@ -3,6 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { buildModeratorEscalationTriggersPrompt } from "../_shared/fiis-doctrine.ts";
 import { buildFIISLearningContext } from "../_shared/fiis-learning.ts";
 import { buildFIISRuntimeContext } from "../_shared/fiis-runtime.ts";
+import { loadFIISRuntimeTelemetry, persistFIISCoachingTelemetry } from "../_shared/fiis-telemetry.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -261,6 +262,7 @@ serve(async (req) => {
   }
 
   try {
+    const requestStartedAt = Date.now();
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
       return new Response(
@@ -337,6 +339,7 @@ serve(async (req) => {
 
     const family = familyResult.data;
     const profile = profileResult.data;
+    const runtimeTelemetry = await loadFIISRuntimeTelemetry(supabase, familyId);
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
@@ -444,7 +447,29 @@ If there are immediate emergency markers, say exactly: "Call 911 first," then di
       throw new Error("AI gateway error");
     }
 
-    return new Response(response.body, {
+    const responseText = await response.text();
+    const usageMatch = responseText.match(/"usage":\s*\{[^}]*"prompt_tokens":\s*(\d+)[^}]*"completion_tokens":\s*(\d+)/);
+    const usage = usageMatch
+      ? { prompt_tokens: Number(usageMatch[1]), completion_tokens: Number(usageMatch[2]) }
+      : null;
+    const contentMatches = [...responseText.matchAll(/"content":"((?:\\.|[^"\\])*)"/g)];
+    const aiSummary = contentMatches.length
+      ? contentMatches.map((match) => match[1].replace(/\\n/g, " ").replace(/\\"/g, '"')).join(" ").slice(0, 1200)
+      : null;
+
+    await persistFIISCoachingTelemetry({
+      supabase,
+      familyId,
+      userId: user.id,
+      sessionType: context === 'phone' || context === 'in_room' ? 'live_speakerphone' : 'live_text',
+      aiModel: FIIS_AI_MODEL,
+      startedAt: requestStartedAt,
+      aiSummary,
+      telemetry: runtimeTelemetry,
+      usage,
+    });
+
+    return new Response(responseText, {
       headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
     });
   } catch (error) {

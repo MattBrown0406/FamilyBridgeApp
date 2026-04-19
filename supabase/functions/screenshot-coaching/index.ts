@@ -3,6 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { buildModeratorEscalationTriggersPrompt } from "../_shared/fiis-doctrine.ts";
 import { buildFIISLearningContext } from "../_shared/fiis-learning.ts";
 import { buildFIISRuntimeContext } from "../_shared/fiis-runtime.ts";
+import { loadFIISRuntimeTelemetry, persistFIISCoachingTelemetry } from "../_shared/fiis-telemetry.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -181,6 +182,7 @@ serve(async (req) => {
   }
 
   try {
+    const requestStartedAt = Date.now();
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
       return new Response(JSON.stringify({ error: "Authorization required" }),
@@ -229,7 +231,7 @@ serve(async (req) => {
       }
     }
 
-    const [familyObservations, profileResult, talkingToDisplay] = await Promise.all([
+    const [familyObservations, profileResult, talkingToDisplay, runtimeTelemetry] = await Promise.all([
       fetchFamilyContext(supabase, familyId),
       supabase.from("profiles").select("full_name").eq("id", user.id).single(),
       (async () => {
@@ -240,6 +242,7 @@ serve(async (req) => {
         }
         return display;
       })(),
+      loadFIISRuntimeTelemetry(supabase, familyId),
     ]);
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
@@ -371,21 +374,60 @@ If the content reflects an immediate emergency, say exactly "Call 911 first" bef
     const data = await response.json();
     const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
     if (toolCall?.function?.arguments) {
-      return new Response(JSON.stringify(JSON.parse(toolCall.function.arguments)),
+      const parsed = JSON.parse(toolCall.function.arguments);
+      await persistFIISCoachingTelemetry({
+        supabase,
+        familyId,
+        userId: user.id,
+        sessionType: 'screenshot',
+        aiModel: FIIS_AI_MODEL,
+        startedAt: requestStartedAt,
+        aiSummary: parsed?.conversation_summary || null,
+        suggestions: parsed?.suggested_responses,
+        usage: data?.usage || null,
+        telemetry: runtimeTelemetry,
+      });
+      return new Response(JSON.stringify(parsed),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     const content = data.choices?.[0]?.message?.content;
     if (content) {
       try {
-        return new Response(JSON.stringify(JSON.parse(content)), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+        const parsed = JSON.parse(content);
+        await persistFIISCoachingTelemetry({
+          supabase,
+          familyId,
+          userId: user.id,
+          sessionType: 'screenshot',
+          aiModel: FIIS_AI_MODEL,
+          startedAt: requestStartedAt,
+          aiSummary: parsed?.conversation_summary || null,
+          suggestions: parsed?.suggested_responses,
+          usage: data?.usage || null,
+          telemetry: runtimeTelemetry,
+        });
+        return new Response(JSON.stringify(parsed), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
       } catch {
-        return new Response(JSON.stringify({
+        const fallbackPayload = {
           conversation_summary: "Analysis completed",
           emotional_dynamics: "See suggestions below",
           suggested_responses: [{ response: content, approach: "Friendly suggestion", when_to_use: "General response" }],
           coaching_tip: "Try telling them how you feel instead of what they did wrong.",
-        }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+        };
+        await persistFIISCoachingTelemetry({
+          supabase,
+          familyId,
+          userId: user.id,
+          sessionType: 'screenshot',
+          aiModel: FIIS_AI_MODEL,
+          startedAt: requestStartedAt,
+          aiSummary: fallbackPayload.conversation_summary,
+          suggestions: fallbackPayload.suggested_responses,
+          usage: data?.usage || null,
+          telemetry: runtimeTelemetry,
+        });
+        return new Response(JSON.stringify(fallbackPayload), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
       }
     }
 
