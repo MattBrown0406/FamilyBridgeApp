@@ -1163,6 +1163,7 @@ const ProviderAdmin = () => {
                       inputMode="numeric"
                       placeholder="30"
                       value={newOrg.primary_service_duration_days}
+                      onFocus={(event) => event.target.select()}
                       onChange={(event) => handleDurationChange(event, 'create')}
                     />
                     <p className="text-xs text-muted-foreground">
