@@ -535,6 +535,299 @@ Deno.serve(async (req) => {
       };
     });
 
+    const [
+      recoveringMembersResult,
+      sobrietyJourneysResult,
+      carePhasesResult,
+      providerHandoffsResult,
+      accountabilityScoresResult,
+      accountabilityAlertsResult,
+    ] = await Promise.all([
+      adminClient
+        .from("family_members")
+        .select("user_id, family_id, joined_at")
+        .eq("role", "recovering"),
+      adminClient
+        .from("sobriety_journeys")
+        .select("user_id, family_id, start_date, reset_count, is_active, updated_at"),
+      adminClient
+        .from("care_phases")
+        .select("user_id, family_id, organization_id, phase_type, started_at, ended_at, is_current, created_at"),
+      adminClient
+        .from("provider_handoffs")
+        .select("user_id, family_id, from_organization_id, to_organization_id, status, initiated_at, completed_at, created_at"),
+      adminClient
+        .from("accountability_scores")
+        .select("organization_id, family_id, score_type, score, trend, calculated_at")
+        .order("calculated_at", { ascending: false }),
+      adminClient
+        .from("accountability_alerts")
+        .select("organization_id, family_id, severity, is_dismissed, created_at"),
+    ]);
+
+    const recoveringMembers = recoveringMembersResult.data || [];
+    const sobrietyJourneys = sobrietyJourneysResult.data || [];
+    const carePhases = carePhasesResult.data || [];
+    const providerHandoffs = providerHandoffsResult.data || [];
+    const accountabilityScores = accountabilityScoresResult.data || [];
+    const accountabilityAlerts = accountabilityAlertsResult.data || [];
+
+    const uniqueRecoveringUserIds = Array.from(new Set(recoveringMembers.map((member) => member.user_id)));
+    const activeJourneys = sobrietyJourneys.filter((journey) => journey.is_active);
+    const stableJourneys = activeJourneys.filter((journey) => (journey.reset_count || 0) === 0);
+    const resetJourneys = activeJourneys.filter((journey) => (journey.reset_count || 0) > 0);
+    const currentPhases = carePhases.filter((phase) => phase.is_current);
+    const completedHandoffs = providerHandoffs.filter((handoff) => handoff.status === "completed");
+    const activeCriticalAlerts = accountabilityAlerts.filter((alert) => !alert.is_dismissed && alert.severity === "critical");
+    const activeWarningAlerts = accountabilityAlerts.filter((alert) => !alert.is_dismissed && alert.severity === "warning");
+
+    const currentPhaseByUser = new Map<string, any>();
+    currentPhases.forEach((phase) => {
+      currentPhaseByUser.set(phase.user_id, phase);
+    });
+
+    const phasesByUser = new Map<string, any[]>();
+    carePhases.forEach((phase) => {
+      const existing = phasesByUser.get(phase.user_id) || [];
+      existing.push(phase);
+      phasesByUser.set(phase.user_id, existing);
+    });
+
+    const familiesById = new Map((familyActivity || []).map((family) => [family.id, family]));
+    const organizationsById = new Map((orgData || []).map((org) => [org.id, org]));
+
+    const progressionRank: Record<string, number> = {
+      detox: 0,
+      residential_treatment: 1,
+      partial_hospitalization: 2,
+      intensive_outpatient: 3,
+      outpatient: 4,
+      sober_living: 5,
+      independent: 6,
+    };
+
+    let progressedUsers = 0;
+    let regressedUsers = 0;
+
+    uniqueRecoveringUserIds.forEach((userId) => {
+      const userPhases = (phasesByUser.get(userId) || [])
+        .slice()
+        .sort((a, b) => new Date(a.started_at).getTime() - new Date(b.started_at).getTime());
+
+      let movedForward = false;
+      let movedBackward = false;
+
+      for (let i = 1; i < userPhases.length; i += 1) {
+        const previousRank = progressionRank[userPhases[i - 1].phase_type] ?? -1;
+        const currentRank = progressionRank[userPhases[i].phase_type] ?? -1;
+        if (currentRank > previousRank) movedForward = true;
+        if (currentRank < previousRank) movedBackward = true;
+      }
+
+      if (movedForward && !movedBackward) progressedUsers += 1;
+      if (movedBackward) regressedUsers += 1;
+    });
+
+    const totalRecoveringMembers = uniqueRecoveringUserIds.length;
+    const sobrietyStabilityRate = totalRecoveringMembers > 0
+      ? Math.round((stableJourneys.length / totalRecoveringMembers) * 100)
+      : 0;
+    const resetRate = totalRecoveringMembers > 0
+      ? Math.round((resetJourneys.length / totalRecoveringMembers) * 100)
+      : 0;
+    const progressionRate = totalRecoveringMembers > 0
+      ? Math.round((progressedUsers / totalRecoveringMembers) * 100)
+      : 0;
+    const regressionRate = totalRecoveringMembers > 0
+      ? Math.round((regressedUsers / totalRecoveringMembers) * 100)
+      : 0;
+
+    const completedClients = currentPhases.filter((phase) => phase.phase_type === "independent").length;
+    const completionRate = totalRecoveringMembers > 0
+      ? Math.round((completedClients / totalRecoveringMembers) * 100)
+      : 0;
+
+    const averageDaysInCare = recoveringMembers.length > 0
+      ? Math.round(recoveringMembers.reduce((sum, member) => {
+          const joined = member.joined_at ? new Date(member.joined_at).getTime() : Date.now();
+          const diffDays = Math.max(0, Math.floor((Date.now() - joined) / (1000 * 60 * 60 * 24)));
+          return sum + diffDays;
+        }, 0) / recoveringMembers.length)
+      : 0;
+
+    const scoreByOrganization = new Map<string, any>();
+    accountabilityScores
+      .filter((score) => score.organization_id && score.score_type === "provider")
+      .forEach((score) => {
+        if (!score.organization_id || scoreByOrganization.has(score.organization_id)) return;
+        scoreByOrganization.set(score.organization_id, score);
+      });
+
+    const alertsByOrganization = new Map<string, { critical: number; warning: number }>();
+    accountabilityAlerts.forEach((alert) => {
+      if (!alert.organization_id || alert.is_dismissed) return;
+      const current = alertsByOrganization.get(alert.organization_id) || { critical: 0, warning: 0 };
+      if (alert.severity === "critical") current.critical += 1;
+      if (alert.severity === "warning") current.warning += 1;
+      alertsByOrganization.set(alert.organization_id, current);
+    });
+
+    const outcomesByOrganization = new Map<string, any>();
+
+    (orgData || []).forEach((org) => {
+      const orgFamilyIds = (familyActivity || [])
+        .filter((family) => family.organization_id === org.id)
+        .map((family) => family.id);
+      const orgFamilyIdSet = new Set(orgFamilyIds);
+      const orgRecoveringMembers = recoveringMembers.filter((member) => orgFamilyIdSet.has(member.family_id));
+      const orgUserIds = Array.from(new Set(orgRecoveringMembers.map((member) => member.user_id)));
+      const orgJourneys = activeJourneys.filter((journey) => orgFamilyIdSet.has(journey.family_id));
+      const orgStableJourneys = orgJourneys.filter((journey) => (journey.reset_count || 0) === 0);
+      const orgResetJourneys = orgJourneys.filter((journey) => (journey.reset_count || 0) > 0);
+      const orgCurrentPhases = currentPhases.filter((phase) => orgFamilyIdSet.has(phase.family_id));
+      const orgCompletedHandoffs = completedHandoffs.filter((handoff) => handoff.from_organization_id === org.id || handoff.to_organization_id === org.id);
+      const orgInitiatedHandoffs = providerHandoffs.filter((handoff) => handoff.from_organization_id === org.id).length;
+      const orgReceivedHandoffs = providerHandoffs.filter((handoff) => handoff.to_organization_id === org.id).length;
+
+      let orgProgressedUsers = 0;
+      let orgRegressedUsers = 0;
+      orgUserIds.forEach((userId) => {
+        const userPhases = (phasesByUser.get(userId) || [])
+          .filter((phase) => orgFamilyIdSet.has(phase.family_id))
+          .slice()
+          .sort((a, b) => new Date(a.started_at).getTime() - new Date(b.started_at).getTime());
+
+        let movedForward = false;
+        let movedBackward = false;
+        for (let i = 1; i < userPhases.length; i += 1) {
+          const previousRank = progressionRank[userPhases[i - 1].phase_type] ?? -1;
+          const currentRank = progressionRank[userPhases[i].phase_type] ?? -1;
+          if (currentRank > previousRank) movedForward = true;
+          if (currentRank < previousRank) movedBackward = true;
+        }
+        if (movedForward && !movedBackward) orgProgressedUsers += 1;
+        if (movedBackward) orgRegressedUsers += 1;
+      });
+
+      const orgClientCount = orgUserIds.length;
+      const orgCompletionRate = orgClientCount > 0
+        ? Math.round((orgCurrentPhases.filter((phase) => phase.phase_type === "independent").length / orgClientCount) * 100)
+        : 0;
+      const orgStabilityRate = orgClientCount > 0
+        ? Math.round((orgStableJourneys.length / orgClientCount) * 100)
+        : 0;
+      const orgResetRate = orgClientCount > 0
+        ? Math.round((orgResetJourneys.length / orgClientCount) * 100)
+        : 0;
+      const orgProgressionRate = orgClientCount > 0
+        ? Math.round((orgProgressedUsers / orgClientCount) * 100)
+        : 0;
+      const orgRegressionRate = orgClientCount > 0
+        ? Math.round((orgRegressedUsers / orgClientCount) * 100)
+        : 0;
+
+      const explicitScore = scoreByOrganization.get(org.id)?.score ?? null;
+      const computedScoreRaw = ((orgStabilityRate / 100) * 2.5)
+        + ((orgProgressionRate / 100) * 2.5)
+        + (((100 - orgRegressionRate) / 100) * 2.0)
+        + (((100 - orgResetRate) / 100) * 1.5)
+        + ((orgCompletionRate / 100) * 1.5);
+      const computedScore = orgClientCount > 0
+        ? Math.max(1, Math.min(10, Math.round(computedScoreRaw * 10) / 10))
+        : 0;
+
+      outcomesByOrganization.set(org.id, {
+        organization_id: org.id,
+        organization_name: org.name,
+        family_count: orgFamilyIds.length,
+        client_count: orgClientCount,
+        active_recovering_count: orgClientCount,
+        sobriety_stability_rate: orgStabilityRate,
+        progression_rate: orgProgressionRate,
+        regression_rate: orgRegressionRate,
+        reset_rate: orgResetRate,
+        completion_rate: orgCompletionRate,
+        avg_days_in_care: orgRecoveringMembers.length > 0
+          ? Math.round(orgRecoveringMembers.reduce((sum, member) => {
+              const joined = member.joined_at ? new Date(member.joined_at).getTime() : Date.now();
+              const diffDays = Math.max(0, Math.floor((Date.now() - joined) / (1000 * 60 * 60 * 24)));
+              return sum + diffDays;
+            }, 0) / orgRecoveringMembers.length)
+          : 0,
+        total_handoffs: orgCompletedHandoffs.length,
+        handoffs_initiated: orgInitiatedHandoffs,
+        handoffs_received: orgReceivedHandoffs,
+        handoffs_completed: orgCompletedHandoffs.length,
+        success_score: explicitScore ?? computedScore,
+        score_trend: scoreByOrganization.get(org.id)?.trend ?? "stable",
+        critical_alert_count: alertsByOrganization.get(org.id)?.critical || 0,
+        warning_alert_count: alertsByOrganization.get(org.id)?.warning || 0,
+        benchmark_opt_in: org.benchmark_opt_in ?? false,
+        provider_category: org.provider_category ?? null,
+        levels_of_care: org.levels_of_care ?? [],
+      });
+    });
+
+    const familyOutcomeRows = recoveringMembers.map((member) => {
+      const family = familiesById.get(member.family_id);
+      const journey = activeJourneys.find((item) => item.user_id === member.user_id && item.family_id === member.family_id);
+      const userCurrentPhase = currentPhaseByUser.get(member.user_id);
+      const orgId = family?.organization_id || null;
+      const org = orgId ? organizationsById.get(orgId) : null;
+      const userPhases = (phasesByUser.get(member.user_id) || [])
+        .filter((phase) => phase.family_id === member.family_id)
+        .slice()
+        .sort((a, b) => new Date(a.started_at).getTime() - new Date(b.started_at).getTime());
+
+      let movedForward = false;
+      let movedBackward = false;
+      for (let i = 1; i < userPhases.length; i += 1) {
+        const previousRank = progressionRank[userPhases[i - 1].phase_type] ?? -1;
+        const currentRank = progressionRank[userPhases[i].phase_type] ?? -1;
+        if (currentRank > previousRank) movedForward = true;
+        if (currentRank < previousRank) movedBackward = true;
+      }
+
+      const sobrietyDays = journey?.start_date
+        ? Math.max(0, Math.floor((Date.now() - new Date(journey.start_date).getTime()) / (1000 * 60 * 60 * 24)))
+        : 0;
+      const daysInCare = member.joined_at
+        ? Math.max(0, Math.floor((Date.now() - new Date(member.joined_at).getTime()) / (1000 * 60 * 60 * 24)))
+        : 0;
+
+      return {
+        family_id: member.family_id,
+        family_name: family?.name || "Unknown family",
+        organization_id: orgId,
+        organization_name: org?.name || null,
+        user_id: member.user_id,
+        current_phase: userCurrentPhase?.phase_type || null,
+        sobriety_days: sobrietyDays,
+        reset_count: journey?.reset_count || 0,
+        had_reset: (journey?.reset_count || 0) > 0,
+        moved_forward: movedForward,
+        moved_backward: movedBackward,
+        days_in_care: daysInCare,
+        was_handed_off: providerHandoffs.some((handoff) => handoff.user_id === member.user_id && handoff.family_id === member.family_id && handoff.status === "completed"),
+      };
+    });
+
+    const globalOutcomes = {
+      total_recovering_members: totalRecoveringMembers,
+      active_recovering_members: activeJourneys.length,
+      providers_with_outcome_tracking: (orgData || []).filter((org) => org.outcome_tracking_enabled).length,
+      providers_opted_into_benchmarks: (orgData || []).filter((org) => org.benchmark_opt_in).length,
+      total_completed_handoffs: completedHandoffs.length,
+      critical_alert_count: activeCriticalAlerts.length,
+      warning_alert_count: activeWarningAlerts.length,
+      sobriety_stability_rate: sobrietyStabilityRate,
+      progression_rate: progressionRate,
+      regression_rate: regressionRate,
+      reset_rate: resetRate,
+      completion_rate: completionRate,
+      avg_days_in_care: averageDaysInCare,
+    };
+
     return new Response(
       JSON.stringify({
         overview: {
@@ -552,6 +845,11 @@ Deno.serve(async (req) => {
         families: familiesWithActivity,
         organizations: organizationsWithStats,
         users: usersWithStats,
+        outcomes: {
+          overview: globalOutcomes,
+          organizations: Array.from(outcomesByOrganization.values()).sort((a, b) => (b.success_score || 0) - (a.success_score || 0)),
+          families: familyOutcomeRows,
+        },
       }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );

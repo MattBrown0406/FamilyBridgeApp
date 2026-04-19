@@ -49,6 +49,7 @@ import { PatentDocumentation } from '@/components/PatentDocumentation';
 import { ArchivedFamiliesPanel } from '@/components/ArchivedFamiliesPanel';
 import { SuperAdminBroadcast } from '@/components/SuperAdminBroadcast';
 import { SuperAdminRequests } from '@/components/SuperAdminRequests';
+import { SuperAdminOutcomesDashboard } from '@/components/SuperAdminOutcomesDashboard';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { format } from 'date-fns';
@@ -193,6 +194,25 @@ interface AdminStats {
     org_name?: string | null;
     org_primary_color?: string | null;
   }>;
+  outcomes?: {
+    overview: {
+      total_recovering_members: number;
+      active_recovering_members: number;
+      providers_with_outcome_tracking: number;
+      providers_opted_into_benchmarks: number;
+      total_completed_handoffs: number;
+      critical_alert_count: number;
+      warning_alert_count: number;
+      sobriety_stability_rate: number;
+      progression_rate: number;
+      regression_rate: number;
+      reset_rate: number;
+      completion_rate: number;
+      avg_days_in_care: number;
+    };
+    organizations: Array<Record<string, any>>;
+    families: Array<Record<string, any>>;
+  };
 }
 
 const SuperAdmin = () => {
@@ -706,6 +726,10 @@ const SuperAdmin = () => {
                   <span className="hidden xs:inline">Users</span>
                   <Badge variant="secondary" className="h-5 px-1 text-[10px] ml-0.5 sm:ml-1">{filteredUsers.length}</Badge>
                 </TabsTrigger>
+                <TabsTrigger value="outcomes" className="h-7 text-xs gap-1 px-2 sm:px-3 data-[state=active]:shadow-sm flex-shrink-0">
+                  <BarChart3 className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">Outcomes</span>
+                </TabsTrigger>
                 <TabsTrigger value="archived" className="h-7 text-xs gap-1 px-2 sm:px-3 data-[state=active]:shadow-sm flex-shrink-0">
                   <Archive className="h-3.5 w-3.5" />
                   <span className="hidden sm:inline">Archived</span>
@@ -1142,6 +1166,18 @@ const SuperAdmin = () => {
                     </div>
                   </ScrollArea>
                 </Card>
+              </TabsContent>
+
+              <TabsContent value="outcomes" className="mt-0">
+                {stats.outcomes ? (
+                  <SuperAdminOutcomesDashboard outcomes={stats.outcomes} />
+                ) : (
+                  <Card className="border-0 shadow-sm">
+                    <CardContent className="pt-6 text-sm text-muted-foreground">
+                      Outcomes data is not available yet.
+                    </CardContent>
+                  </Card>
+                )}
               </TabsContent>
 
               <TabsContent value="archived" className="mt-0">
