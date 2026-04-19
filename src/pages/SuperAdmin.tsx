@@ -45,7 +45,6 @@ import {
   Archive,
   KeyRound
 } from 'lucide-react';
-const PatentDocumentation = lazy(() => import('@/components/PatentDocumentation'));
 const ArchivedFamiliesPanel = lazy(() => import('@/components/ArchivedFamiliesPanel'));
 const SuperAdminBroadcast = lazy(() => import('@/components/SuperAdminBroadcast'));
 const SuperAdminRequests = lazy(() => import('@/components/SuperAdminRequests'));
@@ -1190,13 +1189,6 @@ const SuperAdmin = () => {
                 </Suspense>
               </TabsContent>
 
-              <TabsContent value="patent-docs" className="mt-0">
-                <Suspense fallback={<Card className="border-0 shadow-sm"><CardContent className="pt-6 text-sm text-muted-foreground">Loading patent documentation...</CardContent></Card>}>
-                  <Card className="border-0 shadow-sm p-6">
-                    <PatentDocumentation />
-                  </Card>
-                </Suspense>
-              </TabsContent>
             </Tabs>
           </div>
         ) : null}
