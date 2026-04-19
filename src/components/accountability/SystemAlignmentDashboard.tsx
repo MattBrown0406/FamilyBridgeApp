@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
 import { ScoreGauge } from './ScoreGauge';
 import { AccountabilityScore } from '@/hooks/useAccountability';
 import { Brain, Users, Building2, Activity } from 'lucide-react';
@@ -21,6 +22,19 @@ export const SystemAlignmentDashboard = ({ familyScore, providerScore, systemSco
     if (s >= 40) return 'bg-orange-500';
     return 'bg-red-500';
   };
+
+  const communicationValence = familyScore?.communication_valence || null;
+  const valenceLabel = communicationValence
+    ? communicationValence.charAt(0).toUpperCase() + communicationValence.slice(1)
+    : null;
+  const familySignalRows = [
+    { label: 'Supportive', value: familyScore?.supportiveness_score ?? null },
+    { label: 'Criticism', value: familyScore?.criticism_score ?? null },
+    { label: 'Enabling', value: familyScore?.enabling_score ?? null },
+    { label: 'Regulation', value: familyScore?.emotional_regulation_score ?? null },
+    { label: 'Boundaries', value: familyScore?.boundary_consistency_score ?? null },
+    { label: 'Recovery alignment', value: familyScore?.recovery_alignment_score ?? null },
+  ].filter((row) => row.value !== null);
 
   return (
     <div className="space-y-4">
@@ -87,6 +101,30 @@ export const SystemAlignmentDashboard = ({ familyScore, providerScore, systemSco
           </CardContent>
         </Card>
       </div>
+
+      {familySignalRows.length > 0 && (
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm flex items-center justify-between gap-2">
+              <span>Family communication quality</span>
+              {valenceLabel ? <Badge variant="outline">{valenceLabel}</Badge> : null}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {familySignalRows.map((row) => (
+                <div key={row.label}>
+                  <div className="flex items-center justify-between text-xs mb-1">
+                    <span className="text-muted-foreground">{row.label}</span>
+                    <span className="font-medium">{row.value}</span>
+                  </div>
+                  <Progress value={row.value ?? 0} className="h-2" />
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* AI insight */}
       {systemScore?.ai_insight && (

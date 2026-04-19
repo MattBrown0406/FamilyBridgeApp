@@ -50,8 +50,15 @@ interface BenchmarkTimeline {
   familyEngagedPercent: number;
   directSupportCount?: number;
   directSupportPercent?: number;
+  coachingEngagedCount?: number;
+  coachingEngagedPercent?: number;
+  coachingSessionCount?: number;
   avgSupportiveCommunicationScore?: number;
   avgConcerningCommunicationScore?: number;
+  supportiveValenceCount?: number;
+  mixedValenceCount?: number;
+  strainedValenceCount?: number;
+  destabilizingValenceCount?: number;
   aftercareAdherentCount: number;
   aftercareAdherentPercent: number;
 }
@@ -472,19 +479,39 @@ export const ProviderOutcomeReports = ({
         const plan = member ? aftercarePlanMap.get(`${member.family_id}:${userId}`) : null;
         const recs = plan ? (recommendationsByPlan.get(plan.id) || []) : [];
         const completedRecs = recs.filter((rec) => rec.is_completed).length;
+        const familyId = member?.family_id || '';
+        const familyCoachingCount = familyId
+          ? (data.coaching_sessions || []).filter((session: any) => session.family_id === familyId).length
+          : 0;
+        const comms = familyId ? communicationMetrics.get(familyId) : null;
+        const supportiveCommunicationScore = comms?.total
+          ? Math.max(0, Math.min(100, Math.round(((((comms.supportive || 0) + (comms.boundaryAligned || 0)) - ((comms.critical || 0) + (comms.enabling || 0))) / (comms.total || 1)) * 100 + 50)))
+          : 0;
+        const concerningCommunicationScore = comms?.total
+          ? Math.max(0, Math.min(100, Math.round((((comms.critical || 0) + (comms.concerning || 0) + (comms.enabling || 0)) / (comms.total || 1)) * 100)))
+          : 0;
+        const communicationValence = !comms?.total
+          ? 'mixed'
+          : (comms.enabling >= 2 || comms.critical >= 2)
+            ? 'destabilizing'
+            : (comms.concerning >= 2 || concerningCommunicationScore >= 35)
+              ? 'strained'
+              : supportiveCommunicationScore >= 65
+                ? 'supportive'
+                : 'mixed';
+
         return {
-          familyId: member?.family_id || '',
+          familyId,
           completionDate,
           sobrietyDays: journey ? differenceInDays(new Date(), new Date(journey.start_date)) : 0,
           hadReset: (journey?.reset_count || 0) > 0,
           familyEngaged: member ? ((messageCounts.get(member.family_id) || 0) + (checkinCounts.get(member.family_id) || 0)) > 0 : false,
           directSupportEngaged: member ? (recentCheckins || []).some((checkin) => checkin.family_id === member.family_id && directSupportMeetingTypes.has(checkin.meeting_type)) : false,
-          supportiveCommunicationScore: member && communicationMetrics.get(member.family_id)?.total
-            ? Math.max(0, Math.min(100, Math.round(((((communicationMetrics.get(member.family_id)?.supportive || 0) + (communicationMetrics.get(member.family_id)?.boundaryAligned || 0)) - ((communicationMetrics.get(member.family_id)?.critical || 0) + (communicationMetrics.get(member.family_id)?.enabling || 0))) / (communicationMetrics.get(member.family_id)?.total || 1)) * 100 + 50)))
-            : 0,
-          concerningCommunicationScore: member && communicationMetrics.get(member.family_id)?.total
-            ? Math.max(0, Math.min(100, Math.round((((communicationMetrics.get(member.family_id)?.critical || 0) + (communicationMetrics.get(member.family_id)?.concerning || 0) + (communicationMetrics.get(member.family_id)?.enabling || 0)) / (communicationMetrics.get(member.family_id)?.total || 1)) * 100)))
-            : 0,
+          coachingEngaged: familyCoachingCount > 0,
+          coachingSessionCount: familyCoachingCount,
+          supportiveCommunicationScore,
+          concerningCommunicationScore,
+          communicationValence,
           aftercareAdherent: recs.length > 0 ? completedRecs / recs.length >= 0.7 : false,
         };
       });
@@ -495,9 +522,15 @@ export const ProviderOutcomeReports = ({
         const soberCount = eligible.filter((row) => row.sobrietyDays >= benchmark.days && !row.hadReset).length;
         const familyEngagedCount = eligible.filter((row) => row.familyEngaged).length;
         const directSupportCount = eligible.filter((row) => row.directSupportEngaged).length;
+        const coachingEngagedCount = eligible.filter((row) => row.coachingEngaged).length;
+        const coachingSessionCount = eligible.reduce((sum, row) => sum + (row.coachingSessionCount || 0), 0);
         const aftercareAdherentCount = eligible.filter((row) => row.aftercareAdherent).length;
         const avgSupportiveCommunicationScore = totalClients > 0 ? Math.round(eligible.reduce((sum, row) => sum + (row.supportiveCommunicationScore || 0), 0) / totalClients) : 0;
         const avgConcerningCommunicationScore = totalClients > 0 ? Math.round(eligible.reduce((sum, row) => sum + (row.concerningCommunicationScore || 0), 0) / totalClients) : 0;
+        const supportiveValenceCount = eligible.filter((row) => row.communicationValence === 'supportive').length;
+        const mixedValenceCount = eligible.filter((row) => row.communicationValence === 'mixed').length;
+        const strainedValenceCount = eligible.filter((row) => row.communicationValence === 'strained').length;
+        const destabilizingValenceCount = eligible.filter((row) => row.communicationValence === 'destabilizing').length;
         return {
           key: benchmark.key,
           label: benchmark.label,
@@ -509,8 +542,15 @@ export const ProviderOutcomeReports = ({
           familyEngagedPercent: totalClients > 0 ? Math.round((familyEngagedCount / totalClients) * 100) : 0,
           directSupportCount,
           directSupportPercent: totalClients > 0 ? Math.round((directSupportCount / totalClients) * 100) : 0,
+          coachingEngagedCount,
+          coachingEngagedPercent: totalClients > 0 ? Math.round((coachingEngagedCount / totalClients) * 100) : 0,
+          coachingSessionCount,
           avgSupportiveCommunicationScore,
           avgConcerningCommunicationScore,
+          supportiveValenceCount,
+          mixedValenceCount,
+          strainedValenceCount,
+          destabilizingValenceCount,
           aftercareAdherentCount,
           aftercareAdherentPercent: totalClients > 0 ? Math.round((aftercareAdherentCount / totalClients) * 100) : 0,
         };
@@ -709,9 +749,16 @@ export const ProviderOutcomeReports = ({
                     <div className="flex items-center justify-between mb-1"><span>Direct support</span><span>{benchmark.directSupportPercent ?? 0}% ({benchmark.directSupportCount ?? 0})</span></div>
                     <Progress value={benchmark.directSupportPercent ?? 0} className="h-2" />
                   </div>
+                  <div>
+                    <div className="flex items-center justify-between mb-1"><span>FIIS coaching</span><span>{benchmark.coachingEngagedPercent ?? 0}% ({benchmark.coachingEngagedCount ?? 0})</span></div>
+                    <Progress value={benchmark.coachingEngagedPercent ?? 0} className="h-2" />
+                    <div className="text-[11px] text-muted-foreground mt-1">{benchmark.coachingSessionCount ?? 0} coaching sessions logged</div>
+                  </div>
                   <div className="grid grid-cols-2 gap-2 text-[11px] text-muted-foreground">
                     <div>Supportive comms: <span className="font-medium text-foreground">{benchmark.avgSupportiveCommunicationScore ?? 0}</span></div>
                     <div>Concerning comms: <span className="font-medium text-foreground">{benchmark.avgConcerningCommunicationScore ?? 0}</span></div>
+                    <div>Supportive valence: <span className="font-medium text-foreground">{benchmark.supportiveValenceCount ?? 0}</span></div>
+                    <div>Destabilizing valence: <span className="font-medium text-foreground">{benchmark.destabilizingValenceCount ?? 0}</span></div>
                   </div>
                   <div>
                     <div className="flex items-center justify-between mb-1"><span>Aftercare adherence</span><span>{benchmark.aftercareAdherentPercent}% ({benchmark.aftercareAdherentCount})</span></div>

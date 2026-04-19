@@ -155,9 +155,16 @@ export function SuperAdminOutcomesDashboard({ outcomes }: Props) {
                     <div className="flex items-center justify-between mb-1"><span>Direct support</span><span>{benchmark.direct_support_percent ?? 0}% ({benchmark.direct_support_count ?? 0})</span></div>
                     <Progress value={benchmark.direct_support_percent ?? 0} className="h-2" />
                   </div>
+                  <div>
+                    <div className="flex items-center justify-between mb-1"><span>FIIS coaching</span><span>{benchmark.coaching_engaged_percent ?? 0}% ({benchmark.coaching_engaged_count ?? 0})</span></div>
+                    <Progress value={benchmark.coaching_engaged_percent ?? 0} className="h-2" />
+                    <div className="text-[11px] text-muted-foreground mt-1">{benchmark.coaching_session_count ?? 0} coaching sessions logged</div>
+                  </div>
                   <div className="grid grid-cols-2 gap-2 text-[11px] text-muted-foreground">
                     <div>Supportive comms: <span className="font-medium text-foreground">{benchmark.avg_supportive_communication_score ?? 0}</span></div>
                     <div>Concerning comms: <span className="font-medium text-foreground">{benchmark.avg_concerning_communication_score ?? 0}</span></div>
+                    <div>Supportive valence: <span className="font-medium text-foreground">{benchmark.supportive_valence_count ?? 0}</span></div>
+                    <div>Destabilizing valence: <span className="font-medium text-foreground">{benchmark.destabilizing_valence_count ?? 0}</span></div>
                   </div>
                   <div>
                     <div className="flex items-center justify-between mb-1"><span>Aftercare adherence</span><span>{benchmark.aftercare_adherent_percent}% ({benchmark.aftercare_adherent_count})</span></div>
@@ -245,7 +252,9 @@ export function SuperAdminOutcomesDashboard({ outcomes }: Props) {
                           <div>Sober: {benchmark.sober_percent}% ({benchmark.sober_count})</div>
                           <div>Family: {benchmark.family_engaged_percent}% ({benchmark.family_engaged_count})</div>
                           <div>Direct support: {benchmark.direct_support_percent ?? 0}% ({benchmark.direct_support_count ?? 0})</div>
+                          <div>FIIS coaching: {benchmark.coaching_engaged_percent ?? 0}% ({benchmark.coaching_engaged_count ?? 0}), {benchmark.coaching_session_count ?? 0} sessions</div>
                           <div>Comms: +{benchmark.avg_supportive_communication_score ?? 0} / -{benchmark.avg_concerning_communication_score ?? 0}</div>
+                          <div>Valence mix: S {benchmark.supportive_valence_count ?? 0}, M {benchmark.mixed_valence_count ?? 0}, Str {benchmark.strained_valence_count ?? 0}, D {benchmark.destabilizing_valence_count ?? 0}</div>
                           <div>Aftercare: {benchmark.aftercare_adherent_percent}% ({benchmark.aftercare_adherent_count})</div>
                         </div>
                       ))}

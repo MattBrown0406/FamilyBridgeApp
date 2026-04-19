@@ -2405,6 +2405,7 @@ serve(async (req) => {
       coachingSessionsResult,
       providerSettingsResult,
       consequenceEventsResult,
+      familyMembersResult,
     ] = await Promise.all([
       supabase.from("family_values").select("value_key").eq("family_id", familyId),
       supabase.from("family_boundaries").select("content, status, target_user_id").eq("family_id", familyId).eq("status", "approved"),
@@ -2448,7 +2449,7 @@ serve(async (req) => {
         .limit(20),
       // ALL meeting check-ins for complete attendance history (no time limit - full memory)
       supabase.from("meeting_checkins")
-        .select("id, checked_in_at, checked_out_at, meeting_type, overdue_alert_sent")
+        .select("id, user_id, checked_in_at, checked_out_at, meeting_type, overdue_alert_sent")
         .eq("family_id", familyId)
         .order("checked_in_at", { ascending: false }),
       // ALL emotional check-ins for complete emotional history (no time limit - full memory)
@@ -2501,6 +2502,9 @@ serve(async (req) => {
         .eq("family_id", familyId)
         .order("created_at", { ascending: false })
         .limit(100),
+      supabase.from("family_members")
+        .select("user_id, role, relationship_type, joined_at")
+        .eq("family_id", familyId),
     ]);
 
     // Calculate sobriety days and phase
@@ -2580,6 +2584,99 @@ FAMILY JOURNEY DURATION:
 
 `;
     }
+
+    const familyMembers = familyMembersResult.data || [];
+
+    const benchmarkDefinitions = [
+      { key: 'day_30', label: '30 days', days: 30 },
+      { key: 'day_90', label: '90 days', days: 90 },
+      { key: 'day_180', label: '6 months', days: 180 },
+      { key: 'day_270', label: '9 months', days: 270 },
+      { key: 'day_365', label: '12 months', days: 365 },
+    ];
+
+    const roleBucketLabel = (relationshipType: string | null) => {
+      if (relationshipType === 'parent') return 'parents';
+      if (relationshipType === 'spouse_partner') return 'spouses_partners';
+      if (relationshipType === 'sibling') return 'siblings';
+      if (relationshipType === 'child') return 'children';
+      return 'other_support';
+    };
+
+    const familySupportMembers = familyMembers.filter((member: any) => member.role !== 'recovering');
+    const memberMap = new Map(familyMembers.map((member: any) => [member.user_id, member]));
+    const activePlanIds = (aftercarePlansResult.data || []).map((p: any) => p.id);
+    const relevantRecs = (aftercareRecsResult.data || []).filter((r: any) => activePlanIds.includes(r.plan_id));
+    const currentJourney = sobrietyResult.data;
+    const currentCheckins = meetingCheckinsResult.data || [];
+
+    const benchmarkLines = benchmarkDefinitions.map((benchmark) => {
+      const clientEligible = currentDays >= benchmark.days;
+      const clientSober = clientEligible && !!currentJourney && currentDays >= benchmark.days;
+      const clientAftercareAdherent = relevantRecs.length > 0
+        ? Math.round((relevantRecs.filter((r: any) => r.is_completed).length / relevantRecs.length) * 100) >= 70
+        : false;
+
+      const benchmarkWindowStart = Math.max(0, benchmark.days - 30);
+      const engagedMeetingTypes = new Set(['Al-Anon', 'Nar-Anon', 'Therapy', 'Support Group']);
+      const memberBuckets: Record<string, { eligible: number; engaged: number }> = {
+        parents: { eligible: 0, engaged: 0 },
+        spouses_partners: { eligible: 0, engaged: 0 },
+        siblings: { eligible: 0, engaged: 0 },
+        children: { eligible: 0, engaged: 0 },
+        other_support: { eligible: 0, engaged: 0 },
+      };
+
+      familySupportMembers.forEach((member: any) => {
+        const joinedDays = member.joined_at
+          ? Math.max(0, Math.floor((Date.now() - new Date(member.joined_at).getTime()) / (1000 * 60 * 60 * 24)))
+          : currentDays;
+        if (joinedDays < benchmark.days) return;
+
+        const bucket = roleBucketLabel(member.relationship_type || null);
+        memberBuckets[bucket].eligible += 1;
+
+        const memberCheckins = currentCheckins.filter((checkin: any) => {
+          const checkinDaysAgo = Math.max(0, Math.floor((Date.now() - new Date(checkin.checked_in_at).getTime()) / (1000 * 60 * 60 * 24)));
+          const memberId = (checkin as any).user_id;
+          return memberId === member.user_id
+            && checkinDaysAgo <= benchmark.days
+            && checkinDaysAgo >= benchmarkWindowStart
+            && engagedMeetingTypes.has(checkin.meeting_type);
+        });
+
+        if (memberCheckins.length > 0) {
+          memberBuckets[bucket].engaged += 1;
+        }
+      });
+
+      const totalEligibleFamilyMembers = Object.values(memberBuckets).reduce((sum, bucket) => sum + bucket.eligible, 0);
+      const totalEngagedFamilyMembers = Object.values(memberBuckets).reduce((sum, bucket) => sum + bucket.engaged, 0);
+
+      return {
+        label: benchmark.label,
+        days: benchmark.days,
+        client: {
+          eligible: clientEligible,
+          sober: clientSober,
+          sobriety_days: currentDays,
+          aftercare_adherent: clientAftercareAdherent,
+        },
+        family: {
+          eligible_members: totalEligibleFamilyMembers,
+          engaged_members: totalEngagedFamilyMembers,
+          engaged_percent: totalEligibleFamilyMembers > 0 ? Math.round((totalEngagedFamilyMembers / totalEligibleFamilyMembers) * 100) : 0,
+          buckets: Object.fromEntries(Object.entries(memberBuckets).map(([key, value]) => [
+            key,
+            {
+              eligible: value.eligible,
+              engaged: value.engaged,
+              engaged_percent: value.eligible > 0 ? Math.round((value.engaged / value.eligible) * 100) : 0,
+            },
+          ])),
+        },
+      };
+    });
 
     // Build context about family values and boundaries
     let familyContext = sobrietyContext + familyJourneyContext;
@@ -2716,6 +2813,35 @@ AFTERCARE COMPLIANCE INTERPRETATION:
 `;
       }
     }
+
+    familyContext += `RECOVERY BENCHMARK MILESTONES (CLIENT + FAMILY):
+${benchmarkLines.map((benchmark) => {
+  const parents = benchmark.family.buckets.parents;
+  const spouses = benchmark.family.buckets.spouses_partners;
+  const siblings = benchmark.family.buckets.siblings;
+  const children = benchmark.family.buckets.children;
+  const others = benchmark.family.buckets.other_support;
+  return `- ${benchmark.label} post-treatment:
+  Client eligible: ${benchmark.client.eligible ? 'yes' : 'no'}
+  Client sober at benchmark: ${benchmark.client.eligible ? (benchmark.client.sober ? 'yes' : 'no') : 'not yet measurable'}
+  Client aftercare adherence at benchmark: ${benchmark.client.eligible ? (benchmark.client.aftercare_adherent ? 'adherent' : 'below target') : 'not yet measurable'}
+  Family engagement: ${benchmark.family.engaged_members}/${benchmark.family.eligible_members} (${benchmark.family.engaged_percent}%)
+  Parents: ${parents.engaged}/${parents.eligible} (${parents.engaged_percent}%)
+  Spouses/Partners: ${spouses.engaged}/${spouses.eligible} (${spouses.engaged_percent}%)
+  Siblings: ${siblings.engaged}/${siblings.eligible} (${siblings.engaged_percent}%)
+  Children: ${children.engaged}/${children.eligible} (${children.engaged_percent}%)
+  Other support: ${others.engaged}/${others.eligible} (${others.engaged_percent}%)`;
+}).join('\n')}
+
+FIIS BENCHMARK INTERPRETATION RULES:
+- Interpret BOTH client and family benchmark performance as structured milestone data, not vague background context.
+- Call out whether benchmark performance is strengthening, stalling, or weakening the path to 365 days sober.
+- Weigh parent and spouse/partner disengagement more heavily than sibling/child/other disengagement when family support erosion is clinically relevant.
+- If client benchmark performance is acceptable but family benchmark engagement is weak, flag family-system fragility and recommend specific corrective action.
+- If family engagement is strong but client benchmark performance is weak, flag care-level mismatch, aftercare weakness, or clinical escalation needs.
+- Use benchmark milestone differences across 30/90/180/270/365 as longitudinal signal, not isolated snapshots.
+
+`;
 
     // Add provider clinical notes context (for AI-included notes only)
     if (providerNotesResult.data && providerNotesResult.data.length > 0) {

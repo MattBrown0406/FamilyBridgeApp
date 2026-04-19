@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 import { ScoreGauge } from './ScoreGauge';
 import { CommitmentTracker } from './CommitmentTracker';
 import { AccountabilityAlerts } from './AccountabilityAlerts';
@@ -22,6 +23,18 @@ export const FamilyAccountabilityPanel = ({
 }: Props) => {
   const factors = score?.factors || [];
   const positiveFeedback = score?.positive_feedback || [];
+  const communicationMetrics = [
+    { label: 'Supportive', value: score?.supportiveness_score ?? null },
+    { label: 'Criticism', value: score?.criticism_score ?? null },
+    { label: 'Enabling', value: score?.enabling_score ?? null },
+    { label: 'Regulation', value: score?.emotional_regulation_score ?? null },
+    { label: 'Boundaries', value: score?.boundary_consistency_score ?? null },
+    { label: 'Recovery alignment', value: score?.recovery_alignment_score ?? null },
+  ].filter((metric) => metric.value !== null);
+
+  const valenceTone = score?.communication_valence
+    ? score.communication_valence.charAt(0).toUpperCase() + score.communication_valence.slice(1)
+    : null;
 
   return (
     <div className="space-y-4">
@@ -69,6 +82,26 @@ export const FamilyAccountabilityPanel = ({
                       </li>
                     ))}
                   </ul>
+                </div>
+              )}
+
+              {communicationMetrics.length > 0 && (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <h4 className="text-sm font-semibold">Communication signals</h4>
+                    {valenceTone ? <Badge variant="outline">{valenceTone}</Badge> : null}
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {communicationMetrics.map((metric) => (
+                      <div key={metric.label} className="space-y-1.5">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-muted-foreground">{metric.label}</span>
+                          <span className="font-medium text-foreground">{metric.value}</span>
+                        </div>
+                        <Progress value={metric.value ?? 0} className="h-2" />
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
 

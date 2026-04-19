@@ -35,9 +35,20 @@ export interface AccountabilityScore {
   emotional_regulation_score?: number | null;
   boundary_consistency_score?: number | null;
   recovery_alignment_score?: number | null;
-  communication_valence?: string | null;
+  communication_valence?: "supportive" | "mixed" | "strained" | "destabilizing" | null;
   calculated_at: string;
 }
+
+const coerceScore = (row: any): AccountabilityScore => ({
+  ...row,
+  supportiveness_score: typeof row?.supportiveness_score === 'number' ? row.supportiveness_score : null,
+  criticism_score: typeof row?.criticism_score === 'number' ? row.criticism_score : null,
+  enabling_score: typeof row?.enabling_score === 'number' ? row.enabling_score : null,
+  emotional_regulation_score: typeof row?.emotional_regulation_score === 'number' ? row.emotional_regulation_score : null,
+  boundary_consistency_score: typeof row?.boundary_consistency_score === 'number' ? row.boundary_consistency_score : null,
+  recovery_alignment_score: typeof row?.recovery_alignment_score === 'number' ? row.recovery_alignment_score : null,
+  communication_valence: typeof row?.communication_valence === 'string' ? row.communication_valence : null,
+});
 
 export interface AccountabilityAlert {
   id: string;
@@ -103,7 +114,7 @@ export function useAccountability(familyId?: string, organizationId?: string) {
       ]);
 
       setCommitments((commitRes.data || []) as AccountabilityCommitment[]);
-      setScores((scoreRes.data || []) as AccountabilityScore[]);
+      setScores((scoreRes.data || []).map(coerceScore));
       setAlerts((alertRes.data || []) as AccountabilityAlert[]);
       setContracts((contractRes.data || []) as AccountabilityContract[]);
     } catch (err) {
