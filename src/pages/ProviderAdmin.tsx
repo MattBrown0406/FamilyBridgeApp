@@ -229,6 +229,18 @@ const ProviderAdmin = () => {
         heading_font: org.heading_font,
         body_font: org.body_font,
       });
+      setEditOnboarding({
+        provider_category: (org as any).provider_category || '',
+        levels_of_care: (org as any).levels_of_care || [],
+        primary_service_duration_days:
+          (org as any).primary_service_duration_days != null
+            ? String((org as any).primary_service_duration_days)
+            : '',
+        outcome_tracking_enabled: (org as any).outcome_tracking_enabled ?? true,
+        intervention_tracking_enabled: (org as any).intervention_tracking_enabled ?? false,
+        benchmark_opt_in: (org as any).benchmark_opt_in ?? true,
+        intake_notes: (org as any).intake_notes || '',
+      });
       // Load families and moderators for this org
       await Promise.all([fetchOrgFamilies(orgId), fetchOrgModerators(orgId)]);
     }
