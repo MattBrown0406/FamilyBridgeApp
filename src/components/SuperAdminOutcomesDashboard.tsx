@@ -4,6 +4,19 @@ import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Activity, AlertTriangle, ArrowRightLeft, Building2, CheckCircle2, HeartPulse, TrendingDown, TrendingUp, Users } from 'lucide-react';
 
+interface BenchmarkTimeline {
+  key: string;
+  label: string;
+  days: number;
+  total_clients: number;
+  sober_count: number;
+  sober_percent: number;
+  family_engaged_count: number;
+  family_engaged_percent: number;
+  aftercare_adherent_count: number;
+  aftercare_adherent_percent: number;
+}
+
 interface OutcomesOverview {
   total_recovering_members: number;
   active_recovering_members: number;
@@ -18,6 +31,7 @@ interface OutcomesOverview {
   reset_rate: number;
   completion_rate: number;
   avg_days_in_care: number;
+  benchmark_timelines: BenchmarkTimeline[];
 }
 
 interface OrganizationOutcome {
@@ -43,6 +57,7 @@ interface OrganizationOutcome {
   benchmark_opt_in: boolean;
   provider_category: string | null;
   levels_of_care: string[];
+  benchmark_timelines: BenchmarkTimeline[];
 }
 
 interface FamilyOutcome {
@@ -114,6 +129,38 @@ export function SuperAdminOutcomesDashboard({ outcomes }: Props) {
 
   return (
     <div className="space-y-4">
+      <Card className="border-0 shadow-sm">
+        <CardHeader>
+          <CardTitle className="text-base">365-day recovery benchmarks</CardTitle>
+          <CardDescription>Counts and percentages at 30, 90, 180, 270, and 365 days post treatment completion.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid md:grid-cols-2 xl:grid-cols-5 gap-3">
+            {outcomes.overview.benchmark_timelines.map((benchmark) => (
+              <div key={benchmark.key} className="rounded-xl border p-3 space-y-2">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="font-medium text-sm">{benchmark.label}</div>
+                  <Badge variant="outline">{benchmark.total_clients} clients</Badge>
+                </div>
+                <div className="space-y-2 text-xs">
+                  <div>
+                    <div className="flex items-center justify-between mb-1"><span>Sobriety</span><span>{benchmark.sober_percent}% ({benchmark.sober_count})</span></div>
+                    <Progress value={benchmark.sober_percent} className="h-2" />
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between mb-1"><span>Family engagement</span><span>{benchmark.family_engaged_percent}% ({benchmark.family_engaged_count})</span></div>
+                    <Progress value={benchmark.family_engaged_percent} className="h-2" />
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between mb-1"><span>Aftercare adherence</span><span>{benchmark.aftercare_adherent_percent}% ({benchmark.aftercare_adherent_count})</span></div>
+                    <Progress value={benchmark.aftercare_adherent_percent} className="h-2" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
       <div className="grid grid-cols-2 lg:grid-cols-6 gap-3">
         <MetricCard title="Recovering members" value={outcomes.overview.total_recovering_members} icon={Users} />
         <MetricCard title="Stability rate" value={`${outcomes.overview.sobriety_stability_rate}%`} icon={HeartPulse} />
@@ -186,6 +233,19 @@ export function SuperAdminOutcomesDashboard({ outcomes }: Props) {
                       {provider.critical_alert_count > 0 ? <Badge variant="destructive">{provider.critical_alert_count} critical alerts</Badge> : null}
                       {provider.warning_alert_count > 0 ? <Badge variant="outline">{provider.warning_alert_count} warnings</Badge> : null}
                       {provider.benchmark_opt_in ? <Badge variant="outline">Benchmark opt-in</Badge> : null}
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 pt-1">
+                      {provider.benchmark_timelines.map((benchmark) => (
+                        <div key={benchmark.key} className="rounded-lg bg-muted/40 p-2 text-[11px] space-y-1">
+                          <div className="flex items-center justify-between">
+                            <span className="font-medium">{benchmark.label}</span>
+                            <span>{benchmark.total_clients} clients</span>
+                          </div>
+                          <div>Sober: {benchmark.sober_percent}% ({benchmark.sober_count})</div>
+                          <div>Family: {benchmark.family_engaged_percent}% ({benchmark.family_engaged_count})</div>
+                          <div>Aftercare: {benchmark.aftercare_adherent_percent}% ({benchmark.aftercare_adherent_count})</div>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </div>

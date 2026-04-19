@@ -40,6 +40,19 @@ interface ProviderOutcomeReportsProps {
   organizationName: string;
 }
 
+interface BenchmarkTimeline {
+  key: string;
+  label: string;
+  days: number;
+  totalClients: number;
+  soberCount: number;
+  soberPercent: number;
+  familyEngagedCount: number;
+  familyEngagedPercent: number;
+  aftercareAdherentCount: number;
+  aftercareAdherentPercent: number;
+}
+
 interface OutcomeMetrics {
   totalClients: number;
   totalHandoffs: number;
@@ -107,6 +120,7 @@ export const ProviderOutcomeReports = ({
   const [dateRange, setDateRange] = useState<"30d" | "90d" | "1y" | "all">("90d");
   const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+  const [benchmarkTimelines, setBenchmarkTimelines] = useState<BenchmarkTimeline[]>([]);
 
   // Check if user is authorized to view this organization's success score
   useEffect(() => {
@@ -250,6 +264,31 @@ export const ProviderOutcomeReports = ({
       }
 
       const { data: handoffs } = await handoffsQuery;
+
+      const { data: aftercarePlans } = await supabase
+        .from("aftercare_plans")
+        .select("id, family_id, target_user_id")
+        .in("family_id", familyIds);
+
+      const planIds = aftercarePlans?.map((plan) => plan.id) || [];
+      const { data: aftercareRecommendations } = planIds.length > 0
+        ? await supabase
+            .from("aftercare_recommendations")
+            .select("plan_id, is_completed")
+            .in("plan_id", planIds)
+        : { data: [] as any[] };
+
+      const { data: recentMessages } = await supabase
+        .from("messages")
+        .select("family_id")
+        .in("family_id", familyIds)
+        .gte("created_at", subMonths(new Date(), 3).toISOString());
+
+      const { data: recentCheckins } = await supabase
+        .from("meeting_checkins")
+        .select("family_id")
+        .in("family_id", familyIds)
+        .gte("checked_in_at", subMonths(new Date(), 3).toISOString());
 
       // Calculate metrics
       const totalClients = userIds.length;
@@ -401,6 +440,66 @@ export const ProviderOutcomeReports = ({
       });
 
       setClientOutcomes(clientOutcomesList);
+
+      const benchmarkDefs = [
+        { key: 'day_30', label: '30 days', days: 30 },
+        { key: 'day_90', label: '90 days', days: 90 },
+        { key: 'day_180', label: '6 months', days: 180 },
+        { key: 'day_270', label: '9 months', days: 270 },
+        { key: 'day_365', label: '12 months', days: 365 },
+      ];
+
+      const aftercarePlanMap = new Map((aftercarePlans || []).map((plan) => [`${plan.family_id}:${plan.target_user_id}`, plan]));
+      const recommendationsByPlan = new Map<string, any[]>();
+      (aftercareRecommendations || []).forEach((recommendation) => {
+        const existing = recommendationsByPlan.get(recommendation.plan_id) || [];
+        existing.push(recommendation);
+        recommendationsByPlan.set(recommendation.plan_id, existing);
+      });
+      const messageCounts = new Map<string, number>();
+      (recentMessages || []).forEach((message) => messageCounts.set(message.family_id, (messageCounts.get(message.family_id) || 0) + 1));
+      const checkinCounts = new Map<string, number>();
+      (recentCheckins || []).forEach((checkin) => checkinCounts.set(checkin.family_id, (checkinCounts.get(checkin.family_id) || 0) + 1));
+
+      const benchmarkRows = userIds.map((userId) => {
+        const member = members?.find((m) => m.user_id === userId);
+        const journey = journeys?.find((j) => j.user_id === userId && j.is_active);
+        const userPhases = (phases?.filter((p) => p.user_id === userId) || [])
+          .filter((phase) => phase.ended_at)
+          .sort((a, b) => new Date(b.ended_at!).getTime() - new Date(a.ended_at!).getTime());
+        const completionDate = userPhases[0]?.ended_at || null;
+        const plan = member ? aftercarePlanMap.get(`${member.family_id}:${userId}`) : null;
+        const recs = plan ? (recommendationsByPlan.get(plan.id) || []) : [];
+        const completedRecs = recs.filter((rec) => rec.is_completed).length;
+        return {
+          familyId: member?.family_id || '',
+          completionDate,
+          sobrietyDays: journey ? differenceInDays(new Date(), new Date(journey.start_date)) : 0,
+          hadReset: (journey?.reset_count || 0) > 0,
+          familyEngaged: member ? ((messageCounts.get(member.family_id) || 0) + (checkinCounts.get(member.family_id) || 0)) > 0 : false,
+          aftercareAdherent: recs.length > 0 ? completedRecs / recs.length >= 0.7 : false,
+        };
+      });
+
+      setBenchmarkTimelines(benchmarkDefs.map((benchmark) => {
+        const eligible = benchmarkRows.filter((row) => row.completionDate && differenceInDays(new Date(), new Date(row.completionDate)) >= benchmark.days);
+        const totalClients = eligible.length;
+        const soberCount = eligible.filter((row) => row.sobrietyDays >= benchmark.days && !row.hadReset).length;
+        const familyEngagedCount = eligible.filter((row) => row.familyEngaged).length;
+        const aftercareAdherentCount = eligible.filter((row) => row.aftercareAdherent).length;
+        return {
+          key: benchmark.key,
+          label: benchmark.label,
+          days: benchmark.days,
+          totalClients,
+          soberCount,
+          soberPercent: totalClients > 0 ? Math.round((soberCount / totalClients) * 100) : 0,
+          familyEngagedCount,
+          familyEngagedPercent: totalClients > 0 ? Math.round((familyEngagedCount / totalClients) * 100) : 0,
+          aftercareAdherentCount,
+          aftercareAdherentPercent: totalClients > 0 ? Math.round((aftercareAdherentCount / totalClients) * 100) : 0,
+        };
+      }));
 
       // Calculate phase stats
       const phaseStatsList: PhaseStats[] = PHASE_ORDER.map((phase) => {
@@ -640,6 +739,39 @@ export const ProviderOutcomeReports = ({
                 <div className="text-muted-foreground/70">(15% weight)</div>
               </div>
             </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Recovery benchmark timelines</CardTitle>
+          <CardDescription>Post-treatment cohort counts and percentages at 30, 90, 180, 270, and 365 days.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+            {benchmarkTimelines.map((benchmark) => (
+              <div key={benchmark.key} className="rounded-xl border p-3 space-y-2">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="font-medium">{benchmark.label}</div>
+                  <Badge variant="outline">{benchmark.totalClients} clients</Badge>
+                </div>
+                <div className="space-y-2 text-xs">
+                  <div>
+                    <div className="flex items-center justify-between mb-1"><span>Sobriety</span><span>{benchmark.soberPercent}% ({benchmark.soberCount})</span></div>
+                    <Progress value={benchmark.soberPercent} className="h-2" />
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between mb-1"><span>Family engagement</span><span>{benchmark.familyEngagedPercent}% ({benchmark.familyEngagedCount})</span></div>
+                    <Progress value={benchmark.familyEngagedPercent} className="h-2" />
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between mb-1"><span>Aftercare adherence</span><span>{benchmark.aftercareAdherentPercent}% ({benchmark.aftercareAdherentCount})</span></div>
+                    <Progress value={benchmark.aftercareAdherentPercent} className="h-2" />
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </CardContent>
       </Card>

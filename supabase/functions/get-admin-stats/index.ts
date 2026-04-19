@@ -542,6 +542,10 @@ Deno.serve(async (req) => {
       providerHandoffsResult,
       accountabilityScoresResult,
       accountabilityAlertsResult,
+      aftercarePlansResult,
+      aftercareRecommendationsResult,
+      messages90DayResult,
+      checkins90DayResult,
     ] = await Promise.all([
       adminClient
         .from("family_members")
@@ -563,6 +567,20 @@ Deno.serve(async (req) => {
       adminClient
         .from("accountability_alerts")
         .select("organization_id, family_id, severity, is_dismissed, created_at"),
+      adminClient
+        .from("aftercare_plans")
+        .select("id, family_id, target_user_id, created_at, is_active"),
+      adminClient
+        .from("aftercare_recommendations")
+        .select("id, plan_id, is_completed, completed_at, created_at"),
+      adminClient
+        .from("messages")
+        .select("family_id, created_at")
+        .gte("created_at", weekAgo.toISOString()),
+      adminClient
+        .from("meeting_checkins")
+        .select("family_id, checked_in_at")
+        .gte("checked_in_at", weekAgo.toISOString()),
     ]);
 
     const recoveringMembers = recoveringMembersResult.data || [];
@@ -571,6 +589,10 @@ Deno.serve(async (req) => {
     const providerHandoffs = providerHandoffsResult.data || [];
     const accountabilityScores = accountabilityScoresResult.data || [];
     const accountabilityAlerts = accountabilityAlertsResult.data || [];
+    const aftercarePlans = aftercarePlansResult.data || [];
+    const aftercareRecommendations = aftercareRecommendationsResult.data || [];
+    const recentMessages = messages90DayResult.data || [];
+    const recentCheckins = checkins90DayResult.data || [];
 
     const uniqueRecoveringUserIds = Array.from(new Set(recoveringMembers.map((member) => member.user_id)));
     const activeJourneys = sobrietyJourneys.filter((journey) => journey.is_active);
@@ -605,6 +627,37 @@ Deno.serve(async (req) => {
       sober_living: 5,
       independent: 6,
     };
+
+    const benchmarkDefinitions = [
+      { key: "day_30", label: "30 days", days: 30 },
+      { key: "day_90", label: "90 days", days: 90 },
+      { key: "day_180", label: "6 months", days: 180 },
+      { key: "day_270", label: "9 months", days: 270 },
+      { key: "day_365", label: "12 months", days: 365 },
+    ];
+
+    const aftercarePlanByUserFamily = new Map<string, any>();
+    aftercarePlans.forEach((plan) => {
+      const key = `${plan.family_id}:${plan.target_user_id}`;
+      if (!aftercarePlanByUserFamily.has(key)) aftercarePlanByUserFamily.set(key, plan);
+    });
+
+    const recommendationsByPlan = new Map<string, any[]>();
+    aftercareRecommendations.forEach((recommendation) => {
+      const existing = recommendationsByPlan.get(recommendation.plan_id) || [];
+      existing.push(recommendation);
+      recommendationsByPlan.set(recommendation.plan_id, existing);
+    });
+
+    const recentMessageCountByFamily = new Map<string, number>();
+    recentMessages.forEach((message) => {
+      recentMessageCountByFamily.set(message.family_id, (recentMessageCountByFamily.get(message.family_id) || 0) + 1);
+    });
+
+    const recentCheckinCountByFamily = new Map<string, number>();
+    recentCheckins.forEach((checkin) => {
+      recentCheckinCountByFamily.set(checkin.family_id, (recentCheckinCountByFamily.get(checkin.family_id) || 0) + 1);
+    });
 
     let progressedUsers = 0;
     let regressedUsers = 0;
@@ -672,6 +725,43 @@ Deno.serve(async (req) => {
       alertsByOrganization.set(alert.organization_id, current);
     });
 
+    const buildBenchmarkSummary = (rows: Array<{
+      family_id: string;
+      user_id: string;
+      organization_id: string | null;
+      treatment_completion_date: string | null;
+      sobriety_days: number;
+      had_reset: boolean;
+      family_engaged: boolean;
+      aftercare_adherent: boolean;
+    }>) => {
+      return benchmarkDefinitions.map((benchmark) => {
+        const eligibleRows = rows.filter((row) => {
+          if (!row.treatment_completion_date) return false;
+          const completionAgeDays = Math.max(0, Math.floor((Date.now() - new Date(row.treatment_completion_date).getTime()) / (1000 * 60 * 60 * 24)));
+          return completionAgeDays >= benchmark.days;
+        });
+
+        const totalClients = eligibleRows.length;
+        const soberCount = eligibleRows.filter((row) => row.sobriety_days >= benchmark.days && !row.had_reset).length;
+        const familyEngagedCount = eligibleRows.filter((row) => row.family_engaged).length;
+        const aftercareAdherentCount = eligibleRows.filter((row) => row.aftercare_adherent).length;
+
+        return {
+          key: benchmark.key,
+          label: benchmark.label,
+          days: benchmark.days,
+          total_clients: totalClients,
+          sober_count: soberCount,
+          sober_percent: totalClients > 0 ? Math.round((soberCount / totalClients) * 100) : 0,
+          family_engaged_count: familyEngagedCount,
+          family_engaged_percent: totalClients > 0 ? Math.round((familyEngagedCount / totalClients) * 100) : 0,
+          aftercare_adherent_count: aftercareAdherentCount,
+          aftercare_adherent_percent: totalClients > 0 ? Math.round((aftercareAdherentCount / totalClients) * 100) : 0,
+        };
+      });
+    };
+
     const outcomesByOrganization = new Map<string, any>();
 
     (orgData || []).forEach((org) => {
@@ -726,6 +816,36 @@ Deno.serve(async (req) => {
         ? Math.round((orgRegressedUsers / orgClientCount) * 100)
         : 0;
 
+      const orgBenchmarkRows = orgRecoveringMembers.map((member) => {
+        const journey = activeJourneys.find((item) => item.user_id === member.user_id && item.family_id === member.family_id);
+        const treatmentCompletionPhase = (phasesByUser.get(member.user_id) || [])
+          .filter((phase) => phase.family_id === member.family_id && phase.ended_at)
+          .slice()
+          .sort((a, b) => new Date(b.ended_at).getTime() - new Date(a.ended_at).getTime())[0] || null;
+        const treatmentCompletionDate = treatmentCompletionPhase?.ended_at || null;
+        const sobrietyDays = journey?.start_date
+          ? Math.max(0, Math.floor((Date.now() - new Date(journey.start_date).getTime()) / (1000 * 60 * 60 * 24)))
+          : 0;
+        const familyEngaged = ((recentMessageCountByFamily.get(member.family_id) || 0) + (recentCheckinCountByFamily.get(member.family_id) || 0)) > 0;
+        const aftercarePlan = aftercarePlanByUserFamily.get(`${member.family_id}:${member.user_id}`);
+        const planRecommendations = aftercarePlan ? (recommendationsByPlan.get(aftercarePlan.id) || []) : [];
+        const completedRecommendations = planRecommendations.filter((recommendation) => recommendation.is_completed).length;
+        const aftercareAdherent = planRecommendations.length > 0
+          ? completedRecommendations / planRecommendations.length >= 0.7
+          : false;
+
+        return {
+          family_id: member.family_id,
+          user_id: member.user_id,
+          organization_id: org.id,
+          treatment_completion_date: treatmentCompletionDate,
+          sobriety_days: sobrietyDays,
+          had_reset: (journey?.reset_count || 0) > 0,
+          family_engaged: familyEngaged,
+          aftercare_adherent: aftercareAdherent,
+        };
+      });
+
       const explicitScore = scoreByOrganization.get(org.id)?.score ?? null;
       const computedScoreRaw = ((orgStabilityRate / 100) * 2.5)
         + ((orgProgressionRate / 100) * 2.5)
@@ -765,6 +885,7 @@ Deno.serve(async (req) => {
         benchmark_opt_in: org.benchmark_opt_in ?? false,
         provider_category: org.provider_category ?? null,
         levels_of_care: org.levels_of_care ?? [],
+        benchmark_timelines: buildBenchmarkSummary(orgBenchmarkRows),
       });
     });
 
@@ -795,6 +916,19 @@ Deno.serve(async (req) => {
         ? Math.max(0, Math.floor((Date.now() - new Date(member.joined_at).getTime()) / (1000 * 60 * 60 * 24)))
         : 0;
 
+      const treatmentCompletionPhase = userPhases
+        .filter((phase) => phase.ended_at)
+        .slice()
+        .sort((a, b) => new Date(b.ended_at).getTime() - new Date(a.ended_at).getTime())[0] || null;
+      const treatmentCompletionDate = treatmentCompletionPhase?.ended_at || null;
+      const familyEngaged = ((recentMessageCountByFamily.get(member.family_id) || 0) + (recentCheckinCountByFamily.get(member.family_id) || 0)) > 0;
+      const aftercarePlan = aftercarePlanByUserFamily.get(`${member.family_id}:${member.user_id}`);
+      const planRecommendations = aftercarePlan ? (recommendationsByPlan.get(aftercarePlan.id) || []) : [];
+      const completedRecommendations = planRecommendations.filter((recommendation) => recommendation.is_completed).length;
+      const aftercareAdherent = planRecommendations.length > 0
+        ? completedRecommendations / planRecommendations.length >= 0.7
+        : false;
+
       return {
         family_id: member.family_id,
         family_name: family?.name || "Unknown family",
@@ -809,6 +943,9 @@ Deno.serve(async (req) => {
         moved_backward: movedBackward,
         days_in_care: daysInCare,
         was_handed_off: providerHandoffs.some((handoff) => handoff.user_id === member.user_id && handoff.family_id === member.family_id && handoff.status === "completed"),
+        treatment_completion_date: treatmentCompletionDate,
+        family_engaged: familyEngaged,
+        aftercare_adherent: aftercareAdherent,
       };
     });
 
@@ -826,6 +963,7 @@ Deno.serve(async (req) => {
       reset_rate: resetRate,
       completion_rate: completionRate,
       avg_days_in_care: averageDaysInCare,
+      benchmark_timelines: buildBenchmarkSummary(familyOutcomeRows),
     };
 
     return new Response(
