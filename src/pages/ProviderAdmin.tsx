@@ -748,7 +748,19 @@ const ProviderAdmin = () => {
       if (manualBranding.primary_color) {
         orgData.primary_color = manualBranding.primary_color;
       }
-      
+
+      // Apply onboarding/intake fields
+      const parsedDuration = newOrgOnboarding.primary_service_duration_days
+        ? parseInt(newOrgOnboarding.primary_service_duration_days, 10)
+        : null;
+      orgData.provider_category = newOrgOnboarding.provider_category || null;
+      orgData.levels_of_care = newOrgOnboarding.levels_of_care;
+      orgData.primary_service_duration_days = Number.isFinite(parsedDuration as number) ? parsedDuration : null;
+      orgData.outcome_tracking_enabled = newOrgOnboarding.outcome_tracking_enabled;
+      orgData.intervention_tracking_enabled = newOrgOnboarding.intervention_tracking_enabled;
+      orgData.benchmark_opt_in = newOrgOnboarding.benchmark_opt_in;
+      orgData.intake_notes = newOrgOnboarding.intake_notes || null;
+
       const org = await createOrganization(orgData);
       
       // Upload manual logo if provided
@@ -763,6 +775,7 @@ const ProviderAdmin = () => {
       toast({ title: 'Success', description: 'Organization created!' });
       setIsCreating(false);
       setNewOrg({ name: '', subdomain: '', tagline: '', support_email: '', website_url: '', phone: '' });
+      setNewOrgOnboarding(defaultOnboardingFields);
       setExtractedBranding(null);
       setManualBranding({ primary_color: '', logo_file: null });
       setShowManualBranding(false);
