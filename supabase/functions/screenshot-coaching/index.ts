@@ -4,6 +4,7 @@ import { buildModeratorEscalationTriggersPrompt } from "../_shared/fiis-doctrine
 import { buildFIISLearningContext } from "../_shared/fiis-learning.ts";
 import { buildFIISRuntimeContext } from "../_shared/fiis-runtime.ts";
 import { loadFIISRuntimeTelemetry, persistFIISCoachingTelemetry } from "../_shared/fiis-telemetry.ts";
+import { fetchFIISFamilyContext } from "../_shared/fiis-family-context.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -12,169 +13,6 @@ const corsHeaders = {
 const FIIS_AI_MODEL = Deno.env.get("FIIS_AI_MODEL") ?? Deno.env.get("FAMILYBRIDGE_AI_MODEL") ?? "google/gemini-3-flash-preview";
 // Override in Lovable/Supabase env when needed. Default preserves current production behavior.
 
-
-// Goal and value label maps
-const GOAL_LABELS: Record<string, string> = {
-  complete_intervention: "Complete Family Intervention",
-  enter_treatment: "Enter Treatment Program",
-  complete_treatment: "Complete Treatment Program",
-  establish_support_network: "Build a Recovery Support Network",
-  family_therapy_sessions: "Complete 8 Family Therapy Sessions",
-  "90_meetings_90_days": "Attend 90 Meetings in 90 Days",
-  living_amends_plan: "Create Living Amends Plan",
-  family_recovery_milestones: "Celebrate 6-Month Family Recovery",
-  rebuild_financial_trust: "Restore Financial Accountability",
-  one_year_celebration: "Celebrate One Year of Sobriety",
-};
-
-const VALUE_LABELS: Record<string, string> = {
-  honesty: "Honesty & Transparency",
-  accountability: "Accountability Without Shame",
-  boundaries: "Healthy Boundaries",
-  support_not_enabling: "Support Without Enabling",
-  patience: "Patience & Progress",
-  forgiveness: "Forgiveness & Moving Forward",
-  self_care: "Self-Care for Everyone",
-  consistency: "Consistency & Follow-Through",
-  communication: "Compassionate Communication",
-  hope: "Hope & Faith in Recovery",
-};
-
-// Internal clinical knowledge (never exposed in suggestions)
-const FIIS_COACHING_KNOWLEDGE = `
-═══ FIIS OPERATIONAL CORE (use to INFORM your advice, but NEVER use clinical terminology in suggestions) ═══
-
-PRIMARY OBJECTIVE: Protect the path to one year of continuous sobriety (strict abstinence — no harm reduction, no partial credit).
-DECISION LOGIC: Early Phase → Sobriety protection | Mid Phase → Balanced | Late Phase → Sustainability | Confirmed relapse ALWAYS overrides.
-SCORING AWARENESS: Recovery Stability Score, Family System Health Score, Boundary Integrity Index, Enabling Risk Index, Relapse Risk Level.
-PHASE-SENSITIVE: 0–90d HIGH sensitivity | 90–180d MODERATE, pattern > event | 6–12m complacency drift HEAVY weight.
-COMMUNICATION INTELLIGENCE: Analyze for minimization, deflection, blame-shifting, victim positioning, manipulation, gaslighting, emotional flooding, withdrawal silence, overconfidence.
-BOUNDARY ENGINE: Evaluate clarity, measurability, enforceability, consequence definition. Unenforced consequences = Enabling Risk increase.
-EMOTIONAL EXHAUSTION: Track hopeless language, cynicism, irritability, withdrawal, boundary fatigue across ALL family members.
-VOICE: Interventionist + Systems Therapist. NEVER shame/moralize/catastrophize/minimize. Always pattern-based, data-supported, recovery-focused.
-OPERATING PRINCIPLE: Structure > comfort | Pattern > event | System > individual | Long-term > short-term | Safety > analytics.
-
-═══ CLINICAL FOUNDATIONS ═══
-CRAFT: Reinforce positive behaviors, allow natural consequences. "I feel... when..." framing. Avoid enabling.
-HALT: Hungry, Angry, Lonely, Tired — vulnerability states.
-GORSKI: Overconfidence, defensiveness, isolation, "I don't care" attitude, thoughts of controlled use.
-FAMILY ROLES: Enabler, Hero, Scapegoat, Lost Child, Mascot.
-CODEPENDENCY: "Didn't cause it, can't cure it, can't control it." Detachment with love ≠ abandonment.
-DE-ESCALATION: Validate emotions first, reflect what you hear, avoid "always/never", offer graceful exits.
-BOUNDARY COMMUNICATION: State clearly, include consequence, follow through, separate person from behavior.
-TRAUMA-INFORMED: Prioritize safety, trustworthiness, choice. Recognize fight/flight/freeze/fawn.
-CRISIS: If suicide/self-harm detected → recommend 988 immediately.
-`;
-
-// Fetch family observational data including goals, values, boundaries
-async function fetchFamilyContext(supabase: ReturnType<typeof createClient>, familyId: string) {
-  const [
-    sobrietyResult, boundariesResult, emotionalCheckinsResult, meetingCheckinsResult,
-    messagesResult, financialRequestsResult, coachingSessionsResult, medicationsResult,
-    providerNotesResult, aftercarePlansResult, aftercareRecsResult, calibrationPatternsResult,
-    feedbackResult,
-    goalsResult, valuesResult, commonGoalsResult,
-  ] = await Promise.all([
-    supabase.from("sobriety_journeys").select("start_date, reset_count").eq("family_id", familyId).eq("is_active", true).maybeSingle(),
-    supabase.from("family_boundaries").select("content").eq("family_id", familyId).eq("status", "approved"),
-    supabase.from("daily_emotional_checkins").select("feeling, was_bypassed").eq("family_id", familyId).order("check_in_date", { ascending: false }).limit(30),
-    supabase.from("meeting_checkins").select("checked_in_at, meeting_type, overdue_alert_sent").eq("family_id", familyId).order("checked_in_at", { ascending: false }).limit(50),
-    supabase.from("messages").select("content, created_at").eq("family_id", familyId).order("created_at", { ascending: false }).limit(200),
-    supabase.from("financial_requests").select("amount, status, created_at").eq("family_id", familyId).order("created_at", { ascending: false }).limit(20),
-    supabase.from("coaching_sessions").select("session_type, started_at, suggestions, talking_to_name").eq("family_id", familyId).order("started_at", { ascending: false }).limit(10),
-    supabase.from("medications").select("medication_name, dosage").eq("family_id", familyId).eq("is_active", true),
-    supabase.from("provider_notes").select("note_type, content").eq("family_id", familyId).eq("include_in_ai_analysis", true).order("created_at", { ascending: false }).limit(10),
-    supabase.from("aftercare_plans").select("id, is_active").eq("family_id", familyId).eq("is_active", true),
-    supabase.from("aftercare_recommendations").select("plan_id, recommendation_type, title, is_completed").order("created_at", { ascending: false }).limit(50),
-    supabase.from("fiis_calibration_patterns").select("pattern_name, pattern_description, suggested_response").eq("is_active", true),
-    supabase.from("fiis_analysis_feedback").select("feedback_type, correction_reasoning, missed_patterns, false_patterns, recommended_keywords, clinical_context").eq("family_id", familyId).order("created_at", { ascending: false }).limit(10),
-    supabase.from("family_goals").select("goal_type, completed_at").eq("family_id", familyId),
-    supabase.from("family_values").select("value_key").eq("family_id", familyId),
-    supabase.from("family_common_goals").select("goal_key, completed_at").eq("family_id", familyId),
-  ]);
-
-  let ctx = "";
-
-  // Goals (most important)
-  const activeGoals = (commonGoalsResult.data || []).filter(g => !g.completed_at);
-  const completedGoals = (commonGoalsResult.data || []).filter(g => g.completed_at);
-  if (activeGoals.length > 0 || completedGoals.length > 0) {
-    ctx += `FAMILY GOALS (guide ALL coaching around these):\n`;
-    if (activeGoals.length > 0) ctx += `Active: ${activeGoals.map(g => GOAL_LABELS[g.goal_key] || g.goal_key.replace(/_/g, ' ')).join(', ')}\n`;
-    if (completedGoals.length > 0) ctx += `Completed: ${completedGoals.map(g => GOAL_LABELS[g.goal_key] || g.goal_key.replace(/_/g, ' ')).join(', ')}\n`;
-  }
-
-  // Values
-  if (valuesResult.data?.length) {
-    ctx += `FAMILY VALUES: ${valuesResult.data.map(v => VALUE_LABELS[v.value_key] || v.value_key.replace(/_/g, ' ')).join(', ')}\n`;
-  }
-
-  // Boundaries
-  if (boundariesResult.data?.length) ctx += `BOUNDARIES: ${boundariesResult.data.map((b, i) => `${i + 1}. ${b.content}`).join('; ')}\n`;
-
-  if (sobrietyResult.data) {
-    const days = Math.max(0, Math.floor((Date.now() - new Date(sobrietyResult.data.start_date).getTime()) / 86400000));
-    let phase = days <= 30 ? "Early Recovery" : days <= 90 ? "Building Foundation" : days <= 180 ? "Developing Resilience" : days <= 365 ? "Strengthening" : "Maintenance";
-    ctx += `SOBRIETY: ${days} days. Phase: ${phase}. ${sobrietyResult.data.reset_count > 0 ? `Attempt #${sobrietyResult.data.reset_count + 1}.` : ''}\n`;
-  }
-  if (emotionalCheckinsResult.data?.length) {
-    const feelings: Record<string, number> = {};
-    emotionalCheckinsResult.data.forEach(c => { if (c.feeling) feelings[c.feeling] = (feelings[c.feeling] || 0) + 1; });
-    ctx += `EMOTIONAL STATE: ${Object.entries(feelings).map(([f, c]) => `${f}(${c})`).join(', ')}\n`;
-  }
-  if (meetingCheckinsResult.data?.length) {
-    const now = Date.now();
-    const recent7 = meetingCheckinsResult.data.filter(c => new Date(c.checked_in_at).getTime() >= now - 604800000).length;
-    ctx += `MEETINGS: ${recent7} in last 7 days.\n`;
-  }
-  if (messagesResult.data?.length) {
-    const keywords: Record<string, string[]> = {
-      relapse_warning: ['relapse', 'slip', 'used', 'drank', 'high'],
-      isolation: ['alone', 'leave me alone', 'need space', 'fine'],
-      progress: ['proud', 'meeting', 'sponsor', 'therapy', 'grateful', 'sober'],
-    };
-    const counts: Record<string, number> = {};
-    Object.keys(keywords).forEach(k => counts[k] = 0);
-    messagesResult.data.forEach(m => {
-      const content = (m.content || '').toLowerCase();
-      Object.entries(keywords).forEach(([cat, kws]) => kws.forEach(kw => { if (content.includes(kw)) counts[cat]++; }));
-    });
-    const sig = Object.entries(counts).filter(([, c]) => c > 0);
-    if (sig.length) ctx += `CHAT SIGNALS: ${sig.map(([k, v]) => `${k.replace(/_/g, ' ')}(${v})`).join(', ')}\n`;
-  }
-  if (coachingSessionsResult.data?.length) ctx += `PRIOR COACHING: ${coachingSessionsResult.data.length} sessions.\n`;
-  if (medicationsResult.data?.length) ctx += `MEDICATIONS: ${medicationsResult.data.map(m => m.medication_name).join(', ')}\n`;
-  if (providerNotesResult.data?.length) {
-    ctx += `PROVIDER NOTES:\n${providerNotesResult.data.map((n, i) => `${i + 1}. [${n.note_type}] ${n.content}`).join('\n')}\n`;
-  }
-  if (calibrationPatternsResult.data?.length) {
-    ctx += `CALIBRATED WARNING PATTERNS:\n${calibrationPatternsResult.data.slice(0, 10).map((p) => `- ${p.pattern_name}: ${p.pattern_description}${p.suggested_response ? ` → ${p.suggested_response}` : ''}`).join('\n')}\n`;
-  }
-  if (feedbackResult.data?.length) {
-    ctx += `MODERATOR CALIBRATION FEEDBACK:\n${feedbackResult.data.slice(0, 8).map((f, i) => {
-      const corrections = [
-        f.correction_reasoning,
-        f.missed_patterns?.length ? `Missed: ${f.missed_patterns.join(', ')}` : '',
-        f.false_patterns?.length ? `Avoid flagging: ${f.false_patterns.join(', ')}` : '',
-        f.recommended_keywords?.length ? `Watch for: ${f.recommended_keywords.join(', ')}` : '',
-        f.clinical_context || '',
-      ].filter(Boolean).join(' | ');
-      return `${i + 1}. [${f.feedback_type}] ${corrections}`;
-    }).join('\n')}\n`;
-  }
-  if (aftercarePlansResult.data?.length) {
-    const planIds = aftercarePlansResult.data.map(p => p.id);
-    const recs = (aftercareRecsResult.data || []).filter(r => planIds.includes(r.plan_id));
-    if (recs.length) {
-      const done = recs.filter(r => r.is_completed).length;
-      ctx += `AFTERCARE: ${done}/${recs.length} completed (${Math.round((done / recs.length) * 100)}%).\n`;
-    }
-  }
-
-  ctx += await buildFIISLearningContext(supabase, familyId);
-
-  return ctx;
-}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -232,7 +70,7 @@ serve(async (req) => {
     }
 
     const [familyObservations, profileResult, talkingToDisplay, runtimeTelemetry] = await Promise.all([
-      fetchFamilyContext(supabase, familyId),
+      fetchFIISFamilyContext(supabase, familyId),
       supabase.from("profiles").select("full_name").eq("id", user.id).single(),
       (async () => {
         let display = talkingToName || "their loved one";
