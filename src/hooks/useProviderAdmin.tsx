@@ -20,8 +20,6 @@ interface Organization {
   support_email: string | null;
   website_url: string | null;
   phone: string | null;
-  created_at: string;
-  updated_at: string;
   provider_category: string | null;
   levels_of_care: string[];
   primary_service_duration_days: number | null;
@@ -29,6 +27,8 @@ interface Organization {
   intervention_tracking_enabled: boolean;
   benchmark_opt_in: boolean;
   intake_notes: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
 interface OrganizationMember {

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import type { ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usePlatform } from '@/hooks/usePlatform';
 import { useProviderAdmin } from '@/hooks/useProviderAdmin';
@@ -7,6 +8,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useOrganizationBranding } from '@/hooks/useOrganizationBranding';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -149,6 +151,31 @@ const ProviderAdmin = () => {
   const [editingModerator, setEditingModerator] = useState<string | null>(null);
   const [editModeratorRole, setEditModeratorRole] = useState<'admin' | 'staff'>('staff');
   
+  const providerCategoryOptions = [
+    'Interventionist',
+    'Residential treatment',
+    'Outpatient treatment',
+    'Sober living',
+    'Recovery coaching',
+    'Case management',
+    'Multi-program provider',
+    'Other',
+  ];
+
+  const levelOfCareOptions = [
+    'Intervention services',
+    'Detox',
+    'Residential/Inpatient',
+    'PHP',
+    'IOP',
+    'OP',
+    'Sober living',
+    'Recovery coaching',
+    'Case management',
+    'Aftercare/continuing care',
+    'Family coaching',
+  ];
+
   // Create organization form with branding
   const [newOrg, setNewOrg] = useState({
     name: '',
@@ -157,6 +184,13 @@ const ProviderAdmin = () => {
     support_email: '',
     website_url: '',
     phone: '',
+    provider_category: '',
+    levels_of_care: [] as string[],
+    primary_service_duration_days: '',
+    outcome_tracking_enabled: true,
+    intervention_tracking_enabled: false,
+    benchmark_opt_in: true,
+    intake_notes: '',
   });
   const [newOrgOnboarding, setNewOrgOnboarding] = useState<OnboardingFieldsValue>(defaultOnboardingFields);
   
@@ -182,6 +216,13 @@ const ProviderAdmin = () => {
     support_email: '',
     website_url: '',
     phone: '',
+    provider_category: '',
+    levels_of_care: [] as string[],
+    primary_service_duration_days: '',
+    outcome_tracking_enabled: true,
+    intervention_tracking_enabled: false,
+    benchmark_opt_in: true,
+    intake_notes: '',
     primary_color: '',
     primary_foreground_color: '',
     secondary_color: '',
@@ -220,6 +261,13 @@ const ProviderAdmin = () => {
         support_email: org.support_email || '',
         website_url: org.website_url || '',
         phone: org.phone || '',
+        provider_category: org.provider_category || '',
+        levels_of_care: org.levels_of_care || [],
+        primary_service_duration_days: org.primary_service_duration_days?.toString() || '',
+        outcome_tracking_enabled: org.outcome_tracking_enabled ?? true,
+        intervention_tracking_enabled: org.intervention_tracking_enabled ?? false,
+        benchmark_opt_in: org.benchmark_opt_in ?? true,
+        intake_notes: org.intake_notes || '',
         primary_color: org.primary_color,
         primary_foreground_color: org.primary_foreground_color,
         secondary_color: org.secondary_color,
@@ -717,6 +765,30 @@ const ProviderAdmin = () => {
     }
   };
 
+  const handleLevelsOfCareToggle = (
+    option: string,
+    checked: boolean,
+    mode: 'create' | 'edit'
+  ) => {
+    const setter = mode === 'create' ? setNewOrg : setEditForm;
+
+    setter((prev) => ({
+      ...prev,
+      levels_of_care: checked
+        ? [...prev.levels_of_care, option]
+        : prev.levels_of_care.filter((item) => item !== option),
+    }));
+  };
+
+  const handleDurationChange = (
+    event: ChangeEvent<HTMLInputElement>,
+    mode: 'create' | 'edit'
+  ) => {
+    const nextValue = event.target.value.replace(/[^0-9]/g, '');
+    const setter = mode === 'create' ? setNewOrg : setEditForm;
+    setter((prev) => ({ ...prev, primary_service_duration_days: nextValue }));
+  };
+
   const handleCreateOrg = async () => {
     if (!newOrg.name || !newOrg.subdomain) {
       toast({ title: 'Error', description: 'Name and subdomain are required', variant: 'destructive' });
@@ -732,7 +804,12 @@ const ProviderAdmin = () => {
     setIsSaving(true);
     try {
       // Build organization data with branding
-      const orgData: any = { ...newOrg };
+      const orgData: any = {
+        ...newOrg,
+        primary_service_duration_days: newOrg.primary_service_duration_days
+          ? Number(newOrg.primary_service_duration_days)
+          : null,
+      };
       
       // Apply extracted branding if available
       if (extractedBranding) {
@@ -774,7 +851,7 @@ const ProviderAdmin = () => {
       
       toast({ title: 'Success', description: 'Organization created!' });
       setIsCreating(false);
-      setNewOrg({ name: '', subdomain: '', tagline: '', support_email: '', website_url: '', phone: '' });
+      setNewOrg({ name: '', subdomain: '', tagline: '', support_email: '', website_url: '', phone: '', provider_category: '', levels_of_care: [], primary_service_duration_days: '', outcome_tracking_enabled: true, intervention_tracking_enabled: false, benchmark_opt_in: true, intake_notes: '' });
       setNewOrgOnboarding(defaultOnboardingFields);
       setExtractedBranding(null);
       setManualBranding({ primary_color: '', logo_file: null });
@@ -1037,6 +1114,108 @@ const ProviderAdmin = () => {
                   />
                 </div>
               </div>
+
+              <Card className="bg-muted/40 border-primary/10">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base">Provider onboarding intake</CardTitle>
+                  <CardDescription>
+                    Capture the core service details FIIS needs before outcomes and benchmark guidance start learning.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="provider-category">Primary service type</Label>
+                    <select
+                      id="provider-category"
+                      value={newOrg.provider_category}
+                      onChange={(e) => setNewOrg({ ...newOrg, provider_category: e.target.value })}
+                      className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
+                    >
+                      <option value="">Select service type...</option>
+                      {providerCategoryOptions.map((option) => (
+                        <option key={option} value={option}>{option}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="space-y-3">
+                    <Label>Levels of care / services offered</Label>
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      {levelOfCareOptions.map((option) => {
+                        const checked = newOrg.levels_of_care.includes(option);
+                        return (
+                          <label key={option} className="flex items-center gap-3 rounded-md border bg-background px-3 py-2 text-sm cursor-pointer">
+                            <Checkbox
+                              checked={checked}
+                              onCheckedChange={(value) => handleLevelsOfCareToggle(option, Boolean(value), 'create')}
+                            />
+                            <span>{option}</span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="primary-duration">Typical primary duration (days)</Label>
+                    <Input
+                      id="primary-duration"
+                      inputMode="numeric"
+                      placeholder="30"
+                      value={newOrg.primary_service_duration_days}
+                      onChange={(event) => handleDurationChange(event, 'create')}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Example: average residential stay, coaching term, or care-program duration.
+                    </p>
+                  </div>
+
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <label className="flex items-start gap-3 rounded-md border bg-background px-3 py-3 text-sm cursor-pointer">
+                      <Checkbox
+                        checked={newOrg.outcome_tracking_enabled}
+                        onCheckedChange={(value) => setNewOrg({ ...newOrg, outcome_tracking_enabled: Boolean(value) })}
+                      />
+                      <div>
+                        <p className="font-medium">Track provider outcomes</p>
+                        <p className="text-xs text-muted-foreground">Enable post-admission/provider performance measurement.</p>
+                      </div>
+                    </label>
+                    <label className="flex items-start gap-3 rounded-md border bg-background px-3 py-3 text-sm cursor-pointer">
+                      <Checkbox
+                        checked={newOrg.intervention_tracking_enabled}
+                        onCheckedChange={(value) => setNewOrg({ ...newOrg, intervention_tracking_enabled: Boolean(value) })}
+                      />
+                      <div>
+                        <p className="font-medium">Track intervention outcomes</p>
+                        <p className="text-xs text-muted-foreground">Use if this org also handles intervention-to-placement conversion.</p>
+                      </div>
+                    </label>
+                  </div>
+
+                  <label className="flex items-start gap-3 rounded-md border bg-background px-3 py-3 text-sm cursor-pointer">
+                    <Checkbox
+                      checked={newOrg.benchmark_opt_in}
+                      onCheckedChange={(value) => setNewOrg({ ...newOrg, benchmark_opt_in: Boolean(value) })}
+                    />
+                    <div>
+                      <p className="font-medium">Opt into anonymous benchmark learning</p>
+                      <p className="text-xs text-muted-foreground">Allows FIIS to compare this provider against anonymized peer baselines.</p>
+                    </div>
+                  </label>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="intake-notes">Additional intake notes</Label>
+                    <Textarea
+                      id="intake-notes"
+                      placeholder="Anything important about your program structure, care model, or measurement assumptions"
+                      value={newOrg.intake_notes}
+                      onChange={(e) => setNewOrg({ ...newOrg, intake_notes: e.target.value })}
+                      rows={4}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
               
               <div className="space-y-2">
                 <Label htmlFor="website">Website (optional)</Label>
