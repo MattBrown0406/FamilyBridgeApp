@@ -4051,11 +4051,6 @@ export type Database = {
           tagline: string | null
           updated_at: string
           website_url: string | null
-          levels_of_care: string[]
-          outcome_tracking_enabled: boolean
-          intervention_tracking_enabled: boolean
-          benchmark_opt_in: boolean
-          intake_notes: string | null
         }
         Insert: {
           accent_color?: string | null
@@ -4085,11 +4080,6 @@ export type Database = {
           tagline?: string | null
           updated_at?: string
           website_url?: string | null
-          levels_of_care?: string[]
-          outcome_tracking_enabled?: boolean
-          intervention_tracking_enabled?: boolean
-          benchmark_opt_in?: boolean
-          intake_notes?: string | null
         }
         Update: {
           accent_color?: string | null
@@ -4119,11 +4109,6 @@ export type Database = {
           tagline?: string | null
           updated_at?: string
           website_url?: string | null
-          levels_of_care?: string[]
-          outcome_tracking_enabled?: boolean
-          intervention_tracking_enabled?: boolean
-          benchmark_opt_in?: boolean
-          intake_notes?: string | null
         }
         Relationships: []
       }
@@ -5984,7 +5969,6 @@ export type Database = {
           background_color: string | null
           benchmark_opt_in: boolean | null
           body_font: string | null
-          benchmark_opt_in: boolean | null
           created_at: string | null
           created_by: string | null
           favicon_url: string | null
@@ -6014,7 +5998,6 @@ export type Database = {
           background_color?: string | null
           benchmark_opt_in?: boolean | null
           body_font?: string | null
-          benchmark_opt_in?: boolean | null
           created_at?: string | null
           created_by?: string | null
           favicon_url?: string | null
@@ -6044,7 +6027,6 @@ export type Database = {
           background_color?: string | null
           benchmark_opt_in?: boolean | null
           body_font?: string | null
-          benchmark_opt_in?: boolean | null
           created_at?: string | null
           created_by?: string | null
           favicon_url?: string | null
