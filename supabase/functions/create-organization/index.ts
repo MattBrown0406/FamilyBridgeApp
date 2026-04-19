@@ -24,6 +24,13 @@ type CreateOrgBody = {
   foreground_color?: string;
   heading_font?: string;
   body_font?: string;
+  provider_category?: string | null;
+  levels_of_care?: string[];
+  primary_service_duration_days?: number | null;
+  outcome_tracking_enabled?: boolean;
+  intervention_tracking_enabled?: boolean;
+  benchmark_opt_in?: boolean;
+  intake_notes?: string | null;
 };
 
 serve(async (req) => {

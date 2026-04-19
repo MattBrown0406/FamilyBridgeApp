@@ -22,6 +22,13 @@ interface Organization {
   phone: string | null;
   created_at: string;
   updated_at: string;
+  provider_category: string | null;
+  levels_of_care: string[];
+  primary_service_duration_days: number | null;
+  outcome_tracking_enabled: boolean;
+  intervention_tracking_enabled: boolean;
+  benchmark_opt_in: boolean;
+  intake_notes: string | null;
 }
 
 interface OrganizationMember {
@@ -112,6 +119,13 @@ export const useProviderAdmin = () => {
     accent_color?: string;
     heading_font?: string;
     body_font?: string;
+    provider_category?: string | null;
+    levels_of_care?: string[];
+    primary_service_duration_days?: number | null;
+    outcome_tracking_enabled?: boolean;
+    intervention_tracking_enabled?: boolean;
+    benchmark_opt_in?: boolean;
+    intake_notes?: string | null;
   }) => {
     const { data, error } = await supabase.functions.invoke('create-organization', {
       body: orgData,
