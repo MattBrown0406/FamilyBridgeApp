@@ -102,7 +102,7 @@ serve(async (req) => {
 
     const windowStart = new Date(Date.now() - window_days * 24 * 60 * 60 * 1000).toISOString();
 
-    const [sessionsRes, feedbackRes, outcomesRes, latestProposalRes] = await Promise.all([
+    const [sessionsRes, feedbackRes, outcomesRes, moderatorSessionsRes, latestProposalRes] = await Promise.all([
       supabase
         .from("coaching_sessions")
         .select("id, session_type, started_at, ended_at, suggestions, talking_to_name")
@@ -125,6 +125,13 @@ serve(async (req) => {
         .order("created_at", { ascending: false })
         .limit(200),
       supabase
+        .from("fiis_moderator_sessions")
+        .select("id, runtime_confidence, runtime_flags, guidance_style, escalation_level, response_latency_ms, tokens_in, tokens_out, created_at")
+        .eq("family_id", family_id)
+        .gte("created_at", windowStart)
+        .order("created_at", { ascending: false })
+        .limit(200),
+      supabase
         .from("fiis_adaptation_proposals")
         .select("id, parameter_key, proposed_value, status, created_at")
         .eq("family_id", family_id)
@@ -135,9 +142,11 @@ serve(async (req) => {
     const sessions = sessionsRes.data || [];
     const feedback = feedbackRes.data || [];
     const outcomes = outcomesRes.data || [];
+    const moderatorSessions = moderatorSessionsRes.data || [];
     const latestProposals = latestProposalRes.data || [];
 
     const coachingSessionsCount = sessions.length;
+    const moderatorSessionCount = moderatorSessions.length;
     const persistedSessionCount = sessions.filter((session: any) => Array.isArray(session.suggestions) && session.suggestions.length > 0).length;
     const liveSessionCount = sessions.filter((session: any) => ["live_speakerphone", "live_text"].includes(session.session_type)).length;
     const screenshotSessionCount = sessions.filter((session: any) => session.session_type === "screenshot").length;
@@ -166,16 +175,27 @@ serve(async (req) => {
     const boundaryHoldRate = ratioPct(boundaryHeldCount, boundaryHoldKnown.length);
     const relapseSignalConfirmationRate = ratioPct(relapseConfirmedCount, relapseKnown.length);
     const persistenceRate = ratioPct(persistedSessionCount, coachingSessionsCount);
+    const briefConcreteSessions = sessions.filter((session: any) => session.guidance_style === "brief_concrete").length;
+    const boundaryForwardSessions = sessions.filter((session: any) => session.guidance_style === "boundary_forward").length;
+    const deescalationFirstSessions = sessions.filter((session: any) => session.guidance_style === "deescalation_first").length;
+    const lowConfidenceSessions = sessions.filter((session: any) => session.runtime_confidence === "low").length;
+    const highEscalationSessions = moderatorSessions.filter((session: any) => Number(session.escalation_level || 0) >= 3).length;
+    const avgResponseLatency = sessions.length > 0
+      ? Math.round(sessions.reduce((sum: number, session: any) => sum + Number(session?.telemetry?.latency_ms || 0), 0) / sessions.length)
+      : 0;
 
-    const confidence = confidenceFromEvidence(coachingSessionsCount, feedbackCount, outcomeCount);
+    const confidence = confidenceFromEvidence(coachingSessionsCount + Math.round(moderatorSessionCount * 0.5), feedbackCount, outcomeCount);
 
     const evidenceSummary = summarizeEvidence([
       coachingSessionsCount ? `${coachingSessionsCount} coaching sessions analyzed in the last ${window_days} days (${liveSessionCount} live, ${screenshotSessionCount} screenshot).` : null,
+      moderatorSessionCount ? `${moderatorSessionCount} moderator FIIS sessions captured in the same window, with ${highEscalationSessions} at escalation level 3 or 4.` : null,
       feedbackCount ? `${feedbackCount} moderator corrections logged, with ${falsePositiveCount} false positives and ${falseNegativeCount} false negatives.` : null,
       outcomeCount ? `${outcomeCount} coaching outcomes recorded, with ${helpfulishCount} marked helpful/stabilizing and ${unhelpfulCount} marked unhelpful/escalating.` : null,
       boundaryHoldRate !== null ? `Boundary hold rate after FIIS guidance is ${Math.round(boundaryHoldRate)}%.` : null,
       relapseSignalConfirmationRate !== null ? `Relapse-signal confirmation rate is ${Math.round(relapseSignalConfirmationRate)}%.` : null,
       reinforcementCount ? `${reinforcementCount} feedback entries reinforced existing FIIS instincts.` : null,
+      avgResponseLatency ? `Average coaching response latency was ${avgResponseLatency} ms.` : null,
+      briefConcreteSessions ? `${briefConcreteSessions} coaching sessions ran in brief concrete guidance mode.` : null,
     ]);
 
     const drafts: ProposalDraft[] = [];
@@ -281,6 +301,38 @@ serve(async (req) => {
       });
     }
 
+    if (coachingSessionsCount >= 6 && lowConfidenceSessions >= Math.ceil(coachingSessionsCount * 0.5)) {
+      drafts.push({
+        proposal_type: "context_weight",
+        parameter_key: "confidence_floor_reduction",
+        rationale: "FIIS is spending too much time in low-confidence mode. Tighten context assembly and simplify output shape before making strong claims.",
+        proposed_value: {
+          mode: "simplify_when_uncertain",
+          instruction: "When confidence is low, reduce interpretive sprawl, name uncertainty plainly, and prioritize one specific next move over layered analysis.",
+          focus: "Improve usefulness when FIIS lacks enough signal density.",
+        },
+        evidence: { low_confidence_sessions: lowConfidenceSessions, coaching_sessions_count: coachingSessionsCount },
+        change_magnitude_pct: 4,
+        auto_apply_eligible: true,
+      });
+    }
+
+    if (moderatorSessionCount >= 5 && highEscalationSessions >= Math.ceil(moderatorSessionCount * 0.4) && (falsePositiveRate ?? 0) < 25) {
+      drafts.push({
+        proposal_type: "recommendation_priority",
+        parameter_key: "moderator_escalation_clarity",
+        rationale: "Moderators are repeatedly using high-escalation FIIS paths. Surface clearer professional-support handoff structure and consequence framing sooner in moderator guidance.",
+        proposed_value: {
+          mode: "promote",
+          instruction: "In moderator guidance, move recommended next-step handoff actions, containment moves, and consequence clarity higher in the response when escalation is high.",
+          focus: "Support cleaner moderator intervention execution.",
+        },
+        evidence: { moderator_session_count: moderatorSessionCount, high_escalation_sessions: highEscalationSessions },
+        change_magnitude_pct: 5,
+        auto_apply_eligible: true,
+      });
+    }
+
     const latestByKey = new Map<string, any>();
     for (const proposal of latestProposals) {
       if (!latestByKey.has(proposal.parameter_key)) {
@@ -365,7 +417,14 @@ serve(async (req) => {
       window_days,
       live_session_count: liveSessionCount,
       screenshot_session_count: screenshotSessionCount,
+      moderator_session_count: moderatorSessionCount,
       persistence_rate: persistenceRate,
+      brief_concrete_sessions: briefConcreteSessions,
+      boundary_forward_sessions: boundaryForwardSessions,
+      deescalation_first_sessions: deescalationFirstSessions,
+      low_confidence_sessions: lowConfidenceSessions,
+      high_escalation_sessions: highEscalationSessions,
+      avg_response_latency_ms: avgResponseLatency,
       false_positive_count: falsePositiveCount,
       false_negative_count: falseNegativeCount,
       wrong_severity_count: wrongSeverityCount,
@@ -407,6 +466,7 @@ serve(async (req) => {
       metadata: {
         snapshot_id: snapshotRows.id,
         coaching_sessions_count: coachingSessionsCount,
+        moderator_session_count: moderatorSessionCount,
         feedback_count: feedbackCount,
         outcome_count: outcomeCount,
         active_proposals: activeAdaptations.length,
@@ -418,6 +478,7 @@ serve(async (req) => {
       snapshot: snapshotRows,
       metrics: {
         coaching_sessions_count: coachingSessionsCount,
+        moderator_session_count: moderatorSessionCount,
         feedback_count: feedbackCount,
         outcome_count: outcomeCount,
         false_positive_rate: falsePositiveRate,

@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { buildModeratorEscalationTriggersPrompt } from "../_shared/fiis-doctrine.ts";
 import { buildFIISRuntimeContext } from "../_shared/fiis-runtime.ts";
+import { loadFIISRuntimeTelemetry } from "../_shared/fiis-telemetry.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -17,6 +18,7 @@ serve(async (req) => {
   }
 
   try {
+    const requestStartedAt = Date.now();
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
       return new Response(
@@ -217,6 +219,8 @@ serve(async (req) => {
       return `- ${benchmark.label}: client ${currentDays >= benchmark.days ? 'is' : 'is not yet'} measurable, family engagement ${totalEngaged}/${totalEligible} (${totalEligible > 0 ? Math.round((totalEngaged / totalEligible) * 100) : 0}%), aftercare adherence ${aftercareAdherence}%${Object.entries(bucketSummary).length ? `, buckets: ${Object.entries(bucketSummary).map(([label, stats]) => `${label} ${stats.engaged}/${stats.eligible}`).join('; ')}` : ''}`;
     }).join('\n');
 
+    const runtimeTelemetry = await loadFIISRuntimeTelemetry(supabase, familyId);
+
     const runtimePrompt = await buildFIISRuntimeContext({
       supabase,
       familyId,
@@ -339,7 +343,38 @@ Remember: This conversation is private between you and the moderator. It is NOT 
       throw new Error("AI gateway error");
     }
 
-    return new Response(response.body, {
+    const responseText = await response.text();
+    const usageMatch = responseText.match(/"usage":\s*\{[^}]*"prompt_tokens":\s*(\d+)[^}]*"completion_tokens":\s*(\d+)/);
+    const usage = usageMatch
+      ? { prompt_tokens: Number(usageMatch[1]), completion_tokens: Number(usageMatch[2]) }
+      : null;
+    const contentMatches = [...responseText.matchAll(/"content":"((?:\\.|[^"\\])*)"/g)];
+    const responseSummary = contentMatches.length
+      ? contentMatches.map((match) => match[1].replace(/\\n/g, " ").replace(/\\"/g, '"')).join(" ").slice(0, 1600)
+      : null;
+
+    await supabase.from("fiis_moderator_sessions").insert({
+      family_id: familyId,
+      moderator_id: user.id,
+      ai_model: FIIS_AI_MODEL,
+      runtime_confidence: runtimeTelemetry.learningConfidence,
+      runtime_adaptations: runtimeTelemetry.activeAdaptations,
+      runtime_flags: runtimeTelemetry.runtimeFlags,
+      escalation_level: runtimeTelemetry.escalationLevel,
+      guidance_style: runtimeTelemetry.guidanceStyle,
+      prompt_summary: message.slice(0, 1200),
+      response_summary: responseSummary,
+      chat_turn_count: Array.isArray(chatHistory) ? chatHistory.length + 1 : 1,
+      response_latency_ms: Math.max(0, Date.now() - requestStartedAt),
+      tokens_in: usage?.prompt_tokens ?? null,
+      tokens_out: usage?.completion_tokens ?? null,
+      telemetry: {
+        benchmark_context_present: Boolean(benchmarkContext),
+        health_status: healthStatus?.status || null,
+      },
+    });
+
+    return new Response(responseText, {
       headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
     });
   } catch (error) {
