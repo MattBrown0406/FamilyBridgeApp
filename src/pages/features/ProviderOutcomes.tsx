@@ -26,7 +26,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from '@/components/ui/chart';
-import { Bar, BarChart, CartesianGrid, Cell, Line, LineChart as RechartsLineChart, Pie, PieChart, ResponsiveContainer, XAxis, YAxis } from 'recharts';
+import { Bar, BarChart, CartesianGrid, Cell, Line, LineChart as RechartsLineChart, Pie, PieChart, ResponsiveContainer, Tooltip as RechartsTooltip, XAxis, YAxis } from 'recharts';
 
 const benchmarkByLevel = [
   { level: '30-day Residential', completion: 64, sober365: 29, aftercare: 42 },
@@ -253,7 +253,7 @@ const ProviderOutcomes = () => {
                             <Cell key={entry.name} fill={entry.color} />
                           ))}
                         </Pie>
-                        <ChartTooltip content={<ChartTooltipContent nameKey="name" />} />
+                        <RechartsTooltip />
                       </PieChart>
                     </ResponsiveContainer>
                   </div>
