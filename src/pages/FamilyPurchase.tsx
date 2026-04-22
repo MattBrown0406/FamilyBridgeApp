@@ -204,7 +204,14 @@ const FamilyPurchase = () => {
         },
       });
 
-      if (error) throw error;
+      // Surface backend error detail (Square error payload comes back in data even on non-2xx)
+      if (error) {
+        const backendMsg = (data as any)?.error || (error as any)?.message;
+        throw new Error(backendMsg || "Checkout request failed");
+      }
+      if ((data as any)?.error) {
+        throw new Error((data as any).error);
+      }
 
       if (data.checkoutUrl) {
         // Save order id so we can verify payment & generate invite code after redirect
@@ -219,7 +226,8 @@ const FamilyPurchase = () => {
       }
     } catch (error) {
       console.error("Purchase error:", error);
-      toast.error("Failed to start checkout. Please try again.");
+      const msg = error instanceof Error ? error.message : "Failed to start checkout. Please try again.";
+      toast.error(`Checkout failed: ${msg}`);
     } finally {
       setIsLoading(false);
     }
