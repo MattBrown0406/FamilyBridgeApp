@@ -49,7 +49,7 @@ import {
 } from 'lucide-react';
 import { ArchivedFamiliesPanel } from '@/components/ArchivedFamiliesPanel';
 import { BroadcastMessage } from '@/components/BroadcastMessage';
-const ProviderAdminSupport = lazy(() => import('@/components/ProviderAdminSupport'));
+const ProviderAdminSupport = lazy(() => import('@/components/ProviderAdminSupport').then(m => ({ default: m.ProviderAdminSupport })));
 import { FamilyHandoffDialog } from '@/components/FamilyHandoffDialog';
 import { ProviderOutcomeReports } from '@/components/ProviderOutcomeReports';
 import { ProviderNotesPanel } from '@/components/ProviderNotesPanel';

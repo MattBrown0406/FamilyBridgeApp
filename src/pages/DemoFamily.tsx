@@ -89,7 +89,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { filterContent } from '@/lib/contentFilter';
-const RecoveryTrajectoryPanel = lazy(() => import('@/components/RecoveryTrajectoryPanel'));
+const RecoveryTrajectoryPanel = lazy(() => import('@/components/RecoveryTrajectoryPanel').then(m => ({ default: m.RecoveryTrajectoryPanel })));
 
 // Import comprehensive demo data
 import {
