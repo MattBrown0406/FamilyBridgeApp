@@ -414,24 +414,32 @@ const ProviderPurchase = () => {
   }
 
   if (status === "success") {
+    // Honest verifying state — we do NOT claim success until finalize-provider-purchase
+    // confirms a real captured payment and creates the recurring subscription.
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <Card className="max-w-md w-full">
           <CardHeader className="text-center">
-            <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
-              <Check className="w-8 h-8 text-green-600" />
+            <div className="mx-auto w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
+              <Loader2 className="w-8 h-8 text-primary animate-spin" />
             </div>
-            <CardTitle className="text-2xl">Payment Successful!</CardTitle>
+            <CardTitle className="text-2xl">Verifying Payment…</CardTitle>
             <CardDescription>
-              Your activation code has been generated and will be sent to your email shortly.
+              We&apos;re confirming your payment with Square and creating your activation code.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm text-muted-foreground text-center">
-              Check your email for your activation code, then use it to set up your provider account.
+              {isFinalizing
+                ? "This usually takes just a few seconds. Please don't close this page."
+                : "If this takes more than a minute, please contact support — your card may have been charged but not yet linked to your account."}
             </p>
-            <Button onClick={() => navigate("/provider-admin")} className="w-full">
-              Go to Provider Setup
+            <Button
+              variant="outline"
+              onClick={() => navigate("/support?type=provider")}
+              className="w-full"
+            >
+              Contact Support
             </Button>
           </CardContent>
         </Card>
