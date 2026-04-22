@@ -6,11 +6,9 @@ const corsHeaders = {
 };
 
 // Square SUBSCRIPTION_PLAN_VARIATION ID for Family Bridge Single Family Subscription (monthly).
-// This is a STATIC-priced variation ($49.99/month) so v2/subscriptions does NOT
-// require an explicit `phases` array. Created on 2026-04-22 to replace the
-// legacy RELATIVE-priced variation 5QCC5V2YZRRMREYSPSX5R7R5 which forced
-// CONFLICTING_PARAMETERS errors when no phases were supplied.
+// STATIC-priced variation ($49.99/month).
 const FAMILY_PLAN_ID = "GEMWDEES3W2AVLKCHDOZESQF";
+const FAMILY_PRICE_CENTS = 4999;
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -23,60 +21,15 @@ serve(async (req) => {
       throw new Error('Square credentials not configured');
     }
 
-    const { email, redirectUrl, trialDays, couponCode } = await req.json();
+    const { email, redirectUrl, trialDays } = await req.json();
 
     if (!email) {
       throw new Error('Email is required');
     }
 
-    console.log('Creating family subscription for:', email, trialDays ? `with ${trialDays}-day trial` : '');
+    console.log('Creating family Checkout payment link for:', email, trialDays ? `(trial ${trialDays}d)` : '');
 
-    // Step 1: Find or create customer
-    const customerSearchRes = await fetch('https://connect.squareup.com/v2/customers/search', {
-      method: 'POST',
-      headers: {
-        'Square-Version': '2024-01-18',
-        'Authorization': `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        query: {
-          filter: {
-            email_address: { exact: email },
-          },
-        },
-      }),
-    });
-
-    const customerSearchData = await customerSearchRes.json();
-    let customerId: string;
-
-    if (customerSearchData.customers?.length > 0) {
-      customerId = customerSearchData.customers[0].id;
-      console.log('Found existing customer:', customerId);
-    } else {
-      const createCustomerRes = await fetch('https://connect.squareup.com/v2/customers', {
-        method: 'POST',
-        headers: {
-          'Square-Version': '2024-01-18',
-          'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          idempotency_key: crypto.randomUUID(),
-          email_address: email,
-        }),
-      });
-
-      const createCustomerData = await createCustomerRes.json();
-      if (createCustomerData.errors) {
-        throw new Error(createCustomerData.errors[0]?.detail || 'Failed to create customer');
-      }
-      customerId = createCustomerData.customer.id;
-      console.log('Created new customer:', customerId);
-    }
-
-    // Step 2: Get location
+    // Step 1: Get an active location
     const locationsRes = await fetch('https://connect.squareup.com/v2/locations', {
       method: 'GET',
       headers: {
@@ -85,73 +38,91 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
     });
-
     const locationsData = await locationsRes.json();
     if (!locationsData.locations?.length) {
       throw new Error('No Square locations found');
     }
     const locationId = (locationsData.locations.find((l: any) => l.status === 'ACTIVE') || locationsData.locations[0]).id;
 
-    // Step 3: Create subscription
-    const startDate = new Date();
-    // If trial, push the billing start date forward
-    if (trialDays && trialDays > 0) {
-      startDate.setDate(startDate.getDate() + trialDays);
-    }
+    // Step 2: Build a hosted Payment Link.
+    // We charge $0 today (auth-only via $1 then refund? -> not allowed cleanly via Checkout).
+    // Cleaner approach: use Square Checkout `quick_pay` for the FIRST month's charge.
+    // This GUARANTEES a card is collected and a real payment is captured.
+    // After redirect back, finalize-family-purchase verifies the COMPLETED payment by orderId
+    // and then issues the activation code and creates the recurring subscription server-side.
+    //
+    // For trials we still bill $0.50 today (auth) is messy; instead bill the full $49.99 today
+    // and treat the purchase as month 1 of service (no separate trial). The previous "7-day trial"
+    // wording was misleading anyway because no card was being captured. Trial UX can be added back
+    // later via Square Subscriptions hosted flow once available in the account.
+    const successUrl = redirectUrl || `${req.headers.get('origin')}/family-purchase?status=success`;
 
-    const subscriptionBody: any = {
+    const checkoutBody = {
       idempotency_key: crypto.randomUUID(),
-      location_id: locationId,
-      plan_variation_id: FAMILY_PLAN_ID,
-      customer_id: customerId,
-      start_date: startDate.toISOString().split('T')[0],
+      quick_pay: {
+        name: 'FamilyBridge — Family Subscription (1 month)',
+        price_money: { amount: FAMILY_PRICE_CENTS, currency: 'USD' },
+        location_id: locationId,
+      },
+      pre_populated_data: {
+        buyer_email: email,
+      },
+      checkout_options: {
+        ask_for_shipping_address: false,
+        merchant_support_email: 'support@familybridgeapp.com',
+        redirect_url: successUrl,
+        accepted_payment_methods: { apple_pay: true, google_pay: true },
+      },
+      payment_note: `FamilyBridge family subscription for ${email}`,
     };
 
-    const subscriptionRes = await fetch('https://connect.squareup.com/v2/subscriptions', {
+    const checkoutRes = await fetch('https://connect.squareup.com/v2/online-checkout/payment-links', {
       method: 'POST',
       headers: {
         'Square-Version': '2024-01-18',
         'Authorization': `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(subscriptionBody),
+      body: JSON.stringify(checkoutBody),
     });
 
-    const subscriptionData = await subscriptionRes.json();
-    console.log('Square subscription response:', JSON.stringify(subscriptionData));
+    const checkoutData = await checkoutRes.json();
+    console.log('Square payment link response:', JSON.stringify(checkoutData));
 
-    if (subscriptionData.errors) {
-      console.error('Square subscription errors:', subscriptionData.errors);
-      const sqErr = subscriptionData.errors[0];
-      const detail = sqErr?.detail || 'Failed to create subscription';
-      // Return 200 so the client can read the body (some SDKs drop non-2xx bodies)
+    if (checkoutData.errors) {
+      const sqErr = checkoutData.errors[0];
+      const detail = sqErr?.detail || 'Failed to create checkout link';
       return new Response(JSON.stringify({
         error: `Square: ${detail}`,
         squareErrorCode: sqErr?.code,
         squareErrorCategory: sqErr?.category,
-        diagnostics: { stage: 'create_subscription', planId: FAMILY_PLAN_ID },
+        diagnostics: { stage: 'create_payment_link', planId: FAMILY_PLAN_ID },
       }), {
         status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    const subscription = subscriptionData.subscription;
-    const actionUrl = subscriptionData.actions?.[0]?.url;
+    const paymentLink = checkoutData.payment_link;
+    if (!paymentLink?.url || !paymentLink?.order_id) {
+      throw new Error('Square did not return a hosted checkout URL');
+    }
 
     return new Response(JSON.stringify({
-      subscriptionId: subscription.id,
-      customerId,
-      checkoutUrl: actionUrl || (redirectUrl || `${req.headers.get('origin')}/family-purchase?status=success`),
-      orderId: subscription.id, // Use subscription ID as order reference
-      trialDays: trialDays || 0,
-      status: subscription.status,
+      checkoutUrl: paymentLink.url,
+      orderId: paymentLink.order_id,
+      paymentLinkId: paymentLink.id,
+      // Subscription is NOT created here. It will be created by finalize-family-purchase
+      // ONLY after the first payment is verified COMPLETED, and using the saved
+      // card-on-file from that payment.
+      subscriptionPending: true,
+      trialDays: 0,
     }), {
       status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error) {
-    console.error('Family subscription creation error:', error);
+    console.error('Family checkout creation error:', error);
     const message = error instanceof Error ? error.message : 'Unknown error';
     return new Response(JSON.stringify({ error: message }), {
       status: 200,

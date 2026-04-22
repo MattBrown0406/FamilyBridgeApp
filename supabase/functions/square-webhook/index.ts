@@ -75,63 +75,18 @@ serve(async (req) => {
 
     // ── SUBSCRIPTION CREATED ──
     if (event.type === 'subscription.created') {
+      // IMPORTANT: We DO NOT issue activation codes here anymore.
+      // A Square subscription can be created via API in PENDING state with no
+      // payment method on file, which would never bill. Activation codes are now
+      // issued by finalize-family-purchase ONLY after a real card-backed payment
+      // is verified COMPLETED, and the recurring subscription is then attached
+      // to that saved card-on-file.
       const subscription = event.data?.object?.subscription;
-      if (!subscription) {
-        console.log('No subscription object in event');
-        return new Response(JSON.stringify({ success: true }), { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
-      }
-
-      const customerId = subscription.customer_id;
-      const subscriptionId = subscription.id;
-      const planId = subscription.plan_variation_id;
-
-      console.log('Subscription created:', { subscriptionId, customerId, planId });
-
-      // Fetch customer email from Square
-      const accessToken = Deno.env.get('SQUARE_ACCESS_TOKEN');
-      let receiptEmail = '';
-      if (accessToken && customerId) {
-        try {
-          const custRes = await fetch(`https://connect.squareup.com/v2/customers/${customerId}`, {
-            headers: {
-              'Square-Version': '2024-01-18',
-              'Authorization': `Bearer ${accessToken}`,
-            },
-          });
-          const custData = await custRes.json();
-          receiptEmail = custData.customer?.email_address || '';
-        } catch (e) {
-          console.error('Failed to fetch customer email:', e);
-        }
-      }
-
-      // Generate activation code
-      const activationCode = generateActivationCode();
-      const customerHash = await sha256Hex(customerId);
-
-      // Encrypt sensitive fields
-      const { data: emailEncrypted } = await supabase.rpc('encrypt_sensitive', { plain_text: receiptEmail });
-      const { data: customerEncrypted } = await supabase.rpc('encrypt_sensitive', { plain_text: customerId });
-      const { data: subEncrypted } = await supabase.rpc('encrypt_sensitive', { plain_text: subscriptionId });
-
-      const { error } = await supabase
-        .from('activation_codes')
-        .insert({
-          code: activationCode,
-          email_encrypted: emailEncrypted,
-          square_customer_id_encrypted: customerEncrypted,
-          square_customer_id_hash: customerHash,
-          square_subscription_id_encrypted: subEncrypted,
-          expires_at: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
-        });
-
-      if (error) {
-        console.error('Error creating activation code:', error);
-      } else {
-        console.log('Activation code created for subscription:', activationCode);
-      }
-
-      return new Response(JSON.stringify({ success: true, code: activationCode }), {
+      console.log('subscription.created received (no code issued by webhook):', {
+        subscriptionId: subscription?.id,
+        status: subscription?.status,
+      });
+      return new Response(JSON.stringify({ success: true, ignored: 'subscription.created' }), {
         status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });

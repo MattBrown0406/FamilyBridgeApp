@@ -679,26 +679,15 @@ const FamilyPurchase = () => {
                 {/* Free Trial + Subscription Pricing - Apple App Store compliance: Hide on ALL native platforms */}
                 {!isNative && (
                   <div className="space-y-4">
-                    {/* Free Trial Highlight */}
-                    <div className="text-center py-4 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20 rounded-lg border border-emerald-200/50 dark:border-emerald-800/50">
-                      <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-300 mb-1">Start Free Today</p>
-                      <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mb-1">
-                        7-Day Free Trial
-                      </div>
-                      <p className="text-xs text-emerald-600/80 dark:text-emerald-400/80">
-                        No payment required to start
-                      </p>
-                    </div>
-                    
-                    {/* Regular Pricing */}
+                    {/* Regular Pricing — first month due today, recurring monthly thereafter */}
                     <div className="text-center py-4 bg-primary/5 rounded-lg border border-primary/10">
-                      <p className="text-xs text-muted-foreground mb-1">Then just</p>
+                      <p className="text-xs text-muted-foreground mb-1">First month due today</p>
                       <div>
                         <span className="text-4xl font-bold">{formatPrice(PRODUCTS.family.monthly.price)}</span>
                         <span className="text-muted-foreground">/month</span>
                       </div>
                       <p className="text-xs text-muted-foreground mt-2">
-                        Founding price while active · Cancel anytime during or after trial
+                        Founding price while active · Cancel anytime
                       </p>
                     </div>
                   </div>
@@ -894,33 +883,18 @@ const FamilyPurchase = () => {
                     <>
                       {/* Web-only purchase flow */}
                       <Button
-                        onClick={() => handleSquarePurchase(true)}
+                        onClick={() => handleSquarePurchase(false)}
                         disabled={isLoading || !email}
                         className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-lg"
                         size="lg"
                       >
-                        {isLoading ? "Processing..." : "Start FIIS Support Free for 7 Days"}
+                        {isLoading
+                          ? "Processing..."
+                          : `Subscribe — ${formatPrice(PRODUCTS.family.monthly.price)} due today, then monthly`}
                       </Button>
-                      
-                      {/* Alternative - Skip Trial */}
-                      <div className="relative">
-                        <div className="absolute inset-0 flex items-center">
-                          <span className="w-full border-t" />
-                        </div>
-                        <div className="relative flex justify-center text-xs uppercase">
-                          <span className="bg-background px-2 text-muted-foreground">or</span>
-                        </div>
-                      </div>
-                      
-                      <Button
-                        variant="outline"
-                        onClick={() => handleSquarePurchase(false)}
-                        disabled={isLoading || !email}
-                        className="w-full"
-                        size="sm"
-                      >
-                        {isLoading ? "Processing..." : `Subscribe to FIIS Support - ${formatPrice(PRODUCTS.family.monthly.price)}/month`}
-                      </Button>
+                      <p className="text-xs text-center text-muted-foreground">
+                        You'll enter your card on Square's secure checkout page. The first month is charged today; the recurring subscription begins next month.
+                      </p>
                       
                       {/* Subscription Disclosure */}
                       <SubscriptionDisclosure
