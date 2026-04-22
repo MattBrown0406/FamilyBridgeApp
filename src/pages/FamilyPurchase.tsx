@@ -883,33 +883,18 @@ const FamilyPurchase = () => {
                     <>
                       {/* Web-only purchase flow */}
                       <Button
-                        onClick={() => handleSquarePurchase(true)}
+                        onClick={() => handleSquarePurchase(false)}
                         disabled={isLoading || !email}
                         className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-lg"
                         size="lg"
                       >
-                        {isLoading ? "Processing..." : "Start FIIS Support Free for 7 Days"}
+                        {isLoading
+                          ? "Processing..."
+                          : `Subscribe — ${formatPrice(PRODUCTS.family.monthly.price)} due today, then monthly`}
                       </Button>
-                      
-                      {/* Alternative - Skip Trial */}
-                      <div className="relative">
-                        <div className="absolute inset-0 flex items-center">
-                          <span className="w-full border-t" />
-                        </div>
-                        <div className="relative flex justify-center text-xs uppercase">
-                          <span className="bg-background px-2 text-muted-foreground">or</span>
-                        </div>
-                      </div>
-                      
-                      <Button
-                        variant="outline"
-                        onClick={() => handleSquarePurchase(false)}
-                        disabled={isLoading || !email}
-                        className="w-full"
-                        size="sm"
-                      >
-                        {isLoading ? "Processing..." : `Subscribe to FIIS Support - ${formatPrice(PRODUCTS.family.monthly.price)}/month`}
-                      </Button>
+                      <p className="text-xs text-center text-muted-foreground">
+                        You'll enter your card on Square's secure checkout page. The first month is charged today; the recurring subscription begins next month.
+                      </p>
                       
                       {/* Subscription Disclosure */}
                       <SubscriptionDisclosure
