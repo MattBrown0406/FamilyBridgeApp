@@ -233,6 +233,11 @@ const ProviderPurchase = () => {
         if (checkoutError) throw checkoutError;
 
         if (checkoutData.checkoutUrl) {
+          if (checkoutData.orderId) {
+            localStorage.setItem("familybridge_provider_checkout_order_id", checkoutData.orderId);
+          }
+          localStorage.setItem("familybridge_provider_checkout_email", email);
+          localStorage.setItem("familybridge_provider_checkout_period", "monthly");
           window.location.href = checkoutData.checkoutUrl;
         } else {
           throw new Error("Failed to create checkout session");
