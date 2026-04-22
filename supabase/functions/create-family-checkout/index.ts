@@ -6,8 +6,11 @@ const corsHeaders = {
 };
 
 // Square SUBSCRIPTION_PLAN_VARIATION ID for Family Bridge Single Family Subscription (monthly).
-// Parent SUBSCRIPTION_PLAN ID is NXU2LLO56OWLAN3OWJV55VHT, but v2/subscriptions requires the variation.
-const FAMILY_PLAN_ID = "5QCC5V2YZRRMREYSPSX5R7R5";
+// This is a STATIC-priced variation ($49.99/month) so v2/subscriptions does NOT
+// require an explicit `phases` array. Created on 2026-04-22 to replace the
+// legacy RELATIVE-priced variation 5QCC5V2YZRRMREYSPSX5R7R5 which forced
+// CONFLICTING_PARAMETERS errors when no phases were supplied.
+const FAMILY_PLAN_ID = "GEMWDEES3W2AVLKCHDOZESQF";
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -102,20 +105,6 @@ serve(async (req) => {
       plan_variation_id: FAMILY_PLAN_ID,
       customer_id: customerId,
       start_date: startDate.toISOString().split('T')[0],
-      // The Square plan variation is configured with a RELATIVE pricing phase
-      // (ordinal 0, MONTHLY). v2/subscriptions therefore requires an explicit
-      // matching `phases` entry, and we override the relative price with the
-      // absolute monthly amount ($49.99 = 4999 cents).
-      phases: [
-        {
-          ordinal: 0,
-          uid: crypto.randomUUID(),
-          pricing: {
-            type: 'STATIC',
-            price_money: { amount: 4999, currency: 'USD' },
-          },
-        },
-      ],
     };
 
     const subscriptionRes = await fetch('https://connect.squareup.com/v2/subscriptions', {

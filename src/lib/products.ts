@@ -6,7 +6,7 @@ export const BUNDLE_ID = "com.familybridgeapp.app";
 // Square SUBSCRIPTION_PLAN_VARIATION IDs (from Square Dashboard).
 // v2/subscriptions requires variation IDs, NOT parent plan IDs.
 export const SQUARE_PLAN_IDS = {
-  family_monthly: "5QCC5V2YZRRMREYSPSX5R7R5",
+  family_monthly: "GEMWDEES3W2AVLKCHDOZESQF",
   provider_monthly: "J5JSSBKZASUKMISQBLISFUZP",
   provider_quarterly: "MYPV3BWPOMVKFCGKFLD5CMLU",
   provider_annual: "JJFJPR2WOCB6PIJZL4TUUQGF",
