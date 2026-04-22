@@ -153,16 +153,28 @@ const ProviderPurchase = () => {
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        const backendMsg = (data as any)?.error || (error as any)?.message;
+        throw new Error(backendMsg || "Checkout request failed");
+      }
+      if ((data as any)?.error) {
+        throw new Error((data as any).error);
+      }
 
-      if (data.checkoutUrl) {
+      if (data?.checkoutUrl) {
+        if (data.orderId) {
+          localStorage.setItem("familybridge_provider_checkout_order_id", data.orderId);
+        }
+        localStorage.setItem("familybridge_provider_checkout_email", email);
+        localStorage.setItem("familybridge_provider_checkout_period", billingPeriod);
         window.location.href = data.checkoutUrl;
       } else {
         throw new Error("Failed to create checkout session");
       }
     } catch (error) {
       console.error("Purchase error:", error);
-      toast.error("Failed to start checkout. Please try again.");
+      const msg = error instanceof Error ? error.message : "Failed to start checkout. Please try again.";
+      toast.error(`Checkout failed: ${msg}`);
     } finally {
       setIsLoading(false);
     }
