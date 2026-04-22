@@ -3455,7 +3455,7 @@ export type Database = {
           },
         ]
       }
-      location_risk_warnings: {
+      liquor_license_warnings: {
         Row: {
           acknowledged_at: string | null
           acknowledged_by: string | null
@@ -3494,28 +3494,28 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "location_risk_warnings_checkin_id_fkey"
+            foreignKeyName: "liquor_license_warnings_checkin_id_fkey"
             columns: ["checkin_id"]
             isOneToOne: false
             referencedRelation: "meeting_checkins"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "location_risk_warnings_checkin_id_fkey"
+            foreignKeyName: "liquor_license_warnings_checkin_id_fkey"
             columns: ["checkin_id"]
             isOneToOne: false
             referencedRelation: "meeting_checkins_moderator_view"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "location_risk_warnings_checkin_id_fkey"
+            foreignKeyName: "liquor_license_warnings_checkin_id_fkey"
             columns: ["checkin_id"]
             isOneToOne: false
             referencedRelation: "meeting_checkins_user_view"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "location_risk_warnings_family_id_fkey"
+            foreignKeyName: "liquor_license_warnings_family_id_fkey"
             columns: ["family_id"]
             isOneToOne: false
             referencedRelation: "families"
@@ -3642,69 +3642,48 @@ export type Database = {
       }
       medication_doses: {
         Row: {
-          confirmation_type: string | null
           confirmed_by: string | null
           created_at: string
           family_id: string
           id: string
-          inventory_delta: number | null
           medication_id: string
           overdue_alert_sent: boolean | null
-          overdue_notified_family_at: string | null
-          overdue_notified_user_at: string | null
           reminder_sent_at: string | null
           scheduled_at: string
           scheduled_time: string | null
           skip_reason: string | null
           skipped: boolean | null
-          snoozed_until: string | null
-          status: string
           taken_at: string | null
-          taken_notes: string | null
           user_id: string
         }
         Insert: {
-          confirmation_type?: string | null
           confirmed_by?: string | null
           created_at?: string
           family_id: string
           id?: string
-          inventory_delta?: number | null
           medication_id: string
           overdue_alert_sent?: boolean | null
-          overdue_notified_family_at?: string | null
-          overdue_notified_user_at?: string | null
           reminder_sent_at?: string | null
           scheduled_at: string
           scheduled_time?: string | null
           skip_reason?: string | null
           skipped?: boolean | null
-          snoozed_until?: string | null
-          status?: string
           taken_at?: string | null
-          taken_notes?: string | null
           user_id: string
         }
         Update: {
-          confirmation_type?: string | null
           confirmed_by?: string | null
           created_at?: string
           family_id?: string
           id?: string
-          inventory_delta?: number | null
           medication_id?: string
           overdue_alert_sent?: boolean | null
-          overdue_notified_family_at?: string | null
-          overdue_notified_user_at?: string | null
           reminder_sent_at?: string | null
           scheduled_at?: string
           scheduled_time?: string | null
           skip_reason?: string | null
           skipped?: boolean | null
-          snoozed_until?: string | null
-          status?: string
           taken_at?: string | null
-          taken_notes?: string | null
           user_id?: string
         }
         Relationships: [
@@ -3728,162 +3707,75 @@ export type Database = {
         Row: {
           created_at: string
           created_by: string
-          days_supply: number | null
           discontinued_at: string | null
           discontinued_reason: string | null
           doctor_name: string | null
           doctor_phone: string | null
           dosage: string | null
-          doses_per_administration: number
-          expected_runout_date: string | null
           family_id: string
           frequency: string | null
           id: string
           instructions: string | null
-          inventory_notes: string | null
           is_active: boolean | null
           is_mat: boolean
-          is_prn: boolean
-          label_analysis_confidence: number | null
-          label_analysis_field_confidence: Json
-          label_analysis_raw_text: string | null
-          label_capture_mode: string | null
-          label_disclaimer_accepted_at: string | null
           label_image_url: string | null
-          label_image_urls: string[] | null
-          label_images_deleted_at: string | null
-          label_images_deleted_by: string | null
-          label_images_verified_at: string | null
-          label_images_verified_by: string | null
-          last_inventory_reconciled_at: string | null
           last_refill_date: string | null
-          low_supply_notified_at: string | null
-          low_supply_threshold: number | null
-          max_daily_doses: number | null
           medication_name: string
-          min_hours_between_doses: number | null
-          out_of_medication_at: string | null
           pharmacy_name: string | null
           pharmacy_phone: string | null
-          prescriber_name: string | null
-          prescriber_phone: string | null
-          quantity_dispensed: number | null
-          refill_due_notified_at: string | null
-          refill_reminder_days: number
           refills_remaining: number | null
-          risk_level: string
           specific_times: string[] | null
           times_per_day: number | null
-          unit_type: string | null
-          units_remaining: number | null
           updated_at: string
           user_id: string
         }
         Insert: {
           created_at?: string
           created_by: string
-          days_supply?: number | null
           discontinued_at?: string | null
           discontinued_reason?: string | null
           doctor_name?: string | null
           doctor_phone?: string | null
           dosage?: string | null
-          doses_per_administration?: number
-          expected_runout_date?: string | null
           family_id: string
           frequency?: string | null
           id?: string
           instructions?: string | null
-          inventory_notes?: string | null
           is_active?: boolean | null
           is_mat?: boolean
-          is_prn?: boolean
-          label_analysis_confidence?: number | null
-          label_analysis_field_confidence?: Json
-          label_analysis_raw_text?: string | null
-          label_capture_mode?: string | null
-          label_disclaimer_accepted_at?: string | null
           label_image_url?: string | null
-          label_image_urls?: string[] | null
-          label_images_deleted_at?: string | null
-          label_images_deleted_by?: string | null
-          label_images_verified_at?: string | null
-          label_images_verified_by?: string | null
-          last_inventory_reconciled_at?: string | null
           last_refill_date?: string | null
-          low_supply_notified_at?: string | null
-          low_supply_threshold?: number | null
-          max_daily_doses?: number | null
           medication_name: string
-          min_hours_between_doses?: number | null
-          out_of_medication_at?: string | null
           pharmacy_name?: string | null
           pharmacy_phone?: string | null
-          prescriber_name?: string | null
-          prescriber_phone?: string | null
-          quantity_dispensed?: number | null
-          refill_due_notified_at?: string | null
-          refill_reminder_days?: number
           refills_remaining?: number | null
-          risk_level?: string
           specific_times?: string[] | null
           times_per_day?: number | null
-          unit_type?: string | null
-          units_remaining?: number | null
           updated_at?: string
           user_id: string
         }
         Update: {
           created_at?: string
           created_by?: string
-          days_supply?: number | null
           discontinued_at?: string | null
           discontinued_reason?: string | null
           doctor_name?: string | null
           doctor_phone?: string | null
           dosage?: string | null
-          doses_per_administration?: number
-          expected_runout_date?: string | null
           family_id?: string
           frequency?: string | null
           id?: string
           instructions?: string | null
-          inventory_notes?: string | null
           is_active?: boolean | null
           is_mat?: boolean
-          is_prn?: boolean
-          label_analysis_confidence?: number | null
-          label_analysis_field_confidence?: Json
-          label_analysis_raw_text?: string | null
-          label_capture_mode?: string | null
-          label_disclaimer_accepted_at?: string | null
           label_image_url?: string | null
-          label_image_urls?: string[] | null
-          label_images_deleted_at?: string | null
-          label_images_deleted_by?: string | null
-          label_images_verified_at?: string | null
-          label_images_verified_by?: string | null
-          last_inventory_reconciled_at?: string | null
           last_refill_date?: string | null
-          low_supply_notified_at?: string | null
-          low_supply_threshold?: number | null
-          max_daily_doses?: number | null
           medication_name?: string
-          min_hours_between_doses?: number | null
-          out_of_medication_at?: string | null
           pharmacy_name?: string | null
           pharmacy_phone?: string | null
-          prescriber_name?: string | null
-          prescriber_phone?: string | null
-          quantity_dispensed?: number | null
-          refill_due_notified_at?: string | null
-          refill_reminder_days?: number
           refills_remaining?: number | null
-          risk_level?: string
           specific_times?: string[] | null
           times_per_day?: number | null
-          unit_type?: string | null
-          units_remaining?: number | null
           updated_at?: string
           user_id?: string
         }
