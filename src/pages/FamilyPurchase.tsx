@@ -679,26 +679,15 @@ const FamilyPurchase = () => {
                 {/* Free Trial + Subscription Pricing - Apple App Store compliance: Hide on ALL native platforms */}
                 {!isNative && (
                   <div className="space-y-4">
-                    {/* Free Trial Highlight */}
-                    <div className="text-center py-4 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20 rounded-lg border border-emerald-200/50 dark:border-emerald-800/50">
-                      <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-300 mb-1">Start Free Today</p>
-                      <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mb-1">
-                        7-Day Free Trial
-                      </div>
-                      <p className="text-xs text-emerald-600/80 dark:text-emerald-400/80">
-                        No payment required to start
-                      </p>
-                    </div>
-                    
-                    {/* Regular Pricing */}
+                    {/* Regular Pricing — first month due today, recurring monthly thereafter */}
                     <div className="text-center py-4 bg-primary/5 rounded-lg border border-primary/10">
-                      <p className="text-xs text-muted-foreground mb-1">Then just</p>
+                      <p className="text-xs text-muted-foreground mb-1">First month due today</p>
                       <div>
                         <span className="text-4xl font-bold">{formatPrice(PRODUCTS.family.monthly.price)}</span>
                         <span className="text-muted-foreground">/month</span>
                       </div>
                       <p className="text-xs text-muted-foreground mt-2">
-                        Founding price while active · Cancel anytime during or after trial
+                        Founding price while active · Cancel anytime
                       </p>
                     </div>
                   </div>
