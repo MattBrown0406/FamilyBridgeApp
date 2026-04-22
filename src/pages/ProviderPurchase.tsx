@@ -51,6 +51,59 @@ const ProviderPurchase = () => {
   // Billing period - default to quarterly which works on all platforms
   // Annual is web-only due to pricing constraints
   const [billingPeriod, setBillingPeriod] = useState<"monthly" | "quarterly" | "annual">("quarterly");
+  const [isFinalizing, setIsFinalizing] = useState(false);
+
+  // After returning from Square hosted checkout, verify the payment and mint
+  // the activation code via finalize-provider-purchase. We do NOT show success
+  // until that server-side verification completes.
+  useEffect(() => {
+    const finalize = async () => {
+      if (status !== "success") return;
+      if (generatedCode) return;
+      if (isNative) return; // App Store flow handles this differently
+
+      const orderId = localStorage.getItem("familybridge_provider_checkout_order_id");
+      const purchaseEmail = localStorage.getItem("familybridge_provider_checkout_email") || email;
+      const storedPeriod =
+        (localStorage.getItem("familybridge_provider_checkout_period") as
+          | "monthly"
+          | "quarterly"
+          | "annual"
+          | null) || billingPeriod;
+
+      if (!orderId) {
+        toast.error("We could not confirm your payment automatically. Please contact support.");
+        return;
+      }
+
+      setIsFinalizing(true);
+      try {
+        const { data, error } = await supabase.functions.invoke("finalize-provider-purchase", {
+          body: { orderId, email: purchaseEmail, billingPeriod: storedPeriod },
+        });
+        if (error) throw error;
+
+        if (data?.success && data?.inviteCode) {
+          setGeneratedCode(data.inviteCode);
+          // Clear stored checkout state so a refresh doesn't re-trigger.
+          localStorage.removeItem("familybridge_provider_checkout_order_id");
+          localStorage.removeItem("familybridge_provider_checkout_email");
+          localStorage.removeItem("familybridge_provider_checkout_period");
+          toast.success("Activation code created!");
+        } else {
+          toast.error(data?.error || "Unable to generate activation code yet. Please try again in a minute.");
+        }
+      } catch (e) {
+        console.error("Finalize provider purchase error:", e);
+        toast.error("Unable to confirm payment and generate code. Please contact support.");
+      } finally {
+        setIsFinalizing(false);
+      }
+    };
+
+    void finalize();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status, generatedCode, isNative]);
 
   // Safety guard: ensure annual is never selected on native platforms
   useEffect(() => {
