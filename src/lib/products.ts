@@ -7,9 +7,9 @@ export const BUNDLE_ID = "com.familybridgeapp.app";
 // v2/subscriptions requires variation IDs, NOT parent plan IDs.
 export const SQUARE_PLAN_IDS = {
   family_monthly: "GEMWDEES3W2AVLKCHDOZESQF",
-  provider_monthly: "J5JSSBKZASUKMISQBLISFUZP",
-  provider_quarterly: "MYPV3BWPOMVKFCGKFLD5CMLU",
-  provider_annual: "JJFJPR2WOCB6PIJZL4TUUQGF",
+  provider_monthly: "BBC2S6S42PUSEC5E4TARE5SK",
+  provider_quarterly: "HCBQIKP5PX4OMSFTAS35XDLU",
+  provider_annual: "UQO7ZIJKHHBA377GMRNXEM4I",
 } as const;
 
 export const PRODUCTS = {
