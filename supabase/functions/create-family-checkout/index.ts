@@ -117,7 +117,18 @@ serve(async (req) => {
 
     if (subscriptionData.errors) {
       console.error('Square subscription errors:', subscriptionData.errors);
-      throw new Error(subscriptionData.errors[0]?.detail || 'Failed to create subscription');
+      const sqErr = subscriptionData.errors[0];
+      const detail = sqErr?.detail || 'Failed to create subscription';
+      // Return 200 so the client can read the body (some SDKs drop non-2xx bodies)
+      return new Response(JSON.stringify({
+        error: `Square: ${detail}`,
+        squareErrorCode: sqErr?.code,
+        squareErrorCategory: sqErr?.category,
+        diagnostics: { stage: 'create_subscription', planId: FAMILY_PLAN_ID },
+      }), {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     const subscription = subscriptionData.subscription;
@@ -138,7 +149,7 @@ serve(async (req) => {
     console.error('Family subscription creation error:', error);
     const message = error instanceof Error ? error.message : 'Unknown error';
     return new Response(JSON.stringify({ error: message }), {
-      status: 500,
+      status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
