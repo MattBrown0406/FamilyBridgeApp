@@ -6,8 +6,11 @@ const corsHeaders = {
 };
 
 // Square SUBSCRIPTION_PLAN_VARIATION ID for Family Bridge Single Family Subscription (monthly).
-// Parent SUBSCRIPTION_PLAN ID is NXU2LLO56OWLAN3OWJV55VHT, but v2/subscriptions requires the variation.
-const FAMILY_PLAN_ID = "5QCC5V2YZRRMREYSPSX5R7R5";
+// This is a STATIC-priced variation ($49.99/month) so v2/subscriptions does NOT
+// require an explicit `phases` array. Created on 2026-04-22 to replace the
+// legacy RELATIVE-priced variation 5QCC5V2YZRRMREYSPSX5R7R5 which forced
+// CONFLICTING_PARAMETERS errors when no phases were supplied.
+const FAMILY_PLAN_ID = "GEMWDEES3W2AVLKCHDOZESQF";
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
