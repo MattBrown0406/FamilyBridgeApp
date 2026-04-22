@@ -110,12 +110,12 @@ serve(async (req) => {
         {
           ordinal: 0,
           uid: crypto.randomUUID(),
+          pricing: {
+            type: 'STATIC',
+            price_money: { amount: 4999, currency: 'USD' },
+          },
         },
       ],
-      price_override_money: {
-        amount: 4999,
-        currency: 'USD',
-      },
     };
 
     const subscriptionRes = await fetch('https://connect.squareup.com/v2/subscriptions', {
