@@ -7,9 +7,9 @@ const corsHeaders = {
 
 // Square Subscription Plan IDs
 const SQUARE_PLAN_IDS: Record<string, string> = {
-  monthly: "J5JSSBKZASUKMISQBLISFUZP",
-  quarterly: "MYPV3BWPOMVKFCGKFLD5CMLU",
-  annual: "JJFJPR2WOCB6PIJZL4TUUQGF",
+  monthly: "BBC2S6S42PUSEC5E4TARE5SK",
+  quarterly: "HCBQIKP5PX4OMSFTAS35XDLU",
+  annual: "UQO7ZIJKHHBA377GMRNXEM4I",
 };
 
 serve(async (req) => {
