@@ -51,6 +51,59 @@ const ProviderPurchase = () => {
   // Billing period - default to quarterly which works on all platforms
   // Annual is web-only due to pricing constraints
   const [billingPeriod, setBillingPeriod] = useState<"monthly" | "quarterly" | "annual">("quarterly");
+  const [isFinalizing, setIsFinalizing] = useState(false);
+
+  // After returning from Square hosted checkout, verify the payment and mint
+  // the activation code via finalize-provider-purchase. We do NOT show success
+  // until that server-side verification completes.
+  useEffect(() => {
+    const finalize = async () => {
+      if (status !== "success") return;
+      if (generatedCode) return;
+      if (isNative) return; // App Store flow handles this differently
+
+      const orderId = localStorage.getItem("familybridge_provider_checkout_order_id");
+      const purchaseEmail = localStorage.getItem("familybridge_provider_checkout_email") || email;
+      const storedPeriod =
+        (localStorage.getItem("familybridge_provider_checkout_period") as
+          | "monthly"
+          | "quarterly"
+          | "annual"
+          | null) || billingPeriod;
+
+      if (!orderId) {
+        toast.error("We could not confirm your payment automatically. Please contact support.");
+        return;
+      }
+
+      setIsFinalizing(true);
+      try {
+        const { data, error } = await supabase.functions.invoke("finalize-provider-purchase", {
+          body: { orderId, email: purchaseEmail, billingPeriod: storedPeriod },
+        });
+        if (error) throw error;
+
+        if (data?.success && data?.inviteCode) {
+          setGeneratedCode(data.inviteCode);
+          // Clear stored checkout state so a refresh doesn't re-trigger.
+          localStorage.removeItem("familybridge_provider_checkout_order_id");
+          localStorage.removeItem("familybridge_provider_checkout_email");
+          localStorage.removeItem("familybridge_provider_checkout_period");
+          toast.success("Activation code created!");
+        } else {
+          toast.error(data?.error || "Unable to generate activation code yet. Please try again in a minute.");
+        }
+      } catch (e) {
+        console.error("Finalize provider purchase error:", e);
+        toast.error("Unable to confirm payment and generate code. Please contact support.");
+      } finally {
+        setIsFinalizing(false);
+      }
+    };
+
+    void finalize();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status, generatedCode, isNative]);
 
   // Safety guard: ensure annual is never selected on native platforms
   useEffect(() => {
@@ -100,16 +153,28 @@ const ProviderPurchase = () => {
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        const backendMsg = (data as any)?.error || (error as any)?.message;
+        throw new Error(backendMsg || "Checkout request failed");
+      }
+      if ((data as any)?.error) {
+        throw new Error((data as any).error);
+      }
 
-      if (data.checkoutUrl) {
+      if (data?.checkoutUrl) {
+        if (data.orderId) {
+          localStorage.setItem("familybridge_provider_checkout_order_id", data.orderId);
+        }
+        localStorage.setItem("familybridge_provider_checkout_email", email);
+        localStorage.setItem("familybridge_provider_checkout_period", billingPeriod);
         window.location.href = data.checkoutUrl;
       } else {
         throw new Error("Failed to create checkout session");
       }
     } catch (error) {
       console.error("Purchase error:", error);
-      toast.error("Failed to start checkout. Please try again.");
+      const msg = error instanceof Error ? error.message : "Failed to start checkout. Please try again.";
+      toast.error(`Checkout failed: ${msg}`);
     } finally {
       setIsLoading(false);
     }
@@ -168,6 +233,11 @@ const ProviderPurchase = () => {
         if (checkoutError) throw checkoutError;
 
         if (checkoutData.checkoutUrl) {
+          if (checkoutData.orderId) {
+            localStorage.setItem("familybridge_provider_checkout_order_id", checkoutData.orderId);
+          }
+          localStorage.setItem("familybridge_provider_checkout_email", email);
+          localStorage.setItem("familybridge_provider_checkout_period", "monthly");
           window.location.href = checkoutData.checkoutUrl;
         } else {
           throw new Error("Failed to create checkout session");
@@ -344,24 +414,32 @@ const ProviderPurchase = () => {
   }
 
   if (status === "success") {
+    // Honest verifying state — we do NOT claim success until finalize-provider-purchase
+    // confirms a real captured payment and creates the recurring subscription.
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <Card className="max-w-md w-full">
           <CardHeader className="text-center">
-            <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
-              <Check className="w-8 h-8 text-green-600" />
+            <div className="mx-auto w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
+              <Loader2 className="w-8 h-8 text-primary animate-spin" />
             </div>
-            <CardTitle className="text-2xl">Payment Successful!</CardTitle>
+            <CardTitle className="text-2xl">Verifying Payment…</CardTitle>
             <CardDescription>
-              Your activation code has been generated and will be sent to your email shortly.
+              We&apos;re confirming your payment with Square and creating your activation code.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm text-muted-foreground text-center">
-              Check your email for your activation code, then use it to set up your provider account.
+              {isFinalizing
+                ? "This usually takes just a few seconds. Please don't close this page."
+                : "If this takes more than a minute, please contact support — your card may have been charged but not yet linked to your account."}
             </p>
-            <Button onClick={() => navigate("/provider-admin")} className="w-full">
-              Go to Provider Setup
+            <Button
+              variant="outline"
+              onClick={() => navigate("/support?type=provider")}
+              className="w-full"
+            >
+              Contact Support
             </Button>
           </CardContent>
         </Card>
