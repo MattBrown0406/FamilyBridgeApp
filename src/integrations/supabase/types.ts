@@ -6155,6 +6155,12 @@ export type Database = {
       decrypt_sensitive: { Args: { encrypted_text: string }; Returns: string }
       encrypt_payment_field: { Args: { plain_text: string }; Returns: string }
       encrypt_sensitive: { Args: { plain_text: string }; Returns: string }
+      expire_pending_location_requests: {
+        Args: never
+        Returns: {
+          expired_count: number
+        }[]
+      }
       generate_activation_code: { Args: never; Returns: string }
       generate_medication_doses_for_day: {
         Args: { _medication_id: string; _target_date?: string }
