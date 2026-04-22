@@ -5,7 +5,9 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const FAMILY_PLAN_ID = "NXU2LLO56OWLAN3OWJV55VHT";
+// Square SUBSCRIPTION_PLAN_VARIATION ID for Family Bridge Single Family Subscription (monthly).
+// Parent SUBSCRIPTION_PLAN ID is NXU2LLO56OWLAN3OWJV55VHT, but v2/subscriptions requires the variation.
+const FAMILY_PLAN_ID = "5QCC5V2YZRRMREYSPSX5R7R5";
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
