@@ -102,35 +102,20 @@ serve(async (req) => {
       plan_variation_id: FAMILY_PLAN_ID,
       customer_id: customerId,
       start_date: startDate.toISOString().split('T')[0],
-      // The Square plan variation is configured with a RELATIVE pricing phase,
-      // so the API requires us to supply explicit subscription phases that
-      // override that relative pricing with an absolute amount. $49.99/month.
+      // The Square plan variation is configured with a RELATIVE pricing phase
+      // (ordinal 0, MONTHLY). v2/subscriptions therefore requires an explicit
+      // matching `phases` entry, and we override the relative price with the
+      // absolute monthly amount ($49.99 = 4999 cents).
       phases: [
         {
           ordinal: 0,
-          order_template_id: null,
           uid: crypto.randomUUID(),
-          // Match the variation's single MONTHLY phase (ordinal 0) with an
-          // absolute price override.
-          // Square accepts price_override_money on the phase.
-          // 4999 cents = $49.99 USD
-          // (the variation phase ordinal 0 is MONTHLY)
-          // ref: Square v2/subscriptions create
         },
       ],
-    };
-
-    // Square requires us to override the relative-priced phase with an
-    // absolute price. We attach the override on the matching phase.
-    subscriptionBody.phases[0] = {
-      ordinal: 0,
-      uid: crypto.randomUUID(),
-    };
-    // Use top-level price_override_money which Square applies to the
-    // active phase's pricing when phases are absolute-priced.
-    subscriptionBody.price_override_money = {
-      amount: 4999,
-      currency: 'USD',
+      price_override_money: {
+        amount: 4999,
+        currency: 'USD',
+      },
     };
 
     const subscriptionRes = await fetch('https://connect.squareup.com/v2/subscriptions', {
