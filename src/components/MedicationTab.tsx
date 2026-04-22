@@ -232,7 +232,7 @@ export const MedicationTab = ({
     if (error) {
       console.error('Error loading medications:', error);
     } else {
-      const resolvedMedications = await Promise.all((data || []).map(async (medication) => ({
+      const resolvedMedications = await Promise.all((data || []).map(async (medication: any) => ({
         ...medication,
         label_image_url: await resolveStorageUrl(medication.label_image_url),
         label_image_urls: medication.label_image_urls
@@ -600,7 +600,7 @@ export const MedicationTab = ({
       });
     } else {
       if (dose?.medication_id) {
-        await supabase.rpc('recalculate_medication_inventory', { _medication_id: dose.medication_id });
+        await (supabase.rpc as any)('recalculate_medication_inventory', { _medication_id: dose.medication_id });
       }
       toast({ title: 'Dose recorded!' });
       loadData();

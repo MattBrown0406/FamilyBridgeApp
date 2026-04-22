@@ -29,7 +29,7 @@ export function LocationRiskWarnings({ familyId, members, isAdminOrModerator }: 
 
   const fetchWarnings = async () => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('location_risk_warnings')
         .select('*')
         .eq('family_id', familyId)
@@ -41,7 +41,7 @@ export function LocationRiskWarnings({ familyId, members, isAdminOrModerator }: 
         return;
       }
 
-      setWarnings(data || []);
+      setWarnings((data as LocationRiskWarning[]) || []);
     } catch (err) {
       console.error('Error in fetchWarnings:', err);
     } finally {
@@ -53,7 +53,7 @@ export function LocationRiskWarnings({ familyId, members, isAdminOrModerator }: 
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
-    const { error } = await supabase
+    const { error } = await (supabase as any)
       .from('location_risk_warnings')
       .update({
         acknowledged_at: new Date().toISOString(),

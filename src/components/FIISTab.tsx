@@ -48,7 +48,7 @@ import {
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { format, formatDistanceToNow } from "date-fns";
-const RecoveryTrajectoryPanel = lazy(() => import("@/components/RecoveryTrajectoryPanel"));
+const RecoveryTrajectoryPanel = lazy(() => import("@/components/RecoveryTrajectoryPanel").then(m => ({ default: m.RecoveryTrajectoryPanel })));
 import { PatternShiftAlerts } from "@/components/PatternShiftAlerts";
 import { ContinuityTransitionPanel } from "@/components/ContinuityTransitionPanel";
 import { FIISFeedbackDialog } from "@/components/FIISFeedbackDialog";

@@ -45,10 +45,10 @@ import {
   Archive,
   KeyRound
 } from 'lucide-react';
-const ArchivedFamiliesPanel = lazy(() => import('@/components/ArchivedFamiliesPanel'));
-const SuperAdminBroadcast = lazy(() => import('@/components/SuperAdminBroadcast'));
-const SuperAdminRequests = lazy(() => import('@/components/SuperAdminRequests'));
-const SuperAdminOutcomesDashboard = lazy(() => import('@/components/SuperAdminOutcomesDashboard'));
+const ArchivedFamiliesPanel = lazy(() => import('@/components/ArchivedFamiliesPanel').then(m => ({ default: m.ArchivedFamiliesPanel })));
+const SuperAdminBroadcast = lazy(() => import('@/components/SuperAdminBroadcast').then(m => ({ default: m.SuperAdminBroadcast })));
+const SuperAdminRequests = lazy(() => import('@/components/SuperAdminRequests').then(m => ({ default: m.SuperAdminRequests })));
+const SuperAdminOutcomesDashboard = lazy(() => import('@/components/SuperAdminOutcomesDashboard').then(m => ({ default: m.SuperAdminOutcomesDashboard })));
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { format } from 'date-fns';
