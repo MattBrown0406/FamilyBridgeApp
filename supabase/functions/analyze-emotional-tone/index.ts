@@ -67,7 +67,7 @@ serve(async (req) => {
       .order('created_at', { ascending: true });
 
     let prompt = '';
-    let analysisContext = '';
+    const analysisContext = '';
 
     if (analysisType === 'bypass_inference') {
       // User skipped the check-in - infer their state

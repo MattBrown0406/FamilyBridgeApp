@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { fetchProfilesByIds } from '@/lib/profileApi';
@@ -87,11 +87,8 @@ export const ProviderMessaging = ({ organizationId, orgMembers = [], families = 
   const [isDirectMessage, setIsDirectMessage] = useState(false);
   const [selectedFamilyForConv, setSelectedFamilyForConv] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (organizationId) {
-      fetchConversations();
-    }
-  }, [organizationId]);
+  const getErrorMessage = (error: unknown, fallback: string) =>
+    error instanceof Error ? error.message : fallback;
 
   useEffect(() => {
     if (selectedConversation) {
@@ -132,7 +129,13 @@ export const ProviderMessaging = ({ organizationId, orgMembers = [], families = 
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const fetchConversations = async () => {
+  const fetchConversations = useCallback(async () => {
+    if (!user?.id) {
+      setConversations([]);
+      setIsLoading(false);
+      return;
+    }
+
     setIsLoading(true);
     try {
       // Get conversations where user is a participant
@@ -194,7 +197,13 @@ export const ProviderMessaging = ({ organizationId, orgMembers = [], families = 
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [families, user?.id]);
+
+  useEffect(() => {
+    if (organizationId && user?.id) {
+      fetchConversations();
+    }
+  }, [fetchConversations, organizationId, user?.id]);
 
   const fetchMessages = async (conversationId: string) => {
     setIsLoadingMessages(true);
@@ -228,6 +237,11 @@ export const ProviderMessaging = ({ organizationId, orgMembers = [], families = 
   };
 
   const handleCreateConversation = async () => {
+    if (!user?.id) {
+      toast({ title: 'Error', description: 'Please sign in to create a conversation', variant: 'destructive' });
+      return;
+    }
+
     if (selectedParticipants.length === 0) {
       toast({ title: 'Error', description: 'Select at least one participant', variant: 'destructive' });
       return;
@@ -248,7 +262,7 @@ export const ProviderMessaging = ({ organizationId, orgMembers = [], families = 
           family_id: selectedFamilyForConv || null,
           name: isDirectMessage ? null : newConversationName.trim(),
           is_direct_message: isDirectMessage && selectedParticipants.length === 1,
-          created_by: user?.id,
+          created_by: user.id,
         })
         .select()
         .single();
@@ -256,7 +270,7 @@ export const ProviderMessaging = ({ organizationId, orgMembers = [], families = 
       if (convError) throw convError;
 
       // Add participants (including creator)
-      const allParticipants = [...new Set([user?.id!, ...selectedParticipants])];
+      const allParticipants = [...new Set([user.id, ...selectedParticipants])];
       const { error: partError } = await supabase
         .from('provider_conversation_participants')
         .insert(allParticipants.map(userId => ({
@@ -273,9 +287,9 @@ export const ProviderMessaging = ({ organizationId, orgMembers = [], families = 
       setIsDirectMessage(false);
       setSelectedFamilyForConv(null);
       fetchConversations();
-    } catch (err: any) {
+    } catch (err) {
       console.error('Error creating conversation:', err);
-      toast({ title: 'Error', description: err.message || 'Failed to create conversation', variant: 'destructive' });
+      toast({ title: 'Error', description: getErrorMessage(err, 'Failed to create conversation'), variant: 'destructive' });
     } finally {
       setIsCreating(false);
     }
@@ -283,6 +297,10 @@ export const ProviderMessaging = ({ organizationId, orgMembers = [], families = 
 
   const handleSendMessage = async () => {
     if (!newMessage.trim() || !selectedConversation) return;
+    if (!user?.id) {
+      toast({ title: 'Error', description: 'Please sign in to send a message', variant: 'destructive' });
+      return;
+    }
 
     setIsSending(true);
     try {
@@ -290,7 +308,7 @@ export const ProviderMessaging = ({ organizationId, orgMembers = [], families = 
         .from('provider_messages')
         .insert({
           conversation_id: selectedConversation.id,
-          sender_id: user?.id,
+          sender_id: user.id,
           content: newMessage.trim(),
         });
 
@@ -312,9 +330,9 @@ export const ProviderMessaging = ({ organizationId, orgMembers = [], families = 
       }
 
       setNewMessage('');
-    } catch (err: any) {
+    } catch (err) {
       console.error('Error sending message:', err);
-      toast({ title: 'Error', description: err.message || 'Failed to send message', variant: 'destructive' });
+      toast({ title: 'Error', description: getErrorMessage(err, 'Failed to send message'), variant: 'destructive' });
     } finally {
       setIsSending(false);
     }

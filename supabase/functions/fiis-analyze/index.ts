@@ -3212,7 +3212,7 @@ FINANCIAL PATTERN INTERPRETATION:
     };
     
     // Analyze active medications for potential interaction warnings
-    let medicationWarnings: string[] = [];
+    const medicationWarnings: string[] = [];
     let hasCriticalInteractionRisk = false;
     let hasHighInteractionRisk = false;
     

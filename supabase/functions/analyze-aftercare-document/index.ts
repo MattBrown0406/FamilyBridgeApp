@@ -436,7 +436,7 @@ Respond with a JSON array of recommendations. Include ALL recommendations found 
     }
 
     // Check for existing active aftercare plan
-    let { data: existingPlan } = await supabase
+    const { data: existingPlan } = await supabase
       .from("aftercare_plans")
       .select("id")
       .eq("family_id", familyId)

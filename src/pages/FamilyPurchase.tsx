@@ -22,6 +22,7 @@ import {
   REVENUECAT_ENTITLEMENT_IDS,
   REVENUECAT_OFFERING_IDS,
   REVENUECAT_PRODUCT_IDS,
+  type PurchasesOffering,
 } from "@/lib/revenuecat";
 
 const formatPrice = (price: number) =>
@@ -31,6 +32,12 @@ const formatPrice = (price: number) =>
     minimumFractionDigits: price % 1 === 0 ? 0 : 2,
     maximumFractionDigits: 2,
   });
+
+type CheckoutResponse = {
+  checkoutUrl?: string;
+  orderId?: string;
+  error?: string;
+};
 
 const FamilyPurchase = () => {
   const { user } = useAuth();
@@ -53,7 +60,7 @@ const FamilyPurchase = () => {
   const [isReactivating, setIsReactivating] = useState(false);
   const [isNativePurchasing, setIsNativePurchasing] = useState(false);
   const [isNativeRestoring, setIsNativeRestoring] = useState(false);
-  const [familyOffering, setFamilyOffering] = useState<any | null>(null);
+  const [familyOffering, setFamilyOffering] = useState<PurchasesOffering | null>(null);
   const showNativeRevenueCat = isIOS && isSupported;
   const hasFamilyAccess = hasEntitlement(REVENUECAT_ENTITLEMENT_IDS.family);
 
@@ -204,23 +211,25 @@ const FamilyPurchase = () => {
         },
       });
 
+      const checkoutData = data as CheckoutResponse | null;
+
       // Surface backend error detail (Square error payload comes back in data even on non-2xx)
       if (error) {
-        const backendMsg = (data as any)?.error || (error as any)?.message;
+        const backendMsg = checkoutData?.error || error.message;
         throw new Error(backendMsg || "Checkout request failed");
       }
-      if ((data as any)?.error) {
-        throw new Error((data as any).error);
+      if (checkoutData?.error) {
+        throw new Error(checkoutData.error);
       }
 
-      if (data.checkoutUrl) {
+      if (checkoutData?.checkoutUrl) {
         // Save order id so we can verify payment & generate invite code after redirect
-        if (data.orderId) {
-          localStorage.setItem('familybridge_family_checkout_order_id', data.orderId);
+        if (checkoutData.orderId) {
+          localStorage.setItem('familybridge_family_checkout_order_id', checkoutData.orderId);
         }
         localStorage.setItem('familybridge_family_checkout_email', email);
 
-        window.location.href = data.checkoutUrl;
+        window.location.href = checkoutData.checkoutUrl;
       } else {
         throw new Error("Failed to create checkout session");
       }
@@ -410,12 +419,12 @@ const FamilyPurchase = () => {
   };
 
   const features = [
-    { icon: Brain, text: "FIIS pattern guidance", subtitle: "Bounded AI coaching that helps families spot strain and respond earlier", highlight: true },
-    { icon: MessageSquareWarning, text: "Protected family communication", subtitle: "Conversation tools that support calmer, more accountable dialogue", highlight: true },
-    { icon: TrendingUp, text: "Pattern visibility", subtitle: "Track check-ins, requests, and family dynamics in one place", highlight: true },
+    { icon: Brain, text: "FIIS pattern guidance", subtitle: "Spot strain and respond earlier", highlight: true },
+    { icon: MessageSquareWarning, text: "Protected family communication", subtitle: "Calmer, more accountable dialogue", highlight: true },
+    { icon: TrendingUp, text: "Pattern visibility", subtitle: "Check-ins, requests, and dynamics in one place", highlight: true },
     { icon: Users, text: "Unlimited family participation" },
-    { icon: DollarSign, text: "Financial accountability tools", subtitle: "More clarity around requests, pledges, and follow-through" },
-    { icon: Shield, text: "1 Professional Guidance Window included each month", subtitle: "Additional 24-hour windows are available for $399 each" },
+    { icon: DollarSign, text: "Financial accountability tools", subtitle: "Clearer requests, pledges, and follow-through" },
+    { icon: Shield, text: "1 guidance window each month", subtitle: "Extra 24-hour windows available for $399" },
   ];
 
   const handleCopyCode = () => {
@@ -624,8 +633,8 @@ const FamilyPurchase = () => {
 
           <div className="grid md:grid-cols-3 gap-4 sm:gap-6">
             {/* Features Card */}
-            <Card className="md:col-span-1">
-              <CardHeader>
+            <Card className="min-w-0 md:col-span-1">
+              <CardHeader className="px-4 sm:px-6">
                 <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-medium mb-2 w-fit">
                   <Brain className="h-3 w-3" />
                   AI-Powered
@@ -635,22 +644,22 @@ const FamilyPurchase = () => {
                   Support tools that help families notice patterns earlier
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="px-4 sm:px-6">
                 <ul className="space-y-4">
                   {features.map((feature, index) => (
-                    <li key={index} className={`flex items-start gap-3 ${feature.highlight ? 'bg-primary/5 -mx-2 px-2 py-2 rounded-lg border border-primary/10' : ''}`}>
+                    <li key={index} className={`grid grid-cols-1 items-start gap-3 ${feature.highlight ? 'bg-primary/5 px-2 py-2 rounded-lg border border-primary/10' : ''}`}>
                       <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${feature.highlight ? 'bg-primary/20' : 'bg-primary/10'}`}>
                         <feature.icon className="w-5 h-5 text-primary" />
                       </div>
-                      <div className="flex flex-col">
-                        <div className="flex items-center gap-2">
-                          <span className={feature.highlight ? 'font-medium' : ''}>{feature.text}</span>
+                      <div className="flex min-w-0 flex-col">
+                        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                          <span className={`block min-w-0 max-w-full basis-full whitespace-normal break-words leading-snug ${feature.highlight ? 'font-medium' : ''}`}>{feature.text}</span>
                           {feature.highlight && (
-                            <span className="text-[10px] bg-primary/20 text-primary px-1.5 py-0.5 rounded font-medium">AI</span>
+                            <span className="shrink-0 text-[10px] bg-primary/20 text-primary px-1.5 py-0.5 rounded font-medium">AI</span>
                           )}
                         </div>
                         {feature.subtitle && (
-                          <span className="text-xs text-muted-foreground mt-0.5">{feature.subtitle}</span>
+                          <span className="text-xs text-muted-foreground mt-1 break-words leading-relaxed">{feature.subtitle}</span>
                         )}
                       </div>
                     </li>
@@ -834,6 +843,12 @@ const FamilyPurchase = () => {
                             >
                               {isNativeRestoring ? "Restoring..." : "Restore Purchases"}
                             </Button>
+                            <SubscriptionDisclosure
+                              subscriptionTitle={PRODUCTS.family.monthly.displayName}
+                              price={formatPrice(PRODUCTS.family.monthly.price)}
+                              period="1 month auto-renewable subscription"
+                              isNative
+                            />
                             <p className="text-xs text-center text-muted-foreground">
                               Already subscribed with this Apple ID? Restore first, then continue to family setup.
                             </p>

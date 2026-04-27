@@ -327,7 +327,9 @@ serve(async (req) => {
           try {
             const baseUrl = new URL(formattedUrl);
             logoUrl = `${baseUrl.origin}${logoUrl}`;
-          } catch {}
+          } catch {
+            // Keep the originally extracted URL if the source URL cannot be parsed.
+          }
         }
         logoSource = 'apple-touch-icon';
       }
@@ -422,7 +424,9 @@ serve(async (req) => {
       try {
         const baseUrl = new URL(formattedUrl);
         faviconUrl = `${baseUrl.origin}/favicon.ico`;
-      } catch {}
+      } catch {
+        // Leave favicon unset if the provided URL cannot be parsed.
+      }
     }
     
     const result = {

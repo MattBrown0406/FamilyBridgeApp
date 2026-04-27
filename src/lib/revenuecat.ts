@@ -9,6 +9,8 @@ import {
   type PurchasesPackage,
 } from "@revenuecat/purchases-capacitor";
 
+export type { PurchasesOffering, PurchasesPackage, CustomerInfo };
+
 export const REVENUECAT_OFFERING_IDS = {
   family: "family",
   provider: "provider",

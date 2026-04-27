@@ -22,6 +22,7 @@ import {
   REVENUECAT_ENTITLEMENT_IDS,
   REVENUECAT_OFFERING_IDS,
   REVENUECAT_PRODUCT_IDS,
+  type PurchasesOffering,
 } from "@/lib/revenuecat";
 
 const formatPrice = (price: number) =>
@@ -31,6 +32,12 @@ const formatPrice = (price: number) =>
     minimumFractionDigits: price % 1 === 0 ? 0 : 2,
     maximumFractionDigits: 2,
   });
+
+type CheckoutResponse = {
+  checkoutUrl?: string;
+  orderId?: string;
+  error?: string;
+};
 
 const ProviderPurchase = () => {
   const { user } = useAuth();
@@ -47,7 +54,7 @@ const ProviderPurchase = () => {
   const [generatedCode, setGeneratedCode] = useState<string | null>(null);
   const [isNativePurchasing, setIsNativePurchasing] = useState(false);
   const [isNativeRestoring, setIsNativeRestoring] = useState(false);
-  const [providerOffering, setProviderOffering] = useState<any | null>(null);
+  const [providerOffering, setProviderOffering] = useState<PurchasesOffering | null>(null);
   // Billing period - default to quarterly which works on all platforms
   // Annual is web-only due to pricing constraints
   const [billingPeriod, setBillingPeriod] = useState<"monthly" | "quarterly" | "annual">("quarterly");
@@ -153,21 +160,23 @@ const ProviderPurchase = () => {
         },
       });
 
+      const checkoutData = data as CheckoutResponse | null;
+
       if (error) {
-        const backendMsg = (data as any)?.error || (error as any)?.message;
+        const backendMsg = checkoutData?.error || error.message;
         throw new Error(backendMsg || "Checkout request failed");
       }
-      if ((data as any)?.error) {
-        throw new Error((data as any).error);
+      if (checkoutData?.error) {
+        throw new Error(checkoutData.error);
       }
 
-      if (data?.checkoutUrl) {
-        if (data.orderId) {
-          localStorage.setItem("familybridge_provider_checkout_order_id", data.orderId);
+      if (checkoutData?.checkoutUrl) {
+        if (checkoutData.orderId) {
+          localStorage.setItem("familybridge_provider_checkout_order_id", checkoutData.orderId);
         }
         localStorage.setItem("familybridge_provider_checkout_email", email);
         localStorage.setItem("familybridge_provider_checkout_period", billingPeriod);
-        window.location.href = data.checkoutUrl;
+        window.location.href = checkoutData.checkoutUrl;
       } else {
         throw new Error("Failed to create checkout session");
       }
@@ -254,9 +263,9 @@ const ProviderPurchase = () => {
   };
 
   const features = [
-    { icon: Brain, text: "Provider-level FIIS tools", subtitle: "Monitor family dynamics with structured intelligence and oversight", highlight: true },
-    { icon: TrendingUp, text: "Cross-family visibility", subtitle: "Review patterns, strain points, and activity across your caseload", highlight: true },
-    { icon: MessageSquareWarning, text: "Protected communication workflows", subtitle: "Support more families without losing clarity or guardrails", highlight: true },
+    { icon: Brain, text: "Provider-level FIIS tools", subtitle: "Structured intelligence and oversight", highlight: true },
+    { icon: TrendingUp, text: "Cross-family visibility", subtitle: "Review patterns across your caseload", highlight: true },
+    { icon: MessageSquareWarning, text: "Protected communication workflows", subtitle: "Support families without losing clarity", highlight: true },
     { icon: Building2, text: "Organization workspace access" },
     { icon: Users, text: "Onboard and manage multiple families" },
     { icon: Shield, text: "Moderator-managed support model" },
@@ -466,8 +475,8 @@ const ProviderPurchase = () => {
 
           <div className="grid md:grid-cols-2 gap-4 sm:gap-8">
             {/* Features Card */}
-            <Card>
-              <CardHeader>
+            <Card className="min-w-0">
+              <CardHeader className="px-4 sm:px-6">
                 <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-medium mb-2 w-fit">
                   <Brain className="h-3 w-3" />
                   AI-Powered Platform
@@ -477,22 +486,22 @@ const ProviderPurchase = () => {
                   AI-assisted tools to help your team stay organized and support families with more consistency
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="px-4 sm:px-6">
                 <ul className="space-y-4">
                   {features.map((feature, index) => (
-                    <li key={index} className={`flex items-start gap-3 ${feature.highlight ? 'bg-primary/5 -mx-2 px-2 py-2 rounded-lg border border-primary/10' : ''}`}>
+                    <li key={index} className={`grid grid-cols-1 items-start gap-3 ${feature.highlight ? 'bg-primary/5 px-2 py-2 rounded-lg border border-primary/10' : ''}`}>
                       <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${feature.highlight ? 'bg-primary/20' : 'bg-primary/10'}`}>
                         <feature.icon className="w-5 h-5 text-primary" />
                       </div>
-                      <div className="flex flex-col">
-                        <div className="flex items-center gap-2">
-                          <span className={feature.highlight ? 'font-medium' : ''}>{feature.text}</span>
+                      <div className="flex min-w-0 flex-col">
+                        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                          <span className={`block min-w-0 max-w-full basis-full whitespace-normal break-words leading-snug ${feature.highlight ? 'font-medium' : ''}`}>{feature.text}</span>
                           {feature.highlight && (
-                            <span className="text-[10px] bg-primary/20 text-primary px-1.5 py-0.5 rounded font-medium">AI</span>
+                            <span className="shrink-0 text-[10px] bg-primary/20 text-primary px-1.5 py-0.5 rounded font-medium">AI</span>
                           )}
                         </div>
                         {feature.subtitle && (
-                          <span className="text-xs text-muted-foreground mt-0.5">{feature.subtitle}</span>
+                          <span className="text-xs text-muted-foreground mt-1 break-words leading-relaxed">{feature.subtitle}</span>
                         )}
                       </div>
                     </li>
@@ -714,6 +723,24 @@ const ProviderPurchase = () => {
                             >
                               {isNativeRestoring ? "Restoring..." : "Restore Purchases"}
                             </Button>
+                            <SubscriptionDisclosure
+                              subscriptionTitle={
+                                billingPeriod === "monthly" ? PRODUCTS.provider.monthly.displayName :
+                                billingPeriod === "quarterly" ? PRODUCTS.provider.quarterly.displayName :
+                                PRODUCTS.provider.annual.displayName
+                              }
+                              price={
+                                billingPeriod === "monthly" ? formatPrice(PRODUCTS.provider.monthly.price) :
+                                billingPeriod === "quarterly" ? formatPrice(PRODUCTS.provider.quarterly.price) :
+                                formatPrice(PRODUCTS.provider.annual.price)
+                              }
+                              period={
+                                billingPeriod === "monthly" ? "1 month auto-renewable subscription" :
+                                billingPeriod === "quarterly" ? "3 month auto-renewable subscription" :
+                                "1 year auto-renewable subscription"
+                              }
+                              isNative
+                            />
                             <p className="text-xs text-center text-muted-foreground">
                               Already subscribed with this Apple ID? Restore first, then continue to provider setup.
                             </p>

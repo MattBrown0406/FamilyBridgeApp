@@ -50,9 +50,9 @@ Deno.serve(async (req) => {
 
     // Calculate family score
     let familyScore = 50;
-    let familyFactors: string[] = [];
+    const familyFactors: string[] = [];
     let familyTrend = "stable";
-    let positiveFeedback: string[] = [];
+    const positiveFeedback: string[] = [];
 
     if (family_id) {
       const boundaries = data.boundaries || [];

@@ -358,7 +358,7 @@ export const CoachingTab = ({ familyId, members = [] }: CoachingTabProps) => {
       if (!session) throw new Error('Not authenticated');
 
       const talkingTo = getTalkingToName();
-      let body: any = {
+      const body: any = {
         familyId,
         additionalContext,
         talkingToName: talkingTo,

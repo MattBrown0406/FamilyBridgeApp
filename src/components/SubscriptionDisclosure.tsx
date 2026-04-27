@@ -12,9 +12,8 @@ interface SubscriptionDisclosureProps {
 }
 
 /**
- * Legal disclosure component - Apple App Store compliance.
- * Only shows Terms and Privacy links on native platforms.
- * Subscription/payment terms are web-only.
+ * Legal disclosure component for purchase screens.
+ * Native subscriptions still need clear renewal terms before purchase.
  */
 export const SubscriptionDisclosure = ({
   subscriptionTitle,
@@ -29,37 +28,7 @@ export const SubscriptionDisclosure = ({
   const getAccountName = () => isIOS ? 'Apple ID' : 'Google Play account';
   const getSettingsLocation = () => isIOS ? 'your Apple ID Settings' : 'Google Play Store subscription settings';
   
-  // Apple App Store compliance: Never show payment/subscription terms on native
   const showNative = isNative || platformNative;
-  
-  if (showNative) {
-    // Native platforms: Only show legal links, no payment/subscription terms
-    return (
-      <div className={`bg-muted/30 border rounded-lg p-4 ${className}`}>
-        <div className="text-center">
-          <p className="text-xs text-muted-foreground mb-2">
-            By using this app, you agree to our:
-          </p>
-          <div className="flex flex-wrap justify-center gap-4 text-xs">
-            <Link 
-              to="/terms" 
-              className="text-primary hover:underline inline-flex items-center gap-1 font-medium"
-            >
-              Terms of Use
-              <ExternalLink className="h-3 w-3" />
-            </Link>
-            <Link 
-              to="/privacy" 
-              className="text-primary hover:underline inline-flex items-center gap-1 font-medium"
-            >
-              Privacy Policy
-              <ExternalLink className="h-3 w-3" />
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className={`bg-muted/30 border rounded-lg p-4 space-y-3 ${className}`}>
@@ -89,7 +58,7 @@ export const SubscriptionDisclosure = ({
               • Service will be provided for the duration specified above.
             </p>
           </>
-        ) : isNative ? (
+        ) : showNative ? (
           <>
             <p>
               • Payment will be charged to your {getAccountName()} at confirmation of purchase.

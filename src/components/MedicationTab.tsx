@@ -477,7 +477,7 @@ export const MedicationTab = ({
     try {
       // Upload label image if present
       let labelImageUrl = null;
-      let uploadedRefs: string[] = [];
+      const uploadedRefs: string[] = [];
       if (labelImages.length > 0) {
 
         for (const [index, image] of labelImages.entries()) {

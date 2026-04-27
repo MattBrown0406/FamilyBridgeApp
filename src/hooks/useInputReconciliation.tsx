@@ -167,7 +167,7 @@ export function useInputReconciliation(familyId?: string) {
       });
 
       // Fetch org names
-      let orgMap: Record<string, string> = {};
+      const orgMap: Record<string, string> = {};
       if (orgIds.size > 0) {
         const { data: orgs } = await supabase
           .from('organizations')
