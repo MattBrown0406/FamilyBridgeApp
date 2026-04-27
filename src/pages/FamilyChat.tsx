@@ -5121,11 +5121,11 @@ const FamilyChat = () => {
                         </li>
                         <li className="flex items-start gap-2">
                           <Check className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                          <span>Recovery progress must be demonstrated through treatment completion, aftercare compliance, meeting and therapy attendance, medication compliance where needed.</span>
+                          <span>Recovery progress can be supported with treatment participation, aftercare follow-through, meeting or therapy attendance, and medication consistency where relevant.</span>
                         </li>
                         <li className="flex items-start gap-2">
                           <Check className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                          <span>Immediate response is required for all location check-in requests. Failure to respond may result in the loss of cell phone service, vehicle privileges, financial support or other natural consequences.</span>
+                          <span>Location check-ins should be requested only for agreed support or safety reasons. If someone does not respond, families should pause, document the concern, and review the support plan with appropriate professional guidance.</span>
                         </li>
                         <li className="flex items-start gap-2">
                           <Check className="h-4 w-4 text-primary shrink-0 mt-0.5" />
@@ -5145,7 +5145,7 @@ const FamilyChat = () => {
                       Consequences
                     </h3>
                     <p className="text-sm text-muted-foreground">
-                      Violation of the boundaries listed on this page could result in the reduction or elimination of financial support, access to transportation or phone service or other consequences agreed upon by the family group. Consequences apply to family group members who continue to enable the addiction or ignore their own recovery process.
+                      If a boundary is not followed, the family group can review the support plan and adjust future help in a calm, documented way. Any changes should be lawful, non-threatening, and focused on safety, clarity, and recovery-aligned support.
                     </p>
                   </div>
                 </div>

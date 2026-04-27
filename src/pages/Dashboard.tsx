@@ -159,44 +159,17 @@ const Dashboard = () => {
   const handleDeleteAccount = async () => {
     setIsDeleting(true);
     try {
-      // Delete user's family memberships
-      const { error: memberError } = await supabase
-        .from('family_members')
-        .delete()
-        .eq('user_id', user!.id);
+      const { error } = await supabase.functions.invoke('delete-account', {
+        method: 'POST',
+      });
 
-      if (memberError) throw memberError;
+      if (error) throw error;
 
-      // Delete user's profile
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .delete()
-        .eq('id', user!.id);
-
-      if (profileError) throw profileError;
-
-      // Delete user's notifications
-      const { error: notifError } = await supabase
-        .from('notifications')
-        .delete()
-        .eq('user_id', user!.id);
-
-      if (notifError) throw notifError;
-
-      // Delete user's payment info
-      const { error: paymentError } = await supabase
-        .from('payment_info')
-        .delete()
-        .eq('user_id', user!.id);
-
-      if (paymentError) throw paymentError;
-
-      // Sign out the user (the auth.users record will remain but user data is deleted)
       await signOut();
 
       toast({
         title: 'Account Deleted',
-        description: 'Your account data has been successfully deleted.',
+        description: 'Your account and account data have been permanently deleted.',
       });
 
       navigate('/');
@@ -316,8 +289,8 @@ const Dashboard = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Your Account?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete your account data,
-              including your profile, family memberships, and all associated information.
+              This action cannot be undone. This will permanently delete your FamilyBridge account,
+              profile, family memberships, messages, requests, uploaded files, and related account data.
               {'\n\n'}
               If you have an active plan, you can manage it through your account
               settings before deleting your account.

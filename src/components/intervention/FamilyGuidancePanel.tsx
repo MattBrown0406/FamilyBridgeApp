@@ -10,24 +10,24 @@ interface GuidanceItem {
 const guidanceByStatus: Record<ReadinessStatusLabel, { dos: GuidanceItem[]; donts: GuidanceItem[] }> = {
   'Not Ready': {
     dos: [
-      { action: 'Maintain all established boundaries without exception.', why: 'Consistency is what creates future readiness. Every enforced boundary accumulates pressure.' },
+      { action: 'Maintain established boundaries consistently.', why: 'Consistency helps the family avoid mixed messages and keeps future support decisions clearer.' },
       { action: 'Focus on your own emotional health and attend your support groups.', why: 'Family burnout is the #1 reason interventions fail. You must be stable when the window opens.' },
       { action: 'Document patterns and behaviors — dates, times, specifics.', why: 'This data will inform intervention timing and letter content when the window arrives.' },
       { action: 'Keep communication simple, brief, and non-reactive.', why: 'Long conversations give the individual opportunities to manipulate or escalate.' },
     ],
     donts: [
-      { action: 'Do not provide financial support for any reason.', why: 'Financial rescue is the most common way families close readiness windows before they open.' },
-      { action: 'Do not engage in emotional confrontation or repeated pleading.', why: 'Pleading signals that you will eventually cave. It reduces — not increases — the pressure.' },
-      { action: 'Do not threaten consequences you are unwilling to enforce.', why: 'Empty threats teach the individual that your words don\'t match your actions.' },
+      { action: 'Do not provide open-ended cash support.', why: 'Unstructured financial rescue can undermine the support plan and make future decisions harder.' },
+      { action: 'Do not engage in emotional confrontation or repeated pleading.', why: 'Pleading often increases defensiveness and makes calm follow-through harder.' },
+      { action: 'Do not state boundaries you are unwilling or unable to keep.', why: 'Inconsistent follow-through teaches everyone that the support plan is negotiable.' },
       { action: 'Do not attempt a surprise intervention.', why: 'Without readiness signals, a premature intervention has a high probability of rejection.' },
     ],
   },
   'Emerging Window': {
     dos: [
-      { action: 'Hold all boundaries without softening — this pressure is working.', why: 'The emerging window exists because of sustained pressure. Relieving it now resets progress.' },
+      { action: 'Hold all boundaries without sudden changes.', why: 'The emerging window may depend on steady, predictable family responses. Sudden changes can reset progress.' },
       { action: 'Begin quietly aligning family members on the intervention plan.', why: 'When the window opens fully, you need to move fast. Preparation now buys you speed later.' },
       { action: 'Research treatment options and verify insurance/availability.', why: 'Treatment bed availability can change in hours. Having options confirmed saves critical time.' },
-      { action: 'Let natural consequences continue without interference.', why: 'Every unrescued consequence increases the individual\'s awareness of the cost of their behavior.' },
+      { action: 'Keep agreed support limits in place.', why: 'Consistent limits help the individual and family see the real pattern without adding confusion.' },
     ],
     donts: [
       { action: 'Do not reveal intervention planning to anyone outside the team.', why: 'If the individual learns an intervention is coming, they will pre-emptively harden their defenses.' },

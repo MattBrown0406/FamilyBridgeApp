@@ -4,9 +4,9 @@ import { ShieldOff, RotateCcw } from 'lucide-react';
 import { useState } from 'react';
 
 const boundarySteps = [
-  { id: 'housing', label: 'Enforce housing boundaries', detail: 'If stated: no longer providing living space without treatment participation.' },
-  { id: 'financial', label: 'Cut financial enabling', detail: 'Stop all non-essential financial support. No cash, no bill payments, no bailouts.' },
-  { id: 'vehicle', label: 'Remove vehicle access', detail: 'If the vehicle is in your name, reclaim it. Do not enable transportation to use.' },
+  { id: 'housing', label: 'Review housing boundaries', detail: 'Keep any housing limits lawful, documented, and connected to the agreed support plan.' },
+  { id: 'financial', label: 'Pause financial enabling', detail: 'Avoid cash or open-ended payments. Route essential support through the agreed approval process.' },
+  { id: 'vehicle', label: 'Review transportation support', detail: 'Keep transportation help recovery-aligned, documented, and consistent with ownership and safety obligations.' },
   { id: 'communication', label: 'Set communication boundaries', detail: 'Limit contact to brief, non-enabling interactions. Do not engage in manipulation or guilt.' },
   { id: 'insurance', label: 'Maintain insurance coverage', detail: 'Keep insurance active—this removes a future barrier to treatment when they are ready.' },
 ];
@@ -14,7 +14,7 @@ const boundarySteps = [
 const reengagementSteps = [
   'Monitor for renewed readiness signals (this system will continue tracking)',
   'Maintain boundaries consistently—no partial re-enabling',
-  'Allow natural consequences to continue building pressure',
+  'Allow agreed support-plan limits to remain clear and consistent',
   'Keep treatment placement on hold or identify new options',
   'Prepare for a second intervention attempt within 2–6 weeks if signals resurface',
   'Consider a different intervention style on the next attempt',
@@ -32,8 +32,8 @@ export const ContingencyPlan = () => {
           Contingency Plan: If They Refuse
         </CardTitle>
         <p className="text-xs text-muted-foreground">
-          Refusal does not mean failure. It means the individual is not yet ready. The family's job shifts to maintaining pressure
-          through consistent boundary enforcement until the next window opens.
+          Refusal does not mean failure. It means the individual is not yet ready. The family's job shifts to keeping boundaries
+          clear, calm, and consistent until the next window opens.
         </p>
       </CardHeader>
       <CardContent className="space-y-5">

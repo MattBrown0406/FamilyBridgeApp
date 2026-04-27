@@ -5,8 +5,8 @@ import { ShieldOff, Eye, TrendingUp, AlertTriangle, Brain, BarChart3 } from 'luc
 import { useState } from 'react';
 
 const immediateActions = [
-  { id: 'consequences', label: 'Activate pre-defined consequences', detail: 'Every stated consequence must be enforced immediately. Delay signals that boundaries are negotiable.' },
-  { id: 'enabling', label: 'Remove enabling behaviors', detail: 'Cut financial support, housing assistance, transportation, and any other behaviors that reduce natural consequences.' },
+  { id: 'consequences', label: 'Hold agreed boundaries', detail: 'Keep previously agreed limits clear, calm, and consistent so the family does not send mixed messages.' },
+  { id: 'enabling', label: 'Pause non-recovery support', detail: 'Avoid cash or open-ended help that undermines the support plan. Keep any essential support documented and recovery-aligned.' },
   { id: 'communication', label: 'Maintain calm, consistent communication', detail: 'Do not argue, plead, or emotionally escalate. Keep communication brief, clear, and boundary-focused.' },
   { id: 'professional', label: 'Assess whether outside intervention support should be engaged', detail: 'If not already involved, experienced outside support may improve the next attempt through strategic guidance.' },
 ];
@@ -38,7 +38,7 @@ const reengagementIndicators = [
   'Increased emotional fatigue or expressed hopelessness',
   'Reaching out to family members after period of silence',
   'Asking about treatment options or what would happen if they went',
-  'Visible consequences accumulating without resistance escalating',
+  'Visible support-plan limits being maintained without resistance escalating',
 ];
 
 export const DeclinedTreatmentPath = () => {
