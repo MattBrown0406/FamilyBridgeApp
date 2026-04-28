@@ -4,10 +4,23 @@ Use this as the reviewer-notes source when submitting the iOS build. Replace bra
 
 ## Reviewer Access
 
-- Demo account email: [REPLACE_WITH_REVIEWER_EMAIL]
-- Demo account password: [REPLACE_WITH_REVIEWER_PASSWORD]
+- Demo account email: appreview@familybridgeapp.com
+- Demo account password: AppReview!2026
 - Demo family path: sign in, open Your Family Groups, select the reviewer family, then use Family Chat, Financial Requests, Documents, Boundaries, and Check-ins.
 - Demo provider path: sign in with a provider/moderator account and open the Moderator Dashboard.
+
+### Seeded Demo Family
+
+The reviewer account is pre-populated with a sample family group ("App Review Demo Family") containing:
+- 2 family members (App Reviewer + Jamie Demo)
+- Sample family chat messages
+- One pending financial request ($45 bus pass)
+- One approved support-plan/boundary item
+- One Support Group check-in example
+
+All data is fictional and used only to demonstrate family coordination features. No real personal or health data.
+
+To (re)seed: as a Super Admin, call edge function `seed-reviewer-family` (POST, empty body). It is idempotent.
 
 ## Purchase And Restore
 
