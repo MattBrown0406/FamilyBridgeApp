@@ -8,28 +8,28 @@ const corsHeaders = {
 };
 
 // One-shot seeder for the App Review demo family.
-// Protected by SEED_REVIEWER_SECRET. POST { secret: "..." }.
+// Protected: only callable by an authenticated Super Admin.
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
     const url = Deno.env.get("SUPABASE_URL")!;
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const expectedSecret = Deno.env.get("SEED_REVIEWER_SECRET");
     const reviewerEmail = Deno.env.get("REVIEWER_EMAIL") || "appreview@familybridgeapp.com";
     const reviewerPassword = Deno.env.get("REVIEWER_PASSWORD") || "AppReview!2026";
     const memberEmail = Deno.env.get("REVIEWER_MEMBER_EMAIL") || "reviewer-family@familybridgeapp.com";
     const memberPassword = Deno.env.get("REVIEWER_MEMBER_PASSWORD") || "AppReview!2026";
 
-    if (!expectedSecret) {
-      return json({ error: "SEED_REVIEWER_SECRET not configured" }, 500);
-    }
-    const body = await req.json().catch(() => ({}));
-    if (body?.secret !== expectedSecret) {
-      return json({ error: "Unauthorized" }, 401);
-    }
-
     const admin = createClient(url, serviceKey);
+
+    // Require a logged-in super admin
+    const authHeader = req.headers.get("Authorization") || "";
+    const jwt = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : null;
+    if (!jwt) return json({ error: "Unauthorized" }, 401);
+    const { data: userData, error: userErr } = await admin.auth.getUser(jwt);
+    if (userErr || !userData?.user) return json({ error: "Unauthorized" }, 401);
+    const { data: isSuper } = await admin.rpc("is_super_admin", { _user_id: userData.user.id });
+    if (!isSuper) return json({ error: "Forbidden: super admin only" }, 403);
 
     // Helper: get-or-create auth user
     async function ensureUser(email: string, password: string, fullName: string): Promise<string> {
