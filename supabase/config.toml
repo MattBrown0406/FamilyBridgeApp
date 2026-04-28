@@ -119,3 +119,6 @@ verify_jwt = false
 
 [functions.check-follow-up-reminders]
 verify_jwt = false
+
+[functions.seed-reviewer-provider]
+verify_jwt = false
