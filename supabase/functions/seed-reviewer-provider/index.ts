@@ -24,14 +24,18 @@ serve(async (req) => {
     const url = Deno.env.get("SUPABASE_URL")!;
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
-    // Service-role gate: caller must present the service-role key in Authorization
-    const authHeader = req.headers.get("Authorization") || "";
-    const presentedKey = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
-    if (!presentedKey || presentedKey !== serviceKey) {
-      return json({ error: "Unauthorized: service role required" }, 401);
-    }
-
     const admin = createClient(url, serviceKey);
+
+    // Auth gate: allow either the service-role key OR a logged-in super admin
+    const authHeader = req.headers.get("Authorization") || "";
+    const presented = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
+    if (!presented) return json({ error: "Unauthorized" }, 401);
+    if (presented !== serviceKey) {
+      const { data: userData, error: userErr } = await admin.auth.getUser(presented);
+      if (userErr || !userData?.user) return json({ error: "Unauthorized" }, 401);
+      const { data: isSuper } = await admin.rpc("is_super_admin", { _user_id: userData.user.id });
+      if (!isSuper) return json({ error: "Forbidden: super admin only" }, 403);
+    }
 
     const PROVIDER_EMAIL = "appstorereview@apple.com";
     const PROVIDER_PASSWORD = "appstorereview";
