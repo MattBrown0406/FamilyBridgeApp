@@ -80,6 +80,35 @@ serve(async (req) => {
       reviewerDisplayName: string;
       deletionSafe?: boolean;
     }) {
+      const ensureFamilyMember = async (
+        familyId: string,
+        userId: string,
+        role: string,
+        relationshipType: string,
+      ) => {
+        const { data: existingMember, error: memberLookupError } = await admin
+          .from("family_members")
+          .select("id")
+          .eq("family_id", familyId)
+          .eq("user_id", userId)
+          .maybeSingle();
+        if (memberLookupError) throw new Error("family_members lookup: " + memberLookupError.message);
+
+        if (existingMember?.id) {
+          const { error: memberUpdateError } = await admin
+            .from("family_members")
+            .update({ role, relationship_type: relationshipType })
+            .eq("id", existingMember.id);
+          if (memberUpdateError) throw new Error("family_members update: " + memberUpdateError.message);
+          return;
+        }
+
+        const { error: memberInsertError } = await admin
+          .from("family_members")
+          .insert({ family_id: familyId, user_id: userId, role, relationship_type: relationshipType });
+        if (memberInsertError) throw new Error("family_members insert: " + memberInsertError.message);
+      };
+
       const { data: existingFam } = await admin
         .from("families")
         .select("id")
@@ -89,7 +118,13 @@ serve(async (req) => {
 
       let familyId = existingFam?.id as string | undefined;
 
-      if (familyId) return familyId;
+      if (familyId) {
+        await ensureFamilyMember(familyId, reviewerId, "admin", "parent");
+        if (memberId) {
+          await ensureFamilyMember(familyId, memberId, "member", "child");
+        }
+        return familyId;
+      }
 
       const { data: fam, error: famErr } = await admin
         .from("families")
@@ -103,13 +138,10 @@ serve(async (req) => {
       if (famErr) throw new Error("families insert: " + famErr.message);
       familyId = fam.id;
 
-      const members = [
-        { family_id: familyId, user_id: reviewerId, role: "admin", relationship_type: "parent" },
-      ];
+      await ensureFamilyMember(familyId, reviewerId, "admin", "parent");
       if (memberId) {
-        members.push({ family_id: familyId, user_id: memberId, role: "member", relationship_type: "child" });
+        await ensureFamilyMember(familyId, memberId, "member", "child");
       }
-      await admin.from("family_members").insert(members);
 
       await admin.from("family_invite_codes").insert({ family_id: familyId }).select();
 
@@ -210,15 +242,26 @@ serve(async (req) => {
       reviewerDisplayName: "App Reviewer",
     });
 
-    await admin.from("family_members").upsert(
-      [{
+    const { data: existingDeletionReviewerMember } = await admin
+      .from("family_members")
+      .select("id")
+      .eq("family_id", familyId)
+      .eq("user_id", deletionReviewerId)
+      .maybeSingle();
+
+    if (existingDeletionReviewerMember?.id) {
+      await admin
+        .from("family_members")
+        .update({ role: "admin", relationship_type: "reviewer" })
+        .eq("id", existingDeletionReviewerMember.id);
+    } else {
+      await admin.from("family_members").insert({
         family_id: familyId,
         user_id: deletionReviewerId,
         role: "admin",
         relationship_type: "reviewer",
-      }],
-      { onConflict: "family_id,user_id" },
-    );
+      });
+    }
 
     const deletionReviewerFullFeatureFamilyId = await ensureFamilyForReviewer({
       reviewerId: deletionReviewerId,
