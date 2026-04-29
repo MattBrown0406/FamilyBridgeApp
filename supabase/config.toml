@@ -125,3 +125,6 @@ verify_jwt = false
 
 [functions.seed-reviewer-provider]
 verify_jwt = false
+
+[functions.seed-deletion-test-account]
+verify_jwt = false
