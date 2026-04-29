@@ -233,7 +233,7 @@ export const TemporaryModeratorRequest = ({
         <Button
           variant="outline"
           size="sm"
-          onClick={() => navigate(isNative && isIOS ? `/support?type=family` : `/moderator-purchase?familyId=${familyId}`)}
+          onClick={() => navigate(`/moderator-purchase?familyId=${familyId}`)}
           className="gap-1"
         >
           <Plus className="h-3 w-3" />
@@ -308,11 +308,11 @@ export const TemporaryModeratorRequest = ({
                       <button
                         onClick={() => {
                           setDialogOpen(false);
-                          navigate(`/support?type=family`);
+                          navigate(`/moderator-purchase?familyId=${familyId}`);
                         }}
                         className="underline hover:no-underline"
                       >
-                        Contact FamilyBridge support for additional guidance options.
+                        Purchase another window in the app.
                       </button>
                     ) : (
                       <button 

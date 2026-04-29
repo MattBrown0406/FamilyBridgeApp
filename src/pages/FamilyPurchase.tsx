@@ -988,7 +988,7 @@ const FamilyPurchase = () => {
                     </div>
                     <div>
                       <span className="text-sm font-medium">Everything in FIIS Support</span>
-                      <p className="text-xs text-muted-foreground">Including 1 Professional Guidance Window per month, with additional windows at $399 each</p>
+                      <p className="text-xs text-muted-foreground">Including 1 Professional Guidance Window per month, with additional windows available in the app</p>
                     </div>
                   </li>
                 </ul>

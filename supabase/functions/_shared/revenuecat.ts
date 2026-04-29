@@ -5,8 +5,16 @@ export type RevenueCatEntitlement = {
   purchase_date?: string | null;
 };
 
+export type RevenueCatNonSubscriptionPurchase = {
+  id?: string | null;
+  product_identifier?: string | null;
+  purchase_date?: string | null;
+  store?: string | null;
+};
+
 export type RevenueCatSubscriber = {
   entitlements?: Record<string, RevenueCatEntitlement | undefined>;
+  non_subscriptions?: Record<string, RevenueCatNonSubscriptionPurchase[] | undefined>;
   original_app_user_id?: string;
 };
 
@@ -62,4 +70,23 @@ export function hasActiveRevenueCatEntitlement(
   }
 
   return new Date(entitlement.expires_date) > new Date();
+}
+
+export function getLatestRevenueCatNonSubscriptionPurchase(
+  subscriber: RevenueCatSubscriber | null | undefined,
+  productId: string,
+  purchasedAfter: Date,
+) {
+  const purchases = subscriber?.non_subscriptions?.[productId] ?? [];
+
+  return purchases
+    .filter((purchase) => {
+      if (!purchase.id || !purchase.purchase_date) return false;
+      return new Date(purchase.purchase_date) >= purchasedAfter;
+    })
+    .sort((a, b) => {
+      const aTime = new Date(a.purchase_date ?? 0).getTime();
+      const bTime = new Date(b.purchase_date ?? 0).getTime();
+      return bTime - aTime;
+    })[0] ?? null;
 }

@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
 import { usePlatform } from "@/hooks/usePlatform";
+import { useRevenueCat } from "@/hooks/useRevenueCat";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Shield, Clock, CheckCircle, Users, AlertCircle, Smartphone, ArrowLeft } from "lucide-react";
@@ -15,13 +16,17 @@ import { BrandedFooter } from "@/components/BrandedFooter";
 import { AppStorePurchaseButton } from "@/components/AppStorePurchaseButton";
 import { SubscriptionDisclosure } from "@/components/SubscriptionDisclosure";
 import { PRODUCTS } from "@/lib/products";
+import { REVENUECAT_PRODUCT_IDS, type PurchasesPackage } from "@/lib/revenuecat";
 
 export default function ModeratorPurchase() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { isNative, isIOS, isAndroid, paymentMethod } = usePlatform();
+  const { isSupported: revenueCatSupported, isReady: revenueCatReady, getPackageByProductId, purchasePackage } = useRevenueCat();
   const [loading, setLoading] = useState(false);
+  const [isNativePurchasing, setIsNativePurchasing] = useState(false);
+  const [guidancePackage, setGuidancePackage] = useState<PurchasesPackage | null>(null);
   const [families, setFamilies] = useState<{ id: string; name: string }[]>([]);
   const [selectedFamily, setSelectedFamily] = useState<string>("");
   const [email, setEmail] = useState("");
@@ -44,6 +49,20 @@ export default function ModeratorPurchase() {
       setSelectedFamily(familyIdParam);
     }
   }, [familyIdParam, families]);
+
+  useEffect(() => {
+    if (!isIOS || !revenueCatSupported || !user) {
+      setGuidancePackage(null);
+      return;
+    }
+
+    void getPackageByProductId(REVENUECAT_PRODUCT_IDS.guidanceWindowDaily)
+      .then(setGuidancePackage)
+      .catch((error) => {
+        console.error("Failed to load guidance window product:", error);
+        setGuidancePackage(null);
+      });
+  }, [getPackageByProductId, isIOS, revenueCatSupported, user]);
 
   const fetchFamilies = async () => {
     const { data, error } = await supabase
@@ -79,6 +98,11 @@ export default function ModeratorPurchase() {
   };
 
   const handlePurchase = async () => {
+    if (isNative) {
+      toast.error("Purchases on this device must be completed with the in-app App Store flow.");
+      return;
+    }
+
     if (!selectedFamily) {
       toast.error("Please select a family");
       return;
@@ -133,6 +157,52 @@ export default function ModeratorPurchase() {
       toast.error(error.message || "Failed to start checkout");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const activateGuidanceWindow = async (paidOverride: boolean) => {
+    const { data, error } = await supabase.functions.invoke('request-temp-moderator', {
+      body: { familyId: selectedFamily, paidOverride },
+    });
+
+    if (error) throw new Error(error.message || 'Failed to activate guidance window');
+    if (data?.error) throw new Error(data.error);
+
+    return data;
+  };
+
+  const handleNativePurchase = async () => {
+    if (!selectedFamily) {
+      toast.error("Please select a family");
+      return;
+    }
+
+    if (!isIOS || !revenueCatSupported) {
+      toast.error("App Store purchase is not available on this device yet.");
+      return;
+    }
+
+    if (!revenueCatReady) {
+      toast.error("Still connecting to the App Store. Please try again in a moment.");
+      return;
+    }
+
+    if (!guidancePackage) {
+      toast.error("The Professional Guidance Window product is not available yet. Please refresh and try again.");
+      return;
+    }
+
+    setIsNativePurchasing(true);
+    try {
+      await purchasePackage(guidancePackage);
+      await activateGuidanceWindow(true);
+      toast.success("Professional Guidance Window activated for the next 24 hours.");
+      navigate(selectedFamily ? `/family/${selectedFamily}` : "/dashboard");
+    } catch (error: any) {
+      console.error("Native guidance window purchase error:", error);
+      toast.error(error.message || "We couldn't complete the App Store purchase.");
+    } finally {
+      setIsNativePurchasing(false);
     }
   };
 
@@ -207,9 +277,7 @@ export default function ModeratorPurchase() {
           <div className="text-center space-y-2 sm:space-y-4">
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">Professional Guidance Window</h1>
             <p className="text-sm sm:text-lg text-muted-foreground max-w-2xl mx-auto">
-              {isNative && isIOS 
-                ? "Contact FamilyBridge support for help with additional guidance options for your family chat."
-                : "Purchase a 24-hour human guidance window for your family chat when you need added structure and support."}
+              Purchase a 24-hour human guidance window for your family chat when you need added structure and support.
             </p>
           </div>
 
@@ -257,8 +325,8 @@ export default function ModeratorPurchase() {
             {/* Purchase Card */}
             <Card>
               <CardHeader>
-              <CardTitle>{isNative && isIOS ? "Contact Support" : isNative ? "Professional Guidance Window" : "Purchase a Professional Guidance Window"}</CardTitle>
-                <CardDescription>{isNative && isIOS ? "We can help review guidance options for your family." : isNative ? "Human guidance inside the family chat" : "$399 one-time purchase • 24-hour period"}</CardDescription>
+              <CardTitle>{isNative ? "Professional Guidance Window" : "Purchase a Professional Guidance Window"}</CardTitle>
+                <CardDescription>{isNative ? "Human guidance inside the family chat" : "$399 one-time purchase • 24-hour period"}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
@@ -295,15 +363,24 @@ export default function ModeratorPurchase() {
                   <>
                     <div className="text-center py-4 bg-muted/50 rounded-lg">
                       <p className="text-sm text-muted-foreground">
-                        If your family needs extra professional guidance, contact FamilyBridge support and we&apos;ll help with the next step.
+                        Complete this one-time purchase with your Apple ID to activate one 24-hour Professional Guidance Window.
                       </p>
                     </div>
                     <Button
-                      onClick={() => navigate(`/support?type=family`)}
+                      onClick={handleNativePurchase}
+                      disabled={isNativePurchasing || !selectedFamily || !revenueCatReady || !guidancePackage}
                       className="w-full"
+                      size="lg"
                     >
-                      Contact Support
+                      {isNativePurchasing ? "Opening App Store..." : `Purchase Guidance Window - $${PRODUCTS.crisisModeration.daily.price}`}
                     </Button>
+                    <SubscriptionDisclosure
+                      subscriptionTitle={PRODUCTS.crisisModeration.daily.displayName}
+                      price={`$${PRODUCTS.crisisModeration.daily.price}`}
+                      period="One-time purchase for 24 hours"
+                      isNative
+                      isOneTimePurchase
+                    />
                     <Button
                       variant="outline"
                       onClick={() => navigate(familyIdParam ? `/family/${familyIdParam}` : "/dashboard")}

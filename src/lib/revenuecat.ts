@@ -14,6 +14,7 @@ export type { PurchasesOffering, PurchasesPackage, CustomerInfo };
 export const REVENUECAT_OFFERING_IDS = {
   family: "family",
   provider: "provider",
+  guidance: "guidance",
 } as const;
 
 export const REVENUECAT_ENTITLEMENT_IDS = {
@@ -26,6 +27,7 @@ export const REVENUECAT_PRODUCT_IDS = {
   providerMonthly: "com.familybridgeapp.app.provider_monthly_v2",
   providerQuarterly: "com.familybridgeapp.app.provider_quarterly_v2",
   providerAnnual: "com.familybridgeapp.app.provider_annual",
+  guidanceWindowDaily: "com.familybridgeapp.app.crisis_moderation_daily",
 } as const;
 
 // RevenueCat iOS public app-specific API key.
@@ -83,6 +85,18 @@ export function hasRevenueCatEntitlement(
 export async function getRevenueCatOffering(offeringId: string) {
   const offerings = await Purchases.getOfferings();
   return offerings.all[offeringId] ?? null;
+}
+
+export async function getRevenueCatPackageByProductId(productId: string): Promise<PurchasesPackage | null> {
+  const offerings = await Purchases.getOfferings();
+  const allOfferings = Object.values(offerings.all ?? {});
+
+  for (const offering of allOfferings) {
+    const packageMatch = getOfferingPackageByProductId(offering, productId);
+    if (packageMatch) return packageMatch;
+  }
+
+  return null;
 }
 
 export function getOfferingPackageByProductId(

@@ -55,7 +55,7 @@ const Subscription = () => {
     {
       icon: MessageCircle,
       title: 'Everything in FIIS Support',
-      description: 'Includes one monthly Professional Guidance Window, with extra windows at $399 each',
+      description: 'Includes one monthly Professional Guidance Window, with extra windows available in the app',
     },
   ];
 

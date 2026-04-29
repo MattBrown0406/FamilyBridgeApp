@@ -84,10 +84,7 @@ const App = () => {
               <Route path="/provider-purchase" element={<ProviderPurchase />} />
               <Route path="/family-purchase" element={<FamilyPurchase />} />
               <Route path="/family-setup" element={<FamilySetup />} />
-              <Route
-                path="/moderator-purchase"
-                element={paymentsWebOnly ? <Navigate to="/support?type=family" replace /> : <ModeratorPurchase />}
-              />
+              <Route path="/moderator-purchase" element={<ModeratorPurchase />} />
               <Route path="/super-admin" element={<SuperAdmin />} />
               <Route path="/demo" element={<Demo />} />
               <Route path="/demo/family" element={<DemoFamily />} />
