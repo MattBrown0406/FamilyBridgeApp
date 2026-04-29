@@ -55,6 +55,7 @@ import { ProviderOutcomeReports } from '@/components/ProviderOutcomeReports';
 import { ProviderNotesPanel } from '@/components/ProviderNotesPanel';
 import { ProviderMessaging } from '@/components/ProviderMessaging';
 import { CRMDashboard } from '@/components/CRMDashboard';
+import { AccountActionsMenu } from '@/components/AccountActionsMenu';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 import { REVENUECAT_ENTITLEMENT_IDS } from '@/lib/revenuecat';
 import { OnboardingFieldsForm, defaultOnboardingFields, type OnboardingFieldsValue, PROVIDER_CATEGORIES } from '@/components/provider/OnboardingFieldsForm';
@@ -1472,9 +1473,10 @@ const ProviderAdmin = () => {
                   </span>
                 )}
               </div>
-              <Button variant="ghost" size="sm" onClick={() => navigate('/dashboard')} className="sm:hidden text-primary-foreground hover:bg-primary-foreground/10">
-                <ArrowLeft className="h-4 w-4" />
-              </Button>
+              <AccountActionsMenu
+                buttonClassName="sm:hidden text-primary-foreground hover:bg-primary-foreground/10"
+                showLabel={false}
+              />
             </div>
             <div className="flex items-center gap-1 sm:gap-2 overflow-x-auto pb-1 sm:pb-0">
               <Button variant="ghost" size="sm" onClick={() => navigate('/super-admin')} className="text-primary-foreground hover:bg-primary-foreground/10 shrink-0">
@@ -1516,10 +1518,7 @@ const ProviderAdmin = () => {
                 <Users className="h-4 w-4" />
                 <span className="hidden md:inline ml-2">Coordination</span>
               </Button>
-              <Button variant="ghost" size="sm" onClick={() => navigate('/dashboard')} className="hidden sm:flex text-primary-foreground hover:bg-primary-foreground/10 shrink-0">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                <span className="hidden md:inline">Dashboard</span>
-              </Button>
+              <AccountActionsMenu buttonClassName="hidden sm:flex text-primary-foreground hover:bg-primary-foreground/10 shrink-0" />
             </div>
           </div>
         </div>

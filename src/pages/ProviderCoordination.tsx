@@ -11,6 +11,7 @@ import { ArrowLeft, Plus, Loader2, Shield, Users } from 'lucide-react';
 import { CoordinationCaseList } from '@/components/coordination/CoordinationCaseList';
 import { CoordinationCaseView } from '@/components/coordination/CoordinationCaseView';
 import { CreateCaseDialog } from '@/components/coordination/CreateCaseDialog';
+import { AccountActionsMenu } from '@/components/AccountActionsMenu';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 
 const ProviderCoordination = () => {
@@ -90,6 +91,7 @@ const ProviderCoordination = () => {
               <Plus className="h-4 w-4" />
               New Case
             </Button>
+            <AccountActionsMenu showLabel={false} buttonClassName="border border-input bg-background hover:bg-accent hover:text-accent-foreground" />
           </div>
         </div>
       </header>

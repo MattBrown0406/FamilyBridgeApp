@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { ProviderNotesPanel } from '@/components/ProviderNotesPanel';
 import { ProviderMessaging } from '@/components/ProviderMessaging';
+import { AccountActionsMenu } from '@/components/AccountActionsMenu';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 
 interface Family {
@@ -222,15 +223,7 @@ const ProviderWorkspace = () => {
               <Settings className="h-4 w-4" />
               <span className="hidden sm:inline">Admin</span>
             </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => navigate('/dashboard')}
-              className="gap-1"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              <span className="hidden sm:inline">Dashboard</span>
-            </Button>
+            <AccountActionsMenu showLabel={false} buttonClassName="border border-input bg-background hover:bg-accent hover:text-accent-foreground" />
           </div>
         </div>
       </header>

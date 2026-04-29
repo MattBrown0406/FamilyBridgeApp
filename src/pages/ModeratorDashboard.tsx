@@ -13,7 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { Users, LogOut, Loader2, ArrowRight, Home, Building2, Shield, Plus, Copy, Archive, HelpCircle, ArrowRightLeft, FileText, MessageSquare, Brain, Target, FolderOpen } from 'lucide-react';
+import { Users, Loader2, ArrowRight, Home, Building2, Shield, Plus, Copy, Archive, HelpCircle, ArrowRightLeft, FileText, MessageSquare, Brain, Target, FolderOpen } from 'lucide-react';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 import { NotificationBell } from '@/components/NotificationBell';
 import { AdminBreadcrumbs } from '@/components/AdminBreadcrumbs';
@@ -26,6 +26,7 @@ import FIISModeratorChat from '@/components/FIISModeratorChat';
 import { FIISCoachingPanel } from '@/components/FIISCoachingPanel';
 import CRMDashboard from '@/components/CRMDashboard';
 import { ProviderDocumentsPanel } from '@/components/ProviderDocumentsPanel';
+import { AccountActionsMenu } from '@/components/AccountActionsMenu';
 
 type HealthStatus = 'crisis' | 'concern' | 'tension' | 'stable' | 'improving';
 
@@ -84,7 +85,7 @@ interface OrganizationInfo {
 }
 
 const ModeratorDashboard = () => {
-  const { user, signOut, loading } = useAuth();
+  const { user, loading } = useAuth();
   const { isAdmin: isSuperAdmin } = useSuperAdmin();
   const { archiveFamily, isArchiving } = useFamilyArchive();
   const { branding, applyBranding, resetBranding } = useOrganizationBranding();
@@ -298,11 +299,6 @@ const ModeratorDashboard = () => {
     setArchivingFamilyId(null);
   };
 
-  const handleSignOut = async () => {
-    await signOut();
-    navigate('/');
-  };
-
   if (loading || isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -364,10 +360,7 @@ const ModeratorDashboard = () => {
                 <span className="hidden sm:inline ml-2">Support</span>
               </Button>
               <NotificationBell />
-              <Button variant="ghost" size="sm" onClick={handleSignOut} className="text-primary-foreground hover:bg-primary-foreground/10">
-                <LogOut className="h-4 w-4" />
-                <span className="hidden sm:inline ml-2">Sign Out</span>
-              </Button>
+              <AccountActionsMenu buttonClassName="text-primary-foreground hover:bg-primary-foreground/10" />
             </div>
           </div>
         </div>
