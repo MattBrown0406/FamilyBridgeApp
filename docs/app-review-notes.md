@@ -9,6 +9,7 @@ Use this as the reviewer-notes source when submitting the iOS build. Replace bra
 - Demo deletion account email: appstoreconnect@apple.com
 - Demo deletion account password: appstorereview
 - Demo family path: sign in, open Your Family Groups, select the reviewer family, then use Family Chat, Financial Requests, Documents, Boundaries, and Check-ins.
+- App Store Connect review path: sign in with the deletion account, open "App Review Full Feature Demo" to test FamilyBridge features, then use "Demo Account for Deletion" when verifying account deletion.
 - Demo deletion path: sign in with the deletion account, confirm the "Demo Account for Deletion" family is visible, then open Settings, choose Delete Account, and confirm deletion.
 - Demo provider path: sign in with a provider/moderator account and open the Moderator Dashboard.
 
@@ -27,7 +28,11 @@ To (re)seed: as a Super Admin, call edge function `seed-reviewer-family` (POST, 
 
 ### Seeded Deletion Account
 
-The deletion reviewer account (`appstoreconnect@apple.com`) is pre-populated with a separate disposable family named "Demo Account for Deletion". This account and its demo data are safe for App Review to delete while verifying the complete account deletion flow.
+The deletion reviewer account (`appstoreconnect@apple.com`) is pre-populated with two fictional families:
+- "App Review Full Feature Demo" for testing FamilyBridge functionality.
+- "Demo Account for Deletion" for verifying the complete account deletion flow.
+
+This account and its demo data are safe for App Review to delete after testing.
 
 ## Purchase And Restore
 

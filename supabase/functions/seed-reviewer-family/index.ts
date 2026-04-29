@@ -21,6 +21,8 @@ serve(async (req) => {
     const memberPassword = Deno.env.get("REVIEWER_MEMBER_PASSWORD") || "AppReview!2026";
     const deletionReviewerEmail = Deno.env.get("DELETION_REVIEWER_EMAIL") || "appstoreconnect@apple.com";
     const deletionReviewerPassword = Deno.env.get("DELETION_REVIEWER_PASSWORD") || "appstorereview";
+    const deletionMemberEmail = Deno.env.get("DELETION_REVIEWER_MEMBER_EMAIL") || "appstoreconnect-family@familybridgeapp.com";
+    const deletionMemberPassword = Deno.env.get("DELETION_REVIEWER_MEMBER_PASSWORD") || "appstorereview";
 
     const admin = createClient(url, serviceKey);
 
@@ -183,6 +185,11 @@ serve(async (req) => {
       deletionReviewerPassword,
       "App Store Connect Reviewer",
     );
+    const deletionMemberId = await ensureUser(
+      deletionMemberEmail,
+      deletionMemberPassword,
+      "App Store Connect Demo Member",
+    );
 
     // Ensure profiles (handle_new_user trigger usually does this, but be safe)
     await admin.from("profiles").upsert(
@@ -190,6 +197,7 @@ serve(async (req) => {
         { id: reviewerId, full_name: "App Reviewer" },
         { id: memberId, full_name: "Jamie Demo" },
         { id: deletionReviewerId, full_name: "App Store Connect Reviewer" },
+        { id: deletionMemberId, full_name: "App Store Connect Demo Member" },
       ],
       { onConflict: "id" },
     );
@@ -200,6 +208,14 @@ serve(async (req) => {
       familyName: "App Review Demo Family",
       description: "Sample family group used for App Store review. All data is fictional and used for coordination demo only.",
       reviewerDisplayName: "App Reviewer",
+    });
+
+    const deletionReviewerFullFeatureFamilyId = await ensureFamilyForReviewer({
+      reviewerId: deletionReviewerId,
+      memberId: deletionMemberId,
+      familyName: "App Review Full Feature Demo",
+      description: "Full-feature fictional family for App Store Connect reviewers to test FamilyBridge functionality before account deletion.",
+      reviewerDisplayName: "App Store Connect Reviewer",
     });
 
     const deletionFamilyId = await ensureFamilyForReviewer({
@@ -221,6 +237,8 @@ serve(async (req) => {
         user_id: deletionReviewerId,
         family_id: deletionFamilyId,
         family_name: "Demo Account for Deletion",
+        full_feature_family_id: deletionReviewerFullFeatureFamilyId,
+        full_feature_family_name: "App Review Full Feature Demo",
       },
     }, 200);
   } catch (e) {
