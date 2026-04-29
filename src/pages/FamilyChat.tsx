@@ -500,6 +500,10 @@ const FamilyChat = () => {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [onboardingStep, setOnboardingStep] = useState(1);
   const [hasSeenOnboarding, setHasSeenOnboarding] = useState(false);
+  const isAppReviewDemoFamily =
+    user?.email?.toLowerCase() === 'appstoreconnect@apple.com' &&
+    family?.name &&
+    ['App Review Demo Family', 'App Review Full Feature Demo', 'Demo Account for Deletion'].includes(family.name);
   
   // Contextual coaching nudge state
   const [showCoachingNudge, setShowCoachingNudge] = useState(false);
@@ -1265,7 +1269,10 @@ const FamilyChat = () => {
       // Check if this is the user's first visit for onboarding
       if (user?.id && familyId) {
         const onboardingKey = `familybridge_onboarding_${familyId}_complete`;
-        const hasCompletedOnboarding = localStorage.getItem(onboardingKey) === 'true';
+        const isReviewerDemoFamily =
+          user.email?.toLowerCase() === 'appstoreconnect@apple.com' &&
+          ['App Review Demo Family', 'App Review Full Feature Demo', 'Demo Account for Deletion'].includes(familyData.name);
+        const hasCompletedOnboarding = isReviewerDemoFamily || localStorage.getItem(onboardingKey) === 'true';
         
         if (!hasCompletedOnboarding) {
           setShowOnboarding(true);
@@ -1322,7 +1329,12 @@ const FamilyChat = () => {
       // Fetch family boundaries
       await fetchFamilyBoundaries();
     } catch (error) {
-      console.error('Error fetching family data:', error);
+      console.error('Error fetching family data:', {
+        error,
+        familyId,
+        userId: user?.id,
+        userEmail: user?.email,
+      });
       toast({
         title: 'Error',
         description: 'Failed to load family data.',
