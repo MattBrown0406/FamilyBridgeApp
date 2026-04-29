@@ -210,6 +210,16 @@ serve(async (req) => {
       reviewerDisplayName: "App Reviewer",
     });
 
+    await admin.from("family_members").upsert(
+      [{
+        family_id: familyId,
+        user_id: deletionReviewerId,
+        role: "admin",
+        relationship_type: "reviewer",
+      }],
+      { onConflict: "family_id,user_id" },
+    );
+
     const deletionReviewerFullFeatureFamilyId = await ensureFamilyForReviewer({
       reviewerId: deletionReviewerId,
       memberId: deletionMemberId,
@@ -237,6 +247,8 @@ serve(async (req) => {
         user_id: deletionReviewerId,
         family_id: deletionFamilyId,
         family_name: "Demo Account for Deletion",
+        shared_full_feature_family_id: familyId,
+        shared_full_feature_family_name: "App Review Demo Family",
         full_feature_family_id: deletionReviewerFullFeatureFamilyId,
         full_feature_family_name: "App Review Full Feature Demo",
       },
