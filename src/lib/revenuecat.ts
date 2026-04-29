@@ -28,8 +28,13 @@ export const REVENUECAT_PRODUCT_IDS = {
   providerAnnual: "com.familybridgeapp.app.provider_annual",
 } as const;
 
+// RevenueCat iOS public app-specific API key.
+// Safe to commit: this is a publishable client key, not a secret.
+const REVENUECAT_APPLE_API_KEY_FALLBACK = "appl_uadXDmElJcifwXdVuQKnMdlVHeU";
+
 export function getRevenueCatAppleApiKey() {
-  return import.meta.env.VITE_REVENUECAT_APPLE_API_KEY?.trim() || null;
+  const fromEnv = import.meta.env.VITE_REVENUECAT_APPLE_API_KEY?.trim();
+  return fromEnv || REVENUECAT_APPLE_API_KEY_FALLBACK || null;
 }
 
 export function isRevenueCatNativeSupported() {
