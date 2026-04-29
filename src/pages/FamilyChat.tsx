@@ -5989,7 +5989,7 @@ const FamilyChat = () => {
       )}
 
       {/* First-Time Onboarding Overlay */}
-      {showOnboarding && (
+      {showOnboarding && !isAppReviewDemoFamily && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-card rounded-2xl shadow-2xl max-w-md w-full mx-4 animate-scale-in border border-border/50">
             <div className="h-2 bg-gradient-to-r from-primary via-accent to-success rounded-t-2xl" />
