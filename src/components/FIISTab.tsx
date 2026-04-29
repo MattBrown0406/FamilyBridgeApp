@@ -1541,10 +1541,10 @@ export function FIISTab({ familyId, members, excludeUserIds = [], onView, isMode
                         variant="outline"
                         size="sm"
                         className="border-red-300 dark:border-red-700 text-red-700 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/50"
-                        onClick={() => window.location.assign("/support?type=family")}
+                        onClick={() => window.location.assign(`/moderator-purchase?familyId=${familyId}`)}
                       >
                         <UserPlus className="h-4 w-4 mr-2" />
-                        Open Moderator / Help
+                        Open Professional Guidance
                       </Button>
                     </div>
                   </div>
@@ -1559,10 +1559,10 @@ export function FIISTab({ familyId, members, excludeUserIds = [], onView, isMode
                       variant="outline" 
                       size="sm" 
                       className="border-red-300 dark:border-red-700 text-red-700 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/50"
-                      onClick={() => window.location.assign("/support?type=family")}
+                      onClick={() => window.location.assign(`/moderator-purchase?familyId=${familyId}`)}
                     >
                       <UserPlus className="h-4 w-4 mr-2" />
-                      Request Moderator / Interventionist Help
+                      Open Professional Guidance
                     </Button>
                   </div>
                 )}
