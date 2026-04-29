@@ -11,31 +11,14 @@ export const useFamilyArchive = () => {
   const archiveFamily = async (familyId: string, familyName: string) => {
     setIsArchiving(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
-
-      // Check if this family belongs to an organization (provider-managed)
-      const { data: family } = await supabase
-        .from('families')
-        .select('organization_id')
-        .eq('id', familyId)
-        .single();
-
-      const isProviderManaged = family?.organization_id !== null;
-
-      const { error } = await supabase
-        .from('families')
-        .update({
-          is_archived: true,
-          archived_at: new Date().toISOString(),
-          archived_by: user.id,
-        })
-        .eq('id', familyId);
-
+      const { data, error } = await supabase.functions.invoke('archive-family', {
+        body: { familyId, archive: true },
+      });
       if (error) throw error;
+      if (data?.error) throw new Error(data.error);
 
       // Send archive notification email if this was a provider-managed family
-      if (isProviderManaged) {
+      if (data?.isProviderManaged) {
         try {
           await supabase.functions.invoke('send-archive-notification', {
             body: { familyId, familyName },
@@ -69,16 +52,11 @@ export const useFamilyArchive = () => {
   const reactivateFamily = async (familyId: string, familyName: string) => {
     setIsReactivating(true);
     try {
-      const { error } = await supabase
-        .from('families')
-        .update({
-          is_archived: false,
-          archived_at: null,
-          archived_by: null,
-        })
-        .eq('id', familyId);
-
+      const { data, error } = await supabase.functions.invoke('archive-family', {
+        body: { familyId, archive: false },
+      });
       if (error) throw error;
+      if (data?.error) throw new Error(data.error);
 
       toast({
         title: 'Family Reactivated',

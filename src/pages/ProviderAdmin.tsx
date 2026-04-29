@@ -13,11 +13,13 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { ChevronDown } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { fetchProfilesByIds } from '@/lib/profileApi';
+import { useFamilyArchive } from '@/hooks/useFamilyArchive';
 import {
   Building2,
   Palette,
@@ -95,6 +97,7 @@ const ProviderAdmin = () => {
   const paymentsWebOnly = isNative && isIOS;
   const { user, loading: authLoading } = useAuth();
   const { isSupported: revenueCatSupported, isReady: revenueCatReady, hasEntitlement, restorePurchases } = useRevenueCat();
+  const { archiveFamily, isArchiving } = useFamilyArchive();
   const { branding, applyBranding, resetBranding } = useOrganizationBranding();
   const { 
     organizations, 
@@ -142,6 +145,7 @@ const ProviderAdmin = () => {
   const [editingFamilyModerator, setEditingFamilyModerator] = useState<string | null>(null);
   const [selectedNewModerator, setSelectedNewModerator] = useState<string>('');
   const [isChangingModerator, setIsChangingModerator] = useState(false);
+  const [archivingFamilyId, setArchivingFamilyId] = useState<string | null>(null);
   
   // Moderator management state
   const [orgModerators, setOrgModerators] = useState<any[]>([]);
@@ -479,6 +483,17 @@ const ProviderAdmin = () => {
     } catch (err) {
       toast({ title: 'Error', description: 'Failed to copy code', variant: 'destructive' });
     }
+  };
+
+  const handleArchiveFamily = async (familyId: string, familyName: string) => {
+    if (!selectedOrg) return;
+
+    setArchivingFamilyId(familyId);
+    const success = await archiveFamily(familyId, familyName);
+    if (success) {
+      await fetchOrgFamilies(selectedOrg);
+    }
+    setArchivingFamilyId(null);
   };
 
   // Change moderator assignment for a family
@@ -2226,6 +2241,43 @@ const ProviderAdmin = () => {
                                       </Button>
                                     }
                                   />
+                                  <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        disabled={isArchiving && archivingFamilyId === family.id}
+                                        className="gap-1 text-muted-foreground hover:text-destructive"
+                                        title="Deactivate and archive family"
+                                      >
+                                        {isArchiving && archivingFamilyId === family.id ? (
+                                          <Loader2 className="h-4 w-4 animate-spin" />
+                                        ) : (
+                                          <Archive className="h-4 w-4" />
+                                        )}
+                                        Archive
+                                      </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                      <AlertDialogHeader>
+                                        <AlertDialogTitle>Deactivate and archive this family?</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                          This will deactivate "{family.name}" from active provider lists and move it to Archived Families. The family record and history stay intact, and a provider admin or super admin can reactivate it later.
+                                        </AlertDialogDescription>
+                                      </AlertDialogHeader>
+                                      <AlertDialogFooter>
+                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                        <AlertDialogAction
+                                          onClick={(event) => {
+                                            event.preventDefault();
+                                            handleArchiveFamily(family.id, family.name);
+                                          }}
+                                        >
+                                          Archive Family
+                                        </AlertDialogAction>
+                                      </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                  </AlertDialog>
                                   <Button
                                     variant="outline"
                                     size="sm"

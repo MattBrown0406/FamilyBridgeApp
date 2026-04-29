@@ -54,6 +54,9 @@ verify_jwt = false
 [functions.request-temp-moderator]
 verify_jwt = false
 
+[functions.archive-family]
+verify_jwt = false
+
 [functions.send-family-invite]
 verify_jwt = false
 
