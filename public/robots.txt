@@ -2,6 +2,24 @@ User-agent: *
 Allow: /
 Disallow: /auth
 Disallow: /admin
+Disallow: /dashboard
+Disallow: /moderator-dashboard
+Disallow: /family/
+Disallow: /subscription
+Disallow: /super-admin
+Disallow: /provider-admin
+Disallow: /provider-workspace
+Disallow: /provider-coordination
+Disallow: /family-setup
+Disallow: /sign-hipaa
+Disallow: /update-payment
+Disallow: /intervention-readiness
+Disallow: /intervention-execution
+Disallow: /post-intervention
+Disallow: /accountability-engine
+Disallow: /outcome-predictions
+Disallow: /ai-learning
+Disallow: /input-reconciliation
 
 User-agent: GPTBot
 Allow: /
