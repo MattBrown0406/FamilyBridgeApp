@@ -4,16 +4,18 @@
 
 FamilyBridge is a recovery support platform that helps families support a loved one in recovery through transparent communication, financial coordination, meeting check-ins, and optional provider or moderator oversight tools. FamilyBridge uses AI-assisted insights in parts of the platform and is not a medical, mental health, or crisis service.
 
-## Key Pages
+## Pages
 
-- Homepage: https://familybridgeapp.com/
-- Family Plan: https://familybridgeapp.com/family-purchase
-- Provider Plan: https://familybridgeapp.com/provider-purchase
-- Demo: https://familybridgeapp.com/demo
-- Family Demo: https://familybridgeapp.com/demo/family
-- Meeting Check-Ins: https://familybridgeapp.com/meetings
-- Enabling Exercise: https://familybridgeapp.com/enabling-exercise
-- Support: https://familybridgeapp.com/support
+- [Homepage](https://familybridgeapp.com/): Overview of FamilyBridge and how it supports families in recovery.
+- [Family Plan](https://familybridgeapp.com/family-purchase): Plan details and signup for families.
+- [Provider Plan](https://familybridgeapp.com/provider-purchase): Plan details for treatment providers and organizations.
+- [Demo](https://familybridgeapp.com/demo): Interactive demo of FamilyBridge intelligence systems.
+- [Family Demo](https://familybridgeapp.com/demo/family): Walkthrough of the family-side experience.
+- [Meeting Check-Ins](https://familybridgeapp.com/meetings): Recovery meeting finder and check-in tool.
+- [Enabling Exercise](https://familybridgeapp.com/enabling-exercise): Self-assessment to identify enabling patterns.
+- [Support](https://familybridgeapp.com/support): Help and contact resources.
+- [Privacy Policy](https://familybridgeapp.com/privacy): How user data is handled.
+- [Terms of Service](https://familybridgeapp.com/terms): Terms governing use of FamilyBridge.
 
 ## About
 
