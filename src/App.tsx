@@ -69,6 +69,7 @@ const App = () => {
             <Sonner />
             <BrowserRouter>
               <ScrollToTop />
+              <main>
               <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
@@ -118,6 +119,7 @@ const App = () => {
               />
               <Route path="*" element={<NotFound />} />
               </Routes>
+              </main>
             </BrowserRouter>
           </OrganizationProvider>
         </RevenueCatProvider>

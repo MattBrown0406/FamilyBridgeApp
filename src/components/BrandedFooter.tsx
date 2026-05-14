@@ -31,7 +31,7 @@ export const BrandedFooter = () => {
           <span className="text-xs text-muted-foreground">© {currentYear} {organization.name}</span>
         </div>
         <div className="mt-3 sm:mt-4 text-center">
-          <p className="text-xs text-muted-foreground/60">
+          <p className="text-xs text-muted-foreground">
             Powered by FamilyBridge
           </p>
         </div>
