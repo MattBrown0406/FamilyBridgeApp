@@ -126,6 +126,7 @@ export const useProviderAdmin = () => {
     intervention_tracking_enabled?: boolean;
     benchmark_opt_in?: boolean;
     intake_notes?: string | null;
+    useRevenueCatEntitlement?: boolean;
   }) => {
     const { data, error } = await supabase.functions.invoke('create-organization', {
       body: orgData,

@@ -1,6 +1,7 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { getRevenueCatSubscriber, hasActiveRevenueCatEntitlement } from "../_shared/revenuecat.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -31,7 +32,10 @@ type CreateOrgBody = {
   intervention_tracking_enabled?: boolean;
   benchmark_opt_in?: boolean;
   intake_notes?: string | null;
+  useRevenueCatEntitlement?: boolean;
 };
+
+const PROVIDER_ENTITLEMENT_ID = "fiis_provider";
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -76,15 +80,52 @@ serve(async (req) => {
       });
     }
 
+    const { useRevenueCatEntitlement, ...organizationPayload } = body;
+
     // Service client (writes)
     const service = createClient(supabaseUrl, supabaseServiceKey, {
       auth: { persistSession: false },
     });
 
+    if (useRevenueCatEntitlement) {
+      const subscriber = await getRevenueCatSubscriber(userId);
+      const hasProviderEntitlement = hasActiveRevenueCatEntitlement(subscriber, PROVIDER_ENTITLEMENT_ID);
+
+      if (!hasProviderEntitlement) {
+        return new Response(JSON.stringify({ error: "No active FIIS Provider subscription was found for this account" }), {
+          status: 402,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    } else {
+      const { data: usedActivationCode, error: activationError } = await service
+        .from("activation_codes")
+        .select("id")
+        .eq("used_by", userId)
+        .eq("is_used", true)
+        .limit(1)
+        .maybeSingle();
+
+      if (activationError) {
+        console.error("Activation code access check error:", activationError);
+        return new Response(JSON.stringify({ error: "Unable to verify provider activation" }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      if (!usedActivationCode) {
+        return new Response(JSON.stringify({ error: "Provider activation or an active FIIS Provider subscription is required" }), {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    }
+
     const { data: org, error: insertErr } = await service
       .from("organizations")
       .insert({
-        ...body,
+        ...organizationPayload,
         created_by: userId,
       })
       .select("*")

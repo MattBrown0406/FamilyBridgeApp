@@ -63,6 +63,9 @@ verify_jwt = false
 [functions.create-moderator-checkout]
 verify_jwt = false
 
+[functions.activate-native-moderator-purchase]
+verify_jwt = true
+
 [functions.verify-super-admin]
 verify_jwt = false
 

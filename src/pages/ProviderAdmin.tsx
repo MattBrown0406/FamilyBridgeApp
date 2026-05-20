@@ -93,8 +93,7 @@ const hexToHsl = (hex: string): string => {
 
 const ProviderAdmin = () => {
   const navigate = useNavigate();
-  const { isNative, isIOS } = usePlatform();
-  const paymentsWebOnly = isNative && isIOS;
+  const { isIOS } = usePlatform();
   const { user, loading: authLoading } = useAuth();
   const { isSupported: revenueCatSupported, isReady: revenueCatReady, hasEntitlement, restorePurchases } = useRevenueCat();
   const { archiveFamily, isArchiving } = useFamilyArchive();
@@ -723,7 +722,7 @@ const ProviderAdmin = () => {
 
   const handleRestoreRevenueCatAccess = async () => {
     if (!hasProviderRevenueCatAccess && (!isIOS || !revenueCatSupported)) {
-      toast({ title: 'Error', description: 'RevenueCat restore is only available on iPhone purchases.', variant: 'destructive' });
+      toast({ title: 'Error', description: 'App Store restore is only available for iOS purchases.', variant: 'destructive' });
       return;
     }
 
@@ -824,6 +823,7 @@ const ProviderAdmin = () => {
       // Build organization data with branding
       const orgData: any = {
         ...newOrg,
+        useRevenueCatEntitlement: hasProviderRevenueCatAccess,
         primary_service_duration_days: newOrg.primary_service_duration_days
           ? Number(newOrg.primary_service_duration_days)
           : null,
@@ -972,7 +972,7 @@ const ProviderAdmin = () => {
                     Provider Access Active
                   </CardTitle>
                   <CardDescription>
-                    Your iPhone subscription is active. You can create your organization now.
+                    Your iOS subscription is active. You can create your organization now.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -1029,7 +1029,7 @@ const ProviderAdmin = () => {
               {isIOS && revenueCatSupported ? (
                 <div className="space-y-3">
                   <p className="text-muted-foreground">
-                    Already purchased on iPhone?
+                    Already purchased on iPhone or iPad?
                   </p>
                   <Button variant="outline" onClick={handleRestoreRevenueCatAccess} size="lg" disabled={isRestoringRevenueCat || !revenueCatReady}>
                     <CreditCard className="h-5 w-5 mr-2" />
@@ -1044,7 +1044,7 @@ const ProviderAdmin = () => {
                   <p className="text-muted-foreground mb-4">
                     Don't have an activation code?
                   </p>
-                  <Button variant="outline" onClick={() => navigate(paymentsWebOnly ? '/auth' : '/provider-purchase')} size="lg">
+                  <Button variant="outline" onClick={() => navigate('/provider-purchase')} size="lg">
                     <CreditCard className="h-5 w-5 mr-2" />
                     Get Activation Code
                   </Button>

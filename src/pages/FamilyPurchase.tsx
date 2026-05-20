@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Check, CreditCard, Shield, Users, Tag, Loader2, Copy, MessageCircle, UserPlus, DollarSign, Target, Sparkles, Brain, TrendingUp, MessageSquareWarning, RotateCcw } from "lucide-react";
+import { Check, CreditCard, Shield, Users, Tag, Loader2, Copy, MessageCircle, UserPlus, DollarSign, Target, Brain, TrendingUp, MessageSquareWarning, RotateCcw } from "lucide-react";
 import { BrandedHeader } from "@/components/BrandedHeader";
 import { SEOHead, createBreadcrumbSchema } from "@/components/SEOHead";
 import { AppStorePurchaseButton, RestorePurchasesButton } from "@/components/AppStorePurchaseButton";
@@ -631,7 +631,7 @@ const FamilyPurchase = () => {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-4 sm:gap-6">
+          <div className="grid md:grid-cols-2 gap-4 sm:gap-6">
             {/* Features Card */}
             <Card className="min-w-0 md:col-span-1">
               <CardHeader className="px-4 sm:px-6">
@@ -800,7 +800,7 @@ const FamilyPurchase = () => {
                         {!user ? (
                           <>
                             <div className="rounded-lg border bg-muted/40 p-4 text-sm text-muted-foreground">
-                              <p className="font-medium text-foreground mb-2">Sign in first to purchase FIIS Support on iPhone.</p>
+	                              <p className="font-medium text-foreground mb-2">Sign in first to purchase FIIS Support on iPhone or iPad.</p>
                               <p>Your subscription is tied to your FamilyBridge account, and invited family members can still use the invite code above.</p>
                             </div>
                             <Button
@@ -825,7 +825,7 @@ const FamilyPurchase = () => {
                           <>
                             <div className="rounded-lg border bg-muted/40 p-4 text-sm text-muted-foreground">
                               <p className="font-medium text-foreground mb-2">One family admin subscription covers the whole family.</p>
-                              <p>After setup, the rest of the family can join with invite codes on any supported device.</p>
+	                              <p>After setup, the rest of the family can join with invite codes on any supported device.</p>
                             </div>
                             <Button
                               onClick={handleNativePurchase}
@@ -924,90 +924,6 @@ const FamilyPurchase = () => {
               </CardContent>
             </Card>
 
-            {/* FIIS Navigator Card */}
-            <Card className="md:col-span-1 relative opacity-75">
-              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                <span className="bg-amber-500 text-white text-xs font-medium px-3 py-1 rounded-full">
-                  Coming Soon
-                </span>
-              </div>
-              <CardHeader className="text-center">
-                <CardTitle className="flex items-center justify-center gap-2 text-xl">
-                  <Sparkles className="w-5 h-5" />
-                  FIIS Navigator
-                </CardTitle>
-                <CardDescription>
-                  Advanced family intervention guidance and accountability structure
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {/* Premium Pricing */}
-                <div className="text-center py-4 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 rounded-lg border border-amber-200/50 dark:border-amber-800/50">
-                  <p className="text-xs text-muted-foreground mb-1">Founding price</p>
-                  <div>
-                    <span className="text-4xl font-bold text-muted-foreground">{formatPrice(149.99)}</span>
-                    <span className="text-muted-foreground">/month</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-2">
-                    Includes everything in FIIS Support, plus intervention-focused guidance
-                  </p>
-                </div>
-
-                {/* Premium Features */}
-                <ul className="space-y-3">
-                  <li className="flex items-start gap-3">
-                    <div className="w-5 h-5 rounded-full bg-amber-100 dark:bg-amber-900/50 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <Check className="w-3 h-3 text-amber-600 dark:text-amber-400" />
-                    </div>
-                    <div>
-                      <span className="text-sm font-medium">Intervention readiness tools</span>
-                      <p className="text-xs text-muted-foreground">Structured support before key family conversations and decisions</p>
-                    </div>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <div className="w-5 h-5 rounded-full bg-amber-100 dark:bg-amber-900/50 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <Check className="w-3 h-3 text-amber-600 dark:text-amber-400" />
-                    </div>
-                    <div>
-                      <span className="text-sm font-medium">Execution and follow-through guidance</span>
-                      <p className="text-xs text-muted-foreground">Support for carrying the plan through, not just talking about it</p>
-                    </div>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <div className="w-5 h-5 rounded-full bg-amber-100 dark:bg-amber-900/50 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <Check className="w-3 h-3 text-amber-600 dark:text-amber-400" />
-                    </div>
-                    <div>
-                      <span className="text-sm font-medium">Outcome prediction and accountability tools</span>
-                      <p className="text-xs text-muted-foreground">More advanced structure around follow-through, slippage, and recovery risk</p>
-                    </div>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <div className="w-5 h-5 rounded-full bg-amber-100 dark:bg-amber-900/50 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <Check className="w-3 h-3 text-amber-600 dark:text-amber-400" />
-                    </div>
-                    <div>
-                      <span className="text-sm font-medium">Everything in FIIS Support</span>
-                      <p className="text-xs text-muted-foreground">Including 1 Professional Guidance Window per month, with additional windows available in the app</p>
-                    </div>
-                  </li>
-                </ul>
-
-                {/* Disabled Button */}
-                <Button
-                  disabled
-                  className="w-full"
-                  size="lg"
-                  variant="secondary"
-                >
-                  Notify Me When Available
-                </Button>
-                
-                <p className="text-xs text-muted-foreground text-center">
-                  Join the <Button variant="link" onClick={() => navigate("/subscription")} className="p-0 h-auto text-xs">waitlist</Button> to be notified when FIIS Navigator opens
-                </p>
-              </CardContent>
-            </Card>
           </div>
 
           {/* Already have a code */}

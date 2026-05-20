@@ -25,6 +25,15 @@ interface RevenueCatContextValue {
   getOffering: (offeringId: string) => Promise<PurchasesOffering | null>;
   getPackageByProductId: (productId: string) => Promise<PurchasesPackage | null>;
   purchasePackage: (aPackage: PurchasesPackage) => Promise<CustomerInfo | null>;
+  purchasePackageWithResult: (aPackage: PurchasesPackage) => Promise<{
+    productIdentifier: string;
+    customerInfo: CustomerInfo;
+    transaction?: {
+      transactionIdentifier?: string;
+      productIdentifier?: string;
+      purchaseDate?: string;
+    };
+  } | null>;
   restorePurchases: () => Promise<CustomerInfo | null>;
   hasEntitlement: (entitlementId: string) => boolean;
 }
@@ -108,6 +117,13 @@ export function RevenueCatProvider({ children }: { children: ReactNode }) {
     return result.customerInfo;
   }, [isSupported, user?.id]);
 
+  const purchasePackageWithResult = useCallback(async (aPackage: PurchasesPackage) => {
+    if (!isSupported || !user?.id) return null;
+    const result = await Purchases.purchasePackage({ aPackage });
+    setCustomerInfo(result.customerInfo);
+    return result;
+  }, [isSupported, user?.id]);
+
   const restorePurchases = useCallback(async () => {
     if (!isSupported || !user?.id) return null;
     const { customerInfo } = await Purchases.restorePurchases();
@@ -127,9 +143,10 @@ export function RevenueCatProvider({ children }: { children: ReactNode }) {
     getOffering,
     getPackageByProductId,
     purchasePackage,
+    purchasePackageWithResult,
     restorePurchases,
     hasEntitlement,
-  }), [customerInfo, getOffering, getPackageByProductId, hasEntitlement, isReady, isSupported, purchasePackage, refreshCustomerInfo, restorePurchases]);
+  }), [customerInfo, getOffering, getPackageByProductId, hasEntitlement, isReady, isSupported, purchasePackage, purchasePackageWithResult, refreshCustomerInfo, restorePurchases]);
 
   return <RevenueCatContext.Provider value={value}>{children}</RevenueCatContext.Provider>;
 }

@@ -25,6 +25,7 @@ import SuperAdmin from "./pages/SuperAdmin";
 import Demo from "./pages/Demo";
 import DemoFamily from "./pages/DemoFamily";
 import DemoProvider from "./pages/DemoProvider";
+import NativeHome from "./pages/NativeHome";
 import Support from "./pages/Support";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
@@ -71,7 +72,7 @@ const App = () => {
               <ScrollToTop />
               <main>
               <Routes>
-              <Route path="/" element={<Index />} />
+              <Route path="/" element={isNative ? <NativeHome /> : <Index />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/moderator-dashboard" element={<ModeratorDashboard />} />

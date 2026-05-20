@@ -15,6 +15,7 @@ export const REVENUECAT_OFFERING_IDS = {
   family: "family",
   provider: "provider",
   guidance: "guidance",
+  crisisModeration: "crisis_moderation",
 } as const;
 
 export const REVENUECAT_ENTITLEMENT_IDS = {
@@ -28,6 +29,7 @@ export const REVENUECAT_PRODUCT_IDS = {
   providerQuarterly: "com.familybridgeapp.app.provider_quarterly_v2",
   providerAnnual: "com.familybridgeapp.app.provider_annual",
   guidanceWindowDaily: "com.familybridgeapp.app.crisis_moderation_daily",
+  crisisModerationDaily: "com.familybridgeapp.app.crisis_moderation_daily",
 } as const;
 
 // RevenueCat iOS public app-specific API key.

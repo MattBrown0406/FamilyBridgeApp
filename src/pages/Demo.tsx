@@ -1,17 +1,11 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useToast } from '@/hooks/use-toast';
 import { SEOHead, createBreadcrumbSchema } from '@/components/SEOHead';
-import { 
+import {
   Building2, 
-  Palette, 
   Users, 
   MessageCircle, 
   DollarSign, 
@@ -19,155 +13,27 @@ import {
   Shield, 
   ArrowRight,
   Eye,
-  Wand2,
-  Upload,
   Check,
   Play,
   Sparkles,
-  Loader2,
-  Pill
+  Pill,
+  Brain,
+  CreditCard,
+  Trash2,
+  ShieldCheck,
+  FileText,
+  Activity
 } from 'lucide-react';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 import { usePlatform } from '@/hooks/usePlatform';
 
 const Demo = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
   const { isNative, isIOS } = usePlatform();
-  const paymentsWebOnly = isNative && isIOS;
-  const [brandingStep, setBrandingStep] = useState(0);
-  const [demoPrimaryColor, setDemoPrimaryColor] = useState('#6366f1');
-  const [demoName, setDemoName] = useState('Recovery Partners');
-  const [demoLogo, setDemoLogo] = useState<string | null>(null);
-  const [logoNeedsBackground, setLogoNeedsBackground] = useState(false);
-  const [websiteUrl, setWebsiteUrl] = useState('');
-  const [isExtracting, setIsExtracting] = useState(false);
-
-  const handleExtractBranding = async () => {
-    if (!websiteUrl.trim()) {
-      toast({
-        title: 'URL Required',
-        description: 'Please enter a website URL to extract branding from.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    setIsExtracting(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('extract-branding', {
-        body: { url: websiteUrl.trim() }
-      });
-
-      if (error) throw error;
-
-      // Handle blocked sites
-      if (data?.blocked) {
-        toast({
-          title: 'Website Blocked Access',
-          description: data.error || 'This website has blocked automated access. Please enter your branding information manually.',
-          variant: 'destructive',
-        });
-        // Still move to step 2 so they can enter manually
-        setBrandingStep(2);
-        // Try to at least get the name from URL
-        try {
-          const urlObj = new URL(websiteUrl.startsWith('http') ? websiteUrl : `https://${websiteUrl}`);
-          const hostname = urlObj.hostname.replace('www.', '');
-          const nameParts = hostname.split('.')[0];
-          const formattedName = nameParts
-            .split(/[-_]/)
-            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-            .join(' ');
-          setDemoName(formattedName);
-        } catch {
-          // Keep default name
-        }
-        return;
-      }
-
-      if (data?.success && data?.branding) {
-        const branding = data.branding;
-        
-        // Pick a single primary color - prefer primary, then secondary, then accent
-        const primaryColor = branding.colors?.primary || branding.colors?.secondary || branding.colors?.accent || '#6366f1';
-        setDemoPrimaryColor(primaryColor);
-
-        // Update logo if extracted
-        if (branding.logo_url) {
-          setDemoLogo(branding.logo_url);
-          // Use API's detection for whether logo needs background, or fallback to our own check
-          const needsBackground = branding.logo_needs_background || 
-            (branding.colors?.background && isColorDark(branding.colors.background));
-          setLogoNeedsBackground(needsBackground || false);
-        }
-
-        // Use extracted company name, or fall back to URL parsing
-        if (branding.company_name) {
-          setDemoName(branding.company_name);
-        } else {
-          // Fallback: derive name from URL
-          try {
-            const urlObj = new URL(websiteUrl.startsWith('http') ? websiteUrl : `https://${websiteUrl}`);
-            const hostname = urlObj.hostname.replace('www.', '');
-            const nameParts = hostname.split('.')[0];
-            const formattedName = nameParts
-              .split(/[-_]/)
-              .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-              .join(' ');
-            setDemoName(formattedName);
-          } catch {
-            // Keep default name
-          }
-        }
-
-        setBrandingStep(2);
-        toast({
-          title: 'Branding Extracted!',
-          description: 'We found your brand colors and logo.',
-        });
-      } else {
-        toast({
-          title: 'Partial Extraction',
-          description: 'Some branding elements could not be found. You can customize manually.',
-        });
-        setBrandingStep(2);
-      }
-    } catch (err: unknown) {
-      console.error('Branding extraction error:', err);
-      toast({
-        title: 'Extraction Failed',
-        description: 'Could not extract branding. Try a different URL or enter manually.',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsExtracting(false);
-    }
-  };
-
-  // Helper function to determine if a color is dark
-  const isColorDark = (color: string): boolean => {
-    // Handle hex colors
-    if (color.startsWith('#')) {
-      const hex = color.replace('#', '');
-      const r = parseInt(hex.substr(0, 2), 16);
-      const g = parseInt(hex.substr(2, 2), 16);
-      const b = parseInt(hex.substr(4, 2), 16);
-      // Calculate luminance
-      const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-      return luminance < 0.5;
-    }
-    // Handle rgb colors
-    if (color.startsWith('rgb')) {
-      const match = color.match(/\d+/g);
-      if (match && match.length >= 3) {
-        const [r, g, b] = match.map(Number);
-        const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-        return luminance < 0.5;
-      }
-    }
-    return false;
-  };
+  const demoPrimaryColor = '#6366f1';
+  const demoName = 'App Review Demo';
+  const demoLogo = null;
+  const logoNeedsBackground = false;
 
   const features = [
     {
@@ -284,7 +150,7 @@ const Demo = () => {
               Exit
             </Button>
             {!(isNative && isIOS) && (
-              <Button size="sm" onClick={() => navigate(paymentsWebOnly ? '/auth' : '/provider-purchase')}>
+              <Button size="sm" onClick={() => navigate('/provider-purchase')}>
                 Get Started
               </Button>
             )}
@@ -307,12 +173,12 @@ const Demo = () => {
       </section>
 
       {/* Demo Sections */}
-      <Tabs defaultValue="branding" className="container mx-auto px-3 sm:px-4 pb-8 sm:pb-12">
+      <Tabs defaultValue="review" className="container mx-auto px-3 sm:px-4 pb-8 sm:pb-12">
         <TabsList className="grid w-full max-w-3xl mx-auto grid-cols-4 mb-6 sm:mb-8 h-12 sm:h-14 p-1 sm:p-1.5 bg-primary/10 border border-primary/20 rounded-xl shadow-md">
-          <TabsTrigger value="branding" className="h-full text-xs sm:text-base font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg rounded-lg transition-all flex flex-col sm:flex-row items-center gap-0.5 sm:gap-2 px-1 sm:px-3">
-            <Palette className="h-4 w-4 sm:h-5 sm:w-5" />
-            <span className="hidden sm:inline">Providers</span>
-            <span className="sm:hidden text-[10px] leading-tight text-center">Providers</span>
+          <TabsTrigger value="review" className="h-full text-xs sm:text-base font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg rounded-lg transition-all flex flex-col sm:flex-row items-center gap-0.5 sm:gap-2 px-1 sm:px-3">
+            <ShieldCheck className="h-4 w-4 sm:h-5 sm:w-5" />
+            <span className="hidden sm:inline">Review Mode</span>
+            <span className="sm:hidden text-[10px] leading-tight text-center">Review</span>
           </TabsTrigger>
           <TabsTrigger value="provider-demo" className="h-full text-xs sm:text-base font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg rounded-lg transition-all flex flex-col sm:flex-row items-center gap-0.5 sm:gap-2 px-1 sm:px-3">
             <Building2 className="h-4 w-4 sm:h-5 sm:w-5" />
@@ -331,179 +197,136 @@ const Demo = () => {
           </TabsTrigger>
         </TabsList>
 
-        {/* Branding Demo */}
-        <TabsContent value="branding" className="space-y-8">
+        {/* App Review Demo */}
+        <TabsContent value="review" className="space-y-8">
           <div className="max-w-4xl mx-auto">
             <Card>
               <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                  <Wand2 className="h-5 w-5" />
-                  Automatic Branding Extraction <span className="text-muted-foreground font-normal text-base">(for professional recovery organizations)</span>
+                <CardTitle className="flex items-center gap-2">
+                  <ShieldCheck className="h-5 w-5" />
+                  App Review Demo Mode
                 </CardTitle>
                 <CardDescription>
-                  Enter your website URL and we'll automatically extract your brand colors, logo, and fonts
+                  A complete, pre-populated path for Apple Review. No setup, website extraction, or blank account required.
                 </CardDescription>
-                {!(isNative && isIOS) && (
-                <div className="mt-3 p-3 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 border border-amber-200 dark:border-amber-800 rounded-lg">
-                  <p className="text-sm font-medium text-amber-800 dark:text-amber-200 flex items-center gap-2">
-                    <Sparkles className="h-4 w-4" />
-                    {!isNative 
-                      ? "Early Adopter Special for Organizations: $250/month for all of 2026!"
-                      : "Early Adopter Special for Organizations available!"
-                    }
-                  </p>
-                  <p className="text-xs text-amber-700 dark:text-amber-300 mt-1 ml-6">
-                    {!isNative 
-                      ? "Individual family plans available"
-                      : "Individual family plans also available"
-                    }
-                  </p>
-                </div>
-                )}
               </CardHeader>
               <CardContent className="space-y-6">
-                {brandingStep === 0 && (
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label>Your Website URL</Label>
-                      <div className="flex gap-2">
-                        <Input
-                          placeholder="https://yourcompany.com"
-                          value={websiteUrl}
-                          onChange={(e) => setWebsiteUrl(e.target.value)}
-                        />
-                        <Button onClick={handleExtractBranding} disabled={isExtracting}>
-                          {isExtracting ? (
-                            <>
-                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                              Extracting...
-                            </>
-                          ) : (
-                            <>
-                              <Wand2 className="h-4 w-4 mr-2" />
-                              Extract
-                            </>
-                          )}
-                        </Button>
-                      </div>
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                      Enter your website URL and we'll extract your brand colors and logo automatically.
-                    </p>
-                  </div>
-                )}
+                <div className="grid gap-4 md:grid-cols-2">
+                  <Card className="border-primary/20 bg-primary/5">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2 text-lg">
+                        <Users className="h-5 w-5" />
+                        Family Review Path
+                      </CardTitle>
+                      <CardDescription>
+                        Opens a populated family workspace with chat, FIIS signals, check-ins, documents, boundaries, medication, and financial requests.
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <Button className="w-full justify-between" onClick={() => navigate('/demo/family', { state: { initialFamily: 'johnson' } })}>
+                        Stable Aftercare Family
+                        <ArrowRight className="h-4 w-4" />
+                      </Button>
+                      <Button className="w-full justify-between" variant="outline" onClick={() => navigate('/demo/family', { state: { initialFamily: 'davis' } })}>
+                        Crisis / Boundary Stress Family
+                        <ArrowRight className="h-4 w-4" />
+                      </Button>
+                      <Button className="w-full justify-between" variant="outline" onClick={() => navigate('/demo/family', { state: { initialFamily: 'mitchell' } })}>
+                        Treatment Transition Family
+                        <ArrowRight className="h-4 w-4" />
+                      </Button>
+                    </CardContent>
+                  </Card>
 
-                {brandingStep === 2 && (
-                  <div className="space-y-6">
-                    <div className="flex items-center gap-2 text-green-600">
-                      <Check className="h-5 w-5" />
-                      <span className="font-medium">Branding extracted!</span>
-                    </div>
-                    
-                    <div className="grid md:grid-cols-2 gap-6">
-                      <div className="space-y-4">
-                        <h4 className="font-medium">Brand Color</h4>
-                        <div className="flex gap-3">
-                          <div className="space-y-1">
-                            <div 
-                              className="w-12 h-12 rounded-lg shadow-md border" 
-                              style={{ backgroundColor: demoPrimaryColor }}
-                            />
-                            <span className="text-xs text-muted-foreground">Primary</span>
-                          </div>
-                        </div>
-                        
-                        {demoLogo && (
-                          <div className="space-y-2">
-                            <h4 className="font-medium">Extracted Logo</h4>
-                            <div 
-                              className="p-4 rounded-lg inline-block border shadow-sm"
-                              style={{ 
-                                backgroundColor: logoNeedsBackground ? demoPrimaryColor : undefined,
-                                background: !logoNeedsBackground ? 'linear-gradient(to bottom right, hsl(var(--muted)), hsl(var(--muted) / 0.8))' : undefined
-                              }}
-                            >
-                              <img 
-                                src={demoLogo} 
-                                alt="Extracted logo" 
-                                className="max-h-16 max-w-[200px] object-contain"
-                                style={{ 
-                                  filter: logoNeedsBackground ? 'none' : 'drop-shadow(0 0 0.5px rgba(0,0,0,0.2)) drop-shadow(0 0 2px rgba(0,0,0,0.1))'
-                                }}
-                                onError={(e) => {
-                                  (e.target as HTMLImageElement).style.display = 'none';
-                                }}
-                              />
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                      
-                      <div className="space-y-4">
-                        <h4 className="font-medium">Organization Name</h4>
-                        <Input value={demoName} onChange={(e) => setDemoName(e.target.value)} />
-                      </div>
-                    </div>
+                  <Card className="border-primary/20 bg-primary/5">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2 text-lg">
+                        <Building2 className="h-5 w-5" />
+                        Provider Review Path
+                      </CardTitle>
+                      <CardDescription>
+                        Opens a populated provider workspace with families, notes, team messaging, coordination cases, outcomes, and CRM context.
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <Button className="w-full justify-between" onClick={() => navigate('/demo/provider')}>
+                        Provider Workspace
+                        <ArrowRight className="h-4 w-4" />
+                      </Button>
+                      <Button className="w-full justify-between" variant="outline" onClick={() => navigate('/features/fiis-intelligence')}>
+                        FIIS Intelligence
+                        <ArrowRight className="h-4 w-4" />
+                      </Button>
+                      <Button className="w-full justify-between" variant="outline" onClick={() => navigate('/features/provider-outcomes')}>
+                        Provider Outcomes
+                        <ArrowRight className="h-4 w-4" />
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </div>
 
-                    <Button onClick={() => { setBrandingStep(0); setDemoLogo(null); }} variant="outline">
-                      Try Another Website
-                    </Button>
-                  </div>
-                )}
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                  {[
+                    { icon: MessageCircle, title: 'Secure Family Communication', text: 'Populated message threads and filtered-response examples.' },
+                    { icon: Activity, title: 'Accountability & Check-ins', text: 'Meeting check-ins, emotional check-ins, and recovery timeline data.' },
+                    { icon: Brain, title: 'FIIS Recovery Intelligence', text: 'Risk signals, trend summaries, observations, and system alignment.' },
+                    { icon: DollarSign, title: 'Financial Requests', text: 'Requests, votes, pledges, approvals, and boundary context.' },
+                    { icon: Shield, title: 'Boundaries', text: 'Family values, commitments, and documented support limits.' },
+                    { icon: FileText, title: 'Documents', text: 'Receipts, support files, medication labels, and intervention letters.' },
+                    { icon: CreditCard, title: 'Subscriptions', text: 'Family and provider plans route to in-app purchase screens.' },
+                    { icon: Trash2, title: 'Account Deletion', text: 'Signed-in users can delete from Dashboard, Settings, Delete Account.' },
+                  ].map((item) => (
+                    <Card key={item.title}>
+                      <CardContent className="p-4">
+                        <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-md bg-primary/10 text-primary">
+                          <item.icon className="h-5 w-5" />
+                        </div>
+                        <h4 className="text-sm font-semibold">{item.title}</h4>
+                        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{item.text}</p>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
 
-                {/* Preview */}
-                <div className="border rounded-xl p-6 bg-card">
-                  <h4 className="font-medium mb-4">Live Preview</h4>
-                  <div 
-                    className="rounded-xl p-6 text-white transition-all duration-300"
-                    style={{ backgroundColor: demoPrimaryColor }}
-                  >
-                    <div className="flex items-center gap-3 mb-4">
-                      {demoLogo ? (
-                        <div 
-                          className="h-10 w-10 rounded-lg p-1 shadow-sm border border-white/20"
-                          style={{ 
-                            backgroundColor: logoNeedsBackground ? demoPrimaryColor : 'white'
-                          }}
-                        >
-                          <img 
-                            src={demoLogo} 
-                            alt="Logo" 
-                            className="h-full w-full object-contain"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).style.display = 'none';
-                            }}
-                          />
-                        </div>
-                      ) : (
-                        <div className="h-10 w-10 rounded-lg bg-white/20 flex items-center justify-center overflow-hidden">
-                          <img src={familyBridgeLogo} alt="FamilyBridge" className="h-8 w-8 object-contain" />
-                        </div>
-                      )}
-                      <span className="font-bold text-xl">{demoName}</span>
+                <div className="rounded-xl border bg-muted/30 p-4">
+                  <div className="grid gap-3 md:grid-cols-[1fr_auto] md:items-center">
+                    <div>
+                      <h4 className="font-semibold">Account review requirements</h4>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        Reviewers can use this demo mode immediately, and the App Review demo account should still be provided for live account deletion, purchase restore, and authenticated settings checks.
+                      </p>
                     </div>
-                    <p className="opacity-90 text-sm">
-                      Supporting families on the journey to recovery
-                    </p>
-                    <Button 
-                      size="lg"
-                      className="mt-4 bg-white text-primary hover:bg-white/90 font-semibold shadow-lg"
-                      onClick={() => navigate('/demo/family', { 
-                        state: { 
-                          branding: {
-                            primaryColor: demoPrimaryColor,
-                            logo: demoLogo,
-                            logoNeedsBackground,
-                            name: demoName
-                          }
-                        }
-                      })}
-                    >
-                      Get Started
-                      <ArrowRight className="h-4 w-4 ml-2" />
+                    <Button variant="outline" onClick={() => navigate('/auth')}>
+                      Sign In for Authenticated Checks
                     </Button>
                   </div>
                 </div>
+
+                <Card className="border-primary/25 bg-primary/5">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                      <CreditCard className="h-5 w-5" />
+                      In-App Purchase Review Paths
+                    </CardTitle>
+                    <CardDescription>
+                      Direct links for Apple Review to locate every in-app purchase in the submitted iOS app.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="grid gap-3 md:grid-cols-3">
+                    <Button className="w-full justify-between" onClick={() => navigate('/family-purchase')}>
+                      Family Subscription
+                      <ArrowRight className="h-4 w-4" />
+                    </Button>
+                    <Button className="w-full justify-between" variant="outline" onClick={() => navigate('/provider-purchase')}>
+                      Provider Subscription
+                      <ArrowRight className="h-4 w-4" />
+                    </Button>
+                    <Button className="w-full justify-between" variant="outline" onClick={() => navigate('/moderator-purchase')}>
+                      Guidance Window
+                      <ArrowRight className="h-4 w-4" />
+                    </Button>
+                  </CardContent>
+                </Card>
               </CardContent>
             </Card>
           </div>
@@ -724,14 +547,14 @@ const Demo = () => {
                   <Button 
                     variant="secondary" 
                     size="lg"
-                    onClick={() => navigate(paymentsWebOnly ? '/auth' : '/provider-purchase')}
+                    onClick={() => navigate('/provider-purchase')}
                   >
                     For Providers
                   </Button>
                   <Button 
                     variant="secondary" 
                     size="lg"
-                    onClick={() => navigate(paymentsWebOnly ? '/auth' : '/family-purchase')}
+                    onClick={() => navigate('/family-purchase')}
                   >
                     For Families
                   </Button>

@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Building2, Check, CreditCard, Shield, Users, Tag, Loader2, Copy, Brain, TrendingUp, MessageSquareWarning, Sparkles } from "lucide-react";
+import { Building2, Check, CreditCard, Shield, Users, Tag, Loader2, Copy, Brain, TrendingUp, MessageSquareWarning } from "lucide-react";
 import { BrandedHeader } from "@/components/BrandedHeader";
 import { AppStorePurchaseButton, RestorePurchasesButton } from "@/components/AppStorePurchaseButton";
 import { SEOHead } from "@/components/SEOHead";
@@ -680,7 +680,7 @@ const ProviderPurchase = () => {
                         {!user ? (
                           <>
                             <div className="rounded-lg border bg-muted/40 p-4 text-sm text-muted-foreground">
-                              <p className="font-medium text-foreground mb-2">Sign in first to purchase a provider subscription on iPhone.</p>
+	                              <p className="font-medium text-foreground mb-2">Sign in first to purchase a provider subscription on iPhone or iPad.</p>
                               <p>Your RevenueCat subscription is tied to your FamilyBridge account, so login comes first.</p>
                             </div>
                             <Button
@@ -705,7 +705,7 @@ const ProviderPurchase = () => {
                           <>
                             <div className="rounded-lg border bg-muted/40 p-4 text-sm text-muted-foreground">
                               <p className="font-medium text-foreground mb-2">Choose the provider subscription that fits your team.</p>
-                              <p>Monthly and quarterly provider plans are available on iPhone today.</p>
+	                              <p>Monthly and quarterly provider plans are available on iPhone and iPad today.</p>
                             </div>
                             <Button
                               onClick={handleNativePurchase}
@@ -821,46 +821,6 @@ const ProviderPurchase = () => {
               </CardContent>
             </Card>
           </div>
-
-          <Card className="mt-6 border-amber-500/30 bg-amber-50/40 dark:bg-amber-950/10">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-xl">
-                <Sparkles className="w-5 h-5 text-amber-600" />
-                FIIS Command
-              </CardTitle>
-              <CardDescription>
-                Founding-tier provider command layer for teams that want the full advanced FIIS feature set
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid gap-3 sm:grid-cols-3">
-                <div className="rounded-lg border bg-background/70 p-4 text-center">
-                  <p className="text-xs text-muted-foreground">Founding monthly</p>
-                  <p className="text-2xl font-bold">{formatPrice(499)}</p>
-                </div>
-                <div className="rounded-lg border bg-background/70 p-4 text-center">
-                  <p className="text-xs text-muted-foreground">Quarterly</p>
-                  <p className="text-2xl font-bold">{formatPrice(1299)}</p>
-                </div>
-                <div className="rounded-lg border bg-background/70 p-4 text-center">
-                  <p className="text-xs text-muted-foreground">Annual</p>
-                  <p className="text-2xl font-bold">{formatPrice(4990)}</p>
-                </div>
-              </div>
-
-              <ul className="space-y-2 text-sm text-muted-foreground list-disc pl-5">
-                <li>Everything in FIIS Provider</li>
-                <li>Intervention readiness and execution tools</li>
-                <li>Post-intervention continuity, accountability, and prediction layers</li>
-                <li>Built for higher-touch provider teams using FIIS as a command surface</li>
-              </ul>
-
-              <p className="text-xs text-muted-foreground">
-                Professional Guidance Windows are not included in provider plans.
-              </p>
-            </CardContent>
-          </Card>
-
           {/* Already have a code */}
           <div className="mt-8 text-center">
             <p className="text-muted-foreground">

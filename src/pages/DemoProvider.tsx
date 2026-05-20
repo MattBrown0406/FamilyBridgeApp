@@ -30,6 +30,7 @@ import {
   FileText,
   UserPlus,
   DollarSign,
+  CreditCard,
   Settings,
   Shield,
   LineChart,
@@ -352,6 +353,10 @@ const DemoProvider = () => {
               </div>
             </div>
             <div className="flex flex-wrap gap-2">
+              <Button variant="outline" onClick={() => navigate('/provider-purchase')}>
+                <CreditCard className="h-4 w-4 mr-2" />
+                Provider IAP
+              </Button>
               <Button variant={activeArea === 'workspace' ? 'default' : 'outline'} style={activeArea === 'workspace' ? accentStyle : undefined} onClick={() => setActiveArea('workspace')}>
                 <MessageSquare className="h-4 w-4 mr-2" />
                 Workspace

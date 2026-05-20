@@ -49,9 +49,8 @@ const RELATIONSHIP_OPTIONS: { value: RelationshipType; label: string }[] = [
 const FamilySetup = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { isNative, isIOS } = usePlatform();
+  const { isIOS } = usePlatform();
   const { isSupported: revenueCatSupported, hasEntitlement } = useRevenueCat();
-  const paymentsWebOnly = isNative && isIOS;
   const [searchParams] = useSearchParams();
   
   const [inviteCode, setInviteCode] = useState("");
@@ -395,7 +394,7 @@ const FamilySetup = () => {
           <div className="mt-6 text-center">
             <p className="text-sm text-muted-foreground">
               Don't have an invite code?{" "}
-              <Button variant="link" onClick={() => navigate(paymentsWebOnly ? "/auth" : "/family-purchase")} className="p-0 h-auto">
+              <Button variant="link" onClick={() => navigate("/family-purchase")} className="p-0 h-auto">
                 Set up an account
               </Button>
             </p>

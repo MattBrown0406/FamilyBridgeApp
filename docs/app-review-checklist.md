@@ -5,13 +5,13 @@ Last reviewed: 2026-04-11
 Legend: PASS = looks review-ready in repo, FAIL = likely rejection risk, OPEN = needs submission-time proof or follow-up.
 
 ## 1) Payments and purchase flows
-- PASS: iPhone purchase flows use native App Store subscriptions via RevenueCat for family and provider plans, with restore buttons and account-first gating (`src/pages/FamilyPurchase.tsx`, `src/pages/ProviderPurchase.tsx`, `src/hooks/useRevenueCat.tsx`).
-- PASS: Web checkout appears suppressed on iPhone, reducing obvious external-purchase steering risk.
+- PASS: iPhone and iPad purchase flows use native App Store subscriptions via RevenueCat for family and provider plans, with restore buttons and account-first gating (`src/pages/FamilyPurchase.tsx`, `src/pages/ProviderPurchase.tsx`, `src/hooks/useRevenueCat.tsx`).
+- PASS: Web checkout appears suppressed on iPhone and iPad, reducing obvious external-purchase steering risk.
 - OPEN: Android billing is intentionally out of scope for the current iOS submission. Do not submit the Android build until Google Play Billing or a compliant Android purchase strategy is ready.
 - OPEN: `docs/revenuecat-setup.md` still says the migration is in progress and lists backend/setup work as still needed. Make sure the shipped build reflects a fully working entitlement path.
 
 ## 2) Account creation, sign-in, restore, and deletion
-- PASS: Sign-in or account creation is required before iPhone subscription purchase.
+- PASS: Sign-in or account creation is required before iOS subscription purchase.
 - PASS: Restore Purchases is present for family and provider subscriptions.
 - PASS: In-app deletion now invokes the authenticated `delete-account` edge function from `src/pages/Dashboard.tsx`; the function cleans related app rows/files where available and deletes the Supabase Auth user.
 - OPEN: Confirm the deployed Supabase function has `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY`, then test deletion with a disposable reviewer-style account.

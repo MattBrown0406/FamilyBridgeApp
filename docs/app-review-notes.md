@@ -12,6 +12,7 @@ Use this as the reviewer-notes source when submitting the iOS build. Replace bra
 - App Store Connect review path: sign in with the deletion account, open "App Review Full Feature Demo" to test FamilyBridge features, then use "Demo Account for Deletion" when verifying account deletion.
 - Demo deletion path: sign in with the deletion account, confirm the "Demo Account for Deletion" family is visible, then open Settings, choose Delete Account, and confirm deletion.
 - Demo provider path: sign in with a provider/moderator account and open the Moderator Dashboard.
+- Demonstration mode path: from the first iOS screen, open Reviewer Demo or go to `/demo`. The Review Mode tab includes populated family and provider workspaces for secure communication, accountability/check-ins, FIIS recovery intelligence, financial requests, boundaries, documents, subscriptions, and account deletion guidance.
 
 ### Seeded Demo Family
 
@@ -36,7 +37,8 @@ This account and its demo data are safe for App Review to delete after testing.
 
 ## Purchase And Restore
 
-- Family and provider subscriptions use native App Store purchase flow through RevenueCat on iPhone.
+- Family and provider subscriptions use native App Store purchase flow through RevenueCat on iPhone and iPad.
+- The Professional Guidance Window is also available as an App Store in-app purchase on iPhone and iPad through the `/moderator-purchase` screen.
 - The Family Purchase and Provider Purchase screens both include Restore Purchases.
 - The web checkout path is suppressed in the iOS native purchase flow.
 - Subscription management and cancellation are handled through the user's Apple ID subscription settings.
@@ -74,6 +76,6 @@ This account and its demo data are safe for App Review to delete after testing.
 
 - Replace the reviewer credentials above with a working App Review demo account.
 - Confirm the demo account can reach the purchase screen, restore button, family dashboard, moderator dashboard if applicable, privacy policy, terms, support, and delete-account flow.
-- Confirm RevenueCat products and entitlements are live in the App Store sandbox environment.
+- Confirm RevenueCat products, offerings, and entitlements are live in the App Store sandbox environment, including `crisis_moderation` / `com.familybridgeapp.app.crisis_moderation_daily`.
 - Confirm App Store Connect privacy answers match the privacy manifest and privacy policy.
 - Confirm screenshots and age-rating answers match the submitted build.

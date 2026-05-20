@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { usePlatform } from '@/hooks/usePlatform';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { useOrganization } from '@/hooks/useOrganization';
@@ -28,8 +27,6 @@ const Index = () => {
   const { organization, isWhiteLabeled } = useOrganization();
   const { isProvider, isLoading: isProviderLoading } = useProviderAdmin();
   const navigate = useNavigate();
-  const { isNative, isIOS } = usePlatform();
-  const paymentsWebOnly = isNative && isIOS;
   const [dashboardPath, setDashboardPath] = useState('/dashboard');
   const [isResolvingDashboard, setIsResolvingDashboard] = useState(false);
 
@@ -119,7 +116,7 @@ const Index = () => {
                 <Button variant="ghost" size="sm" className="h-8 text-xs sm:text-sm text-muted-foreground" onClick={() => navigate('/auth')}>
                   Sign In
                 </Button>
-                <Button size="sm" className="h-8 px-3 text-xs sm:text-sm bg-primary text-primary-foreground" onClick={() => navigate(paymentsWebOnly ? '/auth' : '/family-purchase')}>
+                <Button size="sm" className="h-8 px-3 text-xs sm:text-sm bg-primary text-primary-foreground" onClick={() => navigate('/family-purchase')}>
                   Get Started
                 </Button>
               </>
@@ -150,7 +147,7 @@ const Index = () => {
               {tagline}
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Button size="lg" onClick={() => navigate(paymentsWebOnly ? '/auth' : '/family-purchase')} className="h-12 px-6 bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20 group">
+              <Button size="lg" onClick={() => navigate('/family-purchase')} className="h-12 px-6 bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20 group">
                 Start Your Journey
                 <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
               </Button>
@@ -204,7 +201,7 @@ const Index = () => {
                   ))}
                 </ul>
                 <div className="flex flex-col sm:flex-row gap-3 flex-wrap">
-                  <Button onClick={() => navigate(paymentsWebOnly ? '/auth' : '/provider-purchase')} className="bg-primary text-primary-foreground hover:bg-primary/90 group">
+                  <Button onClick={() => navigate('/provider-purchase')} className="bg-primary text-primary-foreground hover:bg-primary/90 group">
                     Learn More
                     <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
                   </Button>
@@ -246,7 +243,7 @@ const Index = () => {
               <p className="text-sm sm:text-base text-primary-foreground/80 mb-8 max-w-md mx-auto">
                 Join families and providers who are using better information, not guesswork, to support recovery.
               </p>
-              <Button size="lg" className="h-12 px-6 bg-card text-foreground hover:bg-card/90 shadow-xl group" onClick={() => navigate(paymentsWebOnly ? '/auth' : '/family-purchase')}>
+              <Button size="lg" className="h-12 px-6 bg-card text-foreground hover:bg-card/90 shadow-xl group" onClick={() => navigate('/family-purchase')}>
                 Create Your Family Group
                 <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
               </Button>

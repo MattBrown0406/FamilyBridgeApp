@@ -1,6 +1,5 @@
 import { useState, Suspense, lazy } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { usePlatform } from '@/hooks/usePlatform';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -173,6 +172,10 @@ interface DemoCoachingState {
 }
 
 type FamilyType = 'johnson' | 'davis' | 'mitchell';
+type DemoMessage = ReturnType<typeof getFamilyData>['messages'][number] & {
+  wasFiltered?: boolean;
+  originalContent?: string;
+};
 
 const getFamilyData = (family: FamilyType) => {
   switch (family) {
@@ -357,8 +360,6 @@ const getCoachingDemo = (family: FamilyType): DemoCoachingState => {
 
 const DemoFamily = () => {
   const navigate = useNavigate();
-  const { isNative, isIOS } = usePlatform();
-  const paymentsWebOnly = isNative && isIOS;
   const location = useLocation();
   const locationState = (location.state as { branding?: DemoBranding; initialFamily?: FamilyType } | null) ?? null;
   const branding = locationState?.branding;
@@ -370,44 +371,83 @@ const DemoFamily = () => {
   
   // Family selection state
   const [selectedFamily, setSelectedFamily] = useState<FamilyType>(locationState?.initialFamily ?? 'johnson');
+  const [demoEvents, setDemoEvents] = useState<string[]>([]);
+  const [financialActions, setFinancialActions] = useState<Record<string, 'approved' | 'denied' | 'pledged'>>({});
+  const [boundaryAcknowledgments, setBoundaryAcknowledgments] = useState<Record<string, boolean>>({});
+  const [medicationActions, setMedicationActions] = useState<Record<string, string>>({});
   
   // Get current family data based on selection
   const currentFamily = getFamilyData(selectedFamily);
   const currentCoaching = getCoachingDemo(selectedFamily);
   
-  const [messages, setMessages] = useState(currentFamily.messages);
+  const [messages, setMessages] = useState<DemoMessage[]>(currentFamily.messages);
+
+  const addDemoEvent = (event: string) => {
+    setDemoEvents((events) => [event, ...events].slice(0, 5));
+  };
   
   // Update messages when family changes
   const handleFamilyChange = (family: FamilyType) => {
     setSelectedFamily(family);
     setMessages(getFamilyData(family).messages);
+    setDemoEvents([]);
+    setFinancialActions({});
+    setBoundaryAcknowledgments({});
+    setMedicationActions({});
     setActiveTab('messages');
   };
 
-  const handleSendMessage = () => {
-    if (!newMessage.trim()) return;
+  const handleSendMessage = (messageOverride?: string) => {
+    const content = messageOverride ?? newMessage;
+    if (!content.trim()) return;
     
     // Apply content filtering to detect profane/abusive messages
-    const filtered = filterContent(newMessage);
+    const filtered = filterContent(content);
     const wasFiltered = !filtered.isClean;
     
-    const newMsg = {
+    const newMsg: DemoMessage = {
       id: String(messages.length + 1),
       sender: 'You (Demo User)',
       senderId: 'demo',
       content: filtered.filteredContent,
       time: format(new Date(), 'h:mm a'),
       date: 'Today',
+      wasFiltered,
+      originalContent: filtered.originalContent,
     };
     
     setMessages([...messages, newMsg]);
-    setNewMessage('');
+    if (!messageOverride) setNewMessage('');
+    addDemoEvent(wasFiltered ? 'Chat filter modified a harmful message.' : 'Demo chat message added for this session.');
     
     if (wasFiltered) {
       toast.warning('Message filtered', {
         description: 'Your message contained inappropriate language and was modified.',
       });
     }
+  };
+
+  const handleFinancialAction = (requestId: string, action: 'approved' | 'denied' | 'pledged') => {
+    setFinancialActions((actions) => ({ ...actions, [requestId]: action }));
+    addDemoEvent(`Financial request ${action} in demo mode.`);
+    toast.success(`Financial request ${action} for this demo session.`);
+  };
+
+  const handleDemoCheckin = (event: string) => {
+    addDemoEvent(event);
+    toast.success(event);
+  };
+
+  const handleBoundaryAcknowledgment = (boundaryId: string) => {
+    setBoundaryAcknowledgments((acknowledgments) => ({ ...acknowledgments, [boundaryId]: true }));
+    addDemoEvent('Boundary acknowledged in demo mode.');
+    toast.success('Boundary acknowledged for this demo session.');
+  };
+
+  const handleMedicationAction = (doseId: string, action: string) => {
+    setMedicationActions((actions) => ({ ...actions, [doseId]: action }));
+    addDemoEvent(`Medication dose ${action.toLowerCase()} in demo mode.`);
+    toast.success(`Medication dose ${action.toLowerCase()} for this demo session.`);
   };
 
   const getMemberById = (id: string) => currentFamily.members.find(m => m.id === id);
@@ -560,8 +600,8 @@ const DemoFamily = () => {
 
                           <div className="bg-primary/10 p-4 rounded-lg">
                             <p className="text-sm">
-                              <strong className="text-foreground">Your membership includes:</strong>
-                              {' '}1 Professional Guidance Window per month.
+                              <strong className="text-foreground">In the live iOS app:</strong>
+                              {' '}additional Professional Guidance Windows are available as Apple In-App Purchases.
                             </p>
                           </div>
                         </div>
@@ -571,19 +611,26 @@ const DemoFamily = () => {
                       <AlertDialogCancel>Cancel</AlertDialogCancel>
                       <AlertDialogAction
                         onClick={() => {
-                          toast.success('Demo: Professional Guidance Window would be activated for 24 hours');
+                          toast.success('Professional Guidance Window activated for this demo family.');
                           setShowModeratorDialog(false);
                         }}
                         className="bg-destructive hover:bg-destructive/90"
                       >
                         Yes, Request Guidance
                       </AlertDialogAction>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => navigate('/moderator-purchase')}
+                      >
+                        View Purchase Screen
+                      </Button>
                     </AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>
               )}
               <Button 
-                onClick={() => navigate(paymentsWebOnly ? '/auth' : '/family-purchase')}
+                onClick={() => navigate('/family-purchase')}
                 size="sm"
                 className="hover-lift shadow-lg text-xs sm:text-sm px-2 sm:px-4"
                 style={branding ? { backgroundColor: branding.primaryColor } : undefined}
@@ -627,9 +674,32 @@ const DemoFamily = () => {
         </p>
       </div>
 
-      <div className="container mx-auto px-1.5 sm:px-4 py-3 sm:py-6">
-        <div className="max-w-5xl mx-auto">
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
+	      <div className="container mx-auto px-1.5 sm:px-4 py-3 sm:py-6">
+	        <div className="max-w-5xl mx-auto">
+	          {demoEvents.length > 0 && (
+	            <Card className="mb-3 border-primary/20 bg-primary/5">
+	              <CardContent className="flex flex-col gap-2 p-3 sm:flex-row sm:items-center sm:justify-between">
+	                <div>
+	                  <p className="text-sm font-medium">Session-only demo activity</p>
+	                  <p className="text-xs text-muted-foreground">{demoEvents[0]}</p>
+	                </div>
+	                <Button
+	                  variant="ghost"
+	                  size="sm"
+	                  onClick={() => {
+	                    setDemoEvents([]);
+	                    setFinancialActions({});
+	                    setBoundaryAcknowledgments({});
+	                    setMedicationActions({});
+	                    setMessages(currentFamily.messages);
+	                  }}
+	                >
+	                  Reset Demo
+	                </Button>
+	              </CardContent>
+	            </Card>
+	          )}
+	          <Tabs value={activeTab} onValueChange={setActiveTab}>
             {/* Demo tabs aligned to the current family experience */}
             <TabsList className="grid grid-cols-5 md:grid-cols-11 grid-rows-3 md:grid-rows-1 h-auto gap-0.5 w-full mb-2 sm:mb-4 shrink-0 bg-card/50 backdrop-blur-sm border border-border/50 p-0.5 sm:p-1.5 rounded-lg sm:rounded-xl shadow-soft">
               <TabsTrigger 
@@ -788,14 +858,19 @@ const DemoFamily = () => {
                                     Recovering
                                   </Badge>
                                 )}
-                                {isDad && selectedFamily === 'davis' && (
-                                  <Badge variant="outline" className="text-[8px] sm:text-[10px] px-1 sm:px-1.5 py-0 border-amber-500/30 text-amber-600 bg-amber-50 hidden sm:flex">
-                                    <AlertTriangle className="h-2 w-2 mr-0.5" />
-                                    Enabling Risk
-                                  </Badge>
-                                )}
-                                <span className="text-[10px] sm:text-xs text-muted-foreground">{msg.time}</span>
-                              </div>
+	                                {isDad && selectedFamily === 'davis' && (
+	                                  <Badge variant="outline" className="text-[8px] sm:text-[10px] px-1 sm:px-1.5 py-0 border-amber-500/30 text-amber-600 bg-amber-50 hidden sm:flex">
+	                                    <AlertTriangle className="h-2 w-2 mr-0.5" />
+	                                    Enabling Risk
+	                                  </Badge>
+	                                )}
+	                                {msg.wasFiltered && (
+	                                  <Badge variant="outline" className="text-[8px] sm:text-[10px] px-1 sm:px-1.5 py-0 border-red-300 bg-red-50 text-red-700">
+	                                    Filtered
+	                                  </Badge>
+	                                )}
+	                                <span className="text-[10px] sm:text-xs text-muted-foreground">{msg.time}</span>
+	                              </div>
                               <div 
                                 className={`mt-1 sm:mt-1.5 rounded-2xl rounded-tl-sm px-2.5 sm:px-4 py-1.5 sm:py-2.5 inline-block max-w-full sm:max-w-[90%] ${
                                   isSystemMessage 
@@ -806,17 +881,22 @@ const DemoFamily = () => {
                                         ? 'bg-amber-50 border border-amber-200'
                                         : 'bg-muted/70'
                                 }`}
-                              >
-                                <p className="text-xs sm:text-sm whitespace-pre-wrap break-words">{msg.content}</p>
-                              </div>
-                            </div>
-                          </div>
+	                              >
+	                                <p className="text-xs sm:text-sm whitespace-pre-wrap break-words">{msg.content}</p>
+	                              </div>
+	                              {msg.wasFiltered && (
+	                                <p className="mt-1 text-[10px] sm:text-xs text-red-600">
+	                                  Harmful language was replaced before posting. This demo message is not saved.
+	                                </p>
+	                              )}
+	                            </div>
+	                          </div>
                         );
                       })}
                     </div>
                   </ScrollArea>
                   
-                  <div className="flex gap-2 mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-border/50">
+	                  <div className="flex gap-2 mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-border/50">
                     <Input 
                       placeholder="Type a message..." 
                       value={newMessage}
@@ -825,14 +905,33 @@ const DemoFamily = () => {
                       className="border-muted-foreground/20 focus:border-primary focus:ring-primary/20 text-sm"
                     />
                     <Button 
-                      onClick={handleSendMessage}
+                      onClick={() => handleSendMessage()}
                       size="sm"
                       className="shadow-md hover-lift bg-gradient-to-r from-primary to-primary/90 px-3 sm:px-4"
                     >
                       <Send className="h-4 w-4" />
                     </Button>
-                  </div>
-                </CardContent>
+	                  </div>
+	                  <div className="mt-3 flex flex-wrap gap-2">
+	                    <Button
+	                      variant="outline"
+	                      size="sm"
+	                      onClick={() => handleSendMessage('You are a worthless piece of shit and I hate you.')}
+	                    >
+	                      Try Abusive Filter
+	                    </Button>
+	                    <Button
+	                      variant="outline"
+	                      size="sm"
+	                      onClick={() => handleSendMessage('This is a damn hard day, but I need help staying calm.')}
+	                    >
+	                      Try Profanity Filter
+	                    </Button>
+	                    <p className="w-full text-xs text-muted-foreground">
+	                      Demo chat changes are held only in this browser session and reset on reload.
+	                    </p>
+	                  </div>
+	                </CardContent>
               </Card>
             </TabsContent>
 
@@ -875,8 +974,10 @@ const DemoFamily = () => {
 
 
               <div className="space-y-2">
-                {currentFamily.financialRequests.map((request, index) => {
-                  const isCompleted = request.status === 'approved' || request.status === 'completed';
+	                {currentFamily.financialRequests.map((request, index) => {
+	                  const demoAction = financialActions[request.id];
+	                  const displayStatus = demoAction === 'approved' ? 'approved' : demoAction === 'denied' ? 'denied' : request.status;
+	                  const isCompleted = displayStatus === 'approved' || displayStatus === 'completed';
                   
                   const RequestContent = () => (
                     <>
@@ -972,18 +1073,40 @@ const DemoFamily = () => {
                       )}
 
                       {/* Pledges */}
-                      {request.pledges && request.pledges.length > 0 && (
-                        <div className="mt-3 flex flex-wrap gap-2">
-                          {request.pledges.map((pledge, i) => (
-                            <Badge key={i} variant="secondary" className="bg-green-50 text-green-700 border-green-200">
-                              <DollarSign className="h-3 w-3 mr-1" />
-                              {pledge.name}: ${pledge.amount}
-                            </Badge>
-                          ))}
-                        </div>
-                      )}
-                    </>
-                  );
+	                      {(request.pledges && request.pledges.length > 0) || demoAction === 'pledged' ? (
+	                        <div className="mt-3 flex flex-wrap gap-2">
+	                          {request.pledges?.map((pledge, i) => (
+	                            <Badge key={i} variant="secondary" className="bg-green-50 text-green-700 border-green-200">
+	                              <DollarSign className="h-3 w-3 mr-1" />
+	                              {pledge.name}: ${pledge.amount}
+	                            </Badge>
+	                          ))}
+	                          {demoAction === 'pledged' && (
+	                            <Badge variant="secondary" className="bg-green-50 text-green-700 border-green-200">
+	                              <DollarSign className="h-3 w-3 mr-1" />
+	                              You: $25
+	                            </Badge>
+	                          )}
+	                        </div>
+	                      ) : null}
+	                      {displayStatus === 'pending' && (
+	                        <div className="mt-4 grid gap-2 sm:grid-cols-3">
+	                          <Button size="sm" onClick={() => handleFinancialAction(request.id, 'approved')}>
+	                            <ThumbsUp className="h-4 w-4 mr-1" />
+	                            Approve
+	                          </Button>
+	                          <Button size="sm" variant="outline" onClick={() => handleFinancialAction(request.id, 'pledged')}>
+	                            <DollarSign className="h-4 w-4 mr-1" />
+	                            Pledge $25
+	                          </Button>
+	                          <Button size="sm" variant="outline" onClick={() => handleFinancialAction(request.id, 'denied')}>
+	                            <ThumbsDown className="h-4 w-4 mr-1" />
+	                            Deny
+	                          </Button>
+	                        </div>
+	                      )}
+	                    </>
+	                  );
                   
                   return (
                     <div 
@@ -1011,10 +1134,10 @@ const DemoFamily = () => {
                                   <div className="text-right flex items-center gap-2">
                                     <div>
                                       <p className="text-xl font-bold">${request.amount.toFixed(2)}</p>
-                                      <Badge className="bg-green-100 text-green-700 border-green-200">
-                                        <CheckCircle className="h-3 w-3 mr-1" />
-                                        {request.status}
-                                      </Badge>
+	                                      <Badge className="bg-green-100 text-green-700 border-green-200">
+	                                        <CheckCircle className="h-3 w-3 mr-1" />
+	                                        {displayStatus}
+	                                      </Badge>
                                     </div>
                                     <ChevronDown className="h-5 w-5 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" />
                                   </div>
@@ -1030,12 +1153,12 @@ const DemoFamily = () => {
                         </Collapsible>
                       ) : (
                         <Card className={`overflow-hidden ${
-                          request.status === 'denied' ? 'border-red-200 bg-red-50/30' : ''
-                        }`}>
+	                          displayStatus === 'denied' ? 'border-red-200 bg-red-50/30' : ''
+	                        }`}>
                           <CardContent className="p-4">
                             <div className="flex items-start justify-between gap-4">
                               <div className="flex items-center gap-3">
-                                <Avatar className={`h-10 w-10 ring-2 ${request.status === 'denied' ? 'ring-red-300' : 'ring-primary/30'}`}>
+	                                <Avatar className={`h-10 w-10 ring-2 ${displayStatus === 'denied' ? 'ring-red-300' : 'ring-primary/30'}`}>
                                   <AvatarFallback className="bg-primary/10 text-primary text-sm">
                                     {recoveringMember?.initials || 'U'}
                                   </AvatarFallback>
@@ -1048,15 +1171,15 @@ const DemoFamily = () => {
                               <div className="text-right">
                                 <p className="text-xl font-bold">${request.amount.toFixed(2)}</p>
                                 <Badge 
-                                  variant={request.status === 'denied' ? 'destructive' : 'secondary'}
-                                  className={
-                                    request.status === 'denied' ? 'bg-red-100 text-red-700 border-red-200' : ''
-                                  }
-                                >
-                                  {request.status === 'denied' && <XCircle className="h-3 w-3 mr-1" />}
-                                  {request.status === 'pending' && <Clock className="h-3 w-3 mr-1" />}
-                                  {request.status}
-                                </Badge>
+	                                  variant={displayStatus === 'denied' ? 'destructive' : 'secondary'}
+	                                  className={
+	                                    displayStatus === 'denied' ? 'bg-red-100 text-red-700 border-red-200' : ''
+	                                  }
+	                                >
+	                                  {displayStatus === 'denied' && <XCircle className="h-3 w-3 mr-1" />}
+	                                  {displayStatus === 'pending' && <Clock className="h-3 w-3 mr-1" />}
+	                                  {displayStatus}
+	                                </Badge>
                               </div>
                             </div>
                             <RequestContent />
@@ -1139,15 +1262,15 @@ const DemoFamily = () => {
                     <CollapsibleContent>
                       <CardContent className="pt-0">
                         <div className="space-y-3">
-                          <Input placeholder="Enter your zip code or city" disabled />
+                          <Input value="Bend, OR" readOnly />
                           <div className="flex gap-2">
-                            <Button variant="outline" size="sm" disabled>AA</Button>
-                            <Button variant="outline" size="sm" disabled>Al-Anon</Button>
-                            <Button variant="outline" size="sm" disabled>NA</Button>
-                            <Button variant="outline" size="sm" disabled>Other</Button>
+                            <Button variant="outline" size="sm">AA</Button>
+                            <Button variant="outline" size="sm">Al-Anon</Button>
+                            <Button variant="outline" size="sm">NA</Button>
+                            <Button variant="outline" size="sm">Other</Button>
                           </div>
                           <p className="text-xs text-muted-foreground text-center">
-                            (Demo mode - meeting search disabled)
+                            Demo results are pre-populated for review.
                           </p>
                         </div>
                       </CardContent>
@@ -1171,16 +1294,21 @@ const DemoFamily = () => {
                       Request a family member to share their current location.
                     </p>
                     <div className="space-y-2">
-                      <Select disabled>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select family member" />
-                        </SelectTrigger>
-                      </Select>
-                      <Button className="w-full" disabled>
-                        Send Location Request
-                      </Button>
+	                      <Select value="Michael Johnson">
+	                        <SelectTrigger>
+	                          <SelectValue />
+	                        </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Michael Johnson">Michael Johnson</SelectItem>
+                            <SelectItem value="Chris Davis">Chris Davis</SelectItem>
+                            <SelectItem value="Tyler Mitchell">Tyler Mitchell</SelectItem>
+                          </SelectContent>
+	                      </Select>
+	                      <Button className="w-full" onClick={() => handleDemoCheckin('Location request recorded for this demo session.')}>
+	                        Send Location Request
+	                      </Button>
                       <p className="text-xs text-muted-foreground text-center">
-                        (Demo mode - requests disabled)
+	                        Demo mode records this as a sample request.
                       </p>
                     </div>
                   </CardContent>
@@ -1215,32 +1343,42 @@ const DemoFamily = () => {
                             <TabsTrigger value="appointment">Appointment</TabsTrigger>
                           </TabsList>
                           <TabsContent value="meeting" className="space-y-3">
-                            <Select disabled>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select meeting type (AA, NA, Al-Anon...)" />
-                              </SelectTrigger>
-                            </Select>
-                            <Input placeholder="Meeting name (optional)" disabled />
-                            <Button className="w-full" disabled>
-                              <CheckCircle className="h-4 w-4 mr-2" />
-                              Check In to Meeting
-                            </Button>
-                          </TabsContent>
-                          <TabsContent value="appointment" className="space-y-3">
-                            <Select disabled>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select appointment type" />
-                              </SelectTrigger>
-                            </Select>
-                            <Input placeholder="Appointment details (optional)" disabled />
-                            <Button className="w-full" disabled>
-                              <CheckCircle className="h-4 w-4 mr-2" />
-                              Check In to Appointment
-                            </Button>
+	                            <Select value="AA">
+	                              <SelectTrigger>
+	                                <SelectValue />
+	                              </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="AA">AA</SelectItem>
+                                  <SelectItem value="NA">NA</SelectItem>
+                                  <SelectItem value="Al-Anon">Al-Anon</SelectItem>
+                                </SelectContent>
+	                            </Select>
+	                            <Input value="Tuesday Night Recovery Group" readOnly />
+	                            <Button className="w-full" onClick={() => handleDemoCheckin('Meeting check-in added for this demo session.')}>
+	                              <CheckCircle className="h-4 w-4 mr-2" />
+	                              Check In to Meeting
+	                            </Button>
+	                          </TabsContent>
+	                          <TabsContent value="appointment" className="space-y-3">
+	                            <Select value="therapy">
+	                              <SelectTrigger>
+	                                <SelectValue />
+	                              </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="therapy">Therapy</SelectItem>
+                                  <SelectItem value="doctor">Doctor</SelectItem>
+                                  <SelectItem value="job">Job / life appointment</SelectItem>
+                                </SelectContent>
+	                            </Select>
+	                            <Input value="Weekly individual therapy" readOnly />
+	                            <Button className="w-full" onClick={() => handleDemoCheckin('Appointment check-in added for this demo session.')}>
+	                              <CheckCircle className="h-4 w-4 mr-2" />
+	                              Check In to Appointment
+	                            </Button>
                           </TabsContent>
                         </Tabs>
                         <p className="text-xs text-muted-foreground text-center mt-3">
-                          (Demo mode - check-ins disabled)
+	                          Demo mode shows the complete check-in workflow with sample data.
                         </p>
                       </CardContent>
                     </CollapsibleContent>
@@ -1430,7 +1568,7 @@ const DemoFamily = () => {
                           Live speakerphone coaching
                         </div>
                         <p className="text-xs text-muted-foreground">Coach a conversation in real time while keeping boundaries and tone aligned.</p>
-                        <Button size="sm" className="w-full" onClick={() => toast.info('Demo: live speakerphone coaching would start here')}>
+	                        <Button size="sm" className="w-full" onClick={() => handleDemoCheckin('Live coaching session started for this demo session.')}>
                           Start Demo Session
                         </Button>
                       </CardContent>
@@ -1442,7 +1580,7 @@ const DemoFamily = () => {
                           Screenshot or pasted text analysis
                         </div>
                         <p className="text-xs text-muted-foreground">Upload a thread or paste an email and get suggested responses plus warning flags.</p>
-                        <Button size="sm" variant="outline" className="w-full" onClick={() => toast.info('Demo: screenshot / email coaching flow would open here')}>
+	                        <Button size="sm" variant="outline" className="w-full" onClick={() => handleDemoCheckin('Conversation analysis loaded with a sample transcript.')}>
                           Analyze Conversation
                         </Button>
                       </CardContent>
@@ -1463,7 +1601,7 @@ const DemoFamily = () => {
                     <Card>
                       <CardHeader className="pb-3">
                         <CardTitle className="text-sm">Recent coaching sessions</CardTitle>
-                        <CardDescription>Dummy data showing the kinds of saved coaching support families see in the live app.</CardDescription>
+	                        <CardDescription>Saved coaching examples from the selected demo family.</CardDescription>
                       </CardHeader>
                       <CardContent className="space-y-3">
                         {currentCoaching.recentSessions.map((session) => (
@@ -1558,7 +1696,10 @@ const DemoFamily = () => {
                     </AccordionItem>
                   </Accordion>
 
-                  {currentFamily.boundaries.map((boundary) => (
+                  {currentFamily.boundaries.map((boundary) => {
+                    const acknowledgedInDemo = boundaryAcknowledgments[boundary.id];
+
+                    return (
                     <div 
                       key={boundary.id}
                       className={`p-4 rounded-lg border ${
@@ -1604,8 +1745,26 @@ const DemoFamily = () => {
                           </div>
                         </div>
                       )}
+                      <div className="mt-3 flex flex-wrap items-center gap-2">
+                        {acknowledgedInDemo && (
+                          <Badge variant="outline" className="bg-green-50 border-green-200 text-green-700">
+                            <Check className="h-3 w-3 mr-1" />
+                            You acknowledged this session
+                          </Badge>
+                        )}
+                        <Button
+                          size="sm"
+                          variant={acknowledgedInDemo ? 'outline' : 'default'}
+                          disabled={acknowledgedInDemo}
+                          onClick={() => handleBoundaryAcknowledgment(boundary.id)}
+                        >
+                          <ShieldCheck className="h-4 w-4 mr-1" />
+                          {acknowledgedInDemo ? 'Acknowledged' : 'Acknowledge in Demo'}
+                        </Button>
+                      </div>
                     </div>
-                  ))}
+                    );
+                  })}
                 </CardContent>
               </Card>
             </TabsContent>
@@ -1642,7 +1801,7 @@ const DemoFamily = () => {
                           ? "bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
                           : "bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600"
                         }`}
-                        onClick={() => toast.success('Demo: AI analysis would run here')}
+	                        onClick={() => handleDemoCheckin('FIIS analysis refreshed for this demo session.')}
                       >
                         <Sparkles className="h-4 w-4 mr-1" />
                         Analyze Patterns
@@ -2019,27 +2178,30 @@ const DemoFamily = () => {
                     <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-md">
                       <FlaskConical className="h-5 w-5 text-white" />
                     </div>
-                    Drug & Alcohol Testing
-                    <Badge variant="secondary" className="ml-2 bg-amber-100 text-amber-700">Coming Soon</Badge>
+	                    Drug & Alcohol Testing
+	                    <Badge variant="secondary" className="ml-2 bg-emerald-100 text-emerald-700">Demo Data</Badge>
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="text-center py-8">
-                    <FlaskConical className="h-12 w-12 text-amber-500 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold mb-2">Lab-Verified Testing Coming Soon</h3>
-                    <p className="text-muted-foreground max-w-md mx-auto">
-                      Random testing schedules, instant notifications, and lab-verified results will be available to families.
-                    </p>
-                    <Button 
-                      variant="outline" 
-                      className="mt-4"
-                      onClick={() => toast.info("Thanks for your interest! We'll notify you when testing launches.")}
-                    >
-                      <Mail className="h-4 w-4 mr-2" />
-                      Notify Me When Available
-                    </Button>
-                  </div>
-                </CardContent>
+	                <CardContent>
+	                  <div className="grid gap-3 md:grid-cols-3">
+                      {[
+                        { label: 'Last result', value: selectedFamily === 'davis' ? 'Missed' : 'Negative', detail: selectedFamily === 'davis' ? 'Missed scheduled screen yesterday' : 'Lab panel received 2 days ago' },
+                        { label: 'Next screen', value: selectedFamily === 'johnson' ? 'Friday' : 'Tomorrow', detail: 'Random testing window visible to approved supporters' },
+                        { label: 'Family alert', value: selectedFamily === 'davis' ? 'Open' : 'Clear', detail: selectedFamily === 'davis' ? 'Moderator follow-up recommended' : 'No testing follow-up needed' },
+                      ].map((item) => (
+                        <Card key={item.label} className="bg-muted/30">
+                          <CardContent className="pt-4">
+                            <p className="text-xs text-muted-foreground">{item.label}</p>
+                            <p className="text-xl font-semibold">{item.value}</p>
+                            <p className="mt-1 text-xs text-muted-foreground">{item.detail}</p>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                    <div className="mt-4 rounded-lg border bg-amber-50/60 p-4 text-sm text-amber-900 dark:bg-amber-950/20 dark:text-amber-100">
+                      Testing records are sample review data. In the live app, results are visible only to authorized family members and moderators.
+                    </div>
+	                </CardContent>
               </Card>
             </TabsContent>
 
@@ -2223,29 +2385,48 @@ const DemoFamily = () => {
                                 Needs Attention ({overdueDoses.length})
                               </h4>
                               <div className="space-y-2">
-                                {overdueDoses.map(dose => (
-                                  <div key={dose.id} className="flex items-center justify-between p-3 rounded-lg bg-destructive/10 border border-destructive/20">
+                                {overdueDoses.map(dose => {
+                                  const demoAction = medicationActions[dose.id];
+
+                                  return (
+                                  <div key={dose.id} className={`flex items-center justify-between p-3 rounded-lg border ${
+                                    demoAction === 'Taken'
+                                      ? 'bg-green-50 border-green-200'
+                                      : demoAction === 'Skipped'
+                                        ? 'bg-muted/40 border-border'
+                                        : 'bg-destructive/10 border-destructive/20'
+                                  }`}>
                                     <div className="flex items-center gap-3">
-                                      <div className="h-10 w-10 rounded-full bg-destructive/20 flex items-center justify-center">
-                                        <Pill className="h-5 w-5 text-destructive" />
+                                      <div className={`h-10 w-10 rounded-full flex items-center justify-center ${
+                                        demoAction === 'Taken' ? 'bg-green-100' : 'bg-destructive/20'
+                                      }`}>
+                                        {demoAction === 'Taken' ? (
+                                          <CheckCircle className="h-5 w-5 text-green-600" />
+                                        ) : (
+                                          <Pill className="h-5 w-5 text-destructive" />
+                                        )}
                                       </div>
                                       <div>
                                         <p className="font-medium text-sm">{dose.medName}</p>
                                         <p className="text-xs text-muted-foreground">{dose.dosage} • Scheduled: {dose.time}</p>
+                                        {demoAction && (
+                                          <p className="text-xs text-primary mt-1">{demoAction} in this demo session</p>
+                                        )}
                                       </div>
                                     </div>
                                     <div className="flex gap-2">
-                                      <Button size="sm" variant="outline" className="h-8 text-xs" onClick={() => toast.info('Demo: Skip dose')}>
+	                                      <Button size="sm" variant="outline" className="h-8 text-xs" disabled={!!demoAction} onClick={() => handleMedicationAction(dose.id, 'Skipped')}>
                                         <X className="h-3 w-3 mr-1" />
                                         Skip
                                       </Button>
-                                      <Button size="sm" className="h-8 text-xs bg-green-600 hover:bg-green-700" onClick={() => toast.success('Dose recorded!')}>
+                                      <Button size="sm" className="h-8 text-xs bg-green-600 hover:bg-green-700" disabled={!!demoAction} onClick={() => handleMedicationAction(dose.id, 'Taken')}>
                                         <Check className="h-3 w-3 mr-1" />
                                         Taken
                                       </Button>
                                     </div>
                                   </div>
-                                ))}
+                                  );
+                                })}
                               </div>
                             </div>
                           )}
@@ -2257,7 +2438,10 @@ const DemoFamily = () => {
                                 Upcoming ({upcomingDoses.length})
                               </h4>
                               <div className="space-y-2">
-                                {upcomingDoses.map(dose => (
+                                {upcomingDoses.map(dose => {
+                                  const demoAction = medicationActions[dose.id];
+
+                                  return (
                                   <div key={dose.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border">
                                     <div className="flex items-center gap-3">
                                       <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
@@ -2266,14 +2450,18 @@ const DemoFamily = () => {
                                       <div>
                                         <p className="font-medium text-sm">{dose.medName}</p>
                                         <p className="text-xs text-muted-foreground">{dose.dosage} • Scheduled: {dose.time}</p>
+                                        {demoAction && (
+                                          <p className="text-xs text-primary mt-1">{demoAction} in this demo session</p>
+                                        )}
                                       </div>
                                     </div>
-                                    <Button size="sm" variant="outline" className="h-8 text-xs" onClick={() => toast.success('Dose recorded!')}>
+                                    <Button size="sm" variant="outline" className="h-8 text-xs" disabled={!!demoAction} onClick={() => handleMedicationAction(dose.id, 'Taken')}>
                                       <Check className="h-3 w-3 mr-1" />
-                                      Mark Taken
+                                      {demoAction ? 'Taken' : 'Mark Taken'}
                                     </Button>
                                   </div>
-                                ))}
+                                  );
+                                })}
                               </div>
                             </div>
                           )}
@@ -2323,7 +2511,7 @@ const DemoFamily = () => {
                       </CardTitle>
                       <p className="text-sm text-muted-foreground">Active prescriptions and supplements</p>
                     </div>
-                    <Button size="sm" className="gap-1" onClick={() => toast.info('Demo: Add medication form would open')}>
+	                    <Button size="sm" className="gap-1" onClick={() => handleDemoCheckin('Medication form opened with demo defaults.')}>
                       <Plus className="h-4 w-4" />
                       Add
                     </Button>
