@@ -29,6 +29,7 @@ const Auth = () => {
     ? 'reset'
     : 'signin';
   const familyInviteCode = searchParams.get('familyInvite');
+  const nextPath = searchParams.get('next');
   
   const [mode, setMode] = useState<'signin' | 'signup' | 'forgot' | 'reset'>(initialMode);
   const [email, setEmail] = useState('');
@@ -50,6 +51,12 @@ const Auth = () => {
   } = useBiometricAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  const getSafeNextPath = () => {
+    if (!nextPath || !nextPath.startsWith('/') || nextPath.startsWith('//')) return null;
+    if (nextPath === '/auth') return null;
+    return nextPath;
+  };
 
   // Join family after signup if invite code was provided
   const joinFamilyWithInviteCode = async (userId: string, inviteCode: string) => {
@@ -101,6 +108,12 @@ const Auth = () => {
     if (familyInviteCode) {
       const joined = await joinFamilyWithInviteCode(userId, familyInviteCode);
       if (joined) return; // Already navigated to family chat
+    }
+
+    const safeNextPath = getSafeNextPath();
+    if (safeNextPath) {
+      navigate(safeNextPath);
+      return;
     }
 
     try {

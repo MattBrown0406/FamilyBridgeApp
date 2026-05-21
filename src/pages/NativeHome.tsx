@@ -104,10 +104,10 @@ export default function NativeHome() {
                     In-App Purchases for App Review
                   </CardTitle>
                   <CardDescription>
-                    Use these direct paths to review each Apple sandbox In-App Purchase in the submitted iOS app.
+                    Family and provider subscriptions can be reviewed before account sign-in. The 24-hour guidance purchase is available only after sign-in from a family workspace.
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="grid gap-3 sm:grid-cols-3">
+                <CardContent className="grid gap-3 sm:grid-cols-2">
                   <Button className="h-auto justify-between p-3 text-left" onClick={() => navigate("/family-purchase")}>
                     <span>
                       <span className="block text-sm font-semibold">Family Subscription</span>
@@ -119,13 +119,6 @@ export default function NativeHome() {
                     <span>
                       <span className="block text-sm font-semibold">Provider Subscription</span>
                       <span className="block text-xs font-normal text-muted-foreground">Monthly or quarterly</span>
-                    </span>
-                    <ArrowRight className="h-4 w-4" />
-                  </Button>
-                  <Button className="h-auto justify-between p-3 text-left" variant="outline" onClick={() => navigate("/moderator-purchase")}>
-                    <span>
-                      <span className="block text-sm font-semibold">Guidance Window</span>
-                      <span className="block text-xs font-normal text-muted-foreground">$399 one-time purchase</span>
                     </span>
                     <ArrowRight className="h-4 w-4" />
                   </Button>

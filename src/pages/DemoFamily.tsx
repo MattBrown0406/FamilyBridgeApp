@@ -601,7 +601,7 @@ const DemoFamily = () => {
                           <div className="bg-primary/10 p-4 rounded-lg">
                             <p className="text-sm">
                               <strong className="text-foreground">In the live iOS app:</strong>
-                              {' '}additional Professional Guidance Windows are available as Apple In-App Purchases.
+                              {' '}additional Professional Guidance Windows are available after sign-in from an active family workspace.
                             </p>
                           </div>
                         </div>
@@ -618,13 +618,6 @@ const DemoFamily = () => {
                       >
                         Yes, Request Guidance
                       </AlertDialogAction>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => navigate('/moderator-purchase')}
-                      >
-                        View Purchase Screen
-                      </Button>
                     </AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>

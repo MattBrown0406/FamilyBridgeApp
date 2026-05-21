@@ -49,10 +49,10 @@ export function isRevenueCatEnabled() {
   return isRevenueCatNativeSupported() && !!getRevenueCatAppleApiKey();
 }
 
-export async function ensureRevenueCatConfigured(appUserID: string) {
+export async function ensureRevenueCatConfigured(appUserID?: string | null) {
   const apiKey = getRevenueCatAppleApiKey();
 
-  if (!apiKey || !isRevenueCatNativeSupported() || !appUserID) {
+  if (!apiKey || !isRevenueCatNativeSupported()) {
     return false;
   }
 
@@ -65,11 +65,15 @@ export async function ensureRevenueCatConfigured(appUserID: string) {
 
     await Purchases.configure({
       apiKey,
-      appUserID,
+      appUserID: appUserID ?? null,
       storeKitVersion: STOREKIT_VERSION.DEFAULT,
       entitlementVerificationMode: ENTITLEMENT_VERIFICATION_MODE.INFORMATIONAL,
     });
 
+    return true;
+  }
+
+  if (!appUserID) {
     return true;
   }
 

@@ -309,20 +309,16 @@ const Demo = () => {
                       In-App Purchase Review Paths
                     </CardTitle>
                     <CardDescription>
-                      Direct links for Apple Review to locate every in-app purchase in the submitted iOS app.
+                      Direct links for Apple Review to locate front-facing subscription purchases. The 24-hour guidance purchase requires sign-in and an existing family workspace.
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="grid gap-3 md:grid-cols-3">
+                  <CardContent className="grid gap-3 md:grid-cols-2">
                     <Button className="w-full justify-between" onClick={() => navigate('/family-purchase')}>
                       Family Subscription
                       <ArrowRight className="h-4 w-4" />
                     </Button>
                     <Button className="w-full justify-between" variant="outline" onClick={() => navigate('/provider-purchase')}>
                       Provider Subscription
-                      <ArrowRight className="h-4 w-4" />
-                    </Button>
-                    <Button className="w-full justify-between" variant="outline" onClick={() => navigate('/moderator-purchase')}>
-                      Guidance Window
                       <ArrowRight className="h-4 w-4" />
                     </Button>
                   </CardContent>

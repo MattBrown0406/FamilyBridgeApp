@@ -123,9 +123,11 @@ const ProviderPurchase = () => {
   const showAnnualOption = !isNative;
   const showNativeRevenueCat = isIOS && isSupported;
   const hasProviderAccess = hasEntitlement(REVENUECAT_ENTITLEMENT_IDS.provider);
+  const authReturnPath = "/auth?next=/provider-purchase";
+  const setupAuthReturnPath = "/auth?next=/provider-admin";
 
   useEffect(() => {
-    if (!showNativeRevenueCat || !user) {
+    if (!showNativeRevenueCat || !isReady) {
       setProviderOffering(null);
       return;
     }
@@ -136,7 +138,7 @@ const ProviderPurchase = () => {
         console.error("Failed to load provider offering:", error);
         setProviderOffering(null);
       });
-  }, [getOffering, showNativeRevenueCat, user]);
+  }, [getOffering, isReady, showNativeRevenueCat]);
 
   const handleSquarePurchase = async () => {
     // Apple App Store compliance: Never execute payment flows on native
@@ -314,11 +316,6 @@ const ProviderPurchase = () => {
       return;
     }
 
-    if (!user) {
-      navigate("/auth");
-      return;
-    }
-
     if (!isReady) {
       toast.error("Still connecting to the App Store. Please try again in a moment.");
       return;
@@ -335,8 +332,13 @@ const ProviderPurchase = () => {
       const customerInfo = await purchasePackage(selectedPackage);
 
       if (hasRevenueCatEntitlement(customerInfo, REVENUECAT_ENTITLEMENT_IDS.provider)) {
-        toast.success("Subscription active. You can now set up your organization.");
-        navigate("/provider-admin");
+        if (user) {
+          toast.success("Subscription active. You can now set up your organization.");
+          navigate("/provider-admin");
+        } else {
+          toast.success("Subscription active. Create or sign in to your FamilyBridge account to finish provider setup.");
+          navigate(setupAuthReturnPath);
+        }
         return;
       }
 
@@ -350,8 +352,13 @@ const ProviderPurchase = () => {
   };
 
   const handleNativeRestore = async () => {
-    if (!showNativeRevenueCat || !user) {
-      navigate("/auth");
+    if (!showNativeRevenueCat) {
+      navigate(authReturnPath);
+      return;
+    }
+
+    if (!isReady) {
+      toast.error("Still connecting to the App Store. Please try again in a moment.");
       return;
     }
 
@@ -360,8 +367,13 @@ const ProviderPurchase = () => {
       const customerInfo = await restorePurchases();
 
       if (hasRevenueCatEntitlement(customerInfo, REVENUECAT_ENTITLEMENT_IDS.provider)) {
-        toast.success("Provider subscription restored. You can continue to setup.");
-        navigate("/provider-admin");
+        if (user) {
+          toast.success("Provider subscription restored. You can continue to setup.");
+          navigate("/provider-admin");
+        } else {
+          toast.success("Provider subscription restored. Sign in or create an account to finish setup.");
+          navigate(setupAuthReturnPath);
+        }
         return;
       }
 
@@ -677,21 +689,7 @@ const ProviderPurchase = () => {
                   {isIOS ? (
                     <>
                       <div className="space-y-4">
-                        {!user ? (
-                          <>
-                            <div className="rounded-lg border bg-muted/40 p-4 text-sm text-muted-foreground">
-	                              <p className="font-medium text-foreground mb-2">Sign in first to purchase a provider subscription on iPhone or iPad.</p>
-                              <p>Your RevenueCat subscription is tied to your FamilyBridge account, so login comes first.</p>
-                            </div>
-                            <Button
-                              variant="outline"
-                              onClick={() => navigate("/auth")}
-                              className="w-full"
-                            >
-                              Sign In or Create Account
-                            </Button>
-                          </>
-                        ) : hasProviderAccess ? (
+                        {hasProviderAccess ? (
                           <>
                             <div className="rounded-lg border border-emerald-500/30 bg-emerald-50/60 p-4 text-sm text-emerald-900 dark:bg-emerald-950/20 dark:text-emerald-100">
                               <p className="font-medium mb-2">Your provider subscription is active.</p>
@@ -703,9 +701,15 @@ const ProviderPurchase = () => {
                           </>
                         ) : (
                           <>
+                            {!user && (
+                              <div className="rounded-lg border bg-muted/40 p-4 text-sm text-muted-foreground">
+                                <p className="font-medium text-foreground mb-2">Apple App Review can start this provider subscription here.</p>
+                                <p>You can create or sign in to a FamilyBridge account after the App Store sandbox purchase completes.</p>
+                              </div>
+                            )}
                             <div className="rounded-lg border bg-muted/40 p-4 text-sm text-muted-foreground">
                               <p className="font-medium text-foreground mb-2">Choose the provider subscription that fits your team.</p>
-	                              <p>Monthly and quarterly provider plans are available on iPhone and iPad today.</p>
+                              <p>Monthly and quarterly provider plans are available on iPhone and iPad today.</p>
                             </div>
                             <Button
                               onClick={handleNativePurchase}
@@ -746,10 +750,10 @@ const ProviderPurchase = () => {
                             </p>
                             <Button
                               variant="ghost"
-                              onClick={() => navigate("/auth")}
+                              onClick={() => navigate(authReturnPath)}
                               className="w-full"
                             >
-                              Switch Account
+                              {user ? "Switch Account" : "Sign In or Create Account"}
                             </Button>
                           </>
                         )}

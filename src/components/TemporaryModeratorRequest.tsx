@@ -170,7 +170,6 @@ export const TemporaryModeratorRequest = ({
     }
   };
 
-  // Don't show button if family has an organization
   const handleRequest = async () => {
     setIsLoading(true);
     try {
@@ -205,7 +204,6 @@ export const TemporaryModeratorRequest = ({
     }
   };
 
-  // Don't show button if family has an organization
   if (hasOrganization) {
     return null;
   }
@@ -333,6 +331,17 @@ export const TemporaryModeratorRequest = ({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isLoading}>Cancel</AlertDialogCancel>
+          <Button
+            type="button"
+            variant="outline"
+            disabled={isLoading}
+            onClick={() => {
+              setDialogOpen(false);
+              navigate(`/moderator-purchase?familyId=${familyId}`);
+            }}
+          >
+            Buy 24-Hour Window
+          </Button>
           <AlertDialogAction
             onClick={(e) => {
               e.preventDefault();

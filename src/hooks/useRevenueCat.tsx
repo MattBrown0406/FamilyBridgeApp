@@ -51,7 +51,7 @@ export function RevenueCatProvider({ children }: { children: ReactNode }) {
     let listenerId: string | null = null;
 
     const setup = async () => {
-      if (!isSupported || !user?.id) {
+      if (!isSupported) {
         if (mounted) {
           setIsReady(false);
           setCustomerInfo(null);
@@ -60,7 +60,7 @@ export function RevenueCatProvider({ children }: { children: ReactNode }) {
       }
 
       try {
-        await ensureRevenueCatConfigured(user.id);
+        await ensureRevenueCatConfigured(user?.id ?? null);
 
         const { customerInfo: initialCustomerInfo } = await Purchases.getCustomerInfo();
 
@@ -94,42 +94,42 @@ export function RevenueCatProvider({ children }: { children: ReactNode }) {
   }, [isSupported, user?.id]);
 
   const refreshCustomerInfo = useCallback(async () => {
-    if (!isSupported || !user?.id) return null;
+    if (!isSupported || !isReady) return null;
     const { customerInfo } = await Purchases.getCustomerInfo();
     setCustomerInfo(customerInfo);
     return customerInfo;
-  }, [isSupported, user?.id]);
+  }, [isReady, isSupported]);
 
   const getOffering = useCallback(async (offeringId: string) => {
-    if (!isSupported || !user?.id) return null;
+    if (!isSupported || !isReady) return null;
     return getRevenueCatOffering(offeringId);
-  }, [isSupported, user?.id]);
+  }, [isReady, isSupported]);
 
   const getPackageByProductId = useCallback(async (productId: string) => {
-    if (!isSupported || !user?.id) return null;
+    if (!isSupported || !isReady) return null;
     return getRevenueCatPackageByProductId(productId);
-  }, [isSupported, user?.id]);
+  }, [isReady, isSupported]);
 
   const purchasePackage = useCallback(async (aPackage: PurchasesPackage) => {
-    if (!isSupported || !user?.id) return null;
+    if (!isSupported || !isReady) return null;
     const result = await Purchases.purchasePackage({ aPackage });
     setCustomerInfo(result.customerInfo);
     return result.customerInfo;
-  }, [isSupported, user?.id]);
+  }, [isReady, isSupported]);
 
   const purchasePackageWithResult = useCallback(async (aPackage: PurchasesPackage) => {
-    if (!isSupported || !user?.id) return null;
+    if (!isSupported || !isReady) return null;
     const result = await Purchases.purchasePackage({ aPackage });
     setCustomerInfo(result.customerInfo);
     return result;
-  }, [isSupported, user?.id]);
+  }, [isReady, isSupported]);
 
   const restorePurchases = useCallback(async () => {
-    if (!isSupported || !user?.id) return null;
+    if (!isSupported || !isReady) return null;
     const { customerInfo } = await Purchases.restorePurchases();
     setCustomerInfo(customerInfo);
     return customerInfo;
-  }, [isSupported, user?.id]);
+  }, [isReady, isSupported]);
 
   const hasEntitlement = useCallback((entitlementId: string) => {
     return hasRevenueCatEntitlement(customerInfo, entitlementId);

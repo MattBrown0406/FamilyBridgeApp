@@ -2889,7 +2889,7 @@ const FamilyChat = () => {
                 </div>
               )}
               
-              <div className="hidden sm:block">
+              <div className="block">
                 {familyId && (
                   <TemporaryModeratorRequest 
                     familyId={familyId} 

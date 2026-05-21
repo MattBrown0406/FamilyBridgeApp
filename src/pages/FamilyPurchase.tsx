@@ -63,9 +63,11 @@ const FamilyPurchase = () => {
   const [familyOffering, setFamilyOffering] = useState<PurchasesOffering | null>(null);
   const showNativeRevenueCat = isIOS && isSupported;
   const hasFamilyAccess = hasEntitlement(REVENUECAT_ENTITLEMENT_IDS.family);
+  const authReturnPath = "/auth?next=/family-purchase";
+  const setupAuthReturnPath = "/auth?next=/family-setup";
 
   useEffect(() => {
-    if (!showNativeRevenueCat || !user) {
+    if (!showNativeRevenueCat || !isReady) {
       setFamilyOffering(null);
       return;
     }
@@ -76,7 +78,7 @@ const FamilyPurchase = () => {
         console.error("Failed to load family offering:", error);
         setFamilyOffering(null);
       });
-  }, [getOffering, showNativeRevenueCat, user]);
+  }, [getOffering, isReady, showNativeRevenueCat]);
 
   // Fetch family info if reactivating
   useEffect(() => {
@@ -311,11 +313,6 @@ const FamilyPurchase = () => {
       return;
     }
 
-    if (!user) {
-      navigate("/auth");
-      return;
-    }
-
     if (!isReady) {
       toast.error("Still connecting to the App Store. Please try again in a moment.");
       return;
@@ -332,8 +329,13 @@ const FamilyPurchase = () => {
       const customerInfo = await purchasePackage(monthlyPackage);
 
       if (hasRevenueCatEntitlement(customerInfo, REVENUECAT_ENTITLEMENT_IDS.family)) {
-        toast.success("Subscription active. You can now create your family group.");
-        navigate("/family-setup");
+        if (user) {
+          toast.success("Subscription active. You can now create your family group.");
+          navigate("/family-setup");
+        } else {
+          toast.success("Subscription active. Create or sign in to your FamilyBridge account to finish setup.");
+          navigate(setupAuthReturnPath);
+        }
         return;
       }
 
@@ -347,8 +349,13 @@ const FamilyPurchase = () => {
   };
 
   const handleNativeRestore = async () => {
-    if (!showNativeRevenueCat || !user) {
-      navigate("/auth");
+    if (!showNativeRevenueCat) {
+      navigate(authReturnPath);
+      return;
+    }
+
+    if (!isReady) {
+      toast.error("Still connecting to the App Store. Please try again in a moment.");
       return;
     }
 
@@ -357,8 +364,13 @@ const FamilyPurchase = () => {
       const customerInfo = await restorePurchases();
 
       if (hasRevenueCatEntitlement(customerInfo, REVENUECAT_ENTITLEMENT_IDS.family)) {
-        toast.success("Family subscription restored. You can continue to family setup.");
-        navigate("/family-setup");
+        if (user) {
+          toast.success("Family subscription restored. You can continue to family setup.");
+          navigate("/family-setup");
+        } else {
+          toast.success("Family subscription restored. Sign in or create an account to finish setup.");
+          navigate(setupAuthReturnPath);
+        }
         return;
       }
 
@@ -797,21 +809,7 @@ const FamilyPurchase = () => {
                   {isIOS ? (
                     <>
                       <div className="space-y-4">
-                        {!user ? (
-                          <>
-                            <div className="rounded-lg border bg-muted/40 p-4 text-sm text-muted-foreground">
-	                              <p className="font-medium text-foreground mb-2">Sign in first to purchase FIIS Support on iPhone or iPad.</p>
-                              <p>Your subscription is tied to your FamilyBridge account, and invited family members can still use the invite code above.</p>
-                            </div>
-                            <Button
-                              variant="outline"
-                              onClick={() => navigate("/auth")}
-                              className="w-full"
-                            >
-                              Sign In or Create Account
-                            </Button>
-                          </>
-                        ) : hasFamilyAccess ? (
+                        {hasFamilyAccess ? (
                           <>
                             <div className="rounded-lg border border-emerald-500/30 bg-emerald-50/60 p-4 text-sm text-emerald-900 dark:bg-emerald-950/20 dark:text-emerald-100">
                               <p className="font-medium mb-2">Your family subscription is active.</p>
@@ -823,9 +821,15 @@ const FamilyPurchase = () => {
                           </>
                         ) : (
                           <>
+                            {!user && (
+                              <div className="rounded-lg border bg-muted/40 p-4 text-sm text-muted-foreground">
+                                <p className="font-medium text-foreground mb-2">Apple App Review can start this subscription here.</p>
+                                <p>You can create or sign in to a FamilyBridge account after the App Store sandbox purchase completes.</p>
+                              </div>
+                            )}
                             <div className="rounded-lg border bg-muted/40 p-4 text-sm text-muted-foreground">
                               <p className="font-medium text-foreground mb-2">One family admin subscription covers the whole family.</p>
-	                              <p>After setup, the rest of the family can join with invite codes on any supported device.</p>
+                              <p>After setup, the rest of the family can join with invite codes on any supported device.</p>
                             </div>
                             <Button
                               onClick={handleNativePurchase}
@@ -854,10 +858,10 @@ const FamilyPurchase = () => {
                             </p>
                             <Button
                               variant="ghost"
-                              onClick={() => navigate("/auth")}
+                              onClick={() => navigate(authReturnPath)}
                               className="w-full"
                             >
-                              Switch Account
+                              {user ? "Switch Account" : "Sign In or Create Account"}
                             </Button>
                           </>
                         )}
