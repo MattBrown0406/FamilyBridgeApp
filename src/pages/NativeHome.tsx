@@ -17,10 +17,10 @@ import {
 } from "lucide-react";
 
 const reviewerChecks = [
-  { icon: MessageCircle, label: "Secure family communication" },
-  { icon: Smartphone, label: "Accountability and check-ins" },
-  { icon: ShieldCheck, label: "FIIS recovery intelligence" },
-  { icon: CreditCard, label: "App Store subscriptions" },
+  { icon: MessageCircle, label: "Secure family communication", path: "/demo/family" },
+  { icon: Smartphone, label: "Accountability and check-ins", path: "/demo/family" },
+  { icon: ShieldCheck, label: "FIIS recovery intelligence", path: "/demo/family" },
+  { icon: CreditCard, label: "App Store subscriptions", path: "/family-purchase" },
 ];
 
 export default function NativeHome() {
@@ -161,14 +161,25 @@ export default function NativeHome() {
 
           <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {reviewerChecks.map((item) => (
-              <Card key={item.label}>
-                <CardContent className="flex min-h-24 items-center gap-3 p-4">
+              <button
+                key={item.label}
+                type="button"
+                onClick={() => navigate(item.path)}
+                className="group rounded-lg text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              >
+                <Card className="h-full transition-colors group-hover:border-primary/40 group-hover:bg-primary/5">
+                  <CardContent className="flex min-h-24 items-center gap-3 p-4">
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
                     <item.icon className="h-5 w-5" />
                   </div>
-                  <p className="text-sm font-medium leading-snug">{item.label}</p>
-                </CardContent>
-              </Card>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium leading-snug">{item.label}</p>
+                      <p className="mt-1 text-xs text-muted-foreground">Tap to open</p>
+                    </div>
+                    <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+                  </CardContent>
+                </Card>
+              </button>
             ))}
           </section>
         </div>
