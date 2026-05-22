@@ -313,6 +313,11 @@ const FamilyPurchase = () => {
       return;
     }
 
+    if (!user) {
+      navigate(authReturnPath);
+      return;
+    }
+
     if (!isReady) {
       toast.error("Still connecting to the App Store. Please try again in a moment.");
       return;
@@ -350,6 +355,11 @@ const FamilyPurchase = () => {
 
   const handleNativeRestore = async () => {
     if (!showNativeRevenueCat) {
+      navigate(authReturnPath);
+      return;
+    }
+
+    if (!user) {
       navigate(authReturnPath);
       return;
     }
@@ -821,32 +831,41 @@ const FamilyPurchase = () => {
                           </>
                         ) : (
                           <>
-                            {!user && (
+                            {!user ? (
                               <div className="rounded-lg border bg-muted/40 p-4 text-sm text-muted-foreground">
-                                <p className="font-medium text-foreground mb-2">Apple App Review can start this subscription here.</p>
-                                <p>You can create or sign in to a FamilyBridge account after the App Store sandbox purchase completes.</p>
+                                <p className="font-medium text-foreground mb-2">Sign in first to start the App Store subscription.</p>
+                                <p>Subscriptions are tied to a FamilyBridge account so family setup can unlock after purchase.</p>
+                              </div>
+                            ) : (
+                              <div className="rounded-lg border bg-muted/40 p-4 text-sm text-muted-foreground">
+                                <p className="font-medium text-foreground mb-2">One family admin subscription covers the whole family.</p>
+                                <p>After setup, the rest of the family can join with invite codes on any supported device.</p>
                               </div>
                             )}
-                            <div className="rounded-lg border bg-muted/40 p-4 text-sm text-muted-foreground">
-                              <p className="font-medium text-foreground mb-2">One family admin subscription covers the whole family.</p>
-                              <p>After setup, the rest of the family can join with invite codes on any supported device.</p>
-                            </div>
-                            <Button
-                              onClick={handleNativePurchase}
-                              disabled={isNativePurchasing || !isReady || !familyOffering}
-                              className="w-full"
-                              size="lg"
-                            >
-                              {isNativePurchasing ? "Opening App Store..." : `Subscribe to FIIS Support - ${formatPrice(PRODUCTS.family.monthly.price)}/month`}
-                            </Button>
-                            <Button
-                              variant="outline"
-                              onClick={handleNativeRestore}
-                              disabled={isNativeRestoring || !isReady}
-                              className="w-full"
-                            >
-                              {isNativeRestoring ? "Restoring..." : "Restore Purchases"}
-                            </Button>
+                            {!user ? (
+                              <Button onClick={() => navigate(authReturnPath)} className="w-full" size="lg">
+                                Sign In or Create Account
+                              </Button>
+                            ) : (
+                              <>
+                                <Button
+                                  onClick={handleNativePurchase}
+                                  disabled={isNativePurchasing}
+                                  className="w-full"
+                                  size="lg"
+                                >
+                                  {isNativePurchasing ? "Opening App Store..." : `Subscribe to FIIS Support - ${formatPrice(PRODUCTS.family.monthly.price)}/month`}
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  onClick={handleNativeRestore}
+                                  disabled={isNativeRestoring}
+                                  className="w-full"
+                                >
+                                  {isNativeRestoring ? "Restoring..." : "Restore Purchases"}
+                                </Button>
+                              </>
+                            )}
                             <SubscriptionDisclosure
                               subscriptionTitle={PRODUCTS.family.monthly.displayName}
                               price={formatPrice(PRODUCTS.family.monthly.price)}

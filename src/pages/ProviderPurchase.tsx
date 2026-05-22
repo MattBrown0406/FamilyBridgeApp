@@ -316,6 +316,11 @@ const ProviderPurchase = () => {
       return;
     }
 
+    if (!user) {
+      navigate(authReturnPath);
+      return;
+    }
+
     if (!isReady) {
       toast.error("Still connecting to the App Store. Please try again in a moment.");
       return;
@@ -353,6 +358,11 @@ const ProviderPurchase = () => {
 
   const handleNativeRestore = async () => {
     if (!showNativeRevenueCat) {
+      navigate(authReturnPath);
+      return;
+    }
+
+    if (!user) {
       navigate(authReturnPath);
       return;
     }
@@ -701,32 +711,41 @@ const ProviderPurchase = () => {
                           </>
                         ) : (
                           <>
-                            {!user && (
+                            {!user ? (
                               <div className="rounded-lg border bg-muted/40 p-4 text-sm text-muted-foreground">
-                                <p className="font-medium text-foreground mb-2">Apple App Review can start this provider subscription here.</p>
-                                <p>You can create or sign in to a FamilyBridge account after the App Store sandbox purchase completes.</p>
+                                <p className="font-medium text-foreground mb-2">Sign in first to start the App Store subscription.</p>
+                                <p>Provider subscriptions are tied to a FamilyBridge account so organization setup can unlock after purchase.</p>
+                              </div>
+                            ) : (
+                              <div className="rounded-lg border bg-muted/40 p-4 text-sm text-muted-foreground">
+                                <p className="font-medium text-foreground mb-2">Choose the provider subscription that fits your team.</p>
+                                <p>Monthly and quarterly provider plans are available on iPhone and iPad today.</p>
                               </div>
                             )}
-                            <div className="rounded-lg border bg-muted/40 p-4 text-sm text-muted-foreground">
-                              <p className="font-medium text-foreground mb-2">Choose the provider subscription that fits your team.</p>
-                              <p>Monthly and quarterly provider plans are available on iPhone and iPad today.</p>
-                            </div>
-                            <Button
-                              onClick={handleNativePurchase}
-                              disabled={isNativePurchasing || !isReady || !providerOffering}
-                              className="w-full"
-                              size="lg"
-                            >
-                              {isNativePurchasing ? "Opening App Store..." : billingPeriod === "monthly" ? `Subscribe Monthly - ${formatPrice(PRODUCTS.provider.monthly.price)}/month` : `Subscribe Quarterly - ${formatPrice(PRODUCTS.provider.quarterly.price)}/3 months`}
-                            </Button>
-                            <Button
-                              variant="outline"
-                              onClick={handleNativeRestore}
-                              disabled={isNativeRestoring || !isReady}
-                              className="w-full"
-                            >
-                              {isNativeRestoring ? "Restoring..." : "Restore Purchases"}
-                            </Button>
+                            {!user ? (
+                              <Button onClick={() => navigate(authReturnPath)} className="w-full" size="lg">
+                                Sign In or Create Account
+                              </Button>
+                            ) : (
+                              <>
+                                <Button
+                                  onClick={handleNativePurchase}
+                                  disabled={isNativePurchasing}
+                                  className="w-full"
+                                  size="lg"
+                                >
+                                  {isNativePurchasing ? "Opening App Store..." : billingPeriod === "monthly" ? `Subscribe Monthly - ${formatPrice(PRODUCTS.provider.monthly.price)}/month` : `Subscribe Quarterly - ${formatPrice(PRODUCTS.provider.quarterly.price)}/3 months`}
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  onClick={handleNativeRestore}
+                                  disabled={isNativeRestoring}
+                                  className="w-full"
+                                >
+                                  {isNativeRestoring ? "Restoring..." : "Restore Purchases"}
+                                </Button>
+                              </>
+                            )}
                             <SubscriptionDisclosure
                               subscriptionTitle={
                                 billingPeriod === "monthly" ? PRODUCTS.provider.monthly.displayName :

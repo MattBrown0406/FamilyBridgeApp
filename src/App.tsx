@@ -79,7 +79,10 @@ const App = () => {
               <Route path="/family/:familyId" element={<FamilyChat />} />
               <Route path="/meetings" element={<Meetings />} />
               <Route path="/enabling-exercise" element={<EnablingExercise />} />
-              <Route path="/subscription" element={<Subscription />} />
+              <Route
+                path="/subscription"
+                element={paymentsWebOnly ? <Navigate to="/family-purchase" replace /> : <Subscription />}
+              />
               <Route path="/provider-admin" element={<ProviderAdmin />} />
               <Route path="/provider-workspace" element={<ProviderWorkspace />} />
               <Route path="/provider-coordination" element={<ProviderCoordination />} />

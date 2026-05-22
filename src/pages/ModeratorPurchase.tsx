@@ -167,8 +167,18 @@ export default function ModeratorPurchase() {
   };
 
   const handleNativePurchase = async () => {
+    if (!showNativeRevenueCat) {
+      toast.error("App Store purchase is not available on this device yet.");
+      return;
+    }
+
     if (!selectedFamily) {
       toast.error("Please select a family");
+      return;
+    }
+
+    if (!isReady) {
+      toast.error("Still connecting to the App Store. Please try again in a moment.");
       return;
     }
 
@@ -383,7 +393,7 @@ export default function ModeratorPurchase() {
                     </div>
                     <Button
                       onClick={handleNativePurchase}
-                      disabled={nativePurchasing || !selectedFamily || !isReady || !crisisOffering}
+                      disabled={nativePurchasing}
                       className="w-full"
                       size="lg"
                     >

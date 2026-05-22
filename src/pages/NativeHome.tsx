@@ -104,10 +104,10 @@ export default function NativeHome() {
                     In-App Purchases for App Review
                   </CardTitle>
                   <CardDescription>
-                    Family and provider subscriptions can be reviewed before account sign-in. The 24-hour guidance purchase is available only after sign-in from a family workspace.
+                    Family and provider subscriptions open directly. The guidance window opens the signed-in family purchase path.
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="grid gap-3 sm:grid-cols-2">
+                <CardContent className="grid gap-3 sm:grid-cols-3">
                   <Button className="h-auto justify-between p-3 text-left" onClick={() => navigate("/family-purchase")}>
                     <span>
                       <span className="block text-sm font-semibold">Family Subscription</span>
@@ -119,6 +119,13 @@ export default function NativeHome() {
                     <span>
                       <span className="block text-sm font-semibold">Provider Subscription</span>
                       <span className="block text-xs font-normal text-muted-foreground">Monthly or quarterly</span>
+                    </span>
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                  <Button className="h-auto justify-between p-3 text-left" variant="outline" onClick={() => navigate("/moderator-purchase")}>
+                    <span>
+                      <span className="block text-sm font-semibold">Guidance Window</span>
+                      <span className="block text-xs font-normal text-muted-foreground">$399 one-time</span>
                     </span>
                     <ArrowRight className="h-4 w-4" />
                   </Button>
