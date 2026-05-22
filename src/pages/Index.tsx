@@ -102,6 +102,12 @@ const Index = () => {
             <Button variant="ghost" size="sm" className="h-8 text-xs sm:text-sm text-muted-foreground" onClick={() => navigate('/demo')}>
               Demo
             </Button>
+            <Button variant="ghost" size="sm" className="h-8 px-2 sm:px-3 text-xs sm:text-sm text-muted-foreground" asChild>
+              <a href="tel:458-202-2272" aria-label="Call us at 458-202-2272">
+                <Phone className="h-4 w-4 sm:mr-1" />
+                <span className="hidden sm:inline">Call</span>
+              </a>
+            </Button>
             {user ? (
               <>
                 <Button size="sm" onClick={handleDashboardClick} disabled={loading || isProviderLoading || isResolvingDashboard} className="h-8 px-3 text-xs sm:text-sm bg-primary text-primary-foreground hover:bg-primary/90">
