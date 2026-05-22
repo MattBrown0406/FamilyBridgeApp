@@ -13,7 +13,7 @@ import AdditionalTools from '@/components/home/AdditionalTools';
 import PublicCrisisHelp from '@/components/PublicCrisisHelp';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 import {
-  ArrowRight, Building2, Check, LogOut, Heart,
+  ArrowRight, Building2, Check, LogOut, Heart, Phone,
 } from 'lucide-react';
 
 const trustSignals = [
