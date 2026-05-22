@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useOrganization } from '@/hooks/useOrganization';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
-import { Home, Flame } from 'lucide-react';
+import { Home, Flame, Phone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useFamilyMemberJourney } from '@/hooks/useSobrietyJourney';
 
