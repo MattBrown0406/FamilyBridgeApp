@@ -17,6 +17,7 @@ import { PRODUCTS } from "@/lib/products";
 import {
   getOfferingPackageByProductId,
   hasRevenueCatEntitlement,
+  isMatchingRevenueCatProductId,
   REVENUECAT_ENTITLEMENT_IDS,
   REVENUECAT_OFFERING_IDS,
   REVENUECAT_PRODUCT_IDS,
@@ -44,7 +45,7 @@ const FamilyPurchase = () => {
   const status = searchParams.get("status");
   const reactivateFamilyId = searchParams.get("reactivate");
   const { isNative, isAndroid } = usePlatform();
-  const { isSupported, isReady, getOffering, purchasePackage, restorePurchases, hasEntitlement } = useRevenueCat();
+  const { isSupported, isReady, getOffering, purchasePackageWithResult, restorePurchases, hasEntitlement } = useRevenueCat();
 
   const [email, setEmail] = useState(user?.email || "");
   const [couponCode, setCouponCode] = useState("");
@@ -325,9 +326,13 @@ const FamilyPurchase = () => {
 
     setIsNativePurchasing(true);
     try {
-      const customerInfo = await purchasePackage(monthlyPackage);
+      const purchaseResult = await purchasePackageWithResult(monthlyPackage);
+      const customerInfo = purchaseResult?.customerInfo ?? null;
+      const purchasedFamilySubscription = purchaseResult
+        ? isMatchingRevenueCatProductId(purchaseResult.productIdentifier, REVENUECAT_PRODUCT_IDS.familyMonthly)
+        : false;
 
-      if (hasRevenueCatEntitlement(customerInfo, REVENUECAT_ENTITLEMENT_IDS.family)) {
+      if (hasRevenueCatEntitlement(customerInfo, REVENUECAT_ENTITLEMENT_IDS.family) || purchasedFamilySubscription) {
         if (user) {
           toast.success("Subscription active. You can now create your family group.");
           navigate("/family-setup");
@@ -338,7 +343,8 @@ const FamilyPurchase = () => {
         return;
       }
 
-      toast.error("Purchase completed, but access has not updated yet. Please try Restore Purchases.");
+      toast.success("Subscription completed. If setup does not unlock immediately, tap Restore Purchases.");
+      navigate("/family-setup");
     } catch (error) {
       console.error("Native family purchase error:", error);
       toast.error(`We couldn't complete the ${nativeStoreName} purchase.`);

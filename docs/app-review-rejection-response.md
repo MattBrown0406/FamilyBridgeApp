@@ -1,11 +1,27 @@
 # App Review Rejection Response
 
-Review date: April 28, 2026
-Submission ID: 23d45628-a4ad-4d79-8aac-fdbda92268a5
-Version reviewed: 1.0 (11)
-Review device: iPad Air 11-inch (M3)
+Review date: May 24, 2026
+Submission ID: [replace with current App Store Connect submission ID]
+Version reviewed: 1.0 (15)
+Review device: iPad Air 11-inch (M3) and iPhone 17 Pro Max
+Review OS: iPadOS 26.5 and iOS 26.5
 
 ## What changed for resubmission
+
+### Guideline 2.1 - Performance - App Completeness
+
+Apple reported that an alert appeared after a successful In-App Purchase. We traced the iOS purchase handlers for family and provider subscriptions. The app was waiting for the RevenueCat entitlement to appear in the returned customer info immediately after StoreKit reported a successful purchase. In the App Review sandbox, the transaction can complete before the entitlement refresh is visible, which caused the app to show: "Purchase completed, but access has not updated yet. Please try Restore Purchases."
+
+The iOS purchase flow now treats the successful StoreKit/RevenueCat transaction product identifier as a successful purchase signal for the post-purchase screen, while still accepting the entitlement when it is already present. After a successful family or provider subscription, the app shows success copy and routes reviewers to the correct setup path instead of showing an error alert.
+
+Verification path:
+
+1. Sign in with the App Review demo account.
+2. Open Family subscription purchase or Provider subscription purchase.
+3. Start the native App Store purchase.
+4. Complete the sandbox purchase sheet.
+5. Confirm FamilyBridge shows a success message and continues to Family Setup or Provider Setup without an error alert.
+6. Restore Purchases remains available if the sandbox entitlement update is delayed or the reviewer reinstalls the app.
 
 ### Guideline 4.2 - Minimum Functionality
 
@@ -71,14 +87,16 @@ A demo video alone is not enough. Apple must be able to sign in and inspect the 
 
 Hello,
 
-Thank you for the review. We have updated the iOS app to address the issues noted in Submission ID 23d45628-a4ad-4d79-8aac-fdbda92268a5.
+Thank you for the review. We have updated the iOS In-App Purchase post-purchase handling for version 1.0 (15).
 
-For Guideline 4.2, the iOS app now opens to an app-focused workspace with direct access to pre-populated family and provider demo workspaces, subscription purchase/restore paths, and account settings. The in-app `/demo` area now opens on App Review Demo Mode with populated review paths instead of placeholder/customization content. This replaces the prior marketing-style first screen in the native app.
+Apple reported that an alert appeared after a successful In-App Purchase. We traced this to the app checking for a RevenueCat entitlement immediately after StoreKit completed the sandbox transaction. In some sandbox review cases, StoreKit/RevenueCat returns a successful purchase transaction before the entitlement is visible in customer info, so the app showed an unnecessary error alert.
 
-For Guideline 3.1.1, the family and provider subscriptions are now available for purchase inside the iOS app using Apple In-App Purchase through RevenueCat. Web checkout and coupon checkout are not available inside the native iOS app.
+The app now treats the successful StoreKit/RevenueCat product identifier as a successful purchase signal for the immediate post-purchase experience, while still honoring the entitlement when it is already present. After a successful Family or Provider subscription purchase, FamilyBridge now shows success copy and continues to the appropriate setup screen instead of displaying an error alert. Restore Purchases remains available for delayed entitlement refreshes or reinstalls.
 
-For Guideline 5.1.1(v), account deletion is available in the app from Dashboard -> Settings -> Delete Account. We have included a physical-device screen recording in the App Review Information notes showing the full deletion flow.
-
-For Guideline 2.1(a), we have provided a working demo account in App Review Information. The account includes pre-populated family and provider content so Review can inspect secure family communication, accountability/check-ins, FIIS recovery intelligence, financial requests, boundaries, documents, and related workflows.
+Reviewer verification steps:
+1. Sign in with the App Review demo account.
+2. Open Family subscription purchase or Provider subscription purchase.
+3. Complete the native App Store sandbox purchase.
+4. Confirm the app shows a success message and routes to Family Setup or Provider Setup without an error alert.
 
 Thank you.

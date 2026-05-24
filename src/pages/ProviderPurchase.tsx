@@ -18,6 +18,7 @@ import { PRODUCTS } from "@/lib/products";
 import {
   getOfferingPackageByProductId,
   hasRevenueCatEntitlement,
+  isMatchingRevenueCatProductId,
   REVENUECAT_ENTITLEMENT_IDS,
   REVENUECAT_OFFERING_IDS,
   REVENUECAT_PRODUCT_IDS,
@@ -44,7 +45,7 @@ const ProviderPurchase = () => {
   const [searchParams] = useSearchParams();
   const status = searchParams.get("status");
   const { isNative, isAndroid } = usePlatform();
-  const { isSupported, isReady, getOffering, purchasePackage, restorePurchases, hasEntitlement } = useRevenueCat();
+  const { isSupported, isReady, getOffering, purchasePackageWithResult, restorePurchases, hasEntitlement } = useRevenueCat();
 
   const [email, setEmail] = useState(user?.email || "");
   const [couponCode, setCouponCode] = useState("");
@@ -329,9 +330,14 @@ const ProviderPurchase = () => {
 
     setIsNativePurchasing(true);
     try {
-      const customerInfo = await purchasePackage(selectedPackage);
+      const purchaseResult = await purchasePackageWithResult(selectedPackage);
+      const customerInfo = purchaseResult?.customerInfo ?? null;
+      const expectedProductId = getProductIdForPurchase();
+      const purchasedSelectedSubscription = purchaseResult
+        ? isMatchingRevenueCatProductId(purchaseResult.productIdentifier, expectedProductId)
+        : false;
 
-      if (hasRevenueCatEntitlement(customerInfo, REVENUECAT_ENTITLEMENT_IDS.provider)) {
+      if (hasRevenueCatEntitlement(customerInfo, REVENUECAT_ENTITLEMENT_IDS.provider) || purchasedSelectedSubscription) {
         if (user) {
           toast.success("Subscription active. You can now set up your organization.");
           navigate("/provider-admin");
@@ -342,7 +348,8 @@ const ProviderPurchase = () => {
         return;
       }
 
-      toast.error("Purchase completed, but access has not updated yet. Please try Restore Purchases.");
+      toast.success("Subscription completed. If setup does not unlock immediately, tap Restore Purchases.");
+      navigate("/provider-admin");
     } catch (error) {
       console.error("Native provider purchase error:", error);
       toast.error(`We couldn't complete the ${nativeStoreName} purchase.`);

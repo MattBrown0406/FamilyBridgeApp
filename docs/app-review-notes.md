@@ -39,6 +39,7 @@ This account and its demo data are safe for App Review to delete after testing.
 
 - Family and provider subscriptions use native App Store purchase flow through RevenueCat on iPhone and iPad.
 - The Professional Guidance Window is also available as an App Store in-app purchase on iPhone and iPad through the `/moderator-purchase` screen.
+- After a successful sandbox purchase, the app accepts the successful RevenueCat/StoreKit product identifier immediately and routes to setup without showing an error alert, even if the RevenueCat entitlement refresh lags by a few seconds.
 - The Family Purchase and Provider Purchase screens both include Restore Purchases.
 - The web checkout path is suppressed in the iOS native purchase flow.
 - Subscription management and cancellation are handled through the user's Apple ID subscription settings.
