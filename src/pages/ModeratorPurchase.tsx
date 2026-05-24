@@ -13,7 +13,6 @@ import { Shield, Clock, CheckCircle, Users, AlertCircle } from "lucide-react";
 import { BrandedHeader } from "@/components/BrandedHeader";
 import { SEOHead } from "@/components/SEOHead";
 import { BrandedFooter } from "@/components/BrandedFooter";
-import { AppStorePurchaseButton } from "@/components/AppStorePurchaseButton";
 import { SubscriptionDisclosure } from "@/components/SubscriptionDisclosure";
 import { PRODUCTS } from "@/lib/products";
 import {
@@ -27,7 +26,7 @@ export default function ModeratorPurchase() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { isNative, isIOS, isAndroid } = usePlatform();
+  const { isNative, isAndroid } = usePlatform();
   const { isSupported, isReady, getOffering, purchasePackageWithResult } = useRevenueCat();
   const [loading, setLoading] = useState(false);
   const [nativePurchasing, setNativePurchasing] = useState(false);
@@ -40,7 +39,8 @@ export default function ModeratorPurchase() {
 
   const success = searchParams.get("success");
   const familyIdParam = searchParams.get("familyId");
-  const showNativeRevenueCat = isIOS && isSupported;
+  const showNativeRevenueCat = isNative && isSupported;
+  const nativeStoreName = isAndroid ? "Google Play" : "App Store";
 
   useEffect(() => {
     if (user) {
@@ -105,7 +105,7 @@ export default function ModeratorPurchase() {
 
   const handlePurchase = async () => {
     if (isNative) {
-      toast.error("Purchases on this device must be completed with the in-app App Store flow.");
+      toast.error(`Purchases on this device must be completed with the in-app ${nativeStoreName} flow.`);
       return;
     }
 
@@ -168,7 +168,7 @@ export default function ModeratorPurchase() {
 
   const handleNativePurchase = async () => {
     if (!showNativeRevenueCat) {
-      toast.error("App Store purchase is not available on this device yet.");
+      toast.error(`${nativeStoreName} purchase is not available on this device yet.`);
       return;
     }
 
@@ -178,7 +178,7 @@ export default function ModeratorPurchase() {
     }
 
     if (!isReady) {
-      toast.error("Still connecting to the App Store. Please try again in a moment.");
+      toast.error(`Still connecting to ${nativeStoreName}. Please try again in a moment.`);
       return;
     }
 
@@ -193,7 +193,7 @@ export default function ModeratorPurchase() {
     );
 
     if (!selectedPackage) {
-      toast.error("That Professional Guidance Window product is not available yet. Please check App Store setup.");
+      toast.error(`That Professional Guidance Window product is not available yet. Please check ${nativeStoreName} setup.`);
       return;
     }
 
@@ -224,7 +224,7 @@ export default function ModeratorPurchase() {
       navigate(`/moderator-purchase?success=true&familyId=${selectedFamily}`);
     } catch (error: any) {
       console.error("Native moderator purchase error:", error);
-      toast.error(error.message || "We couldn't complete the App Store purchase.");
+      toast.error(error.message || `We couldn't complete the ${nativeStoreName} purchase.`);
     } finally {
       setNativePurchasing(false);
     }
@@ -301,8 +301,8 @@ export default function ModeratorPurchase() {
           <div className="text-center space-y-2 sm:space-y-4">
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">Professional Guidance Window</h1>
             <p className="text-sm sm:text-lg text-muted-foreground max-w-2xl mx-auto">
-              {isNative && isIOS 
-                ? "Purchase a 24-hour human guidance window through the App Store for your family chat."
+              {showNativeRevenueCat 
+                ? `Purchase a 24-hour human guidance window through ${nativeStoreName} for your family chat.`
                 : "Purchase a 24-hour human guidance window for your family chat when you need added structure and support."}
             </p>
           </div>
@@ -372,7 +372,7 @@ export default function ModeratorPurchase() {
                   </select>
                 </div>
 
-                {(!isIOS || !isNative) && (
+                {!showNativeRevenueCat && (
                   <div className="space-y-2">
                     <Label htmlFor="email">Email for Receipt</Label>
                     <Input
@@ -385,11 +385,11 @@ export default function ModeratorPurchase() {
                   </div>
                 )}
 
-                {isIOS ? (
+                {showNativeRevenueCat ? (
                   <>
                     <div className="text-center py-4 bg-muted/50 rounded-lg space-y-1">
                       <p className="text-3xl font-bold">${PRODUCTS.crisisModeration.daily.price}</p>
-                      <p className="text-sm text-muted-foreground">One-time App Store purchase for a 24-hour in-app guidance window.</p>
+                      <p className="text-sm text-muted-foreground">One-time {nativeStoreName} purchase for a 24-hour in-app guidance window.</p>
                     </div>
                     <Button
                       onClick={handleNativePurchase}
@@ -397,7 +397,7 @@ export default function ModeratorPurchase() {
                       className="w-full"
                       size="lg"
                     >
-                      {nativePurchasing ? "Opening App Store..." : "Buy Guidance Window"}
+                      {nativePurchasing ? `Opening ${nativeStoreName}...` : "Buy Guidance Window"}
                     </Button>
                     <SubscriptionDisclosure
                       subscriptionTitle={PRODUCTS.crisisModeration.daily.displayName}
@@ -412,20 +412,10 @@ export default function ModeratorPurchase() {
                   </>
                 ) : isAndroid ? (
                   <>
-                    {/* Android: Email collection for web setup */}
-                    <div className="text-center py-4 bg-muted/50 rounded-lg">
-                      <p className="text-sm text-muted-foreground">
-                        We&apos;ll email next-step instructions for this request.
-                      </p>
+                    <div className="rounded-lg border bg-muted/40 p-4 text-sm text-muted-foreground">
+                      <p className="font-medium text-foreground mb-2">Google Play Billing is required for Android purchases.</p>
+                      <p>Add the Android RevenueCat public SDK key as <code>VITE_REVENUECAT_GOOGLE_API_KEY</code>, then rebuild this app to enable the guidance window purchase.</p>
                     </div>
-                    <AppStorePurchaseButton
-                      email={email}
-                      accountType="family"
-                      disabled={!selectedFamily || !email}
-                      className="w-full"
-                    >
-                      Get Setup Info
-                    </AppStorePurchaseButton>
                   </>
                 ) : (
                   <>

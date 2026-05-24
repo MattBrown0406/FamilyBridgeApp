@@ -7,7 +7,7 @@ Legend: PASS = looks review-ready in repo, FAIL = likely rejection risk, OPEN = 
 ## 1) Payments and purchase flows
 - PASS: iPhone and iPad purchase flows use native App Store subscriptions via RevenueCat for family and provider plans, with restore buttons and account-first gating (`src/pages/FamilyPurchase.tsx`, `src/pages/ProviderPurchase.tsx`, `src/hooks/useRevenueCat.tsx`).
 - PASS: Web checkout appears suppressed on iPhone and iPad, reducing obvious external-purchase steering risk.
-- OPEN: Android billing is intentionally out of scope for the current iOS submission. Do not submit the Android build until Google Play Billing or a compliant Android purchase strategy is ready.
+- OPEN: Android now has a native Google Play Billing path through RevenueCat, but the production build still needs `VITE_REVENUECAT_GOOGLE_API_KEY` and matching Google Play products configured before submission.
 - OPEN: `docs/revenuecat-setup.md` still says the migration is in progress and lists backend/setup work as still needed. Make sure the shipped build reflects a fully working entitlement path.
 
 ## 2) Account creation, sign-in, restore, and deletion

@@ -23,6 +23,12 @@ const reviewerChecks = [
   { icon: CreditCard, label: "App Store subscriptions", path: "/family-purchase" },
 ];
 
+const actionButtonClass = "h-full min-h-[88px] w-full justify-start gap-3 overflow-hidden p-4 text-left whitespace-normal";
+const actionTextClass = "min-w-0 flex-1";
+const actionTitleClass = "block text-sm font-semibold leading-snug sm:text-base";
+const actionDescriptionClass = "mt-1 block text-xs font-normal leading-snug text-muted-foreground";
+const actionIconClass = "h-5 w-5 shrink-0 text-muted-foreground";
+
 export default function NativeHome() {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
@@ -67,33 +73,33 @@ export default function NativeHome() {
               </div>
 
               <div className="grid gap-3 sm:grid-cols-2">
-                <Button className="h-auto justify-between p-4 text-left" onClick={() => navigate(user ? "/dashboard" : "/auth")}>
-                  <span>
-                    <span className="block font-semibold">{user ? "Open Dashboard" : "Sign In or Create Account"}</span>
-                    <span className="block text-xs font-normal opacity-80">Family groups, check-ins, documents, and settings</span>
+                <Button className={actionButtonClass} onClick={() => navigate(user ? "/dashboard" : "/auth")}>
+                  <span className={actionTextClass}>
+                    <span className={actionTitleClass}>{user ? "Open Dashboard" : "Sign In or Create Account"}</span>
+                    <span className="mt-1 block text-xs font-normal leading-snug opacity-80">Family groups, check-ins, documents, and settings</span>
                   </span>
-                  <ArrowRight className="h-4 w-4" />
+                  <ArrowRight className={actionIconClass} />
                 </Button>
-                <Button className="h-auto justify-between p-4 text-left" variant="outline" onClick={() => navigate("/family-purchase")}>
-                  <span>
-                    <span className="block font-semibold">Family Subscription</span>
-                    <span className="block text-xs font-normal text-muted-foreground">Purchase or restore with Apple In-App Purchase</span>
+                <Button className={actionButtonClass} variant="outline" onClick={() => navigate("/family-purchase")}>
+                  <span className={actionTextClass}>
+                    <span className={actionTitleClass}>Family Subscription</span>
+                    <span className={actionDescriptionClass}>Purchase or restore with Apple In-App Purchase</span>
                   </span>
-                  <CreditCard className="h-4 w-4" />
+                  <CreditCard className={actionIconClass} />
                 </Button>
-                <Button className="h-auto justify-between p-4 text-left" variant="outline" onClick={() => navigate("/provider-purchase")}>
-                  <span>
-                    <span className="block font-semibold">Provider Subscription</span>
-                    <span className="block text-xs font-normal text-muted-foreground">Provider plans through Apple In-App Purchase</span>
+                <Button className={actionButtonClass} variant="outline" onClick={() => navigate("/provider-purchase")}>
+                  <span className={actionTextClass}>
+                    <span className={actionTitleClass}>Provider Subscription</span>
+                    <span className={actionDescriptionClass}>Provider plans through Apple In-App Purchase</span>
                   </span>
-                  <Building2 className="h-4 w-4" />
+                  <Building2 className={actionIconClass} />
                 </Button>
-                <Button className="h-auto justify-between p-4 text-left" variant="outline" onClick={() => navigate("/dashboard")}>
-                  <span>
-                    <span className="block font-semibold">Account Deletion</span>
-                    <span className="block text-xs font-normal text-muted-foreground">Dashboard, Settings, Delete Account</span>
+                <Button className={actionButtonClass} variant="outline" onClick={() => navigate("/dashboard")}>
+                  <span className={actionTextClass}>
+                    <span className={actionTitleClass}>Account Deletion</span>
+                    <span className={actionDescriptionClass}>Dashboard, Settings, Delete Account</span>
                   </span>
-                  <Trash2 className="h-4 w-4" />
+                  <Trash2 className={actionIconClass} />
                 </Button>
               </div>
 
@@ -107,27 +113,27 @@ export default function NativeHome() {
                     Family and provider subscriptions open directly. The guidance window opens the signed-in family purchase path.
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="grid gap-3 sm:grid-cols-3">
-                  <Button className="h-auto justify-between p-3 text-left" onClick={() => navigate("/family-purchase")}>
-                    <span>
-                      <span className="block text-sm font-semibold">Family Subscription</span>
-                      <span className="block text-xs font-normal opacity-80">$49.99 monthly</span>
+                <CardContent className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                  <Button className={actionButtonClass} onClick={() => navigate("/family-purchase")}>
+                    <span className={actionTextClass}>
+                      <span className={actionTitleClass}>Family Subscription</span>
+                      <span className="mt-1 block text-xs font-normal leading-snug opacity-80">$49.99 monthly</span>
                     </span>
-                    <ArrowRight className="h-4 w-4" />
+                    <ArrowRight className={actionIconClass} />
                   </Button>
-                  <Button className="h-auto justify-between p-3 text-left" variant="outline" onClick={() => navigate("/provider-purchase")}>
-                    <span>
-                      <span className="block text-sm font-semibold">Provider Subscription</span>
-                      <span className="block text-xs font-normal text-muted-foreground">Monthly or quarterly</span>
+                  <Button className={actionButtonClass} variant="outline" onClick={() => navigate("/provider-purchase")}>
+                    <span className={actionTextClass}>
+                      <span className={actionTitleClass}>Provider Subscription</span>
+                      <span className={actionDescriptionClass}>Monthly or quarterly</span>
                     </span>
-                    <ArrowRight className="h-4 w-4" />
+                    <ArrowRight className={actionIconClass} />
                   </Button>
-                  <Button className="h-auto justify-between p-3 text-left" variant="outline" onClick={() => navigate("/moderator-purchase")}>
-                    <span>
-                      <span className="block text-sm font-semibold">Guidance Window</span>
-                      <span className="block text-xs font-normal text-muted-foreground">$399 one-time</span>
+                  <Button className={actionButtonClass} variant="outline" onClick={() => navigate("/moderator-purchase")}>
+                    <span className={actionTextClass}>
+                      <span className={actionTitleClass}>Guidance Window</span>
+                      <span className={actionDescriptionClass}>$399 one-time</span>
                     </span>
-                    <ArrowRight className="h-4 w-4" />
+                    <ArrowRight className={actionIconClass} />
                   </Button>
                 </CardContent>
               </Card>

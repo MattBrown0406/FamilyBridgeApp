@@ -30,6 +30,8 @@ const Auth = () => {
     : 'signin';
   const familyInviteCode = searchParams.get('familyInvite');
   const nextPath = searchParams.get('next');
+  const setupContext = searchParams.get('setup');
+  const purchaseSetupType = setupContext === 'family' || setupContext === 'provider' ? setupContext : null;
   
   const [mode, setMode] = useState<'signin' | 'signup' | 'forgot' | 'reset'>(initialMode);
   const [email, setEmail] = useState('');
@@ -51,6 +53,43 @@ const Auth = () => {
   } = useBiometricAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const setupLabel = purchaseSetupType === 'provider' ? 'Provider' : 'Family';
+  const setupDestination = purchaseSetupType === 'provider' ? 'organization setup' : 'family setup';
+  const pageMessage = mode === 'signin'
+    ? purchaseSetupType
+      ? `Finish ${setupLabel.toLowerCase()} account setup`
+      : 'Welcome back'
+    : mode === 'forgot'
+    ? 'Reset your password'
+    : mode === 'reset'
+    ? 'Create a new password'
+    : familyInviteCode
+    ? 'Create your account to join the family'
+    : purchaseSetupType
+    ? `${setupLabel} account setup`
+    : 'Start your recovery journey';
+  const cardTitle = mode === 'signin'
+    ? purchaseSetupType
+      ? 'Finish Account Setup'
+      : 'Sign In'
+    : mode === 'signup'
+    ? purchaseSetupType
+      ? `Set Up ${setupLabel} Account`
+      : 'Create Account'
+    : mode === 'forgot'
+    ? 'Reset Password'
+    : 'Set New Password';
+  const cardDescription = mode === 'signin'
+    ? purchaseSetupType
+      ? 'Sign in with your existing FamilyBridge account to attach your App Store subscription.'
+      : 'Enter your credentials to access your family groups'
+    : mode === 'forgot'
+    ? "Enter your email and we'll send you a reset link"
+    : mode === 'reset'
+    ? 'Enter your new password below'
+    : purchaseSetupType
+    ? `Your App Store subscription is active. Create your account, then you will continue to ${setupDestination}.`
+    : 'Create an account to connect with your family';
 
   const getSafeNextPath = () => {
     if (!nextPath || !nextPath.startsWith('/') || nextPath.startsWith('//')) return null;
@@ -324,7 +363,7 @@ const Auth = () => {
             <span className="text-xl sm:text-2xl font-display font-bold text-foreground">FamilyBridge</span>
           </div>
           <p className="text-sm sm:text-base text-muted-foreground">
-            {mode === 'signin' ? 'Welcome back' : mode === 'forgot' ? 'Reset your password' : mode === 'reset' ? 'Create a new password' : familyInviteCode ? 'Create your account to join the family' : 'Start your recovery journey'}
+            {pageMessage}
           </p>
           {familyInviteCode && mode === 'signup' && (
             <p className="text-sm text-primary mt-2">
@@ -336,19 +375,22 @@ const Auth = () => {
         <Card className="shadow-elevated border-0">
           <CardHeader className="space-y-1 pb-3 sm:pb-4 px-4 sm:px-6">
             <CardTitle className="text-xl sm:text-2xl font-display">
-              {mode === 'signin' ? 'Sign In' : mode === 'signup' ? 'Create Account' : mode === 'forgot' ? 'Reset Password' : 'Set New Password'}
+              {cardTitle}
             </CardTitle>
             <CardDescription className="text-sm">
-              {mode === 'signin'
-                ? 'Enter your credentials to access your family groups'
-                : mode === 'forgot'
-                ? "Enter your email and we'll send you a reset link"
-                : mode === 'reset'
-                ? 'Enter your new password below'
-                : 'Create an account to connect with your family'}
+              {cardDescription}
             </CardDescription>
           </CardHeader>
           <CardContent className="px-4 sm:px-6">
+            {purchaseSetupType && (mode === 'signin' || mode === 'signup') && (
+              <div className="mb-4 rounded-lg border border-primary/20 bg-primary/5 p-3 text-sm">
+                <p className="font-medium text-foreground">App Store purchase confirmed</p>
+                <p className="mt-1 text-muted-foreground">
+                  Complete account setup here so FamilyBridge can connect your subscription to the right workspace.
+                </p>
+              </div>
+            )}
+
             {/* Biometric Login Button */}
             {mode === 'signin' && biometricAvailable && hasStoredCredentials && (
               <div className="mb-6">
@@ -482,7 +524,9 @@ const Auth = () => {
                     mode === 'signin' ? 'Sign In' 
                     : mode === 'forgot' ? 'Send Reset Link'
                     : mode === 'reset' ? 'Update Password'
-                    : familyInviteCode ? 'Create Account & Join Family' : 'Create Account'
+                    : familyInviteCode ? 'Create Account & Join Family'
+                    : purchaseSetupType ? 'Create Account & Continue Setup'
+                    : 'Create Account'
                   )}
                 </Button>
               </form>

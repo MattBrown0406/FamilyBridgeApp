@@ -12,8 +12,6 @@ import { toast } from "sonner";
 import { Check, CreditCard, Shield, Users, Tag, Loader2, Copy, MessageCircle, UserPlus, DollarSign, Target, Brain, TrendingUp, MessageSquareWarning, RotateCcw } from "lucide-react";
 import { BrandedHeader } from "@/components/BrandedHeader";
 import { SEOHead, createBreadcrumbSchema } from "@/components/SEOHead";
-import { AppStorePurchaseButton, RestorePurchasesButton } from "@/components/AppStorePurchaseButton";
-
 import { SubscriptionDisclosure } from "@/components/SubscriptionDisclosure";
 import { PRODUCTS } from "@/lib/products";
 import {
@@ -45,7 +43,7 @@ const FamilyPurchase = () => {
   const [searchParams] = useSearchParams();
   const status = searchParams.get("status");
   const reactivateFamilyId = searchParams.get("reactivate");
-  const { isNative, isIOS, isAndroid, paymentMethod } = usePlatform();
+  const { isNative, isAndroid } = usePlatform();
   const { isSupported, isReady, getOffering, purchasePackage, restorePurchases, hasEntitlement } = useRevenueCat();
 
   const [email, setEmail] = useState(user?.email || "");
@@ -61,10 +59,11 @@ const FamilyPurchase = () => {
   const [isNativePurchasing, setIsNativePurchasing] = useState(false);
   const [isNativeRestoring, setIsNativeRestoring] = useState(false);
   const [familyOffering, setFamilyOffering] = useState<PurchasesOffering | null>(null);
-  const showNativeRevenueCat = isIOS && isSupported;
+  const showNativeRevenueCat = isNative && isSupported;
+  const nativeStoreName = isAndroid ? "Google Play" : "App Store";
   const hasFamilyAccess = hasEntitlement(REVENUECAT_ENTITLEMENT_IDS.family);
   const authReturnPath = "/auth?next=/family-purchase";
-  const setupAuthReturnPath = "/auth?next=/family-setup";
+  const setupAuthReturnPath = "/auth?mode=signup&setup=family&next=/family-setup";
 
   useEffect(() => {
     if (!showNativeRevenueCat || !isReady) {
@@ -149,7 +148,7 @@ const FamilyPurchase = () => {
       if (status !== 'success') return;
       if (reactivateFamilyId) return; // reactivation has its own flow
       if (generatedCode) return;
-      if (isNative) return; // App store flow already provides code
+      if (isNative) return; // Native store flow already handles this differently.
 
       const orderId = localStorage.getItem('familybridge_family_checkout_order_id');
       const purchaseEmail = localStorage.getItem('familybridge_family_checkout_email') || email;
@@ -187,9 +186,9 @@ const FamilyPurchase = () => {
   }, [status, reactivateFamilyId, generatedCode, isNative]);
 
   const handleSquarePurchase = async (withTrial = true) => {
-    // Apple App Store compliance: Never execute payment flows on native
+    // Native store compliance: never execute web payment flows on native.
     if (isNative) {
-      toast.error("Purchases on this device must be completed with the in-app App Store flow.");
+      toast.error(`Purchases on this device must be completed with the in-app ${nativeStoreName} flow.`);
       return;
     }
 
@@ -309,17 +308,12 @@ const FamilyPurchase = () => {
 
   const handleNativePurchase = async () => {
     if (!showNativeRevenueCat) {
-      toast.error("Native App Store purchase is not available on this device yet.");
-      return;
-    }
-
-    if (!user) {
-      navigate(authReturnPath);
+      toast.error(`Native ${nativeStoreName} purchase is not available on this device yet.`);
       return;
     }
 
     if (!isReady) {
-      toast.error("Still connecting to the App Store. Please try again in a moment.");
+      toast.error(`Still connecting to ${nativeStoreName}. Please try again in a moment.`);
       return;
     }
 
@@ -338,7 +332,7 @@ const FamilyPurchase = () => {
           toast.success("Subscription active. You can now create your family group.");
           navigate("/family-setup");
         } else {
-          toast.success("Subscription active. Create or sign in to your FamilyBridge account to finish setup.");
+          toast.success("Subscription active. Set up your account to finish FamilyBridge setup.");
           navigate(setupAuthReturnPath);
         }
         return;
@@ -347,7 +341,7 @@ const FamilyPurchase = () => {
       toast.error("Purchase completed, but access has not updated yet. Please try Restore Purchases.");
     } catch (error) {
       console.error("Native family purchase error:", error);
-      toast.error("We couldn't complete the App Store purchase.");
+      toast.error(`We couldn't complete the ${nativeStoreName} purchase.`);
     } finally {
       setIsNativePurchasing(false);
     }
@@ -359,13 +353,8 @@ const FamilyPurchase = () => {
       return;
     }
 
-    if (!user) {
-      navigate(authReturnPath);
-      return;
-    }
-
     if (!isReady) {
-      toast.error("Still connecting to the App Store. Please try again in a moment.");
+      toast.error(`Still connecting to ${nativeStoreName}. Please try again in a moment.`);
       return;
     }
 
@@ -378,7 +367,7 @@ const FamilyPurchase = () => {
           toast.success("Family subscription restored. You can continue to family setup.");
           navigate("/family-setup");
         } else {
-          toast.success("Family subscription restored. Sign in or create an account to finish setup.");
+          toast.success("Family subscription restored. Set up your account to finish FamilyBridge setup.");
           navigate(setupAuthReturnPath);
         }
         return;
@@ -456,13 +445,13 @@ const FamilyPurchase = () => {
     }
   };
 
-  // Get payment method display info (for web and Android only - iOS uses email flow)
+  // Get payment method display info for the non-native web checkout.
   const getPaymentInfo = () => {
     if (isAndroid) {
       return {
         icon: CreditCard,
-        label: "Web Checkout",
-        description: "Secure payment after continuing from the app",
+        label: "Google Play Billing",
+        description: "Native subscription through Google Play",
       };
     }
     return {
@@ -703,11 +692,11 @@ const FamilyPurchase = () => {
                   FIIS Support
                 </CardTitle>
                 <CardDescription>
-                  {isNative && isIOS ? "Foundational family guidance inside FamilyBridge" : "Founding family subscription · Cancel anytime"}
+                  {showNativeRevenueCat ? "Foundational family guidance inside FamilyBridge" : "Founding family subscription · Cancel anytime"}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                {/* Free Trial + Subscription Pricing - Apple App Store compliance: Hide on ALL native platforms */}
+                {/* Free Trial + Subscription Pricing - hide on all native platforms */}
                 {!isNative && (
                   <div className="space-y-4">
                     {/* Regular Pricing — first month due today, recurring monthly thereafter */}
@@ -729,16 +718,16 @@ const FamilyPurchase = () => {
                   <div className="bg-muted/50 border rounded-lg p-3 text-center">
                     <div className="flex items-center justify-center gap-2 text-sm font-medium">
                       <CreditCard className="w-4 h-4" />
-                      <span>Web Setup</span>
+                      <span>{showNativeRevenueCat ? "Google Play Billing" : "Android Setup"}</span>
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">
-                      Continue setup after leaving the app
+                      {showNativeRevenueCat ? "Purchase securely through Google Play" : "Native billing setup required"}
                     </p>
                   </div>
                 )}
 
                 <div className="space-y-4">
-                  {/* Email input - Apple App Store compliance: Web only */}
+                  {/* Email input - web only */}
                   {!isNative && (
                     <div className="space-y-2">
                       <Label htmlFor="email">Email Address</Label>
@@ -755,7 +744,7 @@ const FamilyPurchase = () => {
                     </div>
                   )}
 
-                  {/* Coupon Code Section - Apple App Store compliance: Web only */}
+                  {/* Coupon Code Section - web only */}
                   {!isNative && (
                     <div className="space-y-2">
                       <Label htmlFor="coupon">Coupon Code (Optional)</Label>
@@ -816,10 +805,10 @@ const FamilyPurchase = () => {
                     </div>
                   </div>
 
-                  {isIOS ? (
+                  {showNativeRevenueCat ? (
                     <>
                       <div className="space-y-4">
-                        {hasFamilyAccess ? (
+                        {user && hasFamilyAccess ? (
                           <>
                             <div className="rounded-lg border border-emerald-500/30 bg-emerald-50/60 p-4 text-sm text-emerald-900 dark:bg-emerald-950/20 dark:text-emerald-100">
                               <p className="font-medium mb-2">Your family subscription is active.</p>
@@ -831,41 +820,26 @@ const FamilyPurchase = () => {
                           </>
                         ) : (
                           <>
-                            {!user ? (
-                              <div className="rounded-lg border bg-muted/40 p-4 text-sm text-muted-foreground">
-                                <p className="font-medium text-foreground mb-2">Sign in first to start the App Store subscription.</p>
-                                <p>Subscriptions are tied to a FamilyBridge account so family setup can unlock after purchase.</p>
-                              </div>
-                            ) : (
-                              <div className="rounded-lg border bg-muted/40 p-4 text-sm text-muted-foreground">
-                                <p className="font-medium text-foreground mb-2">One family admin subscription covers the whole family.</p>
-                                <p>After setup, the rest of the family can join with invite codes on any supported device.</p>
-                              </div>
-                            )}
-                            {!user ? (
-                              <Button onClick={() => navigate(authReturnPath)} className="w-full" size="lg">
-                                Sign In or Create Account
-                              </Button>
-                            ) : (
-                              <>
-                                <Button
-                                  onClick={handleNativePurchase}
-                                  disabled={isNativePurchasing}
-                                  className="w-full"
-                                  size="lg"
-                                >
-                                  {isNativePurchasing ? "Opening App Store..." : `Subscribe to FIIS Support - ${formatPrice(PRODUCTS.family.monthly.price)}/month`}
-                                </Button>
-                                <Button
-                                  variant="outline"
-                                  onClick={handleNativeRestore}
-                                  disabled={isNativeRestoring}
-                                  className="w-full"
-                                >
-                                  {isNativeRestoring ? "Restoring..." : "Restore Purchases"}
-                                </Button>
-                              </>
-                            )}
+                            <div className="rounded-lg border bg-muted/40 p-4 text-sm text-muted-foreground">
+                              <p className="font-medium text-foreground mb-2">One family admin subscription covers the whole family.</p>
+                              <p>You can subscribe through {nativeStoreName} now. After purchase, you will continue to a clearly labeled account setup screen.</p>
+                            </div>
+                            <Button
+                              onClick={handleNativePurchase}
+                              disabled={isNativePurchasing || !isReady || !familyOffering}
+                              className="w-full"
+                              size="lg"
+                            >
+                              {isNativePurchasing ? `Opening ${nativeStoreName}...` : `Subscribe to FIIS Support - ${formatPrice(PRODUCTS.family.monthly.price)}/month`}
+                            </Button>
+                            <Button
+                              variant="outline"
+                              onClick={handleNativeRestore}
+                              disabled={isNativeRestoring || !isReady}
+                              className="w-full"
+                            >
+                              {isNativeRestoring ? "Restoring..." : "Restore Purchases"}
+                            </Button>
                             <SubscriptionDisclosure
                               subscriptionTitle={PRODUCTS.family.monthly.displayName}
                               price={formatPrice(PRODUCTS.family.monthly.price)}
@@ -873,14 +847,14 @@ const FamilyPurchase = () => {
                               isNative
                             />
                             <p className="text-xs text-center text-muted-foreground">
-                              Already subscribed with this Apple ID? Restore first, then continue to family setup.
+                              Already subscribed with this {isAndroid ? "Google Play account" : "Apple ID"}? Restore first, then continue to family setup.
                             </p>
                             <Button
                               variant="ghost"
                               onClick={() => navigate(authReturnPath)}
                               className="w-full"
                             >
-                              {user ? "Switch Account" : "Sign In or Create Account"}
+                              {user ? "Switch Account" : "Already have an account? Sign In"}
                             </Button>
                           </>
                         )}
@@ -888,33 +862,18 @@ const FamilyPurchase = () => {
                     </>
                   ) : isAndroid ? (
                     <>
-                      {/* Android: Email collection for web setup */}
                       <div className="space-y-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="android-email">Email Address</Label>
-                          <Input
-                            id="android-email"
-                            type="email"
-                            placeholder="Enter your email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                          />
-                          <p className="text-xs text-muted-foreground">
-                            We&apos;ll email setup details for your FamilyBridge access.
-                          </p>
+                        <div className="rounded-lg border bg-muted/40 p-4 text-sm text-muted-foreground">
+                          <p className="font-medium text-foreground mb-2">Google Play Billing is required for Android subscriptions.</p>
+                          <p>Add the Android RevenueCat public SDK key as <code>VITE_REVENUECAT_GOOGLE_API_KEY</code>, then rebuild this app to enable native Google Play purchases.</p>
                         </div>
-                        <AppStorePurchaseButton
-                          email={email}
-                          accountType="family"
-                          disabled={!email}
+                        <Button
+                          variant="outline"
+                          onClick={() => navigate(authReturnPath)}
                           className="w-full"
                         >
-                          Get Started
-                        </AppStorePurchaseButton>
-                        <RestorePurchasesButton 
-                          className="w-full" 
-                          onRestore={() => navigate("/auth")}
-                        />
+                          Sign In or Create Account
+                        </Button>
                       </div>
                     </>
                   ) : (

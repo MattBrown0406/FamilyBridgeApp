@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">FamilyBridge</string>
+    <string name="title_activity_main">FamilyBridge</string>
+    <string name="package_name">app.lovable.feec162303784a959c1635217b29129c</string>
+    <string name="custom_url_scheme">app.lovable.feec162303784a959c1635217b29129c</string>
+</resources>

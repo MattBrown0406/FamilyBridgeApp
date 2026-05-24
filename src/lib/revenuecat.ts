@@ -32,6 +32,14 @@ export const REVENUECAT_PRODUCT_IDS = {
   crisisModerationDaily: "com.familybridgeapp.app.crisis_moderation_daily",
 } as const;
 
+export const REVENUECAT_ANDROID_PRODUCT_IDS = {
+  familyMonthly: `${REVENUECAT_PRODUCT_IDS.familyMonthly}:monthly`,
+  providerMonthly: `${REVENUECAT_PRODUCT_IDS.providerMonthly}:monthly`,
+  providerQuarterly: `${REVENUECAT_PRODUCT_IDS.providerQuarterly}:quarterly`,
+  guidanceWindowDaily: REVENUECAT_PRODUCT_IDS.guidanceWindowDaily,
+  crisisModerationDaily: REVENUECAT_PRODUCT_IDS.crisisModerationDaily,
+} as const;
+
 // RevenueCat iOS public app-specific API key.
 // Safe to commit: this is a publishable client key, not a secret.
 const REVENUECAT_APPLE_API_KEY_FALLBACK = "appl_uadXDmElJcifwXdVuQKnMdlVHeU";
@@ -41,16 +49,34 @@ export function getRevenueCatAppleApiKey() {
   return fromEnv || REVENUECAT_APPLE_API_KEY_FALLBACK || null;
 }
 
+export function getRevenueCatGoogleApiKey() {
+  return import.meta.env.VITE_REVENUECAT_GOOGLE_API_KEY?.trim() || null;
+}
+
+export function getRevenueCatApiKey() {
+  const platform = Capacitor.getPlatform();
+
+  if (platform === "ios") {
+    return getRevenueCatAppleApiKey();
+  }
+
+  if (platform === "android") {
+    return getRevenueCatGoogleApiKey();
+  }
+
+  return null;
+}
+
 export function isRevenueCatNativeSupported() {
-  return Capacitor.isNativePlatform() && Capacitor.getPlatform() === "ios";
+  return Capacitor.isNativePlatform() && ["ios", "android"].includes(Capacitor.getPlatform());
 }
 
 export function isRevenueCatEnabled() {
-  return isRevenueCatNativeSupported() && !!getRevenueCatAppleApiKey();
+  return isRevenueCatNativeSupported() && !!getRevenueCatApiKey();
 }
 
 export async function ensureRevenueCatConfigured(appUserID?: string | null) {
-  const apiKey = getRevenueCatAppleApiKey();
+  const apiKey = getRevenueCatApiKey();
 
   if (!apiKey || !isRevenueCatNativeSupported()) {
     return false;
@@ -63,12 +89,14 @@ export async function ensureRevenueCatConfigured(appUserID?: string | null) {
       level: import.meta.env.DEV ? LOG_LEVEL.DEBUG : LOG_LEVEL.INFO,
     });
 
-    await Purchases.configure({
+    const configureOptions = {
       apiKey,
       appUserID: appUserID ?? null,
-      storeKitVersion: STOREKIT_VERSION.DEFAULT,
       entitlementVerificationMode: ENTITLEMENT_VERIFICATION_MODE.INFORMATIONAL,
-    });
+      ...(Capacitor.getPlatform() === "ios" ? { storeKitVersion: STOREKIT_VERSION.DEFAULT } : {}),
+    };
+
+    await Purchases.configure(configureOptions);
 
     return true;
   }
@@ -112,6 +140,18 @@ export function getOfferingPackageByProductId(
   if (!offering) return null;
 
   return (
-    offering.availablePackages.find((pkg) => pkg.product.identifier === productId) ?? null
+    offering.availablePackages.find((pkg) => isMatchingRevenueCatProductId(pkg.product.identifier, productId)) ?? null
   );
+}
+
+export function isMatchingRevenueCatProductId(actualProductId: string, expectedProductId: string) {
+  if (actualProductId === expectedProductId) {
+    return true;
+  }
+
+  if (Capacitor.getPlatform() !== "android") {
+    return false;
+  }
+
+  return actualProductId.startsWith(`${expectedProductId}:`);
 }

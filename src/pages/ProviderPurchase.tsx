@@ -11,7 +11,6 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Building2, Check, CreditCard, Shield, Users, Tag, Loader2, Copy, Brain, TrendingUp, MessageSquareWarning } from "lucide-react";
 import { BrandedHeader } from "@/components/BrandedHeader";
-import { AppStorePurchaseButton, RestorePurchasesButton } from "@/components/AppStorePurchaseButton";
 import { SEOHead } from "@/components/SEOHead";
 
 import { SubscriptionDisclosure } from "@/components/SubscriptionDisclosure";
@@ -44,7 +43,7 @@ const ProviderPurchase = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const status = searchParams.get("status");
-  const { isNative, isIOS, isAndroid, paymentMethod } = usePlatform();
+  const { isNative, isAndroid } = usePlatform();
   const { isSupported, isReady, getOffering, purchasePackage, restorePurchases, hasEntitlement } = useRevenueCat();
 
   const [email, setEmail] = useState(user?.email || "");
@@ -67,7 +66,7 @@ const ProviderPurchase = () => {
     const finalize = async () => {
       if (status !== "success") return;
       if (generatedCode) return;
-      if (isNative) return; // App Store flow handles this differently
+      if (isNative) return; // Native store flow handles this differently.
 
       const orderId = localStorage.getItem("familybridge_provider_checkout_order_id");
       const purchaseEmail = localStorage.getItem("familybridge_provider_checkout_email") || email;
@@ -121,10 +120,11 @@ const ProviderPurchase = () => {
 
   // Never show annual option on native platforms
   const showAnnualOption = !isNative;
-  const showNativeRevenueCat = isIOS && isSupported;
+  const showNativeRevenueCat = isNative && isSupported;
+  const nativeStoreName = isAndroid ? "Google Play" : "App Store";
   const hasProviderAccess = hasEntitlement(REVENUECAT_ENTITLEMENT_IDS.provider);
   const authReturnPath = "/auth?next=/provider-purchase";
-  const setupAuthReturnPath = "/auth?next=/provider-admin";
+  const setupAuthReturnPath = "/auth?mode=signup&setup=provider&next=/provider-admin";
 
   useEffect(() => {
     if (!showNativeRevenueCat || !isReady) {
@@ -141,9 +141,9 @@ const ProviderPurchase = () => {
   }, [getOffering, isReady, showNativeRevenueCat]);
 
   const handleSquarePurchase = async () => {
-    // Apple App Store compliance: Never execute payment flows on native
+    // Native store compliance: never execute web payment flows on native.
     if (isNative) {
-      toast.error("Purchases on this device must be completed with the in-app App Store flow.");
+      toast.error(`Purchases on this device must be completed with the in-app ${nativeStoreName} flow.`);
       return;
     }
 
@@ -280,13 +280,13 @@ const ProviderPurchase = () => {
     }
   };
 
-  // Get payment method display info (for web and Android only - iOS uses email flow)
+  // Get payment method display info for the non-native web checkout.
   const getPaymentInfo = () => {
     if (isAndroid) {
       return {
         icon: CreditCard,
-        label: "Web Checkout",
-        description: "Secure payment after continuing from the app",
+        label: "Google Play Billing",
+        description: "Native subscription through Google Play",
       };
     }
     return {
@@ -312,17 +312,12 @@ const ProviderPurchase = () => {
 
   const handleNativePurchase = async () => {
     if (!showNativeRevenueCat) {
-      toast.error("Native App Store purchase is not available on this device yet.");
-      return;
-    }
-
-    if (!user) {
-      navigate(authReturnPath);
+      toast.error(`Native ${nativeStoreName} purchase is not available on this device yet.`);
       return;
     }
 
     if (!isReady) {
-      toast.error("Still connecting to the App Store. Please try again in a moment.");
+      toast.error(`Still connecting to ${nativeStoreName}. Please try again in a moment.`);
       return;
     }
 
@@ -341,7 +336,7 @@ const ProviderPurchase = () => {
           toast.success("Subscription active. You can now set up your organization.");
           navigate("/provider-admin");
         } else {
-          toast.success("Subscription active. Create or sign in to your FamilyBridge account to finish provider setup.");
+          toast.success("Subscription active. Set up your account to finish provider setup.");
           navigate(setupAuthReturnPath);
         }
         return;
@@ -350,7 +345,7 @@ const ProviderPurchase = () => {
       toast.error("Purchase completed, but access has not updated yet. Please try Restore Purchases.");
     } catch (error) {
       console.error("Native provider purchase error:", error);
-      toast.error("We couldn't complete the App Store purchase.");
+      toast.error(`We couldn't complete the ${nativeStoreName} purchase.`);
     } finally {
       setIsNativePurchasing(false);
     }
@@ -362,13 +357,8 @@ const ProviderPurchase = () => {
       return;
     }
 
-    if (!user) {
-      navigate(authReturnPath);
-      return;
-    }
-
     if (!isReady) {
-      toast.error("Still connecting to the App Store. Please try again in a moment.");
+      toast.error(`Still connecting to ${nativeStoreName}. Please try again in a moment.`);
       return;
     }
 
@@ -381,7 +371,7 @@ const ProviderPurchase = () => {
           toast.success("Provider subscription restored. You can continue to setup.");
           navigate("/provider-admin");
         } else {
-          toast.success("Provider subscription restored. Sign in or create an account to finish setup.");
+          toast.success("Provider subscription restored. Set up your account to finish provider setup.");
           navigate(setupAuthReturnPath);
         }
         return;
@@ -540,7 +530,7 @@ const ProviderPurchase = () => {
                   FIIS Provider
                 </CardTitle>
                 <CardDescription>
-                  {isNative ? "Sign in to access your organization" : "Current provider tier · Auto-renewable subscription"}
+                  {showNativeRevenueCat ? "Sign in to access your organization" : "Current provider tier · Auto-renewable subscription"}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -648,7 +638,7 @@ const ProviderPurchase = () => {
                 )}
 
                 <div className="space-y-4">
-                  {/* Email input - Apple App Store compliance: Web only */}
+                  {/* Email input - web only */}
                   {!isNative && (
                     <div className="space-y-2">
                       <Label htmlFor="email">Email Address</Label>
@@ -696,10 +686,10 @@ const ProviderPurchase = () => {
                   )}
 
                   {/* Platform-specific purchase button */}
-                  {isIOS ? (
+                  {showNativeRevenueCat ? (
                     <>
                       <div className="space-y-4">
-                        {hasProviderAccess ? (
+                        {user && hasProviderAccess ? (
                           <>
                             <div className="rounded-lg border border-emerald-500/30 bg-emerald-50/60 p-4 text-sm text-emerald-900 dark:bg-emerald-950/20 dark:text-emerald-100">
                               <p className="font-medium mb-2">Your provider subscription is active.</p>
@@ -711,41 +701,26 @@ const ProviderPurchase = () => {
                           </>
                         ) : (
                           <>
-                            {!user ? (
-                              <div className="rounded-lg border bg-muted/40 p-4 text-sm text-muted-foreground">
-                                <p className="font-medium text-foreground mb-2">Sign in first to start the App Store subscription.</p>
-                                <p>Provider subscriptions are tied to a FamilyBridge account so organization setup can unlock after purchase.</p>
-                              </div>
-                            ) : (
-                              <div className="rounded-lg border bg-muted/40 p-4 text-sm text-muted-foreground">
-                                <p className="font-medium text-foreground mb-2">Choose the provider subscription that fits your team.</p>
-                                <p>Monthly and quarterly provider plans are available on iPhone and iPad today.</p>
-                              </div>
-                            )}
-                            {!user ? (
-                              <Button onClick={() => navigate(authReturnPath)} className="w-full" size="lg">
-                                Sign In or Create Account
-                              </Button>
-                            ) : (
-                              <>
-                                <Button
-                                  onClick={handleNativePurchase}
-                                  disabled={isNativePurchasing}
-                                  className="w-full"
-                                  size="lg"
-                                >
-                                  {isNativePurchasing ? "Opening App Store..." : billingPeriod === "monthly" ? `Subscribe Monthly - ${formatPrice(PRODUCTS.provider.monthly.price)}/month` : `Subscribe Quarterly - ${formatPrice(PRODUCTS.provider.quarterly.price)}/3 months`}
-                                </Button>
-                                <Button
-                                  variant="outline"
-                                  onClick={handleNativeRestore}
-                                  disabled={isNativeRestoring}
-                                  className="w-full"
-                                >
-                                  {isNativeRestoring ? "Restoring..." : "Restore Purchases"}
-                                </Button>
-                              </>
-                            )}
+                            <div className="rounded-lg border bg-muted/40 p-4 text-sm text-muted-foreground">
+                              <p className="font-medium text-foreground mb-2">Choose the provider subscription that fits your team.</p>
+                              <p>You can subscribe through {nativeStoreName} now. After purchase, you will continue to a clearly labeled account setup screen.</p>
+                            </div>
+                            <Button
+                              onClick={handleNativePurchase}
+                              disabled={isNativePurchasing || !isReady || !providerOffering}
+                              className="w-full"
+                              size="lg"
+                            >
+                              {isNativePurchasing ? `Opening ${nativeStoreName}...` : billingPeriod === "monthly" ? `Subscribe Monthly - ${formatPrice(PRODUCTS.provider.monthly.price)}/month` : `Subscribe Quarterly - ${formatPrice(PRODUCTS.provider.quarterly.price)}/3 months`}
+                            </Button>
+                            <Button
+                              variant="outline"
+                              onClick={handleNativeRestore}
+                              disabled={isNativeRestoring || !isReady}
+                              className="w-full"
+                            >
+                              {isNativeRestoring ? "Restoring..." : "Restore Purchases"}
+                            </Button>
                             <SubscriptionDisclosure
                               subscriptionTitle={
                                 billingPeriod === "monthly" ? PRODUCTS.provider.monthly.displayName :
@@ -765,14 +740,14 @@ const ProviderPurchase = () => {
                               isNative
                             />
                             <p className="text-xs text-center text-muted-foreground">
-                              Already subscribed with this Apple ID? Restore first, then continue to provider setup.
+                              Already subscribed with this {isAndroid ? "Google Play account" : "Apple ID"}? Restore first, then continue to provider setup.
                             </p>
                             <Button
                               variant="ghost"
                               onClick={() => navigate(authReturnPath)}
                               className="w-full"
                             >
-                              {user ? "Switch Account" : "Sign In or Create Account"}
+                              {user ? "Switch Account" : "Already have an account? Sign In"}
                             </Button>
                           </>
                         )}
@@ -780,33 +755,18 @@ const ProviderPurchase = () => {
                     </>
                   ) : isAndroid ? (
                     <>
-                      {/* Android: Email collection for web setup */}
                       <div className="space-y-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="android-email">Email Address</Label>
-                          <Input
-                            id="android-email"
-                            type="email"
-                            placeholder="Enter your email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                          />
-                          <p className="text-xs text-muted-foreground">
-                            We&apos;ll email setup details for your FamilyBridge access.
-                          </p>
+                        <div className="rounded-lg border bg-muted/40 p-4 text-sm text-muted-foreground">
+                          <p className="font-medium text-foreground mb-2">Google Play Billing is required for Android subscriptions.</p>
+                          <p>Add the Android RevenueCat public SDK key as <code>VITE_REVENUECAT_GOOGLE_API_KEY</code>, then rebuild this app to enable native Google Play purchases.</p>
                         </div>
-                        <AppStorePurchaseButton
-                          email={email}
-                          accountType="provider"
-                          disabled={!email}
+                        <Button
+                          variant="outline"
+                          onClick={() => navigate(authReturnPath)}
                           className="w-full"
                         >
-                          Get Started
-                        </AppStorePurchaseButton>
-                        <RestorePurchasesButton 
-                          className="w-full" 
-                          onRestore={() => navigate("/auth")}
-                        />
+                          Sign In or Create Account
+                        </Button>
                       </div>
                     </>
                   ) : (
