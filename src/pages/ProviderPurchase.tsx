@@ -492,7 +492,7 @@ const ProviderPurchase = () => {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-4 sm:gap-8">
+          <div className="grid grid-cols-1 gap-4 sm:gap-8 md:grid-cols-2">
             {/* Features Card */}
             <Card className="min-w-0">
               <CardHeader className="px-4 sm:px-6">
@@ -715,7 +715,7 @@ const ProviderPurchase = () => {
                             <Button
                               onClick={handleNativePurchase}
                               disabled={isNativePurchasing || !isReady || !providerOffering}
-                              className="w-full"
+                              className="h-auto min-h-12 w-full whitespace-normal px-3 text-center leading-snug"
                               size="lg"
                             >
                               {isNativePurchasing ? `Opening ${nativeStoreName}...` : billingPeriod === "monthly" ? `Subscribe Monthly - ${formatPrice(PRODUCTS.provider.monthly.price)}/month` : `Subscribe Quarterly - ${formatPrice(PRODUCTS.provider.quarterly.price)}/3 months`}

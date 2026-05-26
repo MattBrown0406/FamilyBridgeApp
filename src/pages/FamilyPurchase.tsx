@@ -648,7 +648,7 @@ const FamilyPurchase = () => {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2">
             {/* Features Card */}
             <Card className="min-w-0 md:col-span-1">
               <CardHeader className="px-4 sm:px-6">
@@ -833,7 +833,7 @@ const FamilyPurchase = () => {
                             <Button
                               onClick={handleNativePurchase}
                               disabled={isNativePurchasing || !isReady || !familyOffering}
-                              className="w-full"
+                              className="h-auto min-h-12 w-full whitespace-normal px-3 text-center leading-snug"
                               size="lg"
                             >
                               {isNativePurchasing ? `Opening ${nativeStoreName}...` : `Subscribe to FIIS Support - ${formatPrice(PRODUCTS.family.monthly.price)}/month`}

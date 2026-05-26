@@ -105,7 +105,7 @@ export default function NativeHome() {
       <main className="container mx-auto px-4 py-6 sm:py-10">
         <div className="mx-auto max-w-6xl space-y-8">
           <section className="overflow-hidden rounded-3xl border bg-card shadow-sm">
-            <div className="grid gap-0 lg:grid-cols-[1.1fr_0.9fr]">
+            <div className="grid grid-cols-1 gap-0 lg:grid-cols-[1.1fr_0.9fr]">
               <div className="space-y-7 p-6 sm:p-8 lg:p-10">
                 <div className="space-y-5">
                   <Badge variant="secondary" className="w-fit gap-1.5 rounded-full px-3 py-1">
@@ -125,7 +125,7 @@ export default function NativeHome() {
                   </div>
                 </div>
 
-                <div className="grid gap-3 sm:grid-cols-2">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <Button size="lg" className="h-auto min-h-16 justify-between gap-3 p-4 text-left" onClick={() => navigate("/family-purchase")}>
                     <span>
                       <span className="block font-semibold">I’m here for my family</span>
@@ -178,7 +178,7 @@ export default function NativeHome() {
             </div>
           </section>
 
-          <section className="grid gap-4 md:grid-cols-3">
+          <section className="grid grid-cols-1 gap-4 md:grid-cols-3">
             {featureCards.map((feature) => (
               <Card key={feature.title} className="h-full">
                 <CardHeader>
@@ -192,7 +192,7 @@ export default function NativeHome() {
             ))}
           </section>
 
-          <section className="grid gap-5 lg:grid-cols-2">
+          <section className="grid grid-cols-1 gap-5 lg:grid-cols-2">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -248,7 +248,7 @@ export default function NativeHome() {
             </Card>
           </section>
 
-          <section className="grid gap-5 lg:grid-cols-[0.9fr_1.1fr]">
+          <section className="grid grid-cols-1 gap-5 lg:grid-cols-[0.9fr_1.1fr]">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -280,7 +280,7 @@ export default function NativeHome() {
                   Practical tools for families and care teams trying to move from chaos to clarity.
                 </CardDescription>
               </CardHeader>
-              <CardContent className="grid gap-3 sm:grid-cols-2">
+              <CardContent className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 {[
                   "Family agreements and boundaries",
                   "Meeting notes and next steps",
@@ -311,7 +311,7 @@ export default function NativeHome() {
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </div>
-            <div className="mt-5 grid gap-3 sm:grid-cols-3">
+            <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
               {demoLinks.map((item) => (
                 <Button key={item.label} variant="outline" className="h-12 justify-between" onClick={() => navigate(item.path)}>
                   <span className="flex items-center gap-2">

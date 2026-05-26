@@ -307,7 +307,7 @@ export default function ModeratorPurchase() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-4 sm:gap-8">
+          <div className="grid grid-cols-1 gap-4 sm:gap-8 md:grid-cols-2">
             {/* Features Card */}
             <Card>
               <CardHeader className="pb-3 sm:pb-6">
@@ -394,7 +394,7 @@ export default function ModeratorPurchase() {
                     <Button
                       onClick={handleNativePurchase}
                       disabled={nativePurchasing}
-                      className="w-full"
+                      className="h-auto min-h-12 w-full whitespace-normal px-3 text-center leading-snug"
                       size="lg"
                     >
                       {nativePurchasing ? `Opening ${nativeStoreName}...` : "Buy Guidance Window"}
