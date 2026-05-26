@@ -9,7 +9,6 @@ import {
   BellRing,
   Building2,
   CheckCircle2,
-  CreditCard,
   FileText,
   HeartHandshake,
   Lock,
@@ -32,6 +31,15 @@ const providerBenefits = [
   "Use outcomes and engagement signals to support continuing care",
 ];
 
+const painPoints = [
+  "Too many people texting different things",
+  "No one knows what the plan is",
+  "Boundaries keep changing under stress",
+  "Treatment and aftercare updates get lost",
+  "Families are unsure when to step in or step back",
+  "Professionals need one place to coordinate the case",
+];
+
 const featureCards = [
   {
     icon: MessageCircle,
@@ -40,13 +48,13 @@ const featureCards = [
   },
   {
     icon: BellRing,
-    title: "Accountability that stays visible",
+    title: "Know what comes next",
     description: "Check-ins, tasks, meetings, medication notes, documents, and care-plan updates stay organized.",
   },
   {
     icon: TrendingUp,
-    title: "Recovery insight over time",
-    description: "FIIS intelligence and trajectory tools help families and providers notice patterns earlier.",
+    title: "See patterns earlier",
+    description: "Recovery trajectory tools help families and providers notice changes before they become bigger problems.",
   },
 ];
 
@@ -73,11 +81,14 @@ export default function NativeHome() {
           <button
             type="button"
             onClick={() => navigate("/")}
-            className="flex items-center gap-2 text-left"
+            className="flex items-center gap-3 text-left"
             aria-label="FamilyBridge home"
           >
             <img src={familyBridgeLogo} alt="FamilyBridge" className="h-9 w-auto object-contain" />
-            <span className="font-display text-lg font-semibold">FamilyBridge</span>
+            <span className="leading-tight">
+              <span className="block font-display text-lg font-semibold">FamilyBridge</span>
+              <span className="hidden text-xs text-muted-foreground sm:block">Recovery coordination for families and care teams</span>
+            </span>
           </button>
           {user ? (
             <Button variant="ghost" size="sm" onClick={() => signOut()}>
@@ -92,49 +103,54 @@ export default function NativeHome() {
       </header>
 
       <main className="container mx-auto px-4 py-6 sm:py-10">
-        <div className="mx-auto max-w-6xl space-y-6">
+        <div className="mx-auto max-w-6xl space-y-8">
           <section className="overflow-hidden rounded-3xl border bg-card shadow-sm">
-            <div className="grid gap-0 lg:grid-cols-[1.2fr_0.8fr]">
-              <div className="space-y-6 p-6 sm:p-8 lg:p-10">
-                <div className="space-y-4">
+            <div className="grid gap-0 lg:grid-cols-[1.1fr_0.9fr]">
+              <div className="space-y-7 p-6 sm:p-8 lg:p-10">
+                <div className="space-y-5">
                   <Badge variant="secondary" className="w-fit gap-1.5 rounded-full px-3 py-1">
                     <HeartHandshake className="h-3.5 w-3.5" />
                     Family recovery coordination
                   </Badge>
                   <div className="space-y-3">
+                    <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">
+                      When addiction affects one person, the whole family needs a plan.
+                    </p>
                     <h1 className="font-display text-4xl font-bold tracking-tight sm:text-5xl">
-                      A private command center for families navigating addiction recovery.
+                      One private place to organize recovery support.
                     </h1>
                     <p className="max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg">
-                      FamilyBridge helps families, interventionists, and treatment professionals stay aligned after the hard conversation starts. It turns scattered texts, missed updates, and emotional guesswork into one secure workspace for communication, accountability, documents, and continuing care.
+                      FamilyBridge helps families, interventionists, and treatment professionals stay aligned after the hard conversation starts. It turns scattered texts, missed updates, and emotional guesswork into a secure workspace for communication, boundaries, documents, check-ins, and next steps.
                     </p>
                   </div>
                 </div>
 
                 <div className="grid gap-3 sm:grid-cols-2">
-                  <Button size="lg" className="h-12 justify-between" onClick={() => navigate(user ? "/dashboard" : "/auth")}>
-                    {user ? "Open your dashboard" : "Sign in or create account"}
-                    <ArrowRight className="h-4 w-4" />
+                  <Button size="lg" className="h-auto min-h-16 justify-between gap-3 p-4 text-left" onClick={() => navigate("/family-purchase")}>
+                    <span>
+                      <span className="block font-semibold">I’m here for my family</span>
+                      <span className="mt-1 block text-xs font-normal opacity-80">Start a family workspace</span>
+                    </span>
+                    <ArrowRight className="h-4 w-4 shrink-0" />
                   </Button>
-                  <Button size="lg" variant="outline" className="h-12 justify-between" onClick={() => navigate("/family-purchase")}>
-                    View family plan
-                    <CreditCard className="h-4 w-4" />
+                  <Button size="lg" variant="outline" className="h-auto min-h-16 justify-between gap-3 p-4 text-left" onClick={() => navigate("/provider-purchase")}>
+                    <span>
+                      <span className="block font-semibold">I support families professionally</span>
+                      <span className="mt-1 block text-xs font-normal text-muted-foreground">Set up a provider workspace</span>
+                    </span>
+                    <Building2 className="h-4 w-4 shrink-0" />
                   </Button>
                 </div>
 
-                <div className="grid gap-3 pt-1 sm:grid-cols-3">
-                  <div className="rounded-2xl bg-muted/60 p-4">
-                    <p className="text-2xl font-bold">Private</p>
-                    <p className="mt-1 text-xs leading-5 text-muted-foreground">Secure family and provider workspaces</p>
-                  </div>
-                  <div className="rounded-2xl bg-muted/60 p-4">
-                    <p className="text-2xl font-bold">Guided</p>
-                    <p className="mt-1 text-xs leading-5 text-muted-foreground">Communication prompts and recovery tools</p>
-                  </div>
-                  <div className="rounded-2xl bg-muted/60 p-4">
-                    <p className="text-2xl font-bold">Ongoing</p>
-                    <p className="mt-1 text-xs leading-5 text-muted-foreground">Support beyond detox, treatment, or intervention day</p>
-                  </div>
+                <div className="flex flex-col gap-3 sm:flex-row">
+                  <Button variant="ghost" className="justify-between sm:min-w-48" onClick={() => navigate(user ? "/dashboard" : "/auth")}>
+                    {user ? "Open your dashboard" : "Sign in or create account"}
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                  <Button variant="ghost" className="justify-between sm:min-w-48" onClick={() => navigate("/demo/family")}>
+                    Preview the app
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
                 </div>
               </div>
 
@@ -143,31 +159,19 @@ export default function NativeHome() {
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <ShieldCheck className="h-5 w-5 text-primary" />
-                      Why subscribe?
+                      What this helps with
                     </CardTitle>
                     <CardDescription>
-                      Addiction affects the entire system. Families and professional teams need structure after the crisis moment passes.
+                      Built for the messy middle: after concern becomes action, and before recovery feels stable.
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="space-y-3">
-                      <p className="text-sm font-semibold">For families</p>
-                      {familyBenefits.map((benefit) => (
-                        <div key={benefit} className="flex gap-2 text-sm leading-6">
-                          <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                          <span>{benefit}</span>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="border-t pt-4 space-y-3">
-                      <p className="text-sm font-semibold">For professional organizations</p>
-                      {providerBenefits.map((benefit) => (
-                        <div key={benefit} className="flex gap-2 text-sm leading-6">
-                          <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                          <span>{benefit}</span>
-                        </div>
-                      ))}
-                    </div>
+                  <CardContent className="grid gap-3">
+                    {painPoints.map((item) => (
+                      <div key={item} className="flex gap-2 rounded-xl bg-muted/40 p-3 text-sm leading-6">
+                        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                        <span>{item}</span>
+                      </div>
+                    ))}
                   </CardContent>
                 </Card>
               </div>
@@ -188,38 +192,80 @@ export default function NativeHome() {
             ))}
           </section>
 
-          <section className="grid gap-5 lg:grid-cols-[0.9fr_1.1fr]">
+          <section className="grid gap-5 lg:grid-cols-2">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Users className="h-5 w-5 text-primary" />
-                  Choose the workspace that fits
+                  Why families subscribe
                 </CardTitle>
                 <CardDescription>
-                  Start with a family plan, a provider plan, or a short guidance window when a family needs professional help getting organized.
+                  Families need a calmer way to communicate, agree on boundaries, and know what happens next.
                 </CardDescription>
               </CardHeader>
-              <CardContent className="grid gap-3">
+              <CardContent className="space-y-3">
+                {familyBenefits.map((benefit) => (
+                  <div key={benefit} className="flex gap-2 text-sm leading-6">
+                    <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                    <span>{benefit}</span>
+                  </div>
+                ))}
                 <Button className={actionButtonClass} onClick={() => navigate("/family-purchase")}>
                   <span className={actionTextClass}>
-                    <span className={actionTitleClass}>Family subscription</span>
+                    <span className={actionTitleClass}>Start a family workspace</span>
                     <span className="mt-1 block text-xs font-normal leading-snug opacity-80">For one family system coordinating recovery support</span>
                   </span>
                   <ArrowRight className={actionIconClass} />
                 </Button>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Building2 className="h-5 w-5 text-primary" />
+                  Why organizations subscribe
+                </CardTitle>
+                <CardDescription>
+                  Professional teams need one place to coordinate families, cases, documentation, and continuing care.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {providerBenefits.map((benefit) => (
+                  <div key={benefit} className="flex gap-2 text-sm leading-6">
+                    <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                    <span>{benefit}</span>
+                  </div>
+                ))}
                 <Button className={actionButtonClass} variant="outline" onClick={() => navigate("/provider-purchase")}>
                   <span className={actionTextClass}>
-                    <span className={actionTitleClass}>Provider subscription</span>
+                    <span className={actionTitleClass}>Set up a provider workspace</span>
                     <span className={actionDescriptionClass}>For interventionists, treatment teams, and recovery organizations</span>
                   </span>
-                  <Building2 className={actionIconClass} />
+                  <ArrowRight className={actionIconClass} />
                 </Button>
+              </CardContent>
+            </Card>
+          </section>
+
+          <section className="grid gap-5 lg:grid-cols-[0.9fr_1.1fr]">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Sparkles className="h-5 w-5 text-primary" />
+                  Need help getting organized?
+                </CardTitle>
+                <CardDescription>
+                  Some families need a short professional guidance window before the system can stabilize.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
                 <Button className={actionButtonClass} variant="outline" onClick={() => navigate("/moderator-purchase")}>
                   <span className={actionTextClass}>
-                    <span className={actionTitleClass}>Guidance window</span>
-                    <span className={actionDescriptionClass}>Short-term professional support to help a family get stabilized</span>
+                    <span className={actionTitleClass}>Get short-term professional guidance</span>
+                    <span className={actionDescriptionClass}>A focused support window to help a family clarify next steps</span>
                   </span>
-                  <Sparkles className={actionIconClass} />
+                  <ArrowRight className={actionIconClass} />
                 </Button>
               </CardContent>
             </Card>
@@ -231,7 +277,7 @@ export default function NativeHome() {
                   What FamilyBridge helps organize
                 </CardTitle>
                 <CardDescription>
-                  Built for the messy middle: after concern becomes action, and before recovery feels stable.
+                  Practical tools for families and care teams trying to move from chaos to clarity.
                 </CardDescription>
               </CardHeader>
               <CardContent className="grid gap-3 sm:grid-cols-2">
@@ -241,7 +287,7 @@ export default function NativeHome() {
                   "Treatment and aftercare documents",
                   "Medication and appointment reminders",
                   "Emotional check-ins and risk signals",
-                  "Provider-family coordination",
+                  "Care team and family alignment",
                 ].map((item) => (
                   <div key={item} className="flex items-start gap-2 rounded-xl border bg-muted/30 p-3 text-sm leading-6">
                     <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
@@ -276,6 +322,12 @@ export default function NativeHome() {
                 </Button>
               ))}
             </div>
+          </section>
+
+          <section className="rounded-2xl border bg-muted/40 p-4 text-sm leading-6 text-muted-foreground">
+            <p>
+              FamilyBridge does not replace treatment, emergency services, medical care, or professional clinical judgment. It helps families and care teams stay organized, informed, and connected. If someone may be in immediate danger, call emergency services now.
+            </p>
           </section>
         </div>
       </main>
