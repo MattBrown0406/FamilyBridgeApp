@@ -21,6 +21,7 @@ import ProviderCoordination from "./pages/ProviderCoordination";
 import FamilyPurchase from "./pages/FamilyPurchase";
 import FamilySetup from "./pages/FamilySetup";
 import JoinFamily from "./pages/JoinFamily";
+import ForProviders from "./pages/ForProviders";
 import ModeratorPurchase from "./pages/ModeratorPurchase";
 import SuperAdmin from "./pages/SuperAdmin";
 import Demo from "./pages/Demo";
@@ -92,6 +93,7 @@ const App = () => {
               <Route path="/family-setup" element={<FamilySetup />} />
               <Route path="/join" element={<JoinFamily />} />
               <Route path="/join-family" element={<JoinFamily />} />
+              <Route path="/for-providers" element={<ForProviders />} />
               <Route path="/moderator-purchase" element={<ModeratorPurchase />} />
               <Route path="/super-admin" element={<SuperAdmin />} />
               <Route path="/demo" element={<Demo />} />
