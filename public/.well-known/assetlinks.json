@@ -1,0 +1,17 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "app.lovable.feec162303784a959c1635217b29129c",
+      "sha256_cert_fingerprints": [
+        "PLACEHOLDER_SHA256_FINGERPRINT_REPLACE_WHEN_WIRING_APP_LINKS"
+      ]
+    }
+  },
+  {
+    "_v2_roadmap_note": "Replace the SHA256 fingerprint when wiring Android App Links. Get the value with: keytool -list -v -keystore /root/.hermes/secrets/familybridge_keystore/familybridge-upload.keystore (password in keystore_password.txt). Use the SHA256 line, then for production builds also include the Play App Signing certificate fingerprint from Play Console → Setup → App integrity. The file must be served as application/json at https://familybridgeapp.com/.well-known/assetlinks.json with HTTP 200. See docs/v2-roadmap.md item 2.2."
+  }
+]

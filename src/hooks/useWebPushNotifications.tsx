@@ -7,10 +7,14 @@ export const useWebPushNotifications = () => {
   const [isSupported, setIsSupported] = useState(false);
 
   useEffect(() => {
-    // Check if notifications are supported (desktop/laptop browsers)
-    const supported = 'Notification' in window && !isMobileDevice();
+    // Browser-side Notification API support. Mobile Safari 16.4+ and modern
+    // mobile Chrome both support this; the previous UA-sniff was overly
+    // conservative and disabled toasts inside the Capacitor webview too.
+    // (Native push is a separate hook — usePushNotifications — that uses the
+    // Capacitor PushNotifications plugin via FCM/APNS, planned for v2.)
+    const supported = 'Notification' in window;
     setIsSupported(supported);
-    
+
     if (supported) {
       setPermission(Notification.permission);
     }

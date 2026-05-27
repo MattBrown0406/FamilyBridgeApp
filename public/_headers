@@ -1,0 +1,21 @@
+# Hosting headers — applied at the edge.
+# Format works for Netlify and Cloudflare Pages, which is what Lovable
+# deploys to under the hood.
+
+# Apple Universal Links — the file has no extension, so the host won't
+# auto-detect JSON. Apple REQUIRES Content-Type: application/json.
+/.well-known/apple-app-site-association
+  Content-Type: application/json
+  Cache-Control: public, max-age=3600
+
+# Android App Links assetlinks (already .json, but lock the Content-Type
+# to avoid any host shenanigans).
+/.well-known/assetlinks.json
+  Content-Type: application/json
+  Cache-Control: public, max-age=3600
+
+# Service worker — must always be re-fetched so push handler updates
+# propagate instantly.
+/sw.js
+  Cache-Control: no-cache
+  Service-Worker-Allowed: /

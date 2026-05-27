@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { SEOHead } from "@/components/SEOHead";
+import { ProviderInquiryForm } from "@/components/ProviderInquiryForm";
 import {
   ArrowRight,
   ArrowLeft,
@@ -413,6 +414,13 @@ const ForProviders = () => {
               "A boundary without a consequence is a request. Emotional escalation is not a consequence."
             </blockquote>
           </div>
+        </div>
+      </section>
+
+      {/* Inquiry form (v2 Tier 1.1) */}
+      <section id="contact" className="container mx-auto px-4 py-14 sm:py-20">
+        <div className="max-w-3xl">
+          <ProviderInquiryForm source="for-providers-page" />
         </div>
       </section>
 

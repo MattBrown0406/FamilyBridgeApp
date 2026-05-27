@@ -1,0 +1,54 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appIDs": [
+          "TEAMIDPLACEHOLDER.app.lovable.feec162303784a959c1635217b29129c"
+        ],
+        "components": [
+          {
+            "/": "/auth*",
+            "comment": "Auth flows including ?mode=signup&familyInvite=..."
+          },
+          {
+            "/": "/join",
+            "comment": "Family invite code entry"
+          },
+          {
+            "/": "/join-family",
+            "comment": "Alias for /join"
+          },
+          {
+            "/": "/family-purchase",
+            "?": { "inviteCode": "*" },
+            "comment": "Legacy invite-email URLs"
+          },
+          {
+            "/": "/for-providers",
+            "comment": "Provider landing page (brochure QR target)"
+          },
+          {
+            "/": "/demo*",
+            "comment": "Demo screens"
+          },
+          {
+            "/": "/dashboard*"
+          },
+          {
+            "/": "/family*"
+          },
+          {
+            "/": "/sign-hipaa*"
+          }
+        ]
+      }
+    ]
+  },
+  "webcredentials": {
+    "apps": [
+      "TEAMIDPLACEHOLDER.app.lovable.feec162303784a959c1635217b29129c"
+    ]
+  },
+  "_v2_roadmap_note": "Replace TEAMIDPLACEHOLDER with the actual Apple Developer Team ID (10-char alphanumeric) when wiring native Universal Links. See docs/v2-roadmap.md item 2.2. The file must be served as application/json at https://familybridgeapp.com/.well-known/apple-app-site-association with no extension and HTTP 200."
+}

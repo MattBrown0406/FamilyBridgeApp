@@ -131,3 +131,6 @@ verify_jwt = false
 
 [functions.seed-deletion-test-account]
 verify_jwt = false
+
+[functions.submit-provider-inquiry]
+verify_jwt = false
