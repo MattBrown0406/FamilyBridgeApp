@@ -144,7 +144,7 @@ const Index = () => {
                 Powered by FIIS™, patent-pending decision support
               </p>
               <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-                Family Insight & Intervention System
+                Family Intervention Intelligence System
               </p>
             </div>
             <h1 className="text-3xl sm:text-5xl md:text-6xl font-display font-bold text-foreground leading-[1.1] mb-5">
