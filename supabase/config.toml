@@ -134,3 +134,6 @@ verify_jwt = false
 
 [functions.submit-provider-inquiry]
 verify_jwt = false
+
+[functions.validate-invite-code]
+verify_jwt = false

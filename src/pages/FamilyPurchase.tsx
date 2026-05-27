@@ -407,31 +407,20 @@ const FamilyPurchase = () => {
 
     setIsValidatingInvite(true);
     try {
-      // Check if the invite code exists in family_invite_codes table
-      const { data: inviteData, error: inviteError } = await supabase
-        .from("family_invite_codes")
-        .select("family_id")
-        .eq("invite_code", familyInviteCode.trim().toLowerCase())
-        .maybeSingle();
+      // Validate via public edge function (RLS prevents anonymous SELECT
+      // against family_invite_codes, so client-side lookups always 404).
+      const { data, error: fnError } = await supabase.functions.invoke('validate-invite-code', {
+        body: { code: familyInviteCode.trim() },
+      });
 
-      if (inviteError) throw inviteError;
-
-      // Also check families table for legacy invite codes
-      let familyId = inviteData?.family_id;
-      
-      if (!familyId) {
-        const { data: familyData, error: familyError } = await supabase
-          .from("families")
-          .select("id")
-          .eq("invite_code", familyInviteCode.trim().toLowerCase())
-          .maybeSingle();
-
-        if (familyError) throw familyError;
-        familyId = familyData?.id;
+      if (fnError) {
+        console.error('Invite validation function error:', fnError);
+        toast.error('Could not validate the code right now. Please try again in a moment.');
+        return;
       }
 
-      if (!familyId) {
-        toast.error("Invalid invite code. Please check and try again.");
+      if (!data?.valid) {
+        toast.error(data?.error || 'Invalid invite code. Please check and try again.');
         return;
       }
 

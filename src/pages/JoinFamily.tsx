@@ -44,31 +44,20 @@ const JoinFamily = () => {
 
     setIsValidating(true);
     try {
-      // Check family_invite_codes table first (current schema)
-      const { data: inviteData, error: inviteError } = await supabase
-        .from("family_invite_codes")
-        .select("family_id")
-        .eq("invite_code", code)
-        .maybeSingle();
+      // Use the public edge function — anonymous users can't SELECT
+      // family_invite_codes directly because of RLS.
+      const { data, error: fnError } = await supabase.functions.invoke('validate-invite-code', {
+        body: { code },
+      });
 
-      if (inviteError) throw inviteError;
-
-      let familyId = inviteData?.family_id;
-
-      // Fall back to legacy families.invite_code
-      if (!familyId) {
-        const { data: familyData, error: familyError } = await supabase
-          .from("families")
-          .select("id")
-          .eq("invite_code", code)
-          .maybeSingle();
-
-        if (familyError) throw familyError;
-        familyId = familyData?.id;
+      if (fnError) {
+        console.error('Invite validation function error:', fnError);
+        toast.error("Couldn't validate that code right now. Please try again in a moment.");
+        return;
       }
 
-      if (!familyId) {
-        toast.error("That invite code isn't valid. Double-check with whoever sent it to you.");
+      if (!data?.valid) {
+        toast.error(data?.error || "That invite code isn't valid. Double-check with whoever sent it to you.");
         return;
       }
 

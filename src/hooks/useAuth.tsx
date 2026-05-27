@@ -6,7 +6,7 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
-  signUp: (email: string, password: string, fullName: string) => Promise<{ error: Error | null }>;
+  signUp: (email: string, password: string, fullName: string) => Promise<{ error: Error | null; needsEmailConfirmation?: boolean }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: Error | null }>;
@@ -67,8 +67,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         console.error('Welcome email failed:', err);
       });
     }
-    
-    return { error: error as Error | null };
+
+    // When Supabase has email-confirmation enabled, signUp returns a user
+    // but NO session — the user can't sign in until they click the
+    // confirmation link. Signal that to the UI so we can show the right
+    // message instead of "Welcome! Account created!" followed by a sign-in
+    // failure when they immediately try to log in.
+    const needsEmailConfirmation = !error && !!data?.user && !data?.session;
+
+    return { error: error as Error | null, needsEmailConfirmation };
   };
 
   const signIn = async (email: string, password: string) => {

@@ -283,7 +283,7 @@ const Auth = () => {
           setConfirmPassword('');
         }
       } else if (mode === 'signup') {
-        const { error } = await signUp(email, password, fullName);
+        const { error, needsEmailConfirmation } = await signUp(email, password, fullName);
         if (error) {
           if (error.message.includes('already registered')) {
             toast({
@@ -298,6 +298,17 @@ const Auth = () => {
               variant: 'destructive',
             });
           }
+        } else if (needsEmailConfirmation) {
+          // Email confirmation is required — be honest that they can't sign
+          // in yet, and switch to sign-in mode so the next step is obvious.
+          toast({
+            title: 'Almost there — check your email',
+            description: `We sent a confirmation link to ${email}. Click it, then come back here to sign in.`,
+            duration: 10000,
+          });
+          setMode('signin');
+          setPassword('');
+          setConfirmPassword('');
         } else {
           // Save credentials for biometric login
           if (biometricAvailable) {
@@ -316,11 +327,21 @@ const Auth = () => {
       } else {
         const { error } = await signIn(email, password);
         if (error) {
-          toast({
-            title: 'Sign in failed',
-            description: 'Invalid email or password. Please try again.',
-            variant: 'destructive',
-          });
+          const msg = (error.message || '').toLowerCase();
+          if (msg.includes('email not confirmed') || msg.includes('not confirmed')) {
+            toast({
+              title: 'Confirm your email first',
+              description: `Please click the confirmation link we sent to ${email}, then sign in.`,
+              variant: 'destructive',
+              duration: 10000,
+            });
+          } else {
+            toast({
+              title: 'Sign in failed',
+              description: 'Invalid email or password. Please try again.',
+              variant: 'destructive',
+            });
+          }
         } else {
           // Save credentials for biometric login after successful sign in
           if (biometricAvailable && !hasStoredCredentials) {
