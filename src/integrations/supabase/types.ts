@@ -5024,6 +5024,72 @@ export type Database = {
           },
         ]
       }
+      provider_inquiries: {
+        Row: {
+          contacted_at: string | null
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          ip_inet: unknown
+          message: string | null
+          notes: string | null
+          organization: string | null
+          phone: string | null
+          program_size: string | null
+          role: string | null
+          source: string
+          status: string
+          updated_at: string
+          user_agent: string | null
+          utm_campaign: string | null
+          utm_medium: string | null
+          utm_source: string | null
+        }
+        Insert: {
+          contacted_at?: string | null
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          ip_inet?: unknown
+          message?: string | null
+          notes?: string | null
+          organization?: string | null
+          phone?: string | null
+          program_size?: string | null
+          role?: string | null
+          source?: string
+          status?: string
+          updated_at?: string
+          user_agent?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Update: {
+          contacted_at?: string | null
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          ip_inet?: unknown
+          message?: string | null
+          notes?: string | null
+          organization?: string | null
+          phone?: string | null
+          program_size?: string | null
+          role?: string | null
+          source?: string
+          status?: string
+          updated_at?: string
+          user_agent?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Relationships: []
+      }
       provider_messages: {
         Row: {
           content: string
