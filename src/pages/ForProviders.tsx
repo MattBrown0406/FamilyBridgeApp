@@ -321,23 +321,126 @@ const ForProviders = () => {
         </div>
       </section>
 
-      {/* Outcomes panel */}
+      {/* Outcomes panel + dashboard preview */}
       <section className="bg-foreground">
         <div className="container mx-auto px-4 py-14 sm:py-20">
-          <p className="text-xs uppercase tracking-[0.25em] text-accent font-semibold mb-3">What Providers Can Measure</p>
-          <h2 className="text-2xl sm:text-4xl font-display font-bold text-background mb-10 tracking-tight max-w-3xl">
-            Measurable shifts, not just better feelings.
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="max-w-3xl mb-10">
+            <p className="text-xs uppercase tracking-[0.25em] text-accent font-semibold mb-3">Outcomes You Can Measure</p>
+            <h2 className="text-2xl sm:text-4xl font-display font-bold text-background mb-4 tracking-tight">
+              Hard numbers your QA team, payers, and accreditors will accept.
+            </h2>
+            <p className="text-base text-background/70 leading-relaxed">
+              FamilyBridge surfaces the family-side signals your treatment plan already cares about — but couldn't measure
+              between sessions. Every check-in, document, boundary, and behavioral contract feeds a longitudinal record
+              your clinical team can defend in a chart review.
+            </p>
+          </div>
+
+          {/* Dashboard mock */}
+          <div className="rounded-2xl bg-background/[0.04] border border-background/10 p-4 sm:p-6 mb-10 shadow-2xl">
+            {/* Title bar */}
+            <div className="flex flex-wrap items-center justify-between gap-3 pb-4 mb-4 border-b border-background/10">
+              <div className="flex items-center gap-3">
+                <div className="h-8 w-8 rounded-md bg-accent/20 flex items-center justify-center">
+                  <Activity className="h-4 w-4 text-accent" />
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase tracking-widest text-background/50 font-semibold">Family Group</p>
+                  <p className="text-sm font-display font-bold text-background">Dearing • last 30 days</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-[10px] uppercase tracking-widest px-2 py-1 rounded-full bg-emerald-500/15 text-emerald-300 font-semibold">
+                  ● Engaged
+                </span>
+                <span className="text-[10px] uppercase tracking-widest px-2 py-1 rounded-full bg-amber-500/15 text-amber-300 font-semibold">
+                  ⚠ 1 pattern flag
+                </span>
+              </div>
+            </div>
+
+            {/* Top row: readiness score + sparkline */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              <div className="rounded-xl bg-background/[0.06] border border-background/10 p-4">
+                <p className="text-[10px] uppercase tracking-widest text-background/50 font-semibold mb-2">Readiness Score</p>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-4xl font-display font-bold text-background">74</span>
+                  <span className="text-xs text-background/40">/100</span>
+                  <span className="ml-2 text-xs font-semibold text-emerald-300">↑ 11 pts (30d)</span>
+                </div>
+                <div className="mt-3 h-1.5 w-full rounded-full bg-background/10 overflow-hidden">
+                  <div className="h-full bg-gradient-to-r from-accent to-emerald-400" style={{ width: "74%" }} />
+                </div>
+                <p className="text-[11px] text-background/50 mt-2">Cross-validated, longitudinal</p>
+              </div>
+
+              <div className="md:col-span-2 rounded-xl bg-background/[0.06] border border-background/10 p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-[10px] uppercase tracking-widest text-background/50 font-semibold">30-Day Trajectory</p>
+                  <p className="text-[11px] text-background/40">readiness ↑ • escalations ↓</p>
+                </div>
+                <div className="flex items-end gap-[3px] h-20">
+                  {[34, 38, 36, 42, 41, 45, 44, 48, 46, 50, 52, 49, 55, 58, 56, 60, 62, 61, 64, 63, 66, 68, 67, 70, 69, 71, 72, 73, 74, 74].map((v, i) => (
+                    <div
+                      key={i}
+                      className="flex-1 rounded-sm bg-gradient-to-t from-accent/30 to-accent"
+                      style={{ height: `${v}%` }}
+                    />
+                  ))}
+                </div>
+                <div className="mt-2 flex justify-between text-[10px] text-background/40">
+                  <span>Apr 28</span>
+                  <span>May 13</span>
+                  <span>May 27</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Metrics grid */}
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              {[
+                { dir: "↓", color: "text-emerald-300", label: "Family-driven crisis escalations", value: "2", sub: "vs. 7 prior 30d" },
+                { dir: "↑", color: "text-emerald-300", label: "Aftercare plan completion", value: "84%", sub: "12 of 14 milestones" },
+                { dir: "↑", color: "text-emerald-300", label: "Behavioral contract adherence", value: "91%", sub: "both sides tracking" },
+                { dir: "↓", color: "text-emerald-300", label: "Time-to-pattern detection", value: "2.4d", sub: "median, relapse risk" },
+                { dir: "↑", color: "text-emerald-300", label: "Family engagement", value: "6 of 7", sub: "members active weekly" },
+                { dir: "↻", color: "text-amber-300", label: "Open pattern flag", value: "1", sub: "boundary erosion (mother)" },
+              ].map((m) => (
+                <div key={m.label} className="rounded-lg bg-background/[0.06] border border-background/10 p-3">
+                  <div className="flex items-baseline justify-between mb-1">
+                    <span className={`text-xl font-display font-bold ${m.color}`}>{m.dir}</span>
+                    <span className="text-lg font-display font-bold text-background">{m.value}</span>
+                  </div>
+                  <p className="text-[11px] text-background/80 leading-tight font-medium">{m.label}</p>
+                  <p className="text-[10px] text-background/55 leading-tight mt-1">{m.sub}</p>
+                </div>
+              ))}
+            </div>
+
+            <p className="text-[10px] uppercase tracking-widest text-background/30 font-semibold mt-4 text-center">
+              Illustrative dashboard • sample data
+            </p>
+          </div>
+
+          {/* What this means for you */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {[
-              { dir: "↓", label: "Family-driven crisis escalations between sessions" },
-              { dir: "↑", label: "Aftercare plan completion and adherence" },
-              { dir: "↑", label: "Family follow-through on behavioral contracts" },
-              { dir: "↑", label: "Visibility into post-discharge trajectory" },
-            ].map((o) => (
-              <div key={o.label}>
-                <div className="text-5xl font-display font-bold text-background mb-2">{o.dir}</div>
-                <p className="text-sm text-background/70 leading-relaxed">{o.label}</p>
+              {
+                title: "Chart-review defensible",
+                body: "Every metric is timestamped, cross-validated against multiple family members, and exportable. Built to survive QA, payer, and accreditation review.",
+              },
+              {
+                title: "Between-session visibility",
+                body: "Stop relying on what the client tells you in the room. See the pattern your clinical team has been missing — before it becomes a crisis call.",
+              },
+              {
+                title: "Honest framing",
+                body: "We track signals, not promises. We don't claim outcomes the platform can't measure. The data is yours to interpret with your team.",
+              },
+            ].map((b) => (
+              <div key={b.title} className="rounded-xl bg-background/[0.04] border border-background/10 p-5">
+                <p className="text-sm font-display font-bold text-background mb-2">{b.title}</p>
+                <p className="text-xs text-background/60 leading-relaxed">{b.body}</p>
               </div>
             ))}
           </div>
