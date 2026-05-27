@@ -24,21 +24,19 @@ const LIQUOR_RELATED_TYPES = [
   'casino',
 ];
 
-// Keywords in place names that might indicate alcohol-related venues
+// Keywords in place names that might indicate alcohol-related venues.
+// Kept conservative — generic words like "club" or "lounge" produce too
+// many false positives (restaurants with "+ Lounge" in the name, dance
+// clubs, etc.). The Google 'bar' / 'night_club' type covers those reliably.
 const LIQUOR_KEYWORDS = [
-  'bar',
   'pub',
   'tavern',
   'brewery',
   'winery',
   'distillery',
   'liquor',
-  'wine',
   'spirits',
   'cocktail',
-  'lounge',
-  'nightclub',
-  'club',
   'saloon',
 ];
 
@@ -158,16 +156,72 @@ serve(async (req) => {
       );
     }
 
-    console.log('Checking location for nearby liquor-related venues');
+    console.log('Checking location for nearby risk venues');
 
-    // Search for nearby places within 50 meters
-    const radius = 50;
-    const nearbyUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${latitude},${longitude}&radius=${radius}&key=${apiKey}`;
-    
-    const response = await fetch(nearbyUrl);
-    const data: NearbySearchResponse = await response.json();
+    // Run multiple targeted nearby-searches in parallel.
+    // Google Places "Nearby Search" only returns up to 20 results per call,
+    // and the top results are heavily biased by category — a single
+    // undifferentiated query at a busy corner returns mostly restaurants
+    // and cafés, missing dispensaries, liquor stores, and adult venues
+    // that sit just outside the immediate pin.
+    //
+    // We fan out to one query per category plus one wide-net call,
+    // then dedupe by name+location.
+    //
+    // 200m radius ≈ one short city block — wide enough to find the venue
+    // the user is actually at (Google's geocode often lands 30–80m off
+    // the front door for large buildings) but tight enough that "near"
+    // still means "near".
+    const radius = 200;
+    const base = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${latitude},${longitude}&key=${apiKey}`;
 
-    console.log('Nearby places query completed', { resultCount: data.results?.length || 0 });
+    const queries = [
+      // Wide-net: anything Google ranks within radius
+      `${base}&radius=${radius}`,
+      // Bars and nightlife (Google has a 'bar' type)
+      `${base}&radius=${radius}&type=bar`,
+      // Liquor stores (Google has a 'liquor_store' type)
+      `${base}&radius=${radius}&type=liquor_store`,
+      // Cannabis — Google has no 'dispensary' type, so use keyword search
+      `${base}&radius=${radius}&keyword=dispensary`,
+      `${base}&radius=${radius}&keyword=cannabis`,
+      // Adult entertainment — keyword-only (no Google type)
+      `${base}&radius=${radius}&keyword=strip%20club`,
+      `${base}&radius=${radius}&keyword=adult%20entertainment`,
+    ];
+
+    const responses = await Promise.all(
+      queries.map(async (u) => {
+        try {
+          const r = await fetch(u);
+          return (await r.json()) as NearbySearchResponse;
+        } catch (e) {
+          console.error('Nearby search failed', e);
+          return { results: [], status: 'ERROR' } as NearbySearchResponse;
+        }
+      })
+    );
+
+    // Merge + dedupe results by name (lowercased)
+    const seen = new Set<string>();
+    const allResults: PlaceResult[] = [];
+    for (const r of responses) {
+      for (const p of r.results || []) {
+        const key = (p.name || '').toLowerCase().trim();
+        if (!key || seen.has(key)) continue;
+        seen.add(key);
+        allResults.push(p);
+      }
+    }
+
+    // Build a synthetic top-level "data" to keep the rest of the handler
+    // logic identical to the original single-call path.
+    const data: NearbySearchResponse = {
+      results: allResults,
+      status: allResults.length > 0 ? 'OK' : 'ZERO_RESULTS',
+    };
+
+    console.log('Nearby places query completed', { resultCount: data.results.length, queries: queries.length });
 
     if (data.status !== 'OK' && data.status !== 'ZERO_RESULTS') {
       console.error('Google Places API error:', data.status);
