@@ -42,6 +42,108 @@ This list captures everything Matt + Hermes identified as "real but not pre-conf
 
 **Files:** new Hermes cron script + `src/components/MeetingFinder.tsx`.
 
+### ⚡ 1.4 Location-drift monitor — rewire so it actually catches drift
+
+**Problem:** The `useLocationDriftMonitor` hook is well-written but wired into
+the wrong place. Audit on 2026-05-27 found:
+
+🔴 **Critical bugs**
+
+1. **Monitoring never starts at check-in time.** The hook only attaches inside
+   `MeetingCheckout.tsx`, which one-shot-queries for a pending check-in when it
+   mounts. After a fresh check-in, the user must leave + re-enter the FamilyChat
+   page for `MeetingCheckout` to refetch and start watching. If they don't, the
+   100-yard threshold check never executes for that session.
+2. **Monitoring stops the moment the user navigates away from FamilyChat.** The
+   hook is tied to a React component lifecycle. Switching pages inside the app,
+   backgrounding the app, or locking the phone halts `watchPosition`. On iOS we
+   only have `NSLocationWhenInUseUsageDescription` — confirmed in
+   `ios/App/App/Info.plist` — so as soon as the app backgrounds, geolocation
+   stops firing entirely.
+
+🟡 **Significant bugs**
+
+3. **One-size-fits-all 1-hour checkout window.** DB trigger `set_checkout_due_at`
+   (migration `20251230170331`) blindly sets `checkout_due_at = checked_in_at
+   (rounded to hour) + 1h` for every check-in type — AA, medical, therapy, work,
+   gym, court. A medical appointment with travel + wait is rarely under an hour;
+   a court appearance can be all day. The overdue-checkout alert fires 1h15m
+   later (`20251231062957`), producing lots of false positives.
+4. **No persistence of drift events.** When drift is detected, the warning
+   posts a chat message and a `notifications` row, but nothing is written to
+   `meeting_checkins` itself. Can't query "did anyone drift on their last 10
+   meetings?" FIIS score can't use it.
+5. **One-shot warning per session.** `warningPostedRef.current = true` after
+   the first alert. Someone who drifts → returns → drifts to a third location
+   only triggers the FIRST warning. If they go meeting → bar → liquor store,
+   family sees one alert about leaving the meeting and nothing about the
+   actual concerning destination.
+
+🟢 **Minor / quality issues**
+
+6. **100-yard threshold may be too aggressive.** GPS jitter — especially
+   indoors at a church basement or medical office — can fluctuate 30-100
+   yards on consumer phones. Recommend 150-200 yards OR requiring 2
+   consecutive over-threshold readings before firing.
+7. **Reverse-geocoder hits Nominatim with no API key.** OpenStreetMap's
+   public service is rate-limited at 1 req/sec. If two family members drift
+   simultaneously, one silently fails to get an address. Should swap to the
+   existing Google Places setup we already pay for.
+8. **No duration UX in `LifeAppointmentCheckin`.** The DB trigger does set
+   `checkout_due_at` for medical/therapy check-ins, but the user can't tell
+   the app the actual duration of their appointment, so 50-minute therapy
+   sessions and 3-hour medical visits both end up with the same 1h window.
+
+**Build (web-only, no review needed for items 1-7):**
+
+1. Move `useLocationDriftMonitor` UP a level. Best home: a new
+   `<ActiveCheckinWatcher>` component mounted near the top of
+   `FamilyChat.tsx` (or even `App.tsx` inside the auth-required wrapper), so
+   it persists across all in-app navigation while the user has an open
+   check-in. Drive it from a realtime `meeting_checkins` subscription —
+   start watching the moment a row appears with no `checked_out_at`, stop
+   the moment one is set.
+2. Replace the one-shot fetch with a realtime channel so drift starts at the
+   *instant* of check-in submission, not on next page refresh.
+3. Add a `default_duration_minutes` parameter to `meeting_checkins` (or
+   compute it client-side per `meeting_type` and pass to the insert). For
+   AA/NA/Al-Anon default 60min, therapy 50min, court "open ended"
+   (suppress overdue alert), medical default 90min, gym 60min. Let the user
+   override via a dropdown on the check-in form.
+4. Update the DB trigger to respect a provided `checkout_due_at` instead of
+   always overwriting it. Or replace the trigger with explicit client-side
+   computation.
+5. Write drift events to a new `checkin_drift_events` table
+   `(id, checkin_id, family_id, user_id, captured_at, distance_yards,
+   latitude, longitude, address, severity)`. Index on `family_id,
+   captured_at`. Feed into FIIS score weights.
+6. Repost the warning when the user drifts to a *new* location (>50yds from
+   the previous drift point). Track last-warned-position in a ref.
+7. Bump threshold default to 200yds and require 2 consecutive
+   over-threshold readings (debounce).
+8. Swap Nominatim → Google Places reverse geocode (reuse the credentials
+   already wired into `check-liquor-license`).
+9. Add a banner on the FamilyChat page: "Drift monitoring is active while
+   the app is open. Open the app to keep monitoring after a check-in."
+
+**Build (native, defer to 2.1 Firebase release):**
+
+10. Add `@capacitor/background-geolocation` with iOS
+    `NSLocationAlwaysAndWhenInUseUsageDescription` and Android
+    `ACCESS_BACKGROUND_LOCATION` permission, so drift monitoring continues
+    when the app backgrounds. This triggers a heavier Apple Review process
+    + a privacy nutrition label update.
+
+**Estimated effort:** ~half a day for web items 1-9. Native item 10 batches
+into the v2.1 Firebase release.
+
+**Files:** `src/hooks/useLocationDriftMonitor.tsx`, new
+`src/components/ActiveCheckinWatcher.tsx`, `src/pages/FamilyChat.tsx`,
+`src/components/MeetingCheckin.tsx`,
+`src/components/LifeAppointmentCheckin.tsx`,
+`supabase/migrations/<new>_checkin_drift_events.sql`,
+`supabase/migrations/<new>_dynamic_checkout_due.sql`.
+
 ---
 
 ## Tier 2 — Native app work, requires Apple/Google review
@@ -143,5 +245,5 @@ Quick-reply to family messages from watch, daily mood check-in tap, sponsor-call
 
 ---
 
-_Last updated: 2026-05-27 (pre-conference planning)_
+_Last updated: 2026-05-27 (post-conference audit — added 1.4 location-drift findings)_
 _Maintainer: Matt Brown · agent: Hermes (C-3PO)_
