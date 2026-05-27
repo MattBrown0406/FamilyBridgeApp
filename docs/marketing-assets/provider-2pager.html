@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>FamilyBridge for Providers</title>
+<style>
+@page { size: Letter; margin: 0; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { font-family: 'Helvetica', 'Arial', sans-serif; color: #2A2E33; }
+
+:root {
+  --sage: #436B5A;
+  --sage-deep: #2F4D40;
+  --sage-light: #6B8F7C;
+  --teal: #4AA09B;
+  --cream: #FAF7F2;
+  --cream-warm: #F3ECDF;
+  --ink: #2A2E33;
+  --muted: #6B7280;
+  --line: #E5DFD2;
+}
+
+.page {
+  width: 8.5in; height: 11in;
+  padding: 0.45in 0.5in;
+  background: var(--cream);
+  page-break-after: always;
+  position: relative;
+  overflow: hidden;
+}
+.page:last-child { page-break-after: auto; }
+
+/* ====== Header bar ====== */
+.hdr {
+  display: flex; align-items: center; justify-content: space-between;
+  padding-bottom: 10px; border-bottom: 1.5px solid var(--line);
+  margin-bottom: 14px;
+}
+.hdr-l { display: flex; align-items: center; gap: 9px; }
+.hdr-l img { width: 30px; height: 30px; }
+.hdr-l .name { font-weight: 700; font-size: 14pt; color: var(--sage-deep); letter-spacing: -0.3px; }
+.hdr-l .name span { color: var(--teal); }
+.hdr-r { font-size: 8pt; color: var(--muted); text-align: right; line-height: 1.35; }
+.hdr-r .dom { color: var(--sage); font-weight: 600; font-size: 8.5pt; }
+
+/* ====== Footer ====== */
+.ftr {
+  position: absolute; left: 0.5in; right: 0.5in; bottom: 0.32in;
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 7.5pt; color: var(--muted);
+  padding-top: 7px; border-top: 1px solid var(--line);
+}
+.ftr .brand { color: var(--sage); font-weight: 600; }
+
+/* ====== Page 1 — Hero + Why + Modules ====== */
+.hero {
+  background: linear-gradient(135deg, #436B5A 0%, #2F4D40 60%, #4AA09B 130%);
+  color: #fff;
+  border-radius: 12px;
+  padding: 26px 30px 22px;
+  margin-bottom: 14px;
+  position: relative;
+  overflow: hidden;
+}
+.hero::after {
+  content: ""; position: absolute; right: -50px; top: -50px;
+  width: 180px; height: 180px; border-radius: 50%;
+  background: rgba(255,255,255,0.06);
+}
+.hero .eyebrow {
+  font-size: 8pt; letter-spacing: 3px; font-weight: 700;
+  text-transform: uppercase; color: #BFE3DE; margin-bottom: 10px;
+}
+.hero h1 {
+  font-size: 22pt; line-height: 1.12; font-weight: 700;
+  letter-spacing: -0.6px; margin-bottom: 10px; max-width: 6.2in;
+}
+.hero p.sub {
+  font-size: 10.5pt; line-height: 1.45; color: #E8F0EC;
+  max-width: 6in;
+}
+.hero .pill {
+  display: inline-block; margin-top: 12px;
+  background: rgba(255,255,255,0.14);
+  border: 1px solid rgba(255,255,255,0.25);
+  color: #fff; padding: 4px 12px; border-radius: 999px;
+  font-size: 8pt; font-weight: 600; letter-spacing: 0.5px;
+}
+
+.intro {
+  margin-bottom: 12px;
+}
+.intro h2 {
+  font-size: 12pt; color: var(--sage-deep); margin-bottom: 4px;
+  font-weight: 700; letter-spacing: -0.2px;
+}
+.intro p {
+  font-size: 9.5pt; line-height: 1.5; color: var(--ink);
+}
+
+.section-h2 {
+  display: flex; align-items: baseline; justify-content: space-between;
+  margin-bottom: 8px;
+}
+.section-h2 .title {
+  font-size: 12pt; font-weight: 700; color: var(--sage-deep);
+  letter-spacing: -0.2px;
+}
+.section-h2 .eyebrow-r {
+  font-size: 7.5pt; letter-spacing: 2.5px; text-transform: uppercase;
+  color: var(--teal); font-weight: 700;
+}
+
+.modules {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+}
+.mod {
+  background: #fff; border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px 12px;
+  border-left: 3px solid var(--sage);
+}
+.mod.l2 { border-left-color: var(--teal); }
+.mod.l3 { border-left-color: var(--sage-light); }
+.mod .ttl {
+  font-size: 10pt; font-weight: 700; color: var(--sage-deep);
+  margin-bottom: 3px;
+}
+.mod .tm { color: var(--teal); font-size: 7pt; vertical-align: super; }
+.mod .dsc {
+  font-size: 8.5pt; color: var(--ink); line-height: 1.4;
+}
+
+.who {
+  margin-top: 12px;
+  background: var(--cream-warm);
+  border-left: 4px solid var(--teal);
+  padding: 10px 14px; border-radius: 0 6px 6px 0;
+}
+.who h3 { font-size: 8.5pt; color: var(--sage-deep); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 4px; }
+.who p { font-size: 9pt; line-height: 1.45; color: var(--ink); }
+
+/* ====== Page 2 — Provider value + How it works + CTA ====== */
+.value-hero {
+  background: linear-gradient(120deg, #F3ECDF 0%, #FAF7F2 100%);
+  border: 1px solid var(--line);
+  border-radius: 10px; padding: 12px 18px; margin-bottom: 12px;
+}
+.value-hero h2 {
+  font-size: 13pt; color: var(--sage-deep); font-weight: 700;
+  letter-spacing: -0.3px; margin-bottom: 4px;
+}
+.value-hero p { font-size: 9pt; line-height: 1.45; color: var(--ink); }
+
+.value-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-bottom: 12px;
+}
+.vcard {
+  background: #fff; border: 1px solid var(--line);
+  border-left: 4px solid var(--sage);
+  border-radius: 8px; padding: 8px 12px;
+}
+.vcard.alt { border-left-color: var(--teal); }
+.vcard h3 {
+  font-size: 9.5pt; color: var(--sage-deep); font-weight: 700;
+  margin-bottom: 3px;
+}
+.vcard p { font-size: 8.5pt; line-height: 1.4; color: var(--ink); }
+
+.steps {
+  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 7px;
+  margin-bottom: 12px;
+}
+.step {
+  background: #fff; border: 1px solid var(--line);
+  border-radius: 8px; padding: 8px 11px; position: relative;
+}
+.step .num {
+  width: 20px; height: 20px; border-radius: 50%;
+  background: var(--teal); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 9pt; margin-bottom: 5px;
+}
+.step h4 {
+  font-size: 9pt; color: var(--sage-deep); font-weight: 700;
+  margin-bottom: 3px;
+}
+.step p { font-size: 8pt; line-height: 1.35; color: var(--ink); }
+
+.outcomes-strip {
+  background: var(--sage-deep); color: #fff;
+  border-radius: 8px; padding: 11px 14px; margin-bottom: 11px;
+}
+.outcomes-strip .head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  margin-bottom: 5px;
+}
+.outcomes-strip h3 {
+  font-size: 10.5pt; font-weight: 700; color: #fff;
+  letter-spacing: -0.2px;
+}
+.outcomes-strip .eyebrow-w {
+  font-size: 6.5pt; letter-spacing: 2.5px; text-transform: uppercase;
+  color: #BFE3DE; font-weight: 700;
+}
+.outcomes-strip .sub {
+  font-size: 8pt; color: #BFE3DE; margin-bottom: 7px; line-height: 1.35;
+}
+.outcomes-strip .grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 3px 14px;
+}
+.outcomes-strip .row {
+  display: flex; gap: 7px; align-items: baseline;
+  font-size: 8pt; line-height: 1.3; color: #fff;
+}
+.outcomes-strip .row .ar {
+  font-size: 9.5pt; font-weight: 700; color: #BFE3DE;
+  min-width: 11px; line-height: 1;
+}
+
+.guard {
+  background: var(--cream-warm); border: 1px solid var(--line);
+  border-radius: 8px; padding: 9px 13px; margin-bottom: 12px;
+}
+.guard h3 {
+  font-size: 8pt; color: var(--sage-deep); letter-spacing: 1.5px;
+  text-transform: uppercase; font-weight: 700; margin-bottom: 4px;
+}
+.guard p { font-size: 8pt; line-height: 1.4; color: var(--ink); }
+
+.cta {
+  background: linear-gradient(135deg, #436B5A 0%, #4AA09B 100%);
+  color: #fff; border-radius: 10px; padding: 14px 18px;
+  position: relative; overflow: hidden;
+  display: flex; gap: 16px; align-items: center;
+}
+.cta::after {
+  content: ""; position: absolute; right: -30px; bottom: -30px;
+  width: 110px; height: 110px; border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+}
+.cta-text { flex: 1; }
+.cta h2 {
+  font-size: 12.5pt; font-weight: 700; letter-spacing: -0.3px;
+  margin-bottom: 4px;
+}
+.cta p { font-size: 8.5pt; line-height: 1.4; color: #E8F0EC; margin-bottom: 8px; }
+.cta-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+.cta-block .lbl {
+  font-size: 6.5pt; letter-spacing: 1.6px; text-transform: uppercase;
+  color: #BFE3DE; margin-bottom: 2px; font-weight: 700;
+}
+.cta-block .val { font-size: 9pt; font-weight: 600; color: #fff; line-height: 1.3; }
+.cta-qr {
+  background: #fff; border-radius: 8px; padding: 7px;
+  display: flex; flex-direction: column; align-items: center;
+  width: 1.25in;
+}
+.cta-qr img { width: 1.1in; height: 1.1in; display: block; }
+.cta-qr .scan {
+  font-size: 6pt; letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--sage); font-weight: 700; margin-top: 4px;
+  text-align: center; line-height: 1.2;
+}
+</style></head>
+<body>
+
+<!-- ============= PAGE 1 ============= -->
+<div class="page">
+  <div class="hdr">
+    <div class="hdr-l">
+      <img src="data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAIAAgADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD3DNFFLQAlFLRigBKKKKAFpKKKAFopKWgAooooASiiigBaKKKAEooooAWiiigAooooAKKKKAEooooAKKKMUAFFLSUALRRRQAUUUUAFJRRQAtFFFABRQaSgBaKSigBaKSigBaKKKACkpaSgApaKKACiiigAooooAKSlooAKKKKACiiigAooooAKSlpKAClpKWgApKWkoAKKKKAFooooASiiigBaKSigBaKKKACiikoAKKKKAFopKKAFpKKKAFopKWgANJRRQAtFJS0AFJRRQAtFFFIAooopgJRRRQAtFFFACGiiigBaSlooASiiigAooooAKKKKAFpKWkoAWkoooAWikpaAEooooAWikooAKKKKAFpKKKACiiigAooooAWkpaKAEooooAWikpaAEoopaAEooooAKWkooAWikpaAEopaSgAooooAWkpaMUAFFFFIApKWigAooooAKSlooAKSg0UwFooooASiiigAooooAKWkpaACkoooAKKKKACiiigBaSiigAooooAKKKKACiiigAooooAKKWkoAKKKKACiiigAooooASloooAWkoooAKKKKACiiigBaKSloASilpKACilpKACiiigAooooAKKKWgAooopAFFFFMAooopAFFFFMAooooASiijFABRRS0AJRS0lABRS0lABRRRQAtFJRQAUUUUAFFFFAC0lFFAC0lFFABRRS0AFJS0lABRRRQAtFFFACUUUUAFFFFABRRRQAUUUUAFFLSUAFFFFAC0UlLSAKKSimAtFFFABSUtFACUUUUAFFLSUAFLRRQAUUUUAFJS0UAFFFFABRRRQAUUUUgCiiigAopKKYC0lFFAC0lFFABRRRQAUUUUAFFLRQAlFFFABRS0lAC0lLSUALRRRQAUlLSUAFFLRQAlFFFABRRRQAUUUUAFFFLQAUlFAoAWkpaSgAooooAKWiikAlFFFMBaKSloAKKKKACkpaKACiiikAUUUUAFFFFMAooopAFFFFABSUUUwCiiigBaSlooASiiigAopaKAEooooAKKKKACiiigBaSlNJQAUUUUALRRRSASiiimAUUUUALSUUUALRRRQAhooooAKKKKACiiigBaKKKAEooooAWkoooAKWkpaACiiikAUlLRTASloooAKSlooAKKSloAKKKKACiiigAooooAKSlooAKSlooASiiigAooooAWiiigBKKWigAooooASilpKACiiigBaKKKACkooFAC0UUUAFJS0lABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAtFFFACUUUUAFFFFAC0UUUAFFFFIAooooAKSlopgFFFFACUtFFABRSUUALRSUUALRRRSAKKKKACiiimAUlLRQAUlLRQAUUUlAC0UlLQAUlLRQAUlLRQAlFFFABRS0UAFJS0lABRRRQAUUUUAFFFLQAlFFFABRRS0AFFFFIBKKDRTAKKKKACiiigAooooAKKKWgBKKWkoAKWiigAopKWgAooooAKKKKACiiigAooooASiiigAooooAWikooAWiiigAooooAKKKKACiiigApKWikAlFFLTAK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VfW6yYHySDh0+h/p0rynxL4PvNAczKDPZE4WZR93PQMOx9+h/SvZqbJGksbRyIrowKsrDIIPUEVcZuJwYvAU8Qr2tLufPFFd/wCJPh7Otz9o0SPzIpD80BcAxn2JPI/Ue/bB/wCEG8R/9A0/9/U/+KroU0fNVcDXhJx5WznqK6D/AIQbxJ/0DT/39T/Gj/hBvEn/AEDj/wB/U/xo5kZfVK/8j+456uo8P+NtQ0crDOWu7MceW7fMo/2T/Tp9KgPgbxJ/0Dj/AN/U/wAaUeBvEn/QOx/22T/Gk2nubUqWKpS5oRaZ6tpOtWOtW3n2U4cD7yHhkPoR2rRryCz8J+LtNulurK2aGZejLMn5EZwR7GvS9ButVuLILrFh9mul+8VZSj+4wTj8awlFLY+kweKqVFy1YtP8DVoooqDvFopKKAFpKWkoAKKKKAFooooASiiigAoooxQAUtJS0AFJS0lAC0UUUgCiiimAlFLSUALSUUUAFFFFABRRS0AJRS0UAJRS0UAFFFFABRRRQAUlLSUALRRRQAUUUUAFFFFABRRRQAUUUlAC0UUUgCkpaKYCUUtJQAUUUUAFFLRQAlFLRQAlLRRQAUUUlABRRRQAtJRS0AJQKKWgAooooASiiigBaKKKACikpaACkpaKACiiikAUlLRTAKSlooASiiigAooooAKWkooAWiiigBKKWkoAWiikoAWkoooAKKKKAFopKWgAooooAKKKKACkpaKACiiikAUUUUwEopaSgBaKKKACiiigApKKKAFpKKWgBKKWkoAKKKKAFpKWkoAWiiigAooooAKKKKACkpaSgBaKKKAEoFFLQAUUUUAFFFFABRRRQAUUUUAFFFFACUUUUAFFFFABRRRQAUUUUALSUUUALRRRSAKSlpKYBRRRQAtFFFIAooopgFFFFIAooooAKKKKYBRRRQAUUUUAFJS0lABRRRQAUUUUAFLSUUAFFFFAC0UUUAFFBooAKKKKACkpaSgAooooAKWkpaACikpaACiiigAooooAKKKKACiiigAooooAKSlpKACiiigBaSlooAKSlpKAFooooAKKKKACkpaKACiiigAooooAKKKKAEooooAWiiigAooooAKKKKACiiigApKKKACiiigAooooAKKKWgApKWigBKWiigAooooAKKKKACkpaSgAooooAWiiigBKWkpaACkpaKACiiigAooooAKKKKACiiigAooooAKKKKQBRRRTAKKKKACiiigAooopAFFFFMAooooAKKKKACiiigBKKKWgAooooASloooAKKKKACkpaKAEopaMUAJRS0lAC0UUUAJRRRQAtFJRQAtFFFABRRRQAUUUUAFFFFACGilNJQAUtJRQAUtJS0AFFFFABRSUtABRRRQAUUUUgCiiimAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFIAooopgFFFFIAooooAKKKKYBRRRQAUlLRQAUUUUAFFFFABSUUtABSUtJQAUUtJQAUtFFABRRSUALRSUtABRRRQAUUUUAFJS0UAJRRRQAUtJS0AFJS0lAC0lFFAC0UUUAFFFJQAtFFFABRRRQAUUUUgCiiigAooopgFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAJRRRQAtFFFABRRRQAUUUUAFJS0lABRRRQAUUUtAAaSiigBaKSloAKKKKACkoooAWkpaSgAooooAWikooAWiiikAlFFLTASlpKKAFpKWkoAKKKWgAooooAKSiigBaKKKACiiigAooooAKKKKACiiigAooopAFFFFMAooooAKKKKACiiigBKKWigAooopAJS0UUwCiiigAooooAKSlooAKSlpKACiiigAooooAKKKWgBKKKKAClpKWgAooooADSUGigAooooAKKKKAFopKWgBKKKWgApKWkoAWiiigApKWigBKKWkoAKKKWgAooooAKKKKACiiikAUUUUwCiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACkpaKAEpaSigBaSlooAKSlooASiiigBaKKKQBSUtJTAKWkpaACikpaAEoopaACkpaKAEopaKAEpaSloASgUUUALSUtJQAtFFJSAWiiigApKWkpgLRRRQAUmaKKACgUUUALRRRSAKKSlpgFFFFABRRRSAKKKKYBRRRQAUUUUAFFFFABRRSUgFooopgFFFJQAtFFJQAtJS0lABRRRQAtFFFACUUtJQAtFFFABSUtFABRRSUALRSUUALRSUUALRRSUALRRSUALRRRQAlFFFABRRRQAtJRRQAUUUUAFFFLQAlFFFABRRRQAUUUUAFFFFABS0lLQAUUUUgCkoopgLRSUUALRRSUALRSUUALRRRSAKSlpKYC0lLSUAFFFFAC0lLRQAUlLRQAlFLSUALSUUUAFFFFABRRRQAtJRRQAtJRRQAUUUUAFFFFABRRRQAtJS0UAFJS0lABRRRQAUUtJQAUUUtACUUtFACUUUtACUUUtACUUUUAFFFFABRRS0AFJS0UAFFFFACUUtFABSUtFABSUUUAFFFFAC0UUUAFFFFABSUtFACUUtJQAtJS0lAC0UUUgCkoopgFFFLQAUlLRQAlFLSUAFFFFABRRRQAUUUUAFFFLQAUUUUAFFFFABRRRQAUlFGKAFopKWgAoopKACiijFAC0UUUAFJRRQAtJRRigAooooAKKKKAFopKWgAooooAKKKKACiiigBKKKXFACUUtJQAUUUYoAWiiigApKWkxQAtJRRigBaKKKACiiigBKKKKAFooxRQAUUUUAFFFFABSUtJQAUUUUAFFFFAC0UlLQAUlFFAC0UUUAFFFGKAP/9k="/>
+      <div class="name">Family<span>Bridge</span></div>
+    </div>
+    <div class="hdr-r">
+      <div class="dom">familybridgeapp.com</div>
+      <div>For treatment providers</div>
+    </div>
+  </div>
+
+  <div class="hero">
+    <div class="eyebrow">For Treatment Providers</div>
+    <h1>The family system, finally visible &mdash; and actionable.</h1>
+    <p class="sub">FamilyBridge gives clinical teams a real-time view of what's happening inside the family while a loved one is in or after treatment &mdash; and gives families the structure, coaching, and accountability that protects your clinical work.</p>
+    <div class="pill">Pattern Detection &middot; Boundary Coaching &middot; Outcome Predictions</div>
+  </div>
+
+  <div class="intro">
+    <h2>Why family-side blind spots stall outcomes.</h2>
+    <p>What you do inside the building is half the story. The enabling, the contradictions, the conversations that erode boundaries at home &mdash; that's the other half, and until now you've had no structured signal into it. FamilyBridge turns the family system into observable, supportable, measurable data, without asking the family to do clinical work they aren't trained for.</p>
+  </div>
+
+  <div class="section-h2">
+    <div class="title">Six modules. Three layers. One platform.</div>
+    <div class="eyebrow-r">The Full System</div>
+  </div>
+
+  <div class="modules">
+    <div class="mod">
+      <div class="ttl">FIIS<span class="tm">&trade;</span> Pattern Detection</div>
+      <div class="dsc">Surfaces emotional, behavioral, and recovery patterns that fly under the radar between sessions.</div>
+    </div>
+    <div class="mod">
+      <div class="ttl">Outcome Predictions</div>
+      <div class="dsc">Probabilistic risk modeling that flags shifts before they show up in a session.</div>
+    </div>
+    <div class="mod l2">
+      <div class="ttl">Intervention Readiness</div>
+      <div class="dsc">A 0&ndash;100 score grounded in observable behavior, plus execution planning and real-time conversation coaching.</div>
+    </div>
+    <div class="mod l2">
+      <div class="ttl">Accountability Engine</div>
+      <div class="dsc">Behavioral contracts the whole family &mdash; and the provider team &mdash; can see, with performance tracking on both sides.</div>
+    </div>
+    <div class="mod l3">
+      <div class="ttl">AI Learning Layer</div>
+      <div class="dsc">Privacy-preserving, evidence-proportional adaptation. The platform gets smarter without becoming a black box.</div>
+    </div>
+    <div class="mod l3">
+      <div class="ttl">Input Reconciliation</div>
+      <div class="dsc">Catches contradictions between family members, prompts for clarity, and assigns confidence to every data point.</div>
+    </div>
+  </div>
+
+  <div class="who">
+    <h3>Who this is built for</h3>
+    <p>Interventionists, residential and PHP/IOP programs, sober living operators, family-program clinicians, and aftercare coordinators who need to extend their clinical reach into the home without adding staff hours.</p>
+  </div>
+
+  <div class="ftr">
+    <span class="brand">FamilyBridge &middot; For Treatment Providers</span>
+    <span>familybridgeapp.com &middot; 503&#8209;836&#8209;2136</span>
+    <span>1 / 2</span>
+  </div>
+</div>
+
+<!-- ============= PAGE 2 ============= -->
+<div class="page">
+  <div class="hdr">
+    <div class="hdr-l">
+      <img src="data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAIAAgADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD3DNFFLQAlFLRigBKKKKAFpKKKAFopKWgAooooASiiigBaKKKAEooooAWiiigAooooAKKKKAEooooAKKKMUAFFLSUALRRRQAUUUUAFJRRQAtFFFABRQaSgBaKSigBaKSigBaKKKACkpaSgApaKKACiiigAooooAKSlooAKKKKACiiigAooooAKSlpKAClpKWgApKWkoAKKKKAFooooASiiigBaKSigBaKKKACiikoAKKKKAFopKKAFpKKKAFopKWgANJRRQAtFJS0AFJRRQAtFFFIAooopgJRRRQAtFFFACGiiigBaSlooASiiigAooooAKKKKAFpKWkoAWkoooAWikpaAEooooAWikooAKKKKAFpKKKACiiigAooooAWkpaKAEooooAWikpaAEoopaAEooooAKWkooAWikpaAEopaSgAooooAWkpaMUAFFFFIApKWigAooooAKSlooAKSg0UwFooooASiiigAooooAKWkpaACkoooAKKKKACiiigBaSiigAooooAKKKKACiiigAooooAKKWkoAKKKKACiiigAooooASloooAWkoooAKKKKACiiigBaKSloASilpKACilpKACiiigAooooAKKKWgAooopAFFFFMAooopAFFFFMAooooASiijFABRRS0AJRS0lABRS0lABRRRQAtFJRQAUUUUAFFFFAC0lFFAC0lFFABRRS0AFJS0lABRRRQAtFFFACUUUUAFFFFABRRRQAUUUUAFFLSUAFFFFAC0UlLSAKKSimAtFFFABSUtFACUUUUAFFLSUAFLRRQAUUUUAFJS0UAFFFFABRRRQAUUUUgCiiigAopKKYC0lFFAC0lFFABRRRQAUUUUAFFLRQAlFFFABRS0lAC0lLSUALRRRQAUlLSUAFFLRQAlFFFABRRRQAUUUUAFFFLQAUlFAoAWkpaSgAooooAKWiikAlFFFMBaKSloAKKKKACkpaKACiiikAUUUUAFFFFMAooopAFFFFABSUUUwCiiigBaSlooASiiigAopaKAEooooAKKKKACiiigBaSlNJQAUUUUALRRRSASiiimAUUUUALSUUUALRRRQAhooooAKKKKACiiigBaKKKAEooooAWkoooAKWkpaACiiikAUlLRTASloooAKSlooAKKSloAKKKKACiiigAooooAKSlooAKSlooASiiigAooooAWiiigBKKWigAooooASilpKACiiigBaKKKACkooFAC0UUUAFJS0lABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAtFFFACUUUUAFFFFAC0UUUAFFFFIAooooAKSlopgFFFFACUtFFABRSUUALRSUUALRRRSAKKKKACiiimAUlLRQAUlLRQAUUUlAC0UlLQAUlLRQAUlLRQAlFFFABRS0UAFJS0lABRRRQAUUUUAFFFLQAlFFFABRRS0AFFFFIBKKDRTAKKKKACiiigAooooAKKKWgBKKWkoAKWiigAopKWgAooooAKKKKACiiigAooooASiiigAooooAWikooAWiiigAooooAKKKKACiiigApKWikAlFFLTAK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VfW6yYHySDh0+h/p0rynxL4PvNAczKDPZE4WZR93PQMOx9+h/SvZqbJGksbRyIrowKsrDIIPUEVcZuJwYvAU8Qr2tLufPFFd/wCJPh7Otz9o0SPzIpD80BcAxn2JPI/Ue/bB/wCEG8R/9A0/9/U/+KroU0fNVcDXhJx5WznqK6D/AIQbxJ/0DT/39T/Gj/hBvEn/AEDj/wB/U/xo5kZfVK/8j+456uo8P+NtQ0crDOWu7MceW7fMo/2T/Tp9KgPgbxJ/0Dj/AN/U/wAaUeBvEn/QOx/22T/Gk2nubUqWKpS5oRaZ6tpOtWOtW3n2U4cD7yHhkPoR2rRryCz8J+LtNulurK2aGZejLMn5EZwR7GvS9ButVuLILrFh9mul+8VZSj+4wTj8awlFLY+kweKqVFy1YtP8DVoooqDvFopKKAFpKWkoAKKKKAFooooASiiigAoooxQAUtJS0AFJS0lAC0UUUgCiiimAlFLSUALSUUUAFFFFABRRS0AJRS0UAJRS0UAFFFFABRRRQAUlLSUALRRRQAUUUUAFFFFABRRRQAUUUlAC0UUUgCkpaKYCUUtJQAUUUUAFFLRQAlFLRQAlLRRQAUUUlABRRRQAtJRS0AJQKKWgAooooASiiigBaKKKACikpaACkpaKACiiikAUlLRTAKSlooASiiigAooooAKWkooAWiiigBKKWkoAWiikoAWkoooAKKKKAFopKWgAooooAKKKKACkpaKACiiikAUUUUwEopaSgBaKKKACiiigApKKKAFpKKWgBKKWkoAKKKKAFpKWkoAWiiigAooooAKKKKACkpaSgBaKKKAEoFFLQAUUUUAFFFFABRRRQAUUUUAFFFFACUUUUAFFFFABRRRQAUUUUALSUUUALRRRSAKSlpKYBRRRQAtFFFIAooopgFFFFIAooooAKKKKYBRRRQAUUUUAFJS0lABRRRQAUUUUAFLSUUAFFFFAC0UUUAFFBooAKKKKACkpaSgAooooAKWkpaACikpaACiiigAooooAKKKKACiiigAooooAKSlpKACiiigBaSlooAKSlpKAFooooAKKKKACkpaKACiiigAooooAKKKKAEooooAWiiigAooooAKKKKACiiigApKKKACiiigAooooAKKKWgApKWigBKWiigAooooAKKKKACkpaSgAooooAWiiigBKWkpaACkpaKACiiigAooooAKKKKACiiigAooooAKKKKQBRRRTAKKKKACiiigAooopAFFFFMAooooAKKKKACiiigBKKKWgAooooASloooAKKKKACkpaKAEopaMUAJRS0lAC0UUUAJRRRQAtFJRQAtFFFABRRRQAUUUUAFFFFACGilNJQAUtJRQAUtJS0AFFFFABRSUtABRRRQAUUUUgCiiimAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFIAooopgFFFFIAooooAKKKKYBRRRQAUlLRQAUUUUAFFFFABSUUtABSUtJQAUUtJQAUtFFABRRSUALRSUtABRRRQAUUUUAFJS0UAJRRRQAUtJS0AFJS0lAC0lFFAC0UUUAFFFJQAtFFFABRRRQAUUUUgCiiigAooopgFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAJRRRQAtFFFABRRRQAUUUUAFJS0lABRRRQAUUUtAAaSiigBaKSloAKKKKACkoooAWkpaSgAooooAWikooAWiiikAlFFLTASlpKKAFpKWkoAKKKWgAooooAKSiigBaKKKACiiigAooooAKKKKACiiigAooopAFFFFMAooooAKKKKACiiigBKKWigAooopAJS0UUwCiiigAooooAKSlooAKSlpKACiiigAooooAKKKWgBKKKKAClpKWgAooooADSUGigAooooAKKKKAFopKWgBKKKWgApKWkoAWiiigApKWigBKKWkoAKKKWgAooooAKKKKACiiikAUUUUwCiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACkpaKAEpaSigBaSlooAKSlooASiiigBaKKKQBSUtJTAKWkpaACikpaAEoopaACkpaKAEopaKAEpaSloASgUUUALSUtJQAtFFJSAWiiigApKWkpgLRRRQAUmaKKACgUUUALRRRSAKKSlpgFFFFABRRRSAKKKKYBRRRQAUUUUAFFFFABRRSUgFooopgFFFJQAtFFJQAtJS0lABRRRQAtFFFACUUtJQAtFFFABSUtFABRRSUALRSUUALRSUUALRRSUALRRSUALRRRQAlFFFABRRRQAtJRRQAUUUUAFFFLQAlFFFABRRRQAUUUUAFFFFABS0lLQAUUUUgCkoopgLRSUUALRRSUALRSUUALRRRSAKSlpKYC0lLSUAFFFFAC0lLRQAUlLRQAlFLSUALSUUUAFFFFABRRRQAtJRRQAtJRRQAUUUUAFFFFABRRRQAtJS0UAFJS0lABRRRQAUUtJQAUUUtACUUtFACUUUtACUUUtACUUUUAFFFFABRRS0AFJS0UAFFFFACUUtFABSUtFABSUUUAFFFFAC0UUUAFFFFABSUtFACUUtJQAtJS0lAC0UUUgCkoopgFFFLQAUlLRQAlFLSUAFFFFABRRRQAUUUUAFFFLQAUUUUAFFFFABRRRQAUlFGKAFopKWgAoopKACiijFAC0UUUAFJRRQAtJRRigAooooAKKKKAFopKWgAooooAKKKKACiiigBKKKXFACUUtJQAUUUYoAWiiigApKWkxQAtJRRigBaKKKACiiigBKKKKAFooxRQAUUUUAFFFFABSUtJQAUUUUAFFFFAC0UlLQAUlFFAC0UUUAFFFGKAP/9k="/>
+      <div class="name">Family<span>Bridge</span></div>
+    </div>
+    <div class="hdr-r">
+      <div class="dom">familybridgeapp.com</div>
+      <div>What it does &middot; How it works &middot; How to start</div>
+    </div>
+  </div>
+
+  <div class="value-hero">
+    <h2>Extend your clinical reach into the home &mdash; without adding staff.</h2>
+    <p>FamilyBridge is the layer that makes the family-side of recovery visible, structured, and supportable. Your team keeps doing what they do best. We carry the load between sessions.</p>
+  </div>
+
+  <div class="value-grid">
+    <div class="vcard">
+      <h3>Catch the slip before the call comes in.</h3>
+      <p>Pattern detection and trajectory tracking surface emotional and behavioral shifts days before they become a phone call from a panicked parent.</p>
+    </div>
+    <div class="vcard alt">
+      <h3>End "he said / she said."</h3>
+      <p>Input Reconciliation flags contradictions between family members and prompts for clarity, so your team isn't refereeing the family system blind.</p>
+    </div>
+    <div class="vcard">
+      <h3>Hold families to their commitments.</h3>
+      <p>Behavioral contracts and accountability scoring make boundary work visible. Enabling stops being invisible labor &mdash; it becomes a measurable variable.</p>
+    </div>
+    <div class="vcard alt">
+      <h3>Document the family-side work.</h3>
+      <p>Aftercare plans, HIPAA releases, medication compliance, financial coordination, care transitions &mdash; one record, not seven sticky notes.</p>
+    </div>
+  </div>
+
+  <div class="section-h2">
+    <div class="title">From intervention to aftercare, three steps.</div>
+    <div class="eyebrow-r">How It Works</div>
+  </div>
+
+  <div class="steps">
+    <div class="step">
+      <div class="num">1</div>
+      <h4>Family is invited</h4>
+      <p>Your team &mdash; or the family themselves &mdash; creates a Family Group in minutes. Roles are assigned: spouse, parent, sibling, provider observer.</p>
+    </div>
+    <div class="step">
+      <div class="num">2</div>
+      <h4>System listens &amp; coaches</h4>
+      <p>Daily check-ins, document uploads, communication coaching, and boundary work feed the FIIS&trade; engine. Patterns surface; scores update.</p>
+    </div>
+    <div class="step">
+      <div class="num">3</div>
+      <h4>You see what matters</h4>
+      <p>Provider-side dashboards show readiness, risk, contradiction flags, and accountability &mdash; so your sessions start grounded in real signal.</p>
+    </div>
+  </div>
+
+  <div class="outcomes-strip">
+    <div class="head">
+      <h3>Outcomes you can measure</h3>
+      <div class="eyebrow-w">Track + Report</div>
+    </div>
+    <div class="sub">Hard numbers your QA team, payers, and accrediting bodies will accept.</div>
+    <div class="grid">
+      <div class="row"><span class="ar">↓</span><span>Family-side crisis escalations between sessions &mdash; count + severity</span></div>
+      <div class="row"><span class="ar">↑</span><span>Aftercare plan completion by milestone and family member</span></div>
+      <div class="row"><span class="ar">↑</span><span>Behavioral contract adherence &mdash; both sides of the relationship</span></div>
+      <div class="row"><span class="ar">↓</span><span>Time-to-pattern-detection on relapse risk (days, not sessions)</span></div>
+      <div class="row"><span class="ar">↑</span><span>Family engagement: check-ins, documents, coaching follow-through</span></div>
+      <div class="row"><span class="ar">↻</span><span>Longitudinal readiness score (0&ndash;100), cross-validated</span></div>
+    </div>
+  </div>
+
+  <div class="guard">
+    <h3>Built on doctrine you can defend</h3>
+    <p>FamilyBridge is a coaching and pattern-recognition platform &mdash; not a clinician, not a lawyer, not an emergency responder. No diagnosis. No treatment prescriptions. No legal advice. Crisis escalations route to <strong>911 first</strong>, then to the family's designated moderator or interventionist. Every AI adaptation is volatility-aware, privacy-safe, transparent, and reversible.</p>
+  </div>
+
+  <div class="cta">
+    <div class="cta-text">
+      <h2>Let's see if your program is a fit.</h2>
+      <p>FamilyBridge is built for treatment providers who want their family-side work to be as rigorous as their clinical work. Scan the QR or reach out below.</p>
+      <div class="cta-row">
+        <div class="cta-block">
+          <div class="lbl">Web</div>
+          <div class="val">familybridgeapp.com<br/>/for-providers</div>
+        </div>
+        <div class="cta-block">
+          <div class="lbl">Phone</div>
+          <div class="val">503&#8209;836&#8209;2136</div>
+        </div>
+        <div class="cta-block">
+          <div class="lbl">Founder</div>
+          <div class="val">Matt Brown<br/>Freedom Interventions</div>
+        </div>
+      </div>
+    </div>
+    <div class="cta-qr">
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAzQAAAM0CAIAAADiEPAgAAAUr0lEQVR4nO3YQWorSRZA0XajLWkbGmqRGmob2o0nBo960lBQ8EFWuPRuVJ4zT+JlZKR0yY/vr8//AADQ8N/pAQAA+Is4AwAIEWcAACHiDAAgRJwBAISIMwCAEHEGABAizgAAQsQZAECIOAMACBFnAAAh4gwAIEScAQCEiDMAgBBxBgAQIs4AAELEGQBAiDgDAAgRZwAAIeIMACBEnAEAhIgzAIAQcQYAECLOAABCxBkAQIg4AwAIEWcAACHiDAAgRJwBAISIMwCAEHEGABAizgAAQsQZAECIOAMACBFnAAAh4gwAIEScAQCEiDMAgBBxBgAQcppa+Hy9TC3Nkx63+8vXrjzfHdddYa/4k6nfyaM93x3fQd5j6l3w5QwAIEScAQCEiDMAgBBxBgAQIs4AAELEGQBAiDgDAAgRZwAAIeIMACBEnAEAhIgzAIAQcQYAECLOAABCxBkAQIg4AwAIEWcAACHiDAAgRJwBAISIMwCAkNP0AK943O7TI2zjfL1Mj/BWzsZ7rJyrlWfkPPft+Ix23OcdZ56y45n05QwAIEScAQCEiDMAgBBxBgAQIs4AAELEGQBAiDgDAAgRZwAAIeIMACBEnAEAhIgzAIAQcQYAECLOAABCxBkAQIg4AwAIEWcAACHiDAAgRJwBAISIMwCAkNP0AO92vl6mR/ixx+0+PcJbeUZ9K/fr+T5vaq9W7nfHvVq5dsd33zvY58sZAECIOAMACBFnAAAh4gwAIEScAQCEiDMAgBBxBgAQIs4AAELEGQBAiDgDAAgRZwAAIeIMACBEnAEAhIgzAIAQcQYAECLOAABCxBkAQIg4AwAIEWcAACGn6QH4d3rc7i9fe75efnGS563MPLXu1F6tONr9rpjaK/sMs3w5AwAIEWcAACHiDAAgRJwBAISIMwCAEHEGABAizgAAQsQZAECIOAMACBFnAAAh4gwAIEScAQCEiDMAgBBxBgAQIs4AAELEGQBAiDgDAAgRZwAAIeIMACDkND0A/N3jdn/52vP18ouT9E3t1dH2+Wj3u3KugHW+nAEAhIgzAIAQcQYAECLOAABCxBkAQIg4AwAIEWcAACHiDAAgRJwBAISIMwCAEHEGABAizgAAQsQZAECIOAMACBFnAAAh4gwAIEScAQCEiDMAgBBxBgAQcpoe4N0et/v0CIdwvl5evnblGa1cuzLzjnbcq6n3d+o872hqr452JlfsOPPR+HIGABAizgAAQsQZAECIOAMACBFnAAAh4gwAIEScAQCEiDMAgBBxBgAQIs4AAELEGQBAiDgDAAgRZwAAIeIMACBEnAEAhIgzAIAQcQYAECLOAABCxBkAQMhpeoBXnK+X6RGIWjkbj9v9UOtO2XGfp+x4ro627pQdZ+Z5vpwBAISIMwCAEHEGABAizgAAQsQZAECIOAMACBFnAAAh4gwAIEScAQCEiDMAgBBxBgAQIs4AAELEGQBAiDgDAAgRZwAAIeIMACBEnAEAhIgzAIAQcQYAEHKaWvhxu08tDb/OeX6Po+3zyv2er5dfnIR/wtHOM8/z5QwAIEScAQCEiDMAgBBxBgAQIs4AAELEGQBAiDgDAAgRZwAAIeIMACBEnAEAhIgzAIAQcQYAECLOAABCxBkAQIg4AwAIEWcAACHiDAAgRJwBAISIMwCAkNP0AO92vl6mR/ixx+3+8rUr97uy7o6mzoZ9ft6Oe3W0+12x4/0e7T9lhb16ni9nAAAh4gwAIEScAQCEiDMAgBBxBgAQIs4AAELEGQBAiDgDAAgRZwAAIeIMACBEnAEAhIgzAIAQcQYAECLOAABCxBkAQIg4AwAIEWcAACHiDAAgRJwBAIR8fH99jix8vl5evvZxu//iJM9bmXnK0fbK/b7Hju/C0aycDef5eUeb+WjrTvHlDAAgRJwBAISIMwCAEHEGABAizgAAQsQZAECIOAMACBFnAAAh4gwAIEScAQCEiDMAgBBxBgAQIs4AAELEGQBAiDgDAAgRZwAAIeIMACBEnAEAhIgzAICQj++vz+kZfux8vbx87eN2H1l3R1N7tbLuiqM93ylTz5fnHe1dONpvjv/B502dDV/OAABCxBkAQIg4AwAIEWcAACHiDAAgRJwBAISIMwCAEHEGABAizgAAQsQZAECIOAMACBFnAAAh4gwAIEScAQCEiDMAgBBxBgAQIs4AAELEGQBAiDgDAAg5TS18vl5evvZxu4+su2Jq5h3XXTH1fFcc7RlN2fFsTNnx/T3aefa78bwd331fzgAAQsQZAECIOAMACBFnAAAh4gwAIEScAQCEiDMAgBBxBgAQIs4AAELEGQBAiDgDAAgRZwAAIeIMACBEnAEAhIgzAIAQcQYAECLOAABCxBkAQIg4AwAIOU0t/LjdX772fL384iTvsTLzjnu14zNaseMzWjF1nqd4vn1H+42dMnW/O/5urPDlDAAgRJwBAISIMwCAEHEGABAizgAAQsQZAECIOAMACBFnAAAh4gwAIEScAQCEiDMAgBBxBgAQIs4AAELEGQBAiDgDAAgRZwAAIeIMACBEnAEAhIgzAICQj++vz5GFz9fLyLqP231k3aPdL30rZ9K56vN8n7fj7/PU891xr3bkyxkAQIg4AwAIEWcAACHiDAAgRJwBAISIMwCAEHEGABAizgAAQsQZAECIOAMACBFnAAAh4gwAIEScAQCEiDMAgBBxBgAQIs4AAELEGQBAiDgDAAgRZwAAIR/fX5/TM/zY+XqZHuHHHrf7y9dO3e/UzCvrTpm63x3Pxgrn6nk7PqMd7fj+Ttlxr6beI1/OAABCxBkAQIg4AwAIEWcAACHiDAAgRJwBAISIMwCAEHEGABAizgAAQsQZAECIOAMACBFnAAAh4gwAIEScAQCEiDMAgBBxBgAQIs4AAELEGQBAiDgDAAg5TQ/AP+txux9q3fP1MrLulJV9XtmrHfd5ZeYd36Op+91x5qnzPHWu6PPlDAAgRJwBAISIMwCAEHEGABAizgAAQsQZAECIOAMACBFnAAAh4gwAIEScAQCEiDMAgBBxBgAQIs4AAELEGQBAiDgDAAgRZwAAIeIMACBEnAEAhIgzAICQj++vz+kZ3up8vbx87eN2/8VJ3mPH+12ZecXK/U7t847rTjnaeT6aoz1fvxvP2/G/25czAIAQcQYAECLOAABCxBkAQIg4AwAIEWcAACHiDAAgRJwBAISIMwCAEHEGABAizgAAQsQZAECIOAMACBFnAAAh4gwAIEScAQCEiDMAgBBxBgAQIs4AAEI+vr8+RxY+Xy8j6+7ocbtPj/BWK2djx7062v1Omdrnqd+6qbOx43ne8Rk5z/9uvpwBAISIMwCAEHEGABAizgAAQsQZAECIOAMACBFnAAAh4gwAIEScAQCEiDMAgBBxBgAQIs4AAELEGQBAiDgDAAgRZwAAIeIMACBEnAEAhIgzAIAQcQYAEHKaHuDdHrf7y9eer5dfnOQ9dpyZ91g5G0d7j1as7NWKHfd5x5mP5mjneep+fTkDAAgRZwAAIeIMACBEnAEAhIgzAIAQcQYAECLOAABCxBkAQIg4AwAIEWcAACHiDAAgRJwBAISIMwCAEHEGABAizgAAQsQZAECIOAMACBFnAAAh4gwAIOQ0tfDjdh9Z93y9jKw7ZWqfp6w835W9mjpXU/c7ZceZd/zNOdrv847v/tTMO76DO/LlDAAgRJwBAISIMwCAEHEGABAizgAAQsQZAECIOAMACBFnAAAh4gwAIEScAQCEiDMAgBBxBgAQIs4AAELEGQBAiDgDAAgRZwAAIeIMACBEnAEAhIgzAICQ09TC5+tlZN3H7T6y7hT7/LyVvZq636nnu+O6O57Jo52rFTs+3x332X/Ke/hyBgAQIs4AAELEGQBAiDgDAAgRZwAAIeIMACBEnAEAhIgzAIAQcQYAECLOAABCxBkAQIg4AwAIEWcAACHiDAAgRJwBAISIMwCAEHEGABAizgAAQsQZAEDIx/fX5/QMP3a+Xl6+9nG7/+Ik77Hj/U7NvONerVi5X/iTqXdwxY7v74qj/cYe7bfdlzMAgBBxBgAQIs4AAELEGQBAiDgDAAgRZwAAIeIMACBEnAEAhIgzAIAQcQYAECLOAABCxBkAQIg4AwAIEWcAACHiDAAgRJwBAISIMwCAEHEGABAizgAAQk5TC5+vl6mlX7Yy8+N2/8VJnmdm/mTHvZo6G1O/VzvOPMXZ4E92/E/x5QwAIEScAQCEiDMAgBBxBgAQIs4AAELEGQBAiDgDAAgRZwAAIeIMACBEnAEAhIgzAIAQcQYAECLOAABCxBkAQIg4AwAIEWcAACHiDAAgRJwBAISIMwCAkI/vr8/pGX7sfL28fO3jdv/FSZ5n5veYmnll3SlHe0ZH40z2TT2jqd86vznP8+UMACBEnAEAhIgzAIAQcQYAECLOAABCxBkAQIg4AwAIEWcAACHiDAAgRJwBAISIMwCAEHEGABAizgAAQsQZAECIOAMACBFnAAAh4gwAIEScAQCEiDMAgJCP76/P6Rm2cb5epkd4q8ft/vK1R9urFVP7vOO6U9zv83Y8Vzv+Xrnf5+34/vpyBgAQIs4AAELEGQBAiDgDAAgRZwAAIeIMACBEnAEAhIgzAIAQcQYAECLOAABCxBkAQIg4AwAIEWcAACHiDAAgRJwBAISIMwCAEHEGABAizgAAQsQZAEDIx/fX58jC5+vl5Wsft/svTvIeK/e74mh7NXW/R3u+ntHzdnwHj+Zo53nHmVfs+A76cgYAECLOAABCxBkAQIg4AwAIEWcAACHiDAAgRJwBAISIMwCAEHEGABAizgAAQsQZAECIOAMACBFnAAAh4gwAIEScAQCEiDMAgBBxBgAQIs4AAELEGQBAyGl6gHc7Xy8vX/u43UeuXTF1vzta2asVK/ts5udNzTx1v/RN/T4f7X9hx/v15QwAIEScAQCEiDMAgBBxBgAQIs4AAELEGQBAiDgDAAgRZwAAIeIMACBEnAEAhIgzAIAQcQYAECLOAABCxBkAQIg4AwAIEWcAACHiDAAgRJwBAISIMwCAkNP0AO/2uN1H1j1fLy9fuzLzyrUrM6+YekY7no2j2fE8r5i636l3YcXU853a5x2f79He3xW+nAEAhIgzAIAQcQYAECLOAABCxBkAQIg4AwAIEWcAACHiDAAgRJwBAISIMwCAEHEGABAizgAAQsQZAECIOAMACBFnAAAh4gwAIEScAQCEiDMAgBBxBgAQcpoe4N3O18vIuo/bfWRd9/u8qZlXrMx8tLOx4/Pd0dS52tHUXk39Tu647hRfzgAAQsQZAECIOAMACBFnAAAh4gwAIEScAQCEiDMAgBBxBgAQIs4AAELEGQBAiDgDAAgRZwAAIeIMACBEnAEAhIgzAIAQcQYAECLOAABCxBkAQIg4AwAI+fj++pyegX+h8/Xy8rWP2/0XJ3mPHe93ZeYVK/c7NfPRHO0dXHG0vdrxfnfkyxkAQIg4AwAIEWcAACHiDAAgRJwBAISIMwCAEHEGABAizgAAQsQZAECIOAMACBFnAAAh4gwAIEScAQCEiDMAgBBxBgAQIs4AAELEGQBAiDgDAAgRZwAAIaephc/Xy9TSPOlxu49cu2LqXLnfvpWZV/Z5x72aMrXPU+/RjufqaM9oap99OQMACBFnAAAh4gwAIEScAQCEiDMAgBBxBgAQIs4AAELEGQBAiDgDAAgRZwAAIeIMACBEnAEAhIgzAIAQcQYAECLOAABCxBkAQIg4AwAIEWcAACHiDAAg5DQ9wCset/v0CNs4Xy/TI/zYyswrZ2PHvVox9R4dbZ95jx3P1Y7/ZTvOvCNfzgAAQsQZAECIOAMACBFnAAAh4gwAIEScAQCEiDMAgBBxBgAQIs4AAELEGQBAiDgDAAgRZwAAIeIMACBEnAEAhIgzAIAQcQYAECLOAABCxBkAQIg4AwAIOU0P8G7n62V6hB973O7TI/zYyj4f7X55jx2f0dTMK+/gjvu84mj3u2Lqf2HHZ+TLGQBAiDgDAAgRZwAAIeIMACBEnAEAhIgzAIAQcQYAECLOAABCxBkAQIg4AwAIEWcAACHiDAAgRJwBAISIMwCAEHEGABAizgAAQsQZAECIOAMACBFnAAAhp+kB4Dedr5eRdR+3+8i6K462V1P3u+M+r8y847swZWqfp87klB3PpC9nAAAh4gwAIEScAQCEiDMAgBBxBgAQIs4AAELEGQBAiDgDAAgRZwAAIeIMACBEnAEAhIgzAIAQcQYAECLOAABCxBkAQIg4AwAIEWcAACHiDAAgRJwBAIScpgeAvztfLy9f+7jdf3ESalbOxpQdz+TKzDu+v1Pnasd9PtrznZrZlzMAgBBxBgAQIs4AAELEGQBAiDgDAAgRZwAAIeIMACBEnAEAhIgzAIAQcQYAECLOAABCxBkAQIg4AwAIEWcAACHiDAAgRJwBAISIMwCAEHEGABAizgAAQk7TA7zb43afHuEQVvb5fL2MXDtl6kzu+IymZp5ad8WOe7XCPvfX5Xm+nAEAhIgzAIAQcQYAECLOAABCxBkAQIg4AwAIEWcAACHiDAAgRJwBAISIMwCAEHEGABAizgAAQsQZAECIOAMACBFnAAAh4gwAIEScAQCEiDMAgBBxBgAQ8vH99Tmy8Pl6GVmX5z1u9+kRfmzlXK3cr/PMn0ydqx3P846/OVN2fEY7/k5OnUlfzgAAQsQZAECIOAMACBFnAAAh4gwAIEScAQCEiDMAgBBxBgAQIs4AAELEGQBAiDgDAAgRZwAAIeIMACBEnAEAhIgzAIAQcQYAECLOAABCxBkAQIg4AwAI+fj++pyeAQCA//PlDAAgRJwBAISIMwCAEHEGABAizgAAQsQZAECIOAMACBFnAAAh4gwAIEScAQCEiDMAgBBxBgAQIs4AAELEGQBAiDgDAAgRZwAAIeIMACBEnAEAhIgzAIAQcQYAECLOAABCxBkAQIg4AwAIEWcAACHiDAAgRJwBAISIMwCAEHEGABAizgAAQsQZAECIOAMACBFnAAAh4gwAIEScAQCEiDMAgBBxBgAQIs4AAELEGQBAiDgDAAj5H5I8nNa3bDbvAAAAAElFTkSuQmCC"/>
+      <div class="scan">Scan to learn more</div>
+    </div>
+  </div>
+
+  <div class="ftr">
+    <span class="brand">FamilyBridge &middot; For Treatment Providers</span>
+    <span>familybridgeapp.com &middot; 503&#8209;836&#8209;2136</span>
+    <span>2 / 2</span>
+  </div>
+</div>
+
+</body></html>
