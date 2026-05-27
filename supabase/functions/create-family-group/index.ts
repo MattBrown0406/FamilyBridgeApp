@@ -337,7 +337,7 @@ serve(async (req) => {
       const appUrl = 'https://familybridgeapp.com';
       for (const member of members as FamilyMember[]) {
         try {
-          const setupUrl = `${appUrl}/family-purchase?inviteCode=${encodeURIComponent(memberInviteCode)}`;
+          const setupUrl = `${appUrl}/auth?mode=signup&familyInvite=${encodeURIComponent(memberInviteCode)}`;
           await resend.emails.send({
             from: 'FamilyBridge <noreply@familybridgeapp.com>',
             to: [member.email],

@@ -221,7 +221,7 @@ serve(async (req) => {
     if (resendApiKey) {
       try {
         const appUrl = "https://familybridgeapp.com";
-        const setupUrl = `${appUrl}/family-purchase?inviteCode=${encodeURIComponent(inviteCode)}`;
+        const setupUrl = `${appUrl}/auth?mode=signup&familyInvite=${encodeURIComponent(inviteCode)}`;
         const resend = new Resend(resendApiKey);
         await resend.emails.send({
           from: resendFrom,
