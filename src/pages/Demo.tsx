@@ -92,6 +92,20 @@ const Demo = () => {
       name: 'Johnson Family',
       scenario: 'Positive recovery and aftercare',
       description: 'A stable family using chat, check-ins, coaching, financial requests, documents, and recovery tracking after treatment and sober living.',
+      status: {
+        tone: 'calm' as const,
+        toneLabel: 'Calm',
+        fiisScore: 82,
+        fiisTrend: '+4',
+        recoveryDay: 147,
+        lastActivity: '2 hrs ago',
+        signals: [
+          { label: 'Check-ins this week', value: '6 / 7' },
+          { label: 'Aftercare adherence', value: '94%' },
+          { label: 'Open alerts', value: '0' },
+        ],
+        recentLine: '"Made it to my Wednesday meeting. Sponsor call tonight." — Michael',
+      },
       members: [
         { name: 'Matt Brown', role: 'moderator', relationship: 'Case Manager' },
         { name: 'Sarah Johnson', role: 'member', relationship: 'Parent' },
@@ -104,6 +118,20 @@ const Demo = () => {
       name: 'Davis Family',
       scenario: 'Active crisis and boundary stress',
       description: 'A high-friction family showing what the app looks like when active addiction, money requests, and safety concerns are still in play.',
+      status: {
+        tone: 'crisis' as const,
+        toneLabel: 'Crisis',
+        fiisScore: 38,
+        fiisTrend: '−9',
+        recoveryDay: 0,
+        lastActivity: '17 min ago',
+        signals: [
+          { label: 'Urgent money asks (7d)', value: '4' },
+          { label: 'Boundary contradictions', value: '3' },
+          { label: 'Open alerts', value: '5' },
+        ],
+        recentLine: '"He says he just needs $200 for the car. Don\'t tell Mark." — Linda',
+      },
       members: [
         { name: 'Tasha Miller', role: 'moderator', relationship: 'Support Moderator' },
         { name: 'Linda Davis', role: 'member', relationship: 'Parent' },
@@ -116,6 +144,20 @@ const Demo = () => {
       name: 'Mitchell Family',
       scenario: 'Treatment transition and discharge planning',
       description: 'A realistic provider-supported family moving from intervention into treatment, sober living, and aftercare planning.',
+      status: {
+        tone: 'transition' as const,
+        toneLabel: 'Transition',
+        fiisScore: 61,
+        fiisTrend: '+11',
+        recoveryDay: 23,
+        lastActivity: '38 min ago',
+        signals: [
+          { label: 'Discharge tasks complete', value: '8 / 11' },
+          { label: 'HIPAA releases signed', value: '3 / 3' },
+          { label: 'Open alerts', value: '1' },
+        ],
+        recentLine: '"Sober living tour confirmed Friday 2pm. Insurance pre-auth in." — Matt',
+      },
       members: [
         { name: 'Matt Brown', role: 'moderator', relationship: 'Interventionist' },
         { name: 'Jessica Mitchell', role: 'member', relationship: 'Sister' },
@@ -385,15 +427,40 @@ const Demo = () => {
                         <p className="text-xs text-muted-foreground">Demo Organization</p>
                       </div>
                     </div>
-                    <div className="grid grid-cols-2 gap-3 text-center">
-                      <div className="bg-white/50 dark:bg-white/10 rounded-lg p-3">
-                        <p className="text-2xl font-bold text-violet-600">3</p>
+                    <div className="grid grid-cols-2 gap-2 text-center">
+                      <div className="bg-white/60 dark:bg-white/10 rounded-lg p-3">
+                        <p className="text-2xl font-bold text-violet-600">12</p>
                         <p className="text-xs text-muted-foreground">Active Families</p>
                       </div>
-                      <div className="bg-white/50 dark:bg-white/10 rounded-lg p-3">
-                        <p className="text-2xl font-bold text-violet-600">3</p>
-                        <p className="text-xs text-muted-foreground">Open Coordination Cases</p>
+                      <div className="bg-white/60 dark:bg-white/10 rounded-lg p-3">
+                        <p className="text-2xl font-bold text-violet-600">4</p>
+                        <p className="text-xs text-muted-foreground">Open Cases</p>
                       </div>
+                      <div className="bg-white/60 dark:bg-white/10 rounded-lg p-3">
+                        <p className="text-2xl font-bold text-rose-600">2</p>
+                        <p className="text-xs text-muted-foreground">In Crisis</p>
+                      </div>
+                      <div className="bg-white/60 dark:bg-white/10 rounded-lg p-3">
+                        <p className="text-2xl font-bold text-emerald-600">7</p>
+                        <p className="text-xs text-muted-foreground">Stable</p>
+                      </div>
+                    </div>
+                    <div className="mt-4 pt-4 border-t border-violet-200/60 dark:border-violet-800/60">
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-2">Today on the dashboard</p>
+                      <ul className="space-y-1.5 text-xs text-foreground/85">
+                        <li className="flex items-start gap-2">
+                          <span className="text-rose-500 mt-0.5">●</span>
+                          <span>Davis family — 4th urgent money ask this week</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-amber-500 mt-0.5">●</span>
+                          <span>Mitchell — discharge planning meeting Friday</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-emerald-500 mt-0.5">●</span>
+                          <span>Johnson — aftercare adherence at 94%</span>
+                        </li>
+                      </ul>
                     </div>
                   </div>
                 </div>
@@ -428,35 +495,78 @@ const Demo = () => {
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="grid gap-4 md:grid-cols-3">
-                  {demoFamilies.map((family) => (
-                    <Card key={family.id} className="border bg-muted/20 shadow-sm">
+                  {demoFamilies.map((family) => {
+                    const toneStyles = {
+                      calm: { ring: 'border-emerald-300/60 bg-emerald-50/60 dark:bg-emerald-950/20', pill: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-200', dot: 'bg-emerald-500', score: 'text-emerald-700 dark:text-emerald-300', trend: 'text-emerald-600' },
+                      crisis: { ring: 'border-rose-300/60 bg-rose-50/60 dark:bg-rose-950/20', pill: 'bg-rose-100 text-rose-700 dark:bg-rose-900/50 dark:text-rose-200', dot: 'bg-rose-500 animate-pulse', score: 'text-rose-700 dark:text-rose-300', trend: 'text-rose-600' },
+                      transition: { ring: 'border-amber-300/60 bg-amber-50/60 dark:bg-amber-950/20', pill: 'bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-200', dot: 'bg-amber-500', score: 'text-amber-700 dark:text-amber-300', trend: 'text-amber-600' },
+                    }[family.status.tone];
+
+                    return (
+                    <Card key={family.id} className={`border-2 shadow-sm transition hover:shadow-md ${toneStyles.ring}`}>
                       <CardHeader className="pb-3">
                         <div className="flex items-start justify-between gap-3">
                           <div>
                             <CardTitle className="text-base">{family.name}</CardTitle>
                             <CardDescription>{family.scenario}</CardDescription>
                           </div>
-                          <Badge variant="outline">Demo</Badge>
+                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${toneStyles.pill}`}>
+                            <span className={`h-2 w-2 rounded-full ${toneStyles.dot}`}></span>
+                            {family.status.toneLabel}
+                          </span>
                         </div>
                       </CardHeader>
                       <CardContent className="space-y-4">
-                        <p className="text-sm text-muted-foreground">{family.description}</p>
-                        <div className="space-y-2">
-                          {family.members.map((member, index) => (
-                            <div key={index} className="flex items-center justify-between rounded-lg bg-background p-2.5 border">
-                              <div>
-                                <p className="text-sm font-medium">{member.name}</p>
-                                <p className="text-xs text-muted-foreground">{member.relationship}</p>
+                        {/* Live-looking status panel */}
+                        <div className="rounded-lg bg-background/80 border p-3 space-y-2.5">
+                          <div className="flex items-baseline justify-between">
+                            <div>
+                              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">FIIS™ score</p>
+                              <p className={`text-2xl font-bold ${toneStyles.score} leading-none`}>
+                                {family.status.fiisScore}
+                                <span className={`text-xs font-semibold ml-1.5 ${toneStyles.trend}`}>{family.status.fiisTrend}</span>
+                              </p>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
+                                {family.status.recoveryDay > 0 ? 'Recovery day' : 'Pre-treatment'}
+                              </p>
+                              <p className="text-lg font-bold text-foreground leading-none">
+                                {family.status.recoveryDay > 0 ? family.status.recoveryDay : '—'}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="space-y-1 pt-1 border-t border-border/50">
+                            {family.status.signals.map((s) => (
+                              <div key={s.label} className="flex justify-between text-xs">
+                                <span className="text-muted-foreground">{s.label}</span>
+                                <span className="font-semibold text-foreground">{s.value}</span>
                               </div>
-                              <Badge variant={member.role === 'moderator' ? 'default' : member.role === 'recovering' ? 'secondary' : 'outline'}>
+                            ))}
+                          </div>
+                          <div className="pt-2 border-t border-border/50">
+                            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1">Latest signal · {family.status.lastActivity}</p>
+                            <p className="text-xs italic text-foreground/80 leading-snug">{family.status.recentLine}</p>
+                          </div>
+                        </div>
+
+                        <p className="text-xs text-muted-foreground leading-relaxed">{family.description}</p>
+                        <div className="space-y-1.5">
+                          {family.members.map((member, index) => (
+                            <div key={index} className="flex items-center justify-between rounded-md bg-background/60 p-2 border">
+                              <div>
+                                <p className="text-xs font-medium">{member.name}</p>
+                                <p className="text-[10px] text-muted-foreground">{member.relationship}</p>
+                              </div>
+                              <Badge variant={member.role === 'moderator' ? 'default' : member.role === 'recovering' ? 'secondary' : 'outline'} className="text-[10px]">
                                 {member.role}
                               </Badge>
                             </div>
                           ))}
                         </div>
-                        <Button 
-                          onClick={() => navigate('/demo/family', { 
-                            state: { 
+                        <Button
+                          onClick={() => navigate('/demo/family', {
+                            state: {
                               branding: {
                                 primaryColor: demoPrimaryColor,
                                 logo: demoLogo,
@@ -465,7 +575,7 @@ const Demo = () => {
                               },
                               initialFamily: family.id,
                             }
-                          })} 
+                          })}
                           className="w-full"
                         >
                           <Play className="h-4 w-4 mr-2" />
@@ -473,7 +583,8 @@ const Demo = () => {
                         </Button>
                       </CardContent>
                     </Card>
-                  ))}
+                    );
+                  })}
                 </div>
               </CardContent>
             </Card>

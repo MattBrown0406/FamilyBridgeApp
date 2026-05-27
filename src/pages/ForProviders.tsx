@@ -8,6 +8,7 @@ import {
   Calendar,
   Phone,
   Mail,
+  Apple,
   CheckCircle2,
   Eye,
   Activity,
@@ -37,6 +38,8 @@ const ForProviders = () => {
   // Until then, this falls back to an email link so the CTA still works.
   const calendarUrl =
     "mailto:matt@freedominterventions.com?subject=FamilyBridge%20Provider%20Demo%20Request&body=Hi%20Matt%2C%20I%27d%20like%20to%20learn%20more%20about%20FamilyBridge%20for%20our%20program.%20Best%20times%20to%20talk%3A";
+
+  const appStoreUrl = "https://apps.apple.com/us/app/family-bridge-recovery/id6757375159";
 
   const modules = [
     {
@@ -178,6 +181,12 @@ const ForProviders = () => {
                   <Calendar className="h-5 w-5 mr-2" />
                   Book a 20-minute call with Matt
                   <ArrowRight className="h-4 w-4 ml-2" />
+                </a>
+              </Button>
+              <Button size="lg" variant="outline" asChild className="h-12 px-6 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10">
+                <a href={appStoreUrl} target="_blank" rel="noopener noreferrer">
+                  <Apple className="h-5 w-5 mr-2" />
+                  Download on the App Store
                 </a>
               </Button>
               <Button size="lg" variant="outline" onClick={() => navigate("/demo")} className="h-12 px-6 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10">
@@ -419,7 +428,7 @@ const ForProviders = () => {
                 FamilyBridge is built for treatment providers who want their family-side work to be as rigorous as their clinical work. If that sounds like your program, we'd like to talk.
               </p>
 
-              <div className="flex flex-col sm:flex-row gap-3 mb-10">
+              <div className="flex flex-col sm:flex-row gap-3 mb-8">
                 <Button size="lg" asChild className="bg-background text-foreground hover:bg-background/90 h-12 px-6">
                   <a href={calendarUrl} target="_blank" rel="noopener noreferrer">
                     <Calendar className="h-5 w-5 mr-2" />
@@ -435,7 +444,17 @@ const ForProviders = () => {
                 </Button>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-8 border-t border-primary-foreground/20">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-10 pb-8 border-b border-primary-foreground/20">
+                <p className="text-sm text-primary-foreground/80 mr-2">Try it yourself —</p>
+                <Button size="lg" asChild variant="outline" className="h-12 px-6 bg-foreground/95 border-foreground/95 text-background hover:bg-foreground hover:text-background">
+                  <a href={appStoreUrl} target="_blank" rel="noopener noreferrer">
+                    <Apple className="h-5 w-5 mr-2" />
+                    Download on the App Store
+                  </a>
+                </Button>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                 <div>
                   <p className="text-xs uppercase tracking-widest text-primary-foreground/70 font-semibold mb-1">Founder</p>
                   <p className="text-primary-foreground font-semibold">Matt Brown</p>
@@ -443,7 +462,7 @@ const ForProviders = () => {
                 </div>
                 <div>
                   <p className="text-xs uppercase tracking-widest text-primary-foreground/70 font-semibold mb-1">Phone</p>
-                  <a href="tel:+15038362136" className="text-primary-foreground font-semibold inline-flex items-center gap-1.5 hover:underline">
+                  <a href={"tel:+1" + "5038362136"} className="text-primary-foreground font-semibold inline-flex items-center gap-1.5 hover:underline">
                     <Phone className="h-4 w-4" />
                     503-836-2136
                   </a>
