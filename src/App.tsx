@@ -20,6 +20,7 @@ import ProviderWorkspace from "./pages/ProviderWorkspace";
 import ProviderCoordination from "./pages/ProviderCoordination";
 import FamilyPurchase from "./pages/FamilyPurchase";
 import FamilySetup from "./pages/FamilySetup";
+import JoinFamily from "./pages/JoinFamily";
 import ModeratorPurchase from "./pages/ModeratorPurchase";
 import SuperAdmin from "./pages/SuperAdmin";
 import Demo from "./pages/Demo";
@@ -89,6 +90,8 @@ const App = () => {
               <Route path="/provider-purchase" element={<ProviderPurchase />} />
               <Route path="/family-purchase" element={<FamilyPurchase />} />
               <Route path="/family-setup" element={<FamilySetup />} />
+              <Route path="/join" element={<JoinFamily />} />
+              <Route path="/join-family" element={<JoinFamily />} />
               <Route path="/moderator-purchase" element={<ModeratorPurchase />} />
               <Route path="/super-admin" element={<SuperAdmin />} />
               <Route path="/demo" element={<Demo />} />

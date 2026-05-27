@@ -119,6 +119,9 @@ const Index = () => {
               </>
             ) : (
               <>
+                <Button variant="ghost" size="sm" className="h-8 text-xs sm:text-sm text-muted-foreground" onClick={() => navigate('/join')}>
+                  Join with code
+                </Button>
                 <Button variant="ghost" size="sm" className="h-8 text-xs sm:text-sm text-muted-foreground" onClick={() => navigate('/auth')}>
                   Sign In
                 </Button>
@@ -156,6 +159,9 @@ const Index = () => {
               <Button size="lg" onClick={() => navigate('/family-purchase')} className="h-12 px-6 bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20 group">
                 Start Your Journey
                 <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
+              </Button>
+              <Button size="lg" variant="outline" onClick={() => navigate('/join')} className="h-12 px-6">
+                I have an invite code
               </Button>
               <Button variant="outline" size="lg" onClick={() => navigate('/demo')} className="h-12 px-6">
                 See the Demo

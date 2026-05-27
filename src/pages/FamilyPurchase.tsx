@@ -47,6 +47,17 @@ const FamilyPurchase = () => {
   const { isNative, isAndroid } = usePlatform();
   const { isSupported, isReady, getOffering, purchasePackageWithResult, restorePurchases, hasEntitlement } = useRevenueCat();
 
+  // Legacy email links (?inviteCode=XXXX) sent people here to "buy a family"
+  // when they actually just want to join an existing one. Bounce them to /join
+  // with the code preserved so they never land on a payment screen.
+  useEffect(() => {
+    const legacyInviteParam = searchParams.get("inviteCode");
+    if (legacyInviteParam) {
+      navigate(`/join?code=${encodeURIComponent(legacyInviteParam)}`, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const [email, setEmail] = useState(user?.email || "");
   const [couponCode, setCouponCode] = useState("");
   const [familyInviteCode, setFamilyInviteCode] = useState("");
