@@ -3013,23 +3013,23 @@ const FamilyChat = () => {
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
-                  <DropdownMenuItem onClick={() => setActiveTab('financial')} className="flex items-center gap-2">
+                  <DropdownMenuItem onClick={() => startTransition(() => setActiveTab('financial'))} className="flex items-center gap-2">
                     <DollarSign className="h-4 w-4" />
                     Financial
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setActiveTab('aftercare')} className="flex items-center gap-2">
+                  <DropdownMenuItem onClick={() => startTransition(() => setActiveTab('aftercare'))} className="flex items-center gap-2">
                     <ClipboardList className="h-4 w-4" />
                     Aftercare
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setActiveTab('test-results')} className="flex items-center gap-2">
+                  <DropdownMenuItem onClick={() => startTransition(() => setActiveTab('test-results'))} className="flex items-center gap-2">
                     <FlaskConical className="h-4 w-4" />
                     Tests
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setActiveTab('medications')} className="flex items-center gap-2">
+                  <DropdownMenuItem onClick={() => startTransition(() => setActiveTab('medications'))} className="flex items-center gap-2">
                     <Pill className="h-4 w-4" />
                     Medications
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setActiveTab('docs')} className="flex items-center gap-2">
+                  <DropdownMenuItem onClick={() => startTransition(() => setActiveTab('docs'))} className="flex items-center gap-2">
                     <FolderOpen className="h-4 w-4" />
                     Documents
                   </DropdownMenuItem>
