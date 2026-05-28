@@ -579,10 +579,13 @@ const SuperAdmin = () => {
     (f.organization_name && f.organization_name.toLowerCase().includes(searchLower))
   ) || [];
 
-  const filteredOrgs = stats?.organizations?.filter(o =>
-    o.name.toLowerCase().includes(searchLower) ||
-    o.subdomain.toLowerCase().includes(searchLower)
-  ) || [];
+  const filteredOrgs = stats?.organizations?.filter(o => {
+    if (o.name === 'App Review Demo Provider') return false;
+    return (
+      o.name.toLowerCase().includes(searchLower) ||
+      o.subdomain.toLowerCase().includes(searchLower)
+    );
+  }) || [];
 
   const filteredUsers = stats?.users?.filter(u =>
     u.full_name.toLowerCase().includes(searchLower)
@@ -1758,7 +1761,7 @@ const SuperAdmin = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="standalone">Standalone (No Provider)</SelectItem>
-                  {stats?.organizations?.map((org) => (
+                  {stats?.organizations?.filter(o => o.name !== 'App Review Demo Provider').map((org) => (
                     <SelectItem key={org.id} value={org.id}>{org.name}</SelectItem>
                   ))}
                 </SelectContent>
