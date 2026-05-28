@@ -886,7 +886,12 @@ const SuperAdmin = () => {
                         
                         {/* Unaffiliated families section */}
                         {(() => {
-                          const unaffiliatedFamilies = filteredFamilies.filter(f => !f.organization_name);
+                          const unaffiliatedFamilies = filteredFamilies.filter(f => {
+                            if (f.organization_name) return false;
+                            const n = (f.name || '').toLowerCase();
+                            if (n.includes('demo') || n.includes('test')) return false;
+                            return true;
+                          });
                           if (unaffiliatedFamilies.length === 0) return null;
                           
                           return (
