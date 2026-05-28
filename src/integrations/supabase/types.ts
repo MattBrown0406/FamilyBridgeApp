@@ -2037,6 +2037,77 @@ export type Database = {
           },
         ]
       }
+      family_co_moderators: {
+        Row: {
+          display_label: string
+          family_id: string
+          granted_at: string
+          granted_by: string
+          handoff_id: string | null
+          id: string
+          is_active: boolean
+          referring_organization_id: string | null
+          revoked_at: string | null
+          revoked_by: string | null
+          user_id: string
+        }
+        Insert: {
+          display_label?: string
+          family_id: string
+          granted_at?: string
+          granted_by: string
+          handoff_id?: string | null
+          id?: string
+          is_active?: boolean
+          referring_organization_id?: string | null
+          revoked_at?: string | null
+          revoked_by?: string | null
+          user_id: string
+        }
+        Update: {
+          display_label?: string
+          family_id?: string
+          granted_at?: string
+          granted_by?: string
+          handoff_id?: string | null
+          id?: string
+          is_active?: boolean
+          referring_organization_id?: string | null
+          revoked_at?: string | null
+          revoked_by?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "family_co_moderators_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "family_co_moderators_handoff_id_fkey"
+            columns: ["handoff_id"]
+            isOneToOne: false
+            referencedRelation: "provider_handoffs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "family_co_moderators_referring_organization_id_fkey"
+            columns: ["referring_organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "family_co_moderators_referring_organization_id_fkey"
+            columns: ["referring_organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations_member_view"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       family_common_goals: {
         Row: {
           completed_at: string | null
@@ -4117,6 +4188,124 @@ export type Database = {
           },
         ]
       }
+      org_transfer_invites: {
+        Row: {
+          contact_email: string
+          contact_name: string | null
+          contact_phone: string | null
+          created_at: string
+          expires_at: string
+          family_id: string
+          from_organization_id: string
+          id: string
+          invite_message: string | null
+          invite_token: string
+          invited_at: string
+          invited_by: string
+          linked_at: string | null
+          linked_organization_id: string | null
+          org_name: string
+          referring_user_remains_co_mod: boolean
+          status: string
+          target_level_of_care:
+            | Database["public"]["Enums"]["care_phase_type"]
+            | null
+          transfer_reason: Database["public"]["Enums"]["transfer_reason"] | null
+          transfer_reason_notes: string | null
+          updated_at: string
+        }
+        Insert: {
+          contact_email: string
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          expires_at?: string
+          family_id: string
+          from_organization_id: string
+          id?: string
+          invite_message?: string | null
+          invite_token?: string
+          invited_at?: string
+          invited_by: string
+          linked_at?: string | null
+          linked_organization_id?: string | null
+          org_name: string
+          referring_user_remains_co_mod?: boolean
+          status?: string
+          target_level_of_care?:
+            | Database["public"]["Enums"]["care_phase_type"]
+            | null
+          transfer_reason?:
+            | Database["public"]["Enums"]["transfer_reason"]
+            | null
+          transfer_reason_notes?: string | null
+          updated_at?: string
+        }
+        Update: {
+          contact_email?: string
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          expires_at?: string
+          family_id?: string
+          from_organization_id?: string
+          id?: string
+          invite_message?: string | null
+          invite_token?: string
+          invited_at?: string
+          invited_by?: string
+          linked_at?: string | null
+          linked_organization_id?: string | null
+          org_name?: string
+          referring_user_remains_co_mod?: boolean
+          status?: string
+          target_level_of_care?:
+            | Database["public"]["Enums"]["care_phase_type"]
+            | null
+          transfer_reason?:
+            | Database["public"]["Enums"]["transfer_reason"]
+            | null
+          transfer_reason_notes?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_transfer_invites_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "org_transfer_invites_from_organization_id_fkey"
+            columns: ["from_organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "org_transfer_invites_from_organization_id_fkey"
+            columns: ["from_organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations_member_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "org_transfer_invites_linked_organization_id_fkey"
+            columns: ["linked_organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "org_transfer_invites_linked_organization_id_fkey"
+            columns: ["linked_organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations_member_view"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       organization_members: {
         Row: {
           id: string
@@ -5061,6 +5250,8 @@ export type Database = {
           accepted_by: string | null
           completed_at: string | null
           created_at: string
+          declined_at: string | null
+          declined_reason: string | null
           family_id: string
           from_organization_id: string
           handoff_notes: string | null
@@ -5068,9 +5259,12 @@ export type Database = {
           initiated_at: string
           initiated_by: string
           receiving_provider_notes: string | null
+          referring_user_remains_co_mod: boolean
           sobriety_days_at_handoff: number
           status: Database["public"]["Enums"]["handoff_status"]
           to_organization_id: string
+          transfer_reason: Database["public"]["Enums"]["transfer_reason"] | null
+          transfer_reason_notes: string | null
           transition_summary_id: string | null
           updated_at: string
           user_id: string
@@ -5080,6 +5274,8 @@ export type Database = {
           accepted_by?: string | null
           completed_at?: string | null
           created_at?: string
+          declined_at?: string | null
+          declined_reason?: string | null
           family_id: string
           from_organization_id: string
           handoff_notes?: string | null
@@ -5087,9 +5283,14 @@ export type Database = {
           initiated_at?: string
           initiated_by: string
           receiving_provider_notes?: string | null
+          referring_user_remains_co_mod?: boolean
           sobriety_days_at_handoff?: number
           status?: Database["public"]["Enums"]["handoff_status"]
           to_organization_id: string
+          transfer_reason?:
+            | Database["public"]["Enums"]["transfer_reason"]
+            | null
+          transfer_reason_notes?: string | null
           transition_summary_id?: string | null
           updated_at?: string
           user_id: string
@@ -5099,6 +5300,8 @@ export type Database = {
           accepted_by?: string | null
           completed_at?: string | null
           created_at?: string
+          declined_at?: string | null
+          declined_reason?: string | null
           family_id?: string
           from_organization_id?: string
           handoff_notes?: string | null
@@ -5106,9 +5309,14 @@ export type Database = {
           initiated_at?: string
           initiated_by?: string
           receiving_provider_notes?: string | null
+          referring_user_remains_co_mod?: boolean
           sobriety_days_at_handoff?: number
           status?: Database["public"]["Enums"]["handoff_status"]
           to_organization_id?: string
+          transfer_reason?:
+            | Database["public"]["Enums"]["transfer_reason"]
+            | null
+          transfer_reason_notes?: string | null
           transition_summary_id?: string | null
           updated_at?: string
           user_id?: string
@@ -6398,6 +6606,18 @@ export type Database = {
           severity: string
         }[]
       }
+      get_co_moderated_families: {
+        Args: { _user_id: string }
+        Returns: {
+          display_label: string
+          family_id: string
+          family_name: string
+          granted_at: string
+          member_count: number
+          organization_id: string
+          organization_name: string
+        }[]
+      }
       get_family_invite_code: { Args: { _family_id: string }; Returns: string }
       get_family_moderator_id: { Args: { _family_id: string }; Returns: string }
       get_family_provider_admins: {
@@ -6537,6 +6757,10 @@ export type Database = {
         Returns: boolean
       }
       is_family_admin_or_moderator: {
+        Args: { _family_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_family_co_moderator: {
         Args: { _family_id: string; _user_id: string }
         Returns: boolean
       }
