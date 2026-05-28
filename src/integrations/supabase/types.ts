@@ -1885,6 +1885,10 @@ export type Database = {
           is_archived: boolean
           name: string
           organization_id: string | null
+          previous_organization_id: string | null
+          transfer_reason: string | null
+          transferred_at: string | null
+          transferred_by: string | null
           updated_at: string
         }
         Insert: {
@@ -1900,6 +1904,10 @@ export type Database = {
           is_archived?: boolean
           name: string
           organization_id?: string | null
+          previous_organization_id?: string | null
+          transfer_reason?: string | null
+          transferred_at?: string | null
+          transferred_by?: string | null
           updated_at?: string
         }
         Update: {
@@ -1915,6 +1923,10 @@ export type Database = {
           is_archived?: boolean
           name?: string
           organization_id?: string | null
+          previous_organization_id?: string | null
+          transfer_reason?: string | null
+          transferred_at?: string | null
+          transferred_by?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -1928,6 +1940,20 @@ export type Database = {
           {
             foreignKeyName: "families_organization_id_fkey"
             columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations_member_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "families_previous_organization_id_fkey"
+            columns: ["previous_organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "families_previous_organization_id_fkey"
+            columns: ["previous_organization_id"]
             isOneToOne: false
             referencedRelation: "organizations_member_view"
             referencedColumns: ["id"]
@@ -2253,6 +2279,81 @@ export type Database = {
             columns: ["family_id"]
             isOneToOne: false
             referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      family_org_transfer_history: {
+        Row: {
+          created_at: string
+          family_id: string
+          from_organization_id: string | null
+          hipaa_re_sign_required: boolean
+          id: string
+          notes: string | null
+          to_organization_id: string | null
+          transfer_reason: string
+          transferred_at: string
+          transferred_by: string
+        }
+        Insert: {
+          created_at?: string
+          family_id: string
+          from_organization_id?: string | null
+          hipaa_re_sign_required?: boolean
+          id?: string
+          notes?: string | null
+          to_organization_id?: string | null
+          transfer_reason?: string
+          transferred_at?: string
+          transferred_by: string
+        }
+        Update: {
+          created_at?: string
+          family_id?: string
+          from_organization_id?: string | null
+          hipaa_re_sign_required?: boolean
+          id?: string
+          notes?: string | null
+          to_organization_id?: string | null
+          transfer_reason?: string
+          transferred_at?: string
+          transferred_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "family_org_transfer_history_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "family_org_transfer_history_from_organization_id_fkey"
+            columns: ["from_organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "family_org_transfer_history_from_organization_id_fkey"
+            columns: ["from_organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations_member_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "family_org_transfer_history_to_organization_id_fkey"
+            columns: ["to_organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "family_org_transfer_history_to_organization_id_fkey"
+            columns: ["to_organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations_member_view"
             referencedColumns: ["id"]
           },
         ]
@@ -2884,10 +2985,12 @@ export type Database = {
           full_name: string
           id: string
           ip_address: string | null
+          organization_id: string | null
           release_version: string
           signature_data: string
           signature_data_encrypted: string | null
           signed_at: string
+          transfer_history_id: string | null
           user_agent: string | null
           user_id: string
         }
@@ -2897,10 +3000,12 @@ export type Database = {
           full_name: string
           id?: string
           ip_address?: string | null
+          organization_id?: string | null
           release_version?: string
           signature_data: string
           signature_data_encrypted?: string | null
           signed_at?: string
+          transfer_history_id?: string | null
           user_agent?: string | null
           user_id: string
         }
@@ -2910,10 +3015,12 @@ export type Database = {
           full_name?: string
           id?: string
           ip_address?: string | null
+          organization_id?: string | null
           release_version?: string
           signature_data?: string
           signature_data_encrypted?: string | null
           signed_at?: string
+          transfer_history_id?: string | null
           user_agent?: string | null
           user_id?: string
         }
@@ -2923,6 +3030,27 @@ export type Database = {
             columns: ["family_id"]
             isOneToOne: false
             referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hipaa_releases_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hipaa_releases_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations_member_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hipaa_releases_transfer_history_id_fkey"
+            columns: ["transfer_history_id"]
+            isOneToOne: false
+            referencedRelation: "family_org_transfer_history"
             referencedColumns: ["id"]
           },
         ]
@@ -6215,6 +6343,7 @@ export type Database = {
         Args: { _code_id: string }
         Returns: boolean
       }
+      check_hipaa_status: { Args: { _family_id: string }; Returns: Json }
       check_missed_medication_doses: { Args: never; Returns: undefined }
       check_overdue_checkouts: { Args: never; Returns: undefined }
       check_payment_info_access_rate: { Args: never; Returns: boolean }
@@ -6464,6 +6593,10 @@ export type Database = {
         Returns: boolean
       }
       is_super_admin: { Args: { _user_id: string }; Returns: boolean }
+      needs_hipaa_re_sign: {
+        Args: { _family_id: string; _user_id: string }
+        Returns: boolean
+      }
       record_patient_consent: {
         Args: {
           _notes?: string
