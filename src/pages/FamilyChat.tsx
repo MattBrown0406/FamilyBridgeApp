@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback, Suspense, lazy } from 'react';
+import { useState, useEffect, useRef, useCallback, Suspense, lazy, startTransition } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { usePlatform } from '@/hooks/usePlatform';
 import { useAuth } from '@/hooks/useAuth';
@@ -2926,7 +2926,7 @@ const FamilyChat = () => {
 
       {/* Main Content */}
       <main className="flex-1 container mx-auto px-1.5 sm:px-4 py-1.5 sm:py-4 overflow-hidden">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
+        <Tabs value={activeTab} onValueChange={(v) => startTransition(() => setActiveTab(v))} className="h-full flex flex-col">
           <div className="mb-2 sm:mb-4 shrink-0 bg-card/50 backdrop-blur-sm border border-border/50 p-1.5 sm:p-2 rounded-lg sm:rounded-xl shadow-soft">
             {/* Primary tabs (always visible) */}
             <div className="flex items-center gap-1.5 flex-wrap">
