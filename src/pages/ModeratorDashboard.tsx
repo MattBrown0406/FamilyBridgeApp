@@ -13,7 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { Users, Loader2, ArrowRight, Home, Building2, Shield, Plus, Copy, Archive, HelpCircle, ArrowRightLeft, FileText, MessageSquare, Brain, Target, FolderOpen } from 'lucide-react';
+import { Users, Loader2, ArrowRight, Home, Building2, Shield, Plus, Copy, Archive, HelpCircle, ArrowRightLeft, FileText, MessageSquare, Brain, Target, FolderOpen, UserCheck, Inbox } from 'lucide-react';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 import { NotificationBell } from '@/components/NotificationBell';
 import { AdminBreadcrumbs } from '@/components/AdminBreadcrumbs';
@@ -27,6 +27,8 @@ import { FIISCoachingPanel } from '@/components/FIISCoachingPanel';
 import CRMDashboard from '@/components/CRMDashboard';
 import { ProviderDocumentsPanel } from '@/components/ProviderDocumentsPanel';
 import { AccountActionsMenu } from '@/components/AccountActionsMenu';
+import { HandoffInbox } from '@/components/HandoffInbox';
+import { CoModeratorFamiliesPanel } from '@/components/CoModeratorFamiliesPanel';
 
 type HealthStatus = 'crisis' | 'concern' | 'tension' | 'stable' | 'improving';
 
@@ -461,7 +463,7 @@ const ModeratorDashboard = () => {
 
           {/* Tabs for Families, Notes, and Team Chat */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-            <TabsList className={`grid w-full ${organizations.length > 0 ? 'grid-cols-6' : 'grid-cols-4'}`}>
+            <TabsList className={`grid w-full ${organizations.length > 0 ? 'grid-cols-8' : 'grid-cols-6'}`}>
               <TabsTrigger value="families" className="flex items-center gap-2">
                 <Users className="h-4 w-4" />
                 <span className="hidden sm:inline">Families</span>
@@ -477,6 +479,14 @@ const ModeratorDashboard = () => {
               <TabsTrigger value="fiis-chat" className="flex items-center gap-2">
                 <Brain className="h-4 w-4" />
                 <span className="hidden sm:inline">FIIS</span>
+              </TabsTrigger>
+              <TabsTrigger value="transfers" className="flex items-center gap-2">
+                <Inbox className="h-4 w-4" />
+                <span className="hidden sm:inline">Transfers</span>
+              </TabsTrigger>
+              <TabsTrigger value="co-mod" className="flex items-center gap-2">
+                <UserCheck className="h-4 w-4" />
+                <span className="hidden sm:inline">Co-Mod</span>
               </TabsTrigger>
               {organizations.length > 0 && (
                 <>
@@ -809,6 +819,51 @@ const ModeratorDashboard = () => {
                 />
               </TabsContent>
             )}
+
+            {/* Transfers Inbox Tab - Pending handoffs sent to this org */}
+            <TabsContent value="transfers">
+              <Card className="border-primary/20">
+                <CardHeader className="bg-primary/5 rounded-t-lg">
+                  <CardTitle className="flex items-center gap-2 text-primary">
+                    <Inbox className="h-5 w-5" />
+                    Transfer Requests
+                  </CardTitle>
+                  <CardDescription>
+                    Family groups that other providers want to transfer to your organization. Review and accept or decline.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="pt-6">
+                  {organizations.length > 0 ? (
+                    <HandoffInbox organizationId={organizations[0].id} />
+                  ) : (
+                    <div className="text-center py-8 text-sm text-muted-foreground">
+                      <Inbox className="h-10 w-10 mx-auto mb-2 text-muted-foreground/40" />
+                      Join an organization to receive family transfers.
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Co-Moderator Tab - Families I'm co-moderating after referral/transfer */}
+            <TabsContent value="co-mod">
+              <Card className="border-primary/20">
+                <CardHeader className="bg-primary/5 rounded-t-lg">
+                  <CardTitle className="flex items-center gap-2 text-primary">
+                    <UserCheck className="h-5 w-5" />
+                    Families I'm Co-Moderating
+                  </CardTitle>
+                  <CardDescription>
+                    Families you referred or transferred — where you chose to stay on as a co-moderator. 
+                    You have view and participation access. The primary provider manages each group.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="pt-6">
+                  <CoModeratorFamiliesPanel />
+                </CardContent>
+              </Card>
+            </TabsContent>
+
           </Tabs>
 
         </div>
