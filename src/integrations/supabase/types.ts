@@ -6671,6 +6671,7 @@ export type Database = {
         | "sober_living_manager"
         | "program_admin"
         | "interventionist"
+        | "co_moderator"
       handoff_status:
         | "pending"
         | "accepted"
@@ -6721,6 +6722,15 @@ export type Database = {
         | "other"
         | "interventionist"
       request_status: "pending" | "approved" | "denied"
+      transfer_reason:
+        | "step_up"
+        | "step_down"
+        | "relapse_higher_loc"
+        | "aftercare_transition"
+        | "sober_living"
+        | "provider_change"
+        | "geographic_move"
+        | "other"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -6886,6 +6896,7 @@ export const Constants = {
         "sober_living_manager",
         "program_admin",
         "interventionist",
+        "co_moderator",
       ],
       handoff_status: [
         "pending",
@@ -6940,6 +6951,16 @@ export const Constants = {
         "interventionist",
       ],
       request_status: ["pending", "approved", "denied"],
+      transfer_reason: [
+        "step_up",
+        "step_down",
+        "relapse_higher_loc",
+        "aftercare_transition",
+        "sober_living",
+        "provider_change",
+        "geographic_move",
+        "other",
+      ],
     },
   },
 } as const
