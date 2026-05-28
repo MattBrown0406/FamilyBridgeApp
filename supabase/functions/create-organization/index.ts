@@ -180,7 +180,135 @@ serve(async (req) => {
       }
     }
 
-    return new Response(JSON.stringify({ organization: org }), {
+    // ----------------------------------------------------------------
+    // AUTO-LINK PENDING ORG TRANSFER INVITES
+    // If someone sent a transfer invite to this email before the program
+    // was on FamilyBridge, execute those transfers now automatically.
+    // ----------------------------------------------------------------
+    if (userEmail) {
+      try {
+        const normalizedEmail = userEmail.trim().toLowerCase();
+
+        // Find all pending invites sent to this email that haven't expired
+        const { data: pendingInvites, error: invitesFetchErr } = await service
+          .from("org_transfer_invites")
+          .select("*")
+          .eq("contact_email", normalizedEmail)
+          .eq("status", "sent")
+          .gt("expires_at", new Date().toISOString());
+
+        if (invitesFetchErr) {
+          console.error("Error fetching pending transfer invites:", invitesFetchErr);
+        } else if (pendingInvites && pendingInvites.length > 0) {
+          console.log(`Found ${pendingInvites.length} pending transfer invite(s) for ${normalizedEmail}`);
+
+          for (const invite of pendingInvites) {
+            try {
+              // 1. Create a provider_handoff record marked as already accepted
+              //    (no two-party wait needed — the new org owner IS accepting by registering)
+              const { data: handoff, error: handoffErr } = await service
+                .from("provider_handoffs")
+                .insert({
+                  user_id: userId, // owner of the new org as placeholder — no recovering member yet
+                  family_id: invite.family_id,
+                  from_organization_id: invite.from_organization_id,
+                  to_organization_id: org.id,
+                  initiated_by: invite.invited_by,
+                  accepted_by: userId,
+                  accepted_at: new Date().toISOString(),
+                  status: "accepted",
+                  sobriety_days_at_handoff: 0,
+                  handoff_notes: invite.invite_message || null,
+                  transfer_reason: invite.transfer_reason || null,
+                  transfer_reason_notes: invite.transfer_reason_notes || null,
+                  referring_user_remains_co_mod: invite.referring_user_remains_co_mod,
+                })
+                .select("id")
+                .single();
+
+              if (handoffErr) {
+                console.error(`Handoff insert error for invite ${invite.id}:`, handoffErr);
+                continue;
+              }
+
+              // 2. Transfer the family to the new org
+              const { error: familyUpdateErr } = await service
+                .from("families")
+                .update({ organization_id: org.id })
+                .eq("id", invite.family_id);
+
+              if (familyUpdateErr) {
+                console.error(`Family transfer error for invite ${invite.id}:`, familyUpdateErr);
+                continue;
+              }
+
+              // 3. If referring user wants to stay as co-moderator, add them
+              if (invite.referring_user_remains_co_mod) {
+                // Add to family_co_moderators
+                await service.from("family_co_moderators").upsert({
+                  family_id: invite.family_id,
+                  user_id: invite.invited_by,
+                  granted_by: userId,
+                  handoff_id: handoff?.id || null,
+                  referring_organization_id: invite.from_organization_id,
+                  display_label: "Co-Moderator",
+                  is_active: true,
+                }, { onConflict: "family_id,user_id" });
+
+                // Add/update family_members row with co_moderator role
+                await service.from("family_members").upsert({
+                  family_id: invite.family_id,
+                  user_id: invite.invited_by,
+                  role: "co_moderator",
+                }, { onConflict: "family_id,user_id" });
+              }
+
+              // 4. Mark the invite as linked
+              await service
+                .from("org_transfer_invites")
+                .update({
+                  status: "linked",
+                  linked_organization_id: org.id,
+                  linked_at: new Date().toISOString(),
+                  updated_at: new Date().toISOString(),
+                })
+                .eq("id", invite.id);
+
+              // 5. Notify the referrer that the transfer completed
+              await service.from("notifications").insert({
+                user_id: invite.invited_by,
+                family_id: invite.family_id,
+                type: "handoff_accepted",
+                title: "Transfer Complete ✓",
+                body: `${org.name} registered on FamilyBridge and accepted the transfer of your family group. ${invite.referring_user_remains_co_mod ? "You've been added as co-moderator." : ""}`,
+                related_id: handoff?.id || null,
+              });
+
+              // 6. Notify the new org owner (in-app confirmation)
+              await service.from("notifications").insert({
+                user_id: userId,
+                family_id: invite.family_id,
+                type: "handoff_accepted",
+                title: "Family Group Transferred to You",
+                body: `A family group was waiting for your organization to join FamilyBridge. It's now in your Moderator Dashboard.`,
+                related_id: handoff?.id || null,
+              });
+
+              console.log(`Successfully auto-linked transfer invite ${invite.id} → org ${org.id}`);
+            } catch (inviteErr) {
+              console.error(`Error processing invite ${invite.id}:`, inviteErr);
+              // Continue processing other invites — don't block org creation
+            }
+          }
+        }
+      } catch (inviteLinkErr) {
+        // Non-fatal — org was created successfully, invite linking is best-effort
+        console.error("Error in invite auto-link phase (non-fatal):", inviteLinkErr);
+      }
+    }
+    // ----------------------------------------------------------------
+
+    return new Response(JSON.stringify({ organization: org, invites_linked: true }), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

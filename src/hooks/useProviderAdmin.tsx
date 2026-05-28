@@ -136,7 +136,10 @@ export const useProviderAdmin = () => {
     if (!data?.organization) throw new Error('Failed to create organization');
 
     await fetchOrganizations();
-    return data.organization as Organization;
+    return {
+      ...data.organization,
+      _invites_linked: data.invites_linked ?? false,
+    } as Organization & { _invites_linked: boolean };
   };
 
   const updateOrganization = async (orgId: string, updates: Partial<Organization>) => {

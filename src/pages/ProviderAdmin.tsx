@@ -867,7 +867,15 @@ const ProviderAdmin = () => {
         }
       }
       
-      toast({ title: 'Success', description: 'Organization created!' });
+      // Check if any pending transfer invites were auto-linked
+      if ((org as any)._invites_linked) {
+        toast({
+          title: '🎉 Organization created!',
+          description: 'A family group that was waiting for your program has been automatically transferred to you. Check your Moderator Dashboard.',
+        });
+      } else {
+        toast({ title: 'Success', description: 'Organization created!' });
+      }
       setIsCreating(false);
       setNewOrg({ name: '', subdomain: '', tagline: '', support_email: '', website_url: '', phone: '', provider_category: '', levels_of_care: [], primary_service_duration_days: '', outcome_tracking_enabled: true, intervention_tracking_enabled: false, benchmark_opt_in: true, intake_notes: '' });
       setNewOrgOnboarding(defaultOnboardingFields);
