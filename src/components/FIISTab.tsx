@@ -424,7 +424,7 @@ export function FIISTab({ familyId, members, excludeUserIds = [], onView, isMode
   useEffect(() => {
     if (familyId) {
       fetchData();
-      subscribeToChanges();
+      return subscribeToChanges();
     }
   }, [familyId]);
 
@@ -711,7 +711,7 @@ export function FIISTab({ familyId, members, excludeUserIds = [], onView, isMode
             </p>
           </div>
           {/* Disclaimer - only show if not acknowledged */}
-          {hasAcknowledgedDisclaimer === false && (
+          {(hasAcknowledgedDisclaimer === false || hasAcknowledgedDisclaimer === null) && (
             <div className="space-y-3">
               <FIISDoctrineNotice />
               <Button 

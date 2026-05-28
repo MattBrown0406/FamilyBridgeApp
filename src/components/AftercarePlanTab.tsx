@@ -25,6 +25,17 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
@@ -157,26 +168,27 @@ export function AftercarePlanTab({ familyId, members, isModerator }: AftercarePl
   const fetchPlans = async () => {
     setIsLoading(true);
     try {
-      // Fetch plans and recommendations in parallel for better performance
-      const [plansResult, recsResult] = await Promise.all([
-        supabase
-          .from('aftercare_plans')
-          .select('*')
-          .eq('family_id', familyId)
-          .order('created_at', { ascending: false }),
-        supabase
-          .from('aftercare_recommendations')
-          .select('*')
-          .order('created_at', { ascending: true })
-      ]);
+      // Fetch plans first so we can filter recommendations server-side
+      const plansResult = await supabase
+        .from('aftercare_plans')
+        .select('*')
+        .eq('family_id', familyId)
+        .order('created_at', { ascending: false });
 
       if (plansResult.error) throw plansResult.error;
 
       const plansData = plansResult.data || [];
       const planIds = plansData.map(p => p.id);
-      
-      // Filter recommendations to only those belonging to our plans
-      const recommendations = (recsResult.data || []).filter(r => planIds.includes(r.plan_id));
+
+      // Skip recommendations query if there are no plans
+      const recommendations = planIds.length === 0 ? [] : await (async () => {
+        const recsResult = await supabase
+          .from('aftercare_recommendations')
+          .select('*')
+          .in('plan_id', planIds)
+          .order('created_at', { ascending: true });
+        return recsResult.data || [];
+      })();
 
       // Get user IDs that need names
       const userIds = [...new Set([
@@ -764,15 +776,35 @@ export function AftercarePlanTab({ familyId, members, isModerator }: AftercarePl
                             </DialogContent>
                           </Dialog>
                           
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            className="text-destructive hover:text-destructive gap-1"
-                            onClick={() => deletePlan(plan.id)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                            Delete Plan
-                          </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                className="text-destructive hover:text-destructive gap-1"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                                Delete Plan
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Delete Aftercare Plan</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  This will permanently delete the plan and all its recommendations. This cannot be undone.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() => deletePlan(plan.id)}
+                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                >
+                                  Delete
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
                         </div>
                       )}
                     </CardContent>

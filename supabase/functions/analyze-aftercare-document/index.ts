@@ -191,7 +191,7 @@ serve(async (req) => {
     // Get family members for context
     const { data: familyMembers } = await supabase
       .from("family_members")
-      .select("user_id, relationship_type")
+      .select("user_id, role, relationship_type")
       .eq("family_id", familyId);
 
     const memberIds = familyMembers?.map(m => m.user_id) || [];
@@ -417,7 +417,7 @@ Respond with a JSON array of recommendations. Include ALL recommendations found 
 
     // If still no target user, try to find a recovering member
     if (!resolvedTargetUserId) {
-      const recoveringMember = familyMembers?.find(m => m.relationship_type === "recovering");
+      const recoveringMember = familyMembers?.find(m => m.role === "recovering" || m.relationship_type === "recovering");
       if (recoveringMember) {
         resolvedTargetUserId = recoveringMember.user_id;
         console.log("Using recovering member as target for aftercare import");

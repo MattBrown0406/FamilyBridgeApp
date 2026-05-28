@@ -29,7 +29,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { ModeratorDisclaimer } from '@/components/ModeratorDisclaimer';
 import { HIPAAReleasesViewer } from '@/components/HIPAAReleasesViewer';
 import { Label } from '@/components/ui/label';
-import { format, startOfWeek, endOfWeek, subWeeks, isWithinInterval, isSameWeek, formatDistanceToNow, startOfMonth, endOfMonth, subMonths, isSameMonth } from 'date-fns';
+import { format, startOfWeek, endOfWeek, subWeeks, isWithinInterval, isSameWeek, formatDistanceToNow, startOfMonth, endOfMonth, subMonths, isSameMonth, addMonths, isAfter } from 'date-fns';
 import {
   Dialog,
   DialogContent,
@@ -1477,10 +1477,12 @@ const FamilyChat = () => {
 
     setIsSavingCommonGoals(true);
     try {
-      await supabase
+      const { error: deleteError } = await supabase
         .from('family_common_goals')
         .delete()
         .eq('family_id', familyId);
+
+      if (deleteError) throw deleteError;
 
       if (selectedCommonGoals.length > 0) {
         const { error } = await supabase
@@ -1516,6 +1518,7 @@ const FamilyChat = () => {
   };
 
   const handleToggleCommonGoalComplete = async (goalId: string, isCompleted: boolean) => {
+    if (!user || !isAdminOrModerator) { toast({ title: 'Not authorized', variant: 'destructive' }); return; }
     try {
       const { error } = await supabase
         .from('family_common_goals')
@@ -1678,6 +1681,8 @@ const FamilyChat = () => {
         .from('family_boundaries')
         .update({
           status: 'rejected',
+          rejected_by: user?.id,
+          rejected_at: new Date().toISOString(),
         })
         .eq('id', boundaryId);
 
@@ -1737,6 +1742,7 @@ const FamilyChat = () => {
   };
 
   const handleDeleteBoundary = async (boundaryId: string) => {
+    if (!user || !isAdminOrModerator) { toast({ title: 'Not authorized', description: 'You do not have permission to delete boundaries.', variant: 'destructive' }); return; }
     try {
       const { error } = await supabase
         .from('family_boundaries')
@@ -1830,9 +1836,15 @@ const FamilyChat = () => {
 
       if (error) throw error;
 
+      // Clear stale acknowledgments — content changed, members must re-acknowledge
+      await supabase
+        .from('boundary_acknowledgments')
+        .delete()
+        .eq('boundary_id', editingBoundary.id);
+
       toast({
         title: 'Boundary updated',
-        description: 'Your boundary has been updated successfully.',
+        description: 'Boundary updated. Family members will be asked to re-acknowledge the new text.',
       });
 
       setEditingBoundary(null);
@@ -2053,7 +2065,7 @@ const FamilyChat = () => {
     const totalRequested = requestsWithResolvedAttachments.reduce((sum, r) => sum + r.amount, 0);
     const totalGiven = requestsWithResolvedAttachments
       .filter(r => r.payment_confirmed_at || r.status === 'approved')
-      .reduce((sum, r) => r.pledges.reduce((pSum, p) => pSum + p.amount, 0) + sum, 0);
+      .reduce((sum, r) => sum + Number(r.amount || 0), 0);
     
     setLifetimeTotals({ requested: totalRequested, given: totalGiven });
   };
@@ -2157,10 +2169,10 @@ const FamilyChat = () => {
   const navigateMonth = (direction: 'prev' | 'next') => {
     const newMonthStart = direction === 'prev' 
       ? subMonths(selectedFinancialMonth, 1)
-      : startOfMonth(new Date(selectedFinancialMonth.getTime() + 32 * 24 * 60 * 60 * 1000));
+      : addMonths(selectedFinancialMonth, 1);
     
     // Don't go beyond current month
-    if (direction === 'next' && newMonthStart > new Date()) {
+    if (direction === 'next' && isAfter(startOfMonth(newMonthStart), startOfMonth(new Date()))) {
       return;
     }
     
@@ -2719,12 +2731,17 @@ const FamilyChat = () => {
 
   const handleRescindRequest = async (requestId: string) => {
     try {
-      const { error } = await supabase
+      const { error, count } = await supabase
         .from('financial_requests')
         .delete()
         .eq('id', requestId);
 
       if (error) throw error;
+
+      if (count === 0 || count === null) {
+        toast({ title: 'Could not rescind', description: 'A vote may have been cast. Refresh and try again.', variant: 'destructive' });
+        return;
+      }
 
       toast({
         title: 'Request rescinded',

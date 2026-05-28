@@ -151,6 +151,11 @@ export const FamilyDocumentsTab = ({ familyId, userRole }: FamilyDocumentsTabPro
       return;
     }
 
+    if (!user) {
+      toast.error('Please sign in to upload documents.');
+      return;
+    }
+
     setIsUploading(true);
     try {
       const fileExt = selectedFile.name.split('.').pop();
@@ -239,7 +244,10 @@ export const FamilyDocumentsTab = ({ familyId, userRole }: FamilyDocumentsTabPro
         .from('family-documents')
         .remove([filePath]);
 
-      if (storageError) console.warn('Storage delete error:', storageError);
+      if (storageError) {
+        console.warn('Storage delete error:', storageError);
+        toast.error('The document record was removed but the file may still exist in storage.');
+      }
 
       const { error: dbError } = await supabase
         .from('family_documents')
@@ -331,7 +339,16 @@ export const FamilyDocumentsTab = ({ familyId, userRole }: FamilyDocumentsTabPro
           documentId: doc.id,
           familyId: familyId,
           fileBytes: base64,
-          mimeType: doc.mime_type
+          mimeType: doc.mime_type,
+          targetUserId: await (async () => {
+            const { data: memberData } = await supabase
+              .from('family_members')
+              .select('user_id')
+              .eq('family_id', familyId)
+              .eq('role', 'recovering')
+              .maybeSingle();
+            return memberData?.user_id ?? null;
+          })()
         }
       });
 

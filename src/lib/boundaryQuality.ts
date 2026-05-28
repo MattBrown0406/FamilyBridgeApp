@@ -17,7 +17,7 @@ const NUMBER_WORDS = /\b\d+\b/;
 const CONSEQUENCE_VERBS = /(will|won't|cannot|can't|must|pause|suspend|leave|end|stop|require|limit|report|block)/i;
 const VAGUE_WORDS = /(better|respectful|appropriate|soon|sometimes|more often|less|try harder|be nicer|act right)/i;
 const ENFORCEABLE_SELF_REFERENCE = /\b(i|we)\s+(will|won't|cannot|can't|are going to|intend to)\b/i;
-const REALISM_FLAGS = /(forever|never again|immediately fix|prove you changed|make everyone happy|until trust is restored)$/i;
+const REALISM_FLAGS = /(forever|never again|immediately fix|prove you changed|make everyone happy|until trust is restored)/i;
 
 export function evaluateBoundaryQuality(content: string, consequence?: string): BoundaryQualityReport {
   const boundary = content.trim();

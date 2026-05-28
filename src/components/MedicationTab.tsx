@@ -481,7 +481,7 @@ export const MedicationTab = ({
       if (labelImages.length > 0) {
 
         for (const [index, image] of labelImages.entries()) {
-          const fileName = `${familyId}/${Date.now()}-medication-label-${index + 1}.jpg`;
+          const fileName = `${familyId}/${Date.now() + index}-medication-label-${index + 1}.jpg`;
           const base64Data = image.split(',')[1];
           const { error: uploadError } = await supabase.storage
             .from('medication-labels')
@@ -491,6 +491,9 @@ export const MedicationTab = ({
 
           if (!uploadError) {
             uploadedRefs.push(createStorageRef('medication-labels', fileName));
+          } else {
+            console.warn('Image upload failed:', uploadError);
+            toast({ title: 'Image upload warning', description: 'One or more label images failed to upload. The medication was saved without them.', variant: 'destructive' });
           }
         }
 
@@ -697,6 +700,7 @@ export const MedicationTab = ({
     setLabelAnalysis(null);
     setCorrectedFields(new Set());
     setCaptureMode('bottle');
+    setDisclaimerAccepted(false);
   };
 
   const updateTimesPerDay = (count: number) => {
@@ -876,10 +880,12 @@ export const MedicationTab = ({
           </div>
           <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
             <DialogTrigger asChild>
+              {(isAdminOrModerator || currentUserId === recoveringMemberId) ? (
               <Button size="sm" className="gap-1">
                 <Plus className="h-4 w-4" />
                 Add
               </Button>
+              ) : <span />}
             </DialogTrigger>
             <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
               <DialogHeader>

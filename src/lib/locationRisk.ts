@@ -98,7 +98,7 @@ export async function notifyFamilyLocationRisk(params: {
       .from('family_members')
       .select('user_id')
       .eq('family_id', params.familyId)
-      .eq('role', 'moderator');
+      .in('role', ['moderator', 'admin']);
 
     const notifications = moderators
       ?.filter((m) => m.user_id !== params.actorUserId)
