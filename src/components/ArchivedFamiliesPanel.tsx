@@ -47,7 +47,7 @@ export const ArchivedFamiliesPanel = ({ organizationId, onReactivate }: Archived
           archived_at,
           archived_by,
           organization_id,
-          organizations (name)
+          organizations!organization_id(name)
         `)
         .eq('is_archived', true)
         .order('archived_at', { ascending: false });

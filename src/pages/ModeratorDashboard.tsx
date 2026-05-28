@@ -160,7 +160,7 @@ const ModeratorDashboard = () => {
             description,
             organization_id,
             is_archived,
-            organizations (
+            organizations!organization_id (
               name
             )
           )

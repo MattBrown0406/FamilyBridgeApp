@@ -64,7 +64,7 @@ export const ArchivedFamilyNotice = () => {
             archived_at,
             organization_id,
             is_archived,
-            organizations (name)
+            organizations!organization_id (name)
           )
         `)
         .eq('user_id', user.id)
