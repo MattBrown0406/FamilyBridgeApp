@@ -28,6 +28,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { ModeratorDisclaimer } from '@/components/ModeratorDisclaimer';
 import { HIPAAReleasesViewer } from '@/components/HIPAAReleasesViewer';
+import { HIPAARelease } from '@/components/HIPAARelease';
 import { Label } from '@/components/ui/label';
 import { format, startOfWeek, endOfWeek, subWeeks, isWithinInterval, isSameWeek, formatDistanceToNow, startOfMonth, endOfMonth, subMonths, isSameMonth, addMonths, isAfter } from 'date-fns';
 import {
@@ -507,6 +508,12 @@ const FamilyChat = () => {
   
   // Contextual coaching nudge state
   const [showCoachingNudge, setShowCoachingNudge] = useState(false);
+
+  // HIPAA gate state
+  const [hipaaStatus, setHipaaStatus] = useState<{ needs_sign: boolean; is_initial: boolean; last_transfer_reason: string | null } | null>(null);
+  const [hipaaChecked, setHipaaChecked] = useState(false);
+  const [userFullName, setUserFullName] = useState('');
+
   const newBoundaryQuality = evaluateBoundaryQuality(newBoundaryContent, newBoundaryConsequence);
   const editBoundaryQuality = evaluateBoundaryQuality(editBoundaryContent, editBoundaryConsequence);
   
@@ -561,6 +568,35 @@ const FamilyChat = () => {
     return undefined;
     // fetchFamilyData depends on large local helpers in this file. Keep this effect scoped to identity/page changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, familyId]);
+
+  // Check mandatory HIPAA status
+  useEffect(() => {
+    if (!user || !familyId) return;
+    const checkHipaa = async () => {
+      try {
+        // Get user's full name for the HIPAA form
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('full_name')
+          .eq('id', user.id)
+          .single();
+        if (profile?.full_name) setUserFullName(profile.full_name);
+
+        // Check if HIPAA signature is needed (initial or re-sign after transfer)
+        const { data, error } = await supabase.rpc('check_hipaa_status', {
+          _family_id: familyId,
+        });
+        if (!error && data) {
+          setHipaaStatus(data as { needs_sign: boolean; is_initial: boolean; last_transfer_reason: string | null });
+        }
+      } catch (e) {
+        console.warn('HIPAA check failed:', e);
+      } finally {
+        setHipaaChecked(true);
+      }
+    };
+    checkHipaa();
   }, [user, familyId]);
 
   // Surface fresh FIIS analysis with a coaching nudge while the user is in Messages
@@ -2799,6 +2835,35 @@ const FamilyChat = () => {
   }
 
   return (
+    /* HIPAA Mandatory Gate */
+    hipaaChecked && hipaaStatus?.needs_sign && user && userFullName ? (
+      <div className="min-h-screen bg-background flex items-center justify-center py-8 px-4">
+        <div className="w-full max-w-2xl">
+          {hipaaStatus.last_transfer_reason && (
+            <div className="mb-4 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4">
+              <p className="text-sm font-semibold text-amber-400">Updated HIPAA Authorization Required</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                This family group has been transferred to a new care provider
+                {hipaaStatus.last_transfer_reason === 'relapse' ? ' following a relapse event' :
+                 hipaaStatus.last_transfer_reason === 'higher_level_of_care' ? ' for a higher level of care' :
+                 hipaaStatus.last_transfer_reason === 'aftercare' ? ' as part of aftercare planning' :
+                 hipaaStatus.last_transfer_reason === 'lower_level_of_care' ? ' as you step down to a lower level of care' :
+                 ''}.
+                A new HIPAA authorization is required to continue.
+              </p>
+            </div>
+          )}
+          <HIPAARelease
+            familyId={familyId!}
+            familyName={family?.name || 'Family Group'}
+            userId={user.id}
+            userFullName={userFullName}
+            onComplete={() => setHipaaStatus(prev => prev ? { ...prev, needs_sign: false } : null)}
+            onCancel={() => navigate('/dashboard')}
+          />
+        </div>
+      </div>
+    ) :
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-secondary/20 flex flex-col">
       {/* Admin Breadcrumbs for super admins and provider admins */}
       <AdminBreadcrumbs />

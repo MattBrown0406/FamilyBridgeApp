@@ -51,8 +51,9 @@ const SignHIPAA = () => {
   };
 
   const handleCancel = () => {
-    // If they cancel, they're still a member but haven't signed
-    // They can sign later or leave the family
+    // Signing is required to access a provider-managed family group.
+    // Cancelling returns the user to the dashboard where they can
+    // join a different family or contact their provider.
     navigate('/dashboard');
   };
 
