@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useSuperAdmin } from '@/hooks/useSuperAdmin';
 import { useFamilyArchive } from '@/hooks/useFamilyArchive';
@@ -92,6 +92,7 @@ const ModeratorDashboard = () => {
   const { archiveFamily, isArchiving } = useFamilyArchive();
   const { branding, applyBranding, resetBranding } = useOrganizationBranding();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
   
   const [assignedFamilies, setAssignedFamilies] = useState<AssignedFamily[]>([]);
@@ -102,7 +103,13 @@ const ModeratorDashboard = () => {
   const [newFamilyDescription, setNewFamilyDescription] = useState('');
   const [isCreating, setIsCreating] = useState(false);
   const [archivingFamilyId, setArchivingFamilyId] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState('families');
+  const [activeTab, setActiveTab] = useState(() => searchParams.get('tab') || 'families');
+
+  // Sync tab from URL param (deep-links from notification bell)
+  useEffect(() => {
+    const tabParam = searchParams.get('tab');
+    if (tabParam) setActiveTab(tabParam);
+  }, [searchParams]);
 
   // Apply organization branding when loaded
   useEffect(() => {

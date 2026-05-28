@@ -1,4 +1,4 @@
-import { Bell, Check, CheckCheck, MessageSquare, DollarSign, Users, Trash2, X, BellRing, Loader2 } from 'lucide-react';
+import { Bell, Check, CheckCheck, MessageSquare, DollarSign, Users, Trash2, X, BellRing, Loader2, ArrowRightLeft, CheckCircle2, XCircle, Mail } from 'lucide-react';
 import { useNotifications, Notification } from '@/hooks/useNotifications';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { Button } from '@/components/ui/button';
@@ -23,6 +23,14 @@ const getNotificationIcon = (type: Notification['type']) => {
       return <Check className="h-4 w-4 text-green-500" />;
     case 'member_joined':
       return <Users className="h-4 w-4 text-blue-500" />;
+    case 'handoff_request':
+      return <ArrowRightLeft className="h-4 w-4 text-amber-500" />;
+    case 'handoff_accepted':
+      return <CheckCircle2 className="h-4 w-4 text-green-600" />;
+    case 'handoff_declined':
+      return <XCircle className="h-4 w-4 text-destructive" />;
+    case 'org_transfer_invite':
+      return <Mail className="h-4 w-4 text-blue-500" />;
     default:
       return <Bell className="h-4 w-4" />;
   }
@@ -69,6 +77,20 @@ export const NotificationBell = () => {
   const handleNotificationClick = async (notification: Notification) => {
     if (!notification.is_read) {
       await markAsRead(notification.id);
+    }
+    
+    // Route transfer notifications to the Transfers tab
+    if (notification.type === 'handoff_request' || notification.type === 'handoff_accepted' || notification.type === 'handoff_declined') {
+      setOpen(false);
+      navigate('/moderator?tab=transfers');
+      return;
+    }
+
+    // Route invite confirmations to co-mod tab
+    if (notification.type === 'org_transfer_invite') {
+      setOpen(false);
+      navigate('/moderator?tab=co-mod');
+      return;
     }
     
     if (notification.family_id) {

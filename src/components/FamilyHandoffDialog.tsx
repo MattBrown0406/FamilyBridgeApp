@@ -29,6 +29,7 @@ import {
   Info,
 } from "lucide-react";
 import { OrgSearchCombobox, OrgComboboxValue } from "@/components/OrgSearchCombobox";
+import { supabase as supabaseClient } from "@/integrations/supabase/client";
 
 interface FamilyHandoffDialogProps {
   familyId: string;
@@ -174,8 +175,8 @@ export const FamilyHandoffDialog = ({
           description: `${selectedOrg.org.name} has been notified and can review the handoff request.${remainAsCoMod ? " You'll remain as co-moderator once they accept." : ""}`,
         });
       } else {
-        // ---- Org not on FamilyBridge: create invite ----
-        const { error } = await supabase.from("org_transfer_invites").insert({
+        // ---- Org not on FamilyBridge: create invite + send email ----
+        const { data: inviteData, error } = await (supabase as any).from("org_transfer_invites").insert({
           family_id: familyId,
           from_organization_id: currentOrgId,
           invited_by: user.id,
@@ -187,9 +188,18 @@ export const FamilyHandoffDialog = ({
           transfer_reason: transferReason as any,
           transfer_reason_notes: transferNotes || null,
           referring_user_remains_co_mod: remainAsCoMod,
-        });
+        }).select("id").single();
 
         if (error) throw error;
+
+        // Fire the email via edge function (non-blocking — don't fail the whole flow if email errors)
+        if (inviteData?.id) {
+          supabase.functions.invoke("send-org-transfer-invite", {
+            body: { inviteId: inviteData.id },
+          }).catch((emailErr) => {
+            console.warn("Invite email failed (non-critical):", emailErr);
+          });
+        }
 
         toast({
           title: "Invitation Sent",
