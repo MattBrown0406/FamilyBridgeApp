@@ -1950,6 +1950,8 @@ export type Database = {
           id: string
           last_enforcement_at: string | null
           last_violation_at: string | null
+          rejected_at: string | null
+          rejected_by: string | null
           rejected_reason: string | null
           status: string
           target_user_id: string | null
@@ -1970,6 +1972,8 @@ export type Database = {
           id?: string
           last_enforcement_at?: string | null
           last_violation_at?: string | null
+          rejected_at?: string | null
+          rejected_by?: string | null
           rejected_reason?: string | null
           status?: string
           target_user_id?: string | null
@@ -1990,6 +1994,8 @@ export type Database = {
           id?: string
           last_enforcement_at?: string | null
           last_violation_at?: string | null
+          rejected_at?: string | null
+          rejected_by?: string | null
           rejected_reason?: string | null
           status?: string
           target_user_id?: string | null
