@@ -29,6 +29,8 @@ import { ProviderDocumentsPanel } from '@/components/ProviderDocumentsPanel';
 import { AccountActionsMenu } from '@/components/AccountActionsMenu';
 import { HandoffInbox } from '@/components/HandoffInbox';
 import { CoModeratorFamiliesPanel } from '@/components/CoModeratorFamiliesPanel';
+import { TutorialModal } from '@/components/tutorial/TutorialModal';
+import { moderatorDashboardSteps } from '@/components/tutorial/tutorialSteps';
 
 type HealthStatus = 'crisis' | 'concern' | 'tension' | 'stable' | 'improving';
 
@@ -318,6 +320,7 @@ const ModeratorDashboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <TutorialModal steps={moderatorDashboardSteps} storageKey="fb_tutorial_moderator_dashboard" />
       {/* Admin Breadcrumbs for super admins and provider admins */}
       <AdminBreadcrumbs />
       {/* Header */}

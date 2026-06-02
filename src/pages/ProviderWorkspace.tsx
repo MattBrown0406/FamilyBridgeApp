@@ -24,6 +24,8 @@ import { ProviderNotesPanel } from '@/components/ProviderNotesPanel';
 import { ProviderMessaging } from '@/components/ProviderMessaging';
 import { AccountActionsMenu } from '@/components/AccountActionsMenu';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
+import { TutorialModal } from '@/components/tutorial/TutorialModal';
+import { providerWorkspaceSteps } from '@/components/tutorial/tutorialSteps';
 
 interface Family {
   id: string;
@@ -162,6 +164,7 @@ const ProviderWorkspace = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <TutorialModal steps={providerWorkspaceSteps} storageKey="fb_tutorial_provider_workspace" />
       {/* Header */}
       <header className="border-b bg-card sticky top-0 z-10">
         <div className="container mx-auto px-4 py-3">
