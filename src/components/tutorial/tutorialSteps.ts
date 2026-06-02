@@ -161,3 +161,114 @@ export const providerWorkspaceSteps: TutorialStep[] = [
       "That's your workspace. Everything you need to support families effectively is right here.",
   },
 ];
+
+export const providerOutcomesSteps: TutorialStep[] = [
+  {
+    title: 'Provider Outcomes Demo',
+    description:
+      'This demo shows how FamilyBridge tracks and surfaces treatment outcomes across your organization — benchmarked against national data.',
+  },
+  {
+    title: 'Overview tab',
+    description:
+      'High-level outcome metrics across your families: treatment completion rates, 365-day sobriety, and aftercare adherence.',
+    highlightTab: 'overview',
+  },
+  {
+    title: 'Benchmarking tab',
+    description:
+      "Compare your organization's outcomes against national and category benchmarks. See where you outperform and where there's room to improve.",
+    highlightTab: 'benchmarking',
+  },
+  {
+    title: 'Data Collection tab',
+    description:
+      'Configure how and when outcome data is collected — automated check-ins, provider-submitted milestones, and family-reported progress.',
+    highlightTab: 'collection',
+  },
+  {
+    title: 'Provider Demo tab',
+    description:
+      'A live walkthrough of what your clinical team sees when reviewing outcomes for a specific family.',
+    highlightTab: 'provider-demo',
+  },
+  {
+    title: "You're ready",
+    description:
+      'This is just a preview — your actual outcome data populates automatically as families engage with FamilyBridge.',
+  },
+];
+
+export const interventionOutcomesSteps: TutorialStep[] = [
+  {
+    title: 'Intervention Outcomes Demo',
+    description:
+      'This demo shows how FamilyBridge tracks what happens after an intervention — from immediate treatment entry through long-term recovery milestones.',
+  },
+  {
+    title: 'Overview tab',
+    description:
+      'See the core intervention outcome metrics: immediate treatment entry rate, 90-day retention, family re-engagement, and crisis recurrence.',
+    highlightTab: 'overview',
+  },
+  {
+    title: 'Timing tab',
+    description:
+      'Understand how intervention timing and family preparation affect outcomes. Earlier, better-prepared interventions consistently produce better results.',
+    highlightTab: 'timing',
+  },
+  {
+    title: 'Data Model tab',
+    description:
+      'See how FamilyBridge structures and stores intervention data — what\'s tracked, when, and how it connects to long-term outcome reporting.',
+    highlightTab: 'data',
+  },
+  {
+    title: 'Scorecards tab',
+    description:
+      'Individual intervention scorecards show family readiness, interventionist effectiveness, and post-intervention follow-through across key milestones.',
+    highlightTab: 'scorecards',
+  },
+  {
+    title: "You're ready",
+    description:
+      'Your real intervention outcomes populate here as cases move through the FamilyBridge workflow.',
+  },
+];
+
+export const fiisGuidanceSteps: TutorialStep[] = [
+  {
+    title: 'FIIS Guidance Demo',
+    description:
+      "FIIS — Family Intervention Intensive Support — is FamilyBridge's AI-assisted guidance layer for high-acuity family situations. This demo walks through how it works.",
+  },
+  {
+    title: 'Provider guidance tab',
+    description:
+      'AI-generated signals and recommendations for your clinical team — flagging families that need immediate attention based on behavioral and communication patterns.',
+    highlightTab: 'provider',
+  },
+  {
+    title: 'Intervention guidance tab',
+    description:
+      'Real-time guidance for interventionists during active family intervention cases — context, suggested language, and risk flags.',
+    highlightTab: 'intervention',
+  },
+  {
+    title: 'Guardrails tab',
+    description:
+      "See how FamilyBridge keeps AI guidance within safe clinical bounds — what it will and won't recommend, and how escalation works.",
+    highlightTab: 'guardrails',
+  },
+  {
+    title: 'Workflow tab',
+    description:
+      'How FIIS fits into your existing clinical workflow — when guidance is surfaced, who sees it, and how it connects to moderator actions.',
+    highlightTab: 'workflow',
+  },
+  {
+    title: "You're ready",
+    description:
+      'FIIS activates automatically as families engage. The more data in the system, the sharper the guidance becomes.',
+  },
+];

@@ -1,3 +1,5 @@
+import { TutorialModal } from '@/components/tutorial/TutorialModal';
+import { interventionOutcomesSteps } from '@/components/tutorial/tutorialSteps';
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -129,6 +131,7 @@ const InterventionOutcomes = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <TutorialModal steps={interventionOutcomesSteps} storageKey="fb_tutorial_intervention_outcomes" />
       <div className="border-b bg-card sticky top-0 z-10">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 min-w-0">
