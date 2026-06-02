@@ -13,6 +13,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { FinancialRequestCard } from '@/components/FinancialRequestCard';
 import { DemoFamilyHealthBadge } from '@/components/FamilyHealthBadge';
+import { TutorialModal } from '@/components/tutorial/TutorialModal';
+import { familyDashboardSteps } from '@/components/tutorial/tutorialSteps';
 import { 
   ArrowLeft, 
   Send, 
@@ -455,6 +457,7 @@ const DemoFamily = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+      <TutorialModal steps={familyDashboardSteps} storageKey="fb_tutorial_demo_family" />
       {/* Header */}
       <header 
         className="border-b backdrop-blur-md bg-background/80 sticky top-0 z-50 shadow-sm"
