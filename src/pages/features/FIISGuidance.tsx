@@ -1,3 +1,5 @@
+import { TutorialModal } from '@/components/tutorial/TutorialModal';
+import { fiisGuidanceSteps } from '@/components/tutorial/tutorialSteps';
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
