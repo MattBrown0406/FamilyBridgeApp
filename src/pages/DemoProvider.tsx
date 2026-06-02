@@ -39,6 +39,8 @@ import {
 } from 'lucide-react';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 import { toast } from 'sonner';
+import { TutorialModal } from '@/components/tutorial/TutorialModal';
+import { providerAdminSteps } from '@/components/tutorial/tutorialSteps';
 
 interface DemoBranding {
   primaryColor: string;
@@ -337,6 +339,7 @@ const DemoProvider = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <TutorialModal steps={providerAdminSteps} storageKey="fb_tutorial_demo_provider" />
       <header className="border-b bg-card sticky top-0 z-20 backdrop-blur-sm">
         <div className="container mx-auto px-4 py-4 space-y-4">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
