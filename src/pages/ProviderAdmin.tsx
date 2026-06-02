@@ -20,6 +20,8 @@ import { toast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { fetchProfilesByIds } from '@/lib/profileApi';
 import { useFamilyArchive } from '@/hooks/useFamilyArchive';
+import { TutorialModal } from '@/components/tutorial/TutorialModal';
+import { providerAdminSteps } from '@/components/tutorial/tutorialSteps';
 import {
   Building2,
   Palette,
@@ -1447,6 +1449,7 @@ const ProviderAdmin = () => {
   // Provider dashboard
   return (
     <div className="min-h-screen bg-background">
+      <TutorialModal steps={providerAdminSteps} storageKey="fb_tutorial_provider_admin" />
       {/* Header with org branding */}
       <header className="border-b border-border bg-primary text-primary-foreground">
         <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4">

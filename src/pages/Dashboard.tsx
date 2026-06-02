@@ -14,6 +14,8 @@ import { AdminBreadcrumbs } from '@/components/AdminBreadcrumbs';
 import { ArchivedFamilyNotice } from '@/components/ArchivedFamilyNotice';
 import { PaymentFailurePopup } from '@/components/PaymentFailurePopup';
 import { usePaymentStatus } from '@/hooks/usePaymentStatus';
+import { TutorialModal } from '@/components/tutorial/TutorialModal';
+import { familyDashboardSteps } from '@/components/tutorial/tutorialSteps';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -205,6 +207,7 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <TutorialModal steps={familyDashboardSteps} storageKey="fb_tutorial_family_dashboard" />
       {/* Payment Failure Popup */}
       <PaymentFailurePopup
         open={showPaymentPopup}
