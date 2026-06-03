@@ -1,14 +1,13 @@
 # FamilyBridge Supabase Functions
 
-## AI model override
+## AI providers
 
-FIIS-related edge functions now read the model from environment variables instead of hardcoding it.
+AI edge functions call provider APIs directly (no Lovable AI gateway).
 
-Set one of these in Lovable/Supabase function secrets:
-
-- `FIIS_AI_MODEL` - preferred override for FIIS and related recovery coaching/document-analysis functions
-- `FAMILYBRIDGE_AI_MODEL` - optional broader fallback if `FIIS_AI_MODEL` is unset
-
-If neither is set, functions keep the current default:
-
-- `google/gemini-3-flash-preview`
+- **Claude Haiku 4.5** (Anthropic) — used for coaching, chat, emotional analysis,
+  document analysis, health scoring, and communication helpers. Requires the
+  `ANTHROPIC_API_KEY` secret. Endpoint: `https://api.anthropic.com/v1/messages`.
+- **Gemini 2.5 Flash** (Google AI) — used for image / screenshot analysis only
+  (`analyze-image-clarity`, `analyze-medication-label`, `screenshot-coaching`).
+  Requires the `GOOGLE_AI_API_KEY` secret. Endpoint:
+  `https://generativelanguage.googleapis.com/v1beta/openai/chat/completions`.
