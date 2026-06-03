@@ -3889,11 +3889,10 @@ COACHING ANALYSIS INTERPRETATION:
                   "recommend_professional",
                   "response_metadata"
                 ],
-              },
             },
           },
         ],
-        tool_choice: { type: "function", function: { name: "provide_pattern_analysis" } },
+        tool_choice: { type: "tool", name: "provide_pattern_analysis" },
       }),
     });
 
@@ -3911,7 +3910,7 @@ COACHING ANALYSIS INTERPRETATION:
         });
       }
       const errorText = await response.text();
-      console.error("AI gateway error:", response.status, errorText);
+      console.error("Anthropic error:", response.status, errorText);
       return new Response(JSON.stringify({ error: "AI analysis failed" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -3923,12 +3922,12 @@ COACHING ANALYSIS INTERPRETATION:
 
     let analysis;
     try {
-      const toolCall = aiResult.choices?.[0]?.message?.tool_calls?.[0];
-      if (toolCall?.function?.arguments) {
-        analysis = JSON.parse(toolCall.function.arguments);
+      const toolUse = aiResult.content?.find((b: any) => b.type === "tool_use");
+      if (toolUse?.input) {
+        analysis = toolUse.input;
       } else {
         // Fallback to content if no tool call
-        const content = aiResult.choices?.[0]?.message?.content || "";
+        const content = aiResult.content?.find((b: any) => b.type === "text")?.text || "";
         analysis = {
           what_seeing: content,
           pattern_signals: [],
