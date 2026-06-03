@@ -11,9 +11,7 @@ const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
-const FIIS_AI_MODEL = Deno.env.get("FIIS_AI_MODEL") ?? Deno.env.get("FAMILYBRIDGE_AI_MODEL") ?? "google/gemini-3-flash-preview";
-// Override in Lovable/Supabase env when needed. Default preserves current production behavior.
-
+const CLAUDE_MODEL = "claude-haiku-4-5";
 
 // ============================================================================
 // FIIS — PRIMARY SYSTEM PROMPT
@@ -2343,10 +2341,10 @@ serve(async (req) => {
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const lovableApiKey = Deno.env.get("LOVABLE_API_KEY");
+    const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
 
-    if (!lovableApiKey) {
-      console.error("LOVABLE_API_KEY not configured");
+    if (!ANTHROPIC_API_KEY) {
+      console.error("ANTHROPIC_API_KEY not configured");
       return new Response(JSON.stringify({ error: "AI service not configured" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -3504,27 +3502,27 @@ COACHING ANALYSIS INTERPRETATION:
     });
     const combinedSystemPrompt = `${doctrinePrompt}\n\n${FIIS_SYSTEM_PROMPT}`;
 
-    console.log("Calling Lovable AI for FIIS analysis with one-year goal focus...");
+    console.log("Calling Claude for FIIS analysis with one-year goal focus...");
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${lovableApiKey}`,
+        "x-api-key": ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01",
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: FIIS_AI_MODEL,
+        model: CLAUDE_MODEL,
+        max_tokens: 8192,
+        system: combinedSystemPrompt,
         messages: [
-          { role: "system", content: combinedSystemPrompt },
           { role: "user", content: dataDescription },
         ],
         tools: [
           {
-            type: "function",
-            function: {
-              name: "provide_pattern_analysis",
-              description: "Provide structured pattern analysis for the family using the risk-escalation framework with focus on the one-year sobriety goal",
-              parameters: {
+            name: "provide_pattern_analysis",
+            description: "Provide structured pattern analysis for the family using the risk-escalation framework with focus on the one-year sobriety goal",
+            input_schema: {
                 type: "object",
                 properties: {
                   risk_level: {
