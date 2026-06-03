@@ -14,10 +14,10 @@ serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
+    const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY');
 
-    if (!lovableApiKey) {
-      throw new Error('LOVABLE_API_KEY is not configured');
+    if (!ANTHROPIC_API_KEY) {
+      throw new Error('ANTHROPIC_API_KEY is not configured');
     }
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
@@ -164,19 +164,19 @@ Respond in JSON format:
 }`;
     }
 
-    // Call Lovable AI
-    const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    // Call Claude (Anthropic)
+    const aiResponse = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${lovableApiKey}`,
+        'x-api-key': ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-3-flash-preview',
-        messages: [
-          {
-            role: 'system',
-            content: `You are FIIS — Family Intervention Intelligence System — functioning as an emotional wellness analyst for a family recovery support app.
+        model: 'claude-haiku-4-5',
+        max_tokens: 1024,
+        temperature: 0.3,
+        system: `You are FIIS — Family Intervention Intelligence System — functioning as an emotional wellness analyst for a family recovery support app.
 
 PRIMARY OBJECTIVE: Protect the path to one year of continuous sobriety (strict abstinence).
 SCORING CONTEXT: Your analysis feeds Recovery Stability Score, Family System Health Score, and Relapse Risk Level.
@@ -192,22 +192,21 @@ Your role is to:
 - Detect bypass patterns as potential avoidance signals
 - Be sensitive to the context of addiction recovery and current recovery phase
 
-Always respond with valid JSON only. No markdown, no explanation outside the JSON.`
-          },
+Always respond with valid JSON only. No markdown, no explanation outside the JSON.`,
+        messages: [
           { role: 'user', content: prompt }
         ],
-        temperature: 0.3,
       }),
     });
 
     if (!aiResponse.ok) {
       const errorText = await aiResponse.text();
-      console.error('AI Gateway error:', aiResponse.status, errorText);
+      console.error('Anthropic error:', aiResponse.status, errorText);
       throw new Error(`AI analysis failed: ${aiResponse.status}`);
     }
 
     const aiData = await aiResponse.json();
-    const analysisText = aiData.choices?.[0]?.message?.content || '{}';
+    const analysisText = aiData.content?.find((b: any) => b.type === 'text')?.text || '{}';
     
     // Parse the AI response
     let analysis;
