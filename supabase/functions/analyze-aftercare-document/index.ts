@@ -5,9 +5,7 @@ const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
-const FIIS_AI_MODEL = Deno.env.get("FIIS_AI_MODEL") ?? Deno.env.get("FAMILYBRIDGE_AI_MODEL") ?? "google/gemini-3-flash-preview";
-// Override in Lovable/Supabase env when needed. Default preserves current production behavior.
-
+const CLAUDE_MODEL = "claude-haiku-4-5";
 
 interface ExtractedAftercare {
   recommendation_type: "therapy" | "meetings" | "outpatient" | "residential" | "sober_living" | "medical" | "wellness" | "other";
@@ -31,38 +29,41 @@ function arrayBufferToBase64(buffer: ArrayBuffer): string {
   return btoa(binary);
 }
 
-// Extract text from PDF using Gemini Vision API
-async function extractPdfText(pdfBytes: ArrayBuffer, apiKey: string): Promise<string> {
+// Extract text from PDF using Claude
+async function extractPdfText(pdfBytes: ArrayBuffer, anthropicKey: string): Promise<string> {
   console.log("Starting PDF text extraction for aftercare document");
-  
+
   const base64Pdf = arrayBufferToBase64(pdfBytes);
-  
-  const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+
+  const response = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${apiKey}`,
+      "x-api-key": anthropicKey,
+      "anthropic-version": "2023-06-01",
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      model: FIIS_AI_MODEL,
+      model: CLAUDE_MODEL,
+      max_tokens: 8000,
       messages: [
         {
           role: "user",
           content: [
             {
-              type: "text",
-              text: "Extract ALL text from this document exactly as written. Return only the extracted text content, preserving the original formatting and structure. Do not summarize or modify the content."
+              type: "document",
+              source: {
+                type: "base64",
+                media_type: "application/pdf",
+                data: base64Pdf
+              }
             },
             {
-              type: "image_url",
-              image_url: {
-                url: `data:application/pdf;base64,${base64Pdf}`
-              }
+              type: "text",
+              text: "Extract ALL text from this document exactly as written. Return only the extracted text content, preserving the original formatting and structure. Do not summarize or modify the content."
             }
           ]
         }
-      ],
-      max_tokens: 8000
+      ]
     }),
   });
 
@@ -73,44 +74,47 @@ async function extractPdfText(pdfBytes: ArrayBuffer, apiKey: string): Promise<st
   }
 
   const result = await response.json();
-  const extractedText = result.choices?.[0]?.message?.content || "";
-  
+  const extractedText = result.content?.find((b: any) => b.type === "text")?.text || "";
+
   console.log("Completed PDF text extraction", { characters: extractedText.length });
   return extractedText;
 }
 
-// Extract text from image files using Vision API
-async function extractImageText(imageBytes: ArrayBuffer, mimeType: string, apiKey: string): Promise<string> {
+// Extract text from image files using Claude vision
+async function extractImageText(imageBytes: ArrayBuffer, mimeType: string, anthropicKey: string): Promise<string> {
   console.log("Starting image text extraction for aftercare document");
-  
+
   const base64Image = arrayBufferToBase64(imageBytes);
-  
-  const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+
+  const response = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${apiKey}`,
+      "x-api-key": anthropicKey,
+      "anthropic-version": "2023-06-01",
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      model: FIIS_AI_MODEL,
+      model: CLAUDE_MODEL,
+      max_tokens: 8000,
       messages: [
         {
           role: "user",
           content: [
             {
-              type: "text",
-              text: "Extract ALL text from this image exactly as written. Return only the extracted text content. Do not summarize or modify the content."
+              type: "image",
+              source: {
+                type: "base64",
+                media_type: mimeType,
+                data: base64Image
+              }
             },
             {
-              type: "image_url",
-              image_url: {
-                url: `data:${mimeType};base64,${base64Image}`
-              }
+              type: "text",
+              text: "Extract ALL text from this image exactly as written. Return only the extracted text content. Do not summarize or modify the content."
             }
           ]
         }
-      ],
-      max_tokens: 8000
+      ]
     }),
   });
 
@@ -121,8 +125,8 @@ async function extractImageText(imageBytes: ArrayBuffer, mimeType: string, apiKe
   }
 
   const result = await response.json();
-  const extractedText = result.choices?.[0]?.message?.content || "";
-  
+  const extractedText = result.content?.find((b: any) => b.type === "text")?.text || "";
+
   console.log("Completed image text extraction", { characters: extractedText.length });
   return extractedText;
 }
@@ -142,9 +146,9 @@ serve(async (req) => {
       );
     }
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
+    const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
+    if (!ANTHROPIC_API_KEY) {
+      throw new Error("ANTHROPIC_API_KEY is not configured");
     }
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -222,9 +226,9 @@ serve(async (req) => {
     const normalizedMimeType = (mimeType || "").toLowerCase();
     
     if (normalizedMimeType === "application/pdf") {
-      documentContent = await extractPdfText(arrayBuffer, LOVABLE_API_KEY);
+      documentContent = await extractPdfText(arrayBuffer, ANTHROPIC_API_KEY);
     } else if (normalizedMimeType.startsWith("image/")) {
-      documentContent = await extractImageText(arrayBuffer, normalizedMimeType, LOVABLE_API_KEY);
+      documentContent = await extractImageText(arrayBuffer, normalizedMimeType, ANTHROPIC_API_KEY);
     } else if (normalizedMimeType === "text/plain" || normalizedMimeType.includes("text")) {
       documentContent = new TextDecoder().decode(bytes);
     } else {
@@ -287,86 +291,85 @@ Be thorough - these recommendations are critical for successful recovery navigat
 
 Respond with a JSON array of recommendations. Include ALL recommendations found in the document.`;
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "x-api-key": ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01",
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: FIIS_AI_MODEL,
+        model: CLAUDE_MODEL,
+        max_tokens: 4096,
+        system: systemPrompt,
         messages: [
-          { role: "system", content: systemPrompt },
           { role: "user", content: `Please analyze this discharge/aftercare plan and extract all recommendations:\n\n${documentContent}` }
         ],
         tools: [
           {
-            type: "function",
-            function: {
-              name: "extract_aftercare_recommendations",
-              description: "Extract aftercare recommendations from a discharge/aftercare plan",
-              parameters: {
-                type: "object",
-                properties: {
-                  recommendations: {
-                    type: "array",
-                    items: {
-                      type: "object",
-                      properties: {
-                        recommendation_type: { 
-                          type: "string",
-                          enum: ["therapy", "meetings", "outpatient", "residential", "sober_living", "medical", "wellness", "other"],
-                          description: "Category of the recommendation"
-                        },
-                        title: { 
-                          type: "string", 
-                          description: "A clear, concise title for this recommendation" 
-                        },
-                        description: { 
-                          type: "string", 
-                          description: "Detailed description of what this recommendation entails" 
-                        },
-                        facility_name: { 
-                          type: "string", 
-                          description: "Name of the facility, provider, or organization (if specified)" 
-                        },
-                        recommended_duration: { 
-                          type: "string", 
-                          description: "How long this should continue (e.g., '6 months', 'ongoing', '90 days')" 
-                        },
-                        frequency: { 
-                          type: "string", 
-                          description: "How often (e.g., '3x per week', 'daily', 'weekly')" 
-                        },
-                        therapy_type: {
-                          type: "string",
-                          description: "Type of therapy if applicable (e.g., 'CBT', 'DBT', 'EMDR', 'group therapy')"
-                        }
+            name: "extract_aftercare_recommendations",
+            description: "Extract aftercare recommendations from a discharge/aftercare plan",
+            input_schema: {
+              type: "object",
+              properties: {
+                recommendations: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      recommendation_type: {
+                        type: "string",
+                        enum: ["therapy", "meetings", "outpatient", "residential", "sober_living", "medical", "wellness", "other"],
+                        description: "Category of the recommendation"
                       },
-                      required: ["recommendation_type", "title"],
-                      additionalProperties: false
-                    }
-                  },
-                  patient_name: {
-                    type: "string",
-                    description: "Name of the patient from the document (if found)"
-                  },
-                  discharge_date: {
-                    type: "string",
-                    description: "Discharge date from the document (if found)"
-                  },
-                  facility_name: {
-                    type: "string",
-                    description: "Name of the treatment facility that created this plan (if found)"
+                      title: {
+                        type: "string",
+                        description: "A clear, concise title for this recommendation"
+                      },
+                      description: {
+                        type: "string",
+                        description: "Detailed description of what this recommendation entails"
+                      },
+                      facility_name: {
+                        type: "string",
+                        description: "Name of the facility, provider, or organization (if specified)"
+                      },
+                      recommended_duration: {
+                        type: "string",
+                        description: "How long this should continue (e.g., '6 months', 'ongoing', '90 days')"
+                      },
+                      frequency: {
+                        type: "string",
+                        description: "How often (e.g., '3x per week', 'daily', 'weekly')"
+                      },
+                      therapy_type: {
+                        type: "string",
+                        description: "Type of therapy if applicable (e.g., 'CBT', 'DBT', 'EMDR', 'group therapy')"
+                      }
+                    },
+                    required: ["recommendation_type", "title"],
+                    additionalProperties: false
                   }
                 },
-                required: ["recommendations"],
-                additionalProperties: false
-              }
+                patient_name: {
+                  type: "string",
+                  description: "Name of the patient from the document (if found)"
+                },
+                discharge_date: {
+                  type: "string",
+                  description: "Discharge date from the document (if found)"
+                },
+                facility_name: {
+                  type: "string",
+                  description: "Name of the treatment facility that created this plan (if found)"
+                }
+              },
+              required: ["recommendations"],
+              additionalProperties: false
             }
           }
         ],
-        tool_choice: { type: "function", function: { name: "extract_aftercare_recommendations" } }
+        tool_choice: { type: "tool", name: "extract_aftercare_recommendations" }
       }),
     });
 
@@ -384,18 +387,18 @@ Respond with a JSON array of recommendations. Include ALL recommendations found 
         );
       }
       await response.text();
-      console.error("AI gateway error", { status: response.status, feature: "analyze-aftercare-document" });
+      console.error("Anthropic error", { status: response.status, feature: "analyze-aftercare-document" });
       throw new Error("AI analysis failed");
     }
 
     const aiResult = await response.json();
-    const toolCall = aiResult.choices?.[0]?.message?.tool_calls?.[0];
-    
-    if (!toolCall || toolCall.function.name !== "extract_aftercare_recommendations") {
+    const toolUse = aiResult.content?.find((b: any) => b.type === "tool_use");
+
+    if (!toolUse || toolUse.name !== "extract_aftercare_recommendations") {
       throw new Error("Unexpected AI response format");
     }
 
-    const extractedData = JSON.parse(toolCall.function.arguments);
+    const extractedData = toolUse.input;
     const recommendations: ExtractedAftercare[] = extractedData.recommendations || [];
     const patientName = extractedData.patient_name;
     const facilityName = extractedData.facility_name;
