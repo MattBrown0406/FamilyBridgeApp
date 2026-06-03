@@ -72,11 +72,10 @@ serve(async (req) => {
       );
     }
 
-    // Use Lovable AI to analyze the image
-    const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
-    
-    if (!lovableApiKey) {
-      console.log('Lovable API key not found, using basic analysis');
+    const GOOGLE_AI_API_KEY = Deno.env.get('GOOGLE_AI_API_KEY');
+
+    if (!GOOGLE_AI_API_KEY) {
+      console.log('GOOGLE_AI_API_KEY not configured, using basic analysis');
       // Return a basic analysis if no API key
       return new Response(
         JSON.stringify({
@@ -137,15 +136,15 @@ Respond with this exact JSON structure:
 The image is acceptable (isAcceptable: true) if score >= 60.`;
     }
 
-    // Analyze the image using Lovable AI vision model
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    // Analyze the image using Gemini (OpenAI-compatible endpoint)
+    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${lovableApiKey}`,
+        'Authorization': `Bearer ${GOOGLE_AI_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-3-flash-preview',
+        model: 'gemini-2.5-flash',
         messages: [
           {
             role: 'user',
