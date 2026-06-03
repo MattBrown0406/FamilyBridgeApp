@@ -104,7 +104,6 @@ Deno.serve(async (req) => {
 
       const communicationAnalysis = await analyzeFamilyCommunicationBatch(
         (data.messages || []).map((message: any) => ({ content: message.content })),
-        Deno.env.get("OPENAI_API_KEY") || Deno.env.get("OPENAI_APIKEY") || undefined,
       );
       const coachingSessions = data.coaching_sessions || [];
       const coachingBoost = Math.min(8, coachingSessions.length * 2);

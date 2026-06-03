@@ -830,7 +830,7 @@ Deno.serve(async (req) => {
     for (const familyId of Array.from(new Set(recoveringMembers.map((member) => member.family_id)))) {
       const familyMessages = recentMessages.filter((message) => message.family_id === familyId);
       const { analyzeFamilyCommunicationBatch } = await import("../_shared/family-engagement-analysis.ts");
-      const analysis = await analyzeFamilyCommunicationBatch(familyMessages, openAIApiKey);
+      const analysis = await analyzeFamilyCommunicationBatch(familyMessages);
       communicationAnalysisByFamily.set(familyId, analysis);
     }
 
