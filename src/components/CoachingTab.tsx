@@ -298,7 +298,10 @@ export const CoachingTab = ({ familyId, members = [] }: CoachingTabProps) => {
           if (jsonStr === '[DONE]') break;
           try {
             const parsed = JSON.parse(jsonStr);
-            const content = parsed.choices?.[0]?.delta?.content;
+            const content =
+              parsed.type === 'content_block_delta' && parsed.delta?.type === 'text_delta'
+                ? parsed.delta.text
+                : null;
             if (content) {
               assistantText += content;
               setLiveStreamText(assistantText);
