@@ -655,8 +655,6 @@ Deno.serve(async (req) => {
       recommendationsByPlan.set(recommendation.plan_id, existing);
     });
 
-    const openAIApiKey = Deno.env.get("OPENAI_API_KEY") || Deno.env.get("OPENAI_APIKEY") || "";
-
     const recentMessageCountByFamily = new Map<string, number>();
     recentMessages.forEach((message) => {
       recentMessageCountByFamily.set(message.family_id, (recentMessageCountByFamily.get(message.family_id) || 0) + 1);
@@ -830,7 +828,7 @@ Deno.serve(async (req) => {
     for (const familyId of Array.from(new Set(recoveringMembers.map((member) => member.family_id)))) {
       const familyMessages = recentMessages.filter((message) => message.family_id === familyId);
       const { analyzeFamilyCommunicationBatch } = await import("../_shared/family-engagement-analysis.ts");
-      const analysis = await analyzeFamilyCommunicationBatch(familyMessages, openAIApiKey);
+      const analysis = await analyzeFamilyCommunicationBatch(familyMessages);
       communicationAnalysisByFamily.set(familyId, analysis);
     }
 

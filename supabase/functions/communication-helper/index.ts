@@ -6,9 +6,7 @@ const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
-const FIIS_AI_MODEL = Deno.env.get("FIIS_AI_MODEL") ?? Deno.env.get("FAMILYBRIDGE_AI_MODEL") ?? "google/gemini-3-flash-preview";
-// Override in Lovable/Supabase env when needed. Default preserves current production behavior.
-
+const CLAUDE_MODEL = "claude-haiku-4-5";
 
 // Goal and value label maps
 const GOAL_LABELS: Record<string, string> = {
@@ -133,8 +131,8 @@ serve(async (req) => {
         { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
+    const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
+    if (!ANTHROPIC_API_KEY) throw new Error("ANTHROPIC_API_KEY is not configured");
 
     const [recentMessagesResult, familyObservations] = await Promise.all([
       supabase.from("messages").select("content").eq("family_id", familyId).eq("sender_id", user.id)
@@ -208,44 +206,43 @@ ${buildModeratorEscalationTriggersPrompt()}
 
 If the draft message describes an immediate emergency, do not just rephrase it â€” say "Call 911 first" and direct them to moderator/help.`;
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "x-api-key": ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01",
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: FIIS_AI_MODEL,
+        model: CLAUDE_MODEL,
+        max_tokens: 1024,
+        system: systemPrompt,
         messages: [
-          { role: "system", content: systemPrompt },
           { role: "user", content: `I want to say this to my family member: "${rawMessage}"\n\nPlease suggest better ways to phrase this.` }
         ],
         tools: [{
-          type: "function",
-          function: {
-            name: "suggest_phrasings",
-            description: "Provide alternative phrasings for a message",
-            parameters: {
-              type: "object",
-              properties: {
-                suggestions: {
-                  type: "array",
-                  items: {
-                    type: "object",
-                    properties: {
-                      text: { type: "string" },
-                      approach: { type: "string" }
-                    },
-                    required: ["text", "approach"]
-                  }
-                },
-                tip: { type: "string" }
+          name: "suggest_phrasings",
+          description: "Provide alternative phrasings for a message",
+          input_schema: {
+            type: "object",
+            properties: {
+              suggestions: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    text: { type: "string" },
+                    approach: { type: "string" }
+                  },
+                  required: ["text", "approach"]
+                }
               },
-              required: ["suggestions", "tip"]
-            }
+              tip: { type: "string" }
+            },
+            required: ["suggestions", "tip"]
           }
         }],
-        tool_choice: { type: "function", function: { name: "suggest_phrasings" } }
+        tool_choice: { type: "tool", name: "suggest_phrasings" }
       }),
     });
 
@@ -253,18 +250,18 @@ If the draft message describes an immediate emergency, do not just rephrase it â
       if (response.status === 429) return new Response(JSON.stringify({ error: "Rate limit exceeded." }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       if (response.status === 402) return new Response(JSON.stringify({ error: "AI credits exhausted." }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       const errorText = await response.text();
-      console.error("AI gateway error:", response.status, errorText);
-      throw new Error("AI gateway error");
+      console.error("Anthropic error:", response.status, errorText);
+      throw new Error("AI request failed");
     }
 
     const data = await response.json();
-    const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
-    if (toolCall?.function?.arguments) {
-      return new Response(JSON.stringify(JSON.parse(toolCall.function.arguments)),
+    const toolUse = data.content?.find((b: any) => b.type === "tool_use");
+    if (toolUse?.input) {
+      return new Response(JSON.stringify(toolUse.input),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    const content = data.choices?.[0]?.message?.content;
+    const content = data.content?.find((b: any) => b.type === "text")?.text;
     if (content) {
       try {
         return new Response(JSON.stringify(JSON.parse(content)), { headers: { ...corsHeaders, "Content-Type": "application/json" } });

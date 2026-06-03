@@ -5,9 +5,7 @@ const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
-const FIIS_AI_MODEL = Deno.env.get("FIIS_AI_MODEL") ?? Deno.env.get("FAMILYBRIDGE_AI_MODEL") ?? "google/gemini-3-flash-preview";
-// Override in Lovable/Supabase env when needed. Default preserves current production behavior.
-
+const CLAUDE_MODEL = "claude-haiku-4-5";
 
 interface HealthMetrics {
   checkinCompletionRate: number;
@@ -39,10 +37,10 @@ interface AIAnalysis {
 }
 
 async function analyzeWithAI(metrics: HealthMetrics): Promise<AIAnalysis | null> {
-  const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-  
-  if (!LOVABLE_API_KEY) {
-    console.log("LOVABLE_API_KEY not configured, using rule-based analysis");
+  const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
+
+  if (!ANTHROPIC_API_KEY) {
+    console.log("ANTHROPIC_API_KEY not configured, using rule-based analysis");
     return null;
   }
 
@@ -88,28 +86,30 @@ Respond with JSON in this exact format:
 }`;
 
   try {
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "x-api-key": ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01",
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: FIIS_AI_MODEL,
+        model: CLAUDE_MODEL,
+        max_tokens: 1024,
+        system: systemPrompt,
         messages: [
-          { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
         ],
       }),
     });
 
     if (!response.ok) {
-      console.error("AI gateway error:", response.status);
+      console.error("Anthropic error:", response.status);
       return null;
     }
 
     const data = await response.json();
-    const content = data.choices?.[0]?.message?.content;
+    const content = data.content?.find((b: any) => b.type === "text")?.text;
     
     if (!content) {
       console.error("No content in AI response");

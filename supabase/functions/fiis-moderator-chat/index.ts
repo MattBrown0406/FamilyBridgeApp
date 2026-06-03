@@ -8,9 +8,7 @@ const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
-const FIIS_AI_MODEL = Deno.env.get("FIIS_AI_MODEL") ?? Deno.env.get("FAMILYBRIDGE_AI_MODEL") ?? "google/gemini-3-flash-preview";
-// Override in Lovable/Supabase env when needed. Default preserves current production behavior.
-
+const CLAUDE_MODEL = "claude-haiku-4-5";
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -297,14 +295,13 @@ ${buildModeratorEscalationTriggersPrompt()}
 
 Remember: This conversation is private between you and the moderator. It is NOT included in FIIS pattern analysis.`;
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
+    const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
+    if (!ANTHROPIC_API_KEY) {
+      throw new Error("ANTHROPIC_API_KEY is not configured");
     }
 
     // Build messages array with chat history
     const messages = [
-      { role: "system", content: systemPrompt },
       ...(chatHistory || []).map((msg: { role: string; content: string }) => ({
         role: msg.role,
         content: msg.content
@@ -312,14 +309,17 @@ Remember: This conversation is private between you and the moderator. It is NOT 
       { role: "user", content: message }
     ];
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "x-api-key": ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01",
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: FIIS_AI_MODEL,
+        model: CLAUDE_MODEL,
+        max_tokens: 1024,
+        system: systemPrompt,
         messages,
         stream: true,
       }),
@@ -339,16 +339,20 @@ Remember: This conversation is private between you and the moderator. It is NOT 
         );
       }
       const errorText = await response.text();
-      console.error("AI gateway error:", response.status, errorText);
-      throw new Error("AI gateway error");
+      console.error("Anthropic error:", response.status, errorText);
+      throw new Error("AI request failed");
     }
 
     const responseText = await response.text();
-    const usageMatch = responseText.match(/"usage":\s*\{[^}]*"prompt_tokens":\s*(\d+)[^}]*"completion_tokens":\s*(\d+)/);
-    const usage = usageMatch
-      ? { prompt_tokens: Number(usageMatch[1]), completion_tokens: Number(usageMatch[2]) }
+    const inputTokensMatch = responseText.match(/"input_tokens":\s*(\d+)/);
+    const outputTokensMatch = responseText.match(/"output_tokens":\s*(\d+)/);
+    const usage = inputTokensMatch || outputTokensMatch
+      ? {
+          prompt_tokens: inputTokensMatch ? Number(inputTokensMatch[1]) : 0,
+          completion_tokens: outputTokensMatch ? Number(outputTokensMatch[1]) : 0,
+        }
       : null;
-    const contentMatches = [...responseText.matchAll(/"content":"((?:\\.|[^"\\])*)"/g)];
+    const contentMatches = [...responseText.matchAll(/"text_delta"[^}]*"text":"((?:\\.|[^"\\])*)"/g)];
     const responseSummary = contentMatches.length
       ? contentMatches.map((match) => match[1].replace(/\\n/g, " ").replace(/\\"/g, '"')).join(" ").slice(0, 1600)
       : null;
@@ -356,7 +360,7 @@ Remember: This conversation is private between you and the moderator. It is NOT 
     await supabase.from("fiis_moderator_sessions").insert({
       family_id: familyId,
       moderator_id: user.id,
-      ai_model: FIIS_AI_MODEL,
+      ai_model: CLAUDE_MODEL,
       runtime_confidence: runtimeTelemetry.learningConfidence,
       runtime_adaptations: runtimeTelemetry.activeAdaptations,
       runtime_flags: runtimeTelemetry.runtimeFlags,

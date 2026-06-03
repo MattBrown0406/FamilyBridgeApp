@@ -55,35 +55,34 @@ function parseJsonLd(markdown: string): { name?: string; logo?: string } {
 
 // Use AI to extract company name from content
 async function extractWithAI(markdown: string, url: string): Promise<{ name?: string; description?: string }> {
-  const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
-  if (!lovableApiKey) {
-    console.log('LOVABLE_API_KEY not available for AI extraction');
+  const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY');
+  if (!ANTHROPIC_API_KEY) {
+    console.log('ANTHROPIC_API_KEY not available for AI extraction');
     return {};
   }
 
   try {
     console.log('Using AI to extract company name...');
-    
+
     // Take first 2000 chars of markdown to keep context manageable
     const contentSample = markdown.slice(0, 2000);
-    
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${lovableApiKey}`,
+        'x-api-key': ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-3-flash-preview',
-        messages: [
-          {
-            role: 'system',
-            content: `You are an expert at identifying company/organization names from website content. 
+        model: 'claude-haiku-4-5',
+        max_tokens: 1024,
+        system: `You are an expert at identifying company/organization names from website content.
 Extract the official company or organization name from the provided content.
 Return ONLY a JSON object with "name" (the company name) and "description" (a brief tagline if found).
 If you cannot determine the name with confidence, return {"name": null}.
-Do not include "Inc", "LLC", etc. unless it's clearly part of the brand name.`
-          },
+Do not include "Inc", "LLC", etc. unless it's clearly part of the brand name.`,
+        messages: [
           {
             role: 'user',
             content: `URL: ${url}\n\nWebsite content:\n${contentSample}`
@@ -91,22 +90,19 @@ Do not include "Inc", "LLC", etc. unless it's clearly part of the brand name.`
         ],
         tools: [
           {
-            type: "function",
-            function: {
-              name: "extract_company_info",
-              description: "Extract company name and description from website content",
-              parameters: {
-                type: "object",
-                properties: {
-                  name: { type: "string", description: "The company or organization name" },
-                  description: { type: "string", description: "A brief tagline or description" }
-                },
-                required: ["name"]
-              }
+            name: "extract_company_info",
+            description: "Extract company name and description from website content",
+            input_schema: {
+              type: "object",
+              properties: {
+                name: { type: "string", description: "The company or organization name" },
+                description: { type: "string", description: "A brief tagline or description" }
+              },
+              required: ["name"]
             }
           }
         ],
-        tool_choice: { type: "function", function: { name: "extract_company_info" } }
+        tool_choice: { type: "tool", name: "extract_company_info" }
       }),
     });
 
@@ -116,14 +112,14 @@ Do not include "Inc", "LLC", etc. unless it's clearly part of the brand name.`
     }
 
     const data = await response.json();
-    const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
-    
-    if (toolCall?.function?.arguments) {
-      const result = JSON.parse(toolCall.function.arguments);
+    const toolUse = data.content?.find((b: any) => b.type === 'tool_use');
+
+    if (toolUse?.input) {
+      const result = toolUse.input;
       console.log('AI extracted:', result);
       return result;
     }
-    
+
     return {};
   } catch (error) {
     console.error('AI extraction error:', error);

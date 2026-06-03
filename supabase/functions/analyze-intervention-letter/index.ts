@@ -5,9 +5,7 @@ const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
-const FIIS_AI_MODEL = Deno.env.get("FIIS_AI_MODEL") ?? Deno.env.get("FAMILYBRIDGE_AI_MODEL") ?? "google/gemini-3-flash-preview";
-// Override in Lovable/Supabase env when needed. Default preserves current production behavior.
-
+const CLAUDE_MODEL = "claude-haiku-4-5";
 
 interface ExtractedBoundary {
   content: string;
@@ -28,38 +26,41 @@ function arrayBufferToBase64(buffer: ArrayBuffer): string {
   return btoa(binary);
 }
 
-// Extract text from PDF using Gemini Vision API (handles both digital and scanned PDFs)
-async function extractPdfText(pdfBytes: ArrayBuffer, apiKey: string): Promise<string> {
+// Extract text from PDF using Claude (handles both digital and scanned PDFs)
+async function extractPdfText(pdfBytes: ArrayBuffer, anthropicKey: string): Promise<string> {
   console.log("Starting PDF text extraction for intervention letter");
-  
+
   const base64Pdf = arrayBufferToBase64(pdfBytes);
-  
-  const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+
+  const response = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${apiKey}`,
+      "x-api-key": anthropicKey,
+      "anthropic-version": "2023-06-01",
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      model: FIIS_AI_MODEL,
+      model: CLAUDE_MODEL,
+      max_tokens: 8000,
       messages: [
         {
           role: "user",
           content: [
             {
-              type: "text",
-              text: "Extract ALL text from this document exactly as written. Return only the extracted text content, preserving the original formatting and structure. Do not summarize or modify the content."
+              type: "document",
+              source: {
+                type: "base64",
+                media_type: "application/pdf",
+                data: base64Pdf
+              }
             },
             {
-              type: "image_url",
-              image_url: {
-                url: `data:application/pdf;base64,${base64Pdf}`
-              }
+              type: "text",
+              text: "Extract ALL text from this document exactly as written. Return only the extracted text content, preserving the original formatting and structure. Do not summarize or modify the content."
             }
           ]
         }
-      ],
-      max_tokens: 8000
+      ]
     }),
   });
 
@@ -70,44 +71,47 @@ async function extractPdfText(pdfBytes: ArrayBuffer, apiKey: string): Promise<st
   }
 
   const result = await response.json();
-  const extractedText = result.choices?.[0]?.message?.content || "";
-  
+  const extractedText = result.content?.find((b: any) => b.type === "text")?.text || "";
+
   console.log("Completed PDF text extraction", { characters: extractedText.length });
   return extractedText;
 }
 
-// Extract text from image files using Vision API
-async function extractImageText(imageBytes: ArrayBuffer, mimeType: string, apiKey: string): Promise<string> {
+// Extract text from image files using Claude vision
+async function extractImageText(imageBytes: ArrayBuffer, mimeType: string, anthropicKey: string): Promise<string> {
   console.log("Starting image text extraction for intervention letter");
-  
+
   const base64Image = arrayBufferToBase64(imageBytes);
-  
-  const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+
+  const response = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${apiKey}`,
+      "x-api-key": anthropicKey,
+      "anthropic-version": "2023-06-01",
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      model: FIIS_AI_MODEL,
+      model: CLAUDE_MODEL,
+      max_tokens: 8000,
       messages: [
         {
           role: "user",
           content: [
             {
-              type: "text",
-              text: "Extract ALL text from this image exactly as written. Return only the extracted text content. Do not summarize or modify the content."
+              type: "image",
+              source: {
+                type: "base64",
+                media_type: mimeType,
+                data: base64Image
+              }
             },
             {
-              type: "image_url",
-              image_url: {
-                url: `data:${mimeType};base64,${base64Image}`
-              }
+              type: "text",
+              text: "Extract ALL text from this image exactly as written. Return only the extracted text content. Do not summarize or modify the content."
             }
           ]
         }
-      ],
-      max_tokens: 8000
+      ]
     }),
   });
 
@@ -118,8 +122,8 @@ async function extractImageText(imageBytes: ArrayBuffer, mimeType: string, apiKe
   }
 
   const result = await response.json();
-  const extractedText = result.choices?.[0]?.message?.content || "";
-  
+  const extractedText = result.content?.find((b: any) => b.type === "text")?.text || "";
+
   console.log("Completed image text extraction", { characters: extractedText.length });
   return extractedText;
 }
@@ -139,9 +143,9 @@ serve(async (req) => {
       );
     }
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
+    const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
+    if (!ANTHROPIC_API_KEY) {
+      throw new Error("ANTHROPIC_API_KEY is not configured");
     }
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -221,11 +225,11 @@ serve(async (req) => {
     const normalizedMimeType = (mimeType || "").toLowerCase();
     
     if (normalizedMimeType === "application/pdf") {
-      // Use Vision API to extract text from PDF (handles scanned documents)
-      documentContent = await extractPdfText(arrayBuffer, LOVABLE_API_KEY);
+      // Use Claude to extract text from PDF (handles scanned documents)
+      documentContent = await extractPdfText(arrayBuffer, ANTHROPIC_API_KEY);
     } else if (normalizedMimeType.startsWith("image/")) {
-      // Use Vision API for images
-      documentContent = await extractImageText(arrayBuffer, normalizedMimeType, LOVABLE_API_KEY);
+      // Use Claude vision for images
+      documentContent = await extractImageText(arrayBuffer, normalizedMimeType, ANTHROPIC_API_KEY);
     } else if (normalizedMimeType === "text/plain" || normalizedMimeType.includes("text")) {
       // Plain text files
       documentContent = new TextDecoder().decode(bytes);
@@ -285,61 +289,60 @@ Family member names in this group: ${memberNames.join(", ")}
 
 Respond with a JSON array of boundaries. If no clear boundaries are found, return an empty array.`;
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "x-api-key": ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01",
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: FIIS_AI_MODEL,
+        model: CLAUDE_MODEL,
+        max_tokens: 4096,
+        system: systemPrompt,
         messages: [
-          { role: "system", content: systemPrompt },
           { role: "user", content: `Please analyze this intervention letter and extract all boundaries:\n\n${documentContent}` }
         ],
         tools: [
           {
-            type: "function",
-            function: {
-              name: "extract_boundaries",
-              description: "Extract boundaries from an intervention letter",
-              parameters: {
-                type: "object",
-                properties: {
-                  boundaries: {
-                    type: "array",
-                    items: {
-                      type: "object",
-                      properties: {
-                        content: { 
-                          type: "string", 
-                          description: "The boundary statement itself" 
-                        },
-                        consequence: { 
-                          type: "string", 
-                          description: "The consequence if this boundary is violated (or null if not specified)" 
-                        },
-                        target_member_name: { 
-                          type: "string", 
-                          description: "The name of the recovering member this boundary is specifically about (or null if general)" 
-                        },
-                        author_name: {
-                          type: "string",
-                          description: "The name of the person who WROTE this letter/boundary (from signature, closing, or context)"
-                        }
+            name: "extract_boundaries",
+            description: "Extract boundaries from an intervention letter",
+            input_schema: {
+              type: "object",
+              properties: {
+                boundaries: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      content: {
+                        type: "string",
+                        description: "The boundary statement itself"
                       },
-                      required: ["content", "author_name"],
-                      additionalProperties: false
-                    }
+                      consequence: {
+                        type: "string",
+                        description: "The consequence if this boundary is violated (or null if not specified)"
+                      },
+                      target_member_name: {
+                        type: "string",
+                        description: "The name of the recovering member this boundary is specifically about (or null if general)"
+                      },
+                      author_name: {
+                        type: "string",
+                        description: "The name of the person who WROTE this letter/boundary (from signature, closing, or context)"
+                      }
+                    },
+                    required: ["content", "author_name"],
+                    additionalProperties: false
                   }
-                },
-                required: ["boundaries"],
-                additionalProperties: false
-              }
+                }
+              },
+              required: ["boundaries"],
+              additionalProperties: false
             }
           }
         ],
-        tool_choice: { type: "function", function: { name: "extract_boundaries" } }
+        tool_choice: { type: "tool", name: "extract_boundaries" }
       }),
     });
 
@@ -357,18 +360,18 @@ Respond with a JSON array of boundaries. If no clear boundaries are found, retur
         );
       }
       await response.text();
-      console.error("AI gateway error", { status: response.status, feature: "analyze-intervention-letter" });
+      console.error("Anthropic error", { status: response.status, feature: "analyze-intervention-letter" });
       throw new Error("AI analysis failed");
     }
 
     const aiResult = await response.json();
-    const toolCall = aiResult.choices?.[0]?.message?.tool_calls?.[0];
-    
-    if (!toolCall || toolCall.function.name !== "extract_boundaries") {
+    const toolUse = aiResult.content?.find((b: any) => b.type === "tool_use");
+
+    if (!toolUse || toolUse.name !== "extract_boundaries") {
       throw new Error("Unexpected AI response format");
     }
 
-    const extractedData = JSON.parse(toolCall.function.arguments);
+    const extractedData = toolUse.input;
     const boundaries: ExtractedBoundary[] = extractedData.boundaries || [];
 
     console.log("Intervention-letter analysis completed", { boundariesFound: boundaries.length });

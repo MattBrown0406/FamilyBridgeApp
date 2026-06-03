@@ -12,7 +12,7 @@ export interface FamilyCommunicationAnalysisResult {
 
 const clamp = (value: number) => Math.max(0, Math.min(100, Math.round(value)));
 
-export async function analyzeFamilyCommunicationBatch(messages: Array<{ content?: string | null }>, apiKey?: string): Promise<FamilyCommunicationAnalysisResult> {
+export async function analyzeFamilyCommunicationBatch(messages: Array<{ content?: string | null }>): Promise<FamilyCommunicationAnalysisResult> {
   const joined = messages
     .map((m, index) => `#${index + 1}: ${(m.content || "").trim()}`)
     .filter(Boolean)
@@ -33,26 +33,25 @@ export async function analyzeFamilyCommunicationBatch(messages: Array<{ content?
     };
   }
 
+  const apiKey = Deno.env.get("ANTHROPIC_API_KEY");
   if (!apiKey) {
     return heuristicCommunicationAnalysis(joined);
   }
 
   try {
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify({
-        model: "gpt-4.1-mini",
+        model: "claude-haiku-4-5",
+        max_tokens: 1024,
         temperature: 0.1,
-        response_format: { type: "json_object" },
+        system: `You analyze family-system communication in addiction recovery contexts. Return JSON only with fields: supportive_score, criticism_score, enabling_score, emotional_regulation_score, boundary_consistency_score, recovery_alignment_score, communication_valence, signals, summary. Communication valence must be one of supportive, mixed, strained, destabilizing. Judge recovery alignment, not generic positivity. Boundary-setting with warmth should score well. Warm enabling should score poorly. Respond with valid JSON only, no markdown.`,
         messages: [
-          {
-            role: "system",
-            content: `You analyze family-system communication in addiction recovery contexts. Return JSON only with fields: supportive_score, criticism_score, enabling_score, emotional_regulation_score, boundary_consistency_score, recovery_alignment_score, communication_valence, signals, summary. Communication valence must be one of supportive, mixed, strained, destabilizing. Judge recovery alignment, not generic positivity. Boundary-setting with warmth should score well. Warm enabling should score poorly.`,
-          },
           {
             role: "user",
             content: `Analyze this recent family message sample and score the communication quality for recovery support:\n\n${joined}`,
@@ -61,11 +60,12 @@ export async function analyzeFamilyCommunicationBatch(messages: Array<{ content?
       }),
     });
 
-    if (!response.ok) throw new Error(`OpenAI error ${response.status}`);
+    if (!response.ok) throw new Error(`Anthropic error ${response.status}`);
     const json = await response.json();
-    const content = json.choices?.[0]?.message?.content;
+    const content = json.content?.find((b: any) => b.type === "text")?.text;
     if (!content) throw new Error("No model output");
-    const parsed = JSON.parse(content);
+    const cleaned = content.trim().replace(/^```json\s*/i, "").replace(/^```\s*/, "").replace(/```$/, "").trim();
+    const parsed = JSON.parse(cleaned);
     return normalizeCommunicationResult(parsed);
   } catch (_error) {
     return heuristicCommunicationAnalysis(joined);
