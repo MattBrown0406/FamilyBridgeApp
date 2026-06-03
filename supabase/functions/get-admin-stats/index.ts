@@ -655,8 +655,6 @@ Deno.serve(async (req) => {
       recommendationsByPlan.set(recommendation.plan_id, existing);
     });
 
-    const openAIApiKey = Deno.env.get("OPENAI_API_KEY") || Deno.env.get("OPENAI_APIKEY") || "";
-
     const recentMessageCountByFamily = new Map<string, number>();
     recentMessages.forEach((message) => {
       recentMessageCountByFamily.set(message.family_id, (recentMessageCountByFamily.get(message.family_id) || 0) + 1);
