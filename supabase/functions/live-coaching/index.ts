@@ -10,9 +10,7 @@ const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
-const FIIS_AI_MODEL = Deno.env.get("FIIS_AI_MODEL") ?? Deno.env.get("FAMILYBRIDGE_AI_MODEL") ?? "google/gemini-3-flash-preview";
-// Override in Lovable/Supabase env when needed. Default preserves current production behavior.
-
+const CLAUDE_MODEL = "claude-haiku-4-5";
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -99,9 +97,9 @@ serve(async (req) => {
     const profile = profileResult.data;
     const runtimeTelemetry = await loadFIISRuntimeTelemetry(supabase, familyId);
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
+    const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
+    if (!ANTHROPIC_API_KEY) {
+      throw new Error("ANTHROPIC_API_KEY is not configured");
     }
 
     const runtimePrompt = await buildFIISRuntimeContext({
@@ -166,7 +164,6 @@ ${buildModeratorEscalationTriggersPrompt()}
 If there are immediate emergency markers, say exactly: "Call 911 first," then direct them to the moderator/help button.`;
 
     const messages = [
-      { role: "system", content: systemPrompt },
       ...(chatHistory || []).map((msg: { role: string; content: string }) => ({
         role: msg.role,
         content: msg.content,
@@ -174,14 +171,17 @@ If there are immediate emergency markers, say exactly: "Call 911 first," then di
       { role: "user", content: `Here's what's happening in the conversation:\n\n${transcript}\n\nWhat should I say or do right now?` },
     ];
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "x-api-key": ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01",
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: FIIS_AI_MODEL,
+        model: CLAUDE_MODEL,
+        max_tokens: 1024,
+        system: systemPrompt,
         messages,
         stream: true,
       }),
@@ -201,16 +201,22 @@ If there are immediate emergency markers, say exactly: "Call 911 first," then di
         );
       }
       const errorText = await response.text();
-      console.error("AI gateway error:", response.status, errorText);
-      throw new Error("AI gateway error");
+      console.error("Anthropic error:", response.status, errorText);
+      throw new Error("AI request failed");
     }
 
     const responseText = await response.text();
-    const usageMatch = responseText.match(/"usage":\s*\{[^}]*"prompt_tokens":\s*(\d+)[^}]*"completion_tokens":\s*(\d+)/);
-    const usage = usageMatch
-      ? { prompt_tokens: Number(usageMatch[1]), completion_tokens: Number(usageMatch[2]) }
+    // Anthropic SSE: input_tokens in message_start, output_tokens in message_delta
+    const inputTokensMatch = responseText.match(/"input_tokens":\s*(\d+)/);
+    const outputTokensMatch = responseText.match(/"output_tokens":\s*(\d+)/);
+    const usage = inputTokensMatch || outputTokensMatch
+      ? {
+          prompt_tokens: inputTokensMatch ? Number(inputTokensMatch[1]) : 0,
+          completion_tokens: outputTokensMatch ? Number(outputTokensMatch[1]) : 0,
+        }
       : null;
-    const contentMatches = [...responseText.matchAll(/"content":"((?:\\.|[^"\\])*)"/g)];
+    // Claude SSE content_block_delta: { "delta": { "type": "text_delta", "text": "..." } }
+    const contentMatches = [...responseText.matchAll(/"text_delta"[^}]*"text":"((?:\\.|[^"\\])*)"/g)];
     const aiSummary = contentMatches.length
       ? contentMatches.map((match) => match[1].replace(/\\n/g, " ").replace(/\\"/g, '"')).join(" ").slice(0, 1200)
       : null;
@@ -220,7 +226,7 @@ If there are immediate emergency markers, say exactly: "Call 911 first," then di
       familyId,
       userId: user.id,
       sessionType: context === 'phone' || context === 'in_room' ? 'live_speakerphone' : 'live_text',
-      aiModel: FIIS_AI_MODEL,
+      aiModel: CLAUDE_MODEL,
       startedAt: requestStartedAt,
       aiSummary,
       telemetry: runtimeTelemetry,
