@@ -30,6 +30,7 @@ import { AccountActionsMenu } from '@/components/AccountActionsMenu';
 import { HandoffInbox } from '@/components/HandoffInbox';
 import { CoModeratorFamiliesPanel } from '@/components/CoModeratorFamiliesPanel';
 import { TutorialModal } from '@/components/tutorial/TutorialModal';
+import { TutorialControls } from '@/components/tutorial/TutorialControls';
 import { moderatorDashboardSteps } from '@/components/tutorial/tutorialSteps';
 
 type HealthStatus = 'crisis' | 'concern' | 'tension' | 'stable' | 'improving';
