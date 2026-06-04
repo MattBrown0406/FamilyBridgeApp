@@ -381,6 +381,12 @@ const ModeratorDashboard = () => {
               <AccountActionsMenu buttonClassName="text-primary-foreground hover:bg-primary-foreground/10" />
             </div>
           </div>
+          <div className="mt-2 flex justify-end">
+            <TutorialControls
+              storageKey="fb_tutorial_moderator_dashboard"
+              onReplay={() => setTutorialReplaySignal((v) => v + 1)}
+            />
+          </div>
         </div>
       </header>
 
