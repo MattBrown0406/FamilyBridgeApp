@@ -14,6 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { FinancialRequestCard } from '@/components/FinancialRequestCard';
 import { DemoFamilyHealthBadge } from '@/components/FamilyHealthBadge';
 import { TutorialModal } from '@/components/tutorial/TutorialModal';
+import { TutorialControls } from '@/components/tutorial/TutorialControls';
 import { familyDashboardSteps } from '@/components/tutorial/tutorialSteps';
 import { 
   ArrowLeft, 
