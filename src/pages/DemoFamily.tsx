@@ -552,6 +552,11 @@ const DemoFamily = () => {
             
             {/* Right side - Sobriety counter, Badges and actions */}
             <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+              <TutorialControls
+                storageKey="fb_tutorial_demo_family"
+                onReplay={() => setTutorialReplaySignal((v) => v + 1)}
+                className="hidden md:inline-flex"
+              />
               {/* Sobriety Counter Badge */}
               <div className="flex items-center gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 bg-primary/10 rounded-full border border-primary/20">
                 <Flame className="h-3 w-3 sm:h-4 sm:w-4 text-primary" />
