@@ -40,6 +40,7 @@ import {
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 import { toast } from 'sonner';
 import { TutorialModal } from '@/components/tutorial/TutorialModal';
+import { TutorialControls } from '@/components/tutorial/TutorialControls';
 import { providerAdminSteps } from '@/components/tutorial/tutorialSteps';
 
 interface DemoBranding {
