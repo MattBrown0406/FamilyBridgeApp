@@ -14,20 +14,80 @@ interface TutorialModalProps {
   steps: TutorialStep[];
   storageKey: string;
   onComplete?: () => void;
+  autoOpen?: boolean;
+  forceOpenSignal?: number;
+  onOpenChange?: (open: boolean) => void;
 }
 
-export function TutorialModal({ steps, storageKey, onComplete }: TutorialModalProps) {
+const TUTORIALS_ENABLED_KEY = 'fb_tutorials_enabled';
+
+function tutorialsEnabled() {
+  try {
+    if (typeof window === 'undefined') return true;
+    return window.localStorage.getItem(TUTORIALS_ENABLED_KEY) !== 'false';
+  } catch {
+    return true;
+  }
+}
+
+export function TutorialModal({
+  steps,
+  storageKey,
+  onComplete,
+  autoOpen = true,
+  forceOpenSignal,
+  onOpenChange,
+}: TutorialModalProps) {
   const [open, setOpen] = useState(false);
   const [stepIndex, setStepIndex] = useState(0);
+
+  const updateOpen = (next: boolean) => {
+    setOpen(next);
+    onOpenChange?.(next);
+  };
 
   useEffect(() => {
     try {
       if (typeof window === 'undefined') return;
+      if (!steps.length) return;
+      if (!autoOpen) return;
+      if (!tutorialsEnabled()) return;
       const seen = window.localStorage.getItem(storageKey);
-      if (!seen) setOpen(true);
+      if (!seen) updateOpen(true);
     } catch {
       // ignore storage errors
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [storageKey, autoOpen]);
+
+  // Replay trigger
+  useEffect(() => {
+    if (forceOpenSignal === undefined) return;
+    if (!steps.length) return;
+    setStepIndex(0);
+    updateOpen(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [forceOpenSignal]);
+
+  // Respond to global preference toggling
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const handler = () => {
+      if (!tutorialsEnabled()) {
+        updateOpen(false);
+        return;
+      }
+      if (!steps.length) return;
+      try {
+        const seen = window.localStorage.getItem(storageKey);
+        if (!seen) updateOpen(true);
+      } catch {
+        // ignore
+      }
+    };
+    window.addEventListener('fb:tutorial-preference-changed', handler);
+    return () => window.removeEventListener('fb:tutorial-preference-changed', handler);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [storageKey]);
 
   const finish = () => {
@@ -36,7 +96,7 @@ export function TutorialModal({ steps, storageKey, onComplete }: TutorialModalPr
     } catch {
       // ignore
     }
-    setOpen(false);
+    updateOpen(false);
     onComplete?.();
   };
 
@@ -50,7 +110,7 @@ export function TutorialModal({ steps, storageKey, onComplete }: TutorialModalPr
       open={open}
       onOpenChange={(next) => {
         // Prevent closing by clicking outside / Esc — only Skip/Finish should close
-        if (next) setOpen(true);
+        if (next) updateOpen(true);
       }}
     >
       <DialogContent

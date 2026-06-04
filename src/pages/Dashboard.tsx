@@ -15,6 +15,7 @@ import { ArchivedFamilyNotice } from '@/components/ArchivedFamilyNotice';
 import { PaymentFailurePopup } from '@/components/PaymentFailurePopup';
 import { usePaymentStatus } from '@/hooks/usePaymentStatus';
 import { TutorialModal } from '@/components/tutorial/TutorialModal';
+import { TutorialControls } from '@/components/tutorial/TutorialControls';
 import { familyDashboardSteps } from '@/components/tutorial/tutorialSteps';
 import {
   AlertDialog,
@@ -64,6 +65,7 @@ const Dashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [tutorialReplaySignal, setTutorialReplaySignal] = useState(0);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -207,7 +209,11 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <TutorialModal steps={familyDashboardSteps} storageKey="fb_tutorial_family_dashboard" />
+      <TutorialModal
+        steps={familyDashboardSteps}
+        storageKey="fb_tutorial_family_dashboard"
+        forceOpenSignal={tutorialReplaySignal}
+      />
       {/* Payment Failure Popup */}
       <PaymentFailurePopup
         open={showPaymentPopup}
@@ -257,6 +263,11 @@ const Dashboard = () => {
                 <span className="hidden sm:inline ml-2">Support</span>
               </Button>
               <NotificationBell />
+              <TutorialControls
+                storageKey="fb_tutorial_family_dashboard"
+                onReplay={() => setTutorialReplaySignal((v) => v + 1)}
+                className="hidden lg:inline-flex"
+              />
 
               {/* Settings Dropdown */}
               <DropdownMenu>

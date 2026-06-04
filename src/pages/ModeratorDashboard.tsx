@@ -30,6 +30,7 @@ import { AccountActionsMenu } from '@/components/AccountActionsMenu';
 import { HandoffInbox } from '@/components/HandoffInbox';
 import { CoModeratorFamiliesPanel } from '@/components/CoModeratorFamiliesPanel';
 import { TutorialModal } from '@/components/tutorial/TutorialModal';
+import { TutorialControls } from '@/components/tutorial/TutorialControls';
 import { moderatorDashboardSteps } from '@/components/tutorial/tutorialSteps';
 
 type HealthStatus = 'crisis' | 'concern' | 'tension' | 'stable' | 'improving';
@@ -101,6 +102,7 @@ const ModeratorDashboard = () => {
   const [organizations, setOrganizations] = useState<OrganizationInfo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [tutorialReplaySignal, setTutorialReplaySignal] = useState(0);
   const [newFamilyName, setNewFamilyName] = useState('');
   const [newFamilyDescription, setNewFamilyDescription] = useState('');
   const [isCreating, setIsCreating] = useState(false);
@@ -320,7 +322,11 @@ const ModeratorDashboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <TutorialModal steps={moderatorDashboardSteps} storageKey="fb_tutorial_moderator_dashboard" />
+      <TutorialModal
+        steps={moderatorDashboardSteps}
+        storageKey="fb_tutorial_moderator_dashboard"
+        forceOpenSignal={tutorialReplaySignal}
+      />
       {/* Admin Breadcrumbs for super admins and provider admins */}
       <AdminBreadcrumbs />
       {/* Header */}
@@ -374,6 +380,12 @@ const ModeratorDashboard = () => {
               <NotificationBell />
               <AccountActionsMenu buttonClassName="text-primary-foreground hover:bg-primary-foreground/10" />
             </div>
+          </div>
+          <div className="mt-2 flex justify-end">
+            <TutorialControls
+              storageKey="fb_tutorial_moderator_dashboard"
+              onReplay={() => setTutorialReplaySignal((v) => v + 1)}
+            />
           </div>
         </div>
       </header>

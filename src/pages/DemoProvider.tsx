@@ -40,6 +40,7 @@ import {
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 import { toast } from 'sonner';
 import { TutorialModal } from '@/components/tutorial/TutorialModal';
+import { TutorialControls } from '@/components/tutorial/TutorialControls';
 import { providerAdminSteps } from '@/components/tutorial/tutorialSteps';
 
 interface DemoBranding {
@@ -319,6 +320,7 @@ const DemoProvider = () => {
 
   const [activeArea, setActiveArea] = useState('workspace');
   const [workspaceTab, setWorkspaceTab] = useState('notes');
+  const [tutorialReplaySignal, setTutorialReplaySignal] = useState(0);
   const [adminTab, setAdminTab] = useState('families');
   const [selectedThreadId, setSelectedThreadId] = useState<string>(DEMO_THREADS[0].id);
   const [selectedCaseId, setSelectedCaseId] = useState<string>(DEMO_COORDINATION_CASES[0].id);
@@ -339,7 +341,11 @@ const DemoProvider = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <TutorialModal steps={providerAdminSteps} storageKey="fb_tutorial_demo_provider" />
+      <TutorialModal
+        steps={providerAdminSteps}
+        storageKey="fb_tutorial_demo_provider"
+        forceOpenSignal={tutorialReplaySignal}
+      />
       <header className="border-b bg-card sticky top-0 z-20 backdrop-blur-sm">
         <div className="container mx-auto px-4 py-4 space-y-4">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
@@ -356,6 +362,10 @@ const DemoProvider = () => {
               </div>
             </div>
             <div className="flex flex-wrap gap-2">
+              <TutorialControls
+                storageKey="fb_tutorial_demo_provider"
+                onReplay={() => setTutorialReplaySignal((v) => v + 1)}
+              />
               <Button variant="outline" onClick={() => navigate('/provider-purchase')}>
                 <CreditCard className="h-4 w-4 mr-2" />
                 Provider IAP
