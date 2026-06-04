@@ -368,6 +368,7 @@ const DemoFamily = () => {
   const branding = locationState?.branding;
   const [activeTab, setActiveTab] = useState('messages');
   const [newMessage, setNewMessage] = useState('');
+  const [tutorialReplaySignal, setTutorialReplaySignal] = useState(0);
   const [selectedMember, setSelectedMember] = useState<typeof JOHNSON_MEMBERS[0] | null>(null);
   const [showMembersList, setShowMembersList] = useState(false);
   const [showModeratorDialog, setShowModeratorDialog] = useState(false);
@@ -458,7 +459,11 @@ const DemoFamily = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
-      <TutorialModal steps={familyDashboardSteps} storageKey="fb_tutorial_demo_family" />
+      <TutorialModal
+        steps={familyDashboardSteps}
+        storageKey="fb_tutorial_demo_family"
+        forceOpenSignal={tutorialReplaySignal}
+      />
       {/* Header */}
       <header 
         className="border-b backdrop-blur-md bg-background/80 sticky top-0 z-50 shadow-sm"
