@@ -15,6 +15,7 @@ import { ArchivedFamilyNotice } from '@/components/ArchivedFamilyNotice';
 import { PaymentFailurePopup } from '@/components/PaymentFailurePopup';
 import { usePaymentStatus } from '@/hooks/usePaymentStatus';
 import { TutorialModal } from '@/components/tutorial/TutorialModal';
+import { TutorialControls } from '@/components/tutorial/TutorialControls';
 import { familyDashboardSteps } from '@/components/tutorial/tutorialSteps';
 import {
   AlertDialog,
