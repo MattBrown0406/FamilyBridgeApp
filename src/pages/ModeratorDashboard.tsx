@@ -102,6 +102,7 @@ const ModeratorDashboard = () => {
   const [organizations, setOrganizations] = useState<OrganizationInfo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [tutorialReplaySignal, setTutorialReplaySignal] = useState(0);
   const [newFamilyName, setNewFamilyName] = useState('');
   const [newFamilyDescription, setNewFamilyDescription] = useState('');
   const [isCreating, setIsCreating] = useState(false);
@@ -321,7 +322,11 @@ const ModeratorDashboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <TutorialModal steps={moderatorDashboardSteps} storageKey="fb_tutorial_moderator_dashboard" />
+      <TutorialModal
+        steps={moderatorDashboardSteps}
+        storageKey="fb_tutorial_moderator_dashboard"
+        forceOpenSignal={tutorialReplaySignal}
+      />
       {/* Admin Breadcrumbs for super admins and provider admins */}
       <AdminBreadcrumbs />
       {/* Header */}
