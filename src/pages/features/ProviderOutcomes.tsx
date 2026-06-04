@@ -1,4 +1,5 @@
 import { TutorialModal } from '@/components/tutorial/TutorialModal';
+import { TutorialControls } from '@/components/tutorial/TutorialControls';
 import { providerOutcomesSteps } from '@/components/tutorial/tutorialSteps';
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
