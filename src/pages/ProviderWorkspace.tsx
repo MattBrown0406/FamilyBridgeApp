@@ -25,6 +25,7 @@ import { ProviderMessaging } from '@/components/ProviderMessaging';
 import { AccountActionsMenu } from '@/components/AccountActionsMenu';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 import { TutorialModal } from '@/components/tutorial/TutorialModal';
+import { TutorialControls } from '@/components/tutorial/TutorialControls';
 import { providerWorkspaceSteps } from '@/components/tutorial/tutorialSteps';
 
 interface Family {
