@@ -1,4 +1,5 @@
 import { TutorialModal } from '@/components/tutorial/TutorialModal';
+import { TutorialControls } from '@/components/tutorial/TutorialControls';
 import { interventionOutcomesSteps } from '@/components/tutorial/tutorialSteps';
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -124,6 +125,7 @@ const chartConfig = {
 const InterventionOutcomes = () => {
   const navigate = useNavigate();
   const [tab, setTab] = useState('overview');
+  const [tutorialReplaySignal, setTutorialReplaySignal] = useState(0);
 
   const bestPerformer = useMemo(() => {
     return [...interventionistComparison].sort((a, b) => b.immediate - a.immediate)[0];
@@ -131,7 +133,11 @@ const InterventionOutcomes = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <TutorialModal steps={interventionOutcomesSteps} storageKey="fb_tutorial_intervention_outcomes" />
+      <TutorialModal
+        steps={interventionOutcomesSteps}
+        storageKey="fb_tutorial_intervention_outcomes"
+        forceOpenSignal={tutorialReplaySignal}
+      />
       <div className="border-b bg-card sticky top-0 z-10">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 min-w-0">
@@ -149,6 +155,10 @@ const InterventionOutcomes = () => {
             </div>
           </div>
           <div className="flex gap-2 flex-wrap">
+            <TutorialControls
+              storageKey="fb_tutorial_intervention_outcomes"
+              onReplay={() => setTutorialReplaySignal((v) => v + 1)}
+            />
             <Button variant="outline" onClick={() => navigate('/features/provider-outcomes')}>
               Provider outcomes
             </Button>
