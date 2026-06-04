@@ -52,6 +52,7 @@ const ProviderWorkspace = () => {
   const [orgMembers, setOrgMembers] = useState<OrgMember[]>([]);
   const [isLoadingFamilies, setIsLoadingFamilies] = useState(false);
   const [isLoadingMembers, setIsLoadingMembers] = useState(false);
+  const [tutorialReplaySignal, setTutorialReplaySignal] = useState(0);
 
   // Apply branding
   useEffect(() => {
@@ -165,7 +166,11 @@ const ProviderWorkspace = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <TutorialModal steps={providerWorkspaceSteps} storageKey="fb_tutorial_provider_workspace" />
+      <TutorialModal
+        steps={providerWorkspaceSteps}
+        storageKey="fb_tutorial_provider_workspace"
+        forceOpenSignal={tutorialReplaySignal}
+      />
       {/* Header */}
       <header className="border-b bg-card sticky top-0 z-10">
         <div className="container mx-auto px-4 py-3">
@@ -228,6 +233,11 @@ const ProviderWorkspace = () => {
               <span className="hidden sm:inline">Admin</span>
             </Button>
             <AccountActionsMenu showLabel={false} buttonClassName="border border-input bg-background hover:bg-accent hover:text-accent-foreground" />
+            <TutorialControls
+              storageKey="fb_tutorial_provider_workspace"
+              onReplay={() => setTutorialReplaySignal((v) => v + 1)}
+              className="hidden lg:inline-flex"
+            />
           </div>
         </div>
       </header>
