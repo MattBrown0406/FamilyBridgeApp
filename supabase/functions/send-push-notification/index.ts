@@ -123,12 +123,110 @@ serve(async (req) => {
 
     console.log(`Push notifications sent: ${sentCount}/${subscriptions.length}`);
 
+    // === Native push (iOS / Android via Capacitor) ===
+    let nativeSent = 0;
+    let nativeFailed = 0;
+    let nativeTotal = 0;
+    try {
+      const { data: nativeTokens, error: ntErr } = await supabase
+        .from('native_push_tokens')
+        .select('id, user_id, platform, token, enabled')
+        .in('user_id', user_ids)
+        .eq('enabled', true);
+
+      if (ntErr) {
+        console.error('Error fetching native tokens:', ntErr);
+      } else if (nativeTokens && nativeTokens.length > 0) {
+        nativeTotal = nativeTokens.length;
+        const fcmServerKey = Deno.env.get('FCM_SERVER_KEY');
+        const apnsBearer = Deno.env.get('APNS_BEARER_TOKEN');
+        const apnsTopic = Deno.env.get('APNS_TOPIC');
+        const apnsHost = Deno.env.get('APNS_HOST') ?? 'https://api.push.apple.com';
+        const staleNativeIds: string[] = [];
+
+        for (const t of nativeTokens) {
+          try {
+            if (t.platform === 'android') {
+              if (!fcmServerKey) {
+                console.warn('FCM_SERVER_KEY not configured; skipping Android push');
+                continue;
+              }
+              const res = await fetch('https://fcm.googleapis.com/fcm/send', {
+                method: 'POST',
+                headers: {
+                  Authorization: `key=${fcmServerKey}`,
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  to: t.token,
+                  notification: { title, body },
+                  data: { ...(data ?? {}), type: type ?? 'notification' },
+                  priority: 'high',
+                }),
+              });
+              if (res.ok) {
+                nativeSent++;
+              } else {
+                nativeFailed++;
+                const txt = await res.text();
+                console.error(`FCM send failed (${res.status}):`, txt);
+                if (res.status === 404 || /NotRegistered|InvalidRegistration/i.test(txt)) {
+                  staleNativeIds.push(t.id);
+                }
+              }
+            } else if (t.platform === 'ios') {
+              if (!apnsBearer || !apnsTopic) {
+                console.warn('APNS_BEARER_TOKEN/APNS_TOPIC not configured; skipping iOS push');
+                continue;
+              }
+              const res = await fetch(`${apnsHost}/3/device/${t.token}`, {
+                method: 'POST',
+                headers: {
+                  Authorization: `bearer ${apnsBearer}`,
+                  'apns-topic': apnsTopic,
+                  'apns-push-type': 'alert',
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  aps: { alert: { title, body }, sound: 'default' },
+                  data: { ...(data ?? {}), type: type ?? 'notification' },
+                }),
+              });
+              if (res.ok) {
+                nativeSent++;
+              } else {
+                nativeFailed++;
+                const txt = await res.text();
+                console.error(`APNs send failed (${res.status}):`, txt);
+                if (res.status === 410) {
+                  staleNativeIds.push(t.id);
+                }
+              }
+            }
+          } catch (err) {
+            nativeFailed++;
+            console.error('Native push send error:', err);
+          }
+        }
+
+        if (staleNativeIds.length > 0) {
+          await supabase
+            .from('native_push_tokens')
+            .update({ enabled: false })
+            .in('id', staleNativeIds);
+        }
+      }
+    } catch (err) {
+      console.error('Native push block error:', err);
+    }
+
     return new Response(
-      JSON.stringify({ 
-        success: true, 
-        sent: sentCount, 
+      JSON.stringify({
+        success: true,
+        sent: sentCount,
         total: subscriptions.length,
         failed: failedSubscriptions.length + staleSubscriptions.length,
+        native: { sent: nativeSent, total: nativeTotal, failed: nativeFailed },
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
