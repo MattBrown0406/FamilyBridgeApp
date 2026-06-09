@@ -27,6 +27,7 @@ import {
   Users,
 } from 'lucide-react';
 import { format } from 'date-fns';
+import { DOCUMENT_UPLOAD_ACCEPT, DOCUMENT_UPLOAD_HELPER_TEXT, getDocumentExtension, getDocumentMimeType } from '@/lib/documentUpload';
 
 interface ProviderDocument {
   id: string;
@@ -211,12 +212,13 @@ export const ProviderDocumentsPanel = ({ organizationId, families }: ProviderDoc
     setIsUploading(true);
     try {
       // Upload file to storage
-      const fileExt = selectedFile.name.split('.').pop();
+      const fileExt = getDocumentExtension(selectedFile.name);
       const filePath = `${organizationId}/${crypto.randomUUID()}.${fileExt}`;
+      const mimeType = getDocumentMimeType(selectedFile);
       
       const { error: uploadError } = await supabase.storage
         .from('provider-documents')
-        .upload(filePath, selectedFile);
+        .upload(filePath, selectedFile, { contentType: mimeType });
 
       if (uploadError) throw uploadError;
 
@@ -233,7 +235,7 @@ export const ProviderDocumentsPanel = ({ organizationId, families }: ProviderDoc
           file_path: filePath,
           file_name: selectedFile.name,
           file_size: selectedFile.size,
-          mime_type: selectedFile.type,
+          mime_type: mimeType,
         });
 
       if (dbError) throw dbError;
@@ -442,7 +444,7 @@ export const ProviderDocumentsPanel = ({ organizationId, families }: ProviderDoc
                     type="file"
                     className="hidden"
                     onChange={handleFileSelect}
-                    accept=".pdf,.doc,.docx,.txt,.png,.jpg,.jpeg"
+                    accept={DOCUMENT_UPLOAD_ACCEPT}
                   />
                   {selectedFile ? (
                     <div className="flex items-center justify-center gap-2">
@@ -456,7 +458,7 @@ export const ProviderDocumentsPanel = ({ organizationId, families }: ProviderDoc
                     <>
                       <Upload className="h-10 w-10 mx-auto text-muted-foreground mb-2" />
                       <p className="text-muted-foreground">Click to select a file</p>
-                      <p className="text-xs text-muted-foreground mt-1">PDF, DOC, TXT, or images (max 20MB)</p>
+                      <p className="text-xs text-muted-foreground mt-1">{DOCUMENT_UPLOAD_HELPER_TEXT}</p>
                     </>
                   )}
                 </div>
