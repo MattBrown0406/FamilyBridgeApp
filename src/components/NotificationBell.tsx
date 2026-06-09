@@ -12,7 +12,7 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { formatDistanceToNow } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 const getNotificationIcon = (type: Notification['type']) => {
@@ -57,9 +57,11 @@ export const NotificationBell = () => {
   const nativePush = useNativePushNotifications();
 
   // Wire native navigation on tap
-  if (isNative) {
-    nativePush.setNavigator(navigate);
-  }
+  useEffect(() => {
+    if (isNative) {
+      nativePush.setNavigator(navigate);
+    }
+  }, [isNative, nativePush, navigate]);
 
   const activePush = isNative ? nativePush : webPush;
   const { isSupported, isSubscribed, isLoading: pushLoading, subscribe, unsubscribe } = activePush;
