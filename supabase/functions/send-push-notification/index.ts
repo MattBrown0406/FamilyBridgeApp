@@ -220,7 +220,7 @@ serve(async (req) => {
       JSON.stringify({
         success: true,
         sent: sentCount,
-        total: subscriptions.length,
+        total: subscriptions?.length ?? 0,
         failed: failedSubscriptions.length + staleSubscriptions.length,
         native: { sent: nativeSent, total: nativeTotal, failed: nativeFailed },
       }),
