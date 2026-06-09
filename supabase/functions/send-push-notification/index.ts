@@ -117,7 +117,7 @@ serve(async (req) => {
         .in('id', staleSubscriptions);
     }
 
-    console.log(`Push notifications sent: ${sentCount}/${subscriptions.length}`);
+    console.log(`Web push sent: ${sentCount}/${subscriptions?.length ?? 0}`);
 
     // === Native push (iOS / Android via Capacitor) ===
     let nativeSent = 0;
