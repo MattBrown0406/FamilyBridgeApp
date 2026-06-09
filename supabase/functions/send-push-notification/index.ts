@@ -64,11 +64,7 @@ serve(async (req) => {
     }
 
     if (!subscriptions || subscriptions.length === 0) {
-      console.log('No subscriptions found for users');
-      return new Response(
-        JSON.stringify({ success: true, sent: 0, message: 'No subscriptions found' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      console.log('No web push subscriptions found for users (will still try native)');
     }
 
     const payload = {
@@ -88,8 +84,8 @@ serve(async (req) => {
     const failedSubscriptions: string[] = [];
     const staleSubscriptions: string[] = [];
 
-    // Send to each subscription
-    for (const sub of subscriptions) {
+    // Send to each web push subscription
+    for (const sub of subscriptions ?? []) {
       try {
         await webpush.sendNotification(
           {
