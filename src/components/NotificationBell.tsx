@@ -1,6 +1,8 @@
 import { Bell, Check, CheckCheck, MessageSquare, DollarSign, Users, Trash2, X, BellRing, Loader2, ArrowRightLeft, CheckCircle2, XCircle, Mail } from 'lucide-react';
 import { useNotifications, Notification } from '@/hooks/useNotifications';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
+import { useNativePushNotifications } from '@/hooks/useNativePushNotifications';
+import { Capacitor } from '@capacitor/core';
 import { Button } from '@/components/ui/button';
 import {
   Popover,
@@ -49,21 +51,33 @@ export const NotificationBell = () => {
     clearAll
   } = useNotifications();
 
-  const { 
-    isSupported, 
-    isSubscribed, 
-    isLoading: pushLoading, 
-    subscribe, 
-    unsubscribe,
-    permission 
-  } = usePushNotifications();
+  const isNative = Capacitor.isNativePlatform();
+
+  const webPush = usePushNotifications();
+  const nativePush = useNativePushNotifications();
+
+  // Wire native navigation on tap
+  if (isNative) {
+    nativePush.setNavigator(navigate);
+  }
+
+  const activePush = isNative ? nativePush : webPush;
+  const { isSupported, isSubscribed, isLoading: pushLoading, subscribe, unsubscribe } = activePush;
 
   const handleEnableNotifications = async () => {
     const success = await subscribe();
     if (success) {
-      toast.success('Push notifications enabled! You\'ll be notified even when the browser is closed.');
+      toast.success(
+        isNative
+          ? "Push notifications enabled — you'll receive alerts even when the app is closed."
+          : "Push notifications enabled! You'll be notified even when the browser is closed."
+      );
     } else {
-      toast.error('Failed to enable notifications. Please check your browser settings.');
+      toast.error(
+        isNative
+          ? 'Failed to enable notifications. Please check your device settings.'
+          : 'Failed to enable notifications. Please check your browser settings.'
+      );
     }
   };
 
@@ -148,7 +162,11 @@ export const NotificationBell = () => {
                 {isSubscribed ? (
                   <>
                     <p className="text-sm font-medium text-green-600">Push notifications enabled</p>
-                    <p className="text-xs text-muted-foreground">You'll receive alerts even when browser is closed</p>
+                    <p className="text-xs text-muted-foreground">
+                      {isNative
+                        ? "You'll receive alerts even when the app is closed"
+                        : "You'll receive alerts even when browser is closed"}
+                    </p>
                   </>
                 ) : (
                   <>
