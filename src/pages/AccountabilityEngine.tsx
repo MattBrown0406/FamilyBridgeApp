@@ -292,6 +292,7 @@ const AccountabilityEngine = () => {
                 score={familyScore}
                 commitments={commitments}
                 alerts={alerts}
+                acknowledgements={acknowledgements}
                 canManage={canManage}
                 onAddCommitment={addCommitment}
                 onUpdateCommitmentStatus={updateCommitmentStatus}
