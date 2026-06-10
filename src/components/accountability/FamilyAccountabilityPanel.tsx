@@ -4,13 +4,14 @@ import { Progress } from '@/components/ui/progress';
 import { ScoreGauge } from './ScoreGauge';
 import { CommitmentTracker } from './CommitmentTracker';
 import { AccountabilityAlerts } from './AccountabilityAlerts';
-import { AccountabilityScore, AccountabilityCommitment, AccountabilityAlert } from '@/hooks/useAccountability';
-import { Shield, MessageSquare, TrendingUp } from 'lucide-react';
+import { AccountabilityScore, AccountabilityCommitment, AccountabilityAlert, AccountabilityAcknowledgement } from '@/hooks/useAccountability';
+import { Shield, MessageSquare, TrendingUp, Award } from 'lucide-react';
 
 interface Props {
   score: AccountabilityScore | undefined;
   commitments: AccountabilityCommitment[];
   alerts: AccountabilityAlert[];
+  acknowledgements?: AccountabilityAcknowledgement[];
   canManage: boolean;
   onAddCommitment: (data: any) => Promise<any>;
   onUpdateCommitmentStatus: (id: string, status: string, notes?: string) => Promise<any>;
@@ -18,7 +19,7 @@ interface Props {
 }
 
 export const FamilyAccountabilityPanel = ({
-  score, commitments, alerts, canManage,
+  score, commitments, alerts, acknowledgements = [], canManage,
   onAddCommitment, onUpdateCommitmentStatus, onDismissAlert
 }: Props) => {
   const factors = score?.factors || [];
@@ -141,6 +142,37 @@ export const FamilyAccountabilityPanel = ({
 
       {/* Alerts */}
       <AccountabilityAlerts alerts={alerts} sourceFilter="family" onDismiss={onDismissAlert} />
+
+      {/* Wins / Acknowledgements */}
+      {acknowledgements.length > 0 && (
+        <Card className="border-green-200 bg-green-50/40 dark:bg-green-950/10">
+          <CardHeader>
+            <CardTitle className="text-base flex items-center gap-2 text-green-800 dark:text-green-300">
+              <Award className="h-4 w-4" />
+              Wins & Acknowledgements
+            </CardTitle>
+            <CardDescription>Earned, plan-grounded follow-through from the last two weeks.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {acknowledgements.slice(0, 6).map((ack) => (
+              <div key={ack.id} className="rounded-md border border-green-200 bg-white/70 dark:bg-background/40 p-3 space-y-1.5">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-sm font-semibold text-green-800 dark:text-green-300">{ack.title}</span>
+                  <Badge variant="outline" className="border-green-300 text-green-700 dark:text-green-300">Above Plan</Badge>
+                  {ack.expected_value != null && ack.actual_value != null && (
+                    <Badge variant="secondary">Follow-through</Badge>
+                  )}
+                </div>
+                <p className="text-sm text-muted-foreground">{ack.message}</p>
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  {ack.metric_label ? <span>{ack.metric_label}</span> : <span />}
+                  <span>{new Date(ack.created_at).toLocaleDateString()}</span>
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Commitment tracker */}
       <CommitmentTracker
