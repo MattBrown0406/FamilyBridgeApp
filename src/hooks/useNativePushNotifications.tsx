@@ -81,11 +81,29 @@ export const useNativePushNotifications = () => {
       try {
         const mod = await import('@capacitor/push-notifications');
         const { PushNotifications } = mod;
+        const { FirebaseMessaging } = await import('@capacitor-firebase/messaging');
         listenersAttached.current = true;
 
-        const regListener = await PushNotifications.addListener('registration', (token) => {
-          console.log('[native-push] registered token');
-          void upsertToken(token.value);
+        // Capacitor PushNotifications handles APNs/Android registration at the OS level.
+        // We then ask Firebase Messaging for the FCM registration token (required by FCM HTTP v1).
+        const regListener = await PushNotifications.addListener('registration', async () => {
+          console.log('[native-push] OS push registration complete, fetching FCM token');
+          try {
+            const { token: fcmToken } = await FirebaseMessaging.getToken();
+            if (fcmToken) {
+              void upsertToken(fcmToken);
+            } else {
+              console.warn('[native-push] FirebaseMessaging.getToken returned empty token');
+            }
+          } catch (e) {
+            console.error('[native-push] FirebaseMessaging.getToken failed:', e);
+          }
+        });
+        const fcmTokenListener = await FirebaseMessaging.addListener('tokenReceived', (event) => {
+          if (event?.token) {
+            console.log('[native-push] FCM token refreshed');
+            void upsertToken(event.token);
+          }
         });
         const errListener = await PushNotifications.addListener('registrationError', (err) => {
           console.error('[native-push] registration error:', err);
@@ -100,6 +118,7 @@ export const useNativePushNotifications = () => {
 
         cleanup = () => {
           regListener.remove();
+          fcmTokenListener.remove();
           errListener.remove();
           recvListener.remove();
           actionListener.remove();
