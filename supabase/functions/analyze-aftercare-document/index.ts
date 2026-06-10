@@ -7,14 +7,59 @@ const corsHeaders = {
 };
 const CLAUDE_MODEL = "claude-haiku-4-5";
 
+type RecommendationType =
+  | "therapy" | "meetings" | "outpatient" | "php" | "iop" | "residential"
+  | "sober_living" | "psychiatry" | "medical" | "medication_management"
+  | "drug_testing" | "case_management" | "family_therapy" | "wellness" | "other";
+
 interface ExtractedAftercare {
-  recommendation_type: "therapy" | "meetings" | "outpatient" | "residential" | "sober_living" | "medical" | "wellness" | "other";
+  recommendation_type: RecommendationType;
   title: string;
-  description: string | null;
-  facility_name: string | null;
-  recommended_duration: string | null;
-  frequency: string | null;
-  therapy_type: string | null;
+  description?: string | null;
+  facility_name?: string | null;
+  provider_name?: string | null;
+  recommended_duration?: string | null;
+  frequency?: string | null;
+  minimum_expected_per_week?: number | null;
+  start_date?: string | null;
+  end_date?: string | null;
+  therapy_type?: string | null;
+  evidence_quote?: string | null;
+  accountability_relevant?: boolean;
+  checkin_category?: string | null;
+}
+
+interface ExtractedTarget {
+  target_type: string;
+  label: string;
+  expected_frequency?: string | null;
+  minimum_expected_per_week?: number | null;
+  applies_to_user_name?: string | null;
+  evidence_quote?: string | null;
+  importance?: "low" | "medium" | "high" | "critical";
+}
+
+// Map a recommendation_type to (target_type, checkin_category) for the
+// Accountability Engine.
+function mapRecommendationToTarget(rec: ExtractedAftercare): { target_type: string; checkin_category: string | null } | null {
+  switch (rec.recommendation_type) {
+    case "meetings": return { target_type: "meetings_per_week", checkin_category: "meeting" };
+    case "therapy":
+    case "family_therapy": return { target_type: "therapy_attendance", checkin_category: "therapy" };
+    case "psychiatry": return { target_type: "psychiatry_attendance", checkin_category: "psychiatry" };
+    case "medical": return { target_type: "medical_appointments", checkin_category: "medical" };
+    case "iop": return { target_type: "iop_php_attendance", checkin_category: "iop" };
+    case "php": return { target_type: "iop_php_attendance", checkin_category: "php" };
+    case "outpatient": return { target_type: "iop_php_attendance", checkin_category: "iop" };
+    case "sober_living":
+    case "residential": return { target_type: "sober_living_compliance", checkin_category: "sober_living" };
+    case "drug_testing": return { target_type: "drug_testing", checkin_category: "drug_test" };
+    case "medication_management": return { target_type: "medication_adherence", checkin_category: null };
+    case "case_management":
+    case "wellness":
+    case "other":
+    default: return null;
+  }
 }
 
 const getErrorMessage = (error: unknown) => error instanceof Error ? error.message : "Unknown error";
@@ -394,12 +439,15 @@ Respond with a JSON array of recommendations. Include ALL recommendations found 
     const aiResult = await response.json();
     const toolUse = aiResult.content?.find((b: any) => b.type === "tool_use");
 
-    if (!toolUse || toolUse.name !== "extract_aftercare_recommendations") {
+    if (!toolUse || toolUse.name !== "analyze_aftercare_document") {
       throw new Error("Unexpected AI response format");
     }
 
     const extractedData = toolUse.input;
     const recommendations: ExtractedAftercare[] = extractedData.recommendations || [];
+    const accountabilityTargets: ExtractedTarget[] = extractedData.accountability_targets || [];
+    const drugTestingExpectations: any[] = extractedData.drug_testing_expectations || [];
+    const fiisSummary = extractedData.fiis_summary || null;
     const patientName = extractedData.patient_name;
     const facilityName = extractedData.facility_name;
 
@@ -475,29 +523,123 @@ Respond with a JSON array of recommendations. Include ALL recommendations found 
       console.log("Created new aftercare plan for import");
     }
 
-    // Insert recommendations
+    // Insert recommendations + create accountability_plan_targets in lock-step.
     let recommendationsCreated = 0;
-    
-    for (const rec of recommendations) {
-      const { error: insertError } = await supabase
-        .from("aftercare_recommendations")
-        .insert({
-          plan_id: planId,
-          recommendation_type: rec.recommendation_type,
-          title: rec.title,
-          description: rec.description || null,
-          facility_name: rec.facility_name || null,
-          recommended_duration: rec.recommended_duration || null,
-          frequency: rec.frequency || null,
-          therapy_type: rec.therapy_type || null,
-          is_completed: false
-        });
+    let targetsCreated = 0;
 
-      if (!insertError) {
+    for (const rec of recommendations) {
+      // Upsert-by-(plan_id, source_document_id, lower(trim(title))) using unique index.
+      const { data: existingRec } = await supabase
+        .from("aftercare_recommendations")
+        .select("id")
+        .eq("plan_id", planId)
+        .eq("source_document_id", documentId)
+        .ilike("title", rec.title.trim())
+        .maybeSingle();
+
+      let recId = existingRec?.id as string | undefined;
+
+      if (!recId) {
+        const mapping = mapRecommendationToTarget(rec);
+        const { data: insertedRec, error: insertError } = await supabase
+          .from("aftercare_recommendations")
+          .insert({
+            plan_id: planId,
+            recommendation_type: rec.recommendation_type,
+            title: rec.title,
+            description: rec.description || null,
+            facility_name: rec.facility_name || null,
+            provider_name: rec.provider_name || null,
+            recommended_duration: rec.recommended_duration || null,
+            frequency: rec.frequency || null,
+            therapy_type: rec.therapy_type || null,
+            minimum_expected_per_week: rec.minimum_expected_per_week ?? null,
+            accountability_relevant: rec.accountability_relevant ?? true,
+            checkin_category: rec.checkin_category ?? mapping?.checkin_category ?? null,
+            source_document_id: documentId,
+            source_evidence_quote: rec.evidence_quote || null,
+            start_date: rec.start_date || null,
+            end_date: rec.end_date || null,
+            is_completed: false,
+          })
+          .select("id")
+          .single();
+
+        if (insertError) {
+          console.error("Error creating recommendation", insertError.message);
+          continue;
+        }
+        recId = insertedRec.id;
         recommendationsCreated++;
-      } else {
-        console.error("Error creating recommendation", insertError.message);
       }
+
+      // Create the matching accountability target if relevant.
+      const mapping = mapRecommendationToTarget(rec);
+      if (recId && mapping && (rec.accountability_relevant ?? true)) {
+        const label = rec.title || mapping.target_type;
+        const { data: existingTarget } = await supabase
+          .from("accountability_plan_targets")
+          .select("id")
+          .eq("family_id", familyId)
+          .eq("source_document_id", documentId)
+          .eq("target_type", mapping.target_type)
+          .ilike("label", label.trim())
+          .maybeSingle();
+
+        if (!existingTarget) {
+          const { error: tgtErr } = await supabase
+            .from("accountability_plan_targets")
+            .insert({
+              family_id: familyId,
+              target_user_id: resolvedTargetUserId,
+              source_document_id: documentId,
+              source_aftercare_recommendation_id: recId,
+              target_type: mapping.target_type,
+              label,
+              checkin_category: mapping.checkin_category,
+              expected_frequency: rec.frequency || null,
+              minimum_expected_per_week: rec.minimum_expected_per_week ?? null,
+              start_date: rec.start_date || null,
+              end_date: rec.end_date || null,
+              importance: "medium",
+              evidence_quote: rec.evidence_quote || null,
+              is_active: true,
+              created_by: user.id,
+            });
+          if (!tgtErr) targetsCreated++;
+          else console.error("Error creating plan target", tgtErr.message);
+        }
+      }
+    }
+
+    // Add explicit accountability_targets that the AI flagged separately.
+    for (const tgt of accountabilityTargets) {
+      const { data: existing } = await supabase
+        .from("accountability_plan_targets")
+        .select("id")
+        .eq("family_id", familyId)
+        .eq("source_document_id", documentId)
+        .eq("target_type", tgt.target_type)
+        .ilike("label", (tgt.label || tgt.target_type).trim())
+        .maybeSingle();
+      if (existing) continue;
+
+      const { error: tgtErr } = await supabase
+        .from("accountability_plan_targets")
+        .insert({
+          family_id: familyId,
+          target_user_id: resolvedTargetUserId,
+          source_document_id: documentId,
+          target_type: tgt.target_type,
+          label: tgt.label || tgt.target_type,
+          expected_frequency: tgt.expected_frequency || null,
+          minimum_expected_per_week: tgt.minimum_expected_per_week ?? null,
+          importance: tgt.importance || "medium",
+          evidence_quote: tgt.evidence_quote || null,
+          is_active: true,
+          created_by: user.id,
+        });
+      if (!tgtErr) targetsCreated++;
     }
 
     // Update the document to mark it as analyzed
@@ -506,23 +648,26 @@ Respond with a JSON array of recommendations. Include ALL recommendations found 
       .update({
         fiis_analyzed: true,
         fiis_analyzed_at: new Date().toISOString(),
-        boundaries_extracted: recommendationsCreated // Repurpose for recommendations count
+        boundaries_extracted: recommendationsCreated,
       })
       .eq("id", documentId);
 
-    console.log("Stored aftercare recommendations", { recommendationsCreated });
+    console.log("Stored aftercare recommendations", { recommendationsCreated, targetsCreated });
 
     return new Response(
       JSON.stringify({
         success: true,
         recommendationsFound: recommendations.length,
         recommendationsCreated,
+        targetsCreated,
+        drugTestingExpectations: drugTestingExpectations.length,
         planId,
         patientName,
         facilityName,
-        message: recommendationsCreated > 0 
-          ? `Created ${recommendationsCreated} aftercare items from the discharge plan.`
-          : "No clear aftercare recommendations found in this document."
+        fiisSummary,
+        message: recommendationsCreated > 0
+          ? `Created ${recommendationsCreated} aftercare items and ${targetsCreated} accountability targets.`
+          : "No clear aftercare recommendations found in this document.",
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
