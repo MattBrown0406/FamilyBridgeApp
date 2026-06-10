@@ -310,37 +310,29 @@ serve(async (req) => {
 
     console.log("Document text extracted for intervention-letter analysis", { characters: documentContent.length });
 
-    // Call Lovable AI to extract boundaries
-    const systemPrompt = `You are an expert at analyzing intervention letters and extracting boundaries that families have set.
+    // FIIS: analyze the intervention letter for boundaries, values, and family support goals
+    const systemPrompt = `You are FIIS, a compassionate clinical-informed AI that helps families turn intervention letters into practical recovery structure. You read the family's own language and gently extract:
+1. Clear boundaries (what a family member will or will not do/allow), with consequences when stated. If a boundary is stated without a consequence, set consequence to null and set rationale to "consequence missing — needs moderator review".
+2. Family values that the letter actually reflects in its own words.
+3. Proposed family-support goals that build practical structure for the FAMILY's recovery — never promises about what the addicted loved one will do.
+4. A short FIIS summary for moderator/family review.
 
-An intervention letter typically contains:
-- A greeting or salutation (often "Dear [name]")
-- A signature at the end from the letter author
-- Expressions of love and concern
-- Specific boundaries the family member is committing to
-- Consequences if boundaries are violated
+Tone rules (strict):
+- Do not shame the family. Do not over-medicalize. Use compassionate, direct, practical language.
+- Boundaries must be specific and behavioral.
+- Values must be grounded in the letter's actual language — no generic inspirational fluff.
+- Goals must support the family system, not control the recovering person.
+- Never fabricate evidence quotes. If evidence is weak, return an empty array for that section.
 
-Your task is to:
-1. Identify who WROTE this letter (look for signatures, "Love, [name]", "Sincerely, [name]", or opening statements like "I am your [relationship]")
-2. Extract ONLY the specific boundaries mentioned in the letter
+Author identification: Identify who WROTE the letter (signature, "Love, [name]", "Sincerely, [name]", "I am your [relationship]"). author_name on each boundary should be the writer, not the addressee.
 
-A boundary is a clear statement about what the family member will or will not do/allow.
+Value keys MUST be exactly one of: ${FAMILY_VALUES_OPTIONS.join(", ")}.
+Goal keys MUST be exactly one of: ${COMMON_GOALS_OPTIONS.join(", ")}.
+Prefer values like boundaries, honesty, accountability, support_not_enabling, consistency, communication when the text actually supports them.
 
-Examples of boundaries:
-- "I will no longer give you money for any reason"
-- "You cannot stay at our house if you are using"
-- "I will not answer the phone after 10pm"
+Return at most ${MAX_PROPOSED_VALUES} proposed_values and at most ${MAX_PROPOSED_GOALS} proposed_goals. Confidence is 0.0–1.0.
 
-For each boundary, extract:
-1. The author's name (the person who wrote this boundary - from the letter signature or context)
-2. The consequence if violated (if mentioned)
-3. The target person's name if this boundary is specifically directed at one recovering member
-
-IMPORTANT: Each boundary should have the author_name of the person who WROTE the letter, not who it's addressed to.
-
-Family member names in this group: ${memberNames.join(", ")}
-
-Respond with a JSON array of boundaries. If no clear boundaries are found, return an empty array.`;
+Family member names in this group: ${memberNames.join(", ") || "(unknown)"}.`;
 
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
@@ -354,12 +346,12 @@ Respond with a JSON array of boundaries. If no clear boundaries are found, retur
         max_tokens: 4096,
         system: systemPrompt,
         messages: [
-          { role: "user", content: `Please analyze this intervention letter and extract all boundaries:\n\n${documentContent}` }
+          { role: "user", content: `Please analyze this intervention letter and extract boundaries, family values, family-support goals, and a brief FIIS summary:\n\n${documentContent}` }
         ],
         tools: [
           {
-            name: "extract_boundaries",
-            description: "Extract boundaries from an intervention letter",
+            name: "analyze_intervention_letter",
+            description: "Extract boundaries, family values, proposed family-support goals, and a FIIS summary from an intervention letter.",
             input_schema: {
               type: "object",
               properties: {
@@ -368,34 +360,64 @@ Respond with a JSON array of boundaries. If no clear boundaries are found, retur
                   items: {
                     type: "object",
                     properties: {
-                      content: {
-                        type: "string",
-                        description: "The boundary statement itself"
-                      },
-                      consequence: {
-                        type: "string",
-                        description: "The consequence if this boundary is violated (or null if not specified)"
-                      },
-                      target_member_name: {
-                        type: "string",
-                        description: "The name of the recovering member this boundary is specifically about (or null if general)"
-                      },
-                      author_name: {
-                        type: "string",
-                        description: "The name of the person who WROTE this letter/boundary (from signature, closing, or context)"
-                      }
+                      content: { type: "string", description: "The boundary statement itself" },
+                      consequence: { type: ["string", "null"], description: "Consequence if violated, or null if not stated" },
+                      target_member_name: { type: ["string", "null"], description: "Recovering member this boundary is directed at, or null" },
+                      author_name: { type: ["string", "null"], description: "Who WROTE the boundary (letter signature/context)" },
+                      rationale: { type: ["string", "null"], description: "Optional note such as 'consequence missing — needs moderator review'" }
                     },
-                    required: ["content", "author_name"],
+                    required: ["content", "consequence", "target_member_name", "author_name", "rationale"],
                     additionalProperties: false
                   }
+                },
+                proposed_values: {
+                  type: "array",
+                  description: `At most ${MAX_PROPOSED_VALUES} values grounded in the letter's language.`,
+                  items: {
+                    type: "object",
+                    properties: {
+                      value_key: { type: "string", enum: FAMILY_VALUES_OPTIONS },
+                      confidence: { type: "number" },
+                      evidence_quote: { type: "string", description: "Short quote from the letter that supports this value" },
+                      reason: { type: "string", description: "Brief, compassionate reason this value fits" }
+                    },
+                    required: ["value_key", "confidence", "evidence_quote", "reason"],
+                    additionalProperties: false
+                  }
+                },
+                proposed_goals: {
+                  type: "array",
+                  description: `At most ${MAX_PROPOSED_GOALS} family-support goals.`,
+                  items: {
+                    type: "object",
+                    properties: {
+                      goal_key: { type: "string", enum: COMMON_GOALS_OPTIONS },
+                      confidence: { type: "number" },
+                      evidence_quote: { type: "string" },
+                      reason: { type: "string" }
+                    },
+                    required: ["goal_key", "confidence", "evidence_quote", "reason"],
+                    additionalProperties: false
+                  }
+                },
+                fiis_summary: {
+                  type: "object",
+                  properties: {
+                    family_strengths: { type: "array", items: { type: "string" } },
+                    alignment_risks: { type: "array", items: { type: "string" } },
+                    suggested_next_steps: { type: "array", items: { type: "string" } },
+                    moderator_note: { type: "string" }
+                  },
+                  required: ["family_strengths", "alignment_risks", "suggested_next_steps", "moderator_note"],
+                  additionalProperties: false
                 }
               },
-              required: ["boundaries"],
+              required: ["boundaries", "proposed_values", "proposed_goals", "fiis_summary"],
               additionalProperties: false
             }
           }
         ],
-        tool_choice: { type: "tool", name: "extract_boundaries" }
+        tool_choice: { type: "tool", name: "analyze_intervention_letter" }
       }),
     });
 
@@ -420,14 +442,28 @@ Respond with a JSON array of boundaries. If no clear boundaries are found, retur
     const aiResult = await response.json();
     const toolUse = aiResult.content?.find((b: any) => b.type === "tool_use");
 
-    if (!toolUse || toolUse.name !== "extract_boundaries") {
+    if (!toolUse || toolUse.name !== "analyze_intervention_letter") {
       throw new Error("Unexpected AI response format");
     }
 
     const extractedData = toolUse.input;
-    const boundaries: ExtractedBoundary[] = extractedData.boundaries || [];
+    const boundaries: ExtractedBoundary[] = Array.isArray(extractedData.boundaries) ? extractedData.boundaries : [];
+    const proposedValuesRaw: ProposedValue[] = Array.isArray(extractedData.proposed_values) ? extractedData.proposed_values : [];
+    const proposedGoalsRaw: ProposedGoal[] = Array.isArray(extractedData.proposed_goals) ? extractedData.proposed_goals : [];
+    const fiisSummary: FiisSummary = extractedData.fiis_summary || {
+      family_strengths: [],
+      alignment_risks: [],
+      suggested_next_steps: [],
+      moderator_note: "",
+    };
 
-    console.log("Intervention-letter analysis completed", { boundariesFound: boundaries.length });
+    // Whitelist values/goals against allowed keys and cap counts
+    const proposedValues = proposedValuesRaw
+      .filter((v) => v && FAMILY_VALUES_OPTIONS.includes(v.value_key))
+      .slice(0, MAX_PROPOSED_VALUES);
+    const proposedGoals = proposedGoalsRaw
+      .filter((g) => g && COMMON_GOALS_OPTIONS.includes(g.goal_key))
+      .slice(0, MAX_PROPOSED_GOALS);
 
     // Create boundaries in the database
     let boundariesCreated = 0;
@@ -478,6 +514,73 @@ Respond with a JSON array of boundaries. If no clear boundaries are found, retur
       }
     }
 
+    // Insert proposed family values (conflict-safe, respecting the 2-value cap)
+    const valuesProposed = proposedValues.length;
+    let valuesCreated = 0;
+    let valuesSkipped = 0;
+    const valuesSkippedDueToExistingLimit: string[] = [];
+
+    if (valuesProposed > 0) {
+      const { data: existingValues } = await supabase
+        .from("family_values")
+        .select("value_key")
+        .eq("family_id", familyId);
+      const existingValueKeys = new Set((existingValues || []).map((v: any) => v.value_key));
+      const remainingSlots = Math.max(0, MAX_VALUES_PER_FAMILY - existingValueKeys.size);
+
+      for (const v of proposedValues) {
+        if (existingValueKeys.has(v.value_key)) {
+          valuesSkipped++;
+          continue;
+        }
+        if (valuesCreated >= remainingSlots) {
+          valuesSkippedDueToExistingLimit.push(v.value_key);
+          continue;
+        }
+        const { error: vErr } = await supabase
+          .from("family_values")
+          .upsert(
+            { family_id: familyId, value_key: v.value_key, selected_by: user.id },
+            { onConflict: "family_id,value_key", ignoreDuplicates: true }
+          );
+        if (!vErr) {
+          valuesCreated++;
+          existingValueKeys.add(v.value_key);
+        } else {
+          console.error("Error inserting family value", vErr.message);
+        }
+      }
+    }
+
+    // Insert proposed family-support goals (conflict-safe, max 3 per document)
+    const goalsProposed = proposedGoals.length;
+    let goalsCreated = 0;
+
+    if (goalsProposed > 0) {
+      const { data: existingGoals } = await supabase
+        .from("family_common_goals")
+        .select("goal_key")
+        .eq("family_id", familyId);
+      const existingGoalKeys = new Set((existingGoals || []).map((g: any) => g.goal_key));
+
+      for (const g of proposedGoals) {
+        if (goalsCreated >= MAX_GOALS_PER_DOCUMENT) break;
+        if (existingGoalKeys.has(g.goal_key)) continue;
+        const { error: gErr } = await supabase
+          .from("family_common_goals")
+          .upsert(
+            { family_id: familyId, goal_key: g.goal_key, selected_by: user.id },
+            { onConflict: "family_id,goal_key", ignoreDuplicates: true }
+          );
+        if (!gErr) {
+          goalsCreated++;
+          existingGoalKeys.add(g.goal_key);
+        } else {
+          console.error("Error inserting family goal", gErr.message);
+        }
+      }
+    }
+
     // Update the document to mark it as analyzed
     await supabase
       .from("family_documents")
@@ -488,16 +591,47 @@ Respond with a JSON array of boundaries. If no clear boundaries are found, retur
       })
       .eq("id", documentId);
 
-    console.log("Stored intervention-letter boundaries", { boundariesCreated });
+    // Safe logging — counts only, never letter contents
+    console.log("Intervention-letter analysis completed", {
+      boundariesFound: boundaries.length,
+      boundariesCreated,
+      valuesProposed,
+      valuesCreated,
+      goalsProposed,
+      goalsCreated,
+    });
+
+    // Build user-facing message
+    const parts: string[] = [];
+    if (boundariesCreated > 0) parts.push(`${boundariesCreated} boundar${boundariesCreated === 1 ? "y" : "ies"}`);
+    if (valuesCreated > 0) parts.push(`${valuesCreated} guiding value${valuesCreated === 1 ? "" : "s"}`);
+    if (goalsCreated > 0) parts.push(`${goalsCreated} family support goal${goalsCreated === 1 ? "" : "s"}`);
+
+    let message: string;
+    if (parts.length === 0 && boundaries.length === 0 && valuesProposed === 0 && goalsProposed === 0) {
+      message = "FIIS did not find clear boundaries, values, or goals in this document.";
+    } else if (parts.length === 0) {
+      message = "FIIS reviewed this letter; existing family settings were preserved.";
+    } else if (parts.length === 1 && boundariesCreated > 0 && valuesCreated === 0 && goalsCreated === 0) {
+      message = `FIIS extracted ${boundariesCreated} boundar${boundariesCreated === 1 ? "y" : "ies"} for moderator review.`;
+    } else {
+      const last = parts.pop();
+      message = `FIIS extracted ${parts.length ? parts.join(", ") + ", and " : ""}${last} for review.`;
+    }
 
     return new Response(
       JSON.stringify({
         success: true,
         boundariesFound: boundaries.length,
         boundariesCreated,
-        message: boundariesCreated > 0 
-          ? `Extracted ${boundariesCreated} boundaries for moderator review.`
-          : "No clear boundaries found in this document."
+        valuesProposed,
+        valuesCreated,
+        valuesSkipped,
+        valuesSkippedDueToExistingLimit,
+        goalsProposed,
+        goalsCreated,
+        fiisSummary,
+        message,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
