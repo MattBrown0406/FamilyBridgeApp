@@ -588,6 +588,7 @@ export const FamilyDocumentsTab = ({ familyId, userRole }: FamilyDocumentsTabPro
             </div>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
 
       {isLoading ? (
