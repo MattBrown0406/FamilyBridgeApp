@@ -45,9 +45,7 @@ If `FIREBASE_*` are missing the edge function logs `"Firebase (FCM HTTP v1) not 
 
 ### Why FCM for iOS
 
-FCM HTTP v1 routes iOS messages through APNs but requires the device token to be an **FCM registration token**, not a raw APNs token. That means the iOS app needs the Firebase Messaging SDK to obtain that token and the Capacitor plugin must forward it.
-
-The `@capacitor/push-notifications` plugin alone returns a raw APNs token on iOS. To get an FCM token, also install and configure `@capacitor-firebase/messaging` **or** include the Firebase iOS SDK in `Podfile`/SPM and have it swizzle the APNs token. Until that is wired up, native iOS pushes will fail with `INVALID_ARGUMENT` and the token will be auto-disabled. Android works out of the box once `google-services.json` is in place.
+FCM HTTP v1 routes iOS messages through APNs but requires the device token to be an **FCM registration token**, not a raw APNs token. The app uses `@capacitor-firebase/messaging` to obtain that token after `@capacitor/push-notifications` completes OS-level registration. The FCM token (not the raw APNs token) is what gets stored in `native_push_tokens` and used by the edge function.
 
 ## Required Apple Developer / APNs setup
 

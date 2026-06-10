@@ -10,7 +10,7 @@ Use these notes for the next App Store Connect build metadata / review notes.
   - Existing supported formats remain supported: PDF, DOC/DOCX, TXT, PNG/JPG/JPEG
 - Provider / moderator document uploads now support the same Apple Pages and Numbers files.
 - Family chat notification coverage has been expanded so moderators/providers assigned to a family's caseload receive message notifications when a family member posts in chat.
-- Added native push notification support for the installed iOS app so FamilyBridge can deliver alerts for family chat messages, financial requests, handoffs, and moderator/caseload activity even when the app is closed or in the background.
+- Completed native push notification support for installed iOS/Android apps using Firebase Cloud Messaging, enabling closed/background app alerts after Firebase/APNs credentials and a new ASC build are configured.
 
 ## Technical / reviewer-facing notes
 
