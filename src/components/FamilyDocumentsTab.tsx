@@ -469,7 +469,24 @@ export const FamilyDocumentsTab = ({ familyId, userRole }: FamilyDocumentsTabPro
 
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold">Family Documents</h3>
-        <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
+        <div className="flex items-center gap-2">
+          {canManage && documents.some((d) => d.document_type === 'intervention_letter' && !d.fiis_analyzed) && (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => runBackfill(false)}
+              disabled={isBackfilling}
+              title="Re-run FIIS on intervention letters that haven't been analyzed yet"
+            >
+              {isBackfilling ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <Brain className="h-4 w-4 mr-2" />
+              )}
+              Re-analyze with FIIS
+            </Button>
+          )}
+          <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
           <DialogTrigger asChild>
             <Button size="sm">
               <Upload className="h-4 w-4 mr-2" />
