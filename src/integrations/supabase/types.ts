@@ -293,8 +293,64 @@ export type Database = {
           },
         ]
       }
+      accountability_exceptions: {
+        Row: {
+          approved_by: string | null
+          created_at: string
+          ends_at: string | null
+          exception_type: string
+          family_id: string
+          id: string
+          reason: string
+          starts_at: string | null
+          target_id: string | null
+          target_user_id: string | null
+        }
+        Insert: {
+          approved_by?: string | null
+          created_at?: string
+          ends_at?: string | null
+          exception_type: string
+          family_id: string
+          id?: string
+          reason: string
+          starts_at?: string | null
+          target_id?: string | null
+          target_user_id?: string | null
+        }
+        Update: {
+          approved_by?: string | null
+          created_at?: string
+          ends_at?: string | null
+          exception_type?: string
+          family_id?: string
+          id?: string
+          reason?: string
+          starts_at?: string | null
+          target_id?: string | null
+          target_user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "accountability_exceptions_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "accountability_exceptions_target_id_fkey"
+            columns: ["target_id"]
+            isOneToOne: false
+            referencedRelation: "accountability_plan_targets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       accountability_plan_targets: {
         Row: {
+          approved_at: string | null
+          approved_by: string | null
           checkin_category: string | null
           created_at: string
           created_by: string | null
@@ -307,6 +363,8 @@ export type Database = {
           is_active: boolean
           label: string
           minimum_expected_per_week: number | null
+          rejected_reason: string | null
+          review_status: string
           source_aftercare_recommendation_id: string | null
           source_document_id: string | null
           start_date: string | null
@@ -315,6 +373,8 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
           checkin_category?: string | null
           created_at?: string
           created_by?: string | null
@@ -327,6 +387,8 @@ export type Database = {
           is_active?: boolean
           label: string
           minimum_expected_per_week?: number | null
+          rejected_reason?: string | null
+          review_status?: string
           source_aftercare_recommendation_id?: string | null
           source_document_id?: string | null
           start_date?: string | null
@@ -335,6 +397,8 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          approved_at?: string | null
+          approved_by?: string | null
           checkin_category?: string | null
           created_at?: string
           created_by?: string | null
@@ -347,6 +411,8 @@ export type Database = {
           is_active?: boolean
           label?: string
           minimum_expected_per_week?: number | null
+          rejected_reason?: string | null
+          review_status?: string
           source_aftercare_recommendation_id?: string | null
           source_document_id?: string | null
           start_date?: string | null
@@ -1958,12 +2024,14 @@ export type Database = {
           panel: string | null
           result: string
           source_document_id: string | null
+          specimen_type: string | null
           substances_detected: string[] | null
           target_user_id: string | null
           test_date: string
           test_type: string | null
           testing_provider: string | null
           updated_at: string
+          verification_status: string
         }
         Insert: {
           attachment_document_id?: string | null
@@ -1976,12 +2044,14 @@ export type Database = {
           panel?: string | null
           result: string
           source_document_id?: string | null
+          specimen_type?: string | null
           substances_detected?: string[] | null
           target_user_id?: string | null
           test_date: string
           test_type?: string | null
           testing_provider?: string | null
           updated_at?: string
+          verification_status?: string
         }
         Update: {
           attachment_document_id?: string | null
@@ -1994,12 +2064,14 @@ export type Database = {
           panel?: string | null
           result?: string
           source_document_id?: string | null
+          specimen_type?: string | null
           substances_detected?: string[] | null
           target_user_id?: string | null
           test_date?: string
           test_type?: string | null
           testing_provider?: string | null
           updated_at?: string
+          verification_status?: string
         }
         Relationships: [
           {
@@ -2246,6 +2318,8 @@ export type Database = {
           rejected_at: string | null
           rejected_by: string | null
           rejected_reason: string | null
+          source_document_id: string | null
+          source_type: string | null
           status: string
           target_user_id: string | null
           updated_at: string
@@ -2268,6 +2342,8 @@ export type Database = {
           rejected_at?: string | null
           rejected_by?: string | null
           rejected_reason?: string | null
+          source_document_id?: string | null
+          source_type?: string | null
           status?: string
           target_user_id?: string | null
           updated_at?: string
@@ -2290,6 +2366,8 @@ export type Database = {
           rejected_at?: string | null
           rejected_by?: string | null
           rejected_reason?: string | null
+          source_document_id?: string | null
+          source_type?: string | null
           status?: string
           target_user_id?: string | null
           updated_at?: string
@@ -2300,6 +2378,13 @@ export type Database = {
             columns: ["family_id"]
             isOneToOne: false
             referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "family_boundaries_source_document_id_fkey"
+            columns: ["source_document_id"]
+            isOneToOne: false
+            referencedRelation: "family_documents"
             referencedColumns: ["id"]
           },
         ]
@@ -2419,48 +2504,72 @@ export type Database = {
           created_at: string
           description: string | null
           document_type: string
+          drug_tests_extracted: number | null
           family_id: string
+          fiis_analysis_error: string | null
+          fiis_analysis_status: string | null
           fiis_analyzed: boolean | null
           fiis_analyzed_at: string | null
+          fiis_summary: Json | null
           file_name: string
           file_path: string
           file_size: number | null
+          goals_extracted: number | null
           id: string
+          last_fiis_attempt_at: string | null
           mime_type: string | null
+          recommendations_extracted: number | null
           title: string
           uploaded_by: string
+          values_extracted: number | null
         }
         Insert: {
           boundaries_extracted?: number | null
           created_at?: string
           description?: string | null
           document_type?: string
+          drug_tests_extracted?: number | null
           family_id: string
+          fiis_analysis_error?: string | null
+          fiis_analysis_status?: string | null
           fiis_analyzed?: boolean | null
           fiis_analyzed_at?: string | null
+          fiis_summary?: Json | null
           file_name: string
           file_path: string
           file_size?: number | null
+          goals_extracted?: number | null
           id?: string
+          last_fiis_attempt_at?: string | null
           mime_type?: string | null
+          recommendations_extracted?: number | null
           title: string
           uploaded_by: string
+          values_extracted?: number | null
         }
         Update: {
           boundaries_extracted?: number | null
           created_at?: string
           description?: string | null
           document_type?: string
+          drug_tests_extracted?: number | null
           family_id?: string
+          fiis_analysis_error?: string | null
+          fiis_analysis_status?: string | null
           fiis_analyzed?: boolean | null
           fiis_analyzed_at?: string | null
+          fiis_summary?: Json | null
           file_name?: string
           file_path?: string
           file_size?: number | null
+          goals_extracted?: number | null
           id?: string
+          last_fiis_attempt_at?: string | null
           mime_type?: string | null
+          recommendations_extracted?: number | null
           title?: string
           uploaded_by?: string
+          values_extracted?: number | null
         }
         Relationships: [
           {
