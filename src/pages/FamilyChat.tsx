@@ -85,6 +85,7 @@ const EmotionalToneIndicator = lazy(() => import('@/components/EmotionalToneIndi
 import { AdminBreadcrumbs } from '@/components/AdminBreadcrumbs';
 const AftercarePlanTab = lazy(() => import('@/components/AftercarePlanTab').then(m => ({ default: m.AftercarePlanTab })));
 const MedicationTab = lazy(() => import('@/components/MedicationTab').then(m => ({ default: m.MedicationTab })));
+const DrugTestingTab = lazy(() => import('@/components/DrugTestingTab').then(m => ({ default: m.DrugTestingTab })));
 const FamilyDocumentsTab = lazy(() => import('@/components/FamilyDocumentsTab').then(m => ({ default: m.FamilyDocumentsTab })));
 const CoachingTab = lazy(() => import('@/components/CoachingTab').then(m => ({ default: m.CoachingTab })));
 import { evaluateBoundaryQuality } from '@/lib/boundaryQuality';
