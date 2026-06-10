@@ -85,6 +85,7 @@ const EmotionalToneIndicator = lazy(() => import('@/components/EmotionalToneIndi
 import { AdminBreadcrumbs } from '@/components/AdminBreadcrumbs';
 const AftercarePlanTab = lazy(() => import('@/components/AftercarePlanTab').then(m => ({ default: m.AftercarePlanTab })));
 const MedicationTab = lazy(() => import('@/components/MedicationTab').then(m => ({ default: m.MedicationTab })));
+const DrugTestingTab = lazy(() => import('@/components/DrugTestingTab').then(m => ({ default: m.DrugTestingTab })));
 const FamilyDocumentsTab = lazy(() => import('@/components/FamilyDocumentsTab').then(m => ({ default: m.FamilyDocumentsTab })));
 const CoachingTab = lazy(() => import('@/components/CoachingTab').then(m => ({ default: m.CoachingTab })));
 import { evaluateBoundaryQuality } from '@/lib/boundaryQuality';
@@ -5249,93 +5250,9 @@ const FamilyChat = () => {
 
           {/* Test Results Tab */}
           <TabsContent value="test-results" className="mt-0 space-y-4 overflow-auto">
-            <Card className="border-0 shadow-lg overflow-hidden">
-              <div className="h-1 bg-gradient-to-r from-amber-500 via-orange-500 to-red-500" />
-              <CardHeader>
-                <CardTitle className="text-lg font-display flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-md">
-                    <FlaskConical className="h-5 w-5 text-white" />
-                  </div>
-                  Drug & Alcohol Testing
-                  <Badge className="ml-auto bg-gradient-to-r from-amber-500 to-orange-500 border-0 text-white">
-                    <Sparkles className="h-3 w-3 mr-1" />
-                    Features
-                  </Badge>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {/* Coming Soon Banner */}
-                <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 border-2 border-dashed border-amber-300 p-8">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-amber-200/40 to-orange-200/40 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
-                  <div className="relative text-center space-y-4">
-                    <div className="inline-flex items-center justify-center h-16 w-16 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-500 shadow-lg mx-auto">
-                      <FlaskConical className="h-8 w-8 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold text-foreground mb-2">Coming Soon</h3>
-                      <p className="text-muted-foreground max-w-md mx-auto">
-                        Drug and alcohol testing features are currently in development. When ready, they will be offered as an optional add-on.
-                      </p>
-                    </div>
-                    <Badge variant="secondary" className="bg-amber-100 text-amber-700 border-amber-200">
-                      In Development
-                    </Badge>
-                  </div>
-                </div>
-
-                {/* Planned Features */}
-                <div className="space-y-3">
-                  <h3 className="font-medium text-foreground flex items-center gap-2">
-                    <Sparkles className="h-4 w-4 text-amber-500" />
-                    Planned Features
-                  </h3>
-                  <div className="grid gap-3">
-                    {[
-                      { title: 'At-Home Testing Kits', description: 'Order FDA-approved drug and alcohol testing kits delivered to your door' },
-                      { title: 'Lab-Verified Results', description: 'Results verified by certified laboratories for accuracy and reliability' },
-                      { title: 'Family Dashboard', description: 'View test history and results in a secure, shared family dashboard' },
-                      { title: 'Random Testing Schedule', description: 'Set up randomized testing schedules to support accountability' },
-                      { title: 'Instant Notifications', description: 'Family members receive notifications when tests are completed' },
-                    ].map((feature, index) => (
-                      <div
-                        key={feature.title}
-                        className="p-4 rounded-lg bg-muted/30 border border-border/50 hover:bg-muted/50 transition-colors animate-fade-in"
-                        style={{ animationDelay: `${index * 100}ms` }}
-                      >
-                        <div className="flex items-start gap-3">
-                          <div className="h-6 w-6 rounded-full bg-amber-100 flex items-center justify-center shrink-0 mt-0.5">
-                            <Check className="h-3 w-3 text-amber-600" />
-                          </div>
-                          <div>
-                            <h4 className="font-medium text-sm text-foreground">{feature.title}</h4>
-                            <p className="text-xs text-muted-foreground mt-0.5">{feature.description}</p>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* CTA to Subscription */}
-                <div className="p-4 rounded-xl bg-gradient-to-r from-primary/5 to-primary/10 border border-primary/20">
-                  <div className="flex flex-col sm:flex-row items-center gap-4">
-                    <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-md shrink-0">
-                      <Sparkles className="h-6 w-6 text-primary-foreground" />
-                    </div>
-                    <div className="flex-1 text-center sm:text-left">
-                      <h4 className="font-semibold text-foreground">Interested in Early Access?</h4>
-                      <p className="text-sm text-muted-foreground">Join our waitlist to be notified when testing and other optional add-ons launch.</p>
-                    </div>
-                    <Button 
-                      onClick={() => navigate(paymentsWebOnly ? '/auth' : '/subscription')}
-                      className="shrink-0"
-                    >
-                      Learn More
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <Suspense fallback={<Card><CardContent className="pt-6 text-sm text-muted-foreground">Loading drug & alcohol testing...</CardContent></Card>}>
+              <DrugTestingTab familyId={familyId!} userRole={currentUserRole} />
+            </Suspense>
           </TabsContent>
 
           {/* Medications Tab */}

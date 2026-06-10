@@ -221,6 +221,91 @@ export type Database = {
           },
         ]
       }
+      accountability_plan_targets: {
+        Row: {
+          checkin_category: string | null
+          created_at: string
+          created_by: string | null
+          end_date: string | null
+          evidence_quote: string | null
+          expected_frequency: string | null
+          family_id: string
+          id: string
+          importance: string
+          is_active: boolean
+          label: string
+          minimum_expected_per_week: number | null
+          source_aftercare_recommendation_id: string | null
+          source_document_id: string | null
+          start_date: string | null
+          target_type: string
+          target_user_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          checkin_category?: string | null
+          created_at?: string
+          created_by?: string | null
+          end_date?: string | null
+          evidence_quote?: string | null
+          expected_frequency?: string | null
+          family_id: string
+          id?: string
+          importance?: string
+          is_active?: boolean
+          label: string
+          minimum_expected_per_week?: number | null
+          source_aftercare_recommendation_id?: string | null
+          source_document_id?: string | null
+          start_date?: string | null
+          target_type: string
+          target_user_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          checkin_category?: string | null
+          created_at?: string
+          created_by?: string | null
+          end_date?: string | null
+          evidence_quote?: string | null
+          expected_frequency?: string | null
+          family_id?: string
+          id?: string
+          importance?: string
+          is_active?: boolean
+          label?: string
+          minimum_expected_per_week?: number | null
+          source_aftercare_recommendation_id?: string | null
+          source_document_id?: string | null
+          start_date?: string | null
+          target_type?: string
+          target_user_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "accountability_plan_targets_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "accountability_plan_targets_source_aftercare_recommendatio_fkey"
+            columns: ["source_aftercare_recommendation_id"]
+            isOneToOne: false
+            referencedRelation: "aftercare_recommendations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "accountability_plan_targets_source_document_id_fkey"
+            columns: ["source_document_id"]
+            isOneToOne: false
+            referencedRelation: "family_documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       accountability_scores: {
         Row: {
           ai_insight: string | null
@@ -454,46 +539,70 @@ export type Database = {
       }
       aftercare_recommendations: {
         Row: {
+          accountability_relevant: boolean | null
+          checkin_category: string | null
           completed_at: string | null
           created_at: string
           description: string | null
+          end_date: string | null
           facility_name: string | null
           frequency: string | null
           id: string
           is_completed: boolean
+          minimum_expected_per_week: number | null
           plan_id: string
+          provider_name: string | null
           recommendation_type: string
           recommended_duration: string | null
+          source_document_id: string | null
+          source_evidence_quote: string | null
+          start_date: string | null
           therapy_type: string | null
           title: string
           updated_at: string
         }
         Insert: {
+          accountability_relevant?: boolean | null
+          checkin_category?: string | null
           completed_at?: string | null
           created_at?: string
           description?: string | null
+          end_date?: string | null
           facility_name?: string | null
           frequency?: string | null
           id?: string
           is_completed?: boolean
+          minimum_expected_per_week?: number | null
           plan_id: string
+          provider_name?: string | null
           recommendation_type: string
           recommended_duration?: string | null
+          source_document_id?: string | null
+          source_evidence_quote?: string | null
+          start_date?: string | null
           therapy_type?: string | null
           title: string
           updated_at?: string
         }
         Update: {
+          accountability_relevant?: boolean | null
+          checkin_category?: string | null
           completed_at?: string | null
           created_at?: string
           description?: string | null
+          end_date?: string | null
           facility_name?: string | null
           frequency?: string | null
           id?: string
           is_completed?: boolean
+          minimum_expected_per_week?: number | null
           plan_id?: string
+          provider_name?: string | null
           recommendation_type?: string
           recommended_duration?: string | null
+          source_document_id?: string | null
+          source_evidence_quote?: string | null
+          start_date?: string | null
           therapy_type?: string | null
           title?: string
           updated_at?: string
@@ -504,6 +613,13 @@ export type Database = {
             columns: ["plan_id"]
             isOneToOne: false
             referencedRelation: "aftercare_plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "aftercare_recommendations_source_document_id_fkey"
+            columns: ["source_document_id"]
+            isOneToOne: false
+            referencedRelation: "family_documents"
             referencedColumns: ["id"]
           },
         ]
@@ -1754,6 +1870,85 @@ export type Database = {
             columns: ["family_id"]
             isOneToOne: false
             referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      drug_test_results: {
+        Row: {
+          attachment_document_id: string | null
+          created_at: string
+          entered_by: string
+          family_id: string
+          id: string
+          is_manual_entry: boolean
+          notes: string | null
+          panel: string | null
+          result: string
+          source_document_id: string | null
+          substances_detected: string[] | null
+          target_user_id: string | null
+          test_date: string
+          test_type: string | null
+          testing_provider: string | null
+          updated_at: string
+        }
+        Insert: {
+          attachment_document_id?: string | null
+          created_at?: string
+          entered_by: string
+          family_id: string
+          id?: string
+          is_manual_entry?: boolean
+          notes?: string | null
+          panel?: string | null
+          result: string
+          source_document_id?: string | null
+          substances_detected?: string[] | null
+          target_user_id?: string | null
+          test_date: string
+          test_type?: string | null
+          testing_provider?: string | null
+          updated_at?: string
+        }
+        Update: {
+          attachment_document_id?: string | null
+          created_at?: string
+          entered_by?: string
+          family_id?: string
+          id?: string
+          is_manual_entry?: boolean
+          notes?: string | null
+          panel?: string | null
+          result?: string
+          source_document_id?: string | null
+          substances_detected?: string[] | null
+          target_user_id?: string | null
+          test_date?: string
+          test_type?: string | null
+          testing_provider?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "drug_test_results_attachment_document_id_fkey"
+            columns: ["attachment_document_id"]
+            isOneToOne: false
+            referencedRelation: "family_documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "drug_test_results_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "drug_test_results_source_document_id_fkey"
+            columns: ["source_document_id"]
+            isOneToOne: false
+            referencedRelation: "family_documents"
             referencedColumns: ["id"]
           },
         ]
