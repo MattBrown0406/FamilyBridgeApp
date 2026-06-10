@@ -14,6 +14,78 @@ export type Database = {
   }
   public: {
     Tables: {
+      accountability_acknowledgements: {
+        Row: {
+          acknowledgement_type: string
+          actual_value: number | null
+          created_at: string
+          expected_value: number | null
+          family_id: string
+          id: string
+          is_read: boolean
+          message: string
+          metric_label: string | null
+          severity: string
+          source_target_id: string | null
+          source_type: string
+          target_user_id: string | null
+          title: string
+          window_end: string | null
+          window_start: string | null
+        }
+        Insert: {
+          acknowledgement_type: string
+          actual_value?: number | null
+          created_at?: string
+          expected_value?: number | null
+          family_id: string
+          id?: string
+          is_read?: boolean
+          message: string
+          metric_label?: string | null
+          severity?: string
+          source_target_id?: string | null
+          source_type?: string
+          target_user_id?: string | null
+          title: string
+          window_end?: string | null
+          window_start?: string | null
+        }
+        Update: {
+          acknowledgement_type?: string
+          actual_value?: number | null
+          created_at?: string
+          expected_value?: number | null
+          family_id?: string
+          id?: string
+          is_read?: boolean
+          message?: string
+          metric_label?: string | null
+          severity?: string
+          source_target_id?: string | null
+          source_type?: string
+          target_user_id?: string | null
+          title?: string
+          window_end?: string | null
+          window_start?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "accountability_acknowledgements_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "accountability_acknowledgements_source_target_id_fkey"
+            columns: ["source_target_id"]
+            isOneToOne: false
+            referencedRelation: "accountability_plan_targets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       accountability_alerts: {
         Row: {
           alert_type: string
