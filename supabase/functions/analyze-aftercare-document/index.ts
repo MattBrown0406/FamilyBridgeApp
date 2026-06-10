@@ -181,8 +181,11 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  let documentIdForStatus: string | null = null;
+  let supabaseForStatus: any = null;
   try {
-    const { documentId, familyId, fileBytes, mimeType, targetUserId } = await req.json();
+    const body = await req.json();
+    let { documentId, familyId, fileBytes, mimeType, targetUserId } = body || {};
 
     if (!documentId || !familyId) {
       return new Response(
@@ -199,42 +202,89 @@ serve(async (req) => {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    documentIdForStatus = documentId;
+    supabaseForStatus = supabase;
 
-    // Get authorization header for user context
+    // Auth: either a valid user JWT with family admin/moderator role, OR an internal call
+    // using the service role / shared internal secret.
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
-      return new Response(
-        JSON.stringify({ error: "Authorization required" }),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+    const internalSecret = req.headers.get("x-internal-secret");
+    const expectedInternal = Deno.env.get("INTERNAL_FN_SECRET");
+    const isServiceRole = !!authHeader && authHeader.replace("Bearer ", "") === supabaseServiceKey;
+    const isInternal = isServiceRole || (!!expectedInternal && internalSecret === expectedInternal);
+
+    let user: { id: string } | null = null;
+    if (!isInternal) {
+      if (!authHeader) {
+        return new Response(
+          JSON.stringify({ error: "Authorization required" }),
+          { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      const userClient = createClient(supabaseUrl, Deno.env.get("SUPABASE_ANON_KEY")!, {
+        global: { headers: { Authorization: authHeader } }
+      });
+      const { data: { user: u } } = await userClient.auth.getUser();
+      if (!u) {
+        return new Response(
+          JSON.stringify({ error: "Invalid authorization" }),
+          { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      user = { id: u.id };
+      const { data: membership } = await supabase
+        .from("family_members")
+        .select("id, role")
+        .eq("family_id", familyId)
+        .eq("user_id", user.id)
+        .single();
+      if (!membership || (membership.role !== "moderator" && membership.role !== "admin")) {
+        return new Response(
+          JSON.stringify({ error: "Only moderators can analyze aftercare documents" }),
+          { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
     }
 
-    // Verify user is a family member
-    const userClient = createClient(supabaseUrl, Deno.env.get("SUPABASE_ANON_KEY")!, {
-      global: { headers: { Authorization: authHeader } }
-    });
-    
-    const { data: { user } } = await userClient.auth.getUser();
+    // Mark document as processing.
+    await supabase
+      .from("family_documents")
+      .update({
+        fiis_analysis_status: "processing",
+        fiis_analysis_error: null,
+        last_fiis_attempt_at: new Date().toISOString(),
+      })
+      .eq("id", documentId);
+
+    // Backfill / server mode: load doc + download bytes if fileBytes not provided.
+    let docRow: any = null;
+    if (!fileBytes) {
+      const { data: doc, error: docErr } = await supabase
+        .from("family_documents")
+        .select("id, family_id, file_path, mime_type, uploaded_by")
+        .eq("id", documentId)
+        .maybeSingle();
+      if (docErr || !doc) {
+        throw new Error("Document not found for backfill");
+      }
+      docRow = doc;
+      mimeType = mimeType || doc.mime_type;
+      const { data: file, error: dlErr } = await supabase.storage
+        .from("family-documents")
+        .download(doc.file_path);
+      if (dlErr || !file) {
+        throw new Error("Failed to download stored document");
+      }
+      const ab = await file.arrayBuffer();
+      const u8 = new Uint8Array(ab);
+      let binary = "";
+      for (let i = 0; i < u8.length; i++) binary += String.fromCharCode(u8[i]);
+      fileBytes = btoa(binary);
+      if (!user) user = { id: doc.uploaded_by };
+    }
     if (!user) {
-      return new Response(
-        JSON.stringify({ error: "Invalid authorization" }),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    // Verify membership and check role
-    const { data: membership } = await supabase
-      .from("family_members")
-      .select("id, role")
-      .eq("family_id", familyId)
-      .eq("user_id", user.id)
-      .single();
-
-    if (!membership || (membership.role !== "moderator" && membership.role !== "admin")) {
-      return new Response(
-        JSON.stringify({ error: "Only moderators can analyze aftercare documents" }),
-        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      // Internal mode without doc.uploaded_by fallback; use null-safe placeholder.
+      user = { id: "00000000-0000-0000-0000-000000000000" };
     }
 
     // Get family members for context
@@ -252,13 +302,6 @@ serve(async (req) => {
 
     // Extract document text based on file type
     let documentContent: string;
-    
-    if (!fileBytes) {
-      return new Response(
-        JSON.stringify({ error: "No file content provided" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
 
     // Decode base64 file bytes
     const binaryString = atob(fileBytes);
