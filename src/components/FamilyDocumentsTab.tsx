@@ -171,7 +171,7 @@ export const FamilyDocumentsTab = ({ familyId, userRole }: FamilyDocumentsTabPro
 
       if (uploadError) throw uploadError;
 
-      const { error: dbError } = await supabase
+      const { data: inserted, error: dbError } = await supabase
         .from('family_documents')
         .insert({
           family_id: familyId,
@@ -183,16 +183,30 @@ export const FamilyDocumentsTab = ({ familyId, userRole }: FamilyDocumentsTabPro
           file_name: selectedFile.name,
           file_size: selectedFile.size,
           mime_type: mimeType,
-        });
+        })
+        .select('id, document_type, file_path, mime_type')
+        .single();
 
       if (dbError) throw dbError;
 
-      toast.success('Document uploaded successfully');
+      const wasInterventionLetter = uploadForm.document_type === 'intervention_letter';
+      toast.success(
+        wasInterventionLetter
+          ? 'Document uploaded — FIIS is analyzing this letter now…'
+          : 'Document uploaded successfully',
+      );
       setIsUploadDialogOpen(false);
       setSelectedFile(null);
       setUploadForm({ title: '', description: '', document_type: 'other' });
       if (fileInputRef.current) fileInputRef.current.value = '';
       fetchDocuments();
+
+      // Auto-run FIIS analysis on new intervention letters (no extra click needed).
+      if (wasInterventionLetter && inserted) {
+        setAnalyzingId(inserted.id);
+        analyzeInterventionLetter(inserted as any, { silent: false })
+          .finally(() => setAnalyzingId((current) => (current === inserted.id ? null : current)));
+      }
     } catch (err: any) {
       console.error('Error uploading document:', err);
       toast.error(err.message || 'Failed to upload document');
