@@ -140,6 +140,36 @@ Deno.serve(async (req) => {
       const meetings = data.meeting_checkins || [];
       const drugTests = data.drug_tests || [];
       const sevenAgo = new Date(data._sevenDaysAgo).getTime();
+      const windowStart = new Date(data._sevenDaysAgo).toISOString().slice(0, 10);
+      const windowEnd = new Date().toISOString().slice(0, 10);
+      const acknowledgementsToInsert: any[] = [];
+
+      const queueAck = (ack: {
+        source_target_id: string | null;
+        target_user_id?: string | null;
+        acknowledgement_type: string;
+        title: string;
+        message: string;
+        metric_label?: string;
+        expected_value?: number | null;
+        actual_value?: number | null;
+      }) => {
+        acknowledgementsToInsert.push({
+          family_id,
+          target_user_id: ack.target_user_id ?? null,
+          source_target_id: ack.source_target_id,
+          source_type: "aftercare_overperformance",
+          acknowledgement_type: ack.acknowledgement_type,
+          title: ack.title,
+          message: ack.message,
+          metric_label: ack.metric_label ?? null,
+          expected_value: ack.expected_value ?? null,
+          actual_value: ack.actual_value ?? null,
+          window_start: windowStart,
+          window_end: windowEnd,
+          severity: "positive",
+        });
+      };
 
       // Categorize meeting check-ins very loosely by meeting_type text.
       const isRecoveryMeetingType = (t?: string) =>
@@ -177,6 +207,16 @@ Deno.serve(async (req) => {
               familyFactors.push(`${positives.length} positive/missed/refused drug test result(s) in the last 7 days.`);
             } else {
               positiveFeedback.push(`Drug testing on track: ${within7.length} clean result(s) logged this week.`);
+              queueAck({
+                source_target_id: target.id,
+                target_user_id: target.target_user_id ?? null,
+                acknowledgement_type: "drug_testing_current",
+                title: "Drug testing is current",
+                message: `Drug testing is current and negative. That gives the family a concrete reason to trust the process.`,
+                metric_label: `${within7.length} clean result(s) this week`,
+                expected_value: 1,
+                actual_value: within7.length,
+              });
             }
           }
           continue;
@@ -199,6 +239,36 @@ Deno.serve(async (req) => {
         if (actualWeek >= minWeek) {
           familyScore += 4;
           positiveFeedback.push(`Aftercare plan is being followed: ${actualWeek} of ${minWeek} expected ${target.checkin_category || "appointments"}/week logged.`);
+          if (actualWeek > minWeek) {
+            const typeMap: Record<string, string> = {
+              meeting: "above_plan_meetings",
+              therapy: "therapy_followthrough",
+              psychiatry: "psychiatry_followthrough",
+              medical: "medical_followthrough",
+              iop: "general_aftercare_momentum",
+              php: "general_aftercare_momentum",
+            };
+            const ackType = typeMap[target.checkin_category as string] ?? "general_aftercare_momentum";
+            const categoryLabel = target.checkin_category === "meeting" ? "recovery meetings"
+              : target.checkin_category === "therapy" ? "therapy sessions"
+              : target.checkin_category === "psychiatry" ? "psychiatry visits"
+              : target.checkin_category === "medical" ? "medical visits"
+              : "appointments";
+            queueAck({
+              source_target_id: target.id,
+              target_user_id: target.target_user_id ?? null,
+              acknowledgement_type: ackType,
+              title: target.checkin_category === "meeting"
+                ? "Above plan on recovery meetings"
+                : `Follow-through on ${categoryLabel}`,
+              message: target.checkin_category === "meeting"
+                ? `Your plan called for ${minWeek} recovery meeting${minWeek === 1 ? "" : "s"} this week. ${actualWeek} were logged. That kind of follow-through matters.`
+                : `Plan asked for ${minWeek} ${categoryLabel} this week; ${actualWeek} logged. That is real recovery behavior.`,
+              metric_label: `${actualWeek} of ${minWeek} ${categoryLabel}`,
+              expected_value: minWeek,
+              actual_value: actualWeek,
+            });
+          }
         } else {
           const gap = minWeek - actualWeek;
           familyScore -= Math.min(10, 3 + gap * 2);
@@ -206,6 +276,35 @@ Deno.serve(async (req) => {
         }
       }
       // ===== end plan vs behavior =====
+
+      // Insert acknowledgements with dedupe (unique on source_target_id+window_start+type)
+      let createdAcknowledgements: any[] = [];
+      if (acknowledgementsToInsert.length > 0) {
+        const { data: insertedAcks } = await supabase
+          .from("accountability_acknowledgements")
+          .upsert(acknowledgementsToInsert, {
+            onConflict: "source_target_id,window_start,acknowledgement_type",
+            ignoreDuplicates: true,
+          })
+          .select("*");
+        createdAcknowledgements = insertedAcks || [];
+      }
+
+      // Pull recent acknowledgements (last 14 days) for context/output
+      const fourteenDaysAgo = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString();
+      const { data: recentAcks } = await supabase
+        .from("accountability_acknowledgements")
+        .select("*")
+        .eq("family_id", family_id)
+        .gte("created_at", fourteenDaysAgo)
+        .order("created_at", { ascending: false })
+        .limit(10);
+
+      for (const ack of recentAcks || []) {
+        if (!positiveFeedback.includes(ack.message)) {
+          positiveFeedback.push(ack.message);
+        }
+      }
 
       // Determine trend
       const { data: prevScores } = await supabase
@@ -238,6 +337,11 @@ Deno.serve(async (req) => {
         aiInsight = "Strong accountability alignment. The family system is demonstrating the consistency needed for sustained recovery support.";
       }
 
+      if ((recentAcks || []).length > 0) {
+        const first = (recentAcks || [])[0];
+        aiInsight += ` There are real signs of follow-through this week — for example: ${first.message} Acknowledge the progress before addressing any remaining gaps.`;
+      }
+
       // Store the score
       const previousScore = prevScores?.[0]?.score ?? null;
       await supabase.from("accountability_scores").insert({
@@ -266,6 +370,7 @@ Deno.serve(async (req) => {
           trend: familyTrend,
           factors: familyFactors,
           positive_feedback: positiveFeedback,
+          acknowledgements: typeof createdAcknowledgements !== "undefined" ? createdAcknowledgements : [],
         } : null,
         success: true,
       }),
