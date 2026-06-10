@@ -12,7 +12,60 @@ interface ExtractedBoundary {
   consequence: string | null;
   target_member_name: string | null;
   author_name: string | null;
+  rationale?: string | null;
 }
+
+interface ProposedValue {
+  value_key: string;
+  confidence: number;
+  evidence_quote: string;
+  reason: string;
+}
+
+interface ProposedGoal {
+  goal_key: string;
+  confidence: number;
+  evidence_quote: string;
+  reason: string;
+}
+
+interface FiisSummary {
+  family_strengths: string[];
+  alignment_risks: string[];
+  suggested_next_steps: string[];
+  moderator_note: string;
+}
+
+const FAMILY_VALUES_OPTIONS = [
+  "honesty",
+  "accountability",
+  "boundaries",
+  "support_not_enabling",
+  "patience",
+  "forgiveness",
+  "self_care",
+  "consistency",
+  "communication",
+  "hope",
+];
+
+const COMMON_GOALS_OPTIONS = [
+  "complete_intervention",
+  "enter_treatment",
+  "complete_treatment",
+  "establish_support_network",
+  "family_therapy_sessions",
+  "90_meetings_90_days",
+  "living_amends_plan",
+  "family_recovery_milestones",
+  "rebuild_financial_trust",
+  "one_year_celebration",
+];
+
+const MAX_VALUES_PER_FAMILY = 2;
+const MAX_GOALS_PER_DOCUMENT = 3;
+const MAX_PROPOSED_VALUES = 2;
+const MAX_PROPOSED_GOALS = 3;
 
 const getErrorMessage = (error: unknown) => error instanceof Error ? error.message : "Unknown error";
 
