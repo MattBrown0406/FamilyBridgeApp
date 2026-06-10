@@ -63,6 +63,25 @@ export interface AccountabilityAlert {
   created_at: string;
 }
 
+export interface AccountabilityAcknowledgement {
+  id: string;
+  family_id: string;
+  target_user_id: string | null;
+  source_target_id: string | null;
+  source_type: string;
+  acknowledgement_type: string;
+  title: string;
+  message: string;
+  metric_label: string | null;
+  expected_value: number | null;
+  actual_value: number | null;
+  window_start: string | null;
+  window_end: string | null;
+  severity: string;
+  is_read: boolean;
+  created_at: string;
+}
+
 export interface AccountabilityContract {
   id: string;
   family_id: string | null;
@@ -83,6 +102,7 @@ export function useAccountability(familyId?: string, organizationId?: string) {
   const [scores, setScores] = useState<AccountabilityScore[]>([]);
   const [alerts, setAlerts] = useState<AccountabilityAlert[]>([]);
   const [contracts, setContracts] = useState<AccountabilityContract[]>([]);
+  const [acknowledgements, setAcknowledgements] = useState<AccountabilityAcknowledgement[]>([]);
   const [loading, setLoading] = useState(true);
 
   const loadData = useCallback(async () => {
@@ -106,17 +126,23 @@ export function useAccountability(familyId?: string, organizationId?: string) {
       if (familyId) contractQ = contractQ.eq('family_id', familyId);
       if (organizationId) contractQ = contractQ.eq('organization_id', organizationId);
 
-      const [commitRes, scoreRes, alertRes, contractRes] = await Promise.all([
+      let ackQ = familyId
+        ? supabase.from('accountability_acknowledgements').select('*').eq('family_id', familyId)
+        : null;
+
+      const [commitRes, scoreRes, alertRes, contractRes, ackRes] = await Promise.all([
         commitQ.order('created_at', { ascending: false }),
         scoreQ.order('calculated_at', { ascending: false }).limit(10),
         alertQ.order('created_at', { ascending: false }),
         contractQ.order('created_at', { ascending: false }),
+        ackQ ? ackQ.order('created_at', { ascending: false }).limit(20) : Promise.resolve({ data: [] as any[] }),
       ]);
 
       setCommitments((commitRes.data || []) as AccountabilityCommitment[]);
       setScores((scoreRes.data || []).map(coerceScore));
       setAlerts((alertRes.data || []) as AccountabilityAlert[]);
       setContracts((contractRes.data || []) as AccountabilityContract[]);
+      setAcknowledgements(((ackRes as any).data || []) as AccountabilityAcknowledgement[]);
     } catch (err) {
       console.error('Error loading accountability data:', err);
     } finally {
@@ -183,6 +209,7 @@ export function useAccountability(familyId?: string, organizationId?: string) {
     scores,
     alerts,
     contracts,
+    acknowledgements,
     loading,
     addCommitment,
     updateCommitmentStatus,

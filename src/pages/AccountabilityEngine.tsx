@@ -45,7 +45,7 @@ const AccountabilityEngine = () => {
   const orgId = currentOrg?.id;
 
   const {
-    commitments, scores, alerts, contracts, loading: dataLoading,
+    commitments, scores, alerts, contracts, acknowledgements, loading: dataLoading,
     addCommitment, updateCommitmentStatus, dismissAlert, getLatestScore, refresh
   } = useAccountability(selectedFamilyId || undefined, orgId);
 
@@ -292,6 +292,7 @@ const AccountabilityEngine = () => {
                 score={familyScore}
                 commitments={commitments}
                 alerts={alerts}
+                acknowledgements={acknowledgements}
                 canManage={canManage}
                 onAddCommitment={addCommitment}
                 onUpdateCommitmentStatus={updateCommitmentStatus}
