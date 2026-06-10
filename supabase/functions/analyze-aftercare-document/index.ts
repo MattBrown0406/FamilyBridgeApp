@@ -299,42 +299,21 @@ serve(async (req) => {
 
     console.log("Document text extracted for aftercare analysis", { characters: documentContent.length });
 
-    // Call Lovable AI to extract aftercare recommendations
-    const systemPrompt = `You are an expert at analyzing clinical discharge plans and aftercare recommendations from treatment facilities.
+    // Call Anthropic to extract structured aftercare data + accountability targets.
+    const systemPrompt = `You analyze clinical discharge plans, aftercare plans, and treatment plans for a family recovery support app called FamilyBridge.
 
-A discharge/aftercare plan typically contains:
-- Patient information
-- Diagnosis and treatment summary  
-- Continuing care recommendations
-- Follow-up appointments
-- Medication instructions
-- Therapy/counseling recommendations
-- Support group attendance requirements
-- Lifestyle recommendations
+Extract ONLY what is actually written in the document. Do not invent recommendations or frequencies.
 
-Your task is to extract ALL specific aftercare recommendations from this document.
-
-Categories of aftercare recommendations:
-1. "therapy" - Individual or family therapy sessions
-2. "meetings" - AA, NA, Al-Anon, or other 12-step/recovery meetings
-3. "outpatient" - Intensive Outpatient Program (IOP) or Partial Hospitalization (PHP)
-4. "residential" - Sober living homes or continued residential treatment
-5. "medical" - Psychiatrist visits, medication management, medical follow-ups
-6. "wellness" - Exercise, meditation, nutrition, sleep hygiene recommendations
-7. "other" - Any other specific recommendations (job counseling, legal, etc.)
-
-For each recommendation, extract:
-1. The type (from categories above)
-2. A clear title
-3. Detailed description
-4. Facility/provider name if mentioned
-5. Recommended duration (e.g., "6 months", "ongoing")
-6. Frequency (e.g., "3x per week", "daily", "as needed")
-7. Therapy type if applicable (e.g., "CBT", "DBT", "EMDR", "group")
-
-Be thorough - these recommendations are critical for successful recovery navigation.
-
-Respond with a JSON array of recommendations. Include ALL recommendations found in the document.`;
+Rules:
+- If the plan says "3 meetings per week", set minimum_expected_per_week = 3 on that recommendation and on the matching accountability_target.
+- "weekly" => 1 per week. "twice weekly" => 2. "monthly" => leave minimum_expected_per_week null but keep frequency text.
+- Identify psychiatry separately from therapy and medical.
+- Identify drug testing separately and also list under drug_testing_expectations.
+- Identify IOP vs PHP when possible.
+- evidence_quote: short exact phrase from the document (<= 200 chars). Never paste the whole document.
+- accountability_relevant = true when behavior can be measured (meetings, therapy, psychiatry, medical visits, IOP/PHP, sober living rules, drug tests, medication adherence). Otherwise false.
+- checkin_category: one of meeting, therapy, psychiatry, medical, iop, php, sober_living, drug_test, other, or null.
+- Tone of fiis_summary: compassionate, direct, practical. No shame. No generic inspirational fluff.`;
 
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
@@ -352,11 +331,15 @@ Respond with a JSON array of recommendations. Include ALL recommendations found 
         ],
         tools: [
           {
-            name: "extract_aftercare_recommendations",
-            description: "Extract aftercare recommendations from a discharge/aftercare plan",
+            name: "analyze_aftercare_document",
+            description: "Extract structured aftercare, accountability targets, drug-testing expectations, and a FIIS summary from a discharge/aftercare/treatment plan.",
             input_schema: {
               type: "object",
               properties: {
+                patient_name: { type: "string" },
+                discharge_date: { type: "string" },
+                facility_name: { type: "string" },
+                level_of_care: { type: "string" },
                 recommendations: {
                   type: "array",
                   items: {
@@ -364,57 +347,110 @@ Respond with a JSON array of recommendations. Include ALL recommendations found 
                     properties: {
                       recommendation_type: {
                         type: "string",
-                        enum: ["therapy", "meetings", "outpatient", "residential", "sober_living", "medical", "wellness", "other"],
-                        description: "Category of the recommendation"
+                        enum: ["therapy","meetings","outpatient","php","iop","residential","sober_living","psychiatry","medical","medication_management","drug_testing","case_management","family_therapy","wellness","other"],
                       },
-                      title: {
+                      title: { type: "string" },
+                      description: { type: "string" },
+                      facility_name: { type: "string" },
+                      provider_name: { type: "string" },
+                      recommended_duration: { type: "string" },
+                      frequency: { type: "string" },
+                      minimum_expected_per_week: { type: "number" },
+                      start_date: { type: "string" },
+                      end_date: { type: "string" },
+                      therapy_type: { type: "string" },
+                      evidence_quote: { type: "string" },
+                      accountability_relevant: { type: "boolean" },
+                      checkin_category: {
                         type: "string",
-                        description: "A clear, concise title for this recommendation"
+                        enum: ["meeting","therapy","psychiatry","medical","iop","php","sober_living","drug_test","other"],
                       },
-                      description: {
-                        type: "string",
-                        description: "Detailed description of what this recommendation entails"
-                      },
-                      facility_name: {
-                        type: "string",
-                        description: "Name of the facility, provider, or organization (if specified)"
-                      },
-                      recommended_duration: {
-                        type: "string",
-                        description: "How long this should continue (e.g., '6 months', 'ongoing', '90 days')"
-                      },
-                      frequency: {
-                        type: "string",
-                        description: "How often (e.g., '3x per week', 'daily', 'weekly')"
-                      },
-                      therapy_type: {
-                        type: "string",
-                        description: "Type of therapy if applicable (e.g., 'CBT', 'DBT', 'EMDR', 'group therapy')"
-                      }
                     },
                     required: ["recommendation_type", "title"],
-                    additionalProperties: false
-                  }
+                  },
                 },
-                patient_name: {
-                  type: "string",
-                  description: "Name of the patient from the document (if found)"
+                medication_instructions: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      medication_name: { type: "string" },
+                      dose: { type: "string" },
+                      frequency: { type: "string" },
+                      prescriber: { type: "string" },
+                      instruction: { type: "string" },
+                      follow_up_required: { type: "boolean" },
+                    },
+                    required: ["medication_name"],
+                  },
                 },
-                discharge_date: {
-                  type: "string",
-                  description: "Discharge date from the document (if found)"
+                appointment_expectations: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      appointment_type: { type: "string" },
+                      title: { type: "string" },
+                      provider_or_facility: { type: "string" },
+                      frequency: { type: "string" },
+                      date_or_schedule: { type: "string" },
+                      location: { type: "string" },
+                      evidence_quote: { type: "string" },
+                    },
+                    required: ["appointment_type", "title"],
+                  },
                 },
-                facility_name: {
-                  type: "string",
-                  description: "Name of the treatment facility that created this plan (if found)"
-                }
+                drug_testing_expectations: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      test_type: { type: "string" },
+                      panel: { type: "string" },
+                      frequency: { type: "string" },
+                      random_testing: { type: "boolean" },
+                      required_by: { type: "string" },
+                      start_date: { type: "string" },
+                      duration: { type: "string" },
+                      evidence_quote: { type: "string" },
+                    },
+                  },
+                },
+                accountability_targets: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      target_type: {
+                        type: "string",
+                        enum: ["meetings_per_week","therapy_attendance","psychiatry_attendance","medical_appointments","iop_php_attendance","sober_living_compliance","drug_testing","medication_adherence","family_participation","other"],
+                      },
+                      label: { type: "string" },
+                      expected_frequency: { type: "string" },
+                      minimum_expected_per_week: { type: "number" },
+                      applies_to_user_name: { type: "string" },
+                      evidence_quote: { type: "string" },
+                      importance: { type: "string", enum: ["low","medium","high","critical"] },
+                    },
+                    required: ["target_type", "label"],
+                  },
+                },
+                fiis_summary: {
+                  type: "object",
+                  properties: {
+                    plain_language_plan: { type: "string" },
+                    highest_priority_actions: { type: "array", items: { type: "string" } },
+                    accountability_risks: { type: "array", items: { type: "string" } },
+                    family_support_guidance: { type: "array", items: { type: "string" } },
+                    provider_follow_up_questions: { type: "array", items: { type: "string" } },
+                  },
+                },
               },
               required: ["recommendations"],
-              additionalProperties: false
-            }
-          }
+            },
+          },
         ],
-        tool_choice: { type: "tool", name: "extract_aftercare_recommendations" }
+        tool_choice: { type: "tool", name: "analyze_aftercare_document" }
       }),
     });
 
