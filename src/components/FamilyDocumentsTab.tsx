@@ -268,68 +268,127 @@ export const FamilyDocumentsTab = ({ familyId, userRole }: FamilyDocumentsTabPro
     }
   };
 
-  const handleAnalyzeWithFiis = async (doc: FamilyDocument) => {
+  // Shared analyzer used by manual click, post-upload auto-run, and backfill.
+  const analyzeInterventionLetter = async (
+    doc: Pick<FamilyDocument, 'id' | 'document_type' | 'file_path' | 'mime_type'>,
+    opts: { silent?: boolean; refresh?: boolean } = {},
+  ): Promise<{ ok: boolean; data?: any; error?: any }> => {
     if (doc.document_type !== 'intervention_letter') {
-      toast.error('Only intervention letters can be analyzed with FIIS');
-      return;
+      if (!opts.silent) toast.error('Only intervention letters can be analyzed with FIIS');
+      return { ok: false, error: new Error('not_intervention_letter') };
     }
 
-    setAnalyzingId(doc.id);
     try {
       const { data: fileData, error: downloadError } = await supabase.storage
         .from('family-documents')
         .download(doc.file_path);
-
       if (downloadError) throw downloadError;
 
       const arrayBuffer = await fileData.arrayBuffer();
       const bytes = new Uint8Array(arrayBuffer);
       let binary = '';
-      for (let i = 0; i < bytes.length; i++) {
-        binary += String.fromCharCode(bytes[i]);
-      }
+      for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
       const base64 = btoa(binary);
 
       const { data, error } = await supabase.functions.invoke('analyze-intervention-letter', {
         body: {
           documentId: doc.id,
-          familyId: familyId,
+          familyId,
           fileBytes: base64,
-          mimeType: doc.mime_type
-        }
+          mimeType: doc.mime_type,
+        },
       });
-
       if (error) throw error;
 
-      const boundariesCreated = data?.boundariesCreated ?? 0;
-      const valuesCreated = data?.valuesCreated ?? 0;
-      const goalsCreated = data?.goalsCreated ?? 0;
-      const valuesProposed = data?.valuesProposed ?? 0;
-      const goalsProposed = data?.goalsProposed ?? 0;
-      const valuesSkipped = data?.valuesSkipped ?? 0;
-      const skippedDueToLimit = (data?.valuesSkippedDueToExistingLimit ?? []).length;
+      if (!opts.silent) {
+        const boundariesCreated = data?.boundariesCreated ?? 0;
+        const valuesCreated = data?.valuesCreated ?? 0;
+        const goalsCreated = data?.goalsCreated ?? 0;
+        const valuesProposed = data?.valuesProposed ?? 0;
+        const goalsProposed = data?.goalsProposed ?? 0;
+        const valuesSkipped = data?.valuesSkipped ?? 0;
+        const skippedDueToLimit = (data?.valuesSkippedDueToExistingLimit ?? []).length;
 
-      const created: string[] = [];
-      if (boundariesCreated > 0) created.push(`${boundariesCreated} boundar${boundariesCreated === 1 ? 'y' : 'ies'}`);
-      if (valuesCreated > 0) created.push(`${valuesCreated} guiding value${valuesCreated === 1 ? '' : 's'}`);
-      if (goalsCreated > 0) created.push(`${goalsCreated} family support goal${goalsCreated === 1 ? '' : 's'}`);
+        const created: string[] = [];
+        if (boundariesCreated > 0) created.push(`${boundariesCreated} boundar${boundariesCreated === 1 ? 'y' : 'ies'}`);
+        if (valuesCreated > 0) created.push(`${valuesCreated} guiding value${valuesCreated === 1 ? '' : 's'}`);
+        if (goalsCreated > 0) created.push(`${goalsCreated} family support goal${goalsCreated === 1 ? '' : 's'}`);
 
-      if (created.length > 0) {
-        toast.success(`FIIS analysis: ${created.join(', ')} added for review`);
-      } else if (valuesProposed > 0 || goalsProposed > 0 || valuesSkipped > 0 || skippedDueToLimit > 0) {
-        toast.info('FIIS reviewed this letter — existing family values and goals were preserved.');
-      } else {
-        toast.info(data?.message || 'FIIS did not find clear boundaries, values, or goals in this document.');
+        if (created.length > 0) {
+          toast.success(`FIIS analysis: ${created.join(', ')} added for review`);
+        } else if (valuesProposed > 0 || goalsProposed > 0 || valuesSkipped > 0 || skippedDueToLimit > 0) {
+          toast.info('FIIS reviewed this letter — existing family values and goals were preserved.');
+        } else {
+          toast.info(data?.message || 'FIIS did not find clear boundaries, values, or goals in this document.');
+        }
       }
 
-      fetchDocuments();
+      if (opts.refresh !== false) fetchDocuments();
+      return { ok: true, data };
     } catch (err: any) {
-      console.error('Error analyzing document:', err);
-      toast.error(err.message || 'Failed to analyze document');
+      console.error('[FIIS] Error analyzing intervention letter', { docId: doc.id, message: err?.message });
+      if (!opts.silent) toast.error(err?.message || 'Failed to analyze document');
+      return { ok: false, error: err };
+    }
+  };
+
+  const handleAnalyzeWithFiis = async (doc: FamilyDocument) => {
+    setAnalyzingId(doc.id);
+    try {
+      await analyzeInterventionLetter(doc);
     } finally {
       setAnalyzingId(null);
     }
   };
+
+  // Backfill: run FIIS over any intervention letters that haven't been analyzed yet.
+  const runBackfill = async (silent = true) => {
+    if (!canManage) return;
+    const pending = documents.filter(
+      (d) => d.document_type === 'intervention_letter' && !d.fiis_analyzed,
+    );
+    if (pending.length === 0) {
+      if (!silent) toast.info('No intervention letters need FIIS analysis.');
+      return;
+    }
+
+    setIsBackfilling(true);
+    if (!silent) toast.info(`FIIS is analyzing ${pending.length} intervention letter${pending.length === 1 ? '' : 's'}…`);
+
+    let ok = 0;
+    let failed = 0;
+    for (const doc of pending) {
+      setAnalyzingId(doc.id);
+      const result = await analyzeInterventionLetter(doc, { silent: true, refresh: false });
+      if (result.ok) ok++; else failed++;
+    }
+    setAnalyzingId(null);
+    setIsBackfilling(false);
+    await fetchDocuments();
+
+    if (!silent || failed > 0) {
+      if (ok > 0 && failed === 0) {
+        toast.success(`FIIS analyzed ${ok} intervention letter${ok === 1 ? '' : 's'}.`);
+      } else if (ok > 0 && failed > 0) {
+        toast.warning(`FIIS analyzed ${ok}; ${failed} could not be processed.`);
+      } else if (failed > 0) {
+        toast.error(`FIIS could not analyze ${failed} intervention letter${failed === 1 ? '' : 's'}.`);
+      }
+    }
+  };
+
+  // Auto-trigger backfill once per session for moderators when unanalyzed letters exist.
+  useEffect(() => {
+    if (isLoading || backfillTriggeredRef.current || !canManage) return;
+    const hasPending = documents.some(
+      (d) => d.document_type === 'intervention_letter' && !d.fiis_analyzed,
+    );
+    if (hasPending) {
+      backfillTriggeredRef.current = true;
+      runBackfill(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoading, documents, canManage]);
 
   const handleAnalyzeForAftercare = async (doc: FamilyDocument) => {
     if (doc.document_type !== 'discharge_plan' && doc.document_type !== 'aftercare_plan') {
