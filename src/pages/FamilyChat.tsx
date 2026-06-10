@@ -5251,7 +5251,7 @@ const FamilyChat = () => {
           {/* Test Results Tab */}
           <TabsContent value="test-results" className="mt-0 space-y-4 overflow-auto">
             <Suspense fallback={<Card><CardContent className="pt-6 text-sm text-muted-foreground">Loading drug & alcohol testing...</CardContent></Card>}>
-              <DrugTestingTab familyId={familyId!} userRole={userRole || 'member'} />
+              <DrugTestingTab familyId={familyId!} userRole={currentUserRole} />
             </Suspense>
           </TabsContent>
 
