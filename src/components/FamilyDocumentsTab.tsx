@@ -85,6 +85,8 @@ export const FamilyDocumentsTab = ({ familyId, userRole }: FamilyDocumentsTabPro
   const [isUploading, setIsUploading] = useState(false);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const [analyzingId, setAnalyzingId] = useState<string | null>(null);
+  const [isBackfilling, setIsBackfilling] = useState(false);
+  const backfillTriggeredRef = useRef(false);
   
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploadForm, setUploadForm] = useState({
