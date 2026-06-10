@@ -146,23 +146,56 @@ const ModeratorDashboard = () => {
   }, [user]);
 
   const fetchModeratorData = async () => {
+    const userId = user!.id;
+
+    // 1) Organizations — isolated try/catch so a failure here doesn't wipe families
     try {
-      // Fetch organizations user is a member of
       const { data: orgMembers, error: orgError } = await supabase
         .from('organization_members')
         .select('organization_id, role, organizations(id, name)')
-        .eq('user_id', user!.id);
+        .eq('user_id', userId);
 
-      if (orgError) throw orgError;
+      if (orgError) {
+        console.error('[ModeratorDashboard] organization_members fetch failed', {
+          code: orgError.code,
+          message: orgError.message,
+          details: orgError.details,
+          hint: orgError.hint,
+          userId,
+        });
+      } else {
+        const orgs: OrganizationInfo[] = (orgMembers || [])
+          .map((om: any) => {
+            const org = om?.organizations;
+            if (!org || !org.id) return null;
+            return {
+              id: org.id,
+              name: org.name || 'Organization',
+              role: om.role,
+            } as OrganizationInfo;
+          })
+          .filter(Boolean) as OrganizationInfo[];
+        setOrganizations(orgs);
+      }
+    } catch (error: any) {
+      console.error('[ModeratorDashboard] organization_members fetch failed (catch)', {
+        message: error?.message,
+        userId,
+      });
+    }
 
-      const orgs: OrganizationInfo[] = (orgMembers || []).map((om: any) => ({
-        id: om.organizations.id,
-        name: om.organizations.name,
-        role: om.role,
-      }));
-      setOrganizations(orgs);
+    // 2) Assigned families — isolated try/catch with embedded-then-fallback strategy
+    try {
+      type FamilyRow = {
+        id: string;
+        name: string;
+        description: string | null;
+        organization_id: string | null;
+        organization_name: string;
+      };
+      let familyRows: FamilyRow[] = [];
+      let embeddedFailed = false;
 
-      // Fetch families where user is a moderator (excluding archived)
       const { data: familyMembers, error: familyError } = await supabase
         .from('family_members')
         .select(`
@@ -178,42 +211,140 @@ const ModeratorDashboard = () => {
             )
           )
         `)
-        .eq('user_id', user!.id)
+        .eq('user_id', userId)
         .eq('role', 'moderator')
         .eq('families.is_archived', false);
 
-      if (familyError) throw familyError;
+      if (familyError) {
+        console.error('[ModeratorDashboard] assigned families fetch failed (embedded)', {
+          code: familyError.code,
+          message: familyError.message,
+          details: familyError.details,
+          hint: familyError.hint,
+          userId,
+        });
+        embeddedFailed = true;
+      } else {
+        familyRows = (familyMembers || [])
+          .map((fm: any) => {
+            const f = fm?.families;
+            if (!f || !f.id) return null;
+            return {
+              id: f.id,
+              name: f.name || 'Family',
+              description: f.description ?? null,
+              organization_id: f.organization_id || null,
+              organization_name: f.organizations?.name || 'Independent',
+            } as FamilyRow;
+          })
+          .filter(Boolean) as FamilyRow[];
+      }
 
-      // Get member counts, invite codes, and health status for each family
+      // Fallback: two-step query if embedded relationship fails
+      if (embeddedFailed) {
+        const { data: fmRows, error: fmErr } = await supabase
+          .from('family_members')
+          .select('family_id')
+          .eq('user_id', userId)
+          .eq('role', 'moderator');
+
+        if (fmErr) {
+          console.error('[ModeratorDashboard] assigned families fetch failed (fallback step 1)', {
+            code: fmErr.code,
+            message: fmErr.message,
+            details: fmErr.details,
+            hint: fmErr.hint,
+            userId,
+          });
+          throw fmErr;
+        }
+
+        const familyIds = Array.from(new Set((fmRows || []).map((r: any) => r.family_id).filter(Boolean)));
+        if (familyIds.length > 0) {
+          const { data: famData, error: famErr } = await supabase
+            .from('families')
+            .select('id, name, description, organization_id, is_archived')
+            .in('id', familyIds)
+            .eq('is_archived', false);
+
+          if (famErr) {
+            console.error('[ModeratorDashboard] assigned families fetch failed (fallback step 2)', {
+              code: famErr.code,
+              message: famErr.message,
+              details: famErr.details,
+              hint: famErr.hint,
+              userId,
+            });
+            throw famErr;
+          }
+
+          const orgIds = Array.from(
+            new Set((famData || []).map((f: any) => f.organization_id).filter(Boolean))
+          );
+          let orgNameMap = new Map<string, string>();
+          if (orgIds.length > 0) {
+            const { data: orgData, error: orgFetchErr } = await supabase
+              .from('organizations')
+              .select('id, name')
+              .in('id', orgIds);
+            if (orgFetchErr) {
+              console.error('[ModeratorDashboard] assigned families fetch failed (fallback step 3 orgs)', {
+                code: orgFetchErr.code,
+                message: orgFetchErr.message,
+                details: orgFetchErr.details,
+                hint: orgFetchErr.hint,
+                userId,
+              });
+            } else {
+              orgNameMap = new Map((orgData || []).map((o: any) => [o.id, o.name || 'Organization']));
+            }
+          }
+
+          familyRows = (famData || [])
+            .filter((f: any) => f && f.id)
+            .map((f: any) => ({
+              id: f.id,
+              name: f.name || 'Family',
+              description: f.description ?? null,
+              organization_id: f.organization_id || null,
+              organization_name: f.organization_id
+                ? orgNameMap.get(f.organization_id) || 'Independent'
+                : 'Independent',
+            }));
+        } else {
+          familyRows = [];
+        }
+      }
+
+      // Get member counts, invite codes, and health status for each family (best-effort)
       const familiesWithCounts = await Promise.all(
-        (familyMembers || []).map(async (fm: any) => {
+        familyRows.map(async (f) => {
           const [countResult, codeResult, healthResult] = await Promise.all([
             supabase
               .from('family_members')
               .select('*', { count: 'exact', head: true })
-              .eq('family_id', fm.family_id),
-            supabase.rpc('get_family_invite_code', { _family_id: fm.family_id }),
+              .eq('family_id', f.id),
+            supabase.rpc('get_family_invite_code', { _family_id: f.id }),
             supabase
               .from('family_health_status')
               .select('status')
-              .eq('family_id', fm.family_id)
-              .maybeSingle()
+              .eq('family_id', f.id)
+              .maybeSingle(),
           ]);
 
           return {
-            id: fm.families.id,
-            name: fm.families.name,
-            description: fm.families.description,
+            id: f.id,
+            name: f.name,
+            description: f.description,
             member_count: countResult.count || 0,
-            organization_id: fm.families.organization_id || null,
-            organization_name: fm.families.organizations?.name || 'Independent',
-            invite_code: codeResult.data || null,
-            health_status: (healthResult.data?.status as HealthStatus) || null,
-          };
+            organization_id: f.organization_id,
+            organization_name: f.organization_name,
+            invite_code: (codeResult as any)?.data || null,
+            health_status: ((healthResult as any)?.data?.status as HealthStatus) || null,
+          } as AssignedFamily;
         })
       );
 
-      // Sort families by health status priority: crisis first, then concern, tension, stable, improving
       const statusPriority: Record<HealthStatus | 'null', number> = {
         crisis: 0,
         concern: 1,
@@ -230,11 +361,17 @@ const ModeratorDashboard = () => {
       });
 
       setAssignedFamilies(familiesWithCounts);
-    } catch (error) {
-      console.error('Error fetching moderator data:', error);
+    } catch (error: any) {
+      console.error('[ModeratorDashboard] assigned families fetch failed (catch)', {
+        message: error?.message,
+        userId,
+      });
+      setAssignedFamilies([]);
       toast({
-        title: 'Error',
-        description: 'Failed to load your assigned family groups.',
+        title: 'Could not load family groups',
+        description:
+          error?.message ||
+          'Your organization loaded, but the family group list could not be loaded.',
         variant: 'destructive',
       });
     } finally {
