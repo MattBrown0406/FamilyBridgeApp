@@ -266,9 +266,9 @@ export const FamilyDocumentsTab = ({ familyId, userRole }: FamilyDocumentsTabPro
     }
   };
 
-  const handleAnalyzeForBoundaries = async (doc: FamilyDocument) => {
+  const handleAnalyzeWithFiis = async (doc: FamilyDocument) => {
     if (doc.document_type !== 'intervention_letter') {
-      toast.error('Only intervention letters can be analyzed for boundaries');
+      toast.error('Only intervention letters can be analyzed with FIIS');
       return;
     }
 
@@ -299,10 +299,25 @@ export const FamilyDocumentsTab = ({ familyId, userRole }: FamilyDocumentsTabPro
 
       if (error) throw error;
 
-      if (data.boundariesCreated > 0) {
-        toast.success(`Found ${data.boundariesCreated} boundaries - submitted for review`);
+      const boundariesCreated = data?.boundariesCreated ?? 0;
+      const valuesCreated = data?.valuesCreated ?? 0;
+      const goalsCreated = data?.goalsCreated ?? 0;
+      const valuesProposed = data?.valuesProposed ?? 0;
+      const goalsProposed = data?.goalsProposed ?? 0;
+      const valuesSkipped = data?.valuesSkipped ?? 0;
+      const skippedDueToLimit = (data?.valuesSkippedDueToExistingLimit ?? []).length;
+
+      const created: string[] = [];
+      if (boundariesCreated > 0) created.push(`${boundariesCreated} boundar${boundariesCreated === 1 ? 'y' : 'ies'}`);
+      if (valuesCreated > 0) created.push(`${valuesCreated} guiding value${valuesCreated === 1 ? '' : 's'}`);
+      if (goalsCreated > 0) created.push(`${goalsCreated} family support goal${goalsCreated === 1 ? '' : 's'}`);
+
+      if (created.length > 0) {
+        toast.success(`FIIS analysis: ${created.join(', ')} added for review`);
+      } else if (valuesProposed > 0 || goalsProposed > 0 || valuesSkipped > 0 || skippedDueToLimit > 0) {
+        toast.info('FIIS reviewed this letter — existing family values and goals were preserved.');
       } else {
-        toast.info('No boundaries found in this document');
+        toast.info(data?.message || 'FIIS did not find clear boundaries, values, or goals in this document.');
       }
 
       fetchDocuments();
@@ -451,7 +466,7 @@ export const FamilyDocumentsTab = ({ familyId, userRole }: FamilyDocumentsTabPro
                 </Select>
                 {uploadForm.document_type === 'intervention_letter' && (
                   <p className="text-xs text-muted-foreground">
-                    💡 Intervention letters can be analyzed by FIIS to extract boundaries automatically.
+                    💡 FIIS can analyze intervention letters to extract boundaries, family values, and family-support goals for review.
                   </p>
                 )}
                 {(uploadForm.document_type === 'discharge_plan' || uploadForm.document_type === 'aftercare_plan') && (
@@ -526,7 +541,16 @@ export const FamilyDocumentsTab = ({ familyId, userRole }: FamilyDocumentsTabPro
                           {doc.fiis_analyzed && (
                             <Badge variant="secondary" className="text-xs gap-1">
                               <CheckCircle className="h-3 w-3" />
-                              {isAftercarePlan ? `${doc.boundaries_extracted} items` : `${doc.boundaries_extracted} boundaries`}
+                              {isAftercarePlan
+                                ? `${doc.boundaries_extracted} items`
+                                : isInterventionLetter
+                                  ? `FIIS analyzed • ${doc.boundaries_extracted} boundaries extracted`
+                                  : `${doc.boundaries_extracted} items`}
+                            </Badge>
+                          )}
+                          {isInterventionLetter && !doc.fiis_analyzed && (
+                            <Badge variant="outline" className="text-xs">
+                              Ready for FIIS analysis
                             </Badge>
                           )}
                         </div>
@@ -543,9 +567,9 @@ export const FamilyDocumentsTab = ({ familyId, userRole }: FamilyDocumentsTabPro
                         <Button 
                           variant="ghost" 
                           size="icon" 
-                          onClick={() => handleAnalyzeForBoundaries(doc)}
+                          onClick={() => handleAnalyzeWithFiis(doc)}
                           disabled={analyzingId === doc.id}
-                          title="Analyze for Boundaries"
+                          title="Analyze with FIIS — extract boundaries, values & goals"
                         >
                           {analyzingId === doc.id ? (
                             <Loader2 className="h-4 w-4 animate-spin" />
