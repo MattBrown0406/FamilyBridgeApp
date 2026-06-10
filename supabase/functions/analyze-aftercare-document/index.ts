@@ -682,7 +682,8 @@ Rules:
               end_date: rec.end_date || null,
               importance: "medium",
               evidence_quote: rec.evidence_quote || null,
-              is_active: true,
+              review_status: "pending",
+              is_active: false,
               created_by: user.id,
             });
           if (!tgtErr) targetsCreated++;
@@ -715,19 +716,24 @@ Rules:
           minimum_expected_per_week: tgt.minimum_expected_per_week ?? null,
           importance: tgt.importance || "medium",
           evidence_quote: tgt.evidence_quote || null,
-          is_active: true,
+          review_status: "pending",
+          is_active: false,
           created_by: user.id,
         });
       if (!tgtErr) targetsCreated++;
     }
 
     // Update the document to mark it as analyzed
+    const usefulFound = recommendationsCreated > 0 || targetsCreated > 0 || drugTestingExpectations.length > 0;
     await supabase
       .from("family_documents")
       .update({
         fiis_analyzed: true,
         fiis_analyzed_at: new Date().toISOString(),
-        boundaries_extracted: recommendationsCreated,
+        recommendations_extracted: recommendationsCreated,
+        fiis_analysis_status: usefulFound ? "complete" : "no_findings",
+        fiis_analysis_error: null,
+        fiis_summary: fiisSummary || null,
       })
       .eq("id", documentId);
 
@@ -738,6 +744,7 @@ Rules:
         success: true,
         recommendationsFound: recommendations.length,
         recommendationsCreated,
+        accountabilityTargetsCreated: targetsCreated,
         targetsCreated,
         drugTestingExpectations: drugTestingExpectations.length,
         planId,
@@ -745,7 +752,7 @@ Rules:
         facilityName,
         fiisSummary,
         message: recommendationsCreated > 0
-          ? `Created ${recommendationsCreated} aftercare items and ${targetsCreated} accountability targets.`
+          ? `Created ${recommendationsCreated} aftercare items and ${targetsCreated} pending accountability targets (awaiting approval).`
           : "No clear aftercare recommendations found in this document.",
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -753,6 +760,17 @@ Rules:
 
   } catch (error: unknown) {
     console.error("Error analyzing aftercare document", getErrorMessage(error));
+    if (documentIdForStatus && supabaseForStatus) {
+      try {
+        await supabaseForStatus
+          .from("family_documents")
+          .update({
+            fiis_analysis_status: "failed",
+            fiis_analysis_error: getErrorMessage(error).slice(0, 500),
+          })
+          .eq("id", documentIdForStatus);
+      } catch (_) { /* ignore */ }
+    }
     return new Response(
       JSON.stringify({ error: getErrorMessage(error) }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
