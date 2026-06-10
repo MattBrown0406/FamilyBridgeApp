@@ -66,6 +66,7 @@ Deno.serve(async (req) => {
     const familyFactors: string[] = [];
     let familyTrend = "stable";
     const positiveFeedback: string[] = [];
+    let createdAcknowledgements: any[] = [];
 
     if (family_id) {
       const boundaries = data.boundaries || [];
@@ -278,7 +279,6 @@ Deno.serve(async (req) => {
       // ===== end plan vs behavior =====
 
       // Insert acknowledgements with dedupe (unique on source_target_id+window_start+type)
-      let createdAcknowledgements: any[] = [];
       if (acknowledgementsToInsert.length > 0) {
         const { data: insertedAcks } = await supabase
           .from("accountability_acknowledgements")
@@ -370,7 +370,7 @@ Deno.serve(async (req) => {
           trend: familyTrend,
           factors: familyFactors,
           positive_feedback: positiveFeedback,
-          acknowledgements: typeof createdAcknowledgements !== "undefined" ? createdAcknowledgements : [],
+          acknowledgements: createdAcknowledgements,
         } : null,
         success: true,
       }),
