@@ -58,8 +58,23 @@ const documentTypeLabels: Record<string, string> = {
   aftercare_plan: 'Aftercare Plan',
   treatment_plan: 'Treatment Plan',
   clinical_summary: 'Clinical Summary',
+  drug_test_result: 'Drug/Alcohol Test Result',
+  medication_list: 'Medication List',
+  psychiatric_instructions: 'Psychiatric Instructions',
   consent_form: 'Consent Form',
   other: 'Other',
+};
+
+// Map document type to the analyzer edge function that should run on upload.
+const analyzerForDocType = (docType: string): string | null => {
+  switch (docType) {
+    case 'intervention_letter': return 'analyze-intervention-letter';
+    case 'discharge_plan':
+    case 'aftercare_plan':
+    case 'treatment_plan': return 'analyze-aftercare-document';
+    case 'drug_test_result': return 'analyze-drug-test-document';
+    default: return null;
+  }
 };
 
 const formatFileSize = (bytes: number | null): string => {
@@ -189,10 +204,10 @@ export const FamilyDocumentsTab = ({ familyId, userRole }: FamilyDocumentsTabPro
 
       if (dbError) throw dbError;
 
-      const wasInterventionLetter = uploadForm.document_type === 'intervention_letter';
+      const analyzerFn = analyzerForDocType(uploadForm.document_type);
       toast.success(
-        wasInterventionLetter
-          ? 'Document uploaded — FIIS is analyzing this letter now…'
+        analyzerFn
+          ? 'Document uploaded — FIIS is analyzing it now…'
           : 'Document uploaded successfully',
       );
       setIsUploadDialogOpen(false);
@@ -201,10 +216,10 @@ export const FamilyDocumentsTab = ({ familyId, userRole }: FamilyDocumentsTabPro
       if (fileInputRef.current) fileInputRef.current.value = '';
       fetchDocuments();
 
-      // Auto-run FIIS analysis on new intervention letters (no extra click needed).
-      if (wasInterventionLetter && inserted) {
+      // Auto-route to the correct analyzer based on document type.
+      if (analyzerFn && inserted) {
         setAnalyzingId(inserted.id);
-        analyzeInterventionLetter(inserted as any, { silent: false })
+        routeAnalysis(inserted as any, analyzerFn, { silent: false })
           .finally(() => setAnalyzingId((current) => (current === inserted.id ? null : current)));
       }
     } catch (err: any) {
@@ -352,6 +367,62 @@ export const FamilyDocumentsTab = ({ familyId, userRole }: FamilyDocumentsTabPro
       await analyzeInterventionLetter(doc);
     } finally {
       setAnalyzingId(null);
+    }
+  };
+
+  // Generic router for FIIS-style analyzers (intervention, aftercare, drug test, ...).
+  const routeAnalysis = async (
+    doc: Pick<FamilyDocument, 'id' | 'document_type' | 'file_path' | 'mime_type'>,
+    fnName: string,
+    opts: { silent?: boolean; refresh?: boolean } = {},
+  ): Promise<{ ok: boolean; data?: any; error?: any }> => {
+    try {
+      const { data: fileData, error: dlErr } = await supabase.storage
+        .from('family-documents').download(doc.file_path);
+      if (dlErr) throw dlErr;
+      const ab = await fileData.arrayBuffer();
+      const bytes = new Uint8Array(ab);
+      let binary = ''; for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+      const base64 = btoa(binary);
+
+      const body: any = { documentId: doc.id, familyId, fileBytes: base64, mimeType: doc.mime_type };
+
+      if (fnName === 'analyze-aftercare-document') {
+        const { data: memberData } = await supabase.from('family_members')
+          .select('user_id').eq('family_id', familyId).eq('role', 'recovering').maybeSingle();
+        body.targetUserId = memberData?.user_id ?? null;
+      }
+
+      const { data, error } = await supabase.functions.invoke(fnName, { body });
+      if (error) throw error;
+
+      if (!opts.silent) {
+        if (fnName === 'analyze-aftercare-document') {
+          const created = data?.recommendationsCreated ?? 0;
+          const targets = data?.targetsCreated ?? 0;
+          if (created > 0 || targets > 0) {
+            toast.success(`FIIS: ${created} aftercare item${created === 1 ? '' : 's'} and ${targets} accountability target${targets === 1 ? '' : 's'} extracted.`);
+          } else {
+            toast.info(data?.message || 'No aftercare items were extracted from this document.');
+          }
+        } else if (fnName === 'analyze-drug-test-document') {
+          if (data?.created) {
+            toast.success(`Drug test result recorded${data?.result ? ` (${data.result})` : ''}.`);
+          } else if (data?.drugTestResultId) {
+            toast.info('Drug test already on file for this document.');
+          } else {
+            toast.info('FIIS could not extract a clear test result from this document.');
+          }
+          if (data?.needsReview) toast.warning('Could not auto-match a family member — please assign on the Drug Testing tab.');
+        }
+      }
+
+      if (opts.refresh !== false) fetchDocuments();
+      return { ok: true, data };
+    } catch (err: any) {
+      console.error('[FIIS] router error', { fn: fnName, docId: doc.id, message: err?.message });
+      if (!opts.silent) toast.error(err?.message || 'Failed to analyze document');
+      return { ok: false, error: err };
     }
   };
 
