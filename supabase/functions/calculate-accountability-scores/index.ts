@@ -46,6 +46,19 @@ Deno.serve(async (req) => {
       data.commitments = commitmentsRes.data || [];
       data.messages = messagesRes.data || [];
       data.coaching_sessions = coachingSessionsRes.data || [];
+
+      const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+      const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+      const [targetsRes, meetingsRes, drugTestsRes] = await Promise.all([
+        supabase.from("accountability_plan_targets").select("*").eq("family_id", family_id).eq("is_active", true),
+        supabase.from("meeting_checkins").select("meeting_type, checked_in_at").eq("family_id", family_id).gte("checked_in_at", thirtyDaysAgo),
+        supabase.from("drug_test_results").select("test_date, result").eq("family_id", family_id).gte("test_date", thirtyDaysAgo.slice(0, 10)),
+      ]);
+      data.plan_targets = targetsRes.data || [];
+      data.meeting_checkins = meetingsRes.data || [];
+      data.drug_tests = drugTestsRes.data || [];
+      data._sevenDaysAgo = sevenDaysAgo;
+      data._thirtyDaysAgo = thirtyDaysAgo;
     }
 
     // Calculate family score
@@ -121,6 +134,78 @@ Deno.serve(async (req) => {
         familyScore -= 6;
         familyFactors.push("Recent family communication appears strained and would benefit from calmer boundaries");
       }
+
+      // ===== Plan vs Behavior: compare accountability_plan_targets against actual data =====
+      const planTargets = data.plan_targets || [];
+      const meetings = data.meeting_checkins || [];
+      const drugTests = data.drug_tests || [];
+      const sevenAgo = new Date(data._sevenDaysAgo).getTime();
+
+      // Categorize meeting check-ins very loosely by meeting_type text.
+      const isRecoveryMeetingType = (t?: string) =>
+        !!t && /^(AA|NA|Al-Anon|Nar-Anon|Refuge Recovery|Smart Recovery|ACA|CoDA|Families Anonymous|Celebrate Recovery|Support Group)$/i.test(t);
+      const isTherapyType = (t?: string) => !!t && /therapy/i.test(t);
+      const isPsychiatryType = (t?: string) => !!t && /psychiatry|psych/i.test(t);
+      const isMedicalType = (t?: string) => !!t && /medical/i.test(t);
+      const isIopPhpType = (t?: string) => !!t && /(iop|php)/i.test(t);
+
+      const matchesCategory = (target: any, mt: string | undefined) => {
+        switch (target.checkin_category) {
+          case "meeting": return isRecoveryMeetingType(mt);
+          case "therapy": return isTherapyType(mt);
+          case "psychiatry": return isPsychiatryType(mt);
+          case "medical": return isMedicalType(mt);
+          case "iop":
+          case "php": return isIopPhpType(mt);
+          default: return false;
+        }
+      };
+
+      for (const target of planTargets) {
+        const label = target.label || target.target_type;
+        const minWeek: number | null = target.minimum_expected_per_week ?? null;
+
+        if (target.target_type === "drug_testing") {
+          const within7 = drugTests.filter((t: any) => new Date(t.test_date).getTime() >= sevenAgo);
+          if (within7.length === 0) {
+            familyScore -= 8;
+            familyFactors.push(`Drug testing was recommended (${label}) but no result has been entered in the last 7 days.`);
+          } else {
+            const positives = within7.filter((t: any) => ["positive", "refused", "missed"].includes(t.result));
+            if (positives.length > 0) {
+              familyScore -= 14;
+              familyFactors.push(`${positives.length} positive/missed/refused drug test result(s) in the last 7 days.`);
+            } else {
+              positiveFeedback.push(`Drug testing on track: ${within7.length} clean result(s) logged this week.`);
+            }
+          }
+          continue;
+        }
+
+        if (target.target_type === "medication_adherence") {
+          // Lightweight signal — defer to MedicationTab data if added later.
+          continue;
+        }
+
+        if (minWeek == null) {
+          familyFactors.push(`Aftercare recommendation "${label}" needs clearer frequency for accountability tracking.`);
+          continue;
+        }
+
+        const actualWeek = meetings.filter((m: any) =>
+          new Date(m.checked_in_at).getTime() >= sevenAgo && matchesCategory(target, m.meeting_type)
+        ).length;
+
+        if (actualWeek >= minWeek) {
+          familyScore += 4;
+          positiveFeedback.push(`Aftercare plan is being followed: ${actualWeek} of ${minWeek} expected ${target.checkin_category || "appointments"}/week logged.`);
+        } else {
+          const gap = minWeek - actualWeek;
+          familyScore -= Math.min(10, 3 + gap * 2);
+          familyFactors.push(`Aftercare plan expects ${minWeek} ${target.checkin_category || "appointments"}/week (${label}); ${actualWeek} logged this week.`);
+        }
+      }
+      // ===== end plan vs behavior =====
 
       // Determine trend
       const { data: prevScores } = await supabase
