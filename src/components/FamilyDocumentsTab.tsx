@@ -466,7 +466,7 @@ export const FamilyDocumentsTab = ({ familyId, userRole }: FamilyDocumentsTabPro
                 </Select>
                 {uploadForm.document_type === 'intervention_letter' && (
                   <p className="text-xs text-muted-foreground">
-                    💡 Intervention letters can be analyzed by FIIS to extract boundaries automatically.
+                    💡 FIIS can analyze intervention letters to extract boundaries, family values, and family-support goals for review.
                   </p>
                 )}
                 {(uploadForm.document_type === 'discharge_plan' || uploadForm.document_type === 'aftercare_plan') && (
@@ -541,7 +541,16 @@ export const FamilyDocumentsTab = ({ familyId, userRole }: FamilyDocumentsTabPro
                           {doc.fiis_analyzed && (
                             <Badge variant="secondary" className="text-xs gap-1">
                               <CheckCircle className="h-3 w-3" />
-                              {isAftercarePlan ? `${doc.boundaries_extracted} items` : `${doc.boundaries_extracted} boundaries`}
+                              {isAftercarePlan
+                                ? `${doc.boundaries_extracted} items`
+                                : isInterventionLetter
+                                  ? `FIIS analyzed • ${doc.boundaries_extracted} boundaries extracted`
+                                  : `${doc.boundaries_extracted} items`}
+                            </Badge>
+                          )}
+                          {isInterventionLetter && !doc.fiis_analyzed && (
+                            <Badge variant="outline" className="text-xs">
+                              Ready for FIIS analysis
                             </Badge>
                           )}
                         </div>
