@@ -112,7 +112,26 @@ interface Message {
   was_filtered: boolean;
   created_at: string;
   sender_name?: string;
+  reactions?: MessageReaction[];
 }
+
+type MessageReactionType = 'thumbs_up' | 'heart';
+
+interface MessageReaction {
+  id: string;
+  message_id: string;
+  family_id: string;
+  user_id: string;
+  reaction_type: MessageReactionType;
+  created_at: string;
+  updated_at?: string;
+  user_name?: string;
+}
+
+const MESSAGE_REACTION_OPTIONS: { type: MessageReactionType; emoji: string; label: string }[] = [
+  { type: 'thumbs_up', emoji: '👍', label: 'Thumbs up' },
+  { type: 'heart', emoji: '❤️', label: 'Heart' },
+];
 
 interface PresenceStateEntry {
   user_id?: string;
@@ -1343,11 +1362,31 @@ const FamilyChat = () => {
           sender_name: sender?.full_name || 'Unknown',
         };
       });
-      setAllMessages(messagesWithNames);
+
+      let reactionsData: MessageReaction[] = [];
+      const messageIds = messagesWithNames.map((msg) => msg.id);
+      if (messageIds.length > 0) {
+        const { data, error } = await (supabase as any)
+          .from('message_reactions')
+          .select('id, message_id, family_id, user_id, reaction_type, created_at, updated_at')
+          .eq('family_id', familyId)
+          .in('message_id', messageIds);
+
+        if (error) throw error;
+        reactionsData = (data || []) as MessageReaction[];
+      }
+
+      const messagesWithReactions = attachReactionsToMessages(
+        messagesWithNames,
+        reactionsData,
+        formattedMembers
+      );
+
+      setAllMessages(messagesWithReactions);
       // Filter messages to current week initially
       const currentWeekStart = startOfWeek(new Date(), { weekStartsOn: 0 });
       const currentWeekEnd = endOfWeek(new Date(), { weekStartsOn: 0 });
-      const currentWeekMessages = messagesWithNames.filter(msg => {
+      const currentWeekMessages = messagesWithReactions.filter(msg => {
         const msgDate = new Date(msg.created_at);
         return isWithinInterval(msgDate, { start: currentWeekStart, end: currentWeekEnd });
       });
@@ -2149,6 +2188,23 @@ const FamilyChat = () => {
           }
         }
       )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'message_reactions',
+          filter: `family_id=eq.${familyId}`,
+        },
+        (payload) => {
+          if (payload.eventType === 'DELETE') {
+            removeReactionFromState(payload.old as MessageReaction);
+            return;
+          }
+
+          upsertReactionInState(payload.new as MessageReaction);
+        }
+      )
       .subscribe();
 
     return () => {
@@ -2567,6 +2623,118 @@ const FamilyChat = () => {
       .toUpperCase()
       .slice(0, 2);
   };
+
+  const withReactionNames = (reactions: MessageReaction[] = [], memberList: Member[] = members) =>
+    reactions.map((reaction) => ({
+      ...reaction,
+      reaction_type: reaction.reaction_type as MessageReactionType,
+      user_name: memberList.find((member) => member.user_id === reaction.user_id)?.full_name || 'Family member',
+    }));
+
+  const attachReactionsToMessages = (
+    messageList: Message[],
+    reactions: MessageReaction[] = [],
+    memberList: Member[] = members
+  ): Message[] => {
+    const reactionsByMessage = new Map<string, MessageReaction[]>();
+    withReactionNames(reactions, memberList).forEach((reaction) => {
+      const current = reactionsByMessage.get(reaction.message_id) || [];
+      reactionsByMessage.set(reaction.message_id, [...current, reaction]);
+    });
+
+    return messageList.map((message) => ({
+      ...message,
+      reactions: reactionsByMessage.get(message.id) || [],
+    }));
+  };
+
+  const updateMessageReactions = (
+    updater: (reactions: MessageReaction[]) => MessageReaction[],
+    messageId: string
+  ) => {
+    const applyUpdate = (messageList: Message[]) =>
+      messageList.map((message) =>
+        message.id === messageId
+          ? { ...message, reactions: updater(message.reactions || []) }
+          : message
+      );
+
+    setAllMessages(applyUpdate);
+    setMessages(applyUpdate);
+  };
+
+  const upsertReactionInState = (reaction: MessageReaction) => {
+    const reactionWithName = withReactionNames([reaction])[0];
+    updateMessageReactions(
+      (existing) => [
+        ...existing.filter((item) => item.user_id !== reactionWithName.user_id),
+        reactionWithName,
+      ].sort((a, b) => a.created_at.localeCompare(b.created_at)),
+      reactionWithName.message_id
+    );
+  };
+
+  const removeReactionFromState = (reaction: MessageReaction) => {
+    updateMessageReactions(
+      (existing) => existing.filter((item) => item.id !== reaction.id),
+      reaction.message_id
+    );
+  };
+
+  const handleToggleMessageReaction = async (message: Message, reactionType: MessageReactionType) => {
+    if (!user || !familyId) return;
+
+    const currentReaction = message.reactions?.find((reaction) => reaction.user_id === user.id);
+
+    try {
+      if (currentReaction?.reaction_type === reactionType) {
+        const { error } = await (supabase as any)
+          .from('message_reactions')
+          .delete()
+          .eq('id', currentReaction.id);
+        if (error) throw error;
+        return;
+      }
+
+      if (currentReaction) {
+        const { error } = await (supabase as any)
+          .from('message_reactions')
+          .update({ reaction_type: reactionType })
+          .eq('id', currentReaction.id);
+        if (error) throw error;
+        return;
+      }
+
+      const { error } = await (supabase as any)
+        .from('message_reactions')
+        .insert({
+          message_id: message.id,
+          family_id: familyId,
+          user_id: user.id,
+          reaction_type: reactionType,
+        });
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error updating message reaction:', error);
+      toast({
+        title: 'Reaction not saved',
+        description: 'Please try again.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const getReactionSummary = (reactions: MessageReaction[] = []) =>
+    MESSAGE_REACTION_OPTIONS.map((option) => {
+      const matches = reactions.filter((reaction) => reaction.reaction_type === option.type);
+      return {
+        ...option,
+        count: matches.length,
+        userReacted: matches.some((reaction) => reaction.user_id === user?.id),
+        title: matches.map((reaction) => reaction.user_name || 'Family member').join(', '),
+      };
+    }).filter((summary) => summary.count > 0);
 
   // Fetch secure payment links via one-time token (only available once per payment action)
   const fetchPaymentLinksWithToken = async (requestId: string, token: string): Promise<PaymentLinks | null> => {
@@ -3315,55 +3483,100 @@ const FamilyChat = () => {
                       </p>
                     </div>
                   ) : (
-                    messages.map((msg, index) => (
-                      <div
-                        key={msg.id}
-                        className={`flex gap-3 message-bubble ${msg.sender_id === user?.id ? 'flex-row-reverse' : ''}`}
-                        style={{ animationDelay: `${Math.min(index * 0.05, 0.5)}s` }}
-                      >
-                        <Avatar className="h-9 w-9 shrink-0 shadow-md ring-2 ring-background">
-                          <AvatarFallback 
-                            className="text-xs text-white font-medium"
-                            style={
-                              organization?.primary_color
-                                ? { background: `linear-gradient(135deg, hsl(${organization.primary_color}), hsl(${organization.primary_color} / 0.8))` }
-                                : { background: 'linear-gradient(135deg, hsl(var(--primary) / 0.8), hsl(var(--accent) / 0.8))' }
-                            }
-                          >
-                            {getInitials(msg.sender_name || '')}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className={`max-w-[70%] ${msg.sender_id === user?.id ? 'items-end' : ''}`}>
-                          <div className={`flex items-center gap-2 mb-1 ${msg.sender_id === user?.id ? 'justify-end' : ''}`}>
-                            <span className="text-xs font-medium text-foreground">
-                              {msg.sender_name}
-                            </span>
-                            <span className="text-xs text-muted-foreground">
-                              {format(new Date(msg.created_at), 'h:mm a')}
-                            </span>
-                            {msg.was_filtered && (
-                              <AlertTriangle className="h-3 w-3 text-warning" />
-                            )}
-                          </div>
-                          <div
-                            className={`rounded-2xl px-4 py-2.5 shadow-sm ${
-                              msg.sender_id === user?.id
-                                ? 'text-white rounded-tr-sm'
-                                : 'bg-card border border-border/50 text-card-foreground rounded-tl-sm'
-                            }`}
-                            style={
-                              msg.sender_id === user?.id
-                                ? organization?.primary_color
-                                  ? { background: `linear-gradient(135deg, hsl(${organization.primary_color}), hsl(${organization.primary_color} / 0.85))` }
-                                  : { background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary) / 0.9))' }
-                                : undefined
-                            }
-                          >
-                            <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+                    messages.map((msg, index) => {
+                      const reactionSummary = getReactionSummary(msg.reactions);
+                      const isOwnMessage = msg.sender_id === user?.id;
+
+                      return (
+                        <div
+                          key={msg.id}
+                          className={`group flex gap-3 message-bubble ${isOwnMessage ? 'flex-row-reverse' : ''}`}
+                          style={{ animationDelay: `${Math.min(index * 0.05, 0.5)}s` }}
+                        >
+                          <Avatar className="h-9 w-9 shrink-0 shadow-md ring-2 ring-background">
+                            <AvatarFallback
+                              className="text-xs text-white font-medium"
+                              style={
+                                organization?.primary_color
+                                  ? { background: `linear-gradient(135deg, hsl(${organization.primary_color}), hsl(${organization.primary_color} / 0.8))` }
+                                  : { background: 'linear-gradient(135deg, hsl(var(--primary) / 0.8), hsl(var(--accent) / 0.8))' }
+                              }
+                            >
+                              {getInitials(msg.sender_name || '')}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className={`max-w-[70%] flex flex-col ${isOwnMessage ? 'items-end' : 'items-start'}`}>
+                            <div className={`flex items-center gap-2 mb-1 ${isOwnMessage ? 'justify-end' : ''}`}>
+                              <span className="text-xs font-medium text-foreground">
+                                {msg.sender_name}
+                              </span>
+                              <span className="text-xs text-muted-foreground">
+                                {format(new Date(msg.created_at), 'h:mm a')}
+                              </span>
+                              {msg.was_filtered && (
+                                <AlertTriangle className="h-3 w-3 text-warning" />
+                              )}
+                            </div>
+                            <div
+                              className={`rounded-2xl px-4 py-2.5 shadow-sm ${
+                                isOwnMessage
+                                  ? 'text-white rounded-tr-sm'
+                                  : 'bg-card border border-border/50 text-card-foreground rounded-tl-sm'
+                              }`}
+                              style={
+                                isOwnMessage
+                                  ? organization?.primary_color
+                                    ? { background: `linear-gradient(135deg, hsl(${organization.primary_color}), hsl(${organization.primary_color} / 0.85))` }
+                                    : { background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary) / 0.9))' }
+                                  : undefined
+                              }
+                            >
+                              <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+                            </div>
+
+                            <div className={`mt-1 flex flex-wrap items-center gap-1 ${isOwnMessage ? 'justify-end' : 'justify-start'}`}>
+                              {reactionSummary.map((reaction) => (
+                                <button
+                                  key={reaction.type}
+                                  type="button"
+                                  title={reaction.title || reaction.label}
+                                  aria-label={`${reaction.label}: ${reaction.count}`}
+                                  onClick={() => handleToggleMessageReaction(msg, reaction.type)}
+                                  className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs shadow-sm transition-colors ${
+                                    reaction.userReacted
+                                      ? 'border-primary/40 bg-primary/10 text-primary'
+                                      : 'border-border bg-background text-muted-foreground hover:bg-muted'
+                                  }`}
+                                >
+                                  <span>{reaction.emoji}</span>
+                                  <span>{reaction.count}</span>
+                                </button>
+                              ))}
+                              {MESSAGE_REACTION_OPTIONS.map((reaction) => {
+                                const alreadyReacted = msg.reactions?.some(
+                                  (item) => item.user_id === user?.id && item.reaction_type === reaction.type
+                                );
+
+                                return (
+                                  <button
+                                    key={`quick-${reaction.type}`}
+                                    type="button"
+                                    title={reaction.label}
+                                    aria-label={reaction.label}
+                                    onClick={() => handleToggleMessageReaction(msg, reaction.type)}
+                                    className={`inline-flex h-7 w-7 items-center justify-center rounded-full border bg-background text-sm shadow-sm transition-all hover:scale-105 hover:bg-muted ${
+                                      alreadyReacted ? 'border-primary/50 ring-1 ring-primary/30' : 'border-border/70 opacity-0 group-hover:opacity-100 focus:opacity-100'
+                                    }`}
+                                  >
+                                    {reaction.emoji}
+                                  </button>
+                                );
+                              })}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))
+                      );
+                    })
                   )}
                   <div ref={messagesEndRef} />
                 </div>
