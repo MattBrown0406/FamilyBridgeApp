@@ -6296,6 +6296,27 @@ export type Database = {
         }
         Relationships: []
       }
+      super_admins: {
+        Row: {
+          granted_at: string
+          granted_by: string | null
+          notes: string | null
+          user_id: string
+        }
+        Insert: {
+          granted_at?: string
+          granted_by?: string | null
+          notes?: string | null
+          user_id: string
+        }
+        Update: {
+          granted_at?: string
+          granted_by?: string | null
+          notes?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       temporary_moderator_requests: {
         Row: {
           assigned_moderator_id: string
