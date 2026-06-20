@@ -248,20 +248,20 @@ const ProviderWorkspace = () => {
         {selectedOrgId ? (
           <Tabs defaultValue="notes" className="space-y-6">
             <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-              <TabsList className="bg-primary/10">
-                <TabsTrigger 
-                  value="notes" 
-                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+              <TabsList className="h-auto p-1.5 bg-muted/40 rounded-xl gap-1">
+                <TabsTrigger
+                  value="notes"
+                  className="flex items-center gap-2 rounded-lg px-3 py-2 data-[state=active]:text-blue-600 dark:data-[state=active]:text-blue-400 data-[state=inactive]:text-muted-foreground"
                 >
-                  <FileText className="h-4 w-4 mr-2" />
-                  Clinical Notes
+                  <FileText className="h-4 w-4" />
+                  <span className="text-xs font-medium">Clinical Notes</span>
                 </TabsTrigger>
-                <TabsTrigger 
+                <TabsTrigger
                   value="messaging"
-                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                  className="flex items-center gap-2 rounded-lg px-3 py-2 data-[state=active]:text-green-600 dark:data-[state=active]:text-green-400 data-[state=inactive]:text-muted-foreground"
                 >
-                  <MessageSquare className="h-4 w-4 mr-2" />
-                  Team Messaging
+                  <MessageSquare className="h-4 w-4" />
+                  <span className="text-xs font-medium">Team Messaging</span>
                 </TabsTrigger>
               </TabsList>
 

@@ -623,40 +623,40 @@ const ModeratorDashboard = () => {
 
           {/* Tabs for Families, Notes, and Team Chat */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-            <TabsList className={`grid w-full ${organizations.length > 0 ? 'grid-cols-8' : 'grid-cols-6'}`}>
-              <TabsTrigger value="families" className="flex items-center gap-2">
+            <TabsList className="h-auto p-1.5 bg-muted/40 rounded-xl flex flex-wrap gap-1">
+              <TabsTrigger value="families" className="flex items-center gap-1.5 rounded-lg px-3 py-2 data-[state=active]:text-blue-600 dark:data-[state=active]:text-blue-400 data-[state=inactive]:text-muted-foreground">
                 <Users className="h-4 w-4" />
-                <span className="hidden sm:inline">Families</span>
+                <span className="hidden sm:inline text-xs font-medium">Families</span>
               </TabsTrigger>
-              <TabsTrigger value="notes" className="flex items-center gap-2">
+              <TabsTrigger value="notes" className="flex items-center gap-1.5 rounded-lg px-3 py-2 data-[state=active]:text-amber-600 dark:data-[state=active]:text-amber-400 data-[state=inactive]:text-muted-foreground">
                 <FileText className="h-4 w-4" />
-                <span className="hidden sm:inline">Notes</span>
+                <span className="hidden sm:inline text-xs font-medium">Notes</span>
               </TabsTrigger>
-              <TabsTrigger value="chat" className="flex items-center gap-2">
+              <TabsTrigger value="chat" className="flex items-center gap-1.5 rounded-lg px-3 py-2 data-[state=active]:text-green-600 dark:data-[state=active]:text-green-400 data-[state=inactive]:text-muted-foreground">
                 <MessageSquare className="h-4 w-4" />
-                <span className="hidden sm:inline">Chat</span>
+                <span className="hidden sm:inline text-xs font-medium">Chat</span>
               </TabsTrigger>
-              <TabsTrigger value="fiis-chat" className="flex items-center gap-2">
+              <TabsTrigger value="fiis-chat" className="flex items-center gap-1.5 rounded-lg px-3 py-2 data-[state=active]:text-violet-600 dark:data-[state=active]:text-violet-400 data-[state=inactive]:text-muted-foreground">
                 <Brain className="h-4 w-4" />
-                <span className="hidden sm:inline">FIIS</span>
+                <span className="hidden sm:inline text-xs font-medium">FIIS</span>
               </TabsTrigger>
-              <TabsTrigger value="transfers" className="flex items-center gap-2">
+              <TabsTrigger value="transfers" className="flex items-center gap-1.5 rounded-lg px-3 py-2 data-[state=active]:text-orange-600 dark:data-[state=active]:text-orange-400 data-[state=inactive]:text-muted-foreground">
                 <Inbox className="h-4 w-4" />
-                <span className="hidden sm:inline">Transfers</span>
+                <span className="hidden sm:inline text-xs font-medium">Transfers</span>
               </TabsTrigger>
-              <TabsTrigger value="co-mod" className="flex items-center gap-2">
+              <TabsTrigger value="co-mod" className="flex items-center gap-1.5 rounded-lg px-3 py-2 data-[state=active]:text-teal-600 dark:data-[state=active]:text-teal-400 data-[state=inactive]:text-muted-foreground">
                 <UserCheck className="h-4 w-4" />
-                <span className="hidden sm:inline">Co-Mod</span>
+                <span className="hidden sm:inline text-xs font-medium">Co-Mod</span>
               </TabsTrigger>
               {organizations.length > 0 && (
                 <>
-                  <TabsTrigger value="documents" className="flex items-center gap-2">
+                  <TabsTrigger value="documents" className="flex items-center gap-1.5 rounded-lg px-3 py-2 data-[state=active]:text-indigo-600 dark:data-[state=active]:text-indigo-400 data-[state=inactive]:text-muted-foreground">
                     <FolderOpen className="h-4 w-4" />
-                    <span className="hidden sm:inline">Docs</span>
+                    <span className="hidden sm:inline text-xs font-medium">Docs</span>
                   </TabsTrigger>
-                  <TabsTrigger value="crm" className="flex items-center gap-2">
+                  <TabsTrigger value="crm" className="flex items-center gap-1.5 rounded-lg px-3 py-2 data-[state=active]:text-rose-600 dark:data-[state=active]:text-rose-400 data-[state=inactive]:text-muted-foreground">
                     <Target className="h-4 w-4" />
-                    <span className="hidden sm:inline">CRM</span>
+                    <span className="hidden sm:inline text-xs font-medium">CRM</span>
                   </TabsTrigger>
                 </>
               )}

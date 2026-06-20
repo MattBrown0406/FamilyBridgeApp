@@ -714,31 +714,31 @@ const SuperAdmin = () => {
 
             {/* Main Content */}
             <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-3">
-              <TabsList className="h-auto p-1 bg-muted/50 flex flex-wrap gap-1">
-                <TabsTrigger value="providers" className="h-7 text-xs gap-1 px-2 sm:px-3 data-[state=active]:shadow-sm flex-shrink-0">
+              <TabsList className="h-auto p-1 bg-muted/40 rounded-xl flex flex-wrap gap-1">
+                <TabsTrigger value="providers" className="h-8 text-xs gap-1.5 px-2.5 sm:px-3 rounded-lg flex-shrink-0 data-[state=active]:text-purple-600 dark:data-[state=active]:text-purple-400 data-[state=inactive]:text-muted-foreground">
                   <Building2 className="h-3.5 w-3.5" />
                   <span className="hidden xs:inline">Providers</span>
                   <Badge variant="secondary" className="h-5 px-1 text-[10px] ml-0.5 sm:ml-1">{filteredOrgs.length}</Badge>
                 </TabsTrigger>
-                <TabsTrigger value="families" className="h-7 text-xs gap-1 px-2 sm:px-3 data-[state=active]:shadow-sm flex-shrink-0">
+                <TabsTrigger value="families" className="h-8 text-xs gap-1.5 px-2.5 sm:px-3 rounded-lg flex-shrink-0 data-[state=active]:text-blue-600 dark:data-[state=active]:text-blue-400 data-[state=inactive]:text-muted-foreground">
                   <Users className="h-3.5 w-3.5" />
                   <span className="hidden xs:inline">Families</span>
                   <Badge variant="secondary" className="h-5 px-1 text-[10px] ml-0.5 sm:ml-1">{filteredFamilies.length}</Badge>
                 </TabsTrigger>
-                <TabsTrigger value="users" className="h-7 text-xs gap-1 px-2 sm:px-3 data-[state=active]:shadow-sm flex-shrink-0">
+                <TabsTrigger value="users" className="h-8 text-xs gap-1.5 px-2.5 sm:px-3 rounded-lg flex-shrink-0 data-[state=active]:text-teal-600 dark:data-[state=active]:text-teal-400 data-[state=inactive]:text-muted-foreground">
                   <User className="h-3.5 w-3.5" />
                   <span className="hidden xs:inline">Users</span>
                   <Badge variant="secondary" className="h-5 px-1 text-[10px] ml-0.5 sm:ml-1">{filteredUsers.length}</Badge>
                 </TabsTrigger>
-                <TabsTrigger value="outcomes" className="h-7 text-xs gap-1 px-2 sm:px-3 data-[state=active]:shadow-sm flex-shrink-0">
+                <TabsTrigger value="outcomes" className="h-8 text-xs gap-1.5 px-2.5 sm:px-3 rounded-lg flex-shrink-0 data-[state=active]:text-green-600 dark:data-[state=active]:text-green-400 data-[state=inactive]:text-muted-foreground">
                   <BarChart3 className="h-3.5 w-3.5" />
                   <span className="hidden sm:inline">Outcomes</span>
                 </TabsTrigger>
-                <TabsTrigger value="archived" className="h-7 text-xs gap-1 px-2 sm:px-3 data-[state=active]:shadow-sm flex-shrink-0">
+                <TabsTrigger value="archived" className="h-8 text-xs gap-1.5 px-2.5 sm:px-3 rounded-lg flex-shrink-0 data-[state=active]:text-amber-600 dark:data-[state=active]:text-amber-400 data-[state=inactive]:text-muted-foreground">
                   <Archive className="h-3.5 w-3.5" />
                   <span className="hidden sm:inline">Archived</span>
                 </TabsTrigger>
-                <TabsTrigger value="patent-docs" className="h-7 text-xs gap-1 px-2 sm:px-3 data-[state=active]:shadow-sm flex-shrink-0">
+                <TabsTrigger value="patent-docs" className="h-8 text-xs gap-1.5 px-2.5 sm:px-3 rounded-lg flex-shrink-0 data-[state=active]:text-rose-600 dark:data-[state=active]:text-rose-400 data-[state=inactive]:text-muted-foreground">
                   <ScrollText className="h-3.5 w-3.5" />
                   <span className="hidden sm:inline">Patent Docs</span>
                 </TabsTrigger>

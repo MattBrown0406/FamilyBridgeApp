@@ -3182,77 +3182,77 @@ const FamilyChat = () => {
             {/* Primary tabs (always visible) */}
             <div className="flex items-center gap-1.5 flex-wrap">
               {/* Chat Tab */}
-              <button 
+              <button
                 onClick={() => setActiveTab('messages')}
                 className={`relative flex items-center justify-center gap-1 px-3 py-2.5 rounded-md sm:rounded-lg transition-all duration-200 ${
-                  activeTab === 'messages' 
-                    ? 'bg-primary text-primary-foreground shadow-md ring-2 ring-primary/20' 
-                    : 'hover:bg-muted'
+                  activeTab === 'messages'
+                    ? 'bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400 shadow-sm ring-1 ring-blue-200 dark:ring-blue-800'
+                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                 }`}
               >
                 <MessageCircle className="h-4 w-4" />
-                <span className="text-xs">Chat</span>
+                <span className="text-xs font-medium">Chat</span>
                 {showOnboarding && onboardingStep === 1 && (
                   <div className="absolute -top-1 -right-1 h-3 w-3 bg-accent rounded-full animate-bounce border-2 border-card" />
                 )}
               </button>
               
               {/* Check-in Tab */}
-              <button 
+              <button
                 onClick={() => setActiveTab('checkin')}
                 className={`flex items-center justify-center gap-1 px-3 py-2.5 rounded-md sm:rounded-lg transition-all duration-200 ${
-                  activeTab === 'checkin' 
-                    ? 'bg-primary text-primary-foreground shadow-md ring-2 ring-primary/20' 
-                    : 'hover:bg-muted'
+                  activeTab === 'checkin'
+                    ? 'bg-green-50 text-green-600 dark:bg-green-950/40 dark:text-green-400 shadow-sm ring-1 ring-green-200 dark:ring-green-800'
+                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                 }`}
               >
                 <MapPin className="h-4 w-4" />
-                <span className="text-xs">Check-in</span>
+                <span className="text-xs font-medium">Check-in</span>
               </button>
               
               {/* Boundaries Tab */}
-              <button 
+              <button
                 onClick={() => setActiveTab('boundaries')}
                 className={`relative flex items-center justify-center gap-1 px-3 py-2.5 rounded-md sm:rounded-lg transition-all duration-200 ${
-                  activeTab === 'boundaries' 
-                    ? 'bg-primary text-primary-foreground shadow-md ring-2 ring-primary/20' 
-                    : 'hover:bg-muted'
+                  activeTab === 'boundaries'
+                    ? 'bg-purple-50 text-purple-600 dark:bg-purple-950/40 dark:text-purple-400 shadow-sm ring-1 ring-purple-200 dark:ring-purple-800'
+                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                 }`}
               >
                 <ShieldCheck className="h-4 w-4" />
-                <span className="text-xs">Boundaries</span>
+                <span className="text-xs font-medium">Boundaries</span>
                 {showOnboarding && onboardingStep === 3 && (
                   <div className="absolute -top-1 -right-1 h-3 w-3 bg-accent rounded-full animate-bounce border-2 border-card" />
                 )}
               </button>
               
               {/* Goals Tab */}
-              <button 
+              <button
                 onClick={() => setActiveTab('values')}
                 className={`relative flex items-center justify-center gap-1 px-3 py-2.5 rounded-md sm:rounded-lg transition-all duration-200 ${
-                  activeTab === 'values' 
-                    ? 'bg-primary text-primary-foreground shadow-md ring-2 ring-primary/20' 
-                    : 'hover:bg-muted'
+                  activeTab === 'values'
+                    ? 'bg-orange-50 text-orange-600 dark:bg-orange-950/40 dark:text-orange-400 shadow-sm ring-1 ring-orange-200 dark:ring-orange-800'
+                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                 }`}
               >
                 <Target className="h-4 w-4" />
-                <span className="text-xs">Goals</span>
+                <span className="text-xs font-medium">Goals</span>
                 {showOnboarding && onboardingStep === 2 && (
                   <div className="absolute -top-1 -right-1 h-3 w-3 bg-accent rounded-full animate-bounce border-2 border-card" />
                 )}
               </button>
               
               {/* Coaching Tab */}
-              <button 
+              <button
                 onClick={() => setActiveTab('coaching')}
                 className={`flex items-center justify-center gap-1 px-3 py-2.5 rounded-md sm:rounded-lg transition-all duration-200 ${
-                  activeTab === 'coaching' 
-                    ? 'bg-primary text-primary-foreground shadow-md ring-2 ring-primary/20' 
-                    : 'hover:bg-muted'
+                  activeTab === 'coaching'
+                    ? 'bg-teal-50 text-teal-600 dark:bg-teal-950/40 dark:text-teal-400 shadow-sm ring-1 ring-teal-200 dark:ring-teal-800'
+                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                 }`}
               >
                 <PhoneCall className="h-4 w-4" />
-                <span className="text-xs">Coaching</span>
+                <span className="text-xs font-medium">Coaching</span>
               </button>
               
               {/* More... Dropdown */}
@@ -3289,16 +3289,16 @@ const FamilyChat = () => {
               
               {/* FIIS Tab - kept as is, only visible to non-recovering members */}
               {currentUserRole !== 'recovering' && (
-                <button 
+                <button
                   onClick={() => setActiveTab('fiis')}
                   className={`relative flex items-center justify-center gap-1 px-3 py-2.5 rounded-md sm:rounded-lg transition-all duration-200 ${
-                    activeTab === 'fiis' 
-                      ? 'bg-primary text-primary-foreground shadow-md ring-2 ring-primary/20' 
-                      : 'hover:bg-muted'
+                    activeTab === 'fiis'
+                      ? 'bg-violet-50 text-violet-600 dark:bg-violet-950/40 dark:text-violet-400 shadow-sm ring-1 ring-violet-200 dark:ring-violet-800'
+                      : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                   }`}
                 >
                   <Brain className="h-4 w-4" />
-                  <span className="text-xs">FIIS</span>
+                  <span className="text-xs font-medium">FIIS</span>
                   {hasNewAnalysis && (
                     <span className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 h-2.5 w-2.5 sm:h-3 sm:w-3 bg-destructive rounded-full animate-pulse border-2 border-card" />
                   )}
