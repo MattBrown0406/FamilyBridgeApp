@@ -45,6 +45,8 @@ interface FamilyDocument {
   boundaries_extracted: number;
   created_at: string;
   uploader_name?: string;
+  source: 'family' | 'provider';
+  storage_bucket: 'family-documents' | 'provider-documents';
 }
 
 interface FamilyDocumentsTabProps {
@@ -122,7 +124,7 @@ export const FamilyDocumentsTab = ({ familyId, userRole }: FamilyDocumentsTabPro
   const fetchDocuments = async () => {
     setIsLoading(true);
     try {
-      const { data, error } = await supabase
+      const { data: familyDocs, error } = await supabase
         .from('family_documents')
         .select('*')
         .eq('family_id', familyId)
@@ -130,11 +132,54 @@ export const FamilyDocumentsTab = ({ familyId, userRole }: FamilyDocumentsTabPro
       
       if (error) throw error;
 
-      if (data && data.length > 0) {
-        const uploaderIds = [...new Set(data.map(d => d.uploaded_by))];
+      // Provider-uploaded intervention letters live in the provider documents table/bucket.
+      // If assigned to this family, show them in the same family Documents tab so the
+      // recovering individual can open the intervention letter from their dashboard.
+      const { data: providerDocs, error: providerError } = await supabase
+        .from('provider_documents')
+        .select('*')
+        .eq('family_id', familyId)
+        .eq('document_type', 'intervention_letter')
+        .order('created_at', { ascending: false });
+
+      if (providerError) {
+        console.warn('Error fetching provider intervention documents:', providerError);
+      }
+
+      const normalizedFamilyDocs: FamilyDocument[] = (familyDocs || []).map(doc => ({
+        ...doc,
+        source: 'family' as const,
+        storage_bucket: 'family-documents' as const,
+      }));
+
+      const normalizedProviderDocs: FamilyDocument[] = (providerDocs || []).map(doc => ({
+        id: doc.id,
+        family_id: doc.family_id || familyId,
+        uploaded_by: doc.uploaded_by,
+        title: doc.title,
+        description: doc.description,
+        document_type: doc.document_type,
+        file_path: doc.file_path,
+        file_name: doc.file_name,
+        file_size: doc.file_size,
+        mime_type: doc.mime_type,
+        fiis_analyzed: false,
+        fiis_analyzed_at: null,
+        boundaries_extracted: 0,
+        created_at: doc.created_at,
+        uploader_name: undefined,
+        source: 'provider' as const,
+        storage_bucket: 'provider-documents' as const,
+      }));
+
+      const allDocs = [...normalizedFamilyDocs, ...normalizedProviderDocs]
+        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+      if (allDocs.length > 0) {
+        const uploaderIds = [...new Set(allDocs.map(d => d.uploaded_by))];
         const profiles = await fetchProfilesByIds(uploaderIds);
         
-        const docsWithNames = data.map(doc => ({
+        const docsWithNames = allDocs.map(doc => ({
           ...doc,
           uploader_name: profiles.find(p => p.id === doc.uploaded_by)?.full_name || 'Unknown',
         }));
@@ -235,7 +280,7 @@ export const FamilyDocumentsTab = ({ familyId, userRole }: FamilyDocumentsTabPro
     setDownloadingId(doc.id);
     try {
       const { data, error } = await supabase.storage
-        .from('family-documents')
+        .from(doc.storage_bucket)
         .download(doc.file_path);
 
       if (error) throw error;
@@ -259,7 +304,7 @@ export const FamilyDocumentsTab = ({ familyId, userRole }: FamilyDocumentsTabPro
   const handleView = async (doc: FamilyDocument) => {
     try {
       const { data, error } = await supabase.storage
-        .from('family-documents')
+        .from(doc.storage_bucket)
         .createSignedUrl(doc.file_path, 3600);
 
       if (error) throw error;
@@ -703,6 +748,12 @@ export const FamilyDocumentsTab = ({ familyId, userRole }: FamilyDocumentsTabPro
                           <span className="text-xs text-muted-foreground">
                             {formatFileSize(doc.file_size)}
                           </span>
+                          {doc.source === 'provider' && (
+                            <Badge variant="secondary" className="text-xs gap-1">
+                              <Shield className="h-3 w-3" />
+                              Provider upload
+                            </Badge>
+                          )}
                           {doc.fiis_analyzed && (
                             <Badge variant="secondary" className="text-xs gap-1">
                               <CheckCircle className="h-3 w-3" />
@@ -713,7 +764,7 @@ export const FamilyDocumentsTab = ({ familyId, userRole }: FamilyDocumentsTabPro
                                   : `${doc.boundaries_extracted} items`}
                             </Badge>
                           )}
-                          {isInterventionLetter && !doc.fiis_analyzed && (
+                          {isInterventionLetter && !doc.fiis_analyzed && canManage && doc.source === 'family' && (
                             <Badge variant="outline" className="text-xs">
                               Ready for FIIS analysis
                             </Badge>
@@ -728,7 +779,7 @@ export const FamilyDocumentsTab = ({ familyId, userRole }: FamilyDocumentsTabPro
                       </div>
                     </div>
                     <div className="flex items-center gap-1 flex-shrink-0">
-                      {isInterventionLetter && !doc.fiis_analyzed && canManage && (
+                      {isInterventionLetter && !doc.fiis_analyzed && canManage && doc.source === 'family' && (
                         <Button 
                           variant="ghost" 
                           size="icon" 
@@ -743,7 +794,7 @@ export const FamilyDocumentsTab = ({ familyId, userRole }: FamilyDocumentsTabPro
                           )}
                         </Button>
                       )}
-                      {isAftercarePlan && !doc.fiis_analyzed && canManage && (
+                      {isAftercarePlan && !doc.fiis_analyzed && canManage && doc.source === 'family' && (
                         <Button 
                           variant="ghost" 
                           size="icon" 
@@ -774,7 +825,7 @@ export const FamilyDocumentsTab = ({ familyId, userRole }: FamilyDocumentsTabPro
                           <Download className="h-4 w-4" />
                         )}
                       </Button>
-                      {(doc.uploaded_by === user?.id || canManage) && (
+                      {doc.source === 'family' && (doc.uploaded_by === user?.id || canManage) && (
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
                             <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive" title="Delete">
