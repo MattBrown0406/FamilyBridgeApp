@@ -126,7 +126,7 @@ export function useAccountability(familyId?: string, organizationId?: string) {
       if (familyId) contractQ = contractQ.eq('family_id', familyId);
       if (organizationId) contractQ = contractQ.eq('organization_id', organizationId);
 
-      let ackQ = familyId
+      const ackQ = familyId
         ? supabase.from('accountability_acknowledgements').select('*').eq('family_id', familyId)
         : null;
 

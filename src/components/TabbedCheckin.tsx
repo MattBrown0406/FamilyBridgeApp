@@ -123,6 +123,7 @@ const MeetingCheckinForm = ({ familyId, onCheckinComplete, capturedLocation }: M
     if (capturedLocation?.address) {
       setMeetingAddress(capturedLocation.address);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [capturedLocation]);
 
   // Check for nearby location risks when location is captured
@@ -150,6 +151,7 @@ const MeetingCheckinForm = ({ familyId, onCheckinComplete, capturedLocation }: M
     };
 
     checkLiquorLicense();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [capturedLocation]);
 
 

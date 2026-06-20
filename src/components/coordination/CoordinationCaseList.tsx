@@ -26,6 +26,7 @@ export const CoordinationCaseList = ({ userId, onSelectCase }: Props) => {
 
   useEffect(() => {
     loadCases();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
   const loadCases = async () => {

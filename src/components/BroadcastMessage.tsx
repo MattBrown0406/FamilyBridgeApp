@@ -54,6 +54,7 @@ export const BroadcastMessage = ({ organizationId, organizationName }: Broadcast
     if (isOpen && organizationId) {
       fetchFamilies();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, organizationId]);
 
   // Fetch broadcast history when history tab is shown
@@ -61,6 +62,7 @@ export const BroadcastMessage = ({ organizationId, organizationName }: Broadcast
     if (showHistory && organizationId) {
       fetchBroadcastHistory();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showHistory, organizationId]);
 
   const fetchFamilies = async () => {

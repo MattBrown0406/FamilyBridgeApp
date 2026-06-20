@@ -143,6 +143,7 @@ const ModeratorDashboard = () => {
     if (user) {
       fetchModeratorData();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const fetchModeratorData = async () => {

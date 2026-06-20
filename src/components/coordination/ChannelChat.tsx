@@ -56,6 +56,7 @@ export const ChannelChat = ({ channelId, channelName, channelDescription, channe
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [channelId]);
 
   useEffect(() => {

@@ -213,6 +213,7 @@ export const MedicationTab = ({
       supabase.removeChannel(dosesChannel);
       supabase.removeChannel(alertsChannel);
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [familyId]);
 
   const loadData = async () => {

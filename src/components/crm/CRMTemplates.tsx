@@ -58,6 +58,7 @@ export function CRMTemplates({ organizationId, leads, organizationName }: CRMTem
     name: '', template_type: 'email', subject: '', body: '', stage: '',
   });
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { fetchTemplates(); }, [organizationId]);
 
   const fetchTemplates = async () => {

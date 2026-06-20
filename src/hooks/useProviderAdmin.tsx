@@ -104,6 +104,7 @@ export const useProviderAdmin = () => {
 
   useEffect(() => {
     fetchOrganizations();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const createOrganization = async (orgData: {

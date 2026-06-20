@@ -426,6 +426,7 @@ export function FIISTab({ familyId, members, excludeUserIds = [], onView, isMode
       fetchData();
       return subscribeToChanges();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [familyId]);
 
   // Mark as viewed when component mounts

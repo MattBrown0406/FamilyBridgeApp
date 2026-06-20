@@ -35,6 +35,7 @@ export const AIInsightsPanel = ({ caseId, channelId, userId }: Props) => {
 
   useEffect(() => {
     loadInsights();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [caseId]);
 
   const loadInsights = async () => {

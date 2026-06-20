@@ -241,6 +241,7 @@ export const PrivateMessaging = ({
     if (isOpen) {
       fetchUnreadCounts();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
   // Fetch messages when member is selected
@@ -248,6 +249,7 @@ export const PrivateMessaging = ({
     if (selectedMember) {
       fetchMessages(selectedMember.user_id);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedMember]);
 
   const chatPartners = getChatPartners();

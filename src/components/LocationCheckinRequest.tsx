@@ -76,6 +76,7 @@ export const LocationCheckinRequest = ({ familyId, userRole, isProfessionalModer
       fetchRecoveringMembers();
       fetchRecentRequests();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [familyId, canRequestCheckins]);
 
   const fetchRecoveringMembers = async () => {

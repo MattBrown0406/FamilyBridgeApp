@@ -84,6 +84,7 @@ export const FamilyHandoffDialog = ({
       // Default co-mod checkbox to true (most referrers want to stay involved)
       setRemainAsCoMod(true);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
   const fetchRecoveringMembers = async () => {

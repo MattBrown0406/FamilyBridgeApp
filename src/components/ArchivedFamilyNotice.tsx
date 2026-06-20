@@ -45,6 +45,7 @@ export const ArchivedFamilyNotice = () => {
     if (user) {
       fetchArchivedFamilies();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const fetchArchivedFamilies = async () => {

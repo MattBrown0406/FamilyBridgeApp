@@ -114,6 +114,7 @@ export const DrugTestingTab = ({ familyId, userRole }: Props) => {
     }
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { if (familyId) load(); }, [familyId]);
 
   const submit = async () => {

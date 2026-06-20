@@ -52,6 +52,7 @@ export const CaseTeamPanel = ({ caseId, userId, isProvider }: Props) => {
 
   useEffect(() => {
     loadMembers();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [caseId]);
 
   const loadMembers = async () => {

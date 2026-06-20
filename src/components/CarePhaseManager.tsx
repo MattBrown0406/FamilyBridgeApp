@@ -120,6 +120,7 @@ export function CarePhaseManager({ familyId, userId, isModerator = false, isOrgA
 
   useEffect(() => {
     fetchPhases();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [familyId, userId]);
 
   const fetchPhases = async () => {

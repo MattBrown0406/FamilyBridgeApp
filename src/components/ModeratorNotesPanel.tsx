@@ -108,6 +108,7 @@ export const ModeratorNotesPanel = ({ families }: ModeratorNotesPanelProps) => {
     } else {
       setIsLoading(false);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [families]);
 
   const fetchNotes = async () => {

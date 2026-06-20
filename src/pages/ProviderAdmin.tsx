@@ -256,6 +256,7 @@ const ProviderAdmin = () => {
     if (organizations.length > 0 && !selectedOrg) {
       handleSelectOrg(organizations[0].id);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [organizations, selectedOrg]);
 
   // Load edit form when org is selected

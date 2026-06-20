@@ -51,6 +51,7 @@ export const CheckinHistory = ({ familyId, members, refreshKey, currentUserId, i
 
   useEffect(() => {
     fetchCheckins();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [familyId, refreshKey]);
 
   const fetchCheckins = async () => {

@@ -32,6 +32,7 @@ export function EmotionalToneIndicator({ familyId, userId, compact = false }: Em
       fetchToneData();
       subscribeToUpdates();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [targetUserId, familyId]);
 
   const fetchToneData = async () => {

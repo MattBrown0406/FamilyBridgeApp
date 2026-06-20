@@ -175,6 +175,7 @@ export const ProviderOutcomeReports = ({
     if (organizationId && isAuthorized) {
       fetchOutcomeData();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [organizationId, dateRange, isAuthorized]);
 
   const getDateFilter = () => {

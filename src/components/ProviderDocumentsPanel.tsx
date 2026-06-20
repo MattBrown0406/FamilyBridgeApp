@@ -109,6 +109,7 @@ export const ProviderDocumentsPanel = ({ organizationId, families }: ProviderDoc
     if (organizationId) {
       fetchDocuments();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [organizationId]);
 
   const fetchDocuments = async () => {

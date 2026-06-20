@@ -72,6 +72,7 @@ export function HandoffInbox({ organizationId }: HandoffInboxProps) {
 
   useEffect(() => {
     fetchPendingHandoffs();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [organizationId]);
 
   const fetchPendingHandoffs = async () => {

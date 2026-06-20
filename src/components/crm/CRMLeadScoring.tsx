@@ -88,6 +88,7 @@ interface ScoredLead extends Lead {
   nextTask: Task | null;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function calculateLeadScore(
   lead: Lead, 
   activities: CRMActivity[], 

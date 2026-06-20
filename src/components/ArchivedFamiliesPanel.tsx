@@ -106,6 +106,7 @@ export const ArchivedFamiliesPanel = ({ organizationId, onReactivate }: Archived
 
   useEffect(() => {
     fetchArchivedFamilies();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [organizationId]);
 
   const handleReactivate = async (family: ArchivedFamily) => {

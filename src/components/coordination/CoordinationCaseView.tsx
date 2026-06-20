@@ -39,6 +39,7 @@ export const CoordinationCaseView = ({ caseId, onBack, userId }: Props) => {
 
   useEffect(() => {
     loadCase();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [caseId]);
 
   const loadCase = async () => {

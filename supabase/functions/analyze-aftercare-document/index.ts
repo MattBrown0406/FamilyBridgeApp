@@ -185,7 +185,8 @@ serve(async (req) => {
   let supabaseForStatus: any = null;
   try {
     const body = await req.json();
-    let { documentId, familyId, fileBytes, mimeType, targetUserId } = body || {};
+    const { documentId, familyId, targetUserId } = body || {};
+    let { fileBytes, mimeType } = body || {};
 
     if (!documentId || !familyId) {
       return new Response(

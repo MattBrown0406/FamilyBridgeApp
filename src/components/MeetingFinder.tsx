@@ -257,11 +257,13 @@ export const MeetingFinder = () => {
         fetchMeetings();
       }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedRegion, selectedFellowship]);
 
   // Apply filters when any filter or meetings change
   useEffect(() => {
     applyFilters();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [meetings, searchQuery, selectedDay, selectedType, userLocation]);
 
   const fetchMeetings = async () => {

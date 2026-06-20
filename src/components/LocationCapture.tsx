@@ -156,6 +156,7 @@ export const LocationCapture = ({
 };
 
 // Export helper hook for components that need more control
+// eslint-disable-next-line react-refresh/only-export-components
 export const useLocationCapture = () => {
   const { toast } = useToast();
   const [latitude, setLatitude] = useState<number | null>(null);

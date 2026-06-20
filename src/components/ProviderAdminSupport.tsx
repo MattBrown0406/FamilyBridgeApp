@@ -50,6 +50,7 @@ export const ProviderAdminSupport = ({ organizationId, organizationName }: Provi
     if (isOpen && showHistory) {
       fetchHistory();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, showHistory]);
 
   const fetchHistory = async () => {

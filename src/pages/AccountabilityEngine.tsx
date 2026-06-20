@@ -58,6 +58,7 @@ const AccountabilityEngine = () => {
       applyBranding();
       return () => resetBranding();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [branding, isDemo]);
 
   // Load families (skip in demo mode)
@@ -85,6 +86,7 @@ const AccountabilityEngine = () => {
       setLoadingFamilies(false);
     };
     loadFamilies();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, isDemo]);
 
   // Demo mode — render with hardcoded data

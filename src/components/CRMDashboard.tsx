@@ -216,6 +216,7 @@ export function CRMDashboard({ organizationId, organizationName, organizationLog
     if (organizationId) {
       fetchAllData();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [organizationId]);
 
   const fetchAllData = async () => {

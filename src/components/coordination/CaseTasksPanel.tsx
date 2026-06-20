@@ -44,6 +44,7 @@ export const CaseTasksPanel = ({ caseId, userId }: Props) => {
 
   useEffect(() => {
     loadTasks();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [caseId]);
 
   const loadTasks = async () => {

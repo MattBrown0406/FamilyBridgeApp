@@ -108,6 +108,7 @@ export const SEOHead = ({
 };
 
 // Common structured data schemas
+// eslint-disable-next-line react-refresh/only-export-components
 export const createBreadcrumbSchema = (items: { name: string; url: string }[]) => ({
   '@context': 'https://schema.org',
   '@type': 'BreadcrumbList',
@@ -119,6 +120,7 @@ export const createBreadcrumbSchema = (items: { name: string; url: string }[]) =
   })),
 });
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const createFAQSchema = (faqs: { question: string; answer: string }[]) => ({
   '@context': 'https://schema.org',
   '@type': 'FAQPage',
@@ -132,6 +134,7 @@ export const createFAQSchema = (faqs: { question: string; answer: string }[]) =>
   })),
 });
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const createOrganizationSchema = () => ({
   '@context': 'https://schema.org',
   '@type': 'Organization',
@@ -161,6 +164,7 @@ export const createOrganizationSchema = () => ({
 });
 
 // Product schema helper for pages with current, verifiable offer details
+// eslint-disable-next-line react-refresh/only-export-components
 export const createProductSchema = (product: {
   name: string;
   description: string;
@@ -187,6 +191,7 @@ export const createProductSchema = (product: {
 });
 
 // Service schema helper for provider-facing pages
+// eslint-disable-next-line react-refresh/only-export-components
 export const createServiceSchema = () => ({
   '@context': 'https://schema.org',
   '@type': 'Service',
@@ -215,6 +220,7 @@ export const createServiceSchema = () => ({
 });
 
 // Speakable schema for voice search optimization
+// eslint-disable-next-line react-refresh/only-export-components
 export const createSpeakableSchema = (selectors: string[]) => ({
   '@context': 'https://schema.org',
   '@type': 'WebPage',

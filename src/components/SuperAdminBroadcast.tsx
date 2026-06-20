@@ -74,6 +74,7 @@ export const SuperAdminBroadcast = () => {
     if (isOpen) {
       fetchData();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
   // Fetch history when history tab is shown

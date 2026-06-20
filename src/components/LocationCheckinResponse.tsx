@@ -62,6 +62,7 @@ export const LocationCheckinResponse = ({ familyId, userRole }: LocationCheckinR
         supabase.removeChannel(channel);
       };
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [familyId, isRecovering, user?.id]);
 
   const fetchPendingRequests = async () => {

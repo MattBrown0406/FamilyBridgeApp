@@ -59,6 +59,7 @@ const FIISModeratorChat = ({ families }: FIISModeratorChatProps) => {
       setCurrentChat(null);
       setMessages([]);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedFamilyId, user]);
 
   // Auto-scroll to bottom when messages change

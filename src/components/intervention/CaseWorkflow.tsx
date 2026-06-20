@@ -22,6 +22,7 @@ function getSuggestedStatus(score: number): CaseStatus {
   return 'Intervention Recommended';
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export { getSuggestedStatus };
 
 export function CaseWorkflow({ currentStatus, suggestedStatus, onStatusChange }: CaseWorkflowProps) {

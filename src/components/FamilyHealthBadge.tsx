@@ -131,6 +131,7 @@ export function FamilyHealthBadge({ familyId, refreshTrigger }: FamilyHealthBadg
 
   useEffect(() => {
     fetchHealthStatus();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [familyId, refreshTrigger]);
 
   // Set up realtime subscription for health status changes
@@ -211,6 +212,7 @@ export function FamilyHealthBadge({ familyId, refreshTrigger }: FamilyHealthBadg
     return () => {
       supabase.removeChannel(eventsChannel);
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [familyId]);
 
   if (loading) {

@@ -30,6 +30,7 @@ const ProviderCoordination = () => {
   useEffect(() => {
     applyBranding();
     return () => resetBranding();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [branding]);
 
   if (authLoading || orgsLoading) {

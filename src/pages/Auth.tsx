@@ -179,6 +179,7 @@ const Auth = () => {
     if (!loading && user) {
       checkUserRoleAndRedirect(user.id);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, loading]);
 
   // Auto-trigger biometric login if available and has stored credentials
@@ -186,6 +187,7 @@ const Auth = () => {
     if (!loading && !user && biometricAvailable && hasStoredCredentials && mode === 'signin') {
       handleBiometricLogin();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading, user, biometricAvailable, hasStoredCredentials, mode]);
 
   const validateForm = () => {

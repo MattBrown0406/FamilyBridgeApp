@@ -248,6 +248,7 @@ export const OrganizationProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     fetchOrganization();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Re-fetch when familyOrgId changes

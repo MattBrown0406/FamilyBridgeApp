@@ -27,6 +27,7 @@ export const CreateCaseDialog = ({ open, onOpenChange, userId, organizations, on
     if (open && organizations.length > 0) {
       loadFamilies();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, organizations]);
 
   const loadFamilies = async () => {

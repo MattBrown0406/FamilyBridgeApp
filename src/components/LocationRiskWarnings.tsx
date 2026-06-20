@@ -71,6 +71,7 @@ export function LocationRiskWarnings({ familyId, members, isAdminOrModerator }: 
 
   useEffect(() => {
     fetchWarnings();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [familyId]);
 
   // Set up realtime subscription

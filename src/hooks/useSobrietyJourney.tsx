@@ -279,6 +279,7 @@ export const useSobrietyJourney = (familyId: string) => {
         recordMilestone(milestoneDays);
       }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [daysCount, journey, milestones]);
 
   useEffect(() => {

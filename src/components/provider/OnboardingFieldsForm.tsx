@@ -5,6 +5,7 @@ import { Switch } from '@/components/ui/switch';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const PROVIDER_CATEGORIES = [
   { value: 'residential', label: 'Residential treatment' },
   { value: 'outpatient', label: 'Outpatient program' },
@@ -16,6 +17,7 @@ export const PROVIDER_CATEGORIES = [
   { value: 'other', label: 'Other' },
 ];
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const LEVELS_OF_CARE = [
   'Detox',
   'Residential/Inpatient',
@@ -39,6 +41,7 @@ export interface OnboardingFieldsValue {
   intake_notes: string;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const defaultOnboardingFields: OnboardingFieldsValue = {
   provider_category: '',
   levels_of_care: [],

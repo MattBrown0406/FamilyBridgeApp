@@ -127,6 +127,7 @@ export const FIISCoachingPanel = ({ families, members = {} }: FIISCoachingPanelP
     };
 
     fetchFamilyMembers();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedFamilyId, members]);
 
   const currentMembers = members[selectedFamilyId]?.length

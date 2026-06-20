@@ -98,12 +98,14 @@ export const TemporaryModeratorRequest = ({
       setActiveRequest(null);
       checkExistingRequests();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeRequest]);
 
   useEffect(() => {
     if (user && familyId) {
       checkExistingRequests();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, familyId]);
 
   useEffect(() => {

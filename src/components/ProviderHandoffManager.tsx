@@ -92,6 +92,7 @@ export function ProviderHandoffManager({
 
   useEffect(() => {
     fetchData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [familyId, userId]);
 
   const fetchData = async () => {

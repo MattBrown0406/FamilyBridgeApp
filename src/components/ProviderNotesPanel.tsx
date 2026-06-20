@@ -106,6 +106,7 @@ export const ProviderNotesPanel = ({ organizationId, families = [], selectedFami
     if (organizationId) {
       fetchNotes();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [organizationId, selectedFamilyId]);
 
   const fetchNotes = async () => {

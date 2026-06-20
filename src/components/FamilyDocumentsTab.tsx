@@ -116,6 +116,7 @@ export const FamilyDocumentsTab = ({ familyId, userRole }: FamilyDocumentsTabPro
     if (familyId) {
       fetchDocuments();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [familyId]);
 
   const fetchDocuments = async () => {

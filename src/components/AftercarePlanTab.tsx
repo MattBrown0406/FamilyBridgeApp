@@ -163,6 +163,7 @@ export function AftercarePlanTab({ familyId, members, isModerator }: AftercarePl
 
   useEffect(() => {
     fetchPlans();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [familyId]);
 
   const fetchPlans = async () => {

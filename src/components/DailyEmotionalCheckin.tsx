@@ -31,6 +31,7 @@ export function DailyEmotionalCheckin({ familyId, onComplete }: DailyEmotionalCh
     if (user && familyId) {
       checkUserRole();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, familyId]);
 
   const checkUserRole = async () => {

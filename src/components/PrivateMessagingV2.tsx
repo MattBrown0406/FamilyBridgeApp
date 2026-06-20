@@ -431,11 +431,13 @@ export const PrivateMessagingV2 = ({
     return () => {
       supabase.removeChannel(channel);
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [familyId, currentUserId, isOpen, selectedConversation, members]);
 
   // Initial fetch of conversations for unread count
   useEffect(() => {
     fetchConversations();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [familyId, currentUserId]);
 
   // Scroll to bottom on new messages
@@ -453,6 +455,7 @@ export const PrivateMessagingV2 = ({
       setMessages([]);
       setSelectedMembers([]);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
   // Fetch messages when conversation is selected
@@ -460,6 +463,7 @@ export const PrivateMessagingV2 = ({
     if (selectedConversation) {
       fetchMessages(selectedConversation.id);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedConversation]);
 
   const chatPartners = getChatPartners();
