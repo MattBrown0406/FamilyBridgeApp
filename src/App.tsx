@@ -54,6 +54,7 @@ import ProviderOutcomes from "./pages/features/ProviderOutcomes";
 import InterventionOutcomes from "./pages/features/InterventionOutcomes";
 import FIISGuidance from "./pages/features/FIISGuidance";
 import ScrollToTop from "./components/ScrollToTop";
+import NativePushInitializer from "./components/NativePushInitializer";
 import { usePlatform } from "@/hooks/usePlatform";
 
 const queryClient = new QueryClient();
@@ -72,6 +73,7 @@ const App = () => {
             <Sonner />
             <BrowserRouter>
               <ScrollToTop />
+              <NativePushInitializer />
               <main>
               <Routes>
               <Route path="/" element={isNative ? <NativeHome /> : <Index />} />
