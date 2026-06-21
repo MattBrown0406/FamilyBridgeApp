@@ -3,9 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { useNativePushNotifications } from "@/hooks/useNativePushNotifications";
 
 /**
- * Mounts the native push notifications hook so iOS/Android Capacitor builds
- * register for push, persist the FCM token, and route taps via React Router.
- * No-op on web.
+ * Mounts the native push notifications hook so iOS Capacitor builds
+ * register for APNs push, persist the APNs token, and route taps via React Router.
+ * No-op on web and unsupported native platforms.
  */
 const NativePushInitializer = () => {
   const navigate = useNavigate();

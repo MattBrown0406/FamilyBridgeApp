@@ -7,7 +7,15 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// ---------- FCM HTTP v1 helpers ----------
+type NativeToken = {
+  id: string;
+  user_id: string;
+  platform: string;
+  token: string;
+  token_provider?: string;
+  environment?: string;
+  enabled: boolean;
+};
 
 function base64UrlEncode(buf: ArrayBuffer | Uint8Array): string {
   const bytes = buf instanceof Uint8Array ? buf : new Uint8Array(buf);
@@ -27,68 +35,53 @@ function pemToArrayBuffer(pem: string): ArrayBuffer {
   return buf.buffer;
 }
 
-let cachedFcmAccessToken: { token: string; exp: number } | null = null;
+function normalizePrivateKey(raw: string): string {
+  return raw.replace(/\\n/g, '\n').trim();
+}
 
-async function getFcmAccessToken(clientEmail: string, privateKeyPem: string): Promise<string> {
+let cachedApnsJwt: { token: string; iat: number } | null = null;
+
+async function getApnsJwt(teamId: string, keyId: string, privateKeyPem: string): Promise<string> {
   const now = Math.floor(Date.now() / 1000);
-  if (cachedFcmAccessToken && cachedFcmAccessToken.exp - 60 > now) {
-    return cachedFcmAccessToken.token;
+  // APNs accepts provider tokens for up to 60 minutes. Refresh after 50.
+  if (cachedApnsJwt && now - cachedApnsJwt.iat < 3000) {
+    return cachedApnsJwt.token;
   }
 
-  const header = { alg: 'RS256', typ: 'JWT' };
-  const claims = {
-    iss: clientEmail,
-    scope: 'https://www.googleapis.com/auth/firebase.messaging',
-    aud: 'https://oauth2.googleapis.com/token',
-    iat: now,
-    exp: now + 3600,
-  };
-
+  const header = { alg: 'ES256', kid: keyId };
+  const claims = { iss: teamId, iat: now };
   const enc = new TextEncoder();
-  const headerB64 = base64UrlEncode(enc.encode(JSON.stringify(header)));
-  const claimsB64 = base64UrlEncode(enc.encode(JSON.stringify(claims)));
-  const signingInput = `${headerB64}.${claimsB64}`;
+  const signingInput = `${base64UrlEncode(enc.encode(JSON.stringify(header)))}.${base64UrlEncode(enc.encode(JSON.stringify(claims)))}`;
 
-  const keyData = pemToArrayBuffer(privateKeyPem.replace(/\\n/g, '\n'));
   const cryptoKey = await crypto.subtle.importKey(
     'pkcs8',
-    keyData,
-    { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
+    pemToArrayBuffer(normalizePrivateKey(privateKeyPem)),
+    { name: 'ECDSA', namedCurve: 'P-256' },
     false,
     ['sign']
   );
-  const signature = await crypto.subtle.sign('RSASSA-PKCS1-v1_5', cryptoKey, enc.encode(signingInput));
-  const jwt = `${signingInput}.${base64UrlEncode(signature)}`;
 
-  const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
-      assertion: jwt,
-    }),
-  });
-  if (!tokenRes.ok) {
-    throw new Error(`FCM OAuth token request failed: ${tokenRes.status} ${await tokenRes.text()}`);
-  }
-  const json = await tokenRes.json();
-  const accessToken = json.access_token as string;
-  const expiresIn = (json.expires_in as number) ?? 3600;
-  cachedFcmAccessToken = { token: accessToken, exp: now + expiresIn };
-  return accessToken;
+  const signature = await crypto.subtle.sign(
+    { name: 'ECDSA', hash: 'SHA-256' },
+    cryptoKey,
+    enc.encode(signingInput)
+  );
+
+  const token = `${signingInput}.${base64UrlEncode(signature)}`;
+  cachedApnsJwt = { token, iat: now };
+  return token;
 }
 
 function buildNotificationDataPayload(
   data: Record<string, unknown> | undefined,
   type: string | undefined
 ): Record<string, string> {
-  // FCM data payload values MUST be strings.
   const raw: Record<string, unknown> = {
     ...(data ?? {}),
     type: type ?? (data?.type as string) ?? 'notification',
     timestamp: new Date().toISOString(),
   };
-  // Derive a navigation URL if the caller didn't pass one explicitly.
+
   if (!raw.url) {
     if (raw.type === 'handoff_request' || raw.type === 'handoff_accepted' || raw.type === 'handoff_declined') {
       raw.url = '/moderator?tab=transfers';
@@ -100,6 +93,7 @@ function buildNotificationDataPayload(
       raw.url = '/dashboard';
     }
   }
+
   const out: Record<string, string> = {};
   for (const [k, v] of Object.entries(raw)) {
     if (v === null || v === undefined) continue;
@@ -108,7 +102,39 @@ function buildNotificationDataPayload(
   return out;
 }
 
-// ---------- main ----------
+async function sendApnsNotification(params: {
+  token: string;
+  title: string;
+  body: string;
+  dataPayload: Record<string, string>;
+  jwt: string;
+  bundleId: string;
+  useSandbox: boolean;
+}) {
+  const host = params.useSandbox ? 'https://api.sandbox.push.apple.com' : 'https://api.push.apple.com';
+  const payload = {
+    aps: {
+      alert: {
+        title: params.title,
+        body: params.body,
+      },
+      sound: 'default',
+    },
+    ...params.dataPayload,
+  };
+
+  return fetch(`${host}/3/device/${params.token}`, {
+    method: 'POST',
+    headers: {
+      authorization: `bearer ${params.jwt}`,
+      'apns-topic': params.bundleId,
+      'apns-push-type': 'alert',
+      'apns-priority': '10',
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  });
+}
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -120,12 +146,14 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const vapidPublicKey = Deno.env.get('VAPID_PUBLIC_KEY');
     const vapidPrivateKey = Deno.env.get('VAPID_PRIVATE_KEY');
-    const vapidSubject = Deno.env.get('VAPID_SUBJECT') ?? 'mailto:support@familybridge.app';
+    const vapidSubject = Deno.env.get('VAPID_SUBJECT') ?? 'mailto:support@familybridgeapp.com';
 
-    const firebaseProjectId = Deno.env.get('FIREBASE_PROJECT_ID');
-    const firebaseClientEmail = Deno.env.get('FIREBASE_CLIENT_EMAIL');
-    const firebasePrivateKey = Deno.env.get('FIREBASE_PRIVATE_KEY');
-    const firebaseConfigured = Boolean(firebaseProjectId && firebaseClientEmail && firebasePrivateKey);
+    const apnsKeyId = Deno.env.get('APNS_KEY_ID');
+    const apnsTeamId = Deno.env.get('APNS_TEAM_ID');
+    const apnsBundleId = Deno.env.get('APNS_BUNDLE_ID') ?? 'app.lovable.feec162303784a959c1635217b29129c';
+    const apnsPrivateKey = Deno.env.get('APNS_PRIVATE_KEY');
+    const apnsUseSandbox = Deno.env.get('APNS_USE_SANDBOX') === 'true';
+    const apnsConfigured = Boolean(apnsKeyId && apnsTeamId && apnsPrivateKey && apnsBundleId);
 
     if (!vapidPublicKey || !vapidPrivateKey) {
       console.warn('Missing VAPID keys — web push disabled');
@@ -134,7 +162,6 @@ serve(async (req) => {
     }
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
-
     const { user_ids, title, body, data, type } = await req.json();
 
     if (!user_ids || !Array.isArray(user_ids) || user_ids.length === 0) {
@@ -143,14 +170,13 @@ serve(async (req) => {
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
     if (!title || !body) {
       return new Response(
         JSON.stringify({ error: 'title and body are required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
-
-    console.log(`Sending push notification to ${user_ids.length} users`);
 
     const dataPayload = buildNotificationDataPayload(data, type);
 
@@ -179,6 +205,7 @@ serve(async (req) => {
           data: dataPayload,
         });
         const staleSubscriptionIds: string[] = [];
+
         for (const sub of subscriptions) {
           try {
             await webpush.sendNotification(
@@ -199,15 +226,14 @@ serve(async (req) => {
             }
           }
         }
+
         if (staleSubscriptionIds.length > 0) {
           await supabase.from('push_subscriptions').delete().in('id', staleSubscriptionIds);
         }
       }
     }
 
-    // ============ Native push (FCM HTTP v1) ============
-    // FCM HTTP v1 sends to FCM registration tokens for both Android and iOS apps
-    // that have Firebase Messaging SDK integrated. Raw APNs tokens are NOT supported here.
+    // ============ Native iOS push (direct APNs) ============
     let nativeSent = 0;
     let nativeFailed = 0;
     let nativeStale = 0;
@@ -217,69 +243,53 @@ serve(async (req) => {
     try {
       const { data: nativeTokens, error: ntErr } = await supabase
         .from('native_push_tokens')
-        .select('id, user_id, platform, token, enabled')
+        .select('id, user_id, platform, token, token_provider, environment, enabled')
         .in('user_id', user_ids)
-        .eq('enabled', true);
+        .eq('enabled', true)
+        .eq('platform', 'ios')
+        .eq('token_provider', 'apns');
 
       if (ntErr) {
-        console.error('Error fetching native tokens:', ntErr);
+        console.error('Error fetching APNs tokens:', ntErr);
       } else if (nativeTokens && nativeTokens.length > 0) {
-        nativeTotal = nativeTokens.length;
+        const apnsTokens = nativeTokens as NativeToken[];
+        nativeTotal = apnsTokens.length;
 
-        if (!firebaseConfigured) {
-          console.warn('Firebase (FCM HTTP v1) not configured — skipping native push. Set FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY.');
+        if (!apnsConfigured) {
+          console.warn('APNs not configured — skipping native iOS push. Set APNS_KEY_ID, APNS_TEAM_ID, APNS_BUNDLE_ID, APNS_PRIVATE_KEY.');
           nativeSkippedNoConfig = nativeTotal;
         } else {
-          const accessToken = await getFcmAccessToken(firebaseClientEmail!, firebasePrivateKey!);
-          const fcmEndpoint = `https://fcm.googleapis.com/v1/projects/${firebaseProjectId}/messages:send`;
+          const jwt = await getApnsJwt(apnsTeamId!, apnsKeyId!, apnsPrivateKey!);
           const staleNativeIds: string[] = [];
 
-          for (const t of nativeTokens) {
+          for (const tokenRow of apnsTokens) {
             try {
-              const message: Record<string, unknown> = {
-                token: t.token,
-                notification: { title, body },
-                data: dataPayload,
-                android: {
-                  priority: 'HIGH',
-                  notification: { sound: 'default', click_action: 'FLUTTER_NOTIFICATION_CLICK' },
-                },
-                apns: {
-                  payload: {
-                    aps: { sound: 'default', 'mutable-content': 1, 'content-available': 1 },
-                  },
-                  headers: { 'apns-priority': '10' },
-                },
-              };
-
-              const res = await fetch(fcmEndpoint, {
-                method: 'POST',
-                headers: {
-                  Authorization: `Bearer ${accessToken}`,
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ message }),
+              const res = await sendApnsNotification({
+                token: tokenRow.token,
+                title,
+                body,
+                dataPayload,
+                jwt,
+                bundleId: apnsBundleId,
+                useSandbox: apnsUseSandbox || tokenRow.environment === 'sandbox',
               });
 
               if (res.ok) {
                 nativeSent++;
               } else {
                 const txt = await res.text();
-                console.error(`FCM v1 send failed (${res.status}):`, txt);
-                // 404 UNREGISTERED or 400 INVALID_ARGUMENT for bad/expired tokens
-                if (
-                  res.status === 404 ||
-                  /UNREGISTERED|INVALID_ARGUMENT|registration-token-not-registered/i.test(txt)
-                ) {
-                  staleNativeIds.push(t.id);
+                console.error(`APNs send failed (${res.status}) for token ${tokenRow.id}:`, txt);
+
+                if (res.status === 400 || res.status === 410 || /BadDeviceToken|Unregistered|DeviceTokenNotForTopic/i.test(txt)) {
+                  staleNativeIds.push(tokenRow.id);
                   nativeStale++;
                 } else {
                   nativeFailed++;
                 }
               }
-            } catch (err) {
+            } catch (error) {
               nativeFailed++;
-              console.error('Native push send error:', err);
+              console.error('APNs send error:', error);
             }
           }
 
@@ -291,13 +301,13 @@ serve(async (req) => {
           }
         }
       }
-    } catch (err) {
-      console.error('Native push block error:', err);
+    } catch (error) {
+      console.error('Native APNs push block error:', error);
     }
 
     console.log(
       `Push results — web: ${webSent}/${webTotal} (failed ${webFailed}, stale ${webStale}); ` +
-      `native: ${nativeSent}/${nativeTotal} (failed ${nativeFailed}, stale ${nativeStale}, skipped ${nativeSkippedNoConfig})`
+      `native APNs: ${nativeSent}/${nativeTotal} (failed ${nativeFailed}, stale ${nativeStale}, skipped ${nativeSkippedNoConfig})`
     );
 
     return new Response(
@@ -305,17 +315,17 @@ serve(async (req) => {
         success: true,
         web: { sent: webSent, total: webTotal, failed: webFailed, stale: webStale },
         native: {
+          provider: 'apns',
           sent: nativeSent,
           total: nativeTotal,
           failed: nativeFailed,
           stale: nativeStale,
           skipped_no_config: nativeSkippedNoConfig,
-          configured: firebaseConfigured,
+          configured: apnsConfigured,
         },
-        // Legacy fields preserved for older callers
-        sent: webSent,
-        total: webTotal,
-        failed: webFailed + webStale,
+        sent: webSent + nativeSent,
+        total: webTotal + nativeTotal,
+        failed: webFailed + webStale + nativeFailed + nativeStale,
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
