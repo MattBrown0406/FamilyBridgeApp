@@ -6,7 +6,6 @@
       "name": "vite_react_shadcn_ts",
       "dependencies": {
         "@capacitor-community/speech-recognition": "^7.0.1",
-        "@capacitor-firebase/messaging": "^8.3.0",
         "@capacitor/android": "^8.0.0",
         "@capacitor/cli": "^8.0.0",
         "@capacitor/core": "^8.0.0",
@@ -95,8 +94,6 @@
     "@babel/runtime": ["@babel/runtime@7.28.2", "", {}, "sha512-KHp2IflsnGywDjBWDkR9iEqiWSpc8GIi0lgTT3mOElT0PP1tG26P4tmFI2YvAdzgq9RGyoHZQEIEdZy6Ec5xCA=="],
 
     "@capacitor-community/speech-recognition": ["@capacitor-community/speech-recognition@7.0.1", "", { "peerDependencies": { "@capacitor/core": ">=7.0.0" } }, "sha512-ykpBZziR575X0eURO5vXaD9gVrXXC/7Ra2qql/2KP6/jxWOqAFuw4eKjSPjwdAgGE6a/Z+v8FJm4SVh57MVwDA=="],
-
-    "@capacitor-firebase/messaging": ["@capacitor-firebase/messaging@8.3.0", "https://europe-west1-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@capacitor-firebase/messaging/-/messaging-8.3.0.tgz", { "peerDependencies": { "@capacitor/core": ">=8.0.0", "firebase": "^12.6.0" }, "optionalPeers": ["firebase"] }, "sha512-gjlpPH8nFN2D4PGpg+Bi7Pk1Apy+nRh6DHTI8hr4o3QfCmZPnNCT0mhhT8Rcdpwf2D+E5NxkaVy4/2GYiXoF8Q=="],
 
     "@capacitor/android": ["@capacitor/android@8.0.0", "", { "peerDependencies": { "@capacitor/core": "^8.0.0" } }, "sha512-FrBSvVAC5JuLaYHNyDnwQny0/SYnP+xDQbc/KA4wInmRkMXLDv22fkx9aBJIDrxjuUVd+jsRih4SAt8FgMEzCw=="],
 
