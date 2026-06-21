@@ -1197,6 +1197,18 @@ const SuperAdmin = () => {
                 </Suspense>
               </TabsContent>
 
+              <TabsContent value="patent-docs" className="mt-0">
+                <Card className="border-0 shadow-sm">
+                  <CardContent className="py-12 text-center text-muted-foreground">
+                    <ScrollText className="h-10 w-10 mx-auto mb-3 opacity-30" />
+                    <p className="font-medium text-foreground">Patent docs are not configured yet</p>
+                    <p className="text-sm mt-1 max-w-md mx-auto">
+                      This tab is reserved for future platform/IP documentation. It now shows this placeholder instead of rendering a blank panel.
+                    </p>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
             </Tabs>
           </div>
         ) : null}

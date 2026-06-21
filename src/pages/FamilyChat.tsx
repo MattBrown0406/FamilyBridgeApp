@@ -3142,10 +3142,12 @@ const FamilyChat = () => {
               
               <div className="block">
                 {familyId && (
-                  <TemporaryModeratorRequest 
-                    familyId={familyId} 
-                    hasOrganization={!!family?.organization_id} 
-                  />
+                  <Suspense fallback={null}>
+                    <TemporaryModeratorRequest
+                      familyId={familyId}
+                      hasOrganization={!!family?.organization_id}
+                    />
+                  </Suspense>
                 )}
               </div>
               <Button
@@ -3457,11 +3459,13 @@ const FamilyChat = () => {
                   
                   {/* Show location risk warnings */}
                   {familyId && (
-                    <LocationRiskWarnings 
-                      familyId={familyId}
-                      members={members.map(m => ({ user_id: m.user_id, full_name: m.full_name }))}
-                      isAdminOrModerator={isAdminOrModerator}
-                    />
+                    <Suspense fallback={null}>
+                      <LocationRiskWarnings
+                        familyId={familyId}
+                        members={members.map(m => ({ user_id: m.user_id, full_name: m.full_name }))}
+                        isAdminOrModerator={isAdminOrModerator}
+                      />
+                    </Suspense>
                   )}
                   
                   {messages.length === 0 ? (
@@ -3740,7 +3744,9 @@ const FamilyChat = () => {
                   </CollapsibleTrigger>
                   <CollapsibleContent>
                     <CardContent className="pt-0">
-                      <MeetingFinder />
+                      <Suspense fallback={<div className="text-sm text-muted-foreground py-3">Loading meeting finder...</div>}>
+                        <MeetingFinder />
+                      </Suspense>
                     </CardContent>
                   </CollapsibleContent>
                 </Card>
@@ -3887,15 +3893,17 @@ const FamilyChat = () => {
                     )}
                     
                     {/* Bill Attachment with Camera and AI Clarity Check */}
-                    <BillReceiptCapture
-                      onImageCapture={(file, preview) => {
-                        setBillAttachment(file);
-                        setBillPreview(preview);
-                      }}
-                      onClear={clearAttachment}
-                      preview={billPreview}
-                      requestCategory={requestReason || undefined}
-                    />
+                    <Suspense fallback={<div className="text-sm text-muted-foreground py-3">Loading receipt capture...</div>}>
+                      <BillReceiptCapture
+                        onImageCapture={(file, preview) => {
+                          setBillAttachment(file);
+                          setBillPreview(preview);
+                        }}
+                        onClear={clearAttachment}
+                        preview={billPreview}
+                        requestCategory={requestReason || undefined}
+                      />
+                    </Suspense>
 
                     <Button 
                       type="submit" 
@@ -6197,7 +6205,9 @@ const FamilyChat = () => {
       </Dialog>
 
       {user && familyId && (
-        <DailyEmotionalCheckin familyId={familyId} />
+        <Suspense fallback={null}>
+          <DailyEmotionalCheckin familyId={familyId} />
+        </Suspense>
       )}
 
       {/* First-Time Onboarding Overlay */}
