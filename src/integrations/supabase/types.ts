@@ -4571,10 +4571,12 @@ export type Database = {
           created_at: string
           device_id: string | null
           enabled: boolean
+          environment: string
           id: string
           last_seen_at: string
           platform: string
           token: string
+          token_provider: string
           updated_at: string
           user_id: string
         }
@@ -4583,10 +4585,12 @@ export type Database = {
           created_at?: string
           device_id?: string | null
           enabled?: boolean
+          environment?: string
           id?: string
           last_seen_at?: string
           platform: string
           token: string
+          token_provider?: string
           updated_at?: string
           user_id: string
         }
@@ -4595,10 +4599,12 @@ export type Database = {
           created_at?: string
           device_id?: string | null
           enabled?: boolean
+          environment?: string
           id?: string
           last_seen_at?: string
           platform?: string
           token?: string
+          token_provider?: string
           updated_at?: string
           user_id?: string
         }
