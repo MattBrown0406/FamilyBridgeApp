@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { Resend } from "https://esm.sh/resend@2.0.0";
+import { enqueueSpineEvent } from "../_shared/spine.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -232,6 +233,16 @@ serve(async (req) => {
         });
       } catch (e) { console.error("Email send error:", e); }
     }
+
+    await enqueueSpineEvent("payment", {
+      email: normalizedEmail,
+      payment: {
+        id: paymentId,
+        processor: "square",
+        amount_cents: payment.amount_money?.amount ?? 0,
+        kind: "family_subscription",
+      },
+    }, supabase);
 
     return new Response(JSON.stringify({
       success: true,
