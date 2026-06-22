@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { Resend } from "https://esm.sh/resend@2.0.0";
+import { enqueueSpineEvent } from "../_shared/spine.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -145,6 +146,19 @@ serve(async (req) => {
           console.error("Resend notify failed:", e);
         }
       }
+    }
+
+    if (status !== "spam") {
+      await enqueueSpineEvent("lead_captured", {
+        email,
+        name,
+        phone: body.phone?.trim() || null,
+        props: {
+          source: body.source ?? "for-providers-page",
+          organization: body.organization ?? null,
+          role: body.role ?? null,
+        },
+      }, supabase);
     }
 
     return new Response(

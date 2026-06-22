@@ -137,3 +137,6 @@ verify_jwt = false
 
 [functions.validate-invite-code]
 verify_jwt = false
+
+[functions.drain-spine-outbox]
+verify_jwt = false

@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "https://esm.sh/resend@2.0.0";
+import { enqueueSpineEvent } from "../_shared/spine.ts";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
@@ -124,6 +125,12 @@ const handler = async (req: Request): Promise<Response> => {
     });
 
     console.log("Welcome email sent successfully:", emailResponse);
+
+    await enqueueSpineEvent("lead_captured", {
+      email,
+      name: fullName ?? null,
+      props: { source: "welcome_email", account_type: accountType },
+    });
 
     return new Response(JSON.stringify({ success: true, ...emailResponse }), {
       status: 200,

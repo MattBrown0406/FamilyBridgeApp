@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { enqueueSpineEvent } from "../_shared/spine.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -57,6 +58,10 @@ serve(async (req) => {
       // Handle "already subscribed" case
       if (data.title === 'Member Exists') {
         console.log(`${email} is already subscribed to Mailchimp`);
+        await enqueueSpineEvent("lead_captured", {
+          email: email,
+          props: { source: "mailchimp_waitlist" },
+        });
         return new Response(
           JSON.stringify({ success: true, message: 'Already subscribed' }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -71,6 +76,10 @@ serve(async (req) => {
     }
 
     console.log(`Successfully added ${email} to Mailchimp`);
+    await enqueueSpineEvent("lead_captured", {
+      email: email,
+      props: { source: "mailchimp_waitlist" },
+    });
     return new Response(
       JSON.stringify({ success: true, id: data.id }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
