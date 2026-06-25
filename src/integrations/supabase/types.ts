@@ -792,6 +792,75 @@ export type Database = {
         }
         Relationships: []
       }
+      billing_audit_alerts: {
+        Row: {
+          alert_sent_at: string | null
+          amount_cents: number | null
+          created_at: string
+          currency: string | null
+          customer_id_hash: string | null
+          first_seen_at: string
+          id: number
+          issue_type: string
+          last_seen_at: string
+          metadata: Json
+          order_id: string | null
+          order_id_hash: string | null
+          payment_created_at: string | null
+          payment_id: string
+          payment_note: string | null
+          product_type: string | null
+          resolution_note: string | null
+          resolved_at: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          alert_sent_at?: string | null
+          amount_cents?: number | null
+          created_at?: string
+          currency?: string | null
+          customer_id_hash?: string | null
+          first_seen_at?: string
+          id?: number
+          issue_type: string
+          last_seen_at?: string
+          metadata?: Json
+          order_id?: string | null
+          order_id_hash?: string | null
+          payment_created_at?: string | null
+          payment_id: string
+          payment_note?: string | null
+          product_type?: string | null
+          resolution_note?: string | null
+          resolved_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          alert_sent_at?: string | null
+          amount_cents?: number | null
+          created_at?: string
+          currency?: string | null
+          customer_id_hash?: string | null
+          first_seen_at?: string
+          id?: number
+          issue_type?: string
+          last_seen_at?: string
+          metadata?: Json
+          order_id?: string | null
+          order_id_hash?: string | null
+          payment_created_at?: string | null
+          payment_id?: string
+          payment_note?: string | null
+          product_type?: string | null
+          resolution_note?: string | null
+          resolved_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       boundary_acknowledgments: {
         Row: {
           acknowledged_at: string
