@@ -436,12 +436,35 @@ const FamilyPurchase = () => {
   };
 
   const features = [
-    { icon: Brain, text: "FIIS pattern guidance", subtitle: "Spot strain and respond earlier", highlight: true },
-    { icon: MessageSquareWarning, text: "Protected family communication", subtitle: "Calmer, more accountable dialogue", highlight: true },
-    { icon: TrendingUp, text: "Pattern visibility", subtitle: "Check-ins, requests, and dynamics in one place", highlight: true },
-    { icon: Users, text: "Unlimited family participation" },
+    {
+      icon: Brain,
+      text: "FIIS pattern guidance",
+      subtitle: "FIIS is the patent-pending AI brain that runs the system and learns your family’s needs the more it is used.",
+      highlight: true,
+    },
+    {
+      icon: MessageSquareWarning,
+      text: "Protected family communication",
+      subtitle: "Private family communication with active AI coaching for difficult conversations and texts.",
+      highlight: true,
+    },
+    {
+      icon: TrendingUp,
+      text: "Pattern visibility",
+      subtitle: "Location check-ins, financial requests and communication and relationship dynamics.",
+      highlight: true,
+    },
+    {
+      icon: Users,
+      text: "Unlimited family participation",
+      subtitle: "One monthly fee covers all family users and gives each family unlimited use of the app.",
+    },
     { icon: DollarSign, text: "Financial accountability tools", subtitle: "Clearer requests, pledges, and follow-through" },
-    { icon: Shield, text: "1 guidance window each month", subtitle: "Extra 24-hour windows available for $399" },
+    {
+      icon: Shield,
+      text: "1 guidance window each month",
+      subtitle: "Get help from a professional human interventionist in your chat for 24 hours. Additional windows are available at an added daily rate.",
+    },
   ];
 
   const handleCopyCode = () => {

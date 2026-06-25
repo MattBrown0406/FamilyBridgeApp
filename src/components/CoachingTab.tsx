@@ -57,7 +57,13 @@ export const CoachingTab = ({ familyId, members = [] }: CoachingTabProps) => {
   const [isLiveLoading, setIsLiveLoading] = useState(false);
   const [liveStreamText, setLiveStreamText] = useState('');
   const recognitionRef = useRef<ActiveSpeechRecognitionSession | null>(null);
+  const liveTranscriptRef = useRef('');
+  const lastAutoGuidanceTranscriptRef = useRef('');
+  const autoGuidanceIntervalRef = useRef<number | null>(null);
   const [transcribedText, setTranscribedText] = useState('');
+  const [liveCue, setLiveCue] = useState('');
+  const [liveSummary, setLiveSummary] = useState('');
+  const [isHelpLoading, setIsHelpLoading] = useState(false);
 
   // Screenshot / email coaching state
   const [screenshotFile, setScreenshotFile] = useState<File | null>(null);
@@ -83,17 +89,117 @@ export const CoachingTab = ({ familyId, members = [] }: CoachingTabProps) => {
         void recognitionRef.current.stop();
         recognitionRef.current = null;
       }
+      if (autoGuidanceIntervalRef.current) {
+        window.clearInterval(autoGuidanceIntervalRef.current);
+      }
     };
   }, []);
 
-  const getTalkingToName = (): string => {
+  useEffect(() => {
+    liveTranscriptRef.current = transcribedText;
+  }, [transcribedText]);
+
+  const getTalkingToName = useCallback((): string => {
     if (talkingToUserId === '__custom__') return talkingToCustomName || 'someone';
     if (talkingToUserId) {
       const member = members.find(m => m.user_id === talkingToUserId);
       return member?.full_name || 'a family member';
     }
     return '';
-  };
+  }, [members, talkingToCustomName, talkingToUserId]);
+
+  const requestLiveGuidance = useCallback(async (kind: 'auto' | 'help' | 'summary') => {
+    const transcript = liveTranscriptRef.current.trim();
+    if (!transcript) return;
+
+    if (kind === 'auto') {
+      const newWords = transcript
+        .slice(lastAutoGuidanceTranscriptRef.current.length)
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean);
+      if (newWords.length < 20 || isLiveLoading || isHelpLoading) return;
+      lastAutoGuidanceTranscriptRef.current = transcript;
+    }
+
+    if (kind === 'help') setIsHelpLoading(true);
+    if (kind === 'auto') setIsLiveLoading(true);
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error('Not authenticated');
+
+      const talkingTo = getTalkingToName();
+      const instruction =
+        kind === 'summary'
+          ? 'The live conversation just ended. Give the user brief notes: 1-2 things they did well and 1-2 specific improvements for next time. Do not overwhelm them. Be calm, direct, and compassionate.'
+          : kind === 'help'
+            ? 'The user pressed HELP during a live conversation. Give one short suggested response they can say now, plus one sentence of grounding guidance. Make it calm, boundaried, and plain spoken.'
+            : 'FIIS is actively listening during a live conversation. If you detect escalation, profanity, name-calling, manipulation, aggression, money pressure, blame, or emotional dysregulation, give one immediate short coaching cue the user can read at a glance. If no escalation is evident, give a brief encouraging steadying cue. Do not summarize the transcript.';
+
+      const resp = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/live-coaching`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          familyId,
+          transcript: `${instruction}\n\nRecent live conversation context:\n${transcript.slice(-4000)}`,
+          context: liveMode === 'inroom' ? 'in_room' : liveMode === 'speakerphone' ? 'phone' : 'text',
+          chatHistory: liveMessages.slice(-6),
+          talkingToName: talkingTo,
+          talkingToUserId: talkingToUserId && talkingToUserId !== '__custom__' ? talkingToUserId : undefined,
+        }),
+      });
+
+      if (!resp.ok) {
+        const err = await resp.json().catch(() => ({ error: 'Request failed' }));
+        throw new Error(err.error || 'Request failed');
+      }
+
+      const reader = resp.body!.getReader();
+      const decoder = new TextDecoder();
+      let assistantText = '';
+      let buffer = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+
+        let newlineIndex: number;
+        while ((newlineIndex = buffer.indexOf('\n')) !== -1) {
+          let line = buffer.slice(0, newlineIndex);
+          buffer = buffer.slice(newlineIndex + 1);
+          if (line.endsWith('\r')) line = line.slice(0, -1);
+          if (!line.startsWith('data: ')) continue;
+          const jsonStr = line.slice(6).trim();
+          if (jsonStr === '[DONE]') break;
+          try {
+            const parsed = JSON.parse(jsonStr);
+            const content = parsed.type === 'content_block_delta' && parsed.delta?.type === 'text_delta'
+              ? parsed.delta.text
+              : null;
+            if (content) {
+              assistantText += content;
+              if (kind === 'summary') setLiveSummary(assistantText);
+              else setLiveCue(assistantText);
+            }
+          } catch { /* partial chunk */ }
+        }
+      }
+
+      if (assistantText && kind !== 'auto') {
+        setLiveMessages(prev => [...prev, { role: 'assistant', content: assistantText }]);
+      }
+    } catch (error: any) {
+      toast({ title: 'Coaching error', description: error.message, variant: 'destructive' });
+    } finally {
+      setIsHelpLoading(false);
+      if (kind === 'auto') setIsLiveLoading(false);
+    }
+  }, [familyId, getTalkingToName, isHelpLoading, isLiveLoading, liveMessages, liveMode, talkingToUserId, toast]);
 
   // Speech recognition for live coaching, with native support inside the iPhone app
   const startListening = useCallback(async () => {
@@ -101,12 +207,20 @@ export const CoachingTab = ({ familyId, members = [] }: CoachingTabProps) => {
       await recognitionRef.current.stop();
       recognitionRef.current = null;
     }
+    if (autoGuidanceIntervalRef.current) {
+      window.clearInterval(autoGuidanceIntervalRef.current);
+    }
+    setLiveCue('');
+    setLiveSummary('');
+    lastAutoGuidanceTranscriptRef.current = '';
 
     try {
       recognitionRef.current = await startLiveSpeechRecognition({
         onUpdate: ({ committedText, displayText }) => {
           setTranscribedText(committedText);
-          setLiveInput(displayText);
+          if (liveMode === 'text') {
+            setLiveInput(displayText);
+          }
         },
         onListeningChange: setIsListening,
         onError: (message) => {
@@ -114,6 +228,9 @@ export const CoachingTab = ({ familyId, members = [] }: CoachingTabProps) => {
           toast({ title: 'Listening error', description: message, variant: 'destructive' });
         },
       });
+      autoGuidanceIntervalRef.current = window.setInterval(() => {
+        void requestLiveGuidance('auto');
+      }, 30000);
     } catch (error: any) {
       toast({
         title: 'Not supported',
@@ -121,16 +238,25 @@ export const CoachingTab = ({ familyId, members = [] }: CoachingTabProps) => {
         variant: 'destructive',
       });
     }
-  }, [toast]);
+  }, [liveMode, requestLiveGuidance, toast]);
 
   const stopListening = useCallback(async () => {
+    if (autoGuidanceIntervalRef.current) {
+      window.clearInterval(autoGuidanceIntervalRef.current);
+      autoGuidanceIntervalRef.current = null;
+    }
     if (recognitionRef.current) {
       await recognitionRef.current.stop();
       recognitionRef.current = null;
     }
     setIsListening(false);
     setLiveInput(prev => prev.replace(/\[listening\.\.\.\].*$/, '').trim());
-  }, []);
+    if (liveTranscriptRef.current.trim()) {
+      window.setTimeout(() => {
+        void requestLiveGuidance('summary');
+      }, 250);
+    }
+  }, [requestLiveGuidance]);
 
   const saveCoachingSession = async ({
     sessionType,
@@ -423,11 +549,11 @@ export const CoachingTab = ({ familyId, members = [] }: CoachingTabProps) => {
           <div className="flex items-start gap-3">
             <Brain className="h-5 w-5 text-primary mt-0.5 shrink-0" />
             <div>
-              <p className="font-semibold text-sm">FIIS Coaching</p>
+              <p className="font-semibold text-sm">FIIS Response Coach</p>
               <p className="text-xs text-muted-foreground mt-1">
-                Get coaching from FIIS, whether you're in a live conversation, reviewing texts and emails,
-                or just need one-on-one guidance on how to handle a situation.
-                Coaching sessions are saved into the family's FIIS context so future analysis can use them.
+                Get help from FIIS when you're in a live conversation, reviewing texts and emails,
+                or just need one-on-one guidance on how to respond to a situation.
+                Response Coach sessions are saved into the family's FIIS context so future analysis can use them.
               </p>
             </div>
           </div>
@@ -644,8 +770,8 @@ export const CoachingTab = ({ familyId, members = [] }: CoachingTabProps) => {
                 </div>
                 <p className="text-xs text-muted-foreground mt-2">
                   {liveMode === 'inroom'
-                    ? 'Place your device nearby during an in-person conversation. FIIS will transcribe what it hears and coach you in real time.'
-                    : 'Put your phone on speaker and tap Start. FIIS will transcribe the call and coach you in real time.'}
+                    ? 'Place your device nearby during an in-person conversation. FIIS will listen for escalation and show short coaching cues every 30 seconds.'
+                    : 'Put your phone on speaker and tap Start. FIIS will listen for escalation and show short coaching cues every 30 seconds.'}
                 </p>
               </CardContent>
             </Card>
@@ -654,14 +780,41 @@ export const CoachingTab = ({ familyId, members = [] }: CoachingTabProps) => {
           {/* Chat area */}
           <Card className="flex flex-col" style={{ minHeight: '300px' }}>
             <ScrollArea className="flex-1 p-4" ref={liveScrollRef} style={{ maxHeight: '400px' }}>
-              {liveMessages.length === 0 && !liveStreamText && (
+              {liveMode !== 'text' && (
+                <div className="text-center py-6">
+                  <Brain className="h-10 w-10 mx-auto mb-3 text-primary/50" />
+                  <p className="text-lg font-semibold text-foreground">
+                    {isListening ? (
+                      <>Actively listening<span className="inline-flex w-6 justify-start"><span className="animate-pulse">...</span></span></>
+                    ) : (
+                      'Ready to listen'
+                    )}
+                  </p>
+                  <p className="mt-2 text-xs text-muted-foreground max-w-sm mx-auto">
+                    FIIS watches for escalation, profanity, name-calling, manipulation, aggression, and emotional dysregulation. The live transcript is hidden during the conversation.
+                  </p>
+                  {liveCue && (
+                    <div className="mt-4 rounded-xl border border-primary/20 bg-primary/10 p-4 text-left">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-primary mb-1">Live coaching cue</p>
+                      <div className="prose prose-sm dark:prose-invert max-w-none text-sm">
+                        <ReactMarkdown>{liveCue}</ReactMarkdown>
+                      </div>
+                    </div>
+                  )}
+                  {liveSummary && (
+                    <div className="mt-4 rounded-xl border border-emerald-500/25 bg-emerald-50/70 p-4 text-left dark:bg-emerald-950/20">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300 mb-1">After-conversation notes</p>
+                      <div className="prose prose-sm dark:prose-invert max-w-none text-sm">
+                        <ReactMarkdown>{liveSummary}</ReactMarkdown>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+              {liveMode === 'text' && liveMessages.length === 0 && !liveStreamText && (
                 <div className="text-center text-muted-foreground py-8">
                   <Brain className="h-10 w-10 mx-auto mb-3 opacity-30" />
-                  <p className="text-sm">
-                    {liveMode === 'text'
-                      ? 'Type what they\'re saying and FIIS will coach you on how to respond.'
-                      : 'Start listening and FIIS will provide coaching suggestions as the conversation progresses.'}
-                  </p>
+                  <p className="text-sm">Type what's happening and FIIS will coach you on how to respond.</p>
                 </div>
               )}
               {liveMessages.map((msg, i) => (
@@ -702,30 +855,42 @@ export const CoachingTab = ({ familyId, members = [] }: CoachingTabProps) => {
               )}
             </ScrollArea>
 
-            <div className="border-t p-3 flex gap-2">
-              <Textarea
-                value={liveInput}
-                onChange={(e) => setLiveInput(e.target.value)}
-                placeholder={liveMode === 'text' 
-                  ? 'Type what they said or what\'s happening...' 
-                  : 'Transcribed speech will appear here...'}
-                className="min-h-[40px] max-h-[100px] resize-none"
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    sendLiveCoaching();
-                  }
-                }}
-              />
-              <Button
-                onClick={sendLiveCoaching}
-                disabled={isLiveLoading || !((liveMode === 'speakerphone' || liveMode === 'inroom') ? transcribedText : liveInput).trim()}
-                size="icon"
-                className="shrink-0"
-              >
-                <Send className="h-4 w-4" />
-              </Button>
-            </div>
+            {liveMode === 'text' ? (
+              <div className="border-t p-3 flex gap-2">
+                <Textarea
+                  value={liveInput}
+                  onChange={(e) => setLiveInput(e.target.value)}
+                  placeholder="Type what they said or what's happening..."
+                  className="min-h-[40px] max-h-[100px] resize-none"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      sendLiveCoaching();
+                    }
+                  }}
+                />
+                <Button
+                  onClick={sendLiveCoaching}
+                  disabled={isLiveLoading || !liveInput.trim()}
+                  size="icon"
+                  className="shrink-0"
+                >
+                  <Send className="h-4 w-4" />
+                </Button>
+              </div>
+            ) : (
+              <div className="border-t p-3">
+                <Button
+                  onClick={() => requestLiveGuidance('help')}
+                  disabled={isHelpLoading || !transcribedText.trim()}
+                  className="w-full bg-red-600 text-white hover:bg-red-700"
+                  size="lg"
+                >
+                  {isHelpLoading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <AlertTriangle className="h-4 w-4 mr-2" />}
+                  Help Me Respond
+                </Button>
+              </div>
+            )}
           </Card>
         </TabsContent>
 

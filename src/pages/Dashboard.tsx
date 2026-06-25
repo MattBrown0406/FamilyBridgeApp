@@ -87,6 +87,12 @@ const Dashboard = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
+  useEffect(() => {
+    if (!loading && !isLoading && !isProviderLoading && !isProvider && families.length === 1) {
+      navigate(`/family/${families[0].id}`, { replace: true });
+    }
+  }, [families, isLoading, isProvider, isProviderLoading, loading, navigate]);
+
   const fetchFamilies = async () => {
     try {
       // Fetch only active (non-archived) families
@@ -374,9 +380,9 @@ const Dashboard = () => {
                   <Button
                     variant="outline"
                     className="h-auto p-4 flex-col gap-2"
-                    onClick={() => navigate('/family-setup')}
+                    onClick={() => navigate('/join')}
                   >
-                    <div className="font-semibold">Been invited? Enter your invite code</div>
+                    <div className="font-semibold">Been invited? Join an existing family</div>
                     <ArrowRight className="h-4 w-4" />
                   </Button>
                 </div>

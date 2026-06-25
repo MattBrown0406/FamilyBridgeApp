@@ -2335,15 +2335,15 @@ const FamilyChat = () => {
     if (cooldownEndTime && Date.now() < cooldownEndTime) {
       toast({
         title: 'Please wait',
-        description: `You can send a message in ${cooldownRemaining} seconds. It seems like emotions are running high - when you're ready, our Coaching tool can help you find the right words.`,
+        description: `You can send a message in ${cooldownRemaining} seconds. It seems like emotions are running high - when you're ready, the Response Coach can help you find the right words.`,
         variant: 'destructive',
         action: (
           <ToastAction
-            altText="Open Coaching"
+            altText="Open Response Coach"
             className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-8 px-3"
             onClick={openCoachingTab}
           >
-            Open Coaching
+            Open Response Coach
           </ToastAction>
         )
       });
@@ -2374,15 +2374,15 @@ const FamilyChat = () => {
         
         toast({
           title: 'Cooldown activated',
-          description: 'You must wait 60 seconds before sending another message. It seems like emotions are running high. Take a moment, and when you\'re ready, our Coaching tool can help you find the right words.',
+          description: 'You must wait 60 seconds before sending another message. It seems like emotions are running high. Take a moment, and when you\'re ready, the Response Coach can help you find the right words.',
           variant: 'destructive',
           action: (
             <ToastAction
-              altText="Open Coaching"
+              altText="Open Response Coach"
               className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-8 px-3"
               onClick={openCoachingTab}
             >
-              Open Coaching
+              Open Response Coach
             </ToastAction>
           )
         });
@@ -3181,9 +3181,8 @@ const FamilyChat = () => {
       <main className="flex-1 container mx-auto px-1.5 sm:px-4 py-1.5 sm:py-4 overflow-hidden">
         <Tabs value={activeTab} onValueChange={(v) => startTransition(() => setActiveTab(v))} className="h-full flex flex-col">
           <div className="mb-2 sm:mb-4 shrink-0 bg-card/50 backdrop-blur-sm border border-border/50 p-1.5 sm:p-2 rounded-lg sm:rounded-xl shadow-soft">
-            {/* Primary tabs (always visible) */}
+            {/* Primary tabs: keep the daily family workflow simple */}
             <div className="flex items-center gap-1.5 flex-wrap">
-              {/* Chat Tab */}
               <button
                 onClick={() => setActiveTab('messages')}
                 className={`relative flex items-center justify-center gap-1 px-3 py-2.5 rounded-md sm:rounded-lg transition-all duration-200 ${
@@ -3198,21 +3197,24 @@ const FamilyChat = () => {
                   <div className="absolute -top-1 -right-1 h-3 w-3 bg-accent rounded-full animate-bounce border-2 border-card" />
                 )}
               </button>
-              
-              {/* Check-in Tab */}
-              <button
-                onClick={() => setActiveTab('checkin')}
-                className={`flex items-center justify-center gap-1 px-3 py-2.5 rounded-md sm:rounded-lg transition-all duration-200 ${
-                  activeTab === 'checkin'
-                    ? 'bg-green-50 text-green-600 dark:bg-green-950/40 dark:text-green-400 shadow-sm ring-1 ring-green-200 dark:ring-green-800'
-                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                }`}
-              >
-                <MapPin className="h-4 w-4" />
-                <span className="text-xs font-medium">Check-in</span>
-              </button>
-              
-              {/* Boundaries Tab */}
+
+              {currentUserRole !== 'recovering' && (
+                <button
+                  onClick={() => setActiveTab('fiis')}
+                  className={`relative flex items-center justify-center gap-1 px-3 py-2.5 rounded-md sm:rounded-lg transition-all duration-200 ${
+                    activeTab === 'fiis'
+                      ? 'bg-violet-50 text-violet-600 dark:bg-violet-950/40 dark:text-violet-400 shadow-sm ring-1 ring-violet-200 dark:ring-violet-800'
+                      : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                  }`}
+                >
+                  <Brain className="h-4 w-4" />
+                  <span className="text-xs font-medium">FIIS</span>
+                  {hasNewAnalysis && (
+                    <span className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 h-2.5 w-2.5 sm:h-3 sm:w-3 bg-destructive rounded-full animate-pulse border-2 border-card" />
+                  )}
+                </button>
+              )}
+
               <button
                 onClick={() => setActiveTab('boundaries')}
                 className={`relative flex items-center justify-center gap-1 px-3 py-2.5 rounded-md sm:rounded-lg transition-all duration-200 ${
@@ -3227,48 +3229,38 @@ const FamilyChat = () => {
                   <div className="absolute -top-1 -right-1 h-3 w-3 bg-accent rounded-full animate-bounce border-2 border-card" />
                 )}
               </button>
-              
-              {/* Goals Tab */}
+
               <button
-                onClick={() => setActiveTab('values')}
-                className={`relative flex items-center justify-center gap-1 px-3 py-2.5 rounded-md sm:rounded-lg transition-all duration-200 ${
-                  activeTab === 'values'
-                    ? 'bg-orange-50 text-orange-600 dark:bg-orange-950/40 dark:text-orange-400 shadow-sm ring-1 ring-orange-200 dark:ring-orange-800'
-                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                }`}
-              >
-                <Target className="h-4 w-4" />
-                <span className="text-xs font-medium">Goals</span>
-                {showOnboarding && onboardingStep === 2 && (
-                  <div className="absolute -top-1 -right-1 h-3 w-3 bg-accent rounded-full animate-bounce border-2 border-card" />
-                )}
-              </button>
-              
-              {/* Coaching Tab */}
-              <button
-                onClick={() => setActiveTab('coaching')}
+                onClick={() => setActiveTab('financial')}
                 className={`flex items-center justify-center gap-1 px-3 py-2.5 rounded-md sm:rounded-lg transition-all duration-200 ${
-                  activeTab === 'coaching'
-                    ? 'bg-teal-50 text-teal-600 dark:bg-teal-950/40 dark:text-teal-400 shadow-sm ring-1 ring-teal-200 dark:ring-teal-800'
+                  activeTab === 'financial'
+                    ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400 shadow-sm ring-1 ring-emerald-200 dark:ring-emerald-800'
                     : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                 }`}
               >
-                <PhoneCall className="h-4 w-4" />
-                <span className="text-xs font-medium">Coaching</span>
+                <DollarSign className="h-4 w-4" />
+                <span className="text-xs font-medium">Financial</span>
               </button>
-              
-              {/* More... Dropdown */}
+
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button className="flex items-center justify-center gap-1 px-3 py-2.5 rounded-md sm:rounded-lg transition-all duration-200 hover:bg-muted text-muted-foreground hover:text-foreground">
-                    <span className="text-xs">More...</span>
+                    <span className="text-xs">Tools</span>
                     <ChevronDown className="h-3 w-3" />
                   </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
-                  <DropdownMenuItem onClick={() => startTransition(() => setActiveTab('financial'))} className="flex items-center gap-2">
-                    <DollarSign className="h-4 w-4" />
-                    Financial
+                <DropdownMenuContent align="end" className="w-52">
+                  <DropdownMenuItem onClick={() => startTransition(() => setActiveTab('checkin'))} className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4" />
+                    Check-in
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => startTransition(() => setActiveTab('values'))} className="flex items-center gap-2">
+                    <Target className="h-4 w-4" />
+                    Recovery Plan
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => startTransition(() => setActiveTab('coaching'))} className="flex items-center gap-2">
+                    <PhoneCall className="h-4 w-4" />
+                    Response Coach
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => startTransition(() => setActiveTab('aftercare'))} className="flex items-center gap-2">
                     <ClipboardList className="h-4 w-4" />
@@ -3288,24 +3280,6 @@ const FamilyChat = () => {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-              
-              {/* FIIS Tab - kept as is, only visible to non-recovering members */}
-              {currentUserRole !== 'recovering' && (
-                <button
-                  onClick={() => setActiveTab('fiis')}
-                  className={`relative flex items-center justify-center gap-1 px-3 py-2.5 rounded-md sm:rounded-lg transition-all duration-200 ${
-                    activeTab === 'fiis'
-                      ? 'bg-violet-50 text-violet-600 dark:bg-violet-950/40 dark:text-violet-400 shadow-sm ring-1 ring-violet-200 dark:ring-violet-800'
-                      : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                  }`}
-                >
-                  <Brain className="h-4 w-4" />
-                  <span className="text-xs font-medium">FIIS</span>
-                  {hasNewAnalysis && (
-                    <span className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 h-2.5 w-2.5 sm:h-3 sm:w-3 bg-destructive rounded-full animate-pulse border-2 border-card" />
-                  )}
-                </button>
-              )}
             </div>
           </div>
 
@@ -3319,7 +3293,7 @@ const FamilyChat = () => {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-foreground">Need help with what to say?</p>
-                  <p className="text-xs text-muted-foreground">Our coaching tools can help you communicate more effectively.</p>
+                  <p className="text-xs text-muted-foreground">The Response Coach can help you communicate more effectively.</p>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   <Button 
@@ -3327,7 +3301,7 @@ const FamilyChat = () => {
                     className="bg-gradient-to-r from-accent to-primary text-white"
                     onClick={() => setActiveTab('coaching')}
                   >
-                    Try Coaching →
+                    Try Response Coach →
                   </Button>
                   <Button 
                     size="sm" 
@@ -3338,6 +3312,42 @@ const FamilyChat = () => {
                   </Button>
                 </div>
               </div>
+            )}
+
+            {(messages.length < 3 || familyBoundaries.length === 0) && isCurrentWeek && (
+              <Card className="mb-2 sm:mb-4 shrink-0 border-primary/20 bg-primary/5 shadow-sm">
+                <CardContent className="p-4">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div>
+                      <p className="font-display text-base font-semibold text-foreground">Start here</p>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        Four simple steps keep the family aligned before the next crisis moment.
+                      </p>
+                    </div>
+                    <Button variant="outline" size="sm" onClick={() => setActiveTab('boundaries')}>
+                      Add a boundary
+                    </Button>
+                  </div>
+                  <div className="mt-4 grid gap-2 text-sm text-foreground">
+                    <div className="flex gap-2">
+                      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                      <span>Invite the key family members.</span>
+                    </div>
+                    <div className="flex gap-2">
+                      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                      <span>Add one clear boundary.</span>
+                    </div>
+                    <div className="flex gap-2">
+                      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                      <span>Use the family chat for all communication with or about your addicted/recovering loved one.</span>
+                    </div>
+                    <div className="flex gap-2">
+                      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                      <span>Track financial requests here instead of by text.</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             )}
             
             {/* Stats Cards for Messages */}
@@ -3597,7 +3607,7 @@ const FamilyChat = () => {
                         </span>
                       </div>
                       <p className="text-xs text-muted-foreground mb-2">
-                        It seems like emotions are running high. Take a moment, and when you're ready, our Coaching tool can help you find the right words.
+                        It seems like emotions are running high. Take a moment, and when you're ready, the Response Coach can help you find the right words.
                       </p>
                       <Button
                         variant="outline"
@@ -3606,7 +3616,7 @@ const FamilyChat = () => {
                         className="h-7 text-xs"
                         onClick={openCoachingTab}
                       >
-                        Open Coaching Tool
+                        Open Response Coach
                       </Button>
                     </div>
                   )}
