@@ -303,6 +303,10 @@ const FamilyPurchase = () => {
         if (checkoutError) throw checkoutError;
 
         if (checkoutData.checkoutUrl) {
+          if (checkoutData.orderId) {
+            localStorage.setItem('familybridge_family_checkout_order_id', checkoutData.orderId);
+          }
+          localStorage.setItem('familybridge_family_checkout_email', email);
           window.location.href = checkoutData.checkoutUrl;
         } else {
           throw new Error("Failed to create checkout session");

@@ -98,7 +98,9 @@ serve(async (req) => {
       );
     }
 
-    // Step A: Look up the Order to verify state and get the payment id.
+    // Step A: Look up the Order to get its tenders/payments. Square Checkout
+    // Payment Links can leave the Order in OPEN state even after payment capture,
+    // so the Payment record below is the source of truth.
     const orderRes = await fetch(`https://connect.squareup.com/v2/orders/${encodeURIComponent(normalizedOrderId)}`, {
       headers: {
         "Square-Version": "2024-01-18",
@@ -118,7 +120,7 @@ serve(async (req) => {
     const tenders: any[] = order?.tenders || [];
     const orderState: string = order?.state;
 
-    if (orderState !== "COMPLETED" || tenders.length === 0) {
+    if (tenders.length === 0) {
       return new Response(JSON.stringify({
         success: false,
         error: "Payment has not been completed yet. If you just paid, please wait a few seconds and retry.",
@@ -127,7 +129,8 @@ serve(async (req) => {
     }
 
     // Step B: Verify the underlying payment is COMPLETED.
-    const paymentId = tenders[0]?.payment_id;
+    const completedTender = tenders.find((tender: any) => tender?.payment_id && tender?.card_details?.status === "CAPTURED") || tenders.find((tender: any) => tender?.payment_id);
+    const paymentId = completedTender?.payment_id;
     if (!paymentId) {
       return new Response(JSON.stringify({
         success: false, error: "Order has no payment record yet.",

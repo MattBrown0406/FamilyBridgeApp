@@ -87,7 +87,10 @@ serve(async (req) => {
     const tenders: any[] = order?.tenders || [];
     const orderState: string = order?.state;
 
-    if (orderState !== "COMPLETED" || tenders.length === 0) {
+    // Square Checkout Payment Links can leave the Order in OPEN state even after
+    // the card tender/payment is captured. Treat the underlying Payment record as
+    // the source of truth; only block when the order has no tender/payment yet.
+    if (tenders.length === 0) {
       return new Response(JSON.stringify({
         success: false,
         error: "Payment has not been completed yet. If you just paid, please wait a few seconds and retry.",
@@ -96,7 +99,8 @@ serve(async (req) => {
     }
 
     // Step B: Verify the underlying payment is COMPLETED and card-backed
-    const paymentId = tenders[0]?.payment_id;
+    const completedTender = tenders.find((tender: any) => tender?.payment_id && tender?.card_details?.status === "CAPTURED") || tenders.find((tender: any) => tender?.payment_id);
+    const paymentId = completedTender?.payment_id;
     if (!paymentId) {
       return new Response(JSON.stringify({
         success: false, error: "Order has no payment record yet.",
