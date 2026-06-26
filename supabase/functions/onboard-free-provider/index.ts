@@ -23,8 +23,11 @@ serve(async (req) => {
 
     const authHeader = req.headers.get("Authorization") || "";
     const presented = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
-    if (!presented) return json({ error: "Unauthorized" }, 401);
-    if (presented !== serviceKey) {
+    const internalToken = Deno.env.get("ONBOARD_INTERNAL_TOKEN") || "";
+    const headerInternal = req.headers.get("x-internal-token") || "";
+    const isInternal = internalToken && headerInternal === internalToken;
+    if (!isInternal && !presented) return json({ error: "Unauthorized" }, 401);
+    if (!isInternal && presented !== serviceKey) {
       const { data: u, error: uErr } = await admin.auth.getUser(presented);
       if (uErr || !u?.user) return json({ error: "Unauthorized" }, 401);
       const { data: isSuper } = await admin.rpc("is_super_admin", { _user_id: u.user.id });
