@@ -140,3 +140,6 @@ verify_jwt = false
 
 [functions.drain-spine-outbox]
 verify_jwt = false
+
+[functions.onboard-free-provider]
+verify_jwt = false
