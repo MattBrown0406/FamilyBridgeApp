@@ -1328,9 +1328,10 @@ const FamilyChat = () => {
         const isReviewerDemoFamily =
           user.email?.toLowerCase() === 'appstoreconnect@apple.com' &&
           ['App Review Demo Family', 'App Review Full Feature Demo', 'Demo Account for Deletion'].includes(familyData.name);
+        const tutorialsDisabled = localStorage.getItem('fb_tutorials_enabled') === 'false';
         const hasCompletedOnboarding = isReviewerDemoFamily || localStorage.getItem(onboardingKey) === 'true';
-        
-        if (!hasCompletedOnboarding) {
+
+        if (!hasCompletedOnboarding && !tutorialsDisabled) {
           setShowOnboarding(true);
           setOnboardingStep(1);
         } else {
