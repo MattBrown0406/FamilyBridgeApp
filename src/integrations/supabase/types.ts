@@ -2291,6 +2291,7 @@ export type Database = {
           id: string
           invite_code: string | null
           is_archived: boolean
+          journey_stage: string | null
           name: string
           organization_id: string | null
           previous_organization_id: string | null
@@ -2310,6 +2311,7 @@ export type Database = {
           id?: string
           invite_code?: string | null
           is_archived?: boolean
+          journey_stage?: string | null
           name: string
           organization_id?: string | null
           previous_organization_id?: string | null
@@ -2329,6 +2331,7 @@ export type Database = {
           id?: string
           invite_code?: string | null
           is_archived?: boolean
+          journey_stage?: string | null
           name?: string
           organization_id?: string | null
           previous_organization_id?: string | null
@@ -7423,6 +7426,10 @@ export type Database = {
       revoke_transition_consent: {
         Args: { _consent_id: string; _reason?: string }
         Returns: boolean
+      }
+      set_family_journey_stage: {
+        Args: { _family_id: string; _stage: string }
+        Returns: undefined
       }
       shares_family_with: {
         Args: { _other_user_id: string; _user_id: string }
