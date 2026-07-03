@@ -27,6 +27,8 @@ import familyBridgeLogo from '@/assets/familybridge-logo.png';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { ModeratorDisclaimer } from '@/components/ModeratorDisclaimer';
+import { JourneyStageCard } from '@/components/home/JourneyStageCard';
+import { WelcomeAfterJoin } from '@/components/WelcomeAfterJoin';
 import { HIPAAReleasesViewer } from '@/components/HIPAAReleasesViewer';
 import { HIPAARelease } from '@/components/HIPAARelease';
 import { Label } from '@/components/ui/label';
@@ -3179,8 +3181,10 @@ const FamilyChat = () => {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 container mx-auto px-1.5 sm:px-4 py-1.5 sm:py-4 overflow-hidden">
-        <Tabs value={activeTab} onValueChange={(v) => startTransition(() => setActiveTab(v))} className="h-full flex flex-col">
+      <main className="flex-1 container mx-auto px-1.5 sm:px-4 py-1.5 sm:py-4 overflow-hidden flex flex-col">
+        {familyId && <JourneyStageCard familyId={familyId} />}
+        {familyId && <WelcomeAfterJoin familyId={familyId} />}
+        <Tabs value={activeTab} onValueChange={(v) => startTransition(() => setActiveTab(v))} className="flex-1 min-h-0 flex flex-col">
           <div className="mb-2 sm:mb-4 shrink-0 bg-card/50 backdrop-blur-sm border border-border/50 p-1.5 sm:p-2 rounded-lg sm:rounded-xl shadow-soft">
             {/* Primary tabs: keep the daily family workflow simple */}
             <div className="flex items-center gap-1.5 flex-wrap">

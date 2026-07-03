@@ -2290,6 +2290,7 @@ export type Database = {
           description: string | null
           id: string
           invite_code: string | null
+          journey_stage: string | null
           is_archived: boolean
           name: string
           organization_id: string | null
@@ -2309,6 +2310,7 @@ export type Database = {
           description?: string | null
           id?: string
           invite_code?: string | null
+          journey_stage?: string | null
           is_archived?: boolean
           name: string
           organization_id?: string | null
@@ -2328,6 +2330,7 @@ export type Database = {
           description?: string | null
           id?: string
           invite_code?: string | null
+          journey_stage?: string | null
           is_archived?: boolean
           name?: string
           organization_id?: string | null
@@ -7115,6 +7118,10 @@ export type Database = {
       can_access_coordination_channel: {
         Args: { _channel_id: string; _user_id: string }
         Returns: boolean
+      }
+      set_family_journey_stage: {
+        Args: { _family_id: string; _stage: string }
+        Returns: undefined
       }
       can_approve_in_family: {
         Args: { _family_id: string; _user_id: string }

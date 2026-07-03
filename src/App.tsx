@@ -1,4 +1,5 @@
 import { Toaster } from "@/components/ui/toaster";
+import { CrisisHelpButton } from "@/components/CrisisHelpButton";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -74,6 +75,7 @@ const App = () => {
             <BrowserRouter>
               <ScrollToTop />
               <NativePushInitializer />
+              <CrisisHelpButton />
               <main>
               <Routes>
               <Route path="/" element={isNative ? <NativeHome /> : <Index />} />

@@ -143,3 +143,6 @@ verify_jwt = false
 
 [functions.onboard-free-provider]
 verify_jwt = false
+
+[functions.weekly-family-report]
+verify_jwt = false

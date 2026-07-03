@@ -9,6 +9,7 @@ import { SEOHead } from "@/components/SEOHead";
 import { Loader2, UserPlus, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import familyBridgeLogo from "@/assets/familybridge-logo.png";
+import { markWelcomePending } from "@/components/WelcomeAfterJoin";
 
 /**
  * /join — minimal page for people who already have an invite code.
@@ -62,6 +63,7 @@ const JoinFamily = () => {
       }
 
       toast.success("Code accepted. Create your account to join.");
+      markWelcomePending(); // CX 3.4: show the contextual welcome on first landing
       navigate(`/auth?mode=signup&familyInvite=${encodeURIComponent(code)}`);
     } catch (error) {
       console.error("Invite code validation error:", error);
