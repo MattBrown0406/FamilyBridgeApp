@@ -1,16 +1,19 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { getCorsHeaders } from "../_shared/cors.ts";
+import { isInternalRequest, forbiddenResponse } from "../_shared/internal-auth.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { Resend } from "https://esm.sh/resend@2.0.0";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
 
 // One-off helper: provision a free provider account (auth user + organization + owner membership)
 // and email the new provider step-by-step onboarding instructions, CC'ing a super admin.
 // Caller must present the service-role key OR a super-admin JWT.
 serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req.headers.get("origin"));
+  if (!isInternalRequest(req)) {
+    return forbiddenResponse(corsHeaders);
+  }
+
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   const json = (p: unknown, s: number) =>

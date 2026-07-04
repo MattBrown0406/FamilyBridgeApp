@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { getCorsHeaders } from "../_shared/cors.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { buildModeratorEscalationTriggersPrompt } from "../_shared/fiis-doctrine.ts";
 import { buildFIISLearningContext } from "../_shared/fiis-learning.ts";
@@ -6,13 +7,11 @@ import { buildFIISRuntimeContext } from "../_shared/fiis-runtime.ts";
 import { loadFIISRuntimeTelemetry, persistFIISCoachingTelemetry } from "../_shared/fiis-telemetry.ts";
 import { fetchFIISFamilyContext } from "../_shared/fiis-family-context.ts";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
 const CLAUDE_MODEL = "claude-haiku-4-5";
 
 serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req.headers.get("origin"));
+
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }

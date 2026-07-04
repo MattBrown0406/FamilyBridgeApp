@@ -1,13 +1,9 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { getCorsHeaders } from "../_shared/cors.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { Resend } from "https://esm.sh/resend@2.0.0";
 import { enqueueSpineEvent } from "../_shared/spine.ts";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
-};
 
 const FAMILY_PLAN_ID = "GEMWDEES3W2AVLKCHDOZESQF";
 
@@ -32,6 +28,8 @@ async function sha256Hex(input: string): Promise<string> {
 interface Body { orderId: string; email: string; }
 
 serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req.headers.get("origin"));
+
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {

@@ -1,13 +1,15 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
+import { getCorsHeaders } from "../_shared/cors.ts";
+import { isInternalRequest, forbiddenResponse } from "../_shared/internal-auth.ts";
 import { analyzeFamilyCommunicationBatch } from "../_shared/family-engagement-analysis.ts";
 
-const corsHeaders2 = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
-};
 
 Deno.serve(async (req) => {
+  const corsHeaders2 = getCorsHeaders(req.headers.get("origin"));
+  if (!isInternalRequest(req)) {
+    return forbiddenResponse(corsHeaders2);
+  }
+
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders2 });
   }

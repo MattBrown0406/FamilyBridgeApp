@@ -1,16 +1,19 @@
 /// <reference lib="deno.ns" />
+import { getCorsHeaders } from "../_shared/cors.ts";
+import { isInternalRequest, forbiddenResponse } from "../_shared/internal-auth.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.89.0";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
 
 // Seeds an Apple App Store reviewer PROVIDER account with a demo organization
 // and a fully-populated demo family the reviewer can fully access and test.
 // Idempotent. Callable only by the service role (invoked from the Lovable agent).
 serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req.headers.get("origin"));
+  if (!isInternalRequest(req)) {
+    return forbiddenResponse(corsHeaders);
+  }
+
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   function json(payload: unknown, status: number) {

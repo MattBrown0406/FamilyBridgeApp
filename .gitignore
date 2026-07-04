@@ -22,3 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Environment files (secrets hygiene — never commit)
+.env
+.env.*
+!.env.example

@@ -1,15 +1,18 @@
 /// <reference lib="deno.ns" />
+import { getCorsHeaders } from "../_shared/cors.ts";
+import { isInternalRequest, forbiddenResponse } from "../_shared/internal-auth.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.89.0";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
 
 // One-shot seeder for the App Review demo family.
 // Protected: only callable by an authenticated Super Admin.
 serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req.headers.get("origin"));
+  if (!isInternalRequest(req)) {
+    return forbiddenResponse(corsHeaders);
+  }
+
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {

@@ -1,4 +1,5 @@
 // supabase/functions/validate-invite-code/index.ts
+import { getCorsHeaders } from "../_shared/cors.ts";
 //
 // Public, no-auth-required endpoint that resolves an invite code to a family.
 //
@@ -18,17 +19,14 @@
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1';
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-};
 
 interface ValidateRequest {
   code?: string;
 }
 
 Deno.serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req.headers.get("origin"));
+
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
