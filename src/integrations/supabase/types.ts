@@ -7,30 +7,10 @@ export type Json =
   | Json[]
 
 export type Database = {
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          extensions?: Json
-          operationName?: string
-          query?: string
-          variables?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "14.1"
   }
   public: {
     Tables: {
@@ -467,65 +447,44 @@ export type Database = {
       accountability_scores: {
         Row: {
           ai_insight: string | null
-          boundary_consistency_score: number | null
           calculated_at: string
-          communication_valence: string | null
           created_at: string
-          criticism_score: number | null
-          emotional_regulation_score: number | null
-          enabling_score: number | null
           factors: Json
           family_id: string | null
           id: string
           organization_id: string | null
           positive_feedback: string[] | null
           previous_score: number | null
-          recovery_alignment_score: number | null
           score: number
           score_type: string
-          supportiveness_score: number | null
           trend: string
         }
         Insert: {
           ai_insight?: string | null
-          boundary_consistency_score?: number | null
           calculated_at?: string
-          communication_valence?: string | null
           created_at?: string
-          criticism_score?: number | null
-          emotional_regulation_score?: number | null
-          enabling_score?: number | null
           factors?: Json
           family_id?: string | null
           id?: string
           organization_id?: string | null
           positive_feedback?: string[] | null
           previous_score?: number | null
-          recovery_alignment_score?: number | null
           score?: number
           score_type: string
-          supportiveness_score?: number | null
           trend?: string
         }
         Update: {
           ai_insight?: string | null
-          boundary_consistency_score?: number | null
           calculated_at?: string
-          communication_valence?: string | null
           created_at?: string
-          criticism_score?: number | null
-          emotional_regulation_score?: number | null
-          enabling_score?: number | null
           factors?: Json
           family_id?: string | null
           id?: string
           organization_id?: string | null
           positive_feedback?: string[] | null
           previous_score?: number | null
-          recovery_alignment_score?: number | null
           score?: number
           score_type?: string
-          supportiveness_score?: number | null
           trend?: string
         }
         Relationships: [
@@ -1113,63 +1072,39 @@ export type Database = {
       }
       coaching_sessions: {
         Row: {
-          ai_model: string | null
-          ai_summary: string | null
           created_at: string
           ended_at: string | null
-          escalation_level: number | null
           family_id: string
-          guidance_style: string | null
           id: string
-          runtime_adaptations: Json
-          runtime_confidence: string | null
-          runtime_flags: Json
           session_type: string
           started_at: string
           suggestions: Json[] | null
           talking_to_name: string | null
           talking_to_user_id: string | null
-          telemetry: Json
           user_id: string
         }
         Insert: {
-          ai_model?: string | null
-          ai_summary?: string | null
           created_at?: string
           ended_at?: string | null
-          escalation_level?: number | null
           family_id: string
-          guidance_style?: string | null
           id?: string
-          runtime_adaptations?: Json
-          runtime_confidence?: string | null
-          runtime_flags?: Json
           session_type: string
           started_at?: string
           suggestions?: Json[] | null
           talking_to_name?: string | null
           talking_to_user_id?: string | null
-          telemetry?: Json
           user_id: string
         }
         Update: {
-          ai_model?: string | null
-          ai_summary?: string | null
           created_at?: string
           ended_at?: string | null
-          escalation_level?: number | null
           family_id?: string
-          guidance_style?: string | null
           id?: string
-          runtime_adaptations?: Json
-          runtime_confidence?: string | null
-          runtime_flags?: Json
           session_type?: string
           started_at?: string
           suggestions?: Json[] | null
           talking_to_name?: string | null
           talking_to_user_id?: string | null
-          telemetry?: Json
           user_id?: string
         }
         Relationships: [
@@ -2729,118 +2664,6 @@ export type Database = {
           },
         ]
       }
-      family_engagement_events: {
-        Row: {
-          care_phase_id: string | null
-          confidence: number | null
-          created_at: string
-          engagement_domain: string
-          event_type: string
-          family_id: string
-          id: string
-          intensity: number
-          meeting_type: Database["public"]["Enums"]["meeting_type"] | null
-          metadata: Json
-          notes: string | null
-          occurred_at: string
-          organization_id: string | null
-          participant_user_id: string
-          recovering_user_id: string | null
-          source_record_id: string | null
-          source_table: string | null
-          support_category: string | null
-          updated_at: string
-          valence: string
-        }
-        Insert: {
-          care_phase_id?: string | null
-          confidence?: number | null
-          created_at?: string
-          engagement_domain: string
-          event_type: string
-          family_id: string
-          id?: string
-          intensity?: number
-          meeting_type?: Database["public"]["Enums"]["meeting_type"] | null
-          metadata?: Json
-          notes?: string | null
-          occurred_at?: string
-          organization_id?: string | null
-          participant_user_id: string
-          recovering_user_id?: string | null
-          source_record_id?: string | null
-          source_table?: string | null
-          support_category?: string | null
-          updated_at?: string
-          valence?: string
-        }
-        Update: {
-          care_phase_id?: string | null
-          confidence?: number | null
-          created_at?: string
-          engagement_domain?: string
-          event_type?: string
-          family_id?: string
-          id?: string
-          intensity?: number
-          meeting_type?: Database["public"]["Enums"]["meeting_type"] | null
-          metadata?: Json
-          notes?: string | null
-          occurred_at?: string
-          organization_id?: string | null
-          participant_user_id?: string
-          recovering_user_id?: string | null
-          source_record_id?: string | null
-          source_table?: string | null
-          support_category?: string | null
-          updated_at?: string
-          valence?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "family_engagement_events_care_phase_id_fkey"
-            columns: ["care_phase_id"]
-            isOneToOne: false
-            referencedRelation: "care_phases"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "family_engagement_events_family_id_fkey"
-            columns: ["family_id"]
-            isOneToOne: false
-            referencedRelation: "families"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "family_engagement_events_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "family_engagement_events_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "organizations_member_view"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "family_engagement_events_participant_user_id_fkey"
-            columns: ["participant_user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "family_engagement_events_recovering_user_id_fkey"
-            columns: ["recovering_user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       family_goals: {
         Row: {
           completed_at: string | null
@@ -3144,137 +2967,6 @@ export type Database = {
           },
         ]
       }
-      fiis_adaptation_audit_log: {
-        Row: {
-          action: string
-          actor_id: string | null
-          actor_type: string
-          created_at: string
-          detail: string | null
-          family_id: string
-          id: string
-          metadata: Json
-          proposal_id: string | null
-        }
-        Insert: {
-          action: string
-          actor_id?: string | null
-          actor_type?: string
-          created_at?: string
-          detail?: string | null
-          family_id: string
-          id?: string
-          metadata?: Json
-          proposal_id?: string | null
-        }
-        Update: {
-          action?: string
-          actor_id?: string | null
-          actor_type?: string
-          created_at?: string
-          detail?: string | null
-          family_id?: string
-          id?: string
-          metadata?: Json
-          proposal_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "fiis_adaptation_audit_log_family_id_fkey"
-            columns: ["family_id"]
-            isOneToOne: false
-            referencedRelation: "families"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "fiis_adaptation_audit_log_proposal_id_fkey"
-            columns: ["proposal_id"]
-            isOneToOne: false
-            referencedRelation: "fiis_adaptation_proposals"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      fiis_adaptation_proposals: {
-        Row: {
-          auto_apply_eligible: boolean
-          change_magnitude_pct: number
-          confidence: string
-          created_at: string
-          created_by: string
-          current_value: Json
-          engine: string
-          evidence: Json
-          family_id: string
-          id: string
-          parameter_key: string
-          proposal_type: string
-          proposed_value: Json
-          rationale: string
-          reviewed_at: string | null
-          reviewed_by: string | null
-          rollback_reason: string | null
-          sample_size: number
-          scope: string
-          status: string
-          updated_at: string
-        }
-        Insert: {
-          auto_apply_eligible?: boolean
-          change_magnitude_pct?: number
-          confidence?: string
-          created_at?: string
-          created_by?: string
-          current_value?: Json
-          engine?: string
-          evidence?: Json
-          family_id: string
-          id?: string
-          parameter_key: string
-          proposal_type: string
-          proposed_value?: Json
-          rationale: string
-          reviewed_at?: string | null
-          reviewed_by?: string | null
-          rollback_reason?: string | null
-          sample_size?: number
-          scope?: string
-          status?: string
-          updated_at?: string
-        }
-        Update: {
-          auto_apply_eligible?: boolean
-          change_magnitude_pct?: number
-          confidence?: string
-          created_at?: string
-          created_by?: string
-          current_value?: Json
-          engine?: string
-          evidence?: Json
-          family_id?: string
-          id?: string
-          parameter_key?: string
-          proposal_type?: string
-          proposed_value?: Json
-          rationale?: string
-          reviewed_at?: string | null
-          reviewed_by?: string | null
-          rollback_reason?: string | null
-          sample_size?: number
-          scope?: string
-          status?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "fiis_adaptation_proposals_family_id_fkey"
-            columns: ["family_id"]
-            isOneToOne: false
-            referencedRelation: "families"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       fiis_analysis_feedback: {
         Row: {
           accuracy_rating: number | null
@@ -3454,103 +3146,6 @@ export type Database = {
         }
         Relationships: []
       }
-      fiis_coaching_outcomes: {
-        Row: {
-          adaptation_snapshot: Json
-          analysis_id: string | null
-          boundary_held: boolean | null
-          coaching_session_type: string | null
-          created_at: string
-          created_by: string
-          deescalated: boolean | null
-          escalation_level: number | null
-          family_id: string
-          guidance_style: string | null
-          id: string
-          metadata: Json
-          notes: string | null
-          outcome_status: string
-          relapse_signal_confirmed: boolean | null
-          response_latency_ms: number | null
-          runtime_confidence: string | null
-          runtime_flags: Json
-          session_id: string | null
-          tokens_in: number | null
-          tokens_out: number | null
-          updated_at: string
-        }
-        Insert: {
-          adaptation_snapshot?: Json
-          analysis_id?: string | null
-          boundary_held?: boolean | null
-          coaching_session_type?: string | null
-          created_at?: string
-          created_by: string
-          deescalated?: boolean | null
-          escalation_level?: number | null
-          family_id: string
-          guidance_style?: string | null
-          id?: string
-          metadata?: Json
-          notes?: string | null
-          outcome_status: string
-          relapse_signal_confirmed?: boolean | null
-          response_latency_ms?: number | null
-          runtime_confidence?: string | null
-          runtime_flags?: Json
-          session_id?: string | null
-          tokens_in?: number | null
-          tokens_out?: number | null
-          updated_at?: string
-        }
-        Update: {
-          adaptation_snapshot?: Json
-          analysis_id?: string | null
-          boundary_held?: boolean | null
-          coaching_session_type?: string | null
-          created_at?: string
-          created_by?: string
-          deescalated?: boolean | null
-          escalation_level?: number | null
-          family_id?: string
-          guidance_style?: string | null
-          id?: string
-          metadata?: Json
-          notes?: string | null
-          outcome_status?: string
-          relapse_signal_confirmed?: boolean | null
-          response_latency_ms?: number | null
-          runtime_confidence?: string | null
-          runtime_flags?: Json
-          session_id?: string | null
-          tokens_in?: number | null
-          tokens_out?: number | null
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "fiis_coaching_outcomes_analysis_id_fkey"
-            columns: ["analysis_id"]
-            isOneToOne: false
-            referencedRelation: "fiis_pattern_analyses"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "fiis_coaching_outcomes_family_id_fkey"
-            columns: ["family_id"]
-            isOneToOne: false
-            referencedRelation: "families"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "fiis_coaching_outcomes_session_id_fkey"
-            columns: ["session_id"]
-            isOneToOne: false
-            referencedRelation: "coaching_sessions"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       fiis_disclaimer_acknowledgments: {
         Row: {
           acknowledged_at: string
@@ -3579,74 +3174,6 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "fiis_disclaimer_acknowledgments_family_id_fkey"
-            columns: ["family_id"]
-            isOneToOne: false
-            referencedRelation: "families"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      fiis_learning_snapshots: {
-        Row: {
-          active_adaptations: Json
-          boundary_hold_rate: number | null
-          coaching_sessions_count: number
-          created_at: string
-          evidence_summary: string[]
-          false_negative_rate: number | null
-          false_positive_rate: number | null
-          family_id: string
-          feedback_count: number
-          helpful_rate: number | null
-          id: string
-          learning_confidence: string
-          metrics: Json
-          outcome_count: number
-          proposal_count: number
-          stabilization_rate: number | null
-          window_days: number
-        }
-        Insert: {
-          active_adaptations?: Json
-          boundary_hold_rate?: number | null
-          coaching_sessions_count?: number
-          created_at?: string
-          evidence_summary?: string[]
-          false_negative_rate?: number | null
-          false_positive_rate?: number | null
-          family_id: string
-          feedback_count?: number
-          helpful_rate?: number | null
-          id?: string
-          learning_confidence?: string
-          metrics?: Json
-          outcome_count?: number
-          proposal_count?: number
-          stabilization_rate?: number | null
-          window_days?: number
-        }
-        Update: {
-          active_adaptations?: Json
-          boundary_hold_rate?: number | null
-          coaching_sessions_count?: number
-          created_at?: string
-          evidence_summary?: string[]
-          false_negative_rate?: number | null
-          false_positive_rate?: number | null
-          family_id?: string
-          feedback_count?: number
-          helpful_rate?: number | null
-          id?: string
-          learning_confidence?: string
-          metrics?: Json
-          outcome_count?: number
-          proposal_count?: number
-          stabilization_rate?: number | null
-          window_days?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "fiis_learning_snapshots_family_id_fkey"
             columns: ["family_id"]
             isOneToOne: false
             referencedRelation: "families"
@@ -3711,74 +3238,6 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "fiis_moderator_chats_family_id_fkey"
-            columns: ["family_id"]
-            isOneToOne: false
-            referencedRelation: "families"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      fiis_moderator_sessions: {
-        Row: {
-          ai_model: string | null
-          chat_turn_count: number
-          created_at: string
-          escalation_level: number | null
-          family_id: string
-          guidance_style: string | null
-          id: string
-          moderator_id: string
-          prompt_summary: string | null
-          response_latency_ms: number | null
-          response_summary: string | null
-          runtime_adaptations: Json
-          runtime_confidence: string | null
-          runtime_flags: Json
-          telemetry: Json
-          tokens_in: number | null
-          tokens_out: number | null
-        }
-        Insert: {
-          ai_model?: string | null
-          chat_turn_count?: number
-          created_at?: string
-          escalation_level?: number | null
-          family_id: string
-          guidance_style?: string | null
-          id?: string
-          moderator_id: string
-          prompt_summary?: string | null
-          response_latency_ms?: number | null
-          response_summary?: string | null
-          runtime_adaptations?: Json
-          runtime_confidence?: string | null
-          runtime_flags?: Json
-          telemetry?: Json
-          tokens_in?: number | null
-          tokens_out?: number | null
-        }
-        Update: {
-          ai_model?: string | null
-          chat_turn_count?: number
-          created_at?: string
-          escalation_level?: number | null
-          family_id?: string
-          guidance_style?: string | null
-          id?: string
-          moderator_id?: string
-          prompt_summary?: string | null
-          response_latency_ms?: number | null
-          response_summary?: string | null
-          runtime_adaptations?: Json
-          runtime_confidence?: string | null
-          runtime_flags?: Json
-          telemetry?: Json
-          tokens_in?: number | null
-          tokens_out?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "fiis_moderator_sessions_family_id_fkey"
             columns: ["family_id"]
             isOneToOne: false
             referencedRelation: "families"
@@ -4791,12 +4250,10 @@ export type Database = {
           alert_type: string
           created_at: string
           dose_id: string | null
-          escalation_stage: string | null
           family_id: string
           id: string
           medication_id: string
           message: string
-          metadata: Json
           user_id: string
         }
         Insert: {
@@ -4805,12 +4262,10 @@ export type Database = {
           alert_type: string
           created_at?: string
           dose_id?: string | null
-          escalation_stage?: string | null
           family_id: string
           id?: string
           medication_id: string
           message: string
-          metadata?: Json
           user_id: string
         }
         Update: {
@@ -4819,12 +4274,10 @@ export type Database = {
           alert_type?: string
           created_at?: string
           dose_id?: string | null
-          escalation_stage?: string | null
           family_id?: string
           id?: string
           medication_id?: string
           message?: string
-          metadata?: Json
           user_id?: string
         }
         Relationships: [
@@ -4853,69 +4306,48 @@ export type Database = {
       }
       medication_doses: {
         Row: {
-          confirmation_type: string | null
           confirmed_by: string | null
           created_at: string
           family_id: string
           id: string
-          inventory_delta: number | null
           medication_id: string
           overdue_alert_sent: boolean | null
-          overdue_notified_family_at: string | null
-          overdue_notified_user_at: string | null
           reminder_sent_at: string | null
           scheduled_at: string
           scheduled_time: string | null
           skip_reason: string | null
           skipped: boolean | null
-          snoozed_until: string | null
-          status: string
           taken_at: string | null
-          taken_notes: string | null
           user_id: string
         }
         Insert: {
-          confirmation_type?: string | null
           confirmed_by?: string | null
           created_at?: string
           family_id: string
           id?: string
-          inventory_delta?: number | null
           medication_id: string
           overdue_alert_sent?: boolean | null
-          overdue_notified_family_at?: string | null
-          overdue_notified_user_at?: string | null
           reminder_sent_at?: string | null
           scheduled_at: string
           scheduled_time?: string | null
           skip_reason?: string | null
           skipped?: boolean | null
-          snoozed_until?: string | null
-          status?: string
           taken_at?: string | null
-          taken_notes?: string | null
           user_id: string
         }
         Update: {
-          confirmation_type?: string | null
           confirmed_by?: string | null
           created_at?: string
           family_id?: string
           id?: string
-          inventory_delta?: number | null
           medication_id?: string
           overdue_alert_sent?: boolean | null
-          overdue_notified_family_at?: string | null
-          overdue_notified_user_at?: string | null
           reminder_sent_at?: string | null
           scheduled_at?: string
           scheduled_time?: string | null
           skip_reason?: string | null
           skipped?: boolean | null
-          snoozed_until?: string | null
-          status?: string
           taken_at?: string | null
-          taken_notes?: string | null
           user_id?: string
         }
         Relationships: [
@@ -4935,230 +4367,79 @@ export type Database = {
           },
         ]
       }
-      medication_inventory_events: {
-        Row: {
-          created_at: string
-          created_by: string | null
-          event_type: string
-          family_id: string
-          id: string
-          medication_id: string
-          note: string | null
-          quantity_change: number
-          related_dose_id: string | null
-          units_remaining_after: number | null
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          created_by?: string | null
-          event_type: string
-          family_id: string
-          id?: string
-          medication_id: string
-          note?: string | null
-          quantity_change: number
-          related_dose_id?: string | null
-          units_remaining_after?: number | null
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          created_by?: string | null
-          event_type?: string
-          family_id?: string
-          id?: string
-          medication_id?: string
-          note?: string | null
-          quantity_change?: number
-          related_dose_id?: string | null
-          units_remaining_after?: number | null
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "medication_inventory_events_family_id_fkey"
-            columns: ["family_id"]
-            isOneToOne: false
-            referencedRelation: "families"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "medication_inventory_events_medication_id_fkey"
-            columns: ["medication_id"]
-            isOneToOne: false
-            referencedRelation: "medications"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "medication_inventory_events_related_dose_id_fkey"
-            columns: ["related_dose_id"]
-            isOneToOne: false
-            referencedRelation: "medication_doses"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       medications: {
         Row: {
           created_at: string
           created_by: string
-          days_supply: number | null
           discontinued_at: string | null
           discontinued_reason: string | null
           doctor_name: string | null
           doctor_phone: string | null
           dosage: string | null
-          doses_per_administration: number
-          expected_runout_date: string | null
           family_id: string
           frequency: string | null
           id: string
           instructions: string | null
-          inventory_notes: string | null
           is_active: boolean | null
           is_mat: boolean
-          is_prn: boolean
-          label_analysis_confidence: number | null
-          label_analysis_field_confidence: Json
-          label_analysis_raw_text: string | null
-          label_capture_mode: string | null
-          label_disclaimer_accepted_at: string | null
           label_image_url: string | null
-          label_image_urls: string[] | null
-          label_images_deleted_at: string | null
-          label_images_deleted_by: string | null
-          label_images_verified_at: string | null
-          label_images_verified_by: string | null
-          last_inventory_reconciled_at: string | null
           last_refill_date: string | null
-          low_supply_notified_at: string | null
-          low_supply_threshold: number | null
-          max_daily_doses: number | null
           medication_name: string
-          min_hours_between_doses: number | null
-          out_of_medication_at: string | null
           pharmacy_name: string | null
           pharmacy_phone: string | null
-          prescriber_name: string | null
-          prescriber_phone: string | null
-          quantity_dispensed: number | null
-          refill_due_notified_at: string | null
-          refill_reminder_days: number
           refills_remaining: number | null
-          risk_level: string
           specific_times: string[] | null
           times_per_day: number | null
-          unit_type: string | null
-          units_remaining: number | null
           updated_at: string
           user_id: string
         }
         Insert: {
           created_at?: string
           created_by: string
-          days_supply?: number | null
           discontinued_at?: string | null
           discontinued_reason?: string | null
           doctor_name?: string | null
           doctor_phone?: string | null
           dosage?: string | null
-          doses_per_administration?: number
-          expected_runout_date?: string | null
           family_id: string
           frequency?: string | null
           id?: string
           instructions?: string | null
-          inventory_notes?: string | null
           is_active?: boolean | null
           is_mat?: boolean
-          is_prn?: boolean
-          label_analysis_confidence?: number | null
-          label_analysis_field_confidence?: Json
-          label_analysis_raw_text?: string | null
-          label_capture_mode?: string | null
-          label_disclaimer_accepted_at?: string | null
           label_image_url?: string | null
-          label_image_urls?: string[] | null
-          label_images_deleted_at?: string | null
-          label_images_deleted_by?: string | null
-          label_images_verified_at?: string | null
-          label_images_verified_by?: string | null
-          last_inventory_reconciled_at?: string | null
           last_refill_date?: string | null
-          low_supply_notified_at?: string | null
-          low_supply_threshold?: number | null
-          max_daily_doses?: number | null
           medication_name: string
-          min_hours_between_doses?: number | null
-          out_of_medication_at?: string | null
           pharmacy_name?: string | null
           pharmacy_phone?: string | null
-          prescriber_name?: string | null
-          prescriber_phone?: string | null
-          quantity_dispensed?: number | null
-          refill_due_notified_at?: string | null
-          refill_reminder_days?: number
           refills_remaining?: number | null
-          risk_level?: string
           specific_times?: string[] | null
           times_per_day?: number | null
-          unit_type?: string | null
-          units_remaining?: number | null
           updated_at?: string
           user_id: string
         }
         Update: {
           created_at?: string
           created_by?: string
-          days_supply?: number | null
           discontinued_at?: string | null
           discontinued_reason?: string | null
           doctor_name?: string | null
           doctor_phone?: string | null
           dosage?: string | null
-          doses_per_administration?: number
-          expected_runout_date?: string | null
           family_id?: string
           frequency?: string | null
           id?: string
           instructions?: string | null
-          inventory_notes?: string | null
           is_active?: boolean | null
           is_mat?: boolean
-          is_prn?: boolean
-          label_analysis_confidence?: number | null
-          label_analysis_field_confidence?: Json
-          label_analysis_raw_text?: string | null
-          label_capture_mode?: string | null
-          label_disclaimer_accepted_at?: string | null
           label_image_url?: string | null
-          label_image_urls?: string[] | null
-          label_images_deleted_at?: string | null
-          label_images_deleted_by?: string | null
-          label_images_verified_at?: string | null
-          label_images_verified_by?: string | null
-          last_inventory_reconciled_at?: string | null
           last_refill_date?: string | null
-          low_supply_notified_at?: string | null
-          low_supply_threshold?: number | null
-          max_daily_doses?: number | null
           medication_name?: string
-          min_hours_between_doses?: number | null
-          out_of_medication_at?: string | null
           pharmacy_name?: string | null
           pharmacy_phone?: string | null
-          prescriber_name?: string | null
-          prescriber_phone?: string | null
-          quantity_dispensed?: number | null
-          refill_due_notified_at?: string | null
-          refill_reminder_days?: number
           refills_remaining?: number | null
-          risk_level?: string
           specific_times?: string[] | null
           times_per_day?: number | null
-          unit_type?: string | null
-          units_remaining?: number | null
           updated_at?: string
           user_id?: string
         }
@@ -8018,7 +7299,6 @@ export type Database = {
         Returns: boolean
       }
       check_hipaa_status: { Args: { _family_id: string }; Returns: Json }
-      check_medication_refill_status: { Args: never; Returns: undefined }
       check_missed_medication_doses: { Args: never; Returns: undefined }
       check_overdue_checkouts: { Args: never; Returns: undefined }
       check_payment_info_access_rate: { Args: never; Returns: boolean }
@@ -8284,17 +7564,9 @@ export type Database = {
         Returns: boolean
       }
       is_super_admin: { Args: { _user_id: string }; Returns: boolean }
-      map_meeting_type_to_support_category: {
-        Args: { meeting: Database["public"]["Enums"]["meeting_type"] }
-        Returns: string
-      }
       needs_hipaa_re_sign: {
         Args: { _family_id: string; _user_id: string }
         Returns: boolean
-      }
-      recalculate_medication_inventory: {
-        Args: { _medication_id: string }
-        Returns: undefined
       }
       record_patient_consent: {
         Args: {
@@ -8573,9 +7845,6 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
   public: {
     Enums: {
       care_phase_type: [
