@@ -25,6 +25,8 @@ CREATE TABLE IF NOT EXISTS public.family_org_transfer_history (
 ALTER TABLE public.family_org_transfer_history ENABLE ROW LEVEL SECURITY;
 
 -- Org members can view transfer history for their families
+DROP POLICY IF EXISTS "Org members can view transfer history"
+  ON public.family_org_transfer_history;
 CREATE POLICY "Org members can view transfer history"
   ON public.family_org_transfer_history
   FOR SELECT
@@ -44,6 +46,8 @@ CREATE POLICY "Org members can view transfer history"
   );
 
 -- Only org admins/moderators can insert transfer records
+DROP POLICY IF EXISTS "Org admins can insert transfer history"
+  ON public.family_org_transfer_history;
 CREATE POLICY "Org admins can insert transfer history"
   ON public.family_org_transfer_history
   FOR INSERT
@@ -56,7 +60,7 @@ CREATE POLICY "Org admins can insert transfer history"
     )
   );
 
-CREATE INDEX idx_family_org_transfer_family_id
+CREATE INDEX IF NOT EXISTS idx_family_org_transfer_family_id
   ON public.family_org_transfer_history (family_id, transferred_at DESC);
 
 -- Add hipaa_re_sign_required flag to hipaa_releases

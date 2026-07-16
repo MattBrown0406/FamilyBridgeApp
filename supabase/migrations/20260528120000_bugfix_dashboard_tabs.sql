@@ -138,6 +138,7 @@ CREATE TRIGGER on_financial_vote_cast
 --    (was: only moderator role)
 -- ─────────────────────────────────────────────────────────────
 DROP POLICY IF EXISTS "Moderators can update financial requests" ON public.financial_requests;
+DROP POLICY IF EXISTS "Admins and moderators can update financial requests" ON public.financial_requests;
 
 CREATE POLICY "Admins and moderators can update financial requests"
 ON public.financial_requests
@@ -176,6 +177,8 @@ DROP POLICY IF EXISTS "Moderators can update boundary status" ON public.family_b
 DROP POLICY IF EXISTS "Moderators can delete boundaries" ON public.family_boundaries;
 DROP POLICY IF EXISTS "Moderators can approve boundaries" ON public.family_boundaries;
 DROP POLICY IF EXISTS "Moderators can reject boundaries" ON public.family_boundaries;
+DROP POLICY IF EXISTS "Admins and moderators can update boundaries" ON public.family_boundaries;
+DROP POLICY IF EXISTS "Admins and moderators can delete boundaries" ON public.family_boundaries;
 
 -- Admins and moderators can update boundary status (approve/reject)
 CREATE POLICY "Admins and moderators can update boundaries"

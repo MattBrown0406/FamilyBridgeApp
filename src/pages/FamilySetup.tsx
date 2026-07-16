@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { usePlatform } from "@/hooks/usePlatform";
 import { useRevenueCat } from "@/hooks/useRevenueCat";
@@ -47,9 +47,10 @@ const RELATIONSHIP_OPTIONS: { value: RelationshipType; label: string }[] = [
 ];
 
 const FamilySetup = () => {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
-  const { isIOS } = usePlatform();
+  const location = useLocation();
+  const { isNative } = usePlatform();
   const { isSupported: revenueCatSupported, hasEntitlement } = useRevenueCat();
   const [searchParams] = useSearchParams();
   
@@ -63,8 +64,8 @@ const FamilySetup = () => {
   ]);
   const [isLoading, setIsLoading] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
-  const [createdFamilyInviteCode, setCreatedFamilyInviteCode] = useState("");
-  const hasFamilyRevenueCatAccess = isIOS && revenueCatSupported && hasEntitlement(REVENUECAT_ENTITLEMENT_IDS.family);
+
+  const hasFamilyRevenueCatAccess = isNative && revenueCatSupported && hasEntitlement(REVENUECAT_ENTITLEMENT_IDS.family);
 
   useEffect(() => {
     if (user?.email && !adminEmail) {
@@ -131,6 +132,10 @@ const FamilySetup = () => {
   };
 
   const handleSubmit = async () => {
+    if (!user) {
+      toast.error("Sign in before creating your family group");
+      return;
+    }
     if (!validateForm()) return;
 
     setIsLoading(true);
@@ -156,7 +161,6 @@ const FamilySetup = () => {
       if (error) throw error;
 
       if (data.success) {
-        setCreatedFamilyInviteCode(data.memberInviteCode || inviteCode.trim().toUpperCase());
         setIsComplete(true);
         toast.success("Family group created! Invitations have been sent.");
       } else {
@@ -169,6 +173,42 @@ const FamilySetup = () => {
       setIsLoading(false);
     }
   };
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    const nextPath = `${location.pathname}${location.search}`;
+    const encodedNext = encodeURIComponent(nextPath);
+    return (
+      <div className="min-h-screen bg-background">
+        <BrandedHeader />
+        <div className="container mx-auto px-4 py-12">
+          <Card className="mx-auto max-w-md">
+            <CardHeader>
+              <CardTitle>Sign in before family setup</CardTitle>
+              <CardDescription>
+                Your account will securely own the family group and become its administrator.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Button className="w-full" onClick={() => navigate(`/auth?next=${encodedNext}`)}>
+                Sign In
+              </Button>
+              <Button variant="outline" className="w-full" onClick={() => navigate(`/auth?mode=signup&next=${encodedNext}`)}>
+                Create Account
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   if (isComplete) {
     return (
@@ -189,10 +229,10 @@ const FamilySetup = () => {
             </p>
             <div className="space-y-2">
               <Button
-                onClick={() => navigate(`/auth?mode=signup&familyInvite=${encodeURIComponent(createdFamilyInviteCode || inviteCode.trim().toUpperCase())}`)}
+                onClick={() => navigate('/dashboard')}
                 className="w-full"
               >
-                Create Account or Sign In
+                Open Your Dashboard
               </Button>
               <Button variant="outline" onClick={() => navigate("/")} className="w-full">
                 Return Home
@@ -276,8 +316,12 @@ const FamilySetup = () => {
                       type="email"
                       placeholder="your.email@example.com"
                       value={adminEmail}
-                      onChange={(e) => setAdminEmail(e.target.value)}
+                      readOnly
+                      aria-describedby="adminEmailHelp"
                     />
+                    <p id="adminEmailHelp" className="text-xs text-muted-foreground">
+                      This must match your signed-in account.
+                    </p>
                   </div>
                 </div>
               </div>

@@ -31,5 +31,6 @@ USING (
   )
 );
 
-ALTER PUBLICATION supabase_realtime DROP TABLE public.liquor_license_warnings;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.location_risk_warnings;
+-- Renaming a table preserves its publication membership. Do not drop the old
+-- name or add the new name: after the rename the old relation no longer exists,
+-- while the renamed relation is already in supabase_realtime.

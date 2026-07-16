@@ -95,7 +95,7 @@ const hexToHsl = (hex: string): string => {
 
 const ProviderAdmin = () => {
   const navigate = useNavigate();
-  const { isIOS } = usePlatform();
+  const { isNative } = usePlatform();
   const { user, loading: authLoading } = useAuth();
   const { isSupported: revenueCatSupported, isReady: revenueCatReady, hasEntitlement, restorePurchases } = useRevenueCat();
   const { archiveFamily, isArchiving } = useFamilyArchive();
@@ -243,7 +243,7 @@ const ProviderAdmin = () => {
   const [editOnboarding, setEditOnboarding] = useState<OnboardingFieldsValue>(defaultOnboardingFields);
 
   const currentOrg = organizations.find(o => o.id === selectedOrg);
-  const hasProviderRevenueCatAccess = isIOS && revenueCatSupported && hasEntitlement(REVENUECAT_ENTITLEMENT_IDS.provider);
+  const hasProviderRevenueCatAccess = isNative && revenueCatSupported && hasEntitlement(REVENUECAT_ENTITLEMENT_IDS.provider);
 
   useEffect(() => {
     if (hasProviderRevenueCatAccess) {
@@ -724,8 +724,8 @@ const ProviderAdmin = () => {
   };
 
   const handleRestoreRevenueCatAccess = async () => {
-    if (!hasProviderRevenueCatAccess && (!isIOS || !revenueCatSupported)) {
-      toast({ title: 'Error', description: 'App Store restore is only available for iOS purchases.', variant: 'destructive' });
+    if (!hasProviderRevenueCatAccess && (!isNative || !revenueCatSupported)) {
+      toast({ title: 'Error', description: 'Purchase restore is only available in the mobile app.', variant: 'destructive' });
       return;
     }
 
@@ -741,7 +741,7 @@ const ProviderAdmin = () => {
       }
     } catch (err: any) {
       console.error('RevenueCat restore error:', err);
-      toast({ title: 'Error', description: 'Failed to restore App Store purchases', variant: 'destructive' });
+      toast({ title: 'Error', description: 'Failed to restore purchases', variant: 'destructive' });
     } finally {
       setIsRestoringRevenueCat(false);
     }
@@ -983,7 +983,7 @@ const ProviderAdmin = () => {
                     Provider Access Active
                   </CardTitle>
                   <CardDescription>
-                    Your iOS subscription is active. You can create your organization now.
+                    Your mobile subscription is active. You can create your organization now.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -1037,14 +1037,14 @@ const ProviderAdmin = () => {
             
             {/* Purchase Link */}
             <div className="mt-8">
-              {isIOS && revenueCatSupported ? (
+              {isNative && revenueCatSupported ? (
                 <div className="space-y-3">
                   <p className="text-muted-foreground">
-                    Already purchased on iPhone or iPad?
+                    Already purchased in the mobile app?
                   </p>
                   <Button variant="outline" onClick={handleRestoreRevenueCatAccess} size="lg" disabled={isRestoringRevenueCat || !revenueCatReady}>
                     <CreditCard className="h-5 w-5 mr-2" />
-                    {isRestoringRevenueCat ? 'Restoring...' : 'Restore App Store Purchase'}
+                    {isRestoringRevenueCat ? 'Restoring...' : 'Restore Purchase'}
                   </Button>
                   <Button variant="ghost" onClick={() => navigate('/provider-purchase')} size="lg">
                     View Provider Plans

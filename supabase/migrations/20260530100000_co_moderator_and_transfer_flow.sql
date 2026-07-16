@@ -91,6 +91,8 @@ ALTER TABLE public.org_transfer_invites ENABLE ROW LEVEL SECURITY;
 -- 6. RLS: family_co_moderators
 
 -- The primary moderator of the family (and org admins) can manage co-moderators
+DROP POLICY IF EXISTS "Family moderator can manage co_moderators"
+  ON public.family_co_moderators;
 CREATE POLICY "Family moderator can manage co_moderators"
   ON public.family_co_moderators FOR ALL
   USING (
@@ -103,23 +105,31 @@ CREATE POLICY "Family moderator can manage co_moderators"
   );
 
 -- Co-moderators can see their own record
+DROP POLICY IF EXISTS "Co-moderators can view their own record"
+  ON public.family_co_moderators;
 CREATE POLICY "Co-moderators can view their own record"
   ON public.family_co_moderators FOR SELECT
   USING (user_id = auth.uid());
 
 -- Family members can see who the co-moderators are
+DROP POLICY IF EXISTS "Family members can see co_moderators"
+  ON public.family_co_moderators;
 CREATE POLICY "Family members can see co_moderators"
   ON public.family_co_moderators FOR SELECT
   USING (public.is_family_member(family_id, auth.uid()));
 
 -- 7. RLS: org_transfer_invites
 
+DROP POLICY IF EXISTS "Sending org can manage invites"
+  ON public.org_transfer_invites;
 CREATE POLICY "Sending org can manage invites"
   ON public.org_transfer_invites FOR ALL
   USING (public.is_org_member(from_organization_id, auth.uid()))
   WITH CHECK (public.is_org_member(from_organization_id, auth.uid()));
 
 -- Super admins can view all invites (for admin panel)
+DROP POLICY IF EXISTS "Super admins can view all invites"
+  ON public.org_transfer_invites;
 CREATE POLICY "Super admins can view all invites"
   ON public.org_transfer_invites FOR SELECT
   USING (public.is_super_admin(auth.uid()));
@@ -127,6 +137,8 @@ CREATE POLICY "Super admins can view all invites"
 -- 8. RLS: extend provider_handoffs so co-mod referrer can see their handoffs
 -- (The existing "Involved orgs can view handoffs" policy covers the org side.
 --  This covers solo interventionists with no org.)
+DROP POLICY IF EXISTS "Initiator can always view their own handoffs"
+  ON public.provider_handoffs;
 CREATE POLICY "Initiator can always view their own handoffs"
   ON public.provider_handoffs FOR SELECT
   USING (initiated_by = auth.uid());

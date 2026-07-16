@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient, type SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.89.0";
 
 // Origin-restricted CORS; re-evaluated per request in the handler below
 let corsHeaders = getCorsHeaders(null);
@@ -12,7 +12,7 @@ const jsonResponse = (body: Record<string, unknown>, status = 200) =>
   });
 
 const removeStorageObjects = async (
-  adminClient: ReturnType<typeof createClient>,
+  adminClient: SupabaseClient,
   bucket: string,
   paths: string[],
 ) => {

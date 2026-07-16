@@ -41,8 +41,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signUp = async (email: string, password: string, fullName: string) => {
-    const redirectUrl = `${window.location.origin}/`;
-    
+    // Preserve same-origin setup/invite context across email confirmation. This
+    // keeps paid activation codes and family invitations attached to the user
+    // who just created the account, including confirmation on another device.
+    const currentPath = `${window.location.pathname}${window.location.search}`;
+    const redirectUrl = new URL(currentPath, window.location.origin).toString();
+
     const { error, data } = await supabase.auth.signUp({
       email,
       password,

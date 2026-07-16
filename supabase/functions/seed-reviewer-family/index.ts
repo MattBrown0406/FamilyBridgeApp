@@ -138,12 +138,15 @@ serve(async (req) => {
         })
         .select("id")
         .single();
-      if (famErr) throw new Error("families insert: " + famErr.message);
-      familyId = fam.id;
+      const createdFamilyId = fam?.id as string | undefined;
+      if (famErr || !createdFamilyId) {
+        throw new Error("families insert: " + (famErr?.message ?? "missing family id"));
+      }
+      familyId = createdFamilyId;
 
-      await ensureFamilyMember(familyId, reviewerId, "admin", "parent");
+      await ensureFamilyMember(createdFamilyId, reviewerId, "admin", "parent");
       if (memberId) {
-        await ensureFamilyMember(familyId, memberId, "member", "child");
+        await ensureFamilyMember(createdFamilyId, memberId, "member", "child");
       }
 
       await admin.from("family_invite_codes").insert({ family_id: familyId }).select();
