@@ -5104,6 +5104,11 @@ export type Database = {
           family_id: string
           hours_purchased: number
           id: string
+          native_product_id: string | null
+          native_purchase_at: string | null
+          native_refunded_at: string | null
+          native_store: string | null
+          native_store_transaction_id: string | null
           payment_completed_at: string | null
           requested_by: string
           square_order_id: string | null
@@ -5120,6 +5125,11 @@ export type Database = {
           family_id: string
           hours_purchased?: number
           id?: string
+          native_product_id?: string | null
+          native_purchase_at?: string | null
+          native_refunded_at?: string | null
+          native_store?: string | null
+          native_store_transaction_id?: string | null
           payment_completed_at?: string | null
           requested_by: string
           square_order_id?: string | null
@@ -5136,6 +5146,11 @@ export type Database = {
           family_id?: string
           hours_purchased?: number
           id?: string
+          native_product_id?: string | null
+          native_purchase_at?: string | null
+          native_refunded_at?: string | null
+          native_store?: string | null
+          native_store_transaction_id?: string | null
           payment_completed_at?: string | null
           requested_by?: string
           square_order_id?: string | null
@@ -6171,6 +6186,116 @@ export type Database = {
         }
         Relationships: []
       }
+      revenuecat_customer_product_state: {
+        Row: {
+          app_id: string
+          app_user_id: string
+          entitlement_ids: string[]
+          environment: string
+          expiration_at: string | null
+          last_event_id: string
+          last_event_timestamp: string
+          last_event_type: string
+          lifecycle_key: string
+          lifecycle_status: string
+          product_id: string
+          store: string
+          transaction_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          app_id: string
+          app_user_id: string
+          entitlement_ids?: string[]
+          environment: string
+          expiration_at?: string | null
+          last_event_id: string
+          last_event_timestamp: string
+          last_event_type: string
+          lifecycle_key: string
+          lifecycle_status: string
+          product_id: string
+          store: string
+          transaction_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          app_id?: string
+          app_user_id?: string
+          entitlement_ids?: string[]
+          environment?: string
+          expiration_at?: string | null
+          last_event_id?: string
+          last_event_timestamp?: string
+          last_event_type?: string
+          lifecycle_key?: string
+          lifecycle_status?: string
+          product_id?: string
+          store?: string
+          transaction_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "revenuecat_customer_product_state_last_event_id_fkey"
+            columns: ["last_event_id"]
+            isOneToOne: false
+            referencedRelation: "revenuecat_webhook_events"
+            referencedColumns: ["event_id"]
+          },
+        ]
+      }
+      revenuecat_webhook_events: {
+        Row: {
+          app_id: string
+          app_user_id: string
+          details: Json
+          environment: string
+          event_id: string
+          event_timestamp: string
+          event_type: string
+          last_error: string | null
+          processed_at: string | null
+          processing_status: string
+          product_id: string
+          received_at: string
+          store: string
+          transaction_id: string | null
+        }
+        Insert: {
+          app_id: string
+          app_user_id: string
+          details?: Json
+          environment: string
+          event_id: string
+          event_timestamp: string
+          event_type: string
+          last_error?: string | null
+          processed_at?: string | null
+          processing_status?: string
+          product_id: string
+          received_at?: string
+          store: string
+          transaction_id?: string | null
+        }
+        Update: {
+          app_id?: string
+          app_user_id?: string
+          details?: Json
+          environment?: string
+          event_id?: string
+          event_timestamp?: string
+          event_type?: string
+          last_error?: string | null
+          processed_at?: string | null
+          processing_status?: string
+          product_id?: string
+          received_at?: string
+          store?: string
+          transaction_id?: string | null
+        }
+        Relationships: []
+      }
       security_audit_log: {
         Row: {
           action: string
@@ -7118,6 +7243,25 @@ export type Database = {
     }
     Functions: {
       anonymize_old_location_data: { Args: never; Returns: undefined }
+      apply_revenuecat_lifecycle_event: {
+        Args: {
+          p_app_id: string
+          p_app_user_id: string
+          p_entitlement_ids: string[]
+          p_environment: string
+          p_event_id: string
+          p_event_timestamp: string
+          p_event_type: string
+          p_expiration_at: string
+          p_lifecycle_key: string
+          p_lifecycle_status: string
+          p_native_action?: string
+          p_product_id: string
+          p_store: string
+          p_transaction_id: string
+        }
+        Returns: boolean
+      }
       audit_activation_code_access: {
         Args: { _code_id: string }
         Returns: undefined
