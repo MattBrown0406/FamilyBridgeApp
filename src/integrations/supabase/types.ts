@@ -593,6 +593,7 @@ export type Database = {
           is_used: boolean
           purchase_ref_encrypted: string | null
           purchase_ref_hash: string | null
+          redeemed_family_id: string | null
           square_customer_id_encrypted: string | null
           square_customer_id_hash: string | null
           square_subscription_id_encrypted: string | null
@@ -609,6 +610,7 @@ export type Database = {
           is_used?: boolean
           purchase_ref_encrypted?: string | null
           purchase_ref_hash?: string | null
+          redeemed_family_id?: string | null
           square_customer_id_encrypted?: string | null
           square_customer_id_hash?: string | null
           square_subscription_id_encrypted?: string | null
@@ -625,6 +627,7 @@ export type Database = {
           is_used?: boolean
           purchase_ref_encrypted?: string | null
           purchase_ref_hash?: string | null
+          redeemed_family_id?: string | null
           square_customer_id_encrypted?: string | null
           square_customer_id_hash?: string | null
           square_subscription_id_encrypted?: string | null
@@ -632,7 +635,15 @@ export type Database = {
           used_at?: string | null
           used_by?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "activation_codes_redeemed_family_id_fkey"
+            columns: ["redeemed_family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       aftercare_plans: {
         Row: {
@@ -7421,6 +7432,20 @@ export type Database = {
           _transition_summary_id: string
         }
         Returns: string
+      }
+      redeem_activation_code_and_create_family: {
+        Args: {
+          p_activation_code: string
+          p_admin_user_id: string
+          p_family_description: string
+          p_family_name: string
+        }
+        Returns: {
+          activation_code_id: string
+          already_redeemed: boolean
+          family_id: string
+          member_invite_code: string
+        }[]
       }
       request_has_no_votes: { Args: { _request_id: string }; Returns: boolean }
       revoke_transition_consent: {
