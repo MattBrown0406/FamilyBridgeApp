@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.89.0";
 import { Resend } from "https://esm.sh/resend@2.0.0";
 import { getRevenueCatSubscriber, hasActiveRevenueCatEntitlement } from "../_shared/revenuecat.ts";
 
@@ -14,6 +14,12 @@ interface FamilyMember {
 interface AdminInfo {
   name: string;
   email: string;
+}
+
+interface ActivationRedemptionResult {
+  family_id: string;
+  member_invite_code: string;
+  already_redeemed: boolean;
 }
 
 const FAMILY_ENTITLEMENT_ID = "fiis_support";
@@ -34,35 +40,45 @@ serve(async (req) => {
 
     const { inviteCode, familyName, familyDescription, adminName, adminEmail, members, useRevenueCatEntitlement } = await req.json();
 
-    let authenticatedUserId: string | null = null;
-    let authenticatedUserEmail: string | null = null;
+    // A verified account is required so family ownership, admin membership, and
+    // idempotent activation-code redemption are all bound to one principal.
+    const authHeader = req.headers.get('authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      return new Response(JSON.stringify({ success: false, error: 'Authentication required' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
 
-    if ((!inviteCode && !useRevenueCatEntitlement) || !familyName || !members || members.length === 0) {
+    const token = authHeader.slice('Bearer '.length);
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    if (authError || !user?.email) {
+      return new Response(JSON.stringify({ success: false, error: 'Authentication required' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const authenticatedUserId = user.id;
+    const authenticatedUserEmail = user.email.trim().toLowerCase();
+    if (typeof adminEmail !== 'string' || adminEmail.trim().toLowerCase() !== authenticatedUserEmail) {
+      return new Response(JSON.stringify({ success: false, error: 'Admin email must match the signed-in account' }), {
+        status: 403,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    if ((!inviteCode && !useRevenueCatEntitlement) || !familyName || !Array.isArray(members) || members.length === 0) {
       throw new Error('A valid purchase path, family name, and at least one member are required');
     }
-
-    if (!adminName || !adminEmail) {
-      throw new Error('Admin name and email are required');
+    if (!adminName) {
+      throw new Error('Admin name is required');
     }
 
-    console.log('Creating family group:', familyName, useRevenueCatEntitlement ? 'via RevenueCat entitlement' : `with invite code: ${inviteCode}`);
-
-    let codeData: { id: string } | null = null;
+    console.log('Creating family group:', familyName, useRevenueCatEntitlement ? 'via RevenueCat entitlement' : 'with an activation code');
 
     if (useRevenueCatEntitlement) {
-      const authHeader = req.headers.get('authorization');
-      if (!authHeader?.startsWith('Bearer ')) {
-        throw new Error('Authorization required for RevenueCat family setup');
-      }
-
-      const token = authHeader.replace('Bearer ', '');
-      const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-
-      if (authError || !user) {
-        throw new Error('Invalid authentication');
-      }
-
-      const subscriber = await getRevenueCatSubscriber(user.id);
+      const subscriber = await getRevenueCatSubscriber(authenticatedUserId);
       const hasEntitlement = hasActiveRevenueCatEntitlement(subscriber, FAMILY_ENTITLEMENT_ID);
 
       if (!hasEntitlement) {
@@ -74,103 +90,112 @@ serve(async (req) => {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
+    }
 
-      authenticatedUserId = user.id;
-      authenticatedUserEmail = user.email ?? null;
+    let familyData: { id: string };
+    let memberInviteCode: string;
+    let wasAlreadyRedeemed = false;
+
+    if (!useRevenueCatEntitlement) {
+      // This service-role-only RPC locks and claims the activation code, creates
+      // the family/invite/admin membership, and returns all IDs in one transaction.
+      const { data: redemption, error: redemptionError } = await supabase
+        .rpc('redeem_activation_code_and_create_family', {
+          p_activation_code: inviteCode,
+          p_family_name: familyName,
+          p_family_description: familyDescription || null,
+          p_admin_user_id: authenticatedUserId,
+        })
+        .single();
+
+      if (redemptionError) {
+        console.error('Atomic activation-code redemption failed:', redemptionError.code, redemptionError.message);
+        const invalidCodeErrors = new Set([
+          'activation_code_invalid',
+          'activation_code_expired',
+          'activation_code_already_used',
+        ]);
+
+        if (invalidCodeErrors.has(redemptionError.message)) {
+          return new Response(JSON.stringify({
+            success: false,
+            error: 'Invalid, expired, or already used invite code',
+          }), {
+            status: 200,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+
+        throw new Error('Failed to create family group');
+      }
+
+      const result = redemption as ActivationRedemptionResult | null;
+      if (!result) {
+        throw new Error('Failed to create family group');
+      }
+
+      familyData = { id: result.family_id };
+      memberInviteCode = result.member_invite_code;
+      wasAlreadyRedeemed = result.already_redeemed;
     } else {
-      // Verify the invite code exists and is not used
-      // SECURITY: select only what we need (avoid pulling any sensitive fields)
-      const { data, error: codeError } = await supabase
-        .from('activation_codes')
+      // RevenueCat is verified server-side above and does not consume an activation
+      // code. Keep this path separate from paid activation-code redemption.
+      const chars = 'abcdefghjklmnpqrstuvwxyz23456789';
+      memberInviteCode = '';
+      for (let i = 0; i < 8; i++) {
+        memberInviteCode += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+
+      const { data: createdFamily, error: familyError } = await supabase
+        .from('families')
+        .insert({
+          name: familyName,
+          description: familyDescription || null,
+          invite_code: memberInviteCode,
+          created_by: authenticatedUserId,
+        })
         .select('id')
-        .eq('code', inviteCode.trim().toUpperCase())
-        .eq('is_used', false)
-        .maybeSingle();
+        .single();
 
-      if (codeError) {
-        console.error('Error checking invite code:', codeError);
-        throw new Error('Failed to verify invite code');
+      if (familyError) {
+        console.error('Error creating RevenueCat family:', familyError);
+        throw new Error('Failed to create family group');
       }
 
-      if (!data) {
-        return new Response(JSON.stringify({ 
-          success: false, 
-          error: 'Invalid or already used invite code' 
-        }), {
-          status: 200,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
+      familyData = createdFamily;
+
+      const { error: inviteCodeError } = await supabase
+        .from('family_invite_codes')
+        .insert({ family_id: familyData.id, invite_code: memberInviteCode });
+
+      if (inviteCodeError) {
+        console.error('Error creating RevenueCat family invite code:', inviteCodeError);
+        throw new Error('Failed to create family group');
       }
 
-      codeData = data;
-    }
-
-    // Generate a new member invite code for the family
-    const chars = 'abcdefghjklmnpqrstuvwxyz23456789';
-    let memberInviteCode = '';
-    for (let i = 0; i < 8; i++) {
-      memberInviteCode += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-
-    // Create the family
-    const { data: familyData, error: familyError } = await supabase
-      .from('families')
-      .insert({
-        name: familyName,
-        description: familyDescription || null,
-        invite_code: memberInviteCode,
-        created_by: authenticatedUserId,
-      })
-      .select()
-      .single();
-
-    if (familyError) {
-      console.error('Error creating family:', familyError);
-      throw new Error('Failed to create family group');
-    }
-
-    console.log('Family created:', familyData.id);
-
-    // Create invite code entry for family members to use
-    const { error: inviteCodeError } = await supabase
-      .from('family_invite_codes')
-      .insert({
-        family_id: familyData.id,
-        invite_code: memberInviteCode,
-      });
-
-    if (inviteCodeError) {
-      console.error('Error creating family invite code:', inviteCodeError);
-    }
-
-    if (authenticatedUserId) {
       const { error: memberError } = await supabase
         .from('family_members')
-        .insert({
-          family_id: familyData.id,
-          user_id: authenticatedUserId,
-          role: 'admin',
-        });
+        .insert({ family_id: familyData.id, user_id: authenticatedUserId, role: 'admin' });
 
       if (memberError) {
-        console.error('Error linking family admin membership:', memberError);
+        console.error('Error linking RevenueCat family admin membership:', memberError);
         throw new Error('Failed to link the family admin to the new family group');
       }
     }
 
-    if (codeData) {
-      // Mark the purchase invite code as used
-      const { error: updateError } = await supabase
-        .from('activation_codes')
-        .update({
-          is_used: true,
-          used_at: new Date().toISOString(),
-        })
-        .eq('id', codeData.id);
+    console.log('Family ready:', familyData.id);
 
-      if (updateError) {
-        console.error('Error updating invite code:', updateError);
-      }
+    // Database retries are idempotent; do not duplicate external email side effects.
+    if (wasAlreadyRedeemed) {
+      return new Response(JSON.stringify({
+        success: true,
+        familyId: familyData.id,
+        memberInviteCode,
+        alreadyRedeemed: true,
+      }), {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     // Send emails via Resend
@@ -211,8 +236,8 @@ serve(async (req) => {
                 
                 <h3 style="color: #2d7d6f; margin-top: 30px;">📱 Getting Started</h3>
                 <ol style="color: #555; padding-left: 20px;">
-                  <li style="margin-bottom: 10px;"><strong>${authenticatedUserId ? 'Open your account' : 'Create your account'}</strong> - Visit FamilyBridge ${authenticatedUserId ? 'and sign in with' : 'and sign up with'} this email address (${authenticatedUserEmail || adminEmail})</li>
-                  <li style="margin-bottom: 10px;"><strong>Join your family</strong> - Use the invite code above when prompted</li>
+                  <li style="margin-bottom: 10px;"><strong>Open your account</strong> - Visit FamilyBridge and sign in with ${authenticatedUserEmail}</li>
+                  <li style="margin-bottom: 10px;"><strong>Invite your family</strong> - Share the invite code above with the family members you want to join</li>
                   <li style="margin-bottom: 10px;"><strong>Complete your profile</strong> - Add your details and set your preferences</li>
                   <li style="margin-bottom: 10px;"><strong>Sign the HIPAA release</strong> - If applicable, this helps protect everyone's privacy</li>
                 </ol>

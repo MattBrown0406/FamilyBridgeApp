@@ -93,7 +93,7 @@ serve(async (req) => {
 
       // Build the setup URL
       const appUrl = 'https://familybridgeapp.com';
-      const setupUrl = `${appUrl}/auth?mode=signup&familyInvite=${encodeURIComponent(inviteCode)}`;
+      const setupUrl = `${appUrl}/family-setup?inviteCode=${encodeURIComponent(inviteCode)}`;
 
       // Send email with invite code if Resend is configured
       if (resendApiKey) {

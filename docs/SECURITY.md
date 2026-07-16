@@ -52,7 +52,33 @@ Optional cleanup: scrub `.env` from git history (`git filter-repo --path .env
 --invert-paths` + force-push). Coordinate with Lovable sync before rewriting
 history; it is cosmetic given the values are public anyway.
 
-### 4. CI (`.github/workflows/ci.yml`)
+### 4. RevenueCat purchase and lifecycle verification
+Native guidance-window activation is verified server-side against RevenueCat's
+subscriber API. Each native transaction ID can be redeemed only once.
+
+`app-store-notifications` now accepts **RevenueCat webhooks only**; it no longer
+decodes unverified Apple/Google payloads. Configure these Supabase Edge Function
+secrets before deploying the function:
+
+- `REVENUECAT_SECRET_API_KEY` — RevenueCat secret API key used for subscriber lookup.
+- `REVENUECAT_WEBHOOK_AUTHORIZATION` — the complete private Authorization header
+  value configured in RevenueCat, such as `Bearer <random-secret>`.
+- `REVENUECAT_IOS_APP_ID` — the expected RevenueCat iOS app ID.
+- `REVENUECAT_ANDROID_APP_ID` — the expected RevenueCat Android app ID.
+- `REVENUECAT_ALLOWED_ENVIRONMENTS` — optional comma-separated allowlist; defaults
+  to `PRODUCTION`. Add `SANDBOX` only in isolated test deployments.
+
+Production guidance activation rejects RevenueCat records unless `is_sandbox` is
+explicitly false. `ALLOW_REVENUECAT_SANDBOX_PURCHASES=true` is an isolated-test-only
+override and must never be set in production.
+
+The webhook rejects missing/incorrect authorization, wrong app or product IDs,
+and duplicate event IDs. Refunds for the one-time guidance product revoke the
+matching guidance request. Subscription lifecycle events are persisted as a
+service-role-only projection; live entitlement authorization continues to query
+RevenueCat server-side.
+
+### 5. Required local/CI gates
 - **Blocking:** web build (`vite build`) and edge-function unit tests
   (`deno test supabase/functions/_shared/`), which cover the RevenueCat
   entitlement/purchase logic used by billing.
@@ -66,14 +92,11 @@ history; it is cosmetic given the values are public anyway.
    per-function review should confirm each client-facing one validates the
    caller (e.g. `getUser()` + membership checks). Priority candidates:
    `get-profiles`, `get-transition-summaries`, `analyze-*`, `fiis-*`.
-2. **`app-store-notifications`** appears to do minimal verification of Apple's
-   signed payloads (1 signature reference). Verify JWS signature validation
-   against Apple's root certs.
-3. **Migration squash:** 364 migration files. Squashing requires a dump of the
+2. **Migration squash:** 364 migration files. Squashing requires a dump of the
    live schema (`supabase db dump`) and coordination with Lovable, so it is a
    deliberate maintenance task: dump schema → new baseline migration → archive
    old files → verify `supabase db reset` locally reproduces production.
-4. **TypeScript strictness:** `noImplicitAny` is off. New code should be
+3. **TypeScript strictness:** `noImplicitAny` is off. New code should be
    written strict; enable per-flag once CI's typecheck job is green.
-5. **RLS audit:** spot-check newer tables (post-2026 migrations) for missing
+4. **RLS audit:** spot-check newer tables (post-2026 migrations) for missing
    or overly permissive policies, especially anything readable by `anon`.

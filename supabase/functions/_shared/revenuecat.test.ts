@@ -50,13 +50,13 @@ Deno.test("non-subscription: returns latest purchase after cutoff", () => {
   const sub: RevenueCatSubscriber = {
     non_subscriptions: {
       guidance_window: [
-        { id: "a", purchase_date: t1 },
-        { id: "b", purchase_date: t2 },
+        { id: "a", purchase_date: t1, store: "app_store", is_sandbox: false },
+        { id: "b", purchase_date: t2, store: "app_store", is_sandbox: false },
       ],
     },
   };
   const latest = getLatestRevenueCatNonSubscriptionPurchase(
-    sub, "guidance_window", new Date(Date.now() - 7_200_000),
+    sub, "guidance_window", new Date(Date.now() - 7_200_000), "b",
   );
   assertEquals(latest?.id, "b");
 });
@@ -73,11 +73,11 @@ Deno.test("non-subscription: ignores purchases before cutoff and malformed rows"
     },
   };
   const latest = getLatestRevenueCatNonSubscriptionPurchase(
-    sub, "guidance_window", new Date(Date.now() - 3_600_000),
+    sub, "guidance_window", new Date(Date.now() - 3_600_000), "old",
   );
   assertEquals(latest, null);
 });
 
 Deno.test("non-subscription: unknown product returns null", () => {
-  assertEquals(getLatestRevenueCatNonSubscriptionPurchase({}, "nope", new Date()), null);
+  assertEquals(getLatestRevenueCatNonSubscriptionPurchase({}, "nope", new Date(), "missing"), null);
 });

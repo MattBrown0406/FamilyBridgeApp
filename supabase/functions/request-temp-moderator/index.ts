@@ -2,15 +2,6 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { Resend } from "https://esm.sh/resend@2.0.0";
-import {
-  getLatestRevenueCatNonSubscriptionPurchase,
-  getRevenueCatSubscriber,
-} from "../_shared/revenuecat.ts";
-
-
-const GUIDANCE_WINDOW_PRODUCT_ID = "com.familybridgeapp.app.crisis_moderation_daily";
-const REVENUECAT_PURCHASE_LOOKBACK_HOURS = 24;
-
 interface RequestBody {
   familyId: string;
   paidOverride?: boolean;
@@ -47,6 +38,15 @@ const handler = async (req: Request): Promise<Response> => {
 
     if (!familyId) {
       throw new Error("Family ID is required");
+    }
+
+    if (paidOverride) {
+      return new Response(JSON.stringify({
+        error: "Paid guidance purchases must be activated through the verified native purchase endpoint",
+      }), {
+        status: 409,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     // Verify user is a family member
@@ -93,44 +93,8 @@ const handler = async (req: Request): Promise<Response> => {
       console.error("Error checking existing requests:", existingError);
     }
 
-    if (existingRequest && !paidOverride) {
+    if (existingRequest) {
       throw new Error("You have already used your included Professional Guidance Window this month. Additional windows must be purchased in the app.");
-    }
-
-    let revenueCatOrderId: string | null = null;
-
-    if (paidOverride) {
-      const purchaseCutoff = existingRequest?.created_at
-        ? new Date(existingRequest.created_at)
-        : new Date(Date.now() - REVENUECAT_PURCHASE_LOOKBACK_HOURS * 60 * 60 * 1000);
-
-      const subscriber = await getRevenueCatSubscriber(user.id);
-      const purchase = getLatestRevenueCatNonSubscriptionPurchase(
-        subscriber,
-        GUIDANCE_WINDOW_PRODUCT_ID,
-        purchaseCutoff,
-      );
-
-      if (!purchase?.id) {
-        throw new Error("We couldn't verify the App Store purchase yet. Please try again in a moment.");
-      }
-
-      revenueCatOrderId = `revenuecat:${purchase.id}`;
-
-      const { data: usedPurchase, error: usedPurchaseError } = await supabase
-        .from("paid_moderator_requests")
-        .select("id")
-        .eq("square_order_id", revenueCatOrderId)
-        .maybeSingle();
-
-      if (usedPurchaseError) {
-        console.error("Error checking RevenueCat purchase usage:", usedPurchaseError);
-        throw new Error("Unable to verify purchase status");
-      }
-
-      if (usedPurchase) {
-        throw new Error("This App Store purchase has already been used for a guidance window.");
-      }
     }
 
     // Get a moderator from Freedom Interventions organization
@@ -181,27 +145,6 @@ const handler = async (req: Request): Promise<Response> => {
     const expiresAt = new Date();
     expiresAt.setHours(expiresAt.getHours() + 24);
 
-    if (revenueCatOrderId) {
-      const { error: paidRequestError } = await supabase
-        .from("paid_moderator_requests")
-        .insert({
-          family_id: familyId,
-          requested_by: user.id,
-          assigned_moderator_id: moderator.id,
-          status: "active",
-          hours_purchased: 24,
-          amount_paid: 399,
-          square_order_id: revenueCatOrderId,
-          payment_completed_at: new Date().toISOString(),
-          activated_at: new Date().toISOString(),
-          expires_at: expiresAt.toISOString(),
-        });
-
-      if (paidRequestError) {
-        console.error("Error recording RevenueCat guidance purchase:", paidRequestError);
-        throw new Error("Failed to record App Store purchase");
-      }
-    }
 
     const { data: newRequest, error: insertError } = await supabase
       .from("temporary_moderator_requests")

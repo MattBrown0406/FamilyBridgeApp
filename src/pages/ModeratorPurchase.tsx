@@ -208,12 +208,18 @@ export default function ModeratorPurchase() {
         return;
       }
 
+      const transactionId = purchaseResult.transaction?.transactionIdentifier?.trim();
+      if (!transactionId) {
+        throw new Error(
+          "Purchase completed, but the app store did not return a transaction ID. Please contact support before purchasing again.",
+        );
+      }
+
       const { data, error } = await supabase.functions.invoke("activate-native-moderator-purchase", {
         body: {
           familyId: selectedFamily,
           productId: purchaseResult.productIdentifier,
-          transactionId: purchaseResult.transaction?.transactionIdentifier ?? null,
-          purchaseDate: purchaseResult.transaction?.purchaseDate ?? new Date().toISOString(),
+          transactionId,
         },
       });
 

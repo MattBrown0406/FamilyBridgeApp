@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 import { Resend } from "https://esm.sh/resend@2.0.0";
 import { enqueueSpineEvent } from "../_shared/spine.ts";
 
@@ -224,7 +224,7 @@ serve(async (req) => {
     if (resendApiKey) {
       try {
         const appUrl = "https://familybridgeapp.com";
-        const setupUrl = `${appUrl}/auth?mode=signup&familyInvite=${encodeURIComponent(inviteCode)}`;
+        const setupUrl = `${appUrl}/family-setup?inviteCode=${encodeURIComponent(inviteCode)}`;
         const resend = new Resend(resendApiKey);
         await resend.emails.send({
           from: resendFrom,
