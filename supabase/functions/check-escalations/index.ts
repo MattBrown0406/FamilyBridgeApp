@@ -35,7 +35,7 @@ async function sendCrisisSms(familyName: string, hoursInStatus: number, reason: 
   const accountSid = Deno.env.get("TWILIO_ACCOUNT_SID");
   const authToken = Deno.env.get("TWILIO_AUTH_TOKEN");
   const twilioPhone = Deno.env.get("TWILIO_PHONE_NUMBER");
-  // Comma-separated E.164 numbers, e.g. "+15038362136,+15415551234"
+  // Comma-separated E.164 numbers, e.g. "+14582988003,+15415551234"
   const recipients = (Deno.env.get("ESCALATION_SMS_TO") || "")
     .split(",")
     .map((n) => n.trim())

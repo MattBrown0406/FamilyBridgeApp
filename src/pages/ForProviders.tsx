@@ -573,9 +573,9 @@ const ForProviders = () => {
                 </div>
                 <div>
                   <p className="text-xs uppercase tracking-widest text-primary-foreground/70 font-semibold mb-1">Phone</p>
-                  <a href={"tel:+1" + "5038362136"} className="text-primary-foreground font-semibold inline-flex items-center gap-1.5 hover:underline">
+                  <a href={"tel:+1" + "4582988003"} className="text-primary-foreground font-semibold inline-flex items-center gap-1.5 hover:underline">
                     <Phone className="h-4 w-4" />
-                    503-836-2136
+                    458-298-8003
                   </a>
                 </div>
                 <div>

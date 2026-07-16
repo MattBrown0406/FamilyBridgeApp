@@ -61,7 +61,7 @@ export const BrandedHeader = ({ className = '', showHomeButton = true, familyId 
           <div className="flex items-center gap-2 sm:gap-3">
             {familyId && <SobrietyBadge familyId={familyId} />}
             <Button variant="ghost" size="sm" className="h-8 px-2 sm:px-3" asChild>
-              <a href="tel:458-202-2272" aria-label="Call us at 458-202-2272">
+              <a href="tel:458-298-8003" aria-label="Call us at 458-298-8003">
                 <Phone className="h-4 w-4 sm:mr-1" />
                 <span className="hidden sm:inline">Call</span>
               </a>
@@ -97,7 +97,7 @@ export const BrandedHeader = ({ className = '', showHomeButton = true, familyId 
         <div className="flex items-center gap-2 sm:gap-3">
           {familyId && <SobrietyBadge familyId={familyId} />}
           <Button variant="ghost" size="sm" className="h-8 px-2 sm:px-3" asChild>
-            <a href="tel:458-202-2272" aria-label="Call us at 458-202-2272">
+            <a href="tel:458-298-8003" aria-label="Call us at 458-298-8003">
               <Phone className="h-4 w-4 sm:mr-1" />
               <span className="hidden sm:inline">Call</span>
             </a>
