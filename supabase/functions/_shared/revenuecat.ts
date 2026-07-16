@@ -205,16 +205,19 @@ export function validateRevenueCatWebhookPayload(
   if (!WEBHOOK_EVENT_TYPES.has(type)) {
     throw new Error("Unsupported RevenueCat event type");
   }
+  const isSyntheticTest = type === "TEST";
   const expectedStore = expectedApps[appId];
-  if (!expectedStore) {
+  if (!isSyntheticTest && !expectedStore) {
     throw new Error("RevenueCat app id does not match");
   }
 
   const appUserId = requireSafeString(event.app_user_id, "app user id");
   const rawProductId = requireSafeString(event.product_id, "product id");
-  const productId = allowedProductIds.find((allowed) =>
-    isMatchingRevenueCatProductId(rawProductId, allowed)
-  );
+  const productId = isSyntheticTest
+    ? rawProductId
+    : allowedProductIds.find((allowed) =>
+      isMatchingRevenueCatProductId(rawProductId, allowed)
+    );
   if (!productId) throw new Error("RevenueCat product is not allowed");
 
   const eventTimestamp = requireTimestamp(
@@ -232,12 +235,18 @@ export function validateRevenueCatWebhookPayload(
   if (environment !== "PRODUCTION" && environment !== "SANDBOX") {
     throw new Error("Invalid RevenueCat environment");
   }
-  if (!allowedEnvironments.includes(environment)) {
+  // RevenueCat's dashboard test event intentionally uses a fake app/product and
+  // SANDBOX. It is safe to accept only because webhook authorization is checked
+  // before this validator and TEST events never mutate lifecycle state.
+  if (!isSyntheticTest && !allowedEnvironments.includes(environment)) {
     throw new Error("RevenueCat environment is not allowed");
   }
 
   const rawStore = requireSafeString(event.store, "store").toUpperCase();
-  if (!NATIVE_WEBHOOK_STORES.has(rawStore) || rawStore !== expectedStore) {
+  if (
+    !NATIVE_WEBHOOK_STORES.has(rawStore) ||
+    (!isSyntheticTest && rawStore !== expectedStore)
+  ) {
     throw new Error("RevenueCat store does not match the configured app");
   }
   const store = rawStore as "APP_STORE" | "PLAY_STORE";

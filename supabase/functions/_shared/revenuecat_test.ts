@@ -163,6 +163,37 @@ Deno.test("validates app, store, environment, and canonical product for Android"
   assertEquals(event.store, "PLAY_STORE");
 });
 
+Deno.test("accepts RevenueCat's authenticated synthetic dashboard TEST payload", () => {
+  const event = validateRevenueCatWebhookPayload(
+    {
+      api_version: "1.0",
+      event: {
+        id: "777CD38A-8360-4AE9-A0E6-F0E98FD38E3D",
+        type: "TEST",
+        app_id: "app53996ead4f",
+        app_user_id: "d20a2516-4e6d-4193-985a-65af6a1dff24",
+        product_id: "test_product",
+        transaction_id: null,
+        original_transaction_id: null,
+        event_timestamp_ms: Date.now(),
+        purchased_at_ms: Date.now(),
+        expiration_at_ms: Date.now() + 7_200_000,
+        environment: "SANDBOX",
+        store: "APP_STORE",
+        entitlement_ids: null,
+      },
+    },
+    EXPECTED_APPS,
+    [PRODUCT_ID],
+    ["PRODUCTION"],
+  );
+
+  assertEquals(event.type, "TEST");
+  assertEquals(event.app_id, "app53996ead4f");
+  assertEquals(event.product_id, "test_product");
+  assertEquals(event.environment, "SANDBOX");
+});
+
 Deno.test("rejects wrong app, mismatched store, sandbox, unknown product, and missing transaction", () => {
   const baseEvent = {
     id: "event-2",
