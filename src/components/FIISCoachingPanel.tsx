@@ -318,7 +318,7 @@ export const FIISCoachingPanel = ({ families, members = {} }: FIISCoachingPanelP
           confidence_level: 'moderate' as any,
           time_horizon: 'immediate' as any,
           visibility: 'internal_only' as any,
-          include_in_ai_analysis: true,
+          include_in_ai_analysis: false,
           title: title.slice(0, 200),
           content: content,
         });

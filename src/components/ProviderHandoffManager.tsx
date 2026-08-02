@@ -155,36 +155,13 @@ export function ProviderHandoffManager({
 
     setIsSubmitting(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
-
-      // Get current sobriety days
-      const { data: sobrietyData } = await supabase
-        .from("sobriety_journeys")
-        .select("start_date")
-        .eq("family_id", familyId)
-        .eq("user_id", userId)
-        .eq("is_active", true)
-        .maybeSingle();
-
-      let sobrietyDays = 0;
-      if (sobrietyData) {
-        const startDate = new Date(sobrietyData.start_date);
-        const today = new Date();
-        sobrietyDays = Math.floor((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
-      }
-
-      const { error } = await supabase
-        .from("provider_handoffs")
-        .insert({
-          user_id: userId,
-          family_id: familyId,
-          from_organization_id: currentOrgId,
-          to_organization_id: selectedOrgId,
-          initiated_by: user.id,
-          sobriety_days_at_handoff: sobrietyDays,
-          handoff_notes: handoffNotes || null,
-        });
+      const { error } = await supabase.rpc("create_provider_handoff", {
+        p_user_id: userId,
+        p_family_id: familyId,
+        p_from_organization_id: currentOrgId,
+        p_to_organization_id: selectedOrgId,
+        p_handoff_notes: handoffNotes || null,
+      });
 
       if (error) throw error;
 
@@ -211,22 +188,19 @@ export function ProviderHandoffManager({
 
   const handleUpdateStatus = async (handoffId: string, newStatus: string) => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
-
-      const updateData: Record<string, unknown> = { status: newStatus };
-      
-      if (newStatus === "accepted") {
-        updateData.accepted_by = user.id;
-        updateData.accepted_at = new Date().toISOString();
-      } else if (newStatus === "completed") {
-        updateData.completed_at = new Date().toISOString();
-      }
-
-      const { error } = await supabase
-        .from("provider_handoffs")
-        .update(updateData)
-        .eq("id", handoffId);
+      const result = newStatus === "accepted" || newStatus === "declined"
+        ? await supabase.rpc("respond_to_provider_handoff", {
+            p_handoff_id: handoffId,
+            p_response: newStatus,
+            p_notes: null,
+          })
+        : newStatus === "completed"
+          ? await supabase.rpc("complete_provider_handoff", { p_handoff_id: handoffId, p_notes: null })
+          : await supabase.rpc("cancel_provider_handoff", {
+              p_handoff_id: handoffId,
+              p_reason: "Cancelled by the referring provider",
+            });
+      const { error } = result;
 
       if (error) throw error;
 

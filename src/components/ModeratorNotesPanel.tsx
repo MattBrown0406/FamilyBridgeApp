@@ -97,7 +97,7 @@ export const ModeratorNotesPanel = ({ families }: ModeratorNotesPanelProps) => {
     confidence_level: 'moderate' as const,
     time_horizon: 'emerging' as const,
     visibility: 'internal_only' as const,
-    include_in_ai_analysis: true,
+    include_in_ai_analysis: false,
     title: '',
     content: '',
   });
@@ -196,7 +196,7 @@ export const ModeratorNotesPanel = ({ families }: ModeratorNotesPanelProps) => {
         confidence_level: 'moderate',
         time_horizon: 'emerging',
         visibility: 'internal_only',
-        include_in_ai_analysis: true,
+        include_in_ai_analysis: false,
         title: '',
         content: '',
       });
@@ -363,7 +363,11 @@ export const ModeratorNotesPanel = ({ families }: ModeratorNotesPanelProps) => {
         <Brain className="h-5 w-5 text-primary" />
         <div className="flex-1">
           <Label htmlFor="ai-toggle" className="text-sm font-medium">Include in AI Review</Label>
-          <p className="text-xs text-muted-foreground">This note may be used by FIIS for pattern review</p>
+          <p className="text-xs text-muted-foreground">
+            {note.visibility === 'internal_only'
+              ? 'If enabled, FIIS may use this only for authorized professional coaching; it will not enter family-facing analysis.'
+              : 'If enabled, this shareable summary may inform family-facing FIIS feedback.'}
+          </p>
         </div>
         <Switch
           id="ai-toggle"

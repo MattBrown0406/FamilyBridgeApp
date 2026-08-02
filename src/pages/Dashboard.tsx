@@ -73,10 +73,10 @@ const Dashboard = () => {
     }
   }, [user, loading, navigate]);
 
-  // Redirect provider admins/moderators to the moderator dashboard
+  // Professionals enter one caseload-first hub; specialist tools remain contextual.
   useEffect(() => {
     if (!isProviderLoading && isProvider) {
-      navigate('/moderator-dashboard', { replace: true });
+      navigate('/provider-workspace', { replace: true });
     }
   }, [isProvider, isProviderLoading, navigate]);
 

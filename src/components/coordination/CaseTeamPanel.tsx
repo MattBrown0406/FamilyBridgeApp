@@ -83,7 +83,11 @@ export const CaseTeamPanel = ({ caseId, userId, isProvider }: Props) => {
   const removeMember = async (memberId: string, memberUserId: string) => {
     if (memberUserId === userId) return;
     try {
-      await supabase.from('coordination_case_members').delete().eq('id', memberId);
+      const { error } = await supabase.rpc('remove_coordination_case_member', {
+        p_case_id: caseId,
+        p_user_id: memberUserId,
+      });
+      if (error) throw error;
       setMembers(prev => prev.filter(m => m.id !== memberId));
       toast({ title: 'Member removed' });
     } catch (err: any) {

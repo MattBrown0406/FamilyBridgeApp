@@ -6,7 +6,7 @@ import {
   buildFIISDoctrinePrompt,
   selectAdaptiveLenses,
 } from "../_shared/fiis-doctrine.ts";
-import { buildFIISLearningContext } from "../_shared/fiis-learning.ts";
+import { fetchFIISFamilyContext } from "../_shared/fiis-family-context.ts";
 
 const CLAUDE_MODEL = "claude-haiku-4-5";
 
@@ -2364,20 +2364,23 @@ serve(async (req) => {
 
     const { familyId, observations, autoEvents }: AnalysisRequest = await req.json();
 
-    // Verify user is family member
+    // Family-facing FIIS is restricted to support participants. The recovering
+    // member/primary patient cannot invoke analysis of other family members.
     const { data: membership } = await supabase
       .from("family_members")
-      .select("id")
+      .select("id, role, is_primary_patient")
       .eq("family_id", familyId)
       .eq("user_id", user.id)
       .single();
 
-    if (!membership) {
+    if (!membership || membership.role === "recovering" || membership.is_primary_patient === true) {
       return new Response(JSON.stringify({ error: "Not a family member" }), {
         status: 403,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+
+    const sharedFamilyActivityContext = await fetchFIISFamilyContext(supabase, familyId);
 
     // Fetch family values, boundaries, goals, sobriety journey, medication compliance, 
     // aftercare plans, provider notes, recent messages, documents, calibration patterns, past feedback, and coaching sessions
@@ -2393,7 +2396,6 @@ serve(async (req) => {
       messagesResult,
       documentsResult,
       calibrationPatternsResult,
-      pastFeedbackResult,
       meetingCheckinsResult,
       emotionalCheckinsResult,
       financialRequestsResult,
@@ -2421,6 +2423,7 @@ serve(async (req) => {
         .select("id, note_type, content, confidence_level, time_horizon, created_at")
         .eq("family_id", familyId)
         .eq("include_in_ai_analysis", true)
+        .eq("visibility", "shareable_summary")
         .order("created_at", { ascending: false })
         .limit(30),
       // ALL messages for complete historical pattern analysis (no time limit - full memory)
@@ -2438,12 +2441,7 @@ serve(async (req) => {
       supabase.from("fiis_calibration_patterns")
         .select("pattern_name, pattern_description, pattern_category, trigger_keywords, trigger_behaviors, suggested_risk_level, suggested_response, clinical_notes, fellowship")
         .eq("is_active", true),
-      // Past moderator feedback for this family (learning from corrections)
-      supabase.from("fiis_analysis_feedback")
-        .select("feedback_type, original_risk_level, corrected_risk_level, correction_reasoning, missed_patterns, false_patterns, clinical_context, recommended_keywords")
-        .eq("family_id", familyId)
-        .order("created_at", { ascending: false })
-        .limit(20),
+
       // ALL meeting check-ins for complete attendance history (no time limit - full memory)
       supabase.from("meeting_checkins")
         .select("id, user_id, checked_in_at, checked_out_at, meeting_type, overdue_alert_sent")
@@ -2675,8 +2673,8 @@ FAMILY JOURNEY DURATION:
       };
     });
 
-    // Build context about family values and boundaries
-    let familyContext = sobrietyContext + familyJourneyContext;
+    // Build context about family values, boundaries, and authorized shared activity.
+    let familyContext = sobrietyContext + familyJourneyContext + sharedFamilyActivityContext;
 
     // Add provider FIIS settings context
     const providerSettings = providerSettingsResult?.data;
@@ -2894,25 +2892,7 @@ PROVIDER NOTES INTERPRETATION:
           });
         });
       });
-      
-      // Add any custom keywords from past moderator feedback
-      const feedbackKeywords: string[] = [];
-      if (pastFeedbackResult.data) {
-        pastFeedbackResult.data.forEach((fb: { recommended_keywords?: string[] }) => {
-          if (fb.recommended_keywords) feedbackKeywords.push(...fb.recommended_keywords);
-        });
-      }
-      if (feedbackKeywords.length > 0) {
-        let customMentions = 0;
-        messages.forEach(m => {
-          const content = (m.content || '').toLowerCase();
-          feedbackKeywords.forEach(kw => {
-            if (content.includes(kw.toLowerCase())) customMentions++;
-          });
-        });
-        categoryMentions['moderator_flagged'] = customMentions;
-      }
-      
+
       // Calculate time periods for trend analysis
       const now = new Date();
       const last7Days = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -3345,28 +3325,6 @@ If user shows high meeting attendance but no evidence of between-meeting work, t
 `;
     }
 
-    // Add MODERATOR FEEDBACK LEARNINGS (corrections from past analyses)
-    if (pastFeedbackResult.data && pastFeedbackResult.data.length > 0) {
-      const feedback = pastFeedbackResult.data;
-      const falsePositives = feedback.filter((f: { feedback_type: string }) => f.feedback_type === 'false_positive').length;
-      const falseNegatives = feedback.filter((f: { feedback_type: string }) => f.feedback_type === 'false_negative').length;
-      const corrections = feedback.filter((f: { feedback_type: string }) => f.feedback_type === 'wrong_severity' || f.feedback_type === 'pattern_correction');
-      
-      familyContext += `MODERATOR FEEDBACK LEARNINGS (From ${feedback.length} corrections):
-- False Positives (over-flagged): ${falsePositives}
-- False Negatives (missed): ${falseNegatives}
-
-Recent Corrections to Apply:
-${corrections.slice(0, 5).map((c: { feedback_type: string; correction_reasoning: string; missed_patterns?: string[] }) => 
-  `- ${c.feedback_type}: "${c.correction_reasoning}" ${c.missed_patterns?.length ? `(Missed: ${c.missed_patterns.join(', ')})` : ''}`
-).join('\n') || 'No recent corrections'}
-
-APPLY THESE LEARNINGS: Adjust your analysis based on moderator corrections. If moderators have flagged false positives, be less aggressive. If they flagged missed patterns, be more attentive to those signals.
-
-`;
-    }
-
-    familyContext += await buildFIISLearningContext(supabase, familyId);
 
     // Add document analysis context
     if (documentsResult.data && documentsResult.data.length > 0) {

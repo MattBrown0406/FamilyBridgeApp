@@ -130,7 +130,7 @@ const Index = () => {
           <button
             type="button"
             onClick={() => navigate('/')}
-            className="flex items-center gap-2 text-left"
+            className="flex shrink-0 items-center gap-2 text-left"
             aria-label="FamilyBridge home"
           >
             <img
@@ -138,12 +138,12 @@ const Index = () => {
               alt="FamilyBridge"
               className="h-7 sm:h-8 w-auto object-contain"
             />
-            <span className="text-base sm:text-lg font-display font-semibold text-foreground">
+            <span className="hidden sm:inline text-base sm:text-lg font-display font-semibold text-foreground">
               FamilyBridge
             </span>
           </button>
           <div className="flex items-center gap-1.5 sm:gap-3">
-            <Button variant="ghost" size="sm" className="h-8 text-xs sm:text-sm text-muted-foreground" onClick={() => navigate('/demo')}>
+            <Button variant="ghost" size="sm" className="hidden sm:inline-flex h-8 text-xs sm:text-sm text-muted-foreground" onClick={() => navigate('/demo')}>
               Demo
             </Button>
             <Button variant="ghost" size="sm" className="h-8 px-2 sm:px-3 text-xs sm:text-sm text-muted-foreground" asChild>
@@ -182,7 +182,7 @@ const Index = () => {
                 <Button variant="ghost" size="sm" className="h-8 text-xs sm:text-sm text-muted-foreground" onClick={() => navigate('/auth')}>
                   Sign In
                 </Button>
-                <Button size="sm" className="h-8 px-3 text-xs sm:text-sm bg-primary text-primary-foreground" onClick={() => navigate('/family-purchase')}>
+                <Button size="sm" className="hidden sm:inline-flex h-8 px-3 text-xs sm:text-sm bg-primary text-primary-foreground" onClick={() => navigate('/family-purchase')}>
                   Get Started
                 </Button>
               </>

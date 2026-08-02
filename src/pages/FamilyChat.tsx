@@ -20,14 +20,14 @@ import {
   MessageCircle, AlertTriangle, Check, X, Shield, MapPin,
   ExternalLink, CreditCard, CheckCircle2, Paperclip, Image, HandCoins, Trash2, Pencil,
   Target, ShieldCheck, Plus, CheckCircle, MessageSquare, FlaskConical, ChevronDown, Sparkles,
-  Brain, Search, Calendar, ChevronLeft, ChevronRight, Archive, Heart, Clock, TrendingUp, Camera, Upload,
+  Brain, Search, Calendar, CalendarDays, ChevronLeft, ChevronRight, Archive, Heart, Clock, TrendingUp, Camera, Upload,
   Flame, ClipboardList, Stethoscope, Copy, Mail, UserPlus, Pill, FolderOpen, PhoneCall
 } from 'lucide-react';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { ModeratorDisclaimer } from '@/components/ModeratorDisclaimer';
-import { JourneyStageCard } from '@/components/home/JourneyStageCard';
+import { FamilyToday } from '@/features/family-board';
 import { WelcomeAfterJoin } from '@/components/WelcomeAfterJoin';
 import { HIPAAReleasesViewer } from '@/components/HIPAAReleasesViewer';
 import { HIPAARelease } from '@/components/HIPAARelease';
@@ -197,6 +197,7 @@ interface Family {
   description: string | null;
   organization_id: string | null;
   avatar_url: string | null;
+  journey_stage: string | null;
 }
 
 
@@ -511,9 +512,8 @@ const FamilyChat = () => {
   // Sobriety journey for header display
   const { journey: headerJourney, daysCount: headerDaysCount } = useFamilyMemberJourney(familyId || '');
   
-  // Progressive tab disclosure state
-  const [showMoreTabs, setShowMoreTabs] = useState(false);
-  const [activeTab, setActiveTab] = useState('messages');
+  // Simplified primary navigation defaults to the daily command center.
+  const [activeTab, setActiveTab] = useState('today');
   const dashboardPath = currentUserRole === 'moderator' ? '/moderator-dashboard' : '/dashboard';
   const openCoachingTab = useCallback(() => {
     setActiveTab('coaching');
@@ -1226,7 +1226,7 @@ const FamilyChat = () => {
       // Note: invite_code is not fetched here - only moderators can access it via get_family_invite_code()
       const { data: familyData, error: familyError } = await supabase
         .from('families')
-        .select('id, name, description, organization_id, created_by, avatar_url')
+        .select('id, name, description, organization_id, created_by, avatar_url, journey_stage')
         .eq('id', familyId)
         .maybeSingle();
 
@@ -3182,14 +3182,25 @@ const FamilyChat = () => {
 
       {/* Main Content */}
       <main className="flex-1 container mx-auto px-1.5 sm:px-4 py-1.5 sm:py-4 overflow-hidden flex flex-col">
-        {familyId && <JourneyStageCard familyId={familyId} />}
         {familyId && <WelcomeAfterJoin familyId={familyId} />}
         <Tabs value={activeTab} onValueChange={(v) => startTransition(() => setActiveTab(v))} className="flex-1 min-h-0 flex flex-col">
           <div className="mb-2 sm:mb-4 shrink-0 bg-card/50 backdrop-blur-sm border border-border/50 p-1.5 sm:p-2 rounded-lg sm:rounded-xl shadow-soft">
             {/* Primary tabs: keep the daily family workflow simple */}
-            <div className="flex items-center gap-1.5 flex-wrap">
-              <button
-                onClick={() => setActiveTab('messages')}
+            <TabsList className="h-auto w-full justify-start bg-transparent p-0 flex items-center gap-1.5 flex-wrap">
+              <TabsTrigger
+                value="today"
+                className={`relative flex items-center justify-center gap-1 px-3 py-2.5 rounded-md sm:rounded-lg transition-all duration-200 ${
+                  activeTab === 'today'
+                    ? 'bg-primary/10 text-primary shadow-sm ring-1 ring-primary/20'
+                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                }`}
+              >
+                <CalendarDays className="h-4 w-4" />
+                <span className="text-xs font-medium">Today</span>
+              </TabsTrigger>
+
+              <TabsTrigger
+                value="messages"
                 className={`relative flex items-center justify-center gap-1 px-3 py-2.5 rounded-md sm:rounded-lg transition-all duration-200 ${
                   activeTab === 'messages'
                     ? 'bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400 shadow-sm ring-1 ring-blue-200 dark:ring-blue-800'
@@ -3201,51 +3212,19 @@ const FamilyChat = () => {
                 {showOnboarding && onboardingStep === 1 && (
                   <div className="absolute -top-1 -right-1 h-3 w-3 bg-accent rounded-full animate-bounce border-2 border-card" />
                 )}
-              </button>
+              </TabsTrigger>
 
-              {currentUserRole !== 'recovering' && (
-                <button
-                  onClick={() => setActiveTab('fiis')}
-                  className={`relative flex items-center justify-center gap-1 px-3 py-2.5 rounded-md sm:rounded-lg transition-all duration-200 ${
-                    activeTab === 'fiis'
-                      ? 'bg-violet-50 text-violet-600 dark:bg-violet-950/40 dark:text-violet-400 shadow-sm ring-1 ring-violet-200 dark:ring-violet-800'
-                      : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                  }`}
-                >
-                  <Brain className="h-4 w-4" />
-                  <span className="text-xs font-medium">FIIS</span>
-                  {hasNewAnalysis && (
-                    <span className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 h-2.5 w-2.5 sm:h-3 sm:w-3 bg-destructive rounded-full animate-pulse border-2 border-card" />
-                  )}
-                </button>
-              )}
-
-              <button
-                onClick={() => setActiveTab('boundaries')}
+              <TabsTrigger
+                value="values"
                 className={`relative flex items-center justify-center gap-1 px-3 py-2.5 rounded-md sm:rounded-lg transition-all duration-200 ${
-                  activeTab === 'boundaries'
-                    ? 'bg-purple-50 text-purple-600 dark:bg-purple-950/40 dark:text-purple-400 shadow-sm ring-1 ring-purple-200 dark:ring-purple-800'
+                  activeTab === 'values'
+                    ? 'bg-accent/10 text-accent shadow-sm ring-1 ring-accent/20'
                     : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                 }`}
               >
-                <ShieldCheck className="h-4 w-4" />
-                <span className="text-xs font-medium">Boundaries</span>
-                {showOnboarding && onboardingStep === 3 && (
-                  <div className="absolute -top-1 -right-1 h-3 w-3 bg-accent rounded-full animate-bounce border-2 border-card" />
-                )}
-              </button>
-
-              <button
-                onClick={() => setActiveTab('financial')}
-                className={`flex items-center justify-center gap-1 px-3 py-2.5 rounded-md sm:rounded-lg transition-all duration-200 ${
-                  activeTab === 'financial'
-                    ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400 shadow-sm ring-1 ring-emerald-200 dark:ring-emerald-800'
-                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                }`}
-              >
-                <DollarSign className="h-4 w-4" />
-                <span className="text-xs font-medium">Financial</span>
-              </button>
+                <Target className="h-4 w-4" />
+                <span className="text-xs font-medium">Plan</span>
+              </TabsTrigger>
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -3255,13 +3234,24 @@ const FamilyChat = () => {
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-52">
+                  {currentUserRole !== 'recovering' && (
+                    <DropdownMenuItem onClick={() => startTransition(() => setActiveTab('fiis'))} className="flex items-center gap-2">
+                      <Brain className="h-4 w-4" />
+                      Family Insights
+                      {hasNewAnalysis && <span className="ml-auto h-2 w-2 rounded-full bg-destructive" />}
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuItem onClick={() => startTransition(() => setActiveTab('boundaries'))} className="flex items-center gap-2">
+                    <ShieldCheck className="h-4 w-4" />
+                    Boundaries
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => startTransition(() => setActiveTab('financial'))} className="flex items-center gap-2">
+                    <DollarSign className="h-4 w-4" />
+                    Financial
+                  </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => startTransition(() => setActiveTab('checkin'))} className="flex items-center gap-2">
                     <MapPin className="h-4 w-4" />
                     Check-in
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => startTransition(() => setActiveTab('values'))} className="flex items-center gap-2">
-                    <Target className="h-4 w-4" />
-                    Recovery Plan
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => startTransition(() => setActiveTab('coaching'))} className="flex items-center gap-2">
                     <PhoneCall className="h-4 w-4" />
@@ -3285,8 +3275,22 @@ const FamilyChat = () => {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-            </div>
+            </TabsList>
           </div>
+
+          <TabsContent value="today" className="flex-1 overflow-hidden mt-0">
+            {familyId && (
+              <FamilyToday
+                familyId={familyId}
+                familyName={family?.name}
+                journeyStage={family?.journey_stage}
+                members={members.map(({ user_id, full_name }) => ({ user_id, full_name }))}
+                currentUserId={user?.id}
+                canManageAccess={isAdminOrModerator || isCurrentUserProfessionalModerator}
+                canManageWork={isAdminOrModerator || isCurrentUserProfessionalModerator}
+              />
+            )}
+          </TabsContent>
 
           {/* Messages Tab */}
           <TabsContent value="messages" className="flex-1 flex flex-col overflow-hidden mt-0">

@@ -1,215 +1,183 @@
-import { useState, useMemo } from 'react';
-import { ArrowLeft, Info, Loader2, Zap, Eye } from 'lucide-react';
-import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { ReadinessHeader } from '@/components/intervention/ReadinessHeader';
-import { SignalCards } from '@/components/intervention/SignalCards';
-import { SignalFeed } from '@/components/intervention/SignalFeed';
-import { RecommendationPanel } from '@/components/intervention/RecommendationPanel';
-import { FamilyGuidancePanel } from '@/components/intervention/FamilyGuidancePanel';
-import { InterventionAlerts } from '@/components/intervention/InterventionAlerts';
-import { ReadinessTrends } from '@/components/intervention/ReadinessTrends';
-import { ClinicianNotes } from '@/components/intervention/ClinicianNotes';
-import { CaseWorkflow, getSuggestedStatus } from '@/components/intervention/CaseWorkflow';
-import { ScoringLogicPanel } from '@/components/intervention/ScoringLogicPanel';
-import { KeyChangesPanel } from '@/components/intervention/KeyChangesPanel';
-import { TopDriversPanel } from '@/components/intervention/TopDriversPanel';
-import { MisTimingRiskPanel } from '@/components/intervention/MisTimingRiskPanel';
-import { Next72HourStrategyPanel } from '@/components/intervention/Next72HourStrategyPanel';
-import { InterventionPrepChecklist } from '@/components/intervention/InterventionPrepChecklist';
-import { InterventionistModePanel } from '@/components/intervention/InterventionistModePanel';
-import {
-  demoClient,
-  calculateReadinessScore,
-  getStatusLabel,
-  getRecommendation,
-  getWindowStability,
-} from '@/data/interventionReadinessData';
-import type { ObservedIndicator, ClinicianNote, CaseStatus } from '@/data/interventionReadinessData';
+import { useState, type FormEvent } from 'react';
+import { Navigate, useParams, useSearchParams } from 'react-router-dom';
+import { ClipboardList, Plus } from 'lucide-react';
 import { SEOHead } from '@/components/SEOHead';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
-import { useUserFamilyRole } from '@/hooks/useUserFamilyRole';
+import {
+  AccessUnavailableState,
+  FamilyRequiredState,
+  LoadingState,
+  PageHeader,
+  SafetyNotice,
+  SignalList,
+  useFamilyReadiness,
+} from '@/features/readiness/familyReadiness';
 
-const InterventionReadiness = () => {
-  const navigate = useNavigate();
+const observationPrompts = [
+  'What was said or done, using neutral and specific language?',
+  'What changed from the family’s usual pattern?',
+  'Was a qualified professional contacted, and what did they advise?',
+  'What support does the family need regardless of the other person’s decision?',
+];
+
+export default function InterventionReadiness() {
+  const { familyId: routeFamilyId } = useParams<{ familyId?: string }>();
   const [searchParams] = useSearchParams();
-  const isDemo = searchParams.get('demo') === 'true';
+  const familyId = routeFamilyId || searchParams.get('familyId');
   const { user, loading: authLoading } = useAuth();
-  const { isRecovering, loading: roleLoading } = useUserFamilyRole();
-  const [indicators, setIndicators] = useState<ObservedIndicator[]>(demoClient.indicators);
-  const [notes, setNotes] = useState<ClinicianNote[]>(demoClient.notes);
-  const [signals] = useState(demoClient.signals);
-  const [caseStatus, setCaseStatus] = useState<CaseStatus>(demoClient.caseStatus);
+  const { toast } = useToast();
+  const readiness = useFamilyReadiness(familyId, user?.id);
+  const [clientName, setClientName] = useState('');
+  const [observation, setObservation] = useState('');
+  const [saving, setSaving] = useState(false);
 
-  const totalScore = useMemo(() => calculateReadinessScore(signals), [signals]);
-  const statusLabel = useMemo(() => getStatusLabel(totalScore), [totalScore]);
-  const recommendation = useMemo(() => getRecommendation(totalScore), [totalScore]);
-  const suggestedStatus = useMemo(() => getSuggestedStatus(totalScore), [totalScore]);
-  const windowStability = useMemo(() => getWindowStability(demoClient.history), []);
+  if (authLoading) return <LoadingState />;
+  if (!user) return <Navigate to="/auth" replace />;
+  if (!familyId) return <FamilyRequiredState />;
 
-  // Skip auth checks in demo mode
-  if (!isDemo) {
-    if (authLoading || roleLoading) {
-      return (
-        <div className="min-h-screen flex items-center justify-center bg-background">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
-      );
-    }
+  const query = `?familyId=${encodeURIComponent(familyId)}`;
 
-    if (!user) {
-      return <Navigate to="/auth" replace />;
-    }
-
-    if (isRecovering) {
-      return <Navigate to="/dashboard" replace />;
+  async function handleCreateProfile(event: FormEvent) {
+    event.preventDefault();
+    setSaving(true);
+    try {
+      await readiness.createProfile(clientName);
+      setClientName('');
+      toast({ title: 'Family readiness profile created', description: 'You can now record direct observations for this family.' });
+    } catch (error) {
+      toast({
+        title: 'Could not create profile',
+        description: error instanceof Error ? error.message : 'Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setSaving(false);
     }
   }
 
-  const handleAddIndicator = (ind: ObservedIndicator) => {
-    setIndicators((prev) => [ind, ...prev]);
-  };
-
-  const handleAddNote = (note: ClinicianNote) => {
-    setNotes((prev) => [note, ...prev]);
-  };
+  async function handleAddObservation(event: FormEvent) {
+    event.preventDefault();
+    setSaving(true);
+    try {
+      await readiness.addSignal({ description: observation, tags: ['readiness', 'observation'] });
+      setObservation('');
+      toast({ title: 'Observation saved', description: 'It was added to this family’s record.' });
+    } catch (error) {
+      toast({
+        title: 'Could not save observation',
+        description: error instanceof Error ? error.message : 'Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setSaving(false);
+    }
+  }
 
   return (
     <>
       <SEOHead
-        title="Intervention Readiness Engine | FamilyBridge"
-        description="Strategic decision-support tool for timing interventions based on family patterns and readiness signals."
+        title="Intervention Readiness | FamilyBridge"
+        description="Family-scoped observations and compassionate intervention planning guidance."
       />
       <div className="min-h-screen bg-background">
-        {/* Demo banner */}
-        {isDemo && (
-          <div className="bg-warning/10 border-b border-warning/30">
-            <div className="max-w-7xl mx-auto px-4 py-2.5 flex items-center justify-between">
-              <div className="flex items-center gap-2 text-sm">
-                <Eye className="h-4 w-4 text-warning" />
-                <span className="font-medium text-foreground">Demo Mode</span>
-                <span className="text-muted-foreground hidden sm:inline">— Viewing sample intervention readiness data</span>
+        <PageHeader title="Intervention readiness" subtitle={readiness.familyName || 'Family planning record'} backTo="/dashboard" />
+        <main className="mx-auto max-w-5xl space-y-6 px-4 py-6">
+          {readiness.loading ? (
+            <LoadingState />
+          ) : readiness.error ? (
+            <AccessUnavailableState message={readiness.error} />
+          ) : !readiness.profile ? (
+            <Card>
+              <CardHeader>
+                <CardTitle>Create a private planning profile</CardTitle>
+                <CardDescription>
+                  Name the person or situation your family is planning around. This creates a real record for {readiness.familyName}; it does not generate a readiness score or predict treatment acceptance.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form className="flex flex-col gap-3 sm:flex-row" onSubmit={handleCreateProfile}>
+                  <Input
+                    value={clientName}
+                    onChange={(event) => setClientName(event.target.value)}
+                    placeholder="Profile name"
+                    maxLength={120}
+                    aria-label="Readiness profile name"
+                  />
+                  <Button type="submit" disabled={saving || !clientName.trim()}>
+                    <Plus className="mr-2 h-4 w-4" /> Create profile
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
+          ) : (
+            <>
+              <Card>
+                <CardHeader>
+                  <CardTitle>{readiness.profile.client_name}</CardTitle>
+                  <CardDescription>
+                    Record only what family members directly observed. A pattern may help a professional ask better questions, but it cannot establish another person’s intentions or future choices.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <form className="space-y-3" onSubmit={handleAddObservation}>
+                    <Textarea
+                      value={observation}
+                      onChange={(event) => setObservation(event.target.value)}
+                      placeholder="Example: They asked for the counselor’s phone number during Tuesday’s conversation."
+                      maxLength={2000}
+                      aria-label="Direct family observation"
+                    />
+                    <div className="flex justify-end">
+                      <Button type="submit" disabled={saving || !observation.trim()}>
+                        {saving ? 'Saving…' : 'Save observation'}
+                      </Button>
+                    </div>
+                  </form>
+                </CardContent>
+              </Card>
+
+              <div className="grid gap-6 md:grid-cols-2">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Observation prompts</CardTitle>
+                    <CardDescription>Separate facts from interpretation.</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <ul className="space-y-3 text-sm">
+                      {observationPrompts.map((prompt) => <li key={prompt} className="flex gap-2"><ClipboardList className="mt-0.5 h-4 w-4 shrink-0 text-primary" />{prompt}</li>)}
+                    </ul>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Compassionate next steps</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3 text-sm text-muted-foreground">
+                    <p>Discuss observations with a licensed clinician or experienced intervention professional who understands the full context.</p>
+                    <p>Plan language that is specific, respectful, and free of threats. The person may accept, decline, or ask for time.</p>
+                    <p>Prepare support for family members and practical safety steps that remain useful under any outcome.</p>
+                    <Button asChild className="mt-2"><a href={`/intervention-execution${query}`}>Open family planning checklist</a></Button>
+                  </CardContent>
+                </Card>
               </div>
-              <Button size="sm" className="h-7 text-xs bg-primary text-primary-foreground" onClick={() => navigate('/family-purchase')}>
-                Get Started
-              </Button>
-            </div>
-          </div>
-        )}
 
-        {/* Top bar */}
-        <div className="border-b bg-card/50 sticky top-0 z-10">
-          <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Link to={isDemo ? '/' : '/dashboard'}>
-                <Button variant="ghost" size="sm" className="h-8 gap-1.5">
-                  <ArrowLeft className="h-4 w-4" /> {isDemo ? 'Home' : 'Back'}
-                </Button>
-              </Link>
-              <h2 className="text-sm font-semibold text-foreground">Intervention Readiness Engine</h2>
-            </div>
-            <ScoringLogicPanel signals={signals} totalScore={totalScore} />
-          </div>
-        </div>
-
-        <div className="max-w-7xl mx-auto px-4 py-6 space-y-6">
-          {/* Alerts banner */}
-          <InterventionAlerts alerts={demoClient.alerts} />
-
-          {/* Header with score + window stability */}
-          <ReadinessHeader
-            clientName={demoClient.name}
-            totalScore={totalScore}
-            statusLabel={statusLabel}
-            windowStability={windowStability}
-            lastUpdated={demoClient.lastUpdated}
-            summary={demoClient.summary}
-          />
-
-          {/* Case workflow */}
-          <CaseWorkflow
-            currentStatus={caseStatus}
-            suggestedStatus={suggestedStatus}
-            onStatusChange={setCaseStatus}
-          />
-
-          {/* Execution System Link */}
-          {totalScore >= 65 && (
-            <div
-              className="p-4 rounded-xl border-2 border-destructive/40 bg-destructive/5 cursor-pointer hover:bg-destructive/10 transition-colors"
-              onClick={() => navigate('/intervention-execution')}
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-start gap-3">
-                  <Zap className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-sm font-bold text-destructive">
-                      {totalScore >= 80 ? 'Intervention Execution System — Critical Window Active' : 'Intervention Execution System — Preparation Mode'}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {totalScore >= 80
-                        ? 'Readiness threshold exceeded. Open the step-by-step execution engine to coordinate immediate action.'
-                        : 'Readiness is approaching actionable range. Begin structured preparation.'}
-                    </p>
-                  </div>
-                </div>
-                <Button variant="destructive" size="sm" className="shrink-0">
-                  Open →
-                </Button>
-              </div>
-            </div>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Recorded observations</CardTitle>
+                  <CardDescription>Newest first. These entries are descriptive, not predictive.</CardDescription>
+                </CardHeader>
+                <CardContent><SignalList signals={readiness.signals} /></CardContent>
+              </Card>
+            </>
           )}
-
-          {/* Key Changes + Top Drivers */}
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-            <KeyChangesPanel changes={demoClient.keyChanges} />
-            <TopDriversPanel drivers={demoClient.topDrivers} />
-          </div>
-
-          {/* Five signal cards */}
-          <SignalCards signals={signals} />
-
-          {/* Interventionist Mode */}
-          <InterventionistModePanel insight={demoClient.interventionistInsight} />
-
-          {/* Recommendation + Mis-Timing Risk */}
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-            <RecommendationPanel recommendation={recommendation} statusLabel={statusLabel} />
-            <MisTimingRiskPanel risk={demoClient.misTimingRisk} />
-          </div>
-
-          {/* 72-Hour Strategy */}
-          <Next72HourStrategyPanel strategy={demoClient.next72HourStrategy} />
-
-          {/* Family Guidance + Prep Checklist */}
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-            <FamilyGuidancePanel statusLabel={statusLabel} />
-            <InterventionPrepChecklist items={demoClient.prepChecklist} score={totalScore} />
-          </div>
-
-          {/* Trends */}
-          <ReadinessTrends history={demoClient.history} />
-
-          {/* Signal feed + Notes */}
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-            <SignalFeed indicators={indicators} onAddIndicator={handleAddIndicator} />
-            <ClinicianNotes notes={notes} onAddNote={handleAddNote} />
-          </div>
-
-          {/* Disclaimer */}
-          <div className="flex items-start gap-3 p-4 rounded-lg bg-muted/50 border border-border text-xs text-muted-foreground">
-            <Info className="h-4 w-4 flex-shrink-0 mt-0.5" />
-            <p>
-              This tool supports intervention planning and pattern review. It does not diagnose substance
-              use disorder, predict behavior with certainty, or replace medical, legal, or emergency
-              judgment. Scores are directional and interpretive. Humans remain responsible for all final
-              decisions and should involve qualified local professionals when needed.
-            </p>
-          </div>
-        </div>
+          <SafetyNotice />
+        </main>
       </div>
     </>
   );
-};
-
-export default InterventionReadiness;
+}

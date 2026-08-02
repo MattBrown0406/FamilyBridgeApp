@@ -23,7 +23,7 @@ export const demoPredictions: OutcomePrediction[] = [
       'Sarah\'s consistent daily check-ins provide family stability',
       'Provider communication response time averaging 2.1 hours',
     ],
-    ai_insight: 'Treatment completion probability is trending upward but remains at moderate risk. The primary driver is inconsistent family boundary enforcement — specifically Robert\'s failure to follow through on agreed consequences. If boundary adherence improves to 90%+, our models suggest completion probability could reach 78-82%.',
+    ai_insight: 'The sample record shows changes in documented follow-through and family boundary consistency. These observations require human review and do not predict treatment completion.',
     ai_recommendation: {
       actions: [
         'Schedule a family-provider alignment meeting within 48 hours to address boundary gaps',
@@ -231,8 +231,8 @@ export const demoPredictionAlerts: PredictionAlert[] = [
     prediction_type: 'treatment_completion',
     alert_type: 'positive_shift',
     severity: 'low',
-    title: 'Treatment Completion Probability Improving',
-    message: 'Treatment completion probability has increased from 62% to 68% over the past 2 weeks, driven by improved financial transparency and Linda\'s boundary enforcement. Continue current trajectory to maintain this positive trend.',
+    title: 'Documented Follow-Through Changed',
+    message: 'The sample record contains more completed commitments and clearer financial documentation over the past two weeks. Review the underlying entries with the family rather than inferring an individual outcome.',
     is_dismissed: false,
     created_at: new Date(now - day).toISOString(),
   },

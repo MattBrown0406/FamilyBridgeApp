@@ -56,26 +56,19 @@ export const CreateCaseDialog = ({ open, onOpenChange, userId, organizations, on
 
     setLoading(true);
     try {
-      // Create the case
-      const { data: caseData, error: caseError } = await supabase
-        .from('coordination_cases')
-        .insert({ title: title.trim(), family_id: familyId, created_by: userId })
-        .select()
-        .single();
+      const { data: caseId, error: caseError } = await supabase.rpc('create_coordination_case', {
+        p_family_id: familyId,
+        p_title: title.trim(),
+        p_creator_role: 'case_manager',
+      });
 
       if (caseError) throw caseError;
-
-      // Add creator as admin member
-      await supabase.from('coordination_case_members').insert({
-        case_id: caseData.id,
-        user_id: userId,
-        role: 'admin' as any,
-      });
+      if (!caseId) throw new Error('Case creation did not return an identifier');
 
       toast({ title: 'Case created', description: 'Channels have been set up automatically.' });
       setTitle('');
       setFamilyId('');
-      onCreated(caseData.id);
+      onCreated(caseId);
     } catch (err: any) {
       toast({ title: 'Failed to create case', description: err.message, variant: 'destructive' });
     } finally {

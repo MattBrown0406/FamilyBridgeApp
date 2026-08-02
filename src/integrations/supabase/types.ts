@@ -2382,6 +2382,269 @@ export type Database = {
           },
         ]
       }
+      family_actions: {
+        Row: {
+          assigned_to: string | null
+          completed_at: string | null
+          completed_by: string | null
+          created_at: string
+          created_by: string
+          description: string | null
+          due_at: string | null
+          family_id: string
+          id: string
+          priority: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string
+          created_by: string
+          description?: string | null
+          due_at?: string | null
+          family_id: string
+          id?: string
+          priority?: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_to?: string | null
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          due_at?: string | null
+          family_id?: string
+          id?: string
+          priority?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "family_actions_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      family_decision_acknowledgements: {
+        Row: {
+          acknowledgement: string
+          acknowledged_at: string
+          comment: string | null
+          decision_id: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          acknowledgement?: string
+          acknowledged_at?: string
+          comment?: string | null
+          decision_id: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          acknowledgement?: string
+          acknowledged_at?: string
+          comment?: string | null
+          decision_id?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "family_decision_acknowledgements_decision_id_fkey"
+            columns: ["decision_id"]
+            isOneToOne: false
+            referencedRelation: "family_decisions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      family_decisions: {
+        Row: {
+          concerns: string | null
+          context: string | null
+          created_at: string
+          created_by: string
+          decided_at: string | null
+          decided_by: string | null
+          family_id: string
+          id: string
+          options: Json
+          selected_option: Json | null
+          status: string
+          target_at: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          concerns?: string | null
+          context?: string | null
+          created_at?: string
+          created_by: string
+          decided_at?: string | null
+          decided_by?: string | null
+          family_id: string
+          id?: string
+          options?: Json
+          selected_option?: Json | null
+          status?: string
+          target_at?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          concerns?: string | null
+          context?: string | null
+          created_at?: string
+          created_by?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          family_id?: string
+          id?: string
+          options?: Json
+          selected_option?: Json | null
+          status?: string
+          target_at?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "family_decisions_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      family_professional_access_events: {
+        Row: {
+          actor_user_id: string | null
+          created_at: string
+          details: Json
+          event_type: string
+          family_id: string
+          id: string
+          invitation_id: string
+          subject_user_id: string | null
+        }
+        Insert: {
+          actor_user_id?: string | null
+          created_at?: string
+          details?: Json
+          event_type: string
+          family_id: string
+          id?: string
+          invitation_id: string
+          subject_user_id?: string | null
+        }
+        Update: {
+          actor_user_id?: string | null
+          created_at?: string
+          details?: Json
+          event_type?: string
+          family_id?: string
+          id?: string
+          invitation_id?: string
+          subject_user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "family_professional_access_events_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "family_professional_access_events_invitation_id_fkey"
+            columns: ["invitation_id"]
+            isOneToOne: false
+            referencedRelation: "family_professional_invitations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      family_professional_invitations: {
+        Row: {
+          accepted_at: string | null
+          accepted_by: string | null
+          capabilities: string[]
+          created_at: string
+          expires_at: string
+          family_id: string
+          id: string
+          invited_by: string
+          invitee_email: string
+          revoked_at: string | null
+          revoked_by: string | null
+          role_template: string
+          status: string
+          token_hash: string
+          updated_at: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          accepted_by?: string | null
+          capabilities?: string[]
+          created_at?: string
+          expires_at?: string
+          family_id: string
+          id?: string
+          invited_by: string
+          invitee_email: string
+          revoked_at?: string | null
+          revoked_by?: string | null
+          role_template?: string
+          status?: string
+          token_hash: string
+          updated_at?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          accepted_by?: string | null
+          capabilities?: string[]
+          created_at?: string
+          expires_at?: string
+          family_id?: string
+          id?: string
+          invited_by?: string
+          invitee_email?: string
+          revoked_at?: string | null
+          revoked_by?: string | null
+          role_template?: string
+          status?: string
+          token_hash?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "family_professional_invitations_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       family_boundaries: {
         Row: {
           approved_at: string | null
@@ -4898,6 +5161,9 @@ export type Database = {
         Row: {
           accent_color: string | null
           background_color: string | null
+          benchmark_consent_at: string | null
+          benchmark_consent_version: string | null
+          benchmark_consented_by: string | null
           benchmark_opt_in: boolean
           body_font: string | null
           created_at: string
@@ -4927,6 +5193,9 @@ export type Database = {
         Insert: {
           accent_color?: string | null
           background_color?: string | null
+          benchmark_consent_at?: string | null
+          benchmark_consent_version?: string | null
+          benchmark_consented_by?: string | null
           benchmark_opt_in?: boolean
           body_font?: string | null
           created_at?: string
@@ -4956,6 +5225,9 @@ export type Database = {
         Update: {
           accent_color?: string | null
           background_color?: string | null
+          benchmark_consent_at?: string | null
+          benchmark_consent_version?: string | null
+          benchmark_consented_by?: string | null
           benchmark_opt_in?: boolean
           body_font?: string | null
           created_at?: string
@@ -5808,22 +6080,128 @@ export type Database = {
           },
         ]
       }
+      provider_handoff_authorizations: {
+        Row: {
+          authorization_scope: string
+          consent_version: string
+          created_at: string
+          expires_at: string
+          full_name: string
+          handoff_id: string
+          id: string
+          organization_id: string
+          revoked_at: string | null
+          revoked_by: string | null
+          signature_data_encrypted: string
+          signature_hash: string
+          user_id: string
+        }
+        Insert: {
+          authorization_scope?: string
+          consent_version?: string
+          created_at?: string
+          expires_at: string
+          full_name: string
+          handoff_id: string
+          id?: string
+          organization_id: string
+          revoked_at?: string | null
+          revoked_by?: string | null
+          signature_data_encrypted: string
+          signature_hash: string
+          user_id: string
+        }
+        Update: {
+          authorization_scope?: string
+          consent_version?: string
+          created_at?: string
+          expires_at?: string
+          full_name?: string
+          handoff_id?: string
+          id?: string
+          organization_id?: string
+          revoked_at?: string | null
+          revoked_by?: string | null
+          signature_data_encrypted?: string
+          signature_hash?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_handoff_authorizations_handoff_id_fkey"
+            columns: ["handoff_id"]
+            isOneToOne: false
+            referencedRelation: "provider_handoffs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provider_handoff_authorizations_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      provider_handoff_events: {
+        Row: {
+          actor_user_id: string | null
+          created_at: string
+          event_type: string
+          handoff_id: string
+          id: string
+          notes: string | null
+        }
+        Insert: {
+          actor_user_id?: string | null
+          created_at?: string
+          event_type: string
+          handoff_id: string
+          id?: string
+          notes?: string | null
+        }
+        Update: {
+          actor_user_id?: string | null
+          created_at?: string
+          event_type?: string
+          handoff_id?: string
+          id?: string
+          notes?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_handoff_events_handoff_id_fkey"
+            columns: ["handoff_id"]
+            isOneToOne: false
+            referencedRelation: "provider_handoffs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       provider_handoffs: {
         Row: {
           accepted_at: string | null
           accepted_by: string | null
+          cancellation_reason: string | null
+          cancelled_at: string | null
+          cancelled_by: string | null
           completed_at: string | null
+          completed_by: string | null
+          completion_notes: string | null
           created_at: string
           declined_at: string | null
           declined_reason: string | null
           family_id: string
+          follow_up_due_at: string | null
           from_organization_id: string
           handoff_notes: string | null
           id: string
           initiated_at: string
           initiated_by: string
+          last_transition_at: string | null
           receiving_provider_notes: string | null
           referring_user_remains_co_mod: boolean
+          response_notes: string | null
           sobriety_days_at_handoff: number
           status: Database["public"]["Enums"]["handoff_status"]
           to_organization_id: string
@@ -5836,18 +6214,26 @@ export type Database = {
         Insert: {
           accepted_at?: string | null
           accepted_by?: string | null
+          cancellation_reason?: string | null
+          cancelled_at?: string | null
+          cancelled_by?: string | null
           completed_at?: string | null
+          completed_by?: string | null
+          completion_notes?: string | null
           created_at?: string
           declined_at?: string | null
           declined_reason?: string | null
           family_id: string
+          follow_up_due_at?: string | null
           from_organization_id: string
           handoff_notes?: string | null
           id?: string
           initiated_at?: string
           initiated_by: string
+          last_transition_at?: string | null
           receiving_provider_notes?: string | null
           referring_user_remains_co_mod?: boolean
+          response_notes?: string | null
           sobriety_days_at_handoff?: number
           status?: Database["public"]["Enums"]["handoff_status"]
           to_organization_id: string
@@ -5862,18 +6248,26 @@ export type Database = {
         Update: {
           accepted_at?: string | null
           accepted_by?: string | null
+          cancellation_reason?: string | null
+          cancelled_at?: string | null
+          cancelled_by?: string | null
           completed_at?: string | null
+          completed_by?: string | null
+          completion_notes?: string | null
           created_at?: string
           declined_at?: string | null
           declined_reason?: string | null
           family_id?: string
+          follow_up_due_at?: string | null
           from_organization_id?: string
           handoff_notes?: string | null
           id?: string
           initiated_at?: string
           initiated_by?: string
+          last_transition_at?: string | null
           receiving_provider_notes?: string | null
           referring_user_remains_co_mod?: boolean
+          response_notes?: string | null
           sobriety_days_at_handoff?: number
           status?: Database["public"]["Enums"]["handoff_status"]
           to_organization_id?: string
@@ -6719,10 +7113,12 @@ export type Database = {
       transition_summary_consents: {
         Row: {
           consent_recorded_by: string
+          consent_scope: string
           consent_version: string | null
           consented_at: string
           consented_via: string
           created_at: string
+          expires_at: string | null
           full_name: string | null
           id: string
           notes: string | null
@@ -6731,6 +7127,7 @@ export type Database = {
           patient_ip_address: string | null
           patient_signature_hash: string | null
           patient_user_agent: string | null
+          provider_handoff_id: string | null
           revoked_at: string | null
           revoked_by: string | null
           signature_data: string | null
@@ -6740,10 +7137,12 @@ export type Database = {
         }
         Insert: {
           consent_recorded_by: string
+          consent_scope?: string
           consent_version?: string | null
           consented_at?: string
           consented_via?: string
           created_at?: string
+          expires_at?: string | null
           full_name?: string | null
           id?: string
           notes?: string | null
@@ -6752,6 +7151,7 @@ export type Database = {
           patient_ip_address?: string | null
           patient_signature_hash?: string | null
           patient_user_agent?: string | null
+          provider_handoff_id?: string | null
           revoked_at?: string | null
           revoked_by?: string | null
           signature_data?: string | null
@@ -6761,10 +7161,12 @@ export type Database = {
         }
         Update: {
           consent_recorded_by?: string
+          consent_scope?: string
           consent_version?: string | null
           consented_at?: string
           consented_via?: string
           created_at?: string
+          expires_at?: string | null
           full_name?: string | null
           id?: string
           notes?: string | null
@@ -6773,6 +7175,7 @@ export type Database = {
           patient_ip_address?: string | null
           patient_signature_hash?: string | null
           patient_user_agent?: string | null
+          provider_handoff_id?: string | null
           revoked_at?: string | null
           revoked_by?: string | null
           signature_data?: string | null
@@ -6781,6 +7184,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "transition_summary_consents_provider_handoff_id_fkey"
+            columns: ["provider_handoff_id"]
+            isOneToOne: false
+            referencedRelation: "provider_handoffs"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "transition_summary_consents_organization_id_fkey"
             columns: ["organization_id"]
@@ -7103,6 +7513,9 @@ export type Database = {
         Row: {
           accent_color: string | null
           background_color: string | null
+          benchmark_consent_at: string | null
+          benchmark_consent_version: string | null
+          benchmark_consented_by: string | null
           benchmark_opt_in: boolean | null
           body_font: string | null
           created_at: string | null
@@ -7132,6 +7545,9 @@ export type Database = {
         Insert: {
           accent_color?: string | null
           background_color?: string | null
+          benchmark_consent_at?: string | null
+          benchmark_consent_version?: string | null
+          benchmark_consented_by?: string | null
           benchmark_opt_in?: boolean | null
           body_font?: string | null
           created_at?: string | null
@@ -7161,6 +7577,9 @@ export type Database = {
         Update: {
           accent_color?: string | null
           background_color?: string | null
+          benchmark_consent_at?: string | null
+          benchmark_consent_version?: string | null
+          benchmark_consented_by?: string | null
           benchmark_opt_in?: boolean | null
           body_font?: string | null
           created_at?: string | null
@@ -7242,6 +7661,10 @@ export type Database = {
       }
     }
     Functions: {
+      accept_family_professional_invitation: {
+        Args: { p_invite_token: string }
+        Returns: string
+      }
       anonymize_old_location_data: { Args: never; Returns: undefined }
       apply_revenuecat_lifecycle_event: {
         Args: {
@@ -7269,6 +7692,10 @@ export type Database = {
       calculate_checkout_time: {
         Args: { checkin_time: string }
         Returns: string
+      }
+      cancel_provider_handoff: {
+        Args: { p_handoff_id: string; p_reason: string }
+        Returns: Database["public"]["Tables"]["provider_handoffs"]["Row"]
       }
       can_access_coordination_channel: {
         Args: { _channel_id: string; _user_id: string }
@@ -7304,6 +7731,62 @@ export type Database = {
       check_payment_info_access_rate: { Args: never; Returns: boolean }
       cleanup_expired_sensitive_tokens: { Args: never; Returns: undefined }
       cleanup_super_admin_rate_limits: { Args: never; Returns: undefined }
+      complete_provider_handoff: {
+        Args: { p_handoff_id: string; p_notes?: string | null }
+        Returns: Database["public"]["Tables"]["provider_handoffs"]["Row"]
+      }
+      create_coordination_case: {
+        Args: {
+          p_creator_role?: Database["public"]["Enums"]["coordination_role"]
+          p_family_id: string
+          p_title: string
+        }
+        Returns: string
+      }
+      create_family_professional_invitation: {
+        Args: {
+          p_capabilities?: string[]
+          p_expires_at?: string
+          p_family_id: string
+          p_invitee_email: string
+          p_role_template?: string
+        }
+        Returns: {
+          expires_at: string
+          invitation_id: string
+          invite_token: string
+        }[]
+      }
+      create_org_transfer_invitation: {
+        Args: {
+          p_contact_email: string
+          p_contact_name: string
+          p_contact_phone?: string | null
+          p_family_id: string
+          p_from_organization_id: string
+          p_invite_message?: string | null
+          p_org_name: string
+          p_referring_user_remains_co_mod?: boolean
+          p_transfer_reason?: Database["public"]["Enums"]["transfer_reason"] | null
+          p_transfer_reason_notes?: string | null
+        }
+        Returns: string
+      }
+      create_provider_handoff: {
+        Args: {
+          p_family_id: string
+          p_follow_up_due_at?: string | null
+          p_from_organization_id: string
+          p_handoff_notes?: string | null
+          p_referring_user_remains_co_mod?: boolean
+          p_to_organization_id: string
+          p_transfer_reason?: Database["public"]["Enums"]["transfer_reason"] | null
+          p_transfer_reason_notes?: string | null
+          p_transition_summary_id?: string | null
+          p_user_id: string
+        }
+        Returns: string
+      }
       decrypt_payment_field: {
         Args: { encrypted_text: string }
         Returns: string
@@ -7428,6 +7911,20 @@ export type Database = {
           secondary_color: string
           subdomain: string
           tagline: string
+        }[]
+      }
+      get_provider_outcome_aggregates: {
+        Args: {
+          p_organization_id: string
+          p_window_end?: string
+          p_window_start?: string
+        }
+        Returns: {
+          cohort_size: number
+          metric_key: string
+          metric_value: number | null
+          numerator: number | null
+          suppressed: boolean
         }[]
       }
       get_own_payment_info: {
@@ -7568,15 +8065,6 @@ export type Database = {
         Args: { _family_id: string; _user_id: string }
         Returns: boolean
       }
-      record_patient_consent: {
-        Args: {
-          _notes?: string
-          _organization_id: string
-          _signature_hash: string
-          _transition_summary_id: string
-        }
-        Returns: string
-      }
       redeem_activation_code_and_create_family: {
         Args: {
           p_activation_code: string
@@ -7592,8 +8080,20 @@ export type Database = {
         }[]
       }
       request_has_no_votes: { Args: { _request_id: string }; Returns: boolean }
+      remove_coordination_case_member: {
+        Args: { p_case_id: string; p_user_id: string }
+        Returns: boolean
+      }
+      respond_to_provider_handoff: {
+        Args: { p_handoff_id: string; p_notes?: string | null; p_response: string }
+        Returns: Database["public"]["Tables"]["provider_handoffs"]["Row"]
+      }
       revoke_transition_consent: {
         Args: { _consent_id: string; _reason?: string }
+        Returns: boolean
+      }
+      revoke_family_professional_invitation: {
+        Args: { p_invitation_id: string }
         Returns: boolean
       }
       set_family_journey_stage: {
@@ -7613,6 +8113,16 @@ export type Database = {
         }
         Returns: string
       }
+      sign_provider_handoff_authorization: {
+        Args: {
+          p_authorization_scope?: string
+          p_expires_at: string
+          p_full_name: string
+          p_handoff_id: string
+          p_signature_data: string
+        }
+        Returns: string
+      }
       sign_transition_consent: {
         Args: {
           _full_name: string
@@ -7620,6 +8130,17 @@ export type Database = {
           _organization_id: string
           _signature_data: string
           _transition_summary_id: string
+        }
+        Returns: string
+      }
+      sign_transition_handoff_consent: {
+        Args: {
+          p_consent_scope?: string
+          p_expires_at?: string | null
+          p_full_name: string
+          p_handoff_id: string
+          p_notes?: string | null
+          p_signature_data: string
         }
         Returns: string
       }

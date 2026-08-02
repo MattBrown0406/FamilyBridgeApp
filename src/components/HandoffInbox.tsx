@@ -150,17 +150,11 @@ export function HandoffInbox({ organizationId }: HandoffInboxProps) {
     if (!selectedHandoff) return;
     setIsProcessing(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
-
-      const { error } = await supabase
-        .from("provider_handoffs")
-        .update({
-          status: "accepted",
-          accepted_by: user.id,
-          accepted_at: new Date().toISOString(),
-        })
-        .eq("id", selectedHandoff.id);
+      const { error } = await supabase.rpc("respond_to_provider_handoff", {
+        p_handoff_id: selectedHandoff.id,
+        p_response: "accepted",
+        p_notes: null,
+      });
 
       if (error) throw error;
 
@@ -183,14 +177,11 @@ export function HandoffInbox({ organizationId }: HandoffInboxProps) {
     if (!selectedHandoff) return;
     setIsProcessing(true);
     try {
-      const { error } = await supabase
-        .from("provider_handoffs")
-        .update({
-          status: "declined",
-          declined_reason: declineReason || null,
-          declined_at: new Date().toISOString(),
-        })
-        .eq("id", selectedHandoff.id);
+      const { error } = await supabase.rpc("respond_to_provider_handoff", {
+        p_handoff_id: selectedHandoff.id,
+        p_response: "declined",
+        p_notes: declineReason || null,
+      });
 
       if (error) throw error;
 

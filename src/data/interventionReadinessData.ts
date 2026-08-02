@@ -190,35 +190,19 @@ export function calculateReadinessScore(signals: SignalCategory[]): number {
 }
 
 export function getRecommendation(score: number): Recommendation {
-  if (score <= 40) {
-    return {
-      summary: 'Resistance is active and denial is intact. The individual is not in a receptive state. Attempting intervention now carries a high probability of rejection and may reinforce defensive patterns.',
-      actionNow: 'Hold boundaries without escalation. Document patterns. Support family members in maintaining their own stability. Begin identifying treatment placement options quietly.',
-      avoidNow: 'Do not confront, lecture, plead, or issue ultimatums. Do not attempt a formal intervention. Any premature action risks hardening resistance further.',
-      reassessWhen: 'Reassess in 5–7 days, or immediately if a significant consequence event occurs (arrest, health crisis, job loss, relationship rupture).',
-    };
-  }
-  if (score <= 65) {
-    return {
-      summary: 'Cracks are forming. Distress is rising and resistance is softening, but the individual has not yet reached a point of genuine openness. This is a preparation window — not an action window. Move too early and you risk closing what is still opening.',
-      actionNow: 'Begin quiet intervention coordination. Verify treatment bed availability and insurance. Align the family team. Continue holding boundaries — this pressure is working.',
-      avoidNow: 'Do not tip your hand. Avoid emotional appeals, confrontation, or any behavior that signals an upcoming intervention. Do not soften boundaries because "things seem better."',
-      reassessWhen: 'Reassess in 48–72 hours. Watch for acceleration in distress, help-proximity signals, or a triggering event.',
-    };
-  }
-  if (score <= 80) {
-    return {
-      summary: 'Multiple signals are converging: resistance is weakening, consequence awareness is elevated, and help-proximity behaviors are emerging. This is an active preparation window. The individual is more reachable now than at any recent point.',
-      actionNow: 'Confirm treatment placement and bed availability now. Finalize intervention team roles and logistics. Complete letters. Have bags packed and transportation arranged for immediate departure if accepted.',
-      avoidNow: 'Do not delay. Every hour of inaction risks the window closing. Do not allow enabling behaviors to re-stabilize the situation. Do not negotiate — maintain boundaries firmly.',
-      reassessWhen: 'Reassess daily. Be prepared to execute within 24–48 hours if trajectory holds or strengthens.',
-    };
-  }
+  const evidenceLabel = score <= 40
+    ? 'The family has recorded limited or mixed information.'
+    : score <= 65
+      ? 'The family has documented increased concern and mixed signs of openness.'
+      : score <= 80
+        ? 'Several family-recorded concerns are elevated at the same time.'
+        : 'The current family record contains many elevated concern signals.';
+
   return {
-    summary: 'This is a high-probability intervention window. Resistance is at its lowest observed level. Distress, consequence awareness, and help-proximity are all elevated simultaneously. These conditions rarely sustain — this window will close.',
-    actionNow: 'Execute the intervention plan within 24–72 hours. Confirm bed availability today. Brief the team. The offer should be simple and immediate: "We have a place for you. Will you go today?"',
-    avoidNow: 'Do not wait. Do not allow second-guessing. Do not pile on emotional guilt if they say yes — just move. Avoid negotiation. The answer is yes or no.',
-    reassessWhen: 'Continuous monitoring. If intervention is not executed within 72 hours, assume the window is closing and reassess strategy.',
+    summary: `${evidenceLabel} This score organizes family observations; it does not measure willingness, diagnose a condition, or predict whether treatment will be accepted.`,
+    actionNow: 'Review the underlying observations with the family and qualified professionals, confirm safe options, and agree on a compassionate plan based on current facts.',
+    avoidNow: 'Avoid secrecy, pressure, emotional coercion, rigid deadlines, or decisions based on the score alone. Preserve room for safety, clinical judgment, and informed choice.',
+    reassessWhen: 'Review the record when circumstances materially change or an authorized participant adds relevant information.',
   };
 }
 
@@ -430,9 +414,9 @@ export const demoClient: ClientProfile = {
   ],
 
   interventionistInsight: {
-    assessment: 'Resistance is weakening but not gone. He is tired of fighting, but he has not yet reached the point of genuine surrender. The financial pressure is doing its job — do not relieve it. The treatment question was significant: he is thinking about it even if he would deny it. Best opportunity likely follows the next consequence event or after 48 more hours of sustained boundary holding.',
-    tacticalNote: 'Watch for the quiet moment. When the anger stops and the exhaustion shows — that is your window. Do not intervene during a conflict. Intervene during the silence after it.',
-    confidence: 'Pattern suggests 65–75% probability of acceptance if intervention is timed correctly within the next 3–5 days. Probability drops significantly if any family member breaks rank on boundaries.',
+    assessment: 'The family has recorded fatigue, conflict, and one treatment-related question. These observations should be reviewed with a qualified intervention professional and should not be treated as proof of willingness or refusal.',
+    tacticalNote: 'Prioritize safety and a calm setting. Avoid initiating a difficult conversation during active conflict, intoxication, withdrawal, or another unsafe circumstance.',
+    confidence: 'No acceptance probability is provided. Individual decisions cannot be inferred reliably from family observations or demo data.',
   },
 
   signals: [

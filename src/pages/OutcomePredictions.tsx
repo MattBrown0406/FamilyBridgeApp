@@ -1,172 +1,134 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, RefreshCw, Brain, AlertTriangle, TrendingUp, Lightbulb, Eye } from 'lucide-react';
+import { useState } from 'react';
+import { Navigate, useParams, useSearchParams } from 'react-router-dom';
+import { CalendarCheck, MessageCircle, PauseCircle, Stethoscope } from 'lucide-react';
+import { SEOHead } from '@/components/SEOHead';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Textarea } from '@/components/ui/textarea';
+import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
-import { supabase } from '@/integrations/supabase/client';
-import { useOutcomePredictions } from '@/hooks/useOutcomePredictions';
-import { OutcomePredictionCard } from '@/components/predictions/OutcomePredictionCard';
-import { RiskDriversPanel } from '@/components/predictions/RiskDriversPanel';
-import { ProtectiveFactorsPanel } from '@/components/predictions/ProtectiveFactorsPanel';
-import { ActionableInsightPanel } from '@/components/predictions/ActionableInsightPanel';
-import { PredictionAlerts } from '@/components/predictions/PredictionAlerts';
-import { TrajectoryChart } from '@/components/predictions/TrajectoryChart';
-import { SystemAlignmentInsight } from '@/components/predictions/SystemAlignmentInsight';
 import {
-  demoPredictions, demoPredictionAlerts, demoHistoricalData,
-} from '@/data/predictionsDemoData';
+  AccessUnavailableState,
+  FamilyRequiredState,
+  LoadingState,
+  PageHeader,
+  SafetyNotice,
+  SignalList,
+  useFamilyReadiness,
+} from '@/features/readiness/familyReadiness';
+
+const outcomeOptions = [
+  { id: 'help-accepted', label: 'Help was accepted', icon: Stethoscope, description: 'Record only what was explicitly agreed to; verify actual admission or appointment separately.' },
+  { id: 'help-declined', label: 'Help was declined at this time', icon: MessageCircle, description: 'A declined offer is not a forecast. Focus on safety, respectful boundaries, and family support.' },
+  { id: 'conversation-paused', label: 'The conversation paused', icon: PauseCircle, description: 'Document why the conversation stopped and any professional guidance about next steps.' },
+  { id: 'follow-up-scheduled', label: 'Professional follow-up scheduled', icon: CalendarCheck, description: 'Record the confirmed appointment or contact without assuming what will happen afterward.' },
+];
 
 export default function OutcomePredictions() {
-  const { user } = useAuth();
-  const navigate = useNavigate();
+  const { familyId: routeFamilyId } = useParams<{ familyId?: string }>();
   const [searchParams] = useSearchParams();
-  const isDemo = searchParams.get('demo') === 'true';
-  const [familyId, setFamilyId] = useState<string>();
+  const familyId = routeFamilyId || searchParams.get('familyId');
+  const { user, loading: authLoading } = useAuth();
+  const { toast } = useToast();
+  const readiness = useFamilyReadiness(familyId, user?.id);
+  const [details, setDetails] = useState('');
+  const [savingId, setSavingId] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (isDemo || !user) return;
-    supabase
-      .from('family_members')
-      .select('family_id')
-      .eq('user_id', user.id)
-      .neq('role', 'recovering')
-      .limit(1)
-      .single()
-      .then(({ data }) => { if (data) setFamilyId(data.family_id); });
-  }, [user, isDemo]);
+  if (authLoading) return <LoadingState />;
+  if (!user) return <Navigate to="/auth" replace />;
+  if (!familyId) return <FamilyRequiredState />;
 
-  const {
-    predictions, alerts, loading, calculating,
-    calculatePredictions, dismissAlert, getHistorical,
-  } = useOutcomePredictions(isDemo ? undefined : familyId);
+  const query = `?familyId=${encodeURIComponent(familyId)}`;
+  const outcomeSignals = readiness.signals.filter((signal) => signal.category_tags.includes('outcome'));
 
-  // Demo mode helpers
-  const demoGetHistorical = useCallback(async (type: string) => {
-    return demoHistoricalData[type] || demoHistoricalData.treatment_completion;
-  }, []);
-
-  const activePredictions = isDemo ? demoPredictions : predictions;
-  const activeAlerts = isDemo ? demoPredictionAlerts : alerts;
-  const activeGetHistorical = isDemo ? demoGetHistorical : getHistorical;
-
-  const allDrivers = [...new Set(activePredictions.flatMap(p => p.risk_drivers || []))].slice(0, 5);
-  const allFactors = [...new Set(activePredictions.flatMap(p => p.protective_factors || []))].slice(0, 5);
-
-  if (!isDemo && !user) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <p className="text-muted-foreground">Please sign in to access predictions.</p>
-      </div>
-    );
+  async function recordOutcome(id: string, label: string) {
+    setSavingId(id);
+    try {
+      const description = details.trim() ? `${label}. ${details.trim()}` : label;
+      await readiness.addSignal({
+        description,
+        tags: ['outcome', `outcome:${id}`, 'observed'],
+        sourceType: 'observed_outcome',
+      });
+      setDetails('');
+      toast({ title: 'Observed outcome saved', description: 'No prediction or probability was generated.' });
+    } catch (error) {
+      toast({ title: 'Could not save outcome', description: error instanceof Error ? error.message : 'Please try again.', variant: 'destructive' });
+    } finally {
+      setSavingId(null);
+    }
   }
 
-  const showContent = isDemo || activePredictions.length > 0;
-
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="border-b bg-card sticky top-0 z-10">
-        <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => navigate(isDemo ? '/' : -1 as any)}>
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <div>
-              <h1 className="text-lg font-bold flex items-center gap-2">
-                <Brain className="h-5 w-5 text-primary" />
-                Outcome Predictions
-                {isDemo && (
-                  <Badge variant="outline" className="gap-1 text-xs border-primary/30 text-primary">
-                    <Eye className="h-3 w-3" />
-                    Demo
-                  </Badge>
-                )}
-              </h1>
-              <p className="text-xs text-muted-foreground">
-                {isDemo ? 'Brown Family — Sample outlook data' : 'Forward-looking recovery outlook'}
-              </p>
-            </div>
-          </div>
-          {isDemo ? (
-            <Button size="sm" onClick={() => navigate('/family-purchase')}>
-              Get Started
-            </Button>
+    <>
+      <SEOHead title="Observed Outcomes | FamilyBridge" description="Record family-scoped intervention outcomes without predictive claims." />
+      <div className="min-h-screen bg-background">
+        <PageHeader title="Observed outcomes" subtitle={readiness.familyName || 'Family outcome record'} backTo={`/intervention-execution${query}`} />
+        <main className="mx-auto max-w-5xl space-y-6 px-4 py-6">
+          {readiness.loading ? <LoadingState /> : readiness.error ? (
+            <AccessUnavailableState message={readiness.error} />
+          ) : !readiness.profile ? (
+            <Card>
+              <CardHeader><CardTitle>No readiness profile yet</CardTitle><CardDescription>Create a profile for this family before recording outcomes.</CardDescription></CardHeader>
+              <CardContent><Button asChild><a href={`/intervention-readiness${query}`}>Open readiness profile</a></Button></CardContent>
+            </Card>
           ) : (
-            <Button size="sm" onClick={calculatePredictions} disabled={calculating || !familyId}>
-              <RefreshCw className={`h-4 w-4 mr-1.5 ${calculating ? 'animate-spin' : ''}`} />
-              {calculating ? 'Calculating...' : 'Calculate'}
-            </Button>
+            <>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Record what happened—not what may happen</CardTitle>
+                  <CardDescription>
+                    FamilyBridge does not calculate treatment-acceptance probability or promise a recovery trajectory. Outcomes can change, and each entry should reflect a direct observation or confirmed event.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Textarea
+                    value={details}
+                    onChange={(event) => setDetails(event.target.value)}
+                    maxLength={2000}
+                    placeholder="Optional factual detail: who confirmed it, when, and what the next agreed step is."
+                    aria-label="Observed outcome details"
+                  />
+                </CardContent>
+              </Card>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                {outcomeOptions.map((option) => {
+                  const Icon = option.icon;
+                  return (
+                    <Card key={option.id}>
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2 text-lg"><Icon className="h-5 w-5 text-primary" />{option.label}</CardTitle>
+                        <CardDescription>{option.description}</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => void recordOutcome(option.id, option.label)}
+                          disabled={savingId !== null}
+                        >
+                          {savingId === option.id ? 'Saving…' : 'Record this outcome'}
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+
+              <Card>
+                <CardHeader><CardTitle className="text-lg">Outcome history</CardTitle><CardDescription>Confirmed family observations, newest first.</CardDescription></CardHeader>
+                <CardContent><SignalList signals={outcomeSignals} emptyText="No outcomes have been recorded for this family." /></CardContent>
+              </Card>
+
+              <div className="flex justify-end">
+                <Button asChild><a href={`/post-intervention${query}`}>Continue to family continuity</a></Button>
+              </div>
+            </>
           )}
-        </div>
+          <SafetyNotice />
+        </main>
       </div>
-
-      <div className="max-w-4xl mx-auto px-4 py-4 space-y-4">
-        {/* Alerts */}
-        <PredictionAlerts alerts={activeAlerts} onDismiss={isDemo ? async () => {} : dismissAlert} />
-
-        {!isDemo && !familyId ? (
-          <div className="text-center py-12 text-muted-foreground text-sm">
-            No eligible family found. You need to be a non-recovering family member to view these outlook estimates.
-          </div>
-        ) : !isDemo && loading ? (
-          <div className="text-center py-12 text-muted-foreground text-sm">Loading predictions...</div>
-        ) : !showContent ? (
-          <div className="text-center py-12 space-y-3">
-            <Brain className="h-10 w-10 mx-auto text-muted-foreground" />
-            <p className="text-muted-foreground text-sm">No outlook estimates calculated yet.</p>
-            <Button onClick={calculatePredictions} disabled={calculating}>
-              <RefreshCw className={`h-4 w-4 mr-1.5 ${calculating ? 'animate-spin' : ''}`} />
-              Generate First Outlook
-            </Button>
-          </div>
-        ) : (
-          <Tabs defaultValue="overview" className="space-y-4">
-            <TabsList className="w-full grid grid-cols-4">
-              <TabsTrigger value="overview" className="text-xs">
-                <Brain className="h-3.5 w-3.5 mr-1 hidden sm:inline" />Overview
-              </TabsTrigger>
-              <TabsTrigger value="risk" className="text-xs">
-                <AlertTriangle className="h-3.5 w-3.5 mr-1 hidden sm:inline" />Risk
-              </TabsTrigger>
-              <TabsTrigger value="trajectory" className="text-xs">
-                <TrendingUp className="h-3.5 w-3.5 mr-1 hidden sm:inline" />Trajectory
-              </TabsTrigger>
-              <TabsTrigger value="actions" className="text-xs">
-                <Lightbulb className="h-3.5 w-3.5 mr-1 hidden sm:inline" />Actions
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="overview" className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {activePredictions.map(p => <OutcomePredictionCard key={p.id} prediction={p} />)}
-              </div>
-              <SystemAlignmentInsight predictions={activePredictions} />
-            </TabsContent>
-
-            <TabsContent value="risk" className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <RiskDriversPanel drivers={allDrivers} />
-                <ProtectiveFactorsPanel factors={allFactors} />
-              </div>
-              <div className="p-3 rounded-lg border bg-muted/30">
-                <p className="text-xs text-muted-foreground italic">
-                  These outlooks are directional estimates based on available behavioral data. They support decision-making but do not guarantee outcomes.
-                </p>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="trajectory">
-              <TrajectoryChart getHistorical={activeGetHistorical} />
-            </TabsContent>
-
-            <TabsContent value="actions">
-              <ActionableInsightPanel predictions={activePredictions} />
-            </TabsContent>
-          </Tabs>
-        )}
-      </div>
-    </div>
+    </>
   );
 }

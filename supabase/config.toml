@@ -146,3 +146,9 @@ verify_jwt = false
 
 [functions.weekly-family-report]
 verify_jwt = false
+
+[functions.send-org-transfer-invite]
+verify_jwt = true
+
+[functions.send-family-professional-invite]
+verify_jwt = true

@@ -18,6 +18,8 @@ import Subscription from "./pages/Subscription";
 import ProviderAdmin from "./pages/ProviderAdmin";
 import ProviderPurchase from "./pages/ProviderPurchase";
 import ProviderWorkspace from "./pages/ProviderWorkspace";
+import ProfessionalInvite from "./pages/ProfessionalInvite";
+import ProfessionalFamilyWorkspace from "./pages/ProfessionalFamilyWorkspace";
 import ProviderCoordination from "./pages/ProviderCoordination";
 import FamilyPurchase from "./pages/FamilyPurchase";
 import FamilySetup from "./pages/FamilySetup";
@@ -91,6 +93,8 @@ const App = () => {
               />
               <Route path="/provider-admin" element={<ProviderAdmin />} />
               <Route path="/provider-workspace" element={<ProviderWorkspace />} />
+              <Route path="/professional-invite" element={<ProfessionalInvite />} />
+              <Route path="/professional-family/:familyId" element={<ProfessionalFamilyWorkspace />} />
               <Route path="/provider-coordination" element={<ProviderCoordination />} />
               <Route path="/provider-purchase" element={<ProviderPurchase />} />
               <Route path="/family-purchase" element={<FamilyPurchase />} />

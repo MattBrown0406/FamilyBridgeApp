@@ -22,16 +22,14 @@ import {
 } from 'lucide-react';
 import { ProviderNotesPanel } from '@/components/ProviderNotesPanel';
 import { ProviderMessaging } from '@/components/ProviderMessaging';
+import ProfessionalCommandCenter, { type ProfessionalHubFamily } from '@/features/professional-hub/ProfessionalCommandCenter';
 import { AccountActionsMenu } from '@/components/AccountActionsMenu';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 import { TutorialModal } from '@/components/tutorial/TutorialModal';
 import { TutorialControls } from '@/components/tutorial/TutorialControls';
 import { providerWorkspaceSteps } from '@/components/tutorial/tutorialSteps';
 
-interface Family {
-  id: string;
-  name: string;
-}
+type Family = ProfessionalHubFamily;
 
 interface OrgMember {
   user_id: string;
@@ -84,7 +82,7 @@ const ProviderWorkspace = () => {
     try {
       const { data, error } = await supabase
         .from('families')
-        .select('id, name')
+        .select('id, name, journey_stage')
         .eq('organization_id', selectedOrgId)
         .eq('is_archived', false)
         .order('name');
@@ -186,9 +184,9 @@ const ProviderWorkspace = () => {
                 className="h-8 object-contain"
               />
               <div>
-                <h1 className="text-lg font-semibold">Provider Workspace</h1>
+                <h1 className="text-lg font-semibold">Professional Hub</h1>
                 <p className="text-sm text-muted-foreground">
-                  {currentOrg?.name || 'Team Notes & Messaging'}
+                  {currentOrg?.name || 'Caseload, next actions, notes, and team communication'}
                 </p>
               </div>
             </div>
@@ -206,24 +204,6 @@ const ProviderWorkspace = () => {
                 </SelectContent>
               </Select>
             )}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => navigate('/accountability-engine')}
-              className="gap-1"
-            >
-              <Activity className="h-4 w-4" />
-              <span className="hidden sm:inline">Accountability</span>
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => navigate('/provider-coordination')}
-              className="gap-1"
-            >
-              <Users className="h-4 w-4" />
-              <span className="hidden sm:inline">Coordination Hub</span>
-            </Button>
             <Button
               variant="outline"
               size="sm"
@@ -246,9 +226,16 @@ const ProviderWorkspace = () => {
       {/* Main Content */}
       <main className="container mx-auto px-4 py-6">
         {selectedOrgId ? (
-          <Tabs defaultValue="notes" className="space-y-6">
+          <Tabs defaultValue="caseload" className="space-y-6">
             <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
               <TabsList className="h-auto p-1.5 bg-muted/40 rounded-xl gap-1">
+                <TabsTrigger
+                  value="caseload"
+                  className="flex items-center gap-2 rounded-lg px-3 py-2 data-[state=active]:text-amber-700 dark:data-[state=active]:text-amber-400 data-[state=inactive]:text-muted-foreground"
+                >
+                  <Activity className="h-4 w-4" />
+                  <span className="text-xs font-medium">Today</span>
+                </TabsTrigger>
                 <TabsTrigger
                   value="notes"
                   className="flex items-center gap-2 rounded-lg px-3 py-2 data-[state=active]:text-blue-600 dark:data-[state=active]:text-blue-400 data-[state=inactive]:text-muted-foreground"
@@ -281,6 +268,10 @@ const ProviderWorkspace = () => {
                 </SelectContent>
               </Select>
             </div>
+
+            <TabsContent value="caseload">
+              <ProfessionalCommandCenter organizationId={selectedOrgId} families={families} />
+            </TabsContent>
 
             <TabsContent value="notes">
               <Card>

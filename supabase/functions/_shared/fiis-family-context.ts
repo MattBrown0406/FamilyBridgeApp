@@ -1,5 +1,3 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { buildFIISLearningContext } from "./fiis-learning.ts";
 
 const GOAL_LABELS: Record<string, string> = {
   complete_intervention: "Complete Family Intervention",
@@ -27,12 +25,13 @@ const VALUE_LABELS: Record<string, string> = {
   hope: "Hope & Faith in Recovery",
 };
 
-export async function fetchFIISFamilyContext(supabase: ReturnType<typeof createClient>, familyId: string) {
+export async function fetchFIISFamilyContext(supabase: any, familyId: string) {
   const [
     sobrietyResult, boundariesResult, emotionalCheckinsResult, meetingCheckinsResult,
     messagesResult, financialRequestsResult, coachingSessionsResult, medicationsResult,
     providerNotesResult, aftercarePlansResult, aftercareRecsResult, calibrationPatternsResult,
-    feedbackResult, valuesResult, commonGoalsResult,
+    valuesResult, commonGoalsResult, actionsResult, decisionsResult,
+    decisionAcknowledgementsResult, sharedCoordinationMessagesResult, coordinationTasksResult,
   ] = await Promise.all([
     supabase.from("sobriety_journeys").select("start_date, reset_count, is_active").eq("family_id", familyId).eq("is_active", true).maybeSingle(),
     supabase.from("family_boundaries").select("content").eq("family_id", familyId).eq("status", "approved"),
@@ -42,13 +41,30 @@ export async function fetchFIISFamilyContext(supabase: ReturnType<typeof createC
     supabase.from("financial_requests").select("amount, status, created_at").eq("family_id", familyId).order("created_at", { ascending: false }).limit(20),
     supabase.from("coaching_sessions").select("session_type, started_at, suggestions, talking_to_name").eq("family_id", familyId).order("started_at", { ascending: false }).limit(20),
     supabase.from("medications").select("medication_name, dosage").eq("family_id", familyId).eq("is_active", true),
-    supabase.from("provider_notes").select("note_type, content").eq("family_id", familyId).eq("include_in_ai_analysis", true).order("created_at", { ascending: false }).limit(10),
+    supabase.from("provider_notes").select("note_type, content").eq("family_id", familyId)
+      .eq("include_in_ai_analysis", true).eq("visibility", "shareable_summary")
+      .order("created_at", { ascending: false }).limit(10),
     supabase.from("aftercare_plans").select("id").eq("family_id", familyId).eq("is_active", true),
     supabase.from("aftercare_recommendations").select("plan_id, recommendation_type, title, is_completed").order("created_at", { ascending: false }).limit(50),
     supabase.from("fiis_calibration_patterns").select("pattern_name, pattern_description, suggested_response").eq("is_active", true),
-    supabase.from("fiis_analysis_feedback").select("feedback_type, correction_reasoning, missed_patterns, false_patterns, recommended_keywords, clinical_context").eq("family_id", familyId).order("created_at", { ascending: false }).limit(10),
     supabase.from("family_values").select("value_key").eq("family_id", familyId),
     supabase.from("family_common_goals").select("goal_key, completed_at").eq("family_id", familyId),
+    supabase.from("family_actions").select("title, description, status, priority, due_at, completed_at").eq("family_id", familyId).order("created_at", { ascending: false }).limit(50),
+    supabase.from("family_decisions").select("id, title, context, concerns, status, target_at").eq("family_id", familyId).order("created_at", { ascending: false }).limit(30),
+    supabase.from("family_decision_acknowledgements")
+      .select("decision_id, acknowledgement, comment, acknowledged_at, family_decisions!inner(family_id)")
+      .eq("family_decisions.family_id", familyId).order("acknowledged_at", { ascending: false }).limit(100),
+    supabase.from("coordination_messages")
+      .select("content, created_at, coordination_channels!inner(channel_type, coordination_cases!inner(family_id))")
+      .eq("coordination_channels.channel_type", "family")
+      .eq("coordination_channels.coordination_cases.family_id", familyId)
+      .order("created_at", { ascending: false })
+      .limit(100),
+    supabase.from("coordination_tasks")
+      .select("title, description, status, priority, due_date, coordination_cases!inner(family_id)")
+      .eq("coordination_cases.family_id", familyId)
+      .order("created_at", { ascending: false })
+      .limit(100),
   ]);
 
   let ctx = "";
@@ -105,23 +121,29 @@ export async function fetchFIISFamilyContext(supabase: ReturnType<typeof createC
   if (coachingSessionsResult.data?.length) ctx += `PRIOR COACHING: ${coachingSessionsResult.data.length} sessions.\n`;
   if (medicationsResult.data?.length) ctx += `MEDICATIONS: ${medicationsResult.data.map((m: any) => m.medication_name).join(', ')}\n`;
   if (providerNotesResult.data?.length) {
-    ctx += `PROVIDER NOTES:\n${providerNotesResult.data.map((n: any, i: number) => `${i + 1}. [${n.note_type}] ${n.content}`).join('\n')}\n`;
+    ctx += `PROVIDER NOTES EXPLICITLY AUTHORIZED FOR FIIS:\n${providerNotesResult.data.map((n: any, i: number) => `${i + 1}. [${n.note_type}] ${n.content}`).join('\n')}\n`;
+  }
+  if (sharedCoordinationMessagesResult.data?.length) {
+    ctx += `SHARED FAMILY/PROFESSIONAL COORDINATION:\n${sharedCoordinationMessagesResult.data.map((message: any, i: number) => `${i + 1}. ${message.content}`).join('\n')}\n`;
+  }
+  if (coordinationTasksResult.data?.length) {
+    ctx += `SHARED COORDINATION TASKS:\n${coordinationTasksResult.data.map((task: any, i: number) => `${i + 1}. [${task.status}/${task.priority}] ${task.title}${task.description ? ` — ${task.description}` : ''}${task.due_date ? ` (due ${task.due_date})` : ''}`).join('\n')}\n`;
+  }
+  if (actionsResult.data?.length) {
+    ctx += `SHARED FAMILY ACTIONS:\n${actionsResult.data.map((action: any, i: number) => `${i + 1}. [${action.status}/${action.priority}] ${action.title}${action.description ? ` — ${action.description}` : ''}${action.due_at ? ` (due ${action.due_at})` : ''}`).join('\n')}\n`;
+  }
+  if (decisionsResult.data?.length) {
+    const acknowledgements = decisionAcknowledgementsResult.data || [];
+    ctx += `SHARED FAMILY DECISIONS:\n${decisionsResult.data.map((decision: any, i: number) => {
+      const responses = acknowledgements.filter((item: any) => item.decision_id === decision.id);
+      const responseSummary = responses.length ? ` Responses: ${responses.map((item: any) => item.acknowledgement).join(', ')}.` : '';
+      return `${i + 1}. [${decision.status}] ${decision.title}${decision.context ? ` — ${decision.context}` : ''}${decision.concerns ? ` Concerns: ${decision.concerns}` : ''}${responseSummary}`;
+    }).join('\n')}\n`;
   }
   if (calibrationPatternsResult.data?.length) {
     ctx += `CALIBRATED WARNING PATTERNS:\n${calibrationPatternsResult.data.slice(0, 10).map((p: any) => `- ${p.pattern_name}: ${p.pattern_description}${p.suggested_response ? ` → ${p.suggested_response}` : ''}`).join('\n')}\n`;
   }
-  if (feedbackResult.data?.length) {
-    ctx += `MODERATOR CALIBRATION FEEDBACK:\n${feedbackResult.data.slice(0, 8).map((f: any, i: number) => {
-      const corrections = [
-        f.correction_reasoning,
-        f.missed_patterns?.length ? `Missed: ${f.missed_patterns.join(', ')}` : '',
-        f.false_patterns?.length ? `Avoid flagging: ${f.false_patterns.join(', ')}` : '',
-        f.recommended_keywords?.length ? `Watch for: ${f.recommended_keywords.join(', ')}` : '',
-        f.clinical_context || '',
-      ].filter(Boolean).join(' | ');
-      return `${i + 1}. [${f.feedback_type}] ${corrections}`;
-    }).join('\n')}\n`;
-  }
+
   if (aftercarePlansResult.data?.length) {
     const planIds = aftercarePlansResult.data.map((p: any) => p.id);
     const recs = (aftercareRecsResult.data || []).filter((r: any) => planIds.includes(r.plan_id));
@@ -130,8 +152,6 @@ export async function fetchFIISFamilyContext(supabase: ReturnType<typeof createC
       ctx += `AFTERCARE: ${done}/${recs.length} completed (${Math.round((done / recs.length) * 100)}%).\n`;
     }
   }
-
-  ctx += await buildFIISLearningContext(supabase, familyId);
 
   return ctx;
 }

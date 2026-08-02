@@ -682,7 +682,7 @@ export function FIISTab({ familyId, members, excludeUserIds = [], onView, isMode
               <Button
                 size="sm"
                 onClick={handleAnalyze}
-                disabled={isAnalyzing || (observations.length === 0 && autoEvents.length === 0)}
+                disabled={isAnalyzing}
                 className="flex-1 sm:flex-none bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600 text-xs sm:text-sm"
               >
                 {isAnalyzing ? (
@@ -708,7 +708,7 @@ export function FIISTab({ familyId, members, excludeUserIds = [], onView, isMode
           </p>
           <div className="p-3 rounded-lg bg-violet-50 dark:bg-violet-950/30 border border-violet-200 dark:border-violet-800">
             <p className="text-xs text-violet-700 dark:text-violet-300">
-              <strong>🔒 All entries are anonymous.</strong> Honest observations about everyone's behavior—including your own—create the clearest picture for accountability and growth. The more truthful the input, the more helpful the insights.
+              <strong>🔒 Family-scoped and access-controlled.</strong> Entries retain their author for accountability and are available only to authorized participants. Share only information appropriate for the family’s shared FIIS context.
             </p>
           </div>
           {/* Disclaimer - only show if not acknowledged */}

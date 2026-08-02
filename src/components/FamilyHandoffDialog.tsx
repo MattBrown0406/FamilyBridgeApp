@@ -29,7 +29,7 @@ import {
   Info,
 } from "lucide-react";
 import { OrgSearchCombobox, OrgComboboxValue } from "@/components/OrgSearchCombobox";
-import { supabase as supabaseClient } from "@/integrations/supabase/client";
+
 
 interface FamilyHandoffDialogProps {
   familyId: string;
@@ -153,20 +153,17 @@ export const FamilyHandoffDialog = ({
       if (!user) throw new Error("Not authenticated");
 
       if (selectedOrg.type === "existing") {
-        // ---- Two-party handshake: insert into provider_handoffs ----
-        const selectedMember = recoveringMembers.find((m) => m.userId === userIdToUse);
-
-        const { error } = await supabase.from("provider_handoffs").insert({
-          user_id: userIdToUse || user.id,
-          family_id: familyId,
-          from_organization_id: currentOrgId,
-          to_organization_id: selectedOrg.org.id,
-          initiated_by: user.id,
-          sobriety_days_at_handoff: selectedMember?.sobrietyDays || 0,
-          handoff_notes: transferNotes || null,
-          transfer_reason: transferReason as any,
-          transfer_reason_notes: transferNotes || null,
-          referring_user_remains_co_mod: remainAsCoMod,
+        // Server-controlled lifecycle: authorization, immutable event history,
+        // and recipient binding are enforced in the RPC.
+        const { error } = await supabase.rpc("create_provider_handoff", {
+          p_user_id: userIdToUse || user.id,
+          p_family_id: familyId,
+          p_from_organization_id: currentOrgId,
+          p_to_organization_id: selectedOrg.org.id,
+          p_handoff_notes: transferNotes || null,
+          p_transfer_reason: transferReason as any,
+          p_transfer_reason_notes: transferNotes || null,
+          p_referring_user_remains_co_mod: remainAsCoMod,
         });
 
         if (error) throw error;
@@ -177,29 +174,28 @@ export const FamilyHandoffDialog = ({
         });
       } else {
         // ---- Org not on FamilyBridge: create invite + send email ----
-        const { data: inviteData, error } = await (supabase as any).from("org_transfer_invites").insert({
-          family_id: familyId,
-          from_organization_id: currentOrgId,
-          invited_by: user.id,
-          org_name: selectedOrg.orgName,
-          contact_name: selectedOrg.contactName || null,
-          contact_email: selectedOrg.contactEmail,
-          contact_phone: selectedOrg.contactPhone || null,
-          invite_message: transferNotes || null,
-          transfer_reason: transferReason as any,
-          transfer_reason_notes: transferNotes || null,
-          referring_user_remains_co_mod: remainAsCoMod,
-        }).select("id").single();
+        const { data: inviteId, error } = await supabase.rpc("create_org_transfer_invitation", {
+          p_family_id: familyId,
+          p_from_organization_id: currentOrgId,
+          p_org_name: selectedOrg.orgName,
+          p_contact_name: selectedOrg.contactName || '',
+          p_contact_email: selectedOrg.contactEmail,
+          p_contact_phone: selectedOrg.contactPhone || null,
+          p_invite_message: transferNotes || null,
+          p_transfer_reason: transferReason as any,
+          p_transfer_reason_notes: transferNotes || null,
+          p_referring_user_remains_co_mod: remainAsCoMod,
+        });
 
         if (error) throw error;
 
-        // Fire the email via edge function (non-blocking — don't fail the whole flow if email errors)
-        if (inviteData?.id) {
-          supabase.functions.invoke("send-org-transfer-invite", {
-            body: { inviteId: inviteData.id },
-          }).catch((emailErr) => {
-            console.warn("Invite email failed (non-critical):", emailErr);
+        // Email delivery is separate from invitation persistence. A delivery
+        // failure is surfaced so the sender can retry without duplicating access.
+        if (inviteId) {
+          const { error: emailError } = await supabase.functions.invoke("send-org-transfer-invite", {
+            body: { inviteId },
           });
+          if (emailError) throw emailError;
         }
 
         toast({

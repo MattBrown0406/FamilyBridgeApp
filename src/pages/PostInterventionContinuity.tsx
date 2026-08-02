@@ -1,120 +1,173 @@
-import { useState } from 'react';
-import { ArrowLeft, Loader2, Shield, RefreshCw } from 'lucide-react';
-import { Link, Navigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { useState, type FormEvent } from 'react';
+import { Navigate, useParams, useSearchParams } from 'react-router-dom';
+import { Check, Circle, HeartHandshake } from 'lucide-react';
 import { SEOHead } from '@/components/SEOHead';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Textarea } from '@/components/ui/textarea';
+import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
-import { useUserFamilyRole } from '@/hooks/useUserFamilyRole';
-import { OutcomeSelector } from '@/components/intervention/continuity/OutcomeSelector';
-import { AcceptedTreatmentPath } from '@/components/intervention/continuity/AcceptedTreatmentPath';
-import { DeclinedTreatmentPath } from '@/components/intervention/continuity/DeclinedTreatmentPath';
-import { FamilyRecoveryMode } from '@/components/intervention/continuity/FamilyRecoveryMode';
-import { ContinuityTimeline } from '@/components/intervention/continuity/ContinuityTimeline';
-import { ContinuityAlerts } from '@/components/intervention/continuity/ContinuityAlerts';
-import { ContinuityNotes } from '@/components/intervention/continuity/ContinuityNotes';
+import {
+  AccessUnavailableState,
+  FamilyRequiredState,
+  LoadingState,
+  PageHeader,
+  SafetyNotice,
+  SignalList,
+  useFamilyReadiness,
+} from '@/features/readiness/familyReadiness';
 
-const PostInterventionContinuity = () => {
+const continuityMilestones = [
+  { id: 'professional-follow-up', title: 'Professional follow-up confirmed', detail: 'Confirm the next contact with the clinician, intervention professional, treatment provider, or other appropriate support.' },
+  { id: 'family-support', title: 'Family support arranged', detail: 'Schedule counseling, a peer support meeting, rest, childcare, or another concrete support for family members.' },
+  { id: 'communication-plan', title: 'Communication plan documented', detail: 'Agree who will communicate, through which channel, and what information may be shared with consent.' },
+  { id: 'practical-needs', title: 'Practical needs reviewed', detail: 'Review transportation, medication safety, housing, finances, and caregiving with qualified help where needed.' },
+  { id: 'next-review', title: 'Next family review scheduled', detail: 'Choose a time to review confirmed events and family wellbeing without setting a deadline for another person’s decision.' },
+];
+
+const outcomeLabels: Record<string, string> = {
+  'help-accepted': 'Help accepted',
+  'help-declined': 'Help declined at this time',
+  'conversation-paused': 'Conversation paused',
+  'follow-up-scheduled': 'Professional follow-up scheduled',
+};
+
+export default function PostInterventionContinuity() {
+  const { familyId: routeFamilyId } = useParams<{ familyId?: string }>();
+  const [searchParams] = useSearchParams();
+  const familyId = routeFamilyId || searchParams.get('familyId');
   const { user, loading: authLoading } = useAuth();
-  const { isRecovering, loading: roleLoading } = useUserFamilyRole();
-  const [outcome, setOutcome] = useState<'accepted' | 'declined' | null>(null);
+  const { toast } = useToast();
+  const readiness = useFamilyReadiness(familyId, user?.id);
+  const [note, setNote] = useState('');
+  const [savingId, setSavingId] = useState<string | null>(null);
 
-  if (authLoading || roleLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
+  if (authLoading) return <LoadingState />;
+  if (!user) return <Navigate to="/auth" replace />;
+  if (!familyId) return <FamilyRequiredState />;
+
+  const query = `?familyId=${encodeURIComponent(familyId)}`;
+  const continuitySignals = readiness.signals.filter((signal) => signal.category_tags.includes('continuity'));
+  const completed = new Set(
+    readiness.signals.flatMap((signal) => signal.category_tags.filter((tag) => tag.startsWith('continuity:')).map((tag) => tag.slice(11))),
+  );
+  const latestOutcomeTag = readiness.signals
+    .find((signal) => signal.category_tags.includes('outcome'))
+    ?.category_tags.find((tag) => tag.startsWith('outcome:'))
+    ?.slice(8);
+
+  async function recordMilestone(id: string, title: string) {
+    if (completed.has(id)) return;
+    setSavingId(id);
+    try {
+      await readiness.addSignal({
+        description: `Continuity milestone completed: ${title}`,
+        tags: ['continuity', `continuity:${id}`, 'milestone'],
+        sourceType: 'continuity_milestone',
+      });
+      toast({ title: 'Continuity milestone saved' });
+    } catch (error) {
+      toast({ title: 'Could not save milestone', description: error instanceof Error ? error.message : 'Please try again.', variant: 'destructive' });
+    } finally {
+      setSavingId(null);
+    }
   }
 
-  if (!user) return <Navigate to="/auth" replace />;
-  if (isRecovering) return <Navigate to="/dashboard" replace />;
+  async function saveNote(event: FormEvent) {
+    event.preventDefault();
+    setSavingId('note');
+    try {
+      await readiness.addSignal({ description: note, tags: ['continuity', 'follow-up-note'], sourceType: 'continuity_note' });
+      setNote('');
+      toast({ title: 'Continuity note saved' });
+    } catch (error) {
+      toast({ title: 'Could not save note', description: error instanceof Error ? error.message : 'Please try again.', variant: 'destructive' });
+    } finally {
+      setSavingId(null);
+    }
+  }
 
   return (
     <>
-      <SEOHead
-        title="Post-Intervention Continuity Engine | FamilyBridge"
-        description="Active stabilization and follow-through engine for post-intervention care continuity."
-      />
+      <SEOHead title="Family Continuity | FamilyBridge" description="Family-scoped support and follow-through after an intervention conversation." />
       <div className="min-h-screen bg-background">
-        {/* Top bar */}
-        <div className="border-b bg-card/50 sticky top-0 z-10">
-          <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Link to="/intervention-execution">
-                <Button variant="ghost" size="sm" className="h-8 gap-1.5">
-                  <ArrowLeft className="h-4 w-4" /> Execution System
-                </Button>
-              </Link>
-              <h2 className="text-sm font-semibold text-foreground">Post-Intervention Continuity Engine</h2>
-            </div>
-            <div className="flex items-center gap-2">
-              {outcome && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-8 gap-1.5 text-xs"
-                  onClick={() => setOutcome(null)}
-                >
-                  <RefreshCw className="h-3 w-3" /> Change Outcome
-                </Button>
-              )}
-              {outcome && (
-                <Badge variant={outcome === 'accepted' ? 'default' : 'secondary'}>
-                  {outcome === 'accepted' ? 'Treatment Accepted' : 'Treatment Declined'}
-                </Badge>
-              )}
-            </div>
-          </div>
-        </div>
-
-        <div className="max-w-5xl mx-auto px-4 py-6 space-y-6">
-          {/* Outcome Selection or Path */}
-          {!outcome ? (
-            <OutcomeSelector onSelect={setOutcome} />
+        <PageHeader
+          title="Family continuity"
+          subtitle={readiness.familyName || 'Support and follow-through'}
+          backTo={`/outcome-predictions${query}`}
+          actions={latestOutcomeTag ? <Badge variant="secondary">{outcomeLabels[latestOutcomeTag] || 'Outcome recorded'}</Badge> : undefined}
+        />
+        <main className="mx-auto max-w-5xl space-y-6 px-4 py-6">
+          {readiness.loading ? <LoadingState /> : readiness.error ? (
+            <AccessUnavailableState message={readiness.error} />
+          ) : !readiness.profile ? (
+            <Card>
+              <CardHeader><CardTitle>No readiness profile yet</CardTitle><CardDescription>Create a family readiness profile before recording continuity milestones.</CardDescription></CardHeader>
+              <CardContent><Button asChild><a href={`/intervention-readiness${query}`}>Open readiness profile</a></Button></CardContent>
+            </Card>
           ) : (
             <>
-              {/* Alerts */}
-              <ContinuityAlerts outcome={outcome} />
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2"><HeartHandshake className="h-5 w-5 text-primary" /> Care continues under every outcome</CardTitle>
+                  <CardDescription>
+                    Support the family, confirm real next steps, and respect the other person’s autonomy. A recorded outcome is a point-in-time observation—not proof of what comes next.
+                  </CardDescription>
+                </CardHeader>
+                {!latestOutcomeTag && (
+                  <CardContent>
+                    <p className="mb-3 text-sm text-muted-foreground">No observed outcome has been recorded yet. You can still plan family support, or record the current outcome first.</p>
+                    <Button asChild variant="outline"><a href={`/outcome-predictions${query}`}>Record observed outcome</a></Button>
+                  </CardContent>
+                )}
+              </Card>
 
-              {/* Outcome-specific path */}
-              {outcome === 'accepted' ? <AcceptedTreatmentPath /> : <DeclinedTreatmentPath />}
-
-              {/* Family Recovery Mode (both paths) */}
-              <FamilyRecoveryMode outcome={outcome} />
-
-              {/* Timeline */}
-              <ContinuityTimeline outcome={outcome} />
-
-              {/* Notes */}
-              <ContinuityNotes />
-
-              {/* Transition Logic */}
-              <div className="p-4 rounded-lg bg-muted/50 border border-border">
-                <p className="text-sm font-semibold text-foreground mb-1">
-                  {outcome === 'accepted' ? 'Transition Path: Long-Term Monitoring' : 'Transition Path: Readiness Re-Engagement'}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {outcome === 'accepted'
-                    ? 'As treatment progresses, this system transitions into long-term recovery monitoring through the Recovery Trajectory and Care Transitions tools. Aftercare planning should begin before discharge.'
-                    : 'When new readiness signals emerge, the system will automatically loop back to the Intervention Readiness Engine for score re-evaluation. Maintain boundary consistency—this is the primary driver of future readiness windows.'}
-                </p>
+              <div className="space-y-3">
+                {continuityMilestones.map((milestone) => {
+                  const isComplete = completed.has(milestone.id);
+                  return (
+                    <Card key={milestone.id}>
+                      <CardContent className="flex items-start gap-4 p-4">
+                        <button
+                          type="button"
+                          onClick={() => void recordMilestone(milestone.id, milestone.title)}
+                          disabled={isComplete || savingId === milestone.id}
+                          className="mt-0.5 rounded-full text-primary disabled:cursor-default"
+                          aria-label={isComplete ? `${milestone.title} completed` : `Mark ${milestone.title} complete`}
+                        >
+                          {isComplete ? <Check className="h-6 w-6" /> : <Circle className="h-6 w-6" />}
+                        </button>
+                        <div>
+                          <h2 className="font-medium">{milestone.title}</h2>
+                          <p className="mt-1 text-sm text-muted-foreground">{milestone.detail}</p>
+                          {isComplete && <p className="mt-2 text-xs font-medium text-primary">Recorded for this family</p>}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
               </div>
 
-              {/* Ethical Guardrail */}
-              <div className="flex items-start gap-3 p-4 rounded-lg bg-muted/50 border border-border text-xs text-muted-foreground">
-                <Shield className="h-4 w-4 flex-shrink-0 mt-0.5" />
-                <p>
-                  This system supports continuity of care and accountability. It does not promote control, coercion, or punishment.
-                  All guidance emphasizes consistency, autonomy, and creating conditions for voluntary acceptance of help.
-                </p>
-              </div>
+              <Card>
+                <CardHeader><CardTitle className="text-lg">Continuity note</CardTitle><CardDescription>Record confirmed follow-through, family needs, or questions for a professional.</CardDescription></CardHeader>
+                <CardContent>
+                  <form className="space-y-3" onSubmit={saveNote}>
+                    <Textarea value={note} onChange={(event) => setNote(event.target.value)} maxLength={2000} placeholder="What happened since the last check-in, and what support is needed now?" />
+                    <div className="flex justify-end"><Button type="submit" disabled={!note.trim() || savingId === 'note'}>{savingId === 'note' ? 'Saving…' : 'Save note'}</Button></div>
+                  </form>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader><CardTitle className="text-lg">Continuity history</CardTitle><CardDescription>Recorded milestones and notes, newest first.</CardDescription></CardHeader>
+                <CardContent><SignalList signals={continuitySignals} emptyText="No continuity entries have been recorded for this family." /></CardContent>
+              </Card>
             </>
           )}
-        </div>
+          <SafetyNotice />
+        </main>
       </div>
     </>
   );
-};
-
-export default PostInterventionContinuity;
+}

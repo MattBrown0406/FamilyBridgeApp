@@ -48,7 +48,7 @@ export const defaultOnboardingFields: OnboardingFieldsValue = {
   primary_service_duration_days: '',
   outcome_tracking_enabled: true,
   intervention_tracking_enabled: false,
-  benchmark_opt_in: true,
+  benchmark_opt_in: false,
   intake_notes: '',
 };
 
@@ -133,8 +133,8 @@ export const OnboardingFieldsForm = ({ value, onChange }: Props) => {
         </div>
         <div className="flex items-center justify-between gap-4">
           <div>
-            <Label className="text-sm">Anonymous benchmark participation</Label>
-            <p className="text-xs text-muted-foreground">Contribute anonymized data to industry benchmarks.</p>
+            <Label className="text-sm">Anonymous benchmark participation (optional)</Label>
+            <p className="text-xs text-muted-foreground">Off by default. An organization administrator must explicitly opt in before de-identified aggregate data is contributed.</p>
           </div>
           <Switch
             checked={value.benchmark_opt_in}

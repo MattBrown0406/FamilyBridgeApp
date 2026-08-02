@@ -54,18 +54,18 @@ const ForProviders = () => {
     {
       icon: Activity,
       tier: "Core Intelligence",
-      title: "Outcome Predictions",
+      title: "Outcome Observations",
       blurb:
-        "Probabilistic modeling that flags risk shifts before they show up in a session — quietly, on real signal.",
-      points: ["Completion probability", "Relapse risk forecasting", "Actionable recommendations"],
+        "Organizes documented changes, follow-through, and shared concerns for professional review without claiming to predict an individual outcome.",
+      points: ["Documented outcome changes", "Shared concern signals", "Human-reviewed next steps"],
     },
     {
       icon: Target,
       tier: "Action Systems",
       title: "Intervention Readiness",
       blurb:
-        "A 0–100 readiness score grounded in observable behavior, plus structured execution planning.",
-      points: ["Readiness scoring (0–100)", "Execution planning", "Real-time conversation coaching"],
+        "A structured review of observable readiness signals, paired with careful execution planning.",
+      points: ["Observable readiness signals", "Execution planning", "Real-time conversation coaching"],
     },
     {
       icon: ScrollText,
@@ -130,7 +130,7 @@ const ForProviders = () => {
     <div className="min-h-screen bg-background">
       <SEOHead
         title="FamilyBridge for Treatment Providers"
-        description="FamilyBridge gives clinical teams a real-time view of the family system — pattern detection, intervention readiness, accountability tracking, and AI-driven outcome predictions. Extend your clinical reach into the home without adding staff."
+        description="FamilyBridge helps clinical teams review authorized family activity, documented patterns, intervention planning, accountability, and observed outcomes without replacing clinical judgment."
         canonicalPath="/for-providers"
       />
 
@@ -359,25 +359,25 @@ const ForProviders = () => {
               </div>
             </div>
 
-            {/* Top row: readiness score + sparkline */}
+            {/* Top row: shared activity summary + timeline */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
               <div className="rounded-xl bg-background/[0.06] border border-background/10 p-4">
-                <p className="text-[10px] uppercase tracking-widest text-background/50 font-semibold mb-2">Readiness Score</p>
+                <p className="text-[10px] uppercase tracking-widest text-background/50 font-semibold mb-2">Shared actions completed</p>
                 <div className="flex items-baseline gap-2">
-                  <span className="text-4xl font-display font-bold text-background">74</span>
-                  <span className="text-xs text-background/40">/100</span>
-                  <span className="ml-2 text-xs font-semibold text-emerald-300">↑ 11 pts (30d)</span>
+                  <span className="text-4xl font-display font-bold text-background">12</span>
+                  <span className="text-xs text-background/40">of 14</span>
+                  <span className="ml-2 text-xs font-semibold text-emerald-300">documented (30d)</span>
                 </div>
                 <div className="mt-3 h-1.5 w-full rounded-full bg-background/10 overflow-hidden">
-                  <div className="h-full bg-gradient-to-r from-accent to-emerald-400" style={{ width: "74%" }} />
+                  <div className="h-full bg-gradient-to-r from-accent to-emerald-400" style={{ width: "86%" }} />
                 </div>
-                <p className="text-[11px] text-background/50 mt-2">Cross-validated, longitudinal</p>
+                <p className="text-[11px] text-background/50 mt-2">Based on authorized shared activity</p>
               </div>
 
               <div className="md:col-span-2 rounded-xl bg-background/[0.06] border border-background/10 p-4">
                 <div className="flex items-center justify-between mb-3">
                   <p className="text-[10px] uppercase tracking-widest text-background/50 font-semibold">30-Day Trajectory</p>
-                  <p className="text-[11px] text-background/40">readiness ↑ • escalations ↓</p>
+                  <p className="text-[11px] text-background/40">activity recorded by date</p>
                 </div>
                 <div className="flex items-end gap-[3px] h-20">
                   {[34, 38, 36, 42, 41, 45, 44, 48, 46, 50, 52, 49, 55, 58, 56, 60, 62, 61, 64, 63, 66, 68, 67, 70, 69, 71, 72, 73, 74, 74].map((v, i) => (
@@ -402,7 +402,7 @@ const ForProviders = () => {
                 { dir: "↓", color: "text-emerald-300", label: "Family-driven crisis escalations", value: "2", sub: "vs. 7 prior 30d" },
                 { dir: "↑", color: "text-emerald-300", label: "Aftercare plan completion", value: "84%", sub: "12 of 14 milestones" },
                 { dir: "↑", color: "text-emerald-300", label: "Behavioral contract adherence", value: "91%", sub: "both sides tracking" },
-                { dir: "↓", color: "text-emerald-300", label: "Time-to-pattern detection", value: "2.4d", sub: "median, relapse risk" },
+                { dir: "↻", color: "text-emerald-300", label: "Shared concerns reviewed", value: "4", sub: "documented by the care team" },
                 { dir: "↑", color: "text-emerald-300", label: "Family engagement", value: "6 of 7", sub: "members active weekly" },
                 { dir: "↻", color: "text-amber-300", label: "Open pattern flag", value: "1", sub: "boundary erosion (mother)" },
               ].map((m) => (

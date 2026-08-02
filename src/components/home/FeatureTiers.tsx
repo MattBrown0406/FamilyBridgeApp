@@ -1,5 +1,4 @@
-import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
 import {
   Brain, Eye, Activity, FileText, Crosshair, Target, Zap, Mic,
   Users, Shield, BarChart3, ChevronRight, ClipboardCheck, AlertTriangle,
@@ -48,15 +47,15 @@ const tiers: {
         link: '/features/fiis-intelligence',
       },
       {
-        title: 'Outcome Predictions',
-        question: "What might happen next?",
-        answer: 'Estimates likely friction points, treatment follow-through, and recovery strain, then suggests areas to review with human judgment.',
+        title: 'Outcome Observations',
+        question: "What has changed?",
+        answer: 'Organizes documented changes, follow-through, and shared concerns so families and professionals can review what happened without claiming certainty about what comes next.',
         icon: BarChart3,
         gradient: 'from-emerald-500 to-teal-600',
         features: [
-          { label: 'Treatment completion probability', icon: BarChart3 },
-          { label: 'Relapse risk forecasting', icon: Activity },
-          { label: 'Actionable recommendations', icon: Zap },
+          { label: 'Documented outcome changes', icon: BarChart3 },
+          { label: 'Shared concern signals', icon: Activity },
+          { label: 'Human-reviewed next steps', icon: Zap },
         ],
         link: '/outcome-predictions?demo=true',
       },
@@ -75,7 +74,7 @@ const tiers: {
         icon: Crosshair,
         gradient: 'from-rose-500 to-orange-500',
         features: [
-          { label: 'Readiness scoring (0-100)', icon: Target },
+          { label: 'Observable readiness signals', icon: Target },
           { label: 'Execution planning', icon: Zap },
           { label: 'Real-time conversation coaching', icon: Mic },
         ],
@@ -133,8 +132,6 @@ const tiers: {
 ];
 
 const FeatureTiers = () => {
-  const navigate = useNavigate();
-
   return (
     <section className="py-14 sm:py-24">
       <div className="container mx-auto px-4">
@@ -151,7 +148,7 @@ const FeatureTiers = () => {
         </div>
 
         <div className="space-y-12 sm:space-y-20 max-w-5xl mx-auto">
-          {tiers.map((tier, tierIdx) => (
+          {tiers.map((tier) => (
             <div key={tier.label}>
               {/* Tier header */}
               <div className="flex items-center gap-3 mb-5 sm:mb-7">
@@ -169,10 +166,10 @@ const FeatureTiers = () => {
                 {tier.cards.map((card) => {
                   const CardIcon = card.icon;
                   return (
-                    <div
+                    <Link
                       key={card.title}
-                      className="group bg-card border border-border/50 rounded-xl p-5 sm:p-6 hover:border-primary/30 hover:shadow-lg transition-all duration-300 cursor-pointer"
-                      onClick={() => navigate(card.link)}
+                      to={card.link}
+                      className="group block bg-card border border-border/50 rounded-xl p-5 sm:p-6 hover:border-primary/30 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 transition-all duration-300"
                     >
                       <div className="flex items-start gap-3 mb-3">
                         <div className={`w-9 h-9 rounded-lg bg-gradient-to-br ${card.gradient} flex items-center justify-center shrink-0`}>
@@ -202,10 +199,10 @@ const FeatureTiers = () => {
                           );
                         })}
                       </div>
-                      <div className="mt-4 flex items-center text-xs font-medium text-primary opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="mt-4 flex items-center text-xs font-medium text-primary opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity">
                         Explore <ChevronRight className="h-3 w-3 ml-0.5" />
                       </div>
-                    </div>
+                    </Link>
                   );
                 })}
               </div>

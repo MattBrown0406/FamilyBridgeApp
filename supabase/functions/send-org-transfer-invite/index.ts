@@ -5,217 +5,165 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.89.0";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
-
-const REASON_LABELS: Record<string, string> = {
-  step_up: "Step-up to higher level of care",
-  step_down: "Step-down to lower level of care",
-  relapse_higher_loc: "Relapse — higher level of care needed",
-  aftercare_transition: "Aftercare / continuing care transition",
-  sober_living: "Moving to sober living",
-  provider_change: "Provider change (same level of care)",
-  geographic_move: "Geographic relocation",
-  other: "Other",
-};
-
 interface SendOrgTransferInviteRequest {
-  inviteId: string; // org_transfer_invites.id — we load everything from DB
+  inviteId?: string;
 }
 
-const handler = async (req: Request): Promise<Response> => {
+const json = (
+  body: Record<string, unknown>,
+  status: number,
+  corsHeaders: Record<string, string>,
+) => new Response(JSON.stringify(body), {
+  status,
+  headers: { "Content-Type": "application/json", ...corsHeaders },
+});
+
+const escapeHtml = (value: string | null | undefined) =>
+  (value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+
+serve(async (req: Request): Promise<Response> => {
   const corsHeaders = getCorsHeaders(req.headers.get("origin"));
 
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
-  }
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  if (req.method !== "POST") return json({ error: "Method not allowed" }, 405, corsHeaders);
 
   try {
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const db = createClient(supabaseUrl, serviceKey);
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
+    const authHeader = req.headers.get("Authorization");
 
-    const { inviteId }: SendOrgTransferInviteRequest = await req.json();
-    if (!inviteId) {
-      return new Response(JSON.stringify({ error: "inviteId is required" }), {
-        status: 400,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
-      });
+    if (!supabaseUrl || !serviceKey || !anonKey) {
+      console.error("send-org-transfer-invite is missing required Supabase configuration");
+      return json({ error: "Service unavailable" }, 503, corsHeaders);
+    }
+    if (!authHeader?.startsWith("Bearer ")) {
+      return json({ error: "Authentication required" }, 401, corsHeaders);
     }
 
-    // Load the invite with related data
-    const { data: invite, error: inviteErr } = await db
+    const userClient = createClient(supabaseUrl, anonKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
+    const { data: { user }, error: userError } = await userClient.auth.getUser();
+    if (userError || !user) return json({ error: "Authentication required" }, 401, corsHeaders);
+
+    let body: SendOrgTransferInviteRequest;
+    try {
+      body = await req.json();
+    } catch {
+      return json({ error: "Invalid JSON body" }, 400, corsHeaders);
+    }
+    if (!body.inviteId) return json({ error: "inviteId is required" }, 400, corsHeaders);
+
+    const db = createClient(supabaseUrl, serviceKey, {
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
+
+    const { data: invite, error: inviteError } = await db
       .from("org_transfer_invites")
-      .select(`
-        *,
-        families!family_id(name),
-        organizations!from_organization_id(name, logo_url, website_url)
-      `)
-      .eq("id", inviteId)
-      .single();
+      .select("id, family_id, from_organization_id, invited_by, contact_email, contact_name, invite_token, status, expires_at, organizations!from_organization_id(name)")
+      .eq("id", body.inviteId)
+      .maybeSingle();
 
-    if (inviteErr || !invite) {
-      return new Response(JSON.stringify({ error: "Invite not found" }), {
-        status: 404,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
+    // Use the same response for absent and inaccessible records to avoid identifier probing.
+    if (inviteError || !invite) return json({ error: "Invite not available" }, 404, corsHeaders);
+
+    const [{ data: membership }, { data: isSuperAdmin }] = await Promise.all([
+      db
+        .from("organization_members")
+        .select("role")
+        .eq("organization_id", invite.from_organization_id)
+        .eq("user_id", user.id)
+        .in("role", ["owner", "admin"])
+        .maybeSingle(),
+      db.rpc("is_super_admin", { _user_id: user.id }),
+    ]);
+
+    const authorized = invite.invited_by === user.id || Boolean(membership) || isSuperAdmin === true;
+    if (!authorized) {
+      await db.from("security_audit_log").insert({
+        user_id: user.id,
+        action: "org_transfer_invite_send_denied",
+        resource_type: "org_transfer_invite",
+        ip_address: req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || null,
+        user_agent: req.headers.get("user-agent"),
+        details: { invite_id: invite.id },
       });
+      return json({ error: "Invite not available" }, 404, corsHeaders);
     }
 
-    // Get the inviter's profile
+    if (!["sent", "registered"].includes(invite.status) || new Date(invite.expires_at).getTime() <= Date.now()) {
+      return json({ error: "This invitation is no longer active" }, 409, corsHeaders);
+    }
+
     const { data: inviterProfile } = await db
       .from("profiles")
       .select("full_name")
       .eq("id", invite.invited_by)
-      .single();
+      .maybeSingle();
 
-    // Get the inviter's auth email so we can CC them
-    const { data: { user: inviterUser } } = await db.auth.admin.getUserById(invite.invited_by);
-
-    const familyName = (invite.families as any)?.name || "a family group";
-    const fromOrgName = (invite.organizations as any)?.name || "a FamilyBridge provider";
-    const fromOrgLogo = (invite.organizations as any)?.logo_url || null;
+    const fromOrgName = (invite.organizations as { name?: string } | null)?.name || "a FamilyBridge provider";
     const inviterName = inviterProfile?.full_name || "A provider";
-    const inviterEmail = inviterUser?.email || null;
-
-    const reasonLabel = invite.transfer_reason
-      ? REASON_LABELS[invite.transfer_reason] || invite.transfer_reason
-      : null;
-
-    // Build the registration URL — includes invite token so the app can auto-link
-    const appUrl = "https://familybridgeapp.com";
-    const registrationUrl = `${appUrl}/provider-purchase?orgInvite=${encodeURIComponent(invite.invite_token)}&family=${encodeURIComponent(invite.family_id)}&ref=${encodeURIComponent(fromOrgName)}`;
+    const registrationUrl = `https://familybridgeapp.com/provider-purchase?orgInvite=${encodeURIComponent(invite.invite_token)}`;
     const expiryDate = new Date(invite.expires_at).toLocaleDateString("en-US", {
       month: "long",
       day: "numeric",
       year: "numeric",
+      timeZone: "UTC",
     });
 
-    const greeting = invite.contact_name
-      ? `Hello ${invite.contact_name},`
-      : "Hello,";
+    // Deliberately exclude family name, transfer reason, clinical details, and free-text notes.
+    // Those details are available only after authenticated acceptance and recipient-specific consent.
+    const emailHtml = `<!doctype html>
+<html><body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;line-height:1.6;color:#253238;max-width:600px;margin:0 auto;padding:24px">
+  <div style="text-align:center;margin-bottom:24px">
+    <h1 style="color:#2d7d6f;margin-bottom:4px">FamilyBridge</h1>
+    <p style="color:#667085;margin-top:0">Secure care coordination</p>
+  </div>
+  <div style="background:#f7faf9;border:1px solid #d9e8e4;border-radius:12px;padding:28px">
+    <h2 style="margin-top:0">${escapeHtml(invite.contact_name ? `Hello ${invite.contact_name},` : "Hello,")}</h2>
+    <p><strong>${escapeHtml(inviterName)}</strong> from <strong>${escapeHtml(fromOrgName)}</strong> invited your organization to a secure FamilyBridge handoff.</p>
+    <p>To protect the family’s privacy, this email does not contain names, treatment information, transfer reasons, or case notes. Sign in through the secure link to review only information the family has specifically authorized for your organization.</p>
+    <div style="text-align:center;margin:28px 0">
+      <a href="${escapeHtml(registrationUrl)}" style="display:inline-block;background:#2d7d6f;color:white;text-decoration:none;padding:14px 24px;border-radius:8px;font-weight:700">Review secure invitation</a>
+    </div>
+    <p style="font-size:13px;color:#667085;text-align:center">This invitation expires ${escapeHtml(expiryDate)}. Do not forward this link.</p>
+  </div>
+  <p style="font-size:12px;color:#98a2b3;text-align:center;margin-top:20px">FamilyBridge will never ask you to send protected family information by email.</p>
+</body></html>`;
 
-    // ---- Send to the program contact ----
-    const toEmails = [invite.contact_email];
-    const ccEmails = inviterEmail ? [inviterEmail] : [];
-
-    const emailHtml = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      </head>
-      <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-
-        <!-- Header -->
-        <div style="text-align: center; margin-bottom: 30px;">
-          <img src="https://familybridgeapp.com/og-image.png" alt="FamilyBridge" style="max-width: 180px; height: auto; margin-bottom: 12px;" />
-          <h1 style="color: #2d7d6f; margin: 0; font-size: 24px;">FamilyBridge</h1>
-          <p style="color: #666; margin-top: 4px; font-size: 14px;">Family Recovery Support Platform</p>
-        </div>
-
-        <!-- Main card -->
-        <div style="background: #f8f9fa; border-radius: 12px; padding: 30px; margin-bottom: 24px;">
-          <h2 style="margin-top: 0; color: #333; font-size: 20px;">${greeting}</h2>
-
-          <p>
-            <strong>${inviterName}</strong> from <strong>${fromOrgName}</strong> is referring 
-            a family group to your program and wants to connect them with you through 
-            <strong>FamilyBridge</strong> — a HIPAA-compliant platform that keeps families 
-            engaged in recovery alongside their loved one's treatment.
-          </p>
-
-          <!-- Transfer context box -->
-          <div style="background: #fff; border-left: 4px solid #2d7d6f; border-radius: 0 8px 8px 0; padding: 16px 20px; margin: 20px 0;">
-            <p style="margin: 0 0 8px 0; font-size: 13px; font-weight: 600; color: #2d7d6f; text-transform: uppercase; letter-spacing: 0.5px;">Transfer Details</p>
-            <p style="margin: 4px 0; font-size: 14px;"><span style="color: #666;">Family:</span> <strong>${familyName}</strong></p>
-            ${reasonLabel ? `<p style="margin: 4px 0; font-size: 14px;"><span style="color: #666;">Reason:</span> <strong>${reasonLabel}</strong></p>` : ""}
-            ${invite.invite_message ? `<p style="margin: 8px 0 0 0; font-size: 14px; color: #555; font-style: italic;">"${invite.invite_message}"</p>` : ""}
-          </div>
-
-          <p>
-            FamilyBridge gives your program a private, structured support environment for each 
-            family you work with — check-ins, communication tools, behavioral pattern tracking, 
-            and AI coaching for the whole family system. Unlimited families on your subscription.
-          </p>
-
-          <!-- CTA button -->
-          <div style="text-align: center; margin: 28px 0;">
-            <a href="${registrationUrl}"
-               style="display: inline-block; background: #2d7d6f; color: #ffffff; text-decoration: none; padding: 16px 32px; border-radius: 8px; font-weight: bold; font-size: 16px;">
-              Get Started — Claim This Family →
-            </a>
-          </div>
-
-          <p style="text-align: center; color: #888; font-size: 13px;">
-            Or copy and paste this link into your browser:<br/>
-            <a href="${registrationUrl}" style="color: #2d7d6f; word-break: break-all;">${registrationUrl}</a>
-          </p>
-
-          <p style="color: #888; font-size: 13px; text-align: center; margin-top: 20px;">
-            This invitation expires on <strong>${expiryDate}</strong>.
-          </p>
-        </div>
-
-        <!-- What you get section -->
-        <div style="background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px; margin-bottom: 24px;">
-          <h3 style="color: #2d7d6f; margin-top: 0; font-size: 16px;">What FamilyBridge gives your program:</h3>
-          <ul style="color: #555; padding-left: 20px; margin: 0;">
-            <li style="margin-bottom: 8px;">Private family groups with unlimited members per family</li>
-            <li style="margin-bottom: 8px;">Structured check-ins and behavioral pattern tracking</li>
-            <li style="margin-bottom: 8px;">HIPAA-compliant communication between families and your staff</li>
-            <li style="margin-bottom: 8px;">AI coaching support for family members between sessions</li>
-            <li style="margin-bottom: 8px;">Assign a moderator (therapist, case manager, etc.) to each family</li>
-            <li style="margin-bottom: 8px;">Seamless handoffs as clients move between levels of care</li>
-          </ul>
-        </div>
-
-        <!-- Footer / sender -->
-        <div style="text-align: center; padding: 16px; color: #888; font-size: 13px;">
-          ${fromOrgLogo
-            ? `<img src="${fromOrgLogo}" alt="${fromOrgName}" style="max-width: 100px; height: auto; margin-bottom: 10px; border-radius: 4px;" /><br/>`
-            : ""}
-          <p style="margin: 0;">This invitation was sent by <strong>${inviterName}</strong>, ${fromOrgName}.</p>
-          <p style="margin: 4px 0 0 0; color: #aaa;">
-            Questions? Reply to this email or visit 
-            <a href="${appUrl}" style="color: #2d7d6f;">familybridgeapp.com</a>
-          </p>
-        </div>
-
-      </body>
-      </html>
-    `;
-
-    const emailPayload: any = {
-      from: `${fromOrgName} via FamilyBridge <noreply@familybridgeapp.com>`,
-      to: toEmails,
-      subject: `${inviterName} is referring a family to your program — FamilyBridge`,
+    const emailResponse = await resend.emails.send({
+      from: "FamilyBridge Secure Coordination <noreply@familybridgeapp.com>",
+      to: [invite.contact_email],
+      subject: `Secure handoff invitation from ${fromOrgName}`,
       html: emailHtml,
-      reply_to: inviterEmail || undefined,
-    };
+    });
 
-    if (ccEmails.length > 0) {
-      emailPayload.cc = ccEmails;
+    if (emailResponse.error) {
+      console.error("Failed to send organization transfer invitation", emailResponse.error);
+      return json({ error: "Unable to send invitation" }, 502, corsHeaders);
     }
 
-    const emailResponse = await resend.emails.send(emailPayload);
-    console.log("Org transfer invite email sent:", emailResponse);
+    await Promise.all([
+      db.from("org_transfer_invites").update({ updated_at: new Date().toISOString() }).eq("id", invite.id),
+      db.from("security_audit_log").insert({
+        user_id: user.id,
+        action: "org_transfer_invite_sent",
+        resource_type: "org_transfer_invite",
+        ip_address: req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || null,
+        user_agent: req.headers.get("user-agent"),
+        details: { invite_id: invite.id, destination_domain: invite.contact_email.split("@")[1] || null },
+      }),
+    ]);
 
-    // Mark the invite as 'sent' (it defaults to sent, but update updated_at)
-    await db
-      .from("org_transfer_invites")
-      .update({ updated_at: new Date().toISOString() })
-      .eq("id", inviteId);
-
-    return new Response(JSON.stringify({ success: true, ...emailResponse }), {
-      status: 200,
-      headers: { "Content-Type": "application/json", ...corsHeaders },
-    });
-  } catch (error: any) {
-    console.error("Error in send-org-transfer-invite:", error);
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 500,
-      headers: { "Content-Type": "application/json", ...corsHeaders },
-    });
+    return json({ success: true, messageId: emailResponse.data?.id ?? null }, 200, corsHeaders);
+  } catch (error) {
+    console.error("Error in send-org-transfer-invite", error);
+    return json({ error: "Unable to send invitation" }, 500, corsHeaders);
   }
-};
-
-serve(handler);
+});

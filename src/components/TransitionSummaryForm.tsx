@@ -81,7 +81,7 @@ export function TransitionSummaryForm({
   const [readinessScore, setReadinessScore] = useState(70);
   const [milestones, setMilestones] = useState<string[]>([]);
   const [newMilestone, setNewMilestone] = useState("");
-  const [shareWithNextProvider, setShareWithNextProvider] = useState(true);
+
 
   const addToList = (
     list: string[],
@@ -138,7 +138,9 @@ export function TransitionSummaryForm({
           transition_readiness_score: readinessScore,
           milestones_achieved: milestones.length > 0 ? milestones : null,
           created_by: user.id,
-          is_shared_with_next_provider: shareWithNextProvider,
+          // Saving a summary never discloses it. Sharing requires a named recipient,
+          // a signed recipient-specific authorization, and an accepted handoff.
+          is_shared_with_next_provider: false,
         });
 
       if (error) throw error;
@@ -546,23 +548,18 @@ export function TransitionSummaryForm({
         </CardContent>
       </Card>
 
-      {/* Sharing Toggle */}
+      {/* Sharing is a separate, consented workflow */}
       <Card>
         <CardContent className="pt-6">
-          <label className="flex items-start gap-3 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={shareWithNextProvider}
-              onChange={(e) => setShareWithNextProvider(e.target.checked)}
-              className="mt-1"
-            />
+          <div className="flex items-start gap-3">
+            <Shield className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
             <div>
-              <span className="font-medium">Share with next provider</span>
+              <span className="font-medium">Private until specifically authorized</span>
               <p className="text-sm text-muted-foreground">
-                Allow the receiving provider to view this transition summary during handoff
+                Saving this summary does not share it. The person whose information is included must separately authorize a named receiving organization. Access can expire or be revoked and is recorded in the audit history.
               </p>
             </div>
-          </label>
+          </div>
         </CardContent>
       </Card>
 

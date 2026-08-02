@@ -59,9 +59,7 @@ const FamilySetup = () => {
   const [familyDescription, setFamilyDescription] = useState("");
   const [adminName, setAdminName] = useState("");
   const [adminEmail, setAdminEmail] = useState(user?.email || "");
-  const [members, setMembers] = useState<FamilyMember[]>([
-    { id: crypto.randomUUID(), name: "", email: "", relationship: "" }
-  ]);
+  const [members, setMembers] = useState<FamilyMember[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
 
@@ -86,9 +84,7 @@ const FamilySetup = () => {
   };
 
   const removeMember = (id: string) => {
-    if (members.length > 1) {
-      setMembers(members.filter(m => m.id !== id));
-    }
+    setMembers(members.filter(m => m.id !== id));
   };
 
   const updateMember = (id: string, field: keyof FamilyMember, value: string) => {
@@ -116,8 +112,13 @@ const FamilySetup = () => {
     }
     
     const validMembers = members.filter(m => m.name.trim() && m.email.trim() && m.relationship);
-    if (validMembers.length === 0) {
-      toast.error("Please add at least one family member");
+    const incompleteMembers = members.filter(m => {
+      const hasAnyValue = Boolean(m.name.trim() || m.email.trim() || m.relationship);
+      const isComplete = Boolean(m.name.trim() && m.email.trim() && m.relationship);
+      return hasAnyValue && !isComplete;
+    });
+    if (incompleteMembers.length > 0) {
+      toast.error("Finish or remove each optional invitation before continuing");
       return false;
     }
 
@@ -162,7 +163,8 @@ const FamilySetup = () => {
 
       if (data.success) {
         setIsComplete(true);
-        toast.success("Family group created! Invitations have been sent.");
+        toast.success(validMembers.length > 0 ? "Family created and invitations sent." : "Family created. Invite others whenever you are ready.");
+        navigate(`/family/${data.familyId}`, { replace: true });
       } else {
         throw new Error(data.error || "Failed to create family group");
       }
@@ -252,7 +254,7 @@ const FamilySetup = () => {
           <div className="text-center mb-6 sm:mb-8">
             <h1 className="text-2xl sm:text-3xl font-bold mb-2">Set Up Your Family Group</h1>
             <p className="text-sm sm:text-base text-muted-foreground">
-              {hasFamilyRevenueCatAccess ? "Your FIIS Support subscription is active. Create your family group and invite the rest of your family." : "Enter your invite code and add your family members"}
+              {hasFamilyRevenueCatAccess ? "Create your family now. You can invite others when you are ready." : "Enter your setup code, name your family, and begin. Invitations are optional."}
             </p>
           </div>
 
@@ -351,7 +353,10 @@ const FamilySetup = () => {
               {/* Family Members */}
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <Label>Family Members</Label>
+                  <div>
+                    <Label>Invite Family Members (Optional)</Label>
+                    <p className="mt-1 text-xs text-muted-foreground">You do not need everyone’s information to begin. Add people now or invite them from the family workspace later.</p>
+                  </div>
                   <Button type="button" variant="outline" size="sm" onClick={addMember}>
                     <Plus className="h-4 w-4 mr-1" />
                     Add Member
@@ -363,16 +368,15 @@ const FamilySetup = () => {
                     <div key={member.id} className="border rounded-lg p-3 sm:p-4 space-y-3">
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium">Member {index + 1}</span>
-                        {members.length > 1 && (
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => removeMember(member.id)}
-                          >
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                          </Button>
-                        )}
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          aria-label={`Remove member ${index + 1}`}
+                          onClick={() => removeMember(member.id)}
+                        >
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
                       </div>
                       
                       <div className="grid gap-2 sm:gap-3 grid-cols-1 sm:grid-cols-3">
@@ -429,7 +433,7 @@ const FamilySetup = () => {
                     Creating Family Group...
                   </>
                 ) : (
-                  "Create Family Group & Send Invitations"
+                  members.length > 0 ? "Create Family & Send Invitations" : "Create Family"
                 )}
               </Button>
             </CardContent>
