@@ -60,9 +60,10 @@ export function TutorialModal({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [storageKey, autoOpen]);
 
-  // Replay trigger
+  // Replay trigger. A replay counter starts at 0 on every page mount, so
+  // only positive values represent an intentional click on "Replay tour".
   useEffect(() => {
-    if (forceOpenSignal === undefined) return;
+    if (forceOpenSignal === undefined || forceOpenSignal <= 0) return;
     if (!steps.length) return;
     setStepIndex(0);
     updateOpen(true);
