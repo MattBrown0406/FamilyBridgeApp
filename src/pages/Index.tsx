@@ -10,15 +10,13 @@ import { SEOHead, createOrganizationSchema } from '@/components/SEOHead';
 import FeatureTiers from '@/components/home/FeatureTiers';
 import GovernanceTrustBanner from '@/components/home/GovernanceTrustBanner';
 import AdditionalTools from '@/components/home/AdditionalTools';
+import AnimatedHomeHero from '@/components/home/AnimatedHomeHero';
 import PublicCrisisHelp from '@/components/PublicCrisisHelp';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
-import {
-  ArrowRight, Building2, Check, LogOut, Heart, Phone,
-} from 'lucide-react';
+import { ArrowRight, Building2, Check, LogOut, Heart, Phone } from 'lucide-react';
 
 const APP_STORE_URL = 'https://apps.apple.com/app/id6744403069';
 
-/** Apple App Store badge — official SVG artwork, inline */
 const AppStoreBadge = ({ className = '' }: { className?: string }) => (
   <a
     href={APP_STORE_URL}
@@ -27,31 +25,22 @@ const AppStoreBadge = ({ className = '' }: { className?: string }) => (
     aria-label="Download FamilyBridge on the App Store"
     className={`inline-block shrink-0 ${className}`}
   >
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="135"
-      height="40"
-      viewBox="0 0 135 40"
-      aria-hidden="true"
-    >
+    <svg xmlns="http://www.w3.org/2000/svg" width="135" height="40" viewBox="0 0 135 40" aria-hidden="true">
       <rect width="135" height="40" rx="8" fill="#000" />
       <text x="67.5" y="13" textAnchor="middle" fill="#fff" fontSize="8" fontFamily="-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif" letterSpacing="0.3">Download on the</text>
       <text x="67.5" y="27" textAnchor="middle" fill="#fff" fontSize="16" fontWeight="600" fontFamily="-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif">App Store</text>
-      {/* Apple logo path */}
-      <path d="M18.5 10.5c.8-1 1.3-2.3 1.2-3.7-1.2.1-2.7.8-3.5 1.9-.8.9-1.4 2.3-1.2 3.6 1.3.1 2.7-.6 3.5-1.8zm1.2 2c-2 -.1-3.6 1.1-4.6 1.1s-2.4-1-4-1c-2 0-3.9 1.2-4.9 3-2.1 3.6-.5 9 1.5 12 1 1.4 2.2 3 3.7 2.9 1.5-.1 2-.9 3.8-.9s2.2.9 3.8.9c1.6 0 2.6-1.4 3.6-2.9.7-1 1.3-2.1 1.7-3.3-2.5-1-3.8-3.4-3.6-5.8z" fill="#fff" />
+      <path d="M18.5 10.5c.8-1 1.3-2.3 1.2-3.7-1.2.1-2.7.8-3.5 1.9-.8.9-1.4 2.3-1.2 3.6 1.3.1 2.7-.6 3.5-1.8zm1.2 2c-2-.1-3.6 1.1-4.6 1.1s-2.4-1-4-1c-2 0-3.9 1.2-4.9 3-2.1 3.6-.5 9 1.5 12 1 1.4 2.2 3 3.7 2.9 1.5-.1 2-.9 3.8-.9s2.2.9 3.8.9c1.6 0 2.6-1.4 3.6-2.9.7-1 1.3-2.1 1.7-3.3-2.5-1-3.8-3.4-3.6-5.8z" fill="#fff" />
     </svg>
   </a>
 );
 
-/** Google Play "Coming Soon" pill badge */
 const GooglePlaySoon = ({ className = '' }: { className?: string }) => (
   <div className={`inline-flex items-center gap-2 px-4 h-[40px] rounded-lg bg-black/90 border border-white/10 shrink-0 ${className}`}>
-    {/* Google Play triangle icon */}
     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path d="M3 3.5v17l9-8.5-9-8.5z" fill="#4CAF50"/>
-      <path d="M3 3.5l9 8.5 5.5-5.2L3 3.5z" fill="#2196F3"/>
-      <path d="M3 20.5l14.5-8.7-5.5-5.3L3 20.5z" fill="#F44336"/>
-      <path d="M12 12l5.5 5.2L3 20.5 12 12z" fill="#FFC107"/>
+      <path d="M3 3.5v17l9-8.5-9-8.5z" fill="#4CAF50" />
+      <path d="M3 3.5l9 8.5 5.5-5.2L3 3.5z" fill="#2196F3" />
+      <path d="M3 20.5l14.5-8.7-5.5-5.3L3 20.5z" fill="#F44336" />
+      <path d="M12 12l5.5 5.2L3 20.5 12 12z" fill="#FFC107" />
     </svg>
     <div className="flex flex-col leading-none">
       <span className="text-[9px] text-white/60 font-medium tracking-wide uppercase">Coming Soon</span>
@@ -59,12 +48,6 @@ const GooglePlaySoon = ({ className = '' }: { className?: string }) => (
     </div>
   </div>
 );
-
-const trustSignals = [
-  { value: 'Private', label: 'By Design' },
-  { value: '24/7', label: 'Pattern Support' },
-  { value: '365', label: 'Day Journey' },
-];
 
 const Index = () => {
   const { user, loading, signOut } = useAuth();
@@ -191,56 +174,11 @@ const Index = () => {
         </nav>
       </header>
 
-      {/* HERO */}
-      <section className="relative overflow-hidden">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-3xl pointer-events-none" />
-        <div className="container mx-auto px-4 pt-12 sm:pt-20 pb-10 sm:pb-16 relative z-10">
-          <div className="max-w-3xl mx-auto text-center">
-            <div className="mb-4 text-center">
-              <p className="text-base sm:text-lg font-semibold text-primary tracking-wide uppercase">
-                Powered by FIIS™, patent-pending decision support
-              </p>
-              <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-                Family Intervention Intelligence System
-              </p>
-            </div>
-            <h1 className="text-3xl sm:text-5xl md:text-6xl font-display font-bold text-foreground leading-[1.1] mb-5">
-              See the full picture.
-              <br />
-              <span className="text-primary">Act with clarity.</span>
-            </h1>
-            <p className="text-base sm:text-lg text-muted-foreground max-w-xl mx-auto mb-8 leading-relaxed">
-              {tagline}
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Button size="lg" onClick={() => navigate('/family-purchase')} className="h-12 px-6 bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20 group">
-                Start Your Journey
-                <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
-              </Button>
-              <Button size="lg" variant="outline" onClick={() => navigate('/join')} className="h-12 px-6">
-                I have an invite code
-              </Button>
-              <Button variant="outline" size="lg" onClick={() => navigate('/demo')} className="h-12 px-6">
-                See the Demo
-              </Button>
-            </div>
-
-            {/* App store badges */}
-            <div className="flex flex-row flex-wrap items-center justify-center gap-3 mt-6">
-              <AppStoreBadge />
-              <GooglePlaySoon />
-            </div>
-          </div>
-          <div className="flex justify-center gap-8 sm:gap-12 mt-12 sm:mt-16">
-            {trustSignals.map((t) => (
-              <div key={t.label} className="text-center">
-                <div className="text-xl sm:text-2xl font-display font-bold text-foreground">{t.value}</div>
-                <div className="text-xs text-muted-foreground mt-0.5">{t.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <AnimatedHomeHero
+        tagline={tagline}
+        onStart={() => navigate('/family-purchase')}
+        onDemo={() => navigate('/demo')}
+      />
 
       {/* TIERED FEATURE SHOWCASE */}
       <FeatureTiers />
