@@ -62,10 +62,10 @@ const ForProviders = () => {
     {
       icon: Target,
       tier: "Action Systems",
-      title: "Intervention Readiness",
+      title: "Intervention Planning",
       blurb:
-        "A structured review of observable readiness signals, paired with careful execution planning.",
-      points: ["Observable readiness signals", "Execution planning", "Real-time conversation coaching"],
+        "A structured review of documented family observations, paired with careful, non-coercive planning.",
+      points: ["Documented observations", "Execution planning", "In-the-moment conversation support"],
     },
     {
       icon: ScrollText,
@@ -73,15 +73,15 @@ const ForProviders = () => {
       title: "Accountability Engine",
       blurb:
         "Behavioral contracts the whole family — and the provider team — can see, with performance tracking on both sides.",
-      points: ["Family accountability scoring", "Provider performance tracking", "Behavioral contracts"],
+      points: ["Shared commitment tracking", "Documented follow-through", "Behavioral agreements"],
     },
     {
       icon: Brain,
       tier: "Platform Integrity",
       title: "AI Learning Layer",
       blurb:
-        "Privacy-preserving, evidence-proportional adaptation. The platform gets smarter without becoming a black box.",
-      points: ["Privacy-preserving insights", "Cross-case pattern learning", "Transparent and reversible"],
+        "Privacy-thresholded aggregate insights support broader review without exposing another family’s private information.",
+      points: ["Privacy-thresholded insights", "Aggregate pattern review", "Transparent and reversible"],
     },
     {
       icon: Scale,
@@ -95,9 +95,9 @@ const ForProviders = () => {
 
   const valueCards = [
     {
-      title: "Catch the slip before the call comes in.",
+      title: "See what happens between scheduled calls.",
       body:
-        "Pattern detection and trajectory tracking surface emotional and behavioral shifts days before they become a phone call from a panicked parent.",
+        "Documented family activity and observations give your team clearer context for the next authorized review or conversation.",
     },
     {
       title: "End he-said / she-said.",
@@ -107,7 +107,7 @@ const ForProviders = () => {
     {
       title: "Hold families to their commitments.",
       body:
-        "Behavioral contracts and accountability scoring make boundary work visible. Enabling stops being invisible labor — it becomes a measurable variable.",
+        "Shared actions and behavioral agreements make boundary work visible, including what was decided and what still needs follow-through.",
     },
     {
       title: "Document the family-side work.",
@@ -130,7 +130,7 @@ const ForProviders = () => {
     <div className="min-h-screen bg-background">
       <SEOHead
         title="FamilyBridge for Treatment Providers"
-        description="FamilyBridge helps clinical teams review authorized family activity, documented patterns, intervention planning, accountability, and observed outcomes without replacing clinical judgment."
+        description="FamilyBridge helps authorized treatment teams collaborate with families through privacy-conscious communication, documented actions, care transitions, and follow-through."
         canonicalPath="/for-providers"
       />
 
@@ -174,7 +174,7 @@ const ForProviders = () => {
               The family system, finally visible — and actionable.
             </h1>
             <p className="text-base sm:text-xl text-primary-foreground/90 max-w-3xl leading-relaxed mb-8">
-              FamilyBridge gives clinical teams a real-time view of what's happening inside the family while a loved one is in or after treatment — and gives families the structure, coaching, and accountability that protects your clinical work.
+              FamilyBridge gives authorized clinical teams a shared view of documented family activity while a loved one is in or after treatment — and gives families structure for communication, boundaries, and follow-through.
             </p>
             <div className="flex flex-col sm:flex-row gap-3">
               <Button size="lg" asChild className="bg-background text-foreground hover:bg-background/90 h-12 px-6">
@@ -202,7 +202,7 @@ const ForProviders = () => {
                 <CheckCircle2 className="h-4 w-4" /> Boundary Coaching
               </span>
               <span className="inline-flex items-center gap-1.5">
-                <CheckCircle2 className="h-4 w-4" /> Outcome Predictions
+                <CheckCircle2 className="h-4 w-4" /> Outcome Observations
               </span>
             </div>
           </div>
@@ -224,7 +224,7 @@ const ForProviders = () => {
               And until now, you have had no structured signal into it.
             </p>
             <p className="text-foreground font-medium">
-              FamilyBridge turns the family system into observable, supportable, measurable data — without asking the family to do clinical work they aren't trained for.
+              FamilyBridge organizes authorized family activity into documented information for human review — without asking the family to do clinical work they are not trained for.
             </p>
           </div>
         </div>
@@ -239,8 +239,8 @@ const ForProviders = () => {
           </Card>
           <Card className="border-border/50">
             <CardContent className="p-6">
-              <div className="text-3xl sm:text-4xl font-display font-bold text-primary mb-2">0–100</div>
-              <p className="text-sm text-muted-foreground">Intervention readiness and accountability scoring</p>
+              <div className="text-3xl sm:text-4xl font-display font-bold text-primary mb-2">Shared</div>
+              <p className="text-sm text-muted-foreground">Intervention planning and commitment tracking</p>
             </CardContent>
           </Card>
           <Card className="border-border/50">
@@ -325,14 +325,14 @@ const ForProviders = () => {
       <section className="bg-foreground">
         <div className="container mx-auto px-4 py-14 sm:py-20">
           <div className="max-w-3xl mb-10">
-            <p className="text-xs uppercase tracking-[0.25em] text-accent font-semibold mb-3">Outcomes You Can Measure</p>
+            <p className="text-xs uppercase tracking-[0.25em] text-accent font-semibold mb-3">Documentation Your Team Can Review</p>
             <h2 className="text-2xl sm:text-4xl font-display font-bold text-background mb-4 tracking-tight">
-              Hard numbers your QA team, payers, and accreditors will accept.
+              Clear records of authorized family activity and follow-through.
             </h2>
             <p className="text-base text-background/70 leading-relaxed">
-              FamilyBridge surfaces the family-side signals your treatment plan already cares about — but couldn't measure
-              between sessions. Every check-in, document, boundary, and behavioral contract feeds a longitudinal record
-              your clinical team can defend in a chart review.
+              FamilyBridge organizes the authorized family-side information your treatment plan already considers between sessions.
+              Check-ins, documents, boundaries, and behavioral agreements remain connected to a longitudinal record
+              your clinical team can review alongside its own professional assessment.
             </p>
           </div>
 
@@ -426,12 +426,12 @@ const ForProviders = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {[
               {
-                title: "Chart-review defensible",
-                body: "Every metric is timestamped, cross-validated against multiple family members, and exportable. Built to survive QA, payer, and accreditation review.",
+                title: "Designed for human review",
+                body: "Records retain dates, sources, and authorization context so your team can review what was documented and how it was shared.",
               },
               {
                 title: "Between-session visibility",
-                body: "Stop relying on what the client tells you in the room. See the pattern your clinical team has been missing — before it becomes a crisis call.",
+                body: "Review documented family observations between scheduled sessions, alongside what the client and care team discuss directly.",
               },
               {
                 title: "Honest framing",
@@ -474,7 +474,7 @@ const ForProviders = () => {
             {
               n: "3",
               title: "You see what matters",
-              body: "Provider-side dashboards show readiness, risk, contradiction flags, and accountability — so your sessions start grounded in real signal.",
+              body: "Provider-side dashboards organize documented concerns, contradictions, and follow-through so sessions can begin with shared context.",
             },
           ].map((s) => (
             <Card key={s.n} className="border-border/50">

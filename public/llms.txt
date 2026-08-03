@@ -1,34 +1,45 @@
 # FamilyBridge
 
-> Recovery Support for Families Affected by Addiction
+> Recovery support and family coordination for people affected by addiction.
 
-FamilyBridge is a recovery support platform that helps families support a loved one in recovery through transparent communication, financial coordination, meeting check-ins, and optional provider or moderator oversight tools. FamilyBridge uses AI-assisted insights in parts of the platform and is not a medical, mental health, or crisis service.
+FamilyBridge helps people in recovery, families, and authorized professionals coordinate communication, boundaries, shared actions, decisions, and follow-through. FamilyBridge is a support platform, not a medical, mental health, treatment, emergency, or crisis service.
 
-## Pages
+## Primary public pages
 
-- [Homepage](https://familybridgeapp.com/): Overview of FamilyBridge and how it supports families in recovery.
-- [Family Plan](https://familybridgeapp.com/family-purchase): Plan details and signup for families.
-- [Provider Plan](https://familybridgeapp.com/provider-purchase): Plan details for treatment providers and organizations.
-- [Demo](https://familybridgeapp.com/demo): Interactive demo of FamilyBridge intelligence systems.
-- [Family Demo](https://familybridgeapp.com/demo/family): Walkthrough of the family-side experience.
-- [Meeting Check-Ins](https://familybridgeapp.com/meetings): Recovery meeting finder and check-in tool.
-- [Enabling Exercise](https://familybridgeapp.com/enabling-exercise): Self-assessment to identify enabling patterns.
-- [Support](https://familybridgeapp.com/support): Help and contact resources.
-- [Privacy Policy](https://familybridgeapp.com/privacy): How user data is handled.
-- [Terms of Service](https://familybridgeapp.com/terms): Terms governing use of FamilyBridge.
+- [Homepage](https://familybridgeapp.com/): Family recovery support and coordination overview.
+- [Family plan](https://familybridgeapp.com/family-purchase): Family plan details and signup.
+- [For treatment providers](https://familybridgeapp.com/for-providers): Privacy-conscious collaboration with authorized providers.
+- [Provider plan](https://familybridgeapp.com/provider-purchase): Provider plan details.
+- [Product demo](https://familybridgeapp.com/demo): Overview of the demonstration experience.
+- [Recovery meeting check-ins](https://familybridgeapp.com/meetings): Meeting-finder and check-in tools.
+- [Enabling exercise](https://familybridgeapp.com/enabling-exercise): Guided reflection on support, boundaries, and enabling patterns.
+- [Support](https://familybridgeapp.com/support): Help and contact information.
+- [Privacy policy](https://familybridgeapp.com/privacy): FamilyBridge privacy practices.
+- [Terms of service](https://familybridgeapp.com/terms): Terms governing use of FamilyBridge.
+
+## Existing feature pages
+
+- [FIIS recovery intelligence](https://familybridgeapp.com/features/fiis-intelligence)
+- [Recovery trajectory](https://familybridgeapp.com/features/recovery-trajectory)
+- [Document analysis](https://familybridgeapp.com/features/document-analysis)
+- [Medication consistency](https://familybridgeapp.com/features/medication-compliance)
+- [Financial coordination](https://familybridgeapp.com/features/financial-coordination)
+- [Care transitions](https://familybridgeapp.com/features/care-transitions)
+- [Conversation coaching](https://familybridgeapp.com/features/conversation-coaching)
+
+## Important limitations
+
+FamilyBridge does not diagnose, treat, prescribe, guarantee recovery, forecast readiness, or predict an individual's outcome. AI-assisted features organize authorized information and suggest items for human review. Professional access is limited by explicit authorization and does not expose private family or clinical information broadly.
+
+For immediate danger in the United States, call 911. For a mental health or suicide crisis, call or text 988.
 
 ## About
 
-Founded by Matt Brown, an addiction interventionist. FamilyBridge was built because families navigating a loved one's addiction need structure, transparency, and professional support.
-
-Features include AI-assisted pattern insights, moderated family communication, transparent financial requests, meeting check-ins, and provider-facing coordination tools. FamilyBridge is a support platform, not a medical, mental health, or crisis service.
-
-## Pricing
-
-Pricing and plan details may change. For current pricing, refer to the purchase pages on the website.
+FamilyBridge was founded by Matt Brown, an addiction interventionist with more than 20 years of experience and long-term personal recovery.
 
 ## Contact
 
-Primary contact: Matt Brown
-Email: matt@freedominterventions.com
-Website: https://familybridgeapp.com
+- Email: matt@freedominterventions.com
+- Website: https://familybridgeapp.com/
+
+For a fuller description of FamilyBridge, use [llms-full.txt](https://familybridgeapp.com/llms-full.txt).

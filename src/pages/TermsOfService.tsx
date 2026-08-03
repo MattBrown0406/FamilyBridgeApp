@@ -13,8 +13,8 @@ const TermsOfService = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <SEOHead
-        title="Terms of Service — FamilyBridge"
-        description="FamilyBridge terms of service."
+        title="Terms of Service | FamilyBridge"
+        description="Read the terms governing use of the FamilyBridge recovery support and family coordination platform."
         canonicalPath="/terms"
         structuredData={breadcrumbSchema}
       />

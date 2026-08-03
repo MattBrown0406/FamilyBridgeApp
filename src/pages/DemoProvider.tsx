@@ -42,6 +42,7 @@ import { toast } from 'sonner';
 import { TutorialModal } from '@/components/tutorial/TutorialModal';
 import { TutorialControls } from '@/components/tutorial/TutorialControls';
 import { providerAdminSteps } from '@/components/tutorial/tutorialSteps';
+import { SEOHead } from '@/components/SEOHead';
 
 interface DemoBranding {
   primaryColor: string;
@@ -341,6 +342,12 @@ const DemoProvider = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title="Provider Dashboard Demo | FamilyBridge"
+        description="Interactive demonstration of the FamilyBridge provider workspace using fictional sample data."
+        canonicalPath="/demo/provider"
+        noIndex
+      />
       <TutorialModal
         steps={providerAdminSteps}
         storageKey="fb_tutorial_demo_provider"

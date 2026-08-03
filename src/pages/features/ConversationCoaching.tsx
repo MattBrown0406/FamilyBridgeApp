@@ -29,7 +29,7 @@ const ConversationCoaching = () => {
 
   return (
     <>
-      <SEOHead title="Conversation Coaching | FamilyBridge" description="AI-assisted de-escalation guidance during difficult conversations with a loved one." />
+      <SEOHead title="Family Recovery Conversation Coaching | FamilyBridge" description="Use AI-assisted prompts for calmer, compassionate, non-shaming family communication during difficult recovery conversations." canonicalPath="/features/conversation-coaching" />
       <div className="min-h-screen bg-background">
         <div className="border-b bg-card/50">
           <div className="max-w-5xl mx-auto px-4 py-3 flex items-center gap-3">

@@ -26,7 +26,7 @@ const DocumentAnalysis = () => {
 
   return (
     <>
-      <SEOHead title="Smart Document Analysis | FamilyBridge" description="AI-assisted document analysis that extracts boundaries, commitments, and action items from intervention letters and aftercare plans." />
+      <SEOHead title="Recovery Support Document Analysis | FamilyBridge" description="Extract boundaries, commitments, and action items from authorized intervention letters and aftercare documents for human review." canonicalPath="/features/document-analysis" />
       <div className="min-h-screen bg-background">
         <div className="border-b bg-card/50">
           <div className="max-w-5xl mx-auto px-4 py-3 flex items-center gap-3">

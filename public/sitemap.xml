@@ -2,62 +2,104 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://familybridgeapp.com/</loc>
-    <lastmod>2026-03-09</lastmod>
+    <lastmod>2026-08-03</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://familybridgeapp.com/family-purchase</loc>
-    <lastmod>2026-03-09</lastmod>
+    <lastmod>2026-08-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://familybridgeapp.com/for-providers</loc>
+    <lastmod>2026-08-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://familybridgeapp.com/provider-purchase</loc>
-    <lastmod>2026-03-09</lastmod>
+    <lastmod>2026-08-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://familybridgeapp.com/demo</loc>
-    <lastmod>2026-03-09</lastmod>
+    <lastmod>2026-08-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://familybridgeapp.com/demo/family</loc>
-    <lastmod>2026-03-09</lastmod>
+    <loc>https://familybridgeapp.com/meetings</loc>
+    <lastmod>2026-08-03</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://familybridgeapp.com/enabling-exercise</loc>
+    <lastmod>2026-08-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://familybridgeapp.com/meetings</loc>
-    <lastmod>2026-03-09</lastmod>
-    <changefreq>weekly</changefreq>
+    <loc>https://familybridgeapp.com/features/fiis-intelligence</loc>
+    <lastmod>2026-08-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://familybridgeapp.com/features/recovery-trajectory</loc>
+    <lastmod>2026-08-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://familybridgeapp.com/features/document-analysis</loc>
+    <lastmod>2026-08-03</lastmod>
+    <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://familybridgeapp.com/enabling-exercise</loc>
-    <lastmod>2026-03-09</lastmod>
+    <loc>https://familybridgeapp.com/features/medication-compliance</loc>
+    <lastmod>2026-08-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://familybridgeapp.com/features/financial-coordination</loc>
+    <lastmod>2026-08-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://familybridgeapp.com/features/care-transitions</loc>
+    <lastmod>2026-08-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://familybridgeapp.com/features/conversation-coaching</loc>
+    <lastmod>2026-08-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://familybridgeapp.com/support</loc>
+    <lastmod>2026-08-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://familybridgeapp.com/support</loc>
-    <lastmod>2026-03-09</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://familybridgeapp.com/privacy</loc>
-    <lastmod>2026-03-09</lastmod>
+    <lastmod>2026-08-03</lastmod>
     <changefreq>yearly</changefreq>
-    <priority>0.4</priority>
+    <priority>0.3</priority>
   </url>
   <url>
     <loc>https://familybridgeapp.com/terms</loc>
-    <lastmod>2026-03-09</lastmod>
+    <lastmod>2026-08-03</lastmod>
     <changefreq>yearly</changefreq>
-    <priority>0.4</priority>
+    <priority>0.3</priority>
   </url>
 </urlset>

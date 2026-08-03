@@ -91,6 +91,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { filterContent } from '@/lib/contentFilter';
+import { SEOHead } from '@/components/SEOHead';
 const RecoveryTrajectoryPanel = lazy(() => import('@/components/RecoveryTrajectoryPanel').then(m => ({ default: m.RecoveryTrajectoryPanel })));
 
 // Import comprehensive demo data
@@ -459,6 +460,12 @@ const DemoFamily = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+      <SEOHead
+        title="Family Dashboard Demo | FamilyBridge"
+        description="Interactive demonstration of the FamilyBridge family workspace using fictional sample data."
+        canonicalPath="/demo/family"
+        noIndex
+      />
       <TutorialModal
         steps={familyDashboardSteps}
         storageKey="fb_tutorial_demo_family"

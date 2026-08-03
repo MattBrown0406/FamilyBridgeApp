@@ -18,6 +18,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { SEOHead } from '@/components/SEOHead';
 import {
   ChartContainer,
   ChartLegend,
@@ -133,6 +134,12 @@ const InterventionOutcomes = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title="Intervention Outcomes Demo | FamilyBridge"
+        description="Demonstration of intervention outcome reporting using fictional sample data."
+        canonicalPath="/features/intervention-outcomes"
+        noIndex
+      />
       <TutorialModal
         steps={interventionOutcomesSteps}
         storageKey="fb_tutorial_intervention_outcomes"

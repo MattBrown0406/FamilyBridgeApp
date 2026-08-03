@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { useOrganization } from '@/hooks/useOrganization';
@@ -101,8 +101,8 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="FamilyBridge — Recovery Support for Families Affected by Addiction"
-        description="FamilyBridge helps families support loved ones in recovery with AI-assisted pattern spotting, transparent communication, financial coordination, and accountability tools."
+        title="FamilyBridge — Family Recovery Support and Coordination"
+        description="FamilyBridge helps families support a loved one in recovery through communication, coordinated actions, clear boundaries, and authorized professional collaboration."
         canonicalPath="/"
         structuredData={createOrganizationSchema()}
       />
@@ -203,10 +203,10 @@ const Index = () => {
                   Are you a recovery provider?
                 </h3>
                 <p className="text-sm sm:text-base text-muted-foreground mb-5 max-w-lg">
-                  Help families in your care with professional-grade tools for communication, accountability, and outcome tracking.
+                  Help families in your care with structured tools for communication, shared commitments, and documented follow-through.
                 </p>
                 <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-6">
-                  {['FIIS pattern insights dashboard', 'Care transition & handoff management', 'Provider outcome tracking', 'Custom branding & white-label'].map((item) => (
+                  {['Authorized family activity review', 'Care transition and handoff management', 'Documented support follow-through', 'Custom branding and white-label'].map((item) => (
                     <li key={item} className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Check className="h-4 w-4 text-primary shrink-0" />
                       {item}
@@ -214,9 +214,11 @@ const Index = () => {
                   ))}
                 </ul>
                 <div className="flex flex-col sm:flex-row gap-3 flex-wrap">
-                  <Button onClick={() => navigate('/provider-purchase')} className="bg-primary text-primary-foreground hover:bg-primary/90 group">
-                    Learn More
-                    <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                  <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90 group">
+                    <Link to="/for-providers">
+                      FamilyBridge for treatment providers
+                      <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                    </Link>
                   </Button>
                   <Button variant="outline" onClick={() => navigate('/features/provider-outcomes')}>
                     Provider outcomes demo
@@ -254,7 +256,7 @@ const Index = () => {
                 Recovery starts with seeing clearly.
               </h2>
               <p className="text-sm sm:text-base text-primary-foreground/80 mb-8 max-w-md mx-auto">
-                Join families and providers who are using better information, not guesswork, to support recovery.
+                Use shared information, clear actions, and compassionate communication to support recovery.
               </p>
               <Button size="lg" className="h-12 px-6 bg-card text-foreground hover:bg-card/90 shadow-xl group" onClick={() => navigate('/family-purchase')}>
                 Create Your Family Group

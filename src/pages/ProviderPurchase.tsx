@@ -478,8 +478,8 @@ const ProviderPurchase = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="FIIS Provider — FamilyBridge"
-        description="FIIS Provider gives treatment programs and recovery professionals provider-level FIIS tools, organization access, and a moderator-managed support model."
+        title="Recovery Support Software for Providers | FamilyBridge"
+        description="Explore FamilyBridge provider plans for authorized family collaboration, structured handoffs, documented support actions, and privacy-conscious coordination."
         canonicalPath="/provider-purchase"
       />
       <BrandedHeader />

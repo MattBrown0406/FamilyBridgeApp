@@ -13,8 +13,8 @@ const PrivacyPolicy = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <SEOHead
-        title="Privacy Policy — FamilyBridge"
-        description="FamilyBridge privacy policy. How we protect your family's sensitive data."
+        title="Privacy Policy | FamilyBridge"
+        description="Read how FamilyBridge handles personal information, family data, authorized professional access, and privacy choices."
         canonicalPath="/privacy"
         structuredData={breadcrumbSchema}
       />

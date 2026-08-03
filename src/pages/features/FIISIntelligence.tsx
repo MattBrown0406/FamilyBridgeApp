@@ -27,7 +27,7 @@ const FIISIntelligence = () => {
 
   return (
     <>
-      <SEOHead title="FIIS Recovery Intelligence | FamilyBridge" description="AI-assisted behavioral pattern detection and family systems coaching tools for recovery support." />
+      <SEOHead title="AI-Assisted Family Recovery Insights | FamilyBridge" description="Learn how FIIS organizes authorized family activity and documented recovery-support patterns for compassionate, human-reviewed next steps." canonicalPath="/features/fiis-intelligence" />
       <div className="min-h-screen bg-background">
         <div className="border-b bg-card/50">
           <div className="max-w-5xl mx-auto px-4 py-3 flex items-center gap-3">

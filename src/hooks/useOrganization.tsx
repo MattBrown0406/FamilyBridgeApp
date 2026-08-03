@@ -132,7 +132,7 @@ const resetTheme = () => {
   root.style.removeProperty('--foreground');
   root.style.removeProperty('--font-display');
   root.style.removeProperty('--font-sans');
-  document.title = 'FamilyBridge';
+  // Page titles are owned by SEOHead so route-specific metadata survives theme resets.
 };
 
 export const OrganizationProvider = ({ children }: { children: ReactNode }) => {

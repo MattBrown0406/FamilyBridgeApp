@@ -29,7 +29,7 @@ const MedicationCompliance = () => {
 
   return (
     <>
-      <SEOHead title="Medication Compliance | FamilyBridge" description="AI-assisted medication tracking with label scanning, dose scheduling, family alerts, and consistency reporting." />
+      <SEOHead title="Medication Consistency Support | FamilyBridge" description="Explore user-directed medication scheduling and consistency tools that support coordination without prescribing or replacing medical advice." canonicalPath="/features/medication-compliance" />
       <div className="min-h-screen bg-background">
         <div className="border-b bg-card/50">
           <div className="max-w-5xl mx-auto px-4 py-3 flex items-center gap-3">

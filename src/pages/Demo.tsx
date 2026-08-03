@@ -63,7 +63,7 @@ const Demo = () => {
     {
       icon: MapPin,
       title: 'Meeting Check-ins',
-      description: 'GPS-verified meeting attendance with liquor license proximity warnings.',
+      description: 'Meeting finder and location-assisted check-ins with nearby-risk context for user review.',
       badge: 'Family',
     },
     {
@@ -175,8 +175,8 @@ const Demo = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="Demo — See FamilyBridge in Action"
-        description="See FamilyBridge in action. Explore our AI-powered family recovery platform with interactive demos of communication, financial, and accountability tools."
+        title="FamilyBridge Product Demo"
+        description="See how FamilyBridge organizes family communication, shared decisions, recovery support actions, financial coordination, and authorized professional collaboration."
         canonicalPath="/demo"
         structuredData={breadcrumbSchema}
       />

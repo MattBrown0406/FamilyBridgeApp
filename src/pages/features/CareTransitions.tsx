@@ -30,7 +30,7 @@ const CareTransitions = () => {
 
   return (
     <>
-      <SEOHead title="Care Transitions | FamilyBridge" description="Seamless provider-to-provider handoffs with transition summaries, consent management, and outcome tracking." />
+      <SEOHead title="Privacy-Conscious Recovery Care Transitions | FamilyBridge" description="Support authorized provider handoffs with clear next steps, limited information sharing, consent controls, and documented follow-through." canonicalPath="/features/care-transitions" />
       <div className="min-h-screen bg-background">
         <div className="border-b bg-card/50">
           <div className="max-w-5xl mx-auto px-4 py-3 flex items-center gap-3">

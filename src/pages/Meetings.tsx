@@ -16,8 +16,8 @@ const Meetings = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="Meeting Check-Ins — FamilyBridge"
-        description="Verified meeting check-ins with FamilyBridge. GPS-verified attendance tracking for AA, NA, and recovery meetings."
+        title="Recovery Meeting Finder and Check-Ins | FamilyBridge"
+        description="Find recovery meetings and use FamilyBridge check-ins to keep family support informed without treating attendance as proof of sobriety."
         canonicalPath="/meetings"
         structuredData={breadcrumbSchema}
       />

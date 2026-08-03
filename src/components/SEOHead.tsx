@@ -17,14 +17,16 @@ interface SEOHeadProps {
 export const SEOHead = ({
   title = 'FamilyBridge - Recovery Support for Families',
   description = 'FamilyBridge helps families support a loved one in recovery with AI-assisted pattern insights, transparent communication, financial coordination, and accountability tools. FamilyBridge is a support platform, not a medical, mental health, or crisis service.',
-  canonicalPath = '/',
+  canonicalPath,
   ogImage = '/og-image.png',
   ogType = 'website',
-  noIndex = false,
+  noIndex,
   structuredData,
 }: SEOHeadProps) => {
   const baseUrl = 'https://familybridgeapp.com';
-  const fullUrl = `${baseUrl}${canonicalPath}`;
+  const resolvedCanonicalPath = canonicalPath ?? (typeof window === 'undefined' ? '/' : window.location.pathname);
+  const shouldNoIndex = noIndex ?? !canonicalPath;
+  const fullUrl = `${baseUrl}${resolvedCanonicalPath}`;
   const fullImageUrl = ogImage.startsWith('http') ? ogImage : `${baseUrl}${ogImage}`;
   const fullTitle = title.includes('FamilyBridge') ? title : `${title} | FamilyBridge`;
 
@@ -53,14 +55,10 @@ export const SEOHead = ({
     setMetaTag('description', description);
     
     // Robots meta
-    if (noIndex) {
-      setMetaTag('robots', 'noindex, nofollow');
+    if (shouldNoIndex) {
+      setMetaTag('robots', 'noindex, nofollow, noarchive');
     } else {
-      // Remove noindex if it exists
-      const robotsMeta = document.querySelector('meta[name="robots"]');
-      if (robotsMeta) {
-        robotsMeta.remove();
-      }
+      setMetaTag('robots', 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1');
     }
 
     // Open Graph tags
@@ -102,7 +100,7 @@ export const SEOHead = ({
         script.remove();
       };
     }
-  }, [fullTitle, description, fullUrl, fullImageUrl, ogType, noIndex, structuredData]);
+  }, [fullTitle, description, fullUrl, fullImageUrl, ogType, shouldNoIndex, structuredData]);
 
   return null;
 };

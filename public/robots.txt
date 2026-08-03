@@ -10,7 +10,12 @@ Disallow: /super-admin
 Disallow: /provider-admin
 Disallow: /provider-workspace
 Disallow: /provider-coordination
+Disallow: /professional-invite
+Disallow: /professional-family/
 Disallow: /family-setup
+Disallow: /join
+Disallow: /join-family
+Disallow: /moderator-purchase
 Disallow: /sign-hipaa
 Disallow: /update-payment
 Disallow: /intervention-readiness
@@ -20,17 +25,5 @@ Disallow: /accountability-engine
 Disallow: /outcome-predictions
 Disallow: /ai-learning
 Disallow: /input-reconciliation
-
-User-agent: GPTBot
-Allow: /
-
-User-agent: ClaudeBot
-Allow: /
-
-User-agent: PerplexityBot
-Allow: /
-
-User-agent: Google-Extended
-Allow: /
 
 Sitemap: https://familybridgeapp.com/sitemap.xml

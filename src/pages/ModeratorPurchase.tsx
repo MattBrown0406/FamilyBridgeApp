@@ -300,6 +300,7 @@ export default function ModeratorPurchase() {
         title="Professional Guidance Window — FamilyBridge"
         description="Request a 24-hour Professional Guidance Window for human support inside your FamilyBridge family chat."
         canonicalPath="/moderator-purchase"
+        noIndex
       />
       <BrandedHeader />
       <main className="flex-1 container px-3 sm:px-4 py-4 sm:py-8">

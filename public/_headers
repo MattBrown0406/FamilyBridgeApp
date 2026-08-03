@@ -19,3 +19,85 @@
 /sw.js
   Cache-Control: no-cache
   Service-Worker-Allowed: /
+
+# Crawler-facing technical SEO files.
+/robots.txt
+  Content-Type: text/plain; charset=utf-8
+  Cache-Control: public, max-age=3600
+/sitemap.xml
+  Content-Type: application/xml; charset=utf-8
+  Cache-Control: public, max-age=3600
+/llms.txt
+  Content-Type: text/plain; charset=utf-8
+  Cache-Control: public, max-age=3600
+/llms-full.txt
+  Content-Type: text/plain; charset=utf-8
+  Cache-Control: public, max-age=3600
+
+# Existing deep demos use fictional sample data and are not search results.
+/demo/family
+  X-Robots-Tag: noindex, nofollow, noarchive
+/demo/provider
+  X-Robots-Tag: noindex, nofollow, noarchive
+/features/provider-outcomes
+  X-Robots-Tag: noindex, nofollow, noarchive
+/features/intervention-outcomes
+  X-Robots-Tag: noindex, nofollow, noarchive
+/features/fiis-guidance
+  X-Robots-Tag: noindex, nofollow, noarchive
+
+# Existing authenticated, invitation, and private workspace routes.
+/auth
+  X-Robots-Tag: noindex, nofollow, noarchive
+/dashboard
+  X-Robots-Tag: noindex, nofollow, noarchive
+/moderator-dashboard
+  X-Robots-Tag: noindex, nofollow, noarchive
+/family/*
+  X-Robots-Tag: noindex, nofollow, noarchive
+/professional-invite
+  X-Robots-Tag: noindex, nofollow, noarchive
+/professional-family/*
+  X-Robots-Tag: noindex, nofollow, noarchive
+/provider-admin
+  X-Robots-Tag: noindex, nofollow, noarchive
+/provider-workspace
+  X-Robots-Tag: noindex, nofollow, noarchive
+/provider-coordination
+  X-Robots-Tag: noindex, nofollow, noarchive
+/super-admin
+  X-Robots-Tag: noindex, nofollow, noarchive
+/family-setup
+  X-Robots-Tag: noindex, nofollow, noarchive
+/join
+  X-Robots-Tag: noindex, nofollow, noarchive
+/join-family
+  X-Robots-Tag: noindex, nofollow, noarchive
+/update-payment
+  X-Robots-Tag: noindex, nofollow, noarchive
+/subscription
+  X-Robots-Tag: noindex, nofollow, noarchive
+/moderator-purchase
+  X-Robots-Tag: noindex, nofollow, noarchive
+/sign-hipaa
+  X-Robots-Tag: noindex, nofollow, noarchive
+/intervention-readiness
+  X-Robots-Tag: noindex, nofollow, noarchive
+/intervention-execution
+  X-Robots-Tag: noindex, nofollow, noarchive
+/post-intervention
+  X-Robots-Tag: noindex, nofollow, noarchive
+/accountability-engine
+  X-Robots-Tag: noindex, nofollow, noarchive
+/outcome-predictions
+  X-Robots-Tag: noindex, nofollow, noarchive
+/ai-learning
+  X-Robots-Tag: noindex, nofollow, noarchive
+/ai-learning/stage-2
+  X-Robots-Tag: noindex, nofollow, noarchive
+/ai-learning/governance
+  X-Robots-Tag: noindex, nofollow, noarchive
+/ai-learning/*
+  X-Robots-Tag: noindex, nofollow, noarchive
+/input-reconciliation
+  X-Robots-Tag: noindex, nofollow, noarchive

@@ -63,20 +63,20 @@ const tiers: {
   },
   {
     label: 'Action Systems',
-    tagline: 'Act at the right moment',
+    tagline: 'Coordinate the next step',
     description: 'Tools that turn insight into coordinated action for families, providers, and interventionists.',
     accentColor: 'from-rose-500 to-orange-500',
     cards: [
       {
-        title: 'Intervention Readiness',
-        question: 'Is it time to intervene?',
-        answer: 'Surfaces timing and readiness signals so families can plan carefully, not react only from emotion.',
+        title: 'Intervention Planning',
+        question: 'What should we clarify before acting?',
+        answer: 'Organizes documented observations and practical planning so families can respond carefully rather than react only from emotion.',
         icon: Crosshair,
         gradient: 'from-rose-500 to-orange-500',
         features: [
-          { label: 'Observable readiness signals', icon: Target },
-          { label: 'Execution planning', icon: Zap },
-          { label: 'Real-time conversation coaching', icon: Mic },
+          { label: 'Documented observations', icon: Target },
+          { label: 'Practical step planning', icon: Zap },
+          { label: 'In-the-moment conversation support', icon: Mic },
         ],
         link: '/intervention-readiness?demo=true',
       },
@@ -87,9 +87,9 @@ const tiers: {
         icon: Target,
         gradient: 'from-amber-500 to-orange-500',
         features: [
-          { label: 'Family accountability scoring', icon: Users },
-          { label: 'Provider performance tracking', icon: Shield },
-          { label: 'Behavioral contracts', icon: FileText },
+          { label: 'Shared commitment tracking', icon: Users },
+          { label: 'Documented follow-through', icon: Shield },
+          { label: 'Behavioral agreements', icon: FileText },
         ],
         link: '/accountability-engine?demo=true',
       },
@@ -104,13 +104,13 @@ const tiers: {
       {
         title: 'AI Learning Layer',
         question: 'What has the platform learned?',
-        answer: 'Privacy-safe, de-identified pattern learning highlights what seems to help and what may not across cases.',
+        answer: 'Privacy-thresholded aggregate insights help authorized teams review broader patterns without exposing another family’s private information.',
         icon: Brain,
         gradient: 'from-blue-500 to-indigo-600',
         features: [
-          { label: 'Privacy-preserving insights', icon: Shield },
-          { label: 'Cross-case pattern learning', icon: Eye },
-          { label: 'Recommendation evolution', icon: Activity },
+          { label: 'Privacy-thresholded insights', icon: Shield },
+          { label: 'Aggregate pattern review', icon: Eye },
+          { label: 'Human-reviewed updates', icon: Activity },
         ],
         link: '/ai-learning',
       },
@@ -169,6 +169,7 @@ const FeatureTiers = () => {
                     <Link
                       key={card.title}
                       to={card.link}
+                      rel={card.link.startsWith('/features/') ? undefined : 'nofollow'}
                       className="group block bg-card border border-border/50 rounded-xl p-5 sm:p-6 hover:border-primary/30 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 transition-all duration-300"
                     >
                       <div className="flex items-start gap-3 mb-3">

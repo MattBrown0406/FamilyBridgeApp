@@ -34,7 +34,7 @@ const FinancialCoordination = () => {
 
   return (
     <>
-      <SEOHead title="Financial Coordination | FamilyBridge" description="Family voting on financial requests with pledge tracking, receipt verification, and AI-assisted pattern review." />
+      <SEOHead title="Family Financial Coordination in Recovery | FamilyBridge" description="Coordinate family financial requests, shared decisions, pledges, receipts, and boundaries with greater transparency during recovery." canonicalPath="/features/financial-coordination" />
       <div className="min-h-screen bg-background">
         <div className="border-b bg-card/50">
           <div className="max-w-5xl mx-auto px-4 py-3 flex items-center gap-3">

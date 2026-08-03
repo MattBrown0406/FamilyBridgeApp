@@ -30,7 +30,7 @@ const RecoveryTrajectory = () => {
 
   return (
     <>
-      <SEOHead title="Recovery Trajectory Tracking | FamilyBridge" description="Visual progress tracking toward the 1-year sobriety milestone with AI-assisted phase progression and concern review." />
+      <SEOHead title="Recovery Progress and Concern Tracking | FamilyBridge" description="Organize documented recovery progress, family observations, and shared concerns in one privacy-conscious FamilyBridge view." canonicalPath="/features/recovery-trajectory" />
       <div className="min-h-screen bg-background">
         <div className="border-b bg-card/50">
           <div className="max-w-5xl mx-auto px-4 py-3 flex items-center gap-3">

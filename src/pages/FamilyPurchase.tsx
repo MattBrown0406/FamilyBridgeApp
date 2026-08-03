@@ -636,8 +636,8 @@ const FamilyPurchase = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="FIIS Support — FamilyBridge"
-        description="FIIS Support gives families structured guidance, accountability tools, and one included Professional Guidance Window each month inside FamilyBridge."
+        title="Family Recovery Support Plan | FamilyBridge"
+        description="Explore the FamilyBridge family plan for shared communication, boundaries, decisions, recovery support actions, and coordinated follow-through."
         canonicalPath="/family-purchase"
         structuredData={breadcrumbSchema}
       />
