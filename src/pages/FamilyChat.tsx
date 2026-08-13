@@ -4395,7 +4395,7 @@ const FamilyChat = () => {
                                   size="sm"
                                   variant="success"
                                   className="h-7 text-xs"
-                                  onClick={() => handleVote(req.id, true)}
+                                  onClick={() => requestFamilyVote(req.id, true)}
                                 >
                                   <Check className="h-3 w-3 mr-1" />
                                   Approve
@@ -4404,7 +4404,7 @@ const FamilyChat = () => {
                                   size="sm"
                                   variant="destructive"
                                   className="h-7 text-xs"
-                                  onClick={() => handleVote(req.id, false)}
+                                  onClick={() => requestFamilyVote(req.id, false)}
                                 >
                                   <X className="h-3 w-3 mr-1" />
                                   Deny
