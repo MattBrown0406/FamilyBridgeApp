@@ -31,7 +31,7 @@ import { FamilyResourceRail } from '@/components/family/FamilyResourceRail';
 import { BoundaryHoldRitual } from '@/components/family/BoundaryHoldRitual';
 import { useFamilyBoard } from './useFamilyBoard';
 import type { DecisionResponse, FamilyBoardMember } from './types';
-import type { ConsequenceEvent, HoldSlipEventType } from '@/hooks/useConsequenceEvents';
+import type { ConsequenceEvent, HoldSlipEventType, SlipRepair } from '@/hooks/useConsequenceEvents';
 
 export interface TodayMoneyDecision {
   id: string;
@@ -67,7 +67,11 @@ interface FamilyTodayProps {
   onOpenFinancial?: () => void;
   spotlightBoundary?: TodayBoundary | null;
   onAcknowledgeBoundary?: (boundaryId: string) => void;
-  onLogHoldSlip?: (boundaryId: string, eventType: HoldSlipEventType, note?: string) => Promise<boolean>;
+  onLogHoldSlip?: (
+    boundaryId: string,
+    eventType: HoldSlipEventType,
+    options?: { note?: string; repair?: SlipRepair },
+  ) => Promise<boolean>;
   holdSlipSaving?: boolean;
   onAskCoach?: () => void;
   onOpenNeedTo?: () => void;
@@ -296,9 +300,12 @@ export const FamilyToday = ({
                   ) : moneyDecision.hasVoted ? (
                     <p className="text-sm text-muted-foreground">You already voted. Open money tools for details.</p>
                   ) : (
-                    <div className="flex flex-wrap gap-2">
-                      <Button size="sm" onClick={() => onVoteMoney?.(moneyDecision.id, true)}>Approve</Button>
-                      <Button size="sm" variant="outline" onClick={() => onVoteMoney?.(moneyDecision.id, false)}>Deny</Button>
+                    <div className="space-y-2">
+                      <p className="text-xs text-muted-foreground">Approve or deny will pause for a short family enabling check. Continue anyway is allowed.</p>
+                      <div className="flex flex-wrap gap-2">
+                        <Button size="sm" onClick={() => onVoteMoney?.(moneyDecision.id, true)}>Approve</Button>
+                        <Button size="sm" variant="outline" onClick={() => onVoteMoney?.(moneyDecision.id, false)}>Deny</Button>
+                      </div>
                     </div>
                   )}
                   {onOpenFinancial && (
@@ -340,7 +347,8 @@ export const FamilyToday = ({
                       boundaryContent={spotlightBoundary.content}
                       lastEvent={spotlightBoundary.lastHoldEvent}
                       saving={holdSlipSaving}
-                      onLog={(eventType, note) => onLogHoldSlip(spotlightBoundary.id, eventType, note)}
+                      members={members}
+                      onLog={(eventType, options) => onLogHoldSlip(spotlightBoundary.id, eventType, options)}
                     />
                   )}
                 </div>

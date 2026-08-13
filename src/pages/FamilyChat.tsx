@@ -35,7 +35,6 @@ import { LovedOneHome } from '@/components/family/LovedOneHome';
 import { FamilyResourceRail } from '@/components/family/FamilyResourceRail';
 import { BoundaryHoldRitual } from '@/components/family/BoundaryHoldRitual';
 import { useConsequenceEvents } from '@/hooks/useConsequenceEvents';
-import { isRescueFinancialReason } from '@/lib/enablingExercise';
 import { HIPAAReleasesViewer } from '@/components/HIPAAReleasesViewer';
 import { HIPAARelease } from '@/components/HIPAARelease';
 import { Label } from '@/components/ui/label';
@@ -519,6 +518,7 @@ const FamilyChat = () => {
   const [needToOpen, setNeedToOpen] = useState(false);
   const [enablingCheckOpen, setEnablingCheckOpen] = useState(false);
   const [enablingTrigger, setEnablingTrigger] = useState<'financial_request' | 'boundary'>('financial_request');
+  const [pendingVote, setPendingVote] = useState<{ requestId: string; approved: boolean } | null>(null);
   const [meetingFellowship, setMeetingFellowship] = useState<'AA' | 'Al-Anon' | 'Nar-Anon' | 'CRAFT' | 'All'>('All');
   const { latestForBoundary, logHoldOrSlip, saving: holdSlipSaving } = useConsequenceEvents(familyId);
   const dashboardPath = currentUserRole === 'moderator' ? '/moderator-dashboard' : '/dashboard';
@@ -1712,7 +1712,7 @@ const FamilyChat = () => {
 
     const missingConsequence = !newBoundaryConsequence.trim();
 
-    if (missingConsequence && !skipEnablingCheck) {
+    if (missingConsequence && !skipEnablingCheck && !isLovedOne) {
       setEnablingTrigger('boundary');
       setEnablingCheckOpen(true);
       return;
@@ -2582,12 +2582,6 @@ const FamilyChat = () => {
       return;
     }
 
-    if (isRescueFinancialReason(requestReason) && user?.id && familyId) {
-      setEnablingTrigger('financial_request');
-      setEnablingCheckOpen(true);
-      return;
-    }
-
     await submitFinancialRequest();
   };
 
@@ -2666,6 +2660,16 @@ const FamilyChat = () => {
         variant: 'destructive',
       });
     }
+  };
+
+  const requestFamilyVote = (requestId: string, approved: boolean) => {
+    if (isLovedOne || !user?.id || !familyId) {
+      void handleVote(requestId, approved);
+      return;
+    }
+    setPendingVote({ requestId, approved });
+    setEnablingTrigger('financial_request');
+    setEnablingCheckOpen(true);
   };
 
   const getInitials = (name: string) => {
@@ -3236,23 +3240,29 @@ const FamilyChat = () => {
         {familyId && user?.id && (
           <EnablingCheckDialog
             open={enablingCheckOpen}
-            onOpenChange={setEnablingCheckOpen}
+            onOpenChange={(open) => {
+              setEnablingCheckOpen(open);
+              if (!open) setPendingVote(null);
+            }}
             familyId={familyId}
             userId={user.id}
             triggerType={enablingTrigger}
             onComplete={() => {
-              if (enablingTrigger === 'financial_request') {
-                void submitFinancialRequest();
-              } else {
+              if (enablingTrigger === 'financial_request' && pendingVote) {
+                void handleVote(pendingVote.requestId, pendingVote.approved);
+                setPendingVote(null);
+              } else if (enablingTrigger === 'boundary') {
                 void handleCreateBoundary(true);
               }
             }}
             onOpenFullExercise={() => {
               setEnablingCheckOpen(false);
+              setPendingVote(null);
               navigate(`/enabling-exercise?familyId=${encodeURIComponent(familyId)}`);
             }}
             onFindFamilyMeeting={() => {
               setEnablingCheckOpen(false);
+              setPendingVote(null);
               openMeetings('Al-Anon');
             }}
           />
@@ -3325,7 +3335,7 @@ const FamilyChat = () => {
                     isRequester: pending.requester_id === user?.id,
                   };
                 })()}
-                onVoteMoney={(requestId, approved) => void handleVote(requestId, approved)}
+                onVoteMoney={(requestId, approved) => requestFamilyVote(requestId, approved)}
                 onOpenFinancial={() => startTransition(() => setActiveTab('financial'))}
                 spotlightBoundary={(() => {
                   const approved = familyBoundaries.filter((b) => b.status === 'approved');
@@ -3342,9 +3352,9 @@ const FamilyChat = () => {
                   };
                 })()}
                 onAcknowledgeBoundary={(boundaryId) => void handleAcknowledgeBoundary(boundaryId)}
-                onLogHoldSlip={async (boundaryId, eventType, note) => {
+                onLogHoldSlip={async (boundaryId, eventType, options) => {
                   if (!user?.id) return false;
-                  return logHoldOrSlip(boundaryId, eventType, user.id, note);
+                  return logHoldOrSlip(boundaryId, eventType, user.id, options);
                 }}
                 holdSlipSaving={holdSlipSaving}
                 onAskCoach={openCoachingTab}
@@ -5518,13 +5528,16 @@ const FamilyChat = () => {
                                 boundaryContent={boundary.content}
                                 lastEvent={latestForBoundary(boundary.id)}
                                 saving={holdSlipSaving}
-                                onLog={async (eventType, note) => {
+                                members={members.map(({ user_id, full_name }) => ({ user_id, full_name }))}
+                                onLog={async (eventType, options) => {
                                   if (!user?.id) return false;
-                                  const ok = await logHoldOrSlip(boundary.id, eventType, user.id, note);
+                                  const ok = await logHoldOrSlip(boundary.id, eventType, user.id, options);
                                   if (ok) {
                                     toast({
-                                      title: eventType === 'held' ? 'Logged: we held it' : 'Logged: we slipped',
-                                      description: 'Follow-through is family accountability, not surveillance.',
+                                      title: eventType === 'held' ? 'Logged: we held it' : 'Logged: repair after a slip',
+                                      description: eventType === 'slipped'
+                                        ? 'Next time and an owner are saved. This is a reset, not a punishment.'
+                                        : 'Follow-through is family accountability, not surveillance.',
                                     });
                                   } else {
                                     toast({

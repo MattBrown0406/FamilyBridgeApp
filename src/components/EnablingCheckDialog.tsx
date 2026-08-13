@@ -51,7 +51,7 @@ export const EnablingCheckDialog = ({
 
   const current = questions[step];
   const progress = questions.length ? ((step) / questions.length) * 100 : 0;
-  const result = getEnablingResult(answers, questions);
+  const result = getEnablingResult(answers, questions, 'in_flow');
 
   const reset = () => {
     setStep(0);
@@ -125,7 +125,7 @@ export const EnablingCheckDialog = ({
             </DialogHeader>
             {saveError && <p className="text-xs text-destructive">{saveError}</p>}
             <p className="text-xs text-muted-foreground text-center">
-              This pause is saved to your family so it is not a one-off quiz.
+              Saved to the family as a pause, not a grade. Continue anyway is always allowed.
             </p>
             <div className="flex flex-col gap-2">
               {(result.type === 'warning' || result.type === 'caution') && onFindFamilyMeeting && (
@@ -140,7 +140,7 @@ export const EnablingCheckDialog = ({
                 </Button>
               )}
               <Button onClick={handleContinue}>
-                Continue with this action <ArrowRight className="ml-1 h-4 w-4" />
+                Continue anyway <ArrowRight className="ml-1 h-4 w-4" />
               </Button>
             </div>
             <p className="text-xs text-muted-foreground text-center">
@@ -151,10 +151,10 @@ export const EnablingCheckDialog = ({
         ) : (
           <>
             <DialogHeader>
-              <DialogTitle>Pause: Am I enabling?</DialogTitle>
+              <DialogTitle>A pause for the family</DialogTitle>
               <DialogDescription>
-                Three questions from the family enabling exercise, asked before this rescue moment.
-                Crisis help stays first: 911 and 988 are always available.
+                Three questions from the enabling exercise, asked before this family yes or no.
+                This is education, not shame — you can continue anyway. Crisis help stays first: 911 and 988.
               </DialogDescription>
             </DialogHeader>
             {current && (

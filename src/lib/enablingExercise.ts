@@ -255,6 +255,7 @@ export function countEnablingAnswers(
 export function getEnablingResult(
   answers: Record<number, string>,
   questionSet: EnablingQuestion[] = ENABLING_QUESTIONS,
+  tone: 'full' | 'in_flow' = 'full',
 ): { type: EnablingResultType; title: string; message: string } {
   const enablingCount = countEnablingAnswers(answers, questionSet);
   const total = Object.keys(answers).length || 1;
@@ -263,23 +264,29 @@ export function getEnablingResult(
   if (percentage >= 60) {
     return {
       type: 'warning',
-      title: 'This May Be Enabling',
+      title: tone === 'in_flow' ? 'This may be a rescue' : 'This May Be Enabling',
       message:
-        "Based on your answers, this situation shows several signs of enabling behavior. While it's natural to want to help, stepping back may actually be the most loving thing you can do. Consider an Al-Anon, Nar-Anon, or CRAFT meeting for family support.",
+        tone === 'in_flow'
+          ? 'Your answers look more like rescuing than supporting. You can still continue — this pause is education, not a verdict. Al-Anon, Nar-Anon, or CRAFT can help the family stay steady.'
+          : "Based on your answers, this situation shows several signs of enabling behavior. While it's natural to want to help, stepping back may actually be the most loving thing you can do. Consider an Al-Anon, Nar-Anon, or CRAFT meeting for family support.",
     };
   }
   if (percentage >= 30) {
     return {
       type: 'caution',
-      title: 'Proceed with Caution',
+      title: tone === 'in_flow' ? 'Notice before you decide' : 'Proceed with Caution',
       message:
-        'Your answers show a mix of enabling and healthy helping patterns. Before acting, clearly define boundaries and expectations. Consider if there are ways to support without rescuing.',
+        tone === 'in_flow'
+          ? 'There is a mix of help and rescue here. Continue anyway if you choose. A clear boundary often helps more than another yes.'
+          : 'Your answers show a mix of enabling and healthy helping patterns. Before acting, clearly define boundaries and expectations. Consider if there are ways to support without rescuing.',
     };
   }
   return {
     type: 'okay',
-    title: 'This Appears to Be Healthy Helping',
+    title: tone === 'in_flow' ? 'This may be support' : 'This Appears to Be Healthy Helping',
     message:
-      'Based on your answers, this situation appears to be genuine support rather than enabling. Remember to maintain boundaries and continue evaluating as situations evolve.',
+      tone === 'in_flow'
+        ? 'This looks closer to support than enabling. Continue if it still feels right, and keep checking as the situation changes.'
+        : 'Based on your answers, this situation appears to be genuine support rather than enabling. Remember to maintain boundaries and continue evaluating as situations evolve.',
   };
 }
