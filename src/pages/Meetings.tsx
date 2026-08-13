@@ -1,12 +1,19 @@
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { MeetingFinder } from '@/components/MeetingFinder';
 import { SEOHead, createBreadcrumbSchema } from '@/components/SEOHead';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
 
 const Meetings = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const fellowshipParam = searchParams.get('fellowship');
+  const defaultFellowship =
+    fellowshipParam === 'Al-Anon' || fellowshipParam === 'Nar-Anon' || fellowshipParam === 'CRAFT' || fellowshipParam === 'AA'
+      ? fellowshipParam
+      : 'All';
+  const audience = searchParams.get('audience') === 'loved-one' ? 'loved-one' : 'family';
 
   const breadcrumbSchema = createBreadcrumbSchema([
     { name: 'Home', url: '/' },
@@ -48,10 +55,10 @@ const Meetings = () => {
               Meeting Check-Ins
             </h1>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              Search for AA, Al-Anon, and other recovery meetings. Connect with a supportive community.
+              Search for Al-Anon, Nar-Anon, CRAFT, AA, and other recovery meetings. Connect with a supportive community.
             </p>
           </div>
-          <MeetingFinder />
+          <MeetingFinder defaultFellowship={defaultFellowship} audience={audience} />
         </div>
       </main>
     </div>

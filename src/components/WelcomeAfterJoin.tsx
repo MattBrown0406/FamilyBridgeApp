@@ -10,7 +10,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Users, Compass, ArrowRight, HeartHandshake } from "lucide-react";
-import { getStageMeta, type JourneyStage } from "@/components/home/JourneyStageCard";
+import { getStageActionHref, getStageMeta, type JourneyStage } from "@/components/home/JourneyStageCard";
 
 /**
  * CX improvement 3.4 — first-session experience for an invited family member.
@@ -113,7 +113,9 @@ export const WelcomeAfterJoin = ({ familyId }: WelcomeAfterJoinProps) => {
     }
     setOpen(false);
     if (meta) {
-      navigate(meta.actionPath);
+      navigate(getStageActionHref(stage, familyId));
+    } else {
+      navigate(`/family/${familyId}`);
     }
   };
 

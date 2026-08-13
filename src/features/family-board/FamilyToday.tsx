@@ -7,11 +7,14 @@ import {
   CircleAlert,
   ClipboardCheck,
   Clock3,
+  DollarSign,
   Loader2,
   MessageSquareText,
   PhoneCall,
   Plus,
   RefreshCw,
+  ShieldCheck,
+  Sparkles,
   Users,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -23,8 +26,30 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { ProfessionalAccessPanel } from '@/features/professional-access/ProfessionalAccessPanel';
 import { HandoffAuthorizationPanel } from '@/features/professional-access/HandoffAuthorizationPanel';
+import { JourneyStageCard } from '@/components/home/JourneyStageCard';
+import { FamilyResourceRail } from '@/components/family/FamilyResourceRail';
+import { BoundaryHoldRitual } from '@/components/family/BoundaryHoldRitual';
 import { useFamilyBoard } from './useFamilyBoard';
 import type { DecisionResponse, FamilyBoardMember } from './types';
+import type { ConsequenceEvent, HoldSlipEventType, SlipRepair } from '@/hooks/useConsequenceEvents';
+
+export interface TodayMoneyDecision {
+  id: string;
+  amount: number;
+  reason: string;
+  requesterName: string;
+  hasVoted: boolean;
+  isRequester: boolean;
+}
+
+export interface TodayBoundary {
+  id: string;
+  content: string;
+  consequence: string | null;
+  needsAcknowledge: boolean;
+  unheld: boolean;
+  lastHoldEvent?: ConsequenceEvent | null;
+}
 
 interface FamilyTodayProps {
   familyId: string;
@@ -37,6 +62,20 @@ interface FamilyTodayProps {
   canCreateActions?: boolean;
   canCreateDecisions?: boolean;
   canRespondToDecisions?: boolean;
+  moneyDecision?: TodayMoneyDecision | null;
+  onVoteMoney?: (requestId: string, approved: boolean) => void;
+  onOpenFinancial?: () => void;
+  spotlightBoundary?: TodayBoundary | null;
+  onAcknowledgeBoundary?: (boundaryId: string) => void;
+  onLogHoldSlip?: (
+    boundaryId: string,
+    eventType: HoldSlipEventType,
+    options?: { note?: string; repair?: SlipRepair },
+  ) => Promise<boolean>;
+  holdSlipSaving?: boolean;
+  onAskCoach?: () => void;
+  onOpenNeedTo?: () => void;
+  onOpenMeetings?: (fellowship: 'Al-Anon' | 'Nar-Anon' | 'CRAFT') => void;
 }
 
 const localDate = (value: string | null | undefined) => {
@@ -70,6 +109,9 @@ export const FamilyToday = ({
   familyId, familyName, journeyStage, members, currentUserId,
   canManageAccess = false, canManageWork = false, canCreateActions = true,
   canCreateDecisions = true, canRespondToDecisions = true,
+  moneyDecision, onVoteMoney, onOpenFinancial,
+  spotlightBoundary, onAcknowledgeBoundary, onLogHoldSlip, holdSlipSaving,
+  onAskCoach, onOpenNeedTo, onOpenMeetings,
 }: FamilyTodayProps) => {
   const board = useFamilyBoard(familyId, currentUserId);
   const [actionFormOpen, setActionFormOpen] = useState(false);
@@ -85,6 +127,7 @@ export const FamilyToday = ({
   const [decisionTargetDate, setDecisionTargetDate] = useState('');
   const [concernDecisionId, setConcernDecisionId] = useState<string | null>(null);
   const [concernNote, setConcernNote] = useState('');
+  const [moreOpen, setMoreOpen] = useState(false);
 
   const ownerName = (ownerId: string | null) => ownerId
     ? members.find((member) => member.user_id === ownerId)?.full_name || 'Assigned family member'
@@ -151,22 +194,48 @@ export const FamilyToday = ({
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">Family Today</p>
-            <h2 className="mt-1 text-xl font-semibold sm:text-2xl">{familyName || 'Your family command center'}</h2>
+            <h2 className="mt-1 text-xl font-semibold sm:text-2xl">{familyName || 'Your family home'}</h2>
             <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
               <Users className="h-4 w-4" />
               <span>Journey stage:</span>
               <Badge variant="secondary">{journeyStage || 'Getting started'}</Badge>
             </div>
+            <p className="mt-2 text-sm text-muted-foreground">
+              One next action. One money decision if any. One boundary. Ask the coach. Crisis help first.
+            </p>
           </div>
-          {board.nextMeeting && (
-            <div className="rounded-xl border bg-background/80 px-3 py-2 text-sm sm:max-w-xs">
-              <p className="flex items-center gap-1.5 font-medium"><CalendarDays className="h-4 w-4 text-primary" /> Next meeting</p>
-              <p className="mt-1 truncate">{board.nextMeeting.title}</p>
-              <p className="text-xs text-muted-foreground">{meetingDate(board.nextMeeting.start_time)}</p>
-            </div>
-          )}
+          <div className="flex flex-col gap-2 sm:items-end">
+            {onOpenNeedTo && (
+              <Button variant="outline" onClick={onOpenNeedTo}>
+                <Sparkles className="mr-1 h-4 w-4" /> I need to…
+              </Button>
+            )}
+            {board.nextMeeting && (
+              <div className="rounded-xl border bg-background/80 px-3 py-2 text-sm sm:max-w-xs">
+                <p className="flex items-center gap-1.5 font-medium"><CalendarDays className="h-4 w-4 text-primary" /> Next meeting</p>
+                <p className="mt-1 truncate">{board.nextMeeting.title}</p>
+                <p className="text-xs text-muted-foreground">{meetingDate(board.nextMeeting.start_time)}</p>
+              </div>
+            )}
+          </div>
         </div>
       </section>
+
+      <JourneyStageCard familyId={familyId} />
+
+      <aside className="rounded-xl border border-red-300 bg-red-50 p-3 text-red-950 shadow-sm dark:border-red-900 dark:bg-red-950 dark:text-red-50" aria-label="Crisis help">
+        <div className="flex items-start gap-3">
+          <PhoneCall className="mt-0.5 h-5 w-5 shrink-0" />
+          <div className="text-sm">
+            <p className="font-semibold">Immediate crisis or overdose?</p>
+            <p>
+              Call <a className="font-bold underline" href="tel:911">911</a> now for immediate danger or a suspected overdose.
+              Give naloxone if available and follow the dispatcher’s instructions. For suicide or mental health crisis support, call or text{' '}
+              <a className="font-bold underline" href="tel:988">988</a>.
+            </p>
+          </div>
+        </div>
+      </aside>
 
       {board.error && (
         <div role="alert" className="flex items-start gap-3 rounded-xl border border-destructive/30 bg-destructive/5 p-3 text-sm">
@@ -208,11 +277,113 @@ export const FamilyToday = ({
                   )}
                 </div>
               ) : (
-                <div className="py-2 text-sm text-muted-foreground">No open action yet. Add the single next step your family can move forward today.</div>
+                <div className="py-2 text-sm text-muted-foreground">No open action yet. Add the single next step your family can move forward today from “I need to…” or the board below.</div>
               )}
             </CardContent>
           </Card>
 
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <DollarSign className="h-5 w-5 text-primary" /> One money decision
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {moneyDecision ? (
+                <div className="space-y-3">
+                  <p className="font-semibold">
+                    ${moneyDecision.amount.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} · {moneyDecision.reason}
+                  </p>
+                  <p className="text-sm text-muted-foreground">Requested by {moneyDecision.requesterName}</p>
+                  {moneyDecision.isRequester ? (
+                    <p className="text-sm text-muted-foreground">This is your request. Waiting on the family.</p>
+                  ) : moneyDecision.hasVoted ? (
+                    <p className="text-sm text-muted-foreground">You already voted. Open money tools for details.</p>
+                  ) : (
+                    <div className="space-y-2">
+                      <p className="text-xs text-muted-foreground">Approve or deny will pause for a short family enabling check. Continue anyway is allowed.</p>
+                      <div className="flex flex-wrap gap-2">
+                        <Button size="sm" onClick={() => onVoteMoney?.(moneyDecision.id, true)}>Approve</Button>
+                        <Button size="sm" variant="outline" onClick={() => onVoteMoney?.(moneyDecision.id, false)}>Deny</Button>
+                      </div>
+                    </div>
+                  )}
+                  {onOpenFinancial && (
+                    <Button variant="ghost" size="sm" className="px-0" onClick={onOpenFinancial}>See all money requests</Button>
+                  )}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">No money decision waiting. If a 2am rent or gas ask comes in, it will land here.</p>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <ShieldCheck className="h-5 w-5 text-primary" /> One boundary
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {spotlightBoundary ? (
+                <div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    {spotlightBoundary.needsAcknowledge && <Badge variant="destructive">Unacknowledged</Badge>}
+                    {spotlightBoundary.unheld && <Badge variant="secondary">Needs hold / slip</Badge>}
+                  </div>
+                  <p className="mt-2 font-medium">{spotlightBoundary.content}</p>
+                  {spotlightBoundary.consequence ? (
+                    <p className="mt-1 text-sm text-muted-foreground">If not held: {spotlightBoundary.consequence}</p>
+                  ) : (
+                    <p className="mt-1 text-sm text-amber-700 dark:text-amber-400">No consequence yet — that makes this a request, not a boundary.</p>
+                  )}
+                  {spotlightBoundary.needsAcknowledge && onAcknowledgeBoundary && (
+                    <Button size="sm" className="mt-3" variant="outline" onClick={() => onAcknowledgeBoundary(spotlightBoundary.id)}>
+                      Acknowledge
+                    </Button>
+                  )}
+                  {onLogHoldSlip && (
+                    <BoundaryHoldRitual
+                      boundaryContent={spotlightBoundary.content}
+                      lastEvent={spotlightBoundary.lastHoldEvent}
+                      saving={holdSlipSaving}
+                      members={members}
+                      onLog={(eventType, options) => onLogHoldSlip(spotlightBoundary.id, eventType, options)}
+                    />
+                  )}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">No unacknowledged or unheld boundary right now. That is a good sign.</p>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="border-accent/30">
+            <CardContent className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="flex items-center gap-2 font-semibold"><PhoneCall className="h-4 w-4 text-accent" /> Ask the coach</p>
+                <p className="text-sm text-muted-foreground">Stuck on what to say at 2am? Coaching is behind crisis help, never in front of it.</p>
+              </div>
+              {onAskCoach && (
+                <Button onClick={onAskCoach} className="shrink-0">
+                  Ask the coach
+                </Button>
+              )}
+            </CardContent>
+          </Card>
+        </>
+      )}
+
+      {onOpenMeetings && <FamilyResourceRail onOpenMeetings={onOpenMeetings} />}
+
+      <Collapsible open={moreOpen} onOpenChange={setMoreOpen}>
+        <CollapsibleTrigger asChild>
+          <Button variant="ghost" className="w-full justify-between">
+            More on the family board
+            <span className="text-xs text-muted-foreground">{moreOpen ? 'Hide' : 'Show'}</span>
+          </Button>
+        </CollapsibleTrigger>
+        <CollapsibleContent>
           <div className="grid gap-3 lg:grid-cols-2">
             <Card>
               <CardHeader className="pb-2">
@@ -291,8 +462,8 @@ export const FamilyToday = ({
               </CardContent>
             </Card>
           </div>
-        </>
-      )}
+        </CollapsibleContent>
+      </Collapsible>
 
       <HandoffAuthorizationPanel
         currentUserId={currentUserId}
@@ -300,16 +471,6 @@ export const FamilyToday = ({
       />
 
       {canManageAccess && <ProfessionalAccessPanel familyId={familyId} />}
-
-      <aside className="sticky bottom-2 z-10 rounded-xl border border-red-300 bg-red-50 p-3 text-red-950 shadow-lg dark:border-red-900 dark:bg-red-950 dark:text-red-50" aria-label="Crisis help">
-        <div className="flex items-start gap-3">
-          <PhoneCall className="mt-0.5 h-5 w-5 shrink-0" />
-          <div className="text-sm">
-            <p className="font-semibold">Immediate crisis or overdose?</p>
-            <p>Call <a className="font-bold underline" href="tel:911">911</a> now for immediate danger or a suspected overdose. Give naloxone if available and follow the dispatcher’s instructions. For suicide or mental health crisis support, call or text <a className="font-bold underline" href="tel:988">988</a>.</p>
-          </div>
-        </div>
-      </aside>
     </div>
   );
 };
