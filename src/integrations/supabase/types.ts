@@ -2290,6 +2290,63 @@ export type Database = {
           },
         ]
       }
+      enabling_checks: {
+        Row: {
+          answers: Json
+          created_at: string
+          enabling_count: number
+          family_id: string
+          id: string
+          related_boundary_id: string | null
+          related_request_id: string | null
+          result_type: string
+          total_questions: number
+          trigger_type: string
+          user_id: string
+        }
+        Insert: {
+          answers?: Json
+          created_at?: string
+          enabling_count?: number
+          family_id: string
+          id?: string
+          related_boundary_id?: string | null
+          related_request_id?: string | null
+          result_type: string
+          total_questions?: number
+          trigger_type: string
+          user_id: string
+        }
+        Update: {
+          answers?: Json
+          created_at?: string
+          enabling_count?: number
+          family_id?: string
+          id?: string
+          related_boundary_id?: string | null
+          related_request_id?: string | null
+          result_type?: string
+          total_questions?: number
+          trigger_type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enabling_checks_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "enabling_checks_related_boundary_id_fkey"
+            columns: ["related_boundary_id"]
+            isOneToOne: false
+            referencedRelation: "family_boundaries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       families: {
         Row: {
           account_number: string
