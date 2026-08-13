@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback, Suspense, lazy, startTransition } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { usePlatform } from '@/hooks/usePlatform';
 import { useAuth } from '@/hooks/useAuth';
 import { useOrganization } from '@/hooks/useOrganization';
@@ -29,6 +29,13 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { ModeratorDisclaimer } from '@/components/ModeratorDisclaimer';
 import { FamilyToday } from '@/features/family-board';
 import { WelcomeAfterJoin } from '@/components/WelcomeAfterJoin';
+import { EnablingCheckDialog } from '@/components/EnablingCheckDialog';
+import { NeedToSheet, type FamilyNeedTab } from '@/components/family/NeedToSheet';
+import { LovedOneHome } from '@/components/family/LovedOneHome';
+import { FamilyResourceRail } from '@/components/family/FamilyResourceRail';
+import { BoundaryHoldRitual } from '@/components/family/BoundaryHoldRitual';
+import { useConsequenceEvents } from '@/hooks/useConsequenceEvents';
+import { isRescueFinancialReason } from '@/lib/enablingExercise';
 import { HIPAAReleasesViewer } from '@/components/HIPAAReleasesViewer';
 import { HIPAARelease } from '@/components/HIPAARelease';
 import { Label } from '@/components/ui/label';
@@ -55,12 +62,6 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { Textarea } from '@/components/ui/textarea';
 import { ToastAction } from '@/components/ui/toast';
 import { NotificationBell } from '@/components/NotificationBell';
@@ -374,6 +375,7 @@ const FAMILY_VALUES_OPTIONS = [
 
 const FamilyChat = () => {
   const { familyId } = useParams();
+  const [searchParams] = useSearchParams();
   const { user, loading } = useAuth();
   const { organization, setOrganizationById, clearFamilyOrganization } = useOrganization();
   const navigate = useNavigate();
@@ -514,7 +516,13 @@ const FamilyChat = () => {
   
   // Simplified primary navigation defaults to the daily command center.
   const [activeTab, setActiveTab] = useState('today');
+  const [needToOpen, setNeedToOpen] = useState(false);
+  const [enablingCheckOpen, setEnablingCheckOpen] = useState(false);
+  const [enablingTrigger, setEnablingTrigger] = useState<'financial_request' | 'boundary'>('financial_request');
+  const [meetingFellowship, setMeetingFellowship] = useState<'AA' | 'Al-Anon' | 'Nar-Anon' | 'CRAFT' | 'All'>('All');
+  const { latestForBoundary, logHoldOrSlip, saving: holdSlipSaving } = useConsequenceEvents(familyId);
   const dashboardPath = currentUserRole === 'moderator' ? '/moderator-dashboard' : '/dashboard';
+  const isLovedOne = currentUserRole === 'recovering';
   const openCoachingTab = useCallback(() => {
     setActiveTab('coaching');
   }, []);
@@ -538,6 +546,39 @@ const FamilyChat = () => {
 
   const newBoundaryQuality = evaluateBoundaryQuality(newBoundaryContent, newBoundaryConsequence);
   const editBoundaryQuality = evaluateBoundaryQuality(editBoundaryContent, editBoundaryConsequence);
+
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    const fellowship = searchParams.get('fellowship');
+    if (tab) startTransition(() => setActiveTab(tab));
+    if (fellowship === 'Al-Anon' || fellowship === 'Nar-Anon' || fellowship === 'CRAFT' || fellowship === 'AA') {
+      setMeetingFellowship(fellowship);
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
+    if (currentUserRole === 'recovering' && (activeTab === 'today' || activeTab === 'fiis')) {
+      startTransition(() => setActiveTab('home'));
+    }
+  }, [currentUserRole, activeTab]);
+
+  const openNeedTab = useCallback((tab: FamilyNeedTab) => {
+    if (tab === 'enabling') {
+      navigate(`/enabling-exercise?familyId=${encodeURIComponent(familyId || '')}`);
+      return;
+    }
+    if (tab === 'meetings') {
+      startTransition(() => setActiveTab('checkin'));
+      setMeetingFellowship(isLovedOne ? 'AA' : 'Al-Anon');
+      return;
+    }
+    startTransition(() => setActiveTab(tab));
+  }, [familyId, isLovedOne, navigate]);
+
+  const openMeetings = useCallback((fellowship: 'AA' | 'Al-Anon' | 'Nar-Anon' | 'CRAFT' = 'Al-Anon') => {
+    setMeetingFellowship(fellowship);
+    startTransition(() => setActiveTab('checkin'));
+  }, []);
   
   // Check for heated conversation and trigger coaching nudge
   const checkForHeatedConversation = (messagesArray: Message[]) => {
@@ -1666,19 +1707,18 @@ const FamilyChat = () => {
     setFamilyBoundaries(formattedBoundaries);
   };
 
-  const handleCreateBoundary = async () => {
+  const handleCreateBoundary = async (skipEnablingCheck = false) => {
     if (!newBoundaryContent.trim() || !user || !familyId) return;
 
-    if (!newBoundaryConsequence.trim()) {
-      toast({
-        title: 'Consequence required',
-        description: 'A boundary without a consequence is just a request.',
-        variant: 'destructive',
-      });
+    const missingConsequence = !newBoundaryConsequence.trim();
+
+    if (missingConsequence && !skipEnablingCheck) {
+      setEnablingTrigger('boundary');
+      setEnablingCheckOpen(true);
       return;
     }
 
-    if (!newBoundaryQuality.isStrong) {
+    if (!missingConsequence && !newBoundaryQuality.isStrong && !skipEnablingCheck) {
       toast({
         title: 'Strengthen this boundary first',
         description: newBoundaryQuality.summary,
@@ -1702,8 +1742,10 @@ const FamilyChat = () => {
       if (error) throw error;
 
       toast({
-        title: 'Boundary proposed',
-        description: 'Your boundary has been submitted for moderator approval.',
+        title: missingConsequence ? 'Request proposed' : 'Boundary proposed',
+        description: missingConsequence
+          ? 'A boundary without a consequence is a request. It was saved for moderator review.'
+          : 'Your boundary has been submitted for moderator approval.',
       });
 
       setNewBoundaryContent('');
@@ -2445,46 +2487,12 @@ const FamilyChat = () => {
     }
   };
 
-  const handleCreateRequest = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const submitFinancialRequest = async () => {
     const amount = parseFloat(requestAmount);
-    if (isNaN(amount) || amount <= 0 || !requestReason) {
-      toast({
-        title: 'Invalid request',
-        description: 'Please enter a valid amount and select a reason.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    // Require description for "Other"
-    if (requestReason === 'Other' && !requestOtherDescription.trim()) {
-      toast({
-        title: 'Description required',
-        description: 'Please provide a description for your request.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    // Check if there's an approved but not completed request
-    const pendingApproved = financialRequests.find(
-      r => r.status === 'approved' && !r.resolved_at
-    );
-    if (pendingApproved) {
-      toast({
-        title: 'Outstanding request',
-        description: 'You have an approved request that hasn\'t been marked as completed yet. Please wait for a moderator to complete it before submitting a new request.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
     setIsRequesting(true);
     try {
       let attachmentUrl: string | null = null;
 
-      // Upload bill attachment if provided
       if (billAttachment && user) {
         const fileExt = billAttachment.name.split('.').pop();
         const fileName = `${user.id}/${Date.now()}.${fileExt}`;
@@ -2539,6 +2547,48 @@ const FamilyChat = () => {
     } finally {
       setIsRequesting(false);
     }
+  };
+
+  const handleCreateRequest = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const amount = parseFloat(requestAmount);
+    if (isNaN(amount) || amount <= 0 || !requestReason) {
+      toast({
+        title: 'Invalid request',
+        description: 'Please enter a valid amount and select a reason.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (requestReason === 'Other' && !requestOtherDescription.trim()) {
+      toast({
+        title: 'Description required',
+        description: 'Please provide a description for your request.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const pendingApproved = financialRequests.find(
+      r => r.status === 'approved' && !r.resolved_at
+    );
+    if (pendingApproved) {
+      toast({
+        title: 'Outstanding request',
+        description: 'You have an approved request that hasn\'t been marked as completed yet. Please wait for a moderator to complete it before submitting a new request.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (isRescueFinancialReason(requestReason) && user?.id && familyId) {
+      setEnablingTrigger('financial_request');
+      setEnablingCheckOpen(true);
+      return;
+    }
+
+    await submitFinancialRequest();
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -3183,103 +3233,78 @@ const FamilyChat = () => {
       {/* Main Content */}
       <main className="flex-1 container mx-auto px-1.5 sm:px-4 py-1.5 sm:py-4 overflow-hidden flex flex-col">
         {familyId && <WelcomeAfterJoin familyId={familyId} />}
+        {familyId && user?.id && (
+          <EnablingCheckDialog
+            open={enablingCheckOpen}
+            onOpenChange={setEnablingCheckOpen}
+            familyId={familyId}
+            userId={user.id}
+            triggerType={enablingTrigger}
+            onComplete={() => {
+              if (enablingTrigger === 'financial_request') {
+                void submitFinancialRequest();
+              } else {
+                void handleCreateBoundary(true);
+              }
+            }}
+            onOpenFullExercise={() => {
+              setEnablingCheckOpen(false);
+              navigate(`/enabling-exercise?familyId=${encodeURIComponent(familyId)}`);
+            }}
+            onFindFamilyMeeting={() => {
+              setEnablingCheckOpen(false);
+              openMeetings('Al-Anon');
+            }}
+          />
+        )}
+        <NeedToSheet
+          open={needToOpen}
+          onOpenChange={setNeedToOpen}
+          isLovedOne={isLovedOne}
+          onSelect={openNeedTab}
+        />
         <Tabs value={activeTab} onValueChange={(v) => startTransition(() => setActiveTab(v))} className="flex-1 min-h-0 flex flex-col">
           <div className="mb-2 sm:mb-4 shrink-0 bg-card/50 backdrop-blur-sm border border-border/50 p-1.5 sm:p-2 rounded-lg sm:rounded-xl shadow-soft">
-            {/* Primary tabs: keep the daily family workflow simple */}
             <TabsList className="h-auto w-full justify-start bg-transparent p-0 flex items-center gap-1.5 flex-wrap">
-              <TabsTrigger
-                value="today"
-                className={`relative flex items-center justify-center gap-1 px-3 py-2.5 rounded-md sm:rounded-lg transition-all duration-200 ${
-                  activeTab === 'today'
-                    ? 'bg-primary/10 text-primary shadow-sm ring-1 ring-primary/20'
-                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                }`}
-              >
-                <CalendarDays className="h-4 w-4" />
-                <span className="text-xs font-medium">Today</span>
-              </TabsTrigger>
+              {isLovedOne ? (
+                <TabsTrigger
+                  value="home"
+                  className={`relative flex items-center justify-center gap-1 px-3 py-2.5 rounded-md sm:rounded-lg transition-all duration-200 ${
+                    activeTab === 'home'
+                      ? 'bg-primary/10 text-primary shadow-sm ring-1 ring-primary/20'
+                      : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                  }`}
+                >
+                  <CalendarDays className="h-4 w-4" />
+                  <span className="text-xs font-medium">Home</span>
+                </TabsTrigger>
+              ) : (
+                <TabsTrigger
+                  value="today"
+                  className={`relative flex items-center justify-center gap-1 px-3 py-2.5 rounded-md sm:rounded-lg transition-all duration-200 ${
+                    activeTab === 'today'
+                      ? 'bg-primary/10 text-primary shadow-sm ring-1 ring-primary/20'
+                      : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                  }`}
+                >
+                  <CalendarDays className="h-4 w-4" />
+                  <span className="text-xs font-medium">Today</span>
+                </TabsTrigger>
+              )}
 
-              <TabsTrigger
-                value="messages"
-                className={`relative flex items-center justify-center gap-1 px-3 py-2.5 rounded-md sm:rounded-lg transition-all duration-200 ${
-                  activeTab === 'messages'
-                    ? 'bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400 shadow-sm ring-1 ring-blue-200 dark:ring-blue-800'
-                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                }`}
+              <button
+                type="button"
+                onClick={() => setNeedToOpen(true)}
+                className="flex items-center justify-center gap-1 px-3 py-2.5 rounded-md sm:rounded-lg transition-all duration-200 hover:bg-muted text-muted-foreground hover:text-foreground"
               >
-                <MessageCircle className="h-4 w-4" />
-                <span className="text-xs font-medium">Chat</span>
-                {showOnboarding && onboardingStep === 1 && (
-                  <div className="absolute -top-1 -right-1 h-3 w-3 bg-accent rounded-full animate-bounce border-2 border-card" />
-                )}
-              </TabsTrigger>
-
-              <TabsTrigger
-                value="values"
-                className={`relative flex items-center justify-center gap-1 px-3 py-2.5 rounded-md sm:rounded-lg transition-all duration-200 ${
-                  activeTab === 'values'
-                    ? 'bg-accent/10 text-accent shadow-sm ring-1 ring-accent/20'
-                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                }`}
-              >
-                <Target className="h-4 w-4" />
-                <span className="text-xs font-medium">Plan</span>
-              </TabsTrigger>
-
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button className="flex items-center justify-center gap-1 px-3 py-2.5 rounded-md sm:rounded-lg transition-all duration-200 hover:bg-muted text-muted-foreground hover:text-foreground">
-                    <span className="text-xs">Tools</span>
-                    <ChevronDown className="h-3 w-3" />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-52">
-                  {currentUserRole !== 'recovering' && (
-                    <DropdownMenuItem onClick={() => startTransition(() => setActiveTab('fiis'))} className="flex items-center gap-2">
-                      <Brain className="h-4 w-4" />
-                      Family Insights
-                      {hasNewAnalysis && <span className="ml-auto h-2 w-2 rounded-full bg-destructive" />}
-                    </DropdownMenuItem>
-                  )}
-                  <DropdownMenuItem onClick={() => startTransition(() => setActiveTab('boundaries'))} className="flex items-center gap-2">
-                    <ShieldCheck className="h-4 w-4" />
-                    Boundaries
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => startTransition(() => setActiveTab('financial'))} className="flex items-center gap-2">
-                    <DollarSign className="h-4 w-4" />
-                    Financial
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => startTransition(() => setActiveTab('checkin'))} className="flex items-center gap-2">
-                    <MapPin className="h-4 w-4" />
-                    Check-in
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => startTransition(() => setActiveTab('coaching'))} className="flex items-center gap-2">
-                    <PhoneCall className="h-4 w-4" />
-                    Response Coach
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => startTransition(() => setActiveTab('aftercare'))} className="flex items-center gap-2">
-                    <ClipboardList className="h-4 w-4" />
-                    Aftercare
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => startTransition(() => setActiveTab('test-results'))} className="flex items-center gap-2">
-                    <FlaskConical className="h-4 w-4" />
-                    Tests
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => startTransition(() => setActiveTab('medications'))} className="flex items-center gap-2">
-                    <Pill className="h-4 w-4" />
-                    Medications
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => startTransition(() => setActiveTab('docs'))} className="flex items-center gap-2">
-                    <FolderOpen className="h-4 w-4" />
-                    Documents
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                <Sparkles className="h-4 w-4" />
+                <span className="text-xs font-medium">I need to…</span>
+              </button>
             </TabsList>
           </div>
 
           <TabsContent value="today" className="flex-1 overflow-hidden mt-0">
-            {familyId && (
+            {familyId && !isLovedOne && (
               <FamilyToday
                 familyId={familyId}
                 familyName={family?.name}
@@ -3288,6 +3313,61 @@ const FamilyChat = () => {
                 currentUserId={user?.id}
                 canManageAccess={isAdminOrModerator || isCurrentUserProfessionalModerator}
                 canManageWork={isAdminOrModerator || isCurrentUserProfessionalModerator}
+                moneyDecision={(() => {
+                  const pending = financialRequests.find((req) => req.status === 'pending');
+                  if (!pending) return null;
+                  return {
+                    id: pending.id,
+                    amount: pending.amount,
+                    reason: pending.reason,
+                    requesterName: pending.requester_name || 'Family member',
+                    hasVoted: pending.votes.some((vote) => vote.voter_id === user?.id),
+                    isRequester: pending.requester_id === user?.id,
+                  };
+                })()}
+                onVoteMoney={(requestId, approved) => void handleVote(requestId, approved)}
+                onOpenFinancial={() => startTransition(() => setActiveTab('financial'))}
+                spotlightBoundary={(() => {
+                  const approved = familyBoundaries.filter((b) => b.status === 'approved');
+                  const spotlight = approved.find((b) => shouldUserAcknowledge(b))
+                    || approved.find((b) => !latestForBoundary(b.id));
+                  if (!spotlight) return null;
+                  return {
+                    id: spotlight.id,
+                    content: spotlight.content,
+                    consequence: spotlight.consequence,
+                    needsAcknowledge: shouldUserAcknowledge(spotlight),
+                    unheld: !latestForBoundary(spotlight.id),
+                    lastHoldEvent: latestForBoundary(spotlight.id),
+                  };
+                })()}
+                onAcknowledgeBoundary={(boundaryId) => void handleAcknowledgeBoundary(boundaryId)}
+                onLogHoldSlip={async (boundaryId, eventType, note) => {
+                  if (!user?.id) return false;
+                  return logHoldOrSlip(boundaryId, eventType, user.id, note);
+                }}
+                holdSlipSaving={holdSlipSaving}
+                onAskCoach={openCoachingTab}
+                onOpenNeedTo={() => setNeedToOpen(true)}
+                onOpenMeetings={openMeetings}
+              />
+            )}
+          </TabsContent>
+
+          <TabsContent value="home" className="flex-1 overflow-hidden mt-0">
+            {familyId && isLovedOne && (
+              <LovedOneHome
+                familyId={familyId}
+                familyName={family?.name}
+                currentUserId={user?.id}
+                canEditSobriety={isAdminOrModerator}
+                boundaries={familyBoundaries
+                  .filter((b) => b.status === 'approved')
+                  .map((b) => ({ id: b.id, content: b.content, consequence: b.consequence }))}
+                onOpenCheckin={() => startTransition(() => setActiveTab('checkin'))}
+                onOpenMeetings={openMeetings}
+                onOpenMeds={() => startTransition(() => setActiveTab('medications'))}
+                onOpenNeedTo={() => setNeedToOpen(true)}
               />
             )}
           </TabsContent>
@@ -3757,14 +3837,20 @@ const FamilyChat = () => {
                         <ChevronDown className="h-5 w-5 text-muted-foreground transition-transform duration-200 [[data-state=open]>&]:rotate-180" />
                       </CardTitle>
                       <p className="text-sm text-muted-foreground mt-1">
-                        Search for AA, Al-Anon, and other recovery meetings near you.
+                        Search for AA, Al-Anon, Nar-Anon, CRAFT, and other recovery meetings.
                       </p>
                     </CardHeader>
                   </CollapsibleTrigger>
                   <CollapsibleContent>
-                    <CardContent className="pt-0">
+                    <CardContent className="pt-0 space-y-3">
+                      {!isLovedOne && (
+                        <FamilyResourceRail onOpenMeetings={openMeetings} compact />
+                      )}
                       <Suspense fallback={<div className="text-sm text-muted-foreground py-3">Loading meeting finder...</div>}>
-                        <MeetingFinder />
+                        <MeetingFinder
+                          defaultFellowship={meetingFellowship === 'All' ? (isLovedOne ? 'AA' : 'Al-Anon') : meetingFellowship}
+                          audience={isLovedOne ? 'loved-one' : 'family'}
+                        />
                       </Suspense>
                     </CardContent>
                   </CollapsibleContent>
@@ -3946,7 +4032,8 @@ const FamilyChat = () => {
               </Card>
               )}
 
-              {/* Financial Summary - Lifetime Totals */}
+              {/* Financial Summary - Lifetime Totals (family strategy, not the loved-one door) */}
+              {!isLovedOne && (
               <div className="grid grid-cols-2 gap-3">
                 {/* Total Requested - Lifetime */}
                 <Card className="relative overflow-hidden border-0 shadow-md group hover:shadow-lg transition-all duration-300">
@@ -3988,9 +4075,10 @@ const FamilyChat = () => {
                   </CardContent>
                 </Card>
               </div>
+              )}
 
-              {/* True Link Financial - Only for admins and recovering members */}
-              {(currentUserRole === 'admin' || currentUserRole === 'recovering') && (
+              {/* True Link Financial - family strategy only, not the loved-one home */}
+              {(currentUserRole === 'admin' && !isLovedOne) && (
                 <Card className="relative overflow-hidden border-0 shadow-lg group">
                   <div className="h-1.5 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500" />
                   <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-blue-500/10 to-transparent rounded-full -translate-y-1/2 translate-x-1/2 pointer-events-none" />
@@ -4291,7 +4379,7 @@ const FamilyChat = () => {
                             </div>
 
                             {/* Voting buttons for pending requests (hidden from professional moderators) */}
-                            {req.status === 'pending' && !isRequester && !hasVoted && !isCurrentUserProfessionalModerator && (
+                            {req.status === 'pending' && !isRequester && !hasVoted && !isCurrentUserProfessionalModerator && !isLovedOne && (
                               <div className="flex gap-2">
                                 <Button
                                   size="sm"
@@ -5226,8 +5314,8 @@ const FamilyChat = () => {
                       )}
                       <div className="flex gap-2">
                         <Button
-                          onClick={handleCreateBoundary}
-                          disabled={!newBoundaryContent.trim() || !newBoundaryConsequence.trim() || isAddingBoundary || !newBoundaryQuality.isStrong}
+                          onClick={() => void handleCreateBoundary()}
+                          disabled={!newBoundaryContent.trim() || isAddingBoundary || (!!newBoundaryConsequence.trim() && !newBoundaryQuality.isStrong)}
                         >
                           {isAddingBoundary ? (
                             <>
@@ -5425,6 +5513,30 @@ const FamilyChat = () => {
                                 )}
                               </div>
                             </div>
+                            {!isLovedOne && (
+                              <BoundaryHoldRitual
+                                boundaryContent={boundary.content}
+                                lastEvent={latestForBoundary(boundary.id)}
+                                saving={holdSlipSaving}
+                                onLog={async (eventType, note) => {
+                                  if (!user?.id) return false;
+                                  const ok = await logHoldOrSlip(boundary.id, eventType, user.id, note);
+                                  if (ok) {
+                                    toast({
+                                      title: eventType === 'held' ? 'Logged: we held it' : 'Logged: we slipped',
+                                      description: 'Follow-through is family accountability, not surveillance.',
+                                    });
+                                  } else {
+                                    toast({
+                                      title: 'Could not save',
+                                      description: 'The hold/slip log could not be saved. Schema may still need the Lovable migration.',
+                                      variant: 'destructive',
+                                    });
+                                  }
+                                  return ok;
+                                }}
+                              />
+                            )}
                           </div>
                         ))
                       )}

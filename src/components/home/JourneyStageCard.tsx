@@ -18,18 +18,25 @@ import {
   CalendarCheck,
   HeartHandshake,
   Pencil,
+  Home,
+  ShieldAlert,
 } from "lucide-react";
 
 /**
- * CX improvement 3.1 — stage-based onboarding.
+ * Stage-based onboarding.
  *
- * A compact strip that asks "Where is your family right now?" once, stores the
- * answer on families.journey_stage (via the set_family_journey_stage RPC so any
- * member can answer), and from then on shows ONE highlighted next action for
- * that stage instead of leaving the family to wander 30+ routes.
+ * Stores the answer on families.journey_stage (via set_family_journey_stage)
+ * and shows ONE highlighted next action. Families not planning an intervention
+ * are not sent to /intervention-readiness.
  */
 
-export type JourneyStage = "considering" | "preparing" | "intervention" | "aftercare";
+export type JourneyStage =
+  | "considering"
+  | "preparing"
+  | "intervention"
+  | "aftercare"
+  | "active_use"
+  | "early_recovery";
 
 const STAGES: {
   id: JourneyStage;
@@ -37,13 +44,23 @@ const STAGES: {
   label: string;
   description: string;
   actionLabel: string;
-  actionPath: string;
+  /** If true, next action stays in the family home instead of intervention tools. */
+  stayInFamilyHome?: boolean;
+  actionPath?: string;
 }[] = [
+  {
+    id: "active_use",
+    icon: ShieldAlert,
+    label: "Active use, no intervention yet",
+    description: "Our loved one is still using. We are not planning a formal intervention right now.",
+    actionLabel: "Open Family Today — one next action, not an intervention plan",
+    stayInFamilyHome: true,
+  },
   {
     id: "considering",
     icon: Compass,
     label: "Considering an intervention",
-    description: "We're worried and trying to figure out what to do.",
+    description: "We're worried and trying to figure out whether a formal intervention is the right next step.",
     actionLabel: "Take the readiness assessment",
     actionPath: "/intervention-readiness",
   },
@@ -64,6 +81,14 @@ const STAGES: {
     actionPath: "/intervention-execution",
   },
   {
+    id: "early_recovery",
+    icon: Home,
+    label: "Early recovery at home",
+    description: "Our loved one is home, newly sober or just out of treatment. Daily structure matters more than intervention week.",
+    actionLabel: "Open check-ins, meds, and what we asked of them",
+    stayInFamilyHome: true,
+  },
+  {
     id: "aftercare",
     icon: HeartHandshake,
     label: "After the intervention",
@@ -75,6 +100,14 @@ const STAGES: {
 
 export function getStageMeta(stage: JourneyStage | null | undefined) {
   return STAGES.find((s) => s.id === stage) ?? null;
+}
+
+export function getStageActionHref(stage: JourneyStage | null | undefined, familyId: string) {
+  const meta = getStageMeta(stage);
+  if (!meta) return `/family/${familyId}`;
+  if (meta.stayInFamilyHome || !meta.actionPath) return `/family/${familyId}`;
+  const separator = meta.actionPath.includes("?") ? "&" : "?";
+  return `${meta.actionPath}${separator}familyId=${encodeURIComponent(familyId)}`;
 }
 
 interface JourneyStageCardProps {
@@ -158,7 +191,7 @@ export const JourneyStageCard = ({ familyId }: JourneyStageCardProps) => {
                   </p>
                 </div>
               </div>
-              <Button size="sm" onClick={() => navigate(meta.actionPath)} className="shrink-0">
+              <Button size="sm" onClick={() => navigate(getStageActionHref(stage, familyId))} className="shrink-0">
                 Go <ArrowRight className="h-3.5 w-3.5 ml-1" />
               </Button>
             </div>
@@ -179,11 +212,12 @@ export const JourneyStageCard = ({ familyId }: JourneyStageCardProps) => {
       </Card>
 
       <Dialog open={pickerOpen} onOpenChange={setPickerOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Where is your family right now?</DialogTitle>
             <DialogDescription>
               This helps FamilyBridge show you the right next step — you can change it any time.
+              You do not have to be planning an intervention.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-2">

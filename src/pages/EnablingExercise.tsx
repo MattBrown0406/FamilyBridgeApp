@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { SEOHead } from '@/components/SEOHead';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -8,230 +8,51 @@ import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { ArrowLeft, ArrowRight, AlertTriangle, HelpCircle, CheckCircle, XCircle, RotateCcw } from 'lucide-react';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
+import { ENABLING_QUESTIONS, getEnablingResult } from '@/lib/enablingExercise';
+import { saveEnablingCheck } from '@/hooks/useEnablingChecks';
+import { useAuth } from '@/hooks/useAuth';
 
-interface Question {
-  id: number;
-  question: string;
-  context: string;
-  options: {
-    value: string;
-    label: string;
-    isEnabling: boolean;
-    explanation: string;
-  }[];
-}
-
-const questions: Question[] = [
-  {
-    id: 1,
-    question: "Is this a true emergency or crisis?",
-    context: "A true emergency involves immediate danger to life, safety, or health. Chaos is often repeated patterns of self-inflicted problems.",
-    options: [
-      {
-        value: "emergency",
-        label: "Yes - there is immediate danger to life or safety",
-        isEnabling: false,
-        explanation: "This is a genuine emergency. It's appropriate to help ensure immediate safety."
-      },
-      {
-        value: "chaos",
-        label: "No - this is a repeated pattern or self-created problem",
-        isEnabling: true,
-        explanation: "This may be chaos rather than crisis. Helping resolve self-inflicted chaos can enable the pattern to continue."
-      },
-      {
-        value: "unsure",
-        label: "I'm not sure",
-        isEnabling: false,
-        explanation: "When unsure, it's okay to pause and assess. Consider: Has this exact situation happened before? Could it have been prevented?"
-      }
-    ]
-  },
-  {
-    id: 2,
-    question: "Did I create this problem or is it their responsibility?",
-    context: "Taking ownership of consequences is essential for recovery. When we solve problems for others, we rob them of growth opportunities.",
-    options: [
-      {
-        value: "theirs",
-        label: "This is entirely their problem from their choices",
-        isEnabling: true,
-        explanation: "If this is their problem from their choices, allowing them to solve it supports their growth and accountability."
-      },
-      {
-        value: "shared",
-        label: "We both contributed to this situation",
-        isEnabling: false,
-        explanation: "Shared problems may need collaborative solutions. Focus on your part while letting them handle theirs."
-      },
-      {
-        value: "mine",
-        label: "I contributed significantly to this situation",
-        isEnabling: false,
-        explanation: "If you contributed, it's appropriate to help resolve what you created."
-      }
-    ]
-  },
-  {
-    id: 3,
-    question: "Am I helping because of fear, guilt, or genuine love?",
-    context: "Fear and guilt often drive enabling behavior. Genuine love sometimes means allowing consequences.",
-    options: [
-      {
-        value: "fear",
-        label: "I'm afraid of what will happen if I don't help",
-        isEnabling: true,
-        explanation: "Acting from fear often enables. Fear of their reaction, of them being uncomfortable, or of being the 'bad guy' can trap you in enabling patterns."
-      },
-      {
-        value: "guilt",
-        label: "I feel guilty or obligated to fix this",
-        isEnabling: true,
-        explanation: "Guilt-driven help often enables. You are not responsible for another adult's choices or their consequences."
-      },
-      {
-        value: "love",
-        label: "I genuinely believe this help supports their recovery",
-        isEnabling: false,
-        explanation: "Help that supports recovery is valuable. Consider: Does this move them toward independence or dependence?"
-      }
-    ]
-  },
-  {
-    id: 4,
-    question: "Have I done this before? What was the result?",
-    context: "Repeating the same help with the same results is a sign of enabling. If helping hasn't helped, it may be hurting.",
-    options: [
-      {
-        value: "repeated",
-        label: "Yes, and the same problems keep happening",
-        isEnabling: true,
-        explanation: "Doing the same thing and expecting different results isn't working. Breaking this pattern, while painful, may be necessary for change."
-      },
-      {
-        value: "improved",
-        label: "Yes, and things improved afterwards",
-        isEnabling: false,
-        explanation: "If past help led to genuine improvement, similar help may be appropriate. Look for sustained positive change."
-      },
-      {
-        value: "first_time",
-        label: "No, this is the first time",
-        isEnabling: false,
-        explanation: "First-time situations deserve assessment. Consider setting clear expectations about future occurrences."
-      }
-    ]
-  },
-  {
-    id: 5,
-    question: "Am I preventing them from experiencing natural consequences?",
-    context: "Natural consequences are powerful teachers. Shielding someone from consequences prevents learning and growth.",
-    options: [
-      {
-        value: "preventing",
-        label: "Yes, I would be saving them from consequences",
-        isEnabling: true,
-        explanation: "Preventing consequences enables continued behavior. As painful as it is, experiencing consequences often motivates change."
-      },
-      {
-        value: "softening",
-        label: "I'm softening the blow but not eliminating consequences",
-        isEnabling: false,
-        explanation: "There's a balance between support and rescue. Ensure they still feel the weight of their choices."
-      },
-      {
-        value: "no",
-        label: "No, they will still face the consequences regardless",
-        isEnabling: false,
-        explanation: "If consequences remain intact, your help may be appropriate support rather than enabling."
-      }
-    ]
-  },
-  {
-    id: 6,
-    question: "Is this help being requested or am I volunteering?",
-    context: "Unsolicited help can undermine autonomy and create dependence. Being asked shows they're taking initiative.",
-    options: [
-      {
-        value: "volunteering",
-        label: "I'm jumping in without being asked",
-        isEnabling: true,
-        explanation: "Unsolicited rescuing sends the message that you don't believe they can handle their own life. Step back and wait to be asked."
-      },
-      {
-        value: "hinted",
-        label: "They're hinting but haven't directly asked",
-        isEnabling: true,
-        explanation: "Responding to hints can enable passive communication. Encourage direct requests and honest conversation."
-      },
-      {
-        value: "asked",
-        label: "They directly asked for specific help",
-        isEnabling: false,
-        explanation: "Direct requests show initiative. You can still evaluate whether the help is appropriate."
-      }
-    ]
-  },
-  {
-    id: 7,
-    question: "Will this help move them toward independence or dependence?",
-    context: "The goal of healthy help is to become unnecessary. Each act of support should build capability, not reliance.",
-    options: [
-      {
-        value: "dependence",
-        label: "They will likely need this help again",
-        isEnabling: true,
-        explanation: "Help that needs repeating creates dependence. Consider helping them build skills instead of providing solutions."
-      },
-      {
-        value: "independence",
-        label: "This will help them help themselves in the future",
-        isEnabling: false,
-        explanation: "Teaching skills and building capability is healthy support. The goal is their growing independence."
-      },
-      {
-        value: "neutral",
-        label: "It's a one-time situation that won't affect their capability",
-        isEnabling: false,
-        explanation: "Some situations are genuinely isolated. Trust your assessment but remain aware of patterns."
-      }
-    ]
-  },
-  {
-    id: 8,
-    question: "Am I sacrificing my own wellbeing to provide this help?",
-    context: "You cannot pour from an empty cup. Sacrificing your health, finances, or relationships to help often signals enabling.",
-    options: [
-      {
-        value: "sacrificing",
-        label: "Yes, this will harm my finances, health, or relationships",
-        isEnabling: true,
-        explanation: "Self-sacrifice to rescue others is unsustainable and often enables. You deserve to protect your own wellbeing."
-      },
-      {
-        value: "stretching",
-        label: "It's a stretch but manageable",
-        isEnabling: false,
-        explanation: "Be honest about what 'manageable' means. Small stretches can add up to burnout over time."
-      },
-      {
-        value: "comfortable",
-        label: "No, I can comfortably provide this help",
-        isEnabling: false,
-        explanation: "Help given from a place of abundance is healthier for everyone involved."
-      }
-    ]
-  }
-];
+const questions = ENABLING_QUESTIONS;
 
 const EnablingExercise = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const { user } = useAuth();
+  const familyId = searchParams.get('familyId');
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [showResults, setShowResults] = useState(false);
+  const [savedToFamily, setSavedToFamily] = useState(false);
 
   const progress = ((currentStep) / questions.length) * 100;
   const currentQuestion = questions[currentStep];
+  const familyHome = familyId ? `/family/${familyId}` : '/';
+  const familyMeetingsHref = familyId
+    ? `/family/${familyId}?tab=checkin&fellowship=Al-Anon`
+    : '/meetings?fellowship=Al-Anon';
+
+  useEffect(() => {
+    if (!showResults || !familyId || !user?.id) return;
+    let cancelled = false;
+    const persist = async () => {
+      try {
+        await saveEnablingCheck({
+          familyId,
+          userId: user.id,
+          triggerType: 'full_exercise',
+          answers,
+        });
+        if (!cancelled) setSavedToFamily(true);
+      } catch (error) {
+        console.error('Failed to save enabling exercise to family:', error);
+      }
+    };
+    void persist();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showResults]);
 
   const handleAnswer = (value: string) => {
     setAnswers(prev => ({ ...prev, [currentQuestion.id]: value }));
@@ -255,46 +76,18 @@ const EnablingExercise = () => {
     setCurrentStep(0);
     setAnswers({});
     setShowResults(false);
-  };
-
-  const getEnablingCount = () => {
-    return Object.entries(answers).filter(([id, value]) => {
-      const question = questions.find(q => q.id === parseInt(id));
-      const option = question?.options.find(o => o.value === value);
-      return option?.isEnabling;
-    }).length;
+    setSavedToFamily(false);
   };
 
   const getResultMessage = () => {
-    const enablingCount = getEnablingCount();
-    const total = Object.keys(answers).length;
-    const percentage = (enablingCount / total) * 100;
-
-    if (percentage >= 60) {
-      return {
-        type: 'warning',
-        title: 'This May Be Enabling',
-        message: "Based on your answers, this situation shows several signs of enabling behavior. While it's natural to want to help, stepping back may actually be the most loving thing you can do. Consider consulting with a counselor or attending an Al-Anon meeting for support.",
-        icon: AlertTriangle,
-        color: 'text-destructive'
-      };
-    } else if (percentage >= 30) {
-      return {
-        type: 'caution',
-        title: 'Proceed with Caution',
-        message: "Your answers show a mix of enabling and healthy helping patterns. Before acting, clearly define boundaries and expectations. Consider if there are ways to support without rescuing.",
-        icon: HelpCircle,
-        color: 'text-warning'
-      };
-    } else {
-      return {
-        type: 'okay',
-        title: 'This Appears to Be Healthy Helping',
-        message: "Based on your answers, this situation appears to be genuine support rather than enabling. Remember to maintain boundaries and continue evaluating as situations evolve.",
-        icon: CheckCircle,
-        color: 'text-primary'
-      };
+    const result = getEnablingResult(answers, questions);
+    if (result.type === 'warning') {
+      return { ...result, icon: AlertTriangle, color: 'text-destructive' };
     }
+    if (result.type === 'caution') {
+      return { ...result, icon: HelpCircle, color: 'text-warning' };
+    }
+    return { ...result, icon: CheckCircle, color: 'text-primary' };
   };
 
   if (showResults) {
@@ -305,7 +98,7 @@ const EnablingExercise = () => {
       <div className="min-h-screen bg-background">
         <header className="container mx-auto px-3 sm:px-4 py-3 sm:py-4 border-b border-border">
           <nav className="flex items-center justify-between">
-            <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
+            <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate(familyHome)}>
               <img src={familyBridgeLogo} alt="FamilyBridge" className="h-6 sm:h-7 w-auto object-contain" />
               <span className="text-base sm:text-lg font-display font-semibold text-foreground">FamilyBridge</span>
             </div>
@@ -322,6 +115,13 @@ const EnablingExercise = () => {
               <CardDescription className="text-sm sm:text-base mt-2">
                 {result.message}
               </CardDescription>
+              {familyId && (
+                <p className="mt-2 text-xs text-muted-foreground">
+                  {savedToFamily
+                    ? 'Saved to your family so this is not a dead-end quiz.'
+                    : 'Saving to your family…'}
+                </p>
+              )}
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-4">
@@ -357,17 +157,27 @@ const EnablingExercise = () => {
                   <li>• You cannot control another person's recovery, only your own choices</li>
                   <li>• Taking care of yourself is not selfish, it's necessary</li>
                   <li>• It's okay to say no, even to people you love</li>
-                  <li>• Consider joining Al-Anon or a similar support group for families</li>
+                  <li>• Consider joining Al-Anon, Nar-Anon, or a CRAFT-informed family group</li>
                 </ul>
               </div>
+
+              <p className="text-xs text-muted-foreground text-center">
+                If anyone is in immediate danger, call <a className="font-semibold underline" href="tel:911">911</a>.
+                For suicide or mental health crisis, call or text <a className="font-semibold underline" href="tel:988">988</a>.
+              </p>
 
               <div className="flex flex-col sm:flex-row gap-3 justify-center pt-4">
                 <Button variant="outline" onClick={handleReset}>
                   <RotateCcw className="h-4 w-4 mr-2" />
                   Start Over
                 </Button>
-                <Button variant="hero" onClick={() => navigate('/')}>
-                  Return Home
+                {(result.type === 'warning' || result.type === 'caution') && (
+                  <Button variant="outline" onClick={() => navigate(familyMeetingsHref)}>
+                    Find a family meeting
+                  </Button>
+                )}
+                <Button variant="hero" onClick={() => navigate(familyHome)}>
+                  {familyId ? 'Back to family home' : 'Return Home'}
                 </Button>
               </div>
             </CardContent>
@@ -386,11 +196,11 @@ const EnablingExercise = () => {
       />
       <header className="container mx-auto px-3 sm:px-4 py-3 sm:py-4 border-b border-border">
         <nav className="flex items-center justify-between">
-          <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
+          <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate(familyHome)}>
             <img src={familyBridgeLogo} alt="FamilyBridge" className="h-6 sm:h-7 w-auto object-contain" />
             <span className="text-base sm:text-lg font-display font-semibold text-foreground">FamilyBridge</span>
           </div>
-          <Button variant="ghost" size="sm" onClick={() => navigate('/')} className="px-2 sm:px-3">
+          <Button variant="ghost" size="sm" onClick={() => navigate(familyHome)} className="px-2 sm:px-3">
             <ArrowLeft className="h-4 w-4 sm:mr-1" />
             <span className="hidden sm:inline">Back</span>
           </Button>
@@ -437,6 +247,7 @@ const EnablingExercise = () => {
               </div>
               <p className="text-sm text-muted-foreground">
                 Think of a specific situation you're facing right now, then answer the following questions honestly.
+                {familyId ? ' Results will be saved to your family.' : ''}
               </p>
             </CardContent>
           </Card>

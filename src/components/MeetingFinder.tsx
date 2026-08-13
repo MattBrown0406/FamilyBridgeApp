@@ -67,7 +67,7 @@ const MEETING_TYPES: Record<string, string> = {
 };
 
 // Region/Feed configuration
-type Fellowship = 'AA' | 'Al-Anon' | 'ACA' | 'NA' | 'CoDA' | 'Refuge Recovery' | 'Families Anonymous' | 'EDA' | 'All';
+type Fellowship = 'AA' | 'Al-Anon' | 'Nar-Anon' | 'CRAFT' | 'ACA' | 'NA' | 'CoDA' | 'Refuge Recovery' | 'Families Anonymous' | 'EDA' | 'All';
 
 interface RegionFeed {
   name: string;
@@ -82,15 +82,17 @@ interface RegionGroup {
   fellowship: Fellowship;
 }
 
-const FELLOWSHIPS: { value: Fellowship; label: string }[] = [
+const FELLOWSHIPS: { value: Fellowship; label: string; audience?: 'family' | 'loved-one' }[] = [
   { value: 'All', label: 'All Fellowships' },
-  { value: 'AA', label: 'Alcoholics Anonymous (AA)' },
-  { value: 'Al-Anon', label: 'Al-Anon / Alateen' },
-  { value: 'NA', label: 'Narcotics Anonymous (NA)' },
+  { value: 'Al-Anon', label: 'Al-Anon / Alateen (for families)', audience: 'family' },
+  { value: 'Nar-Anon', label: 'Nar-Anon (for families)', audience: 'family' },
+  { value: 'CRAFT', label: 'CRAFT (family skills, not a meeting list)', audience: 'family' },
+  { value: 'AA', label: 'Alcoholics Anonymous (AA)', audience: 'loved-one' },
+  { value: 'NA', label: 'Narcotics Anonymous (NA)', audience: 'loved-one' },
   { value: 'ACA', label: 'Adult Children of Alcoholics (ACA)' },
   { value: 'CoDA', label: 'Co-Dependents Anonymous (CoDA)' },
   { value: 'Refuge Recovery', label: 'Refuge Recovery' },
-  { value: 'Families Anonymous', label: 'Families Anonymous' },
+  { value: 'Families Anonymous', label: 'Families Anonymous', audience: 'family' },
   { value: 'EDA', label: 'Eating Disorders Anonymous (EDA)' },
 ];
 
@@ -219,7 +221,12 @@ const REGION_GROUPS: RegionGroup[] = [
 // Flatten for easy lookup
 const ALL_REGIONS = REGION_GROUPS.flatMap(g => g.regions.map(r => ({ ...r, fellowship: g.fellowship })));
 
-export const MeetingFinder = () => {
+interface MeetingFinderProps {
+  defaultFellowship?: Fellowship;
+  audience?: 'family' | 'loved-one';
+}
+
+export const MeetingFinder = ({ defaultFellowship = 'All', audience }: MeetingFinderProps) => {
   const [meetings, setMeetings] = useState<Meeting[]>([]);
   const [filteredMeetings, setFilteredMeetings] = useState<Meeting[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -231,9 +238,13 @@ export const MeetingFinder = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDay, setSelectedDay] = useState<string>('');
   const [selectedType, setSelectedType] = useState<string>('');
-  const [selectedFellowship, setSelectedFellowship] = useState<Fellowship>('All');
+  const [selectedFellowship, setSelectedFellowship] = useState<Fellowship>(defaultFellowship);
   const [selectedRegion, setSelectedRegion] = useState<string>('');
   const [showFilters, setShowFilters] = useState(false);
+
+  useEffect(() => {
+    setSelectedFellowship(defaultFellowship);
+  }, [defaultFellowship]);
 
   // Filter region groups based on selected fellowship
   const filteredRegionGroups = selectedFellowship === 'All' 
@@ -443,13 +454,23 @@ export const MeetingFinder = () => {
               <SelectValue placeholder="Select fellowship" />
             </SelectTrigger>
             <SelectContent>
-              {FELLOWSHIPS.map((f) => (
+              {FELLOWSHIPS.filter((f) => !audience || f.value === 'All' || !f.audience || f.audience === audience || audience === 'family').map((f) => (
                 <SelectItem key={f.value} value={f.value}>
                   {f.label}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
+          {audience === 'family' && (
+            <p className="text-xs text-muted-foreground">
+              Family first: Al-Anon, Nar-Anon, and CRAFT are listed as clearly as AA is for a loved one.
+            </p>
+          )}
+          {audience === 'loved-one' && (
+            <p className="text-xs text-muted-foreground">
+              Recovery meetings for you. Family groups (Al-Anon / Nar-Anon) live on the family side of the app.
+            </p>
+          )}
         </div>
 
         {/* Region Selector - Only shown for AA fellowship */}
@@ -537,6 +558,72 @@ export const MeetingFinder = () => {
                     <ExternalLink className="h-4 w-4" />
                     <span className="sm:hidden">Find Meetings</span>
                     <span className="hidden sm:inline">Find Al-Anon Meetings</span>
+                  </a>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Nar-Anon External Link */}
+        {selectedFellowship === 'Nar-Anon' && (
+          <Card className="border-primary/30 bg-primary/5">
+            <CardContent className="py-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex-1">
+                  <h4 className="font-medium text-foreground text-sm sm:text-base">Nar-Anon Meeting Finder</h4>
+                  <p className="text-xs sm:text-sm text-muted-foreground">
+                    Nar-Anon is for families and friends of people with a drug problem — the family parallel to NA.
+                  </p>
+                </div>
+                <Button asChild variant="outline" size="sm" className="w-full sm:w-auto shrink-0">
+                  <a
+                    href="https://www.nar-anon.org/find-a-meeting"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2"
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                    Find Nar-Anon Meetings
+                  </a>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* CRAFT — method, not a meeting directory */}
+        {selectedFellowship === 'CRAFT' && (
+          <Card className="border-primary/30 bg-primary/5">
+            <CardContent className="py-4 space-y-3">
+              <div>
+                <h4 className="font-medium text-foreground text-sm sm:text-base">CRAFT for families</h4>
+                <p className="text-xs sm:text-sm text-muted-foreground">
+                  Community Reinforcement and Family Training is a skills approach (invite change without rescuing).
+                  This is not a paid placement directory.
+                </p>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-2">
+                <Button asChild variant="outline" size="sm">
+                  <a
+                    href="https://drugfree.org/article/community-reinforcement-and-family-training-craft-an-overview/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2"
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                    CRAFT overview
+                  </a>
+                </Button>
+                <Button asChild variant="outline" size="sm">
+                  <a
+                    href="https://al-anon.org/al-anon-meetings/find-an-al-anon-meeting/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2"
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                    Also find Al-Anon
                   </a>
                 </Button>
               </div>
