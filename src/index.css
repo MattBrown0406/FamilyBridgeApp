@@ -36,30 +36,30 @@
 
 @layer base {
   :root {
-    /* Warm, healing color palette */
-    --background: 40 20% 98%;
-    --foreground: 220 20% 20%;
+    /* FamilyBridge: deep teal, sunrise orange, warm cream (matches the app) */
+    --background: 38 33% 95%;
+    --foreground: 209 35% 16%;
 
     --card: 0 0% 100%;
-    --card-foreground: 220 20% 20%;
+    --card-foreground: 209 35% 16%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 220 20% 20%;
+    --popover-foreground: 209 35% 16%;
 
-    /* Sage green - hope and growth */
-    --primary: 150 25% 35%;
+    /* Bridge teal */
+    --primary: 186 59% 30%;
     --primary-foreground: 0 0% 100%;
 
-    /* Warm sand */
-    --secondary: 35 30% 92%;
-    --secondary-foreground: 220 20% 20%;
+    /* Soft teal */
+    --secondary: 180 29% 91%;
+    --secondary-foreground: 187 62% 20%;
 
     /* Soft neutrals */
-    --muted: 35 15% 95%;
-    --muted-foreground: 220 10% 45%;
+    --muted: 38 24% 91%;
+    --muted-foreground: 214 13% 46%;
 
-    /* Gentle teal accent */
-    --accent: 175 35% 45%;
+    /* Sunrise */
+    --accent: 30 83% 61%;
     --accent-foreground: 0 0% 100%;
 
     /* Soft coral for warnings/important */
@@ -74,15 +74,15 @@
     --warning: 38 90% 55%;
     --warning-foreground: 220 20% 20%;
 
-    --border: 35 20% 88%;
-    --input: 35 20% 88%;
-    --ring: 150 25% 35%;
+    --border: 38 21% 87%;
+    --input: 38 21% 87%;
+    --ring: 186 59% 30%;
 
     --radius: 0.75rem;
 
     /* Custom tokens */
     --gradient-warm: linear-gradient(135deg, hsl(35 40% 95%) 0%, hsl(40 30% 90%) 100%);
-    --gradient-sage: linear-gradient(135deg, hsl(150 25% 35%) 0%, hsl(160 30% 45%) 100%);
+    --gradient-sage: linear-gradient(135deg, hsl(187 62% 20%) 0%, hsl(186 59% 30%) 100%);
     --gradient-hero: linear-gradient(180deg, hsl(40 20% 98%) 0%, hsl(35 30% 94%) 100%);
     --shadow-soft: 0 4px 20px -4px hsl(220 20% 20% / 0.08);
     --shadow-card: 0 2px 12px -2px hsl(220 20% 20% / 0.06);
@@ -90,12 +90,12 @@
 
     --sidebar-background: 40 20% 97%;
     --sidebar-foreground: 220 20% 20%;
-    --sidebar-primary: 150 25% 35%;
+    --sidebar-primary: 186 59% 30%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 35 30% 92%;
     --sidebar-accent-foreground: 220 20% 20%;
     --sidebar-border: 35 20% 88%;
-    --sidebar-ring: 150 25% 35%;
+    --sidebar-ring: 186 59% 30%;
   }
 
   .dark {
@@ -108,7 +108,7 @@
     --popover: 220 18% 14%;
     --popover-foreground: 40 20% 95%;
 
-    --primary: 150 30% 50%;
+    --primary: 186 50% 45%;
     --primary-foreground: 220 20% 10%;
 
     --secondary: 220 15% 20%;
@@ -117,7 +117,7 @@
     --muted: 220 15% 18%;
     --muted-foreground: 40 10% 65%;
 
-    --accent: 175 40% 50%;
+    --accent: 30 83% 61%;
     --accent-foreground: 220 20% 10%;
 
     --destructive: 10 65% 50%;
@@ -131,11 +131,11 @@
 
     --border: 220 15% 22%;
     --input: 220 15% 22%;
-    --ring: 150 30% 50%;
+    --ring: 186 50% 45%;
 
     --sidebar-background: 220 18% 12%;
     --sidebar-foreground: 40 20% 95%;
-    --sidebar-primary: 150 30% 50%;
+    --sidebar-primary: 186 50% 45%;
     --sidebar-primary-foreground: 220 20% 10%;
     --sidebar-accent: 220 15% 20%;
     --sidebar-accent-foreground: 40 20% 95%;

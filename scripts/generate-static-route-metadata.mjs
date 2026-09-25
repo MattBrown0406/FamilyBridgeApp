@@ -9,8 +9,8 @@ const baseUrl = 'https://familybridgeapp.com';
 const indexableRoutes = [
   {
     path: '/',
-    title: 'FamilyBridge — Family Recovery Support and Coordination',
-    description: 'FamilyBridge helps families support a loved one in recovery through communication, coordinated actions, clear boundaries, and authorized professional collaboration.',
+    title: 'FamilyBridge — Recovery Is a Family Journey',
+    description: 'Keep your family on the same page through a loved one\'s recovery: shared accountability, AI coaching for hard conversations, and real help when it matters.',
   },
   {
     path: '/family-purchase',
@@ -19,8 +19,8 @@ const indexableRoutes = [
   },
   {
     path: '/for-providers',
-    title: 'FamilyBridge for Treatment Providers',
-    description: 'FamilyBridge helps authorized treatment teams collaborate with families through privacy-conscious communication, documented actions, care transitions, and follow-through.',
+    title: 'FamilyBridge for Treatment Professionals',
+    description: 'A consent-based caseload, family chat, AI summaries, drug tests, handoffs between levels of care and white label for the families you serve. From $149/month.',
   },
   {
     path: '/provider-purchase',
@@ -80,17 +80,22 @@ const indexableRoutes = [
   {
     path: '/support',
     title: 'FamilyBridge Support',
-    description: 'Get help with FamilyBridge accounts, family coordination tools, privacy questions, and product support.',
+    description: 'Help with FamilyBridge: family setup, passwords, deleting your account, subscriptions, SOS, working with professionals, and privacy.',
   },
   {
     path: '/privacy',
     title: 'Privacy Policy | FamilyBridge',
-    description: 'Read how FamilyBridge handles personal information, family data, authorized professional access, and privacy choices.',
+    description: 'How FamilyBridge handles your family\'s information: what we collect, who can see it, AI features with your permission, and deleting your account.',
   },
   {
     path: '/terms',
     title: 'Terms of Service | FamilyBridge',
-    description: 'Read the terms governing use of the FamilyBridge recovery support and family coordination platform.',
+    description: 'The terms for using FamilyBridge: families, professionals, subscriptions and SOS sessions, AI features, drug-test results, and your account.',
+  },
+  {
+    path: '/eula',
+    title: 'End User License Agreement | FamilyBridge',
+    description: 'The FamilyBridge End User License Agreement for the iOS app: your license, maintenance and support, warranty, and Apple\'s role as third-party beneficiary.',
   },
 ];
 

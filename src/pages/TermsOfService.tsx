@@ -1,228 +1,137 @@
-import { BrandedHeader } from "@/components/BrandedHeader";
-import { BrandedFooter } from "@/components/BrandedFooter";
-import { Card, CardContent } from "@/components/ui/card";
-import { SEOHead, createBreadcrumbSchema } from "@/components/SEOHead";
-import PublicCrisisHelp from "@/components/PublicCrisisHelp";
+import { Link } from 'react-router-dom';
+import { LegalPage, type LegalSection } from '@/components/site/LegalPage';
 
-const TermsOfService = () => {
-  const breadcrumbSchema = createBreadcrumbSchema([
-    { name: 'Home', url: '/' },
-    { name: 'Terms of Service', url: '/terms' },
-  ]);
+const sections: LegalSection[] = [
+  {
+    id: 'acceptance',
+    title: 'Acceptance of these Terms',
+    body: <p>By creating an account or using FamilyBridge (the “App”), you agree to these Terms of Service and to our <Link to="/privacy">Privacy Policy</Link>. If you use the App from Apple's App Store, our <Link to="/eula">End User License Agreement</Link> also applies. If you don't agree, please don't use the App. FamilyBridge is operated by Freedom Interventions, LLC (“FamilyBridge,” “we,” “us”).</p>,
+  },
+  {
+    id: 'service',
+    title: 'What FamilyBridge is — and isn’t',
+    body: (
+      <>
+        <p>FamilyBridge helps families affected by a loved one's substance use communicate and stay accountable: money requests, meetings, appointments, medications, drug tests, check-ins, boundaries, goals and plans; optional AI coaching; optional connections with professionals the family chooses; and optional SOS messaging sessions.</p>
+        <p><strong>FamilyBridge is not a medical, mental-health, legal or emergency service</strong>, and nothing in the App is a diagnosis, treatment or professional advice. SOS sessions are time-limited messaging support from a certified interventionist; they are not an emergency response and are not monitored continuously. <strong>If anyone may be in danger, call 911. For a mental-health crisis, call or text 988.</strong></p>
+      </>
+    ),
+  },
+  {
+    id: 'eligibility',
+    title: 'Eligibility and accounts',
+    body: (
+      <>
+        <p>You must be at least 13 years old to use the App, and anyone under 18 needs a parent's or guardian's permission. You're responsible for keeping your login secure, for the accuracy of what you enter, and for activity under your account. Tell us right away if you think someone has accessed your account.</p>
+        <p>You can delete your account at any time in the App: Settings → Privacy &amp; account → Delete my account.</p>
+      </>
+    ),
+  },
+  {
+    id: 'families',
+    title: 'Families',
+    body: (
+      <>
+        <p>A family is a private group. People join with the family's invite code and are approved by a parent or partner. Parents and partners make decisions that affect the whole family, such as approving members, connecting professionals, choosing what professionals can see, and accepting handoffs.</p>
+        <p>Share only information you have the right to share, and respect the privacy of the other people in your family. Family chat has a respect filter that blocks insults, threats and shaming language; please use the App kindly.</p>
+      </>
+    ),
+  },
+  {
+    id: 'professionals',
+    title: 'Professionals',
+    body: (
+      <>
+        <p>Professionals and their staff may see only what a family chooses to share and must use it only to support that family's care. Professionals are solely responsible for their own services, licensing, records, and compliance with the laws that apply to them (including, where applicable, HIPAA and 42 CFR Part 2), and for any fees they charge families, which are arranged directly between the professional and the family.</p>
+        <p>Professional plans (Solo, Practice and Organization) are billed directly by FamilyBridge under the plan the practice selects. We may limit the number of connected families according to the practice's plan.</p>
+      </>
+    ),
+  },
+  {
+    id: 'payments',
+    title: 'Subscriptions and purchases',
+    body: (
+      <>
+        <p><strong>Family Plus</strong> is an auto-renewing subscription ($19.99 per month or $179 per year, or as shown in the App) that covers everyone in your family. Families working with a professional on a paid FamilyBridge plan may have Family Plus included while connected, and for 14 days after that professional completes their care.</p>
+        <p><strong>SOS sessions.</strong> Each family includes one 24-hour SOS session per billing cycle. Additional sessions are a one-time in-app purchase.</p>
+        <p><strong>Billing through Apple.</strong> In-app purchases are charged to your Apple ID. Subscriptions renew automatically unless cancelled at least 24 hours before the end of the current period. Manage or cancel them in your iPhone's Settings → your name → Subscriptions. Refunds are handled by Apple under its policies. Deleting your account does not cancel a subscription.</p>
+        <p>We may change prices for future billing periods; Apple will notify you as required before a change takes effect.</p>
+      </>
+    ),
+  },
+  {
+    id: 'ai',
+    title: 'AI features',
+    body: (
+      <>
+        <p>AI features (AI Coach, Live Coaching, document reading, letter feedback, Family Insights and the professional AI Assistant) are powered by Anthropic's Claude. They stay off until you agree in the App, and you can turn them off at any time in Settings → Privacy &amp; account. Family Insights runs only if a family helper turns it on.</p>
+        <p>AI output may be inaccurate or incomplete and is not a substitute for professional judgment. Review it before relying on it or sharing it, and use your own judgment about what to say and do.</p>
+      </>
+    ),
+  },
+  {
+    id: 'tests',
+    title: 'Drug tests and lab results',
+    body: <p>Drug-test results in the App are recorded by family members, professionals or partner labs, and results read from a photo by AI should be checked before saving. Results are for family support and communication only; FamilyBridge does not perform testing and doesn't warrant any result's accuracy. Don't rely on the App for legal, employment or court purposes.</p>,
+  },
+  {
+    id: 'conduct',
+    title: 'Acceptable use',
+    body: (
+      <ul>
+        <li>Don't use the App for anything illegal, or to harass, threaten, stalk or harm anyone.</li>
+        <li>Don't share someone else's private information without the right to do so.</li>
+        <li>Don't try to access accounts, families or data that aren't yours, or interfere with the App's security or operation.</li>
+        <li>Don't copy, resell or reverse-engineer the App.</li>
+      </ul>
+    ),
+  },
+  {
+    id: 'content',
+    title: 'Your content and our property',
+    body: <p>You keep ownership of what you add to the App. You give us permission to store, process and display it only as needed to provide the App to you and the people you share it with (and, for AI features you use, to have our AI provider process it). The App, its design, software and content are owned by FamilyBridge and protected by intellectual-property laws.</p>,
+  },
+  {
+    id: 'disclaimers',
+    title: 'Disclaimers',
+    body: <p>THE APP IS PROVIDED “AS IS” AND “AS AVAILABLE,” WITHOUT WARRANTIES OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. WE DON'T WARRANT THAT THE APP WILL BE UNINTERRUPTED, ERROR-FREE OR SECURE, OR THAT ANY OUTCOME — INCLUDING ANYONE'S RECOVERY — WILL RESULT FROM USING IT.</p>,
+  },
+  {
+    id: 'liability',
+    title: 'Limitation of liability',
+    body: <p>TO THE FULLEST EXTENT PERMITTED BY LAW, FAMILYBRIDGE WILL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL OR PUNITIVE DAMAGES, OR ANY LOSS OF DATA, PROFITS OR GOODWILL, ARISING FROM YOUR USE OF THE APP. OUR TOTAL LIABILITY FOR ANY CLAIM IS LIMITED TO THE AMOUNT YOU PAID US IN THE 12 MONTHS BEFORE THE CLAIM, OR $100 IF GREATER. Some places don't allow these limits, so they may not apply to you.</p>,
+  },
+  {
+    id: 'indemnity',
+    title: 'Indemnification',
+    body: <p>You agree to indemnify and hold harmless FamilyBridge and its officers, employees and agents from claims arising from your misuse of the App or violation of these Terms. Professionals additionally agree to do so for claims arising from their services to families.</p>,
+  },
+  {
+    id: 'termination',
+    title: 'Ending your use',
+    body: <p>You can stop using the App and delete your account at any time. We may suspend or end access for conduct that violates these Terms or puts others at risk. Sections that by their nature should survive (such as ownership, disclaimers and limits of liability) survive termination.</p>,
+  },
+  {
+    id: 'law',
+    title: 'Governing law and changes',
+    body: <p>These Terms are governed by the laws of the United States and the state in which Freedom Interventions, LLC is organized, without regard to conflict-of-law rules. We may update these Terms; we'll post changes here and, for material changes, notify you in the App. Continuing to use the App after changes take effect means you accept them.</p>,
+  },
+  {
+    id: 'contact',
+    title: 'Contact us',
+    body: <p><a href="mailto:matt@freedominterventions.com">matt@freedominterventions.com</a> · <Link to="/support">Support</Link></p>,
+  },
+];
 
-  return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <SEOHead
-        title="Terms of Service | FamilyBridge"
-        description="Read the terms governing use of the FamilyBridge recovery support and family coordination platform."
-        canonicalPath="/terms"
-        structuredData={breadcrumbSchema}
-      />
-      <BrandedHeader showHomeButton />
-      
-      <main className="flex-1 container mx-auto px-3 sm:px-4 py-4 sm:py-8 max-w-4xl">
-        <div className="text-center mb-4 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">Terms of Service</h1>
-          <p className="text-sm sm:text-base text-muted-foreground">
-            Last updated: April 2026
-          </p>
-        </div>
-
-        <div className="space-y-6">
-          <Card>
-            <CardContent className="pt-6">
-              <h2 className="text-xl font-semibold text-foreground mb-3">1. Acceptance of Terms</h2>
-              <p className="text-muted-foreground">
-                By accessing or using FamilyBridge ("the App"), you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, do not use the App. We may modify these Terms at any time, and your continued use of the App constitutes acceptance of any changes.
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <h2 className="text-xl font-semibold text-foreground mb-3">2. Description of Service</h2>
-              <p className="text-muted-foreground">
-                FamilyBridge is a communication and support platform designed to help families affected by addiction. The App provides tools for family communication, boundary setting, financial request management, meeting check-ins, and related features. FamilyBridge is not a medical, mental health, or crisis intervention service.
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <h2 className="text-xl font-semibold text-foreground mb-3">3. Eligibility</h2>
-              <p className="text-muted-foreground">
-                You must be at least 13 years old to use the App. If you are under 18, you must have parental or guardian consent. By using the App, you represent that you meet these eligibility requirements.
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <h2 className="text-xl font-semibold text-foreground mb-3">4. Account Registration</h2>
-              <div className="space-y-3 text-muted-foreground">
-                <p>You are responsible for:</p>
-                <ul className="list-disc list-inside space-y-1">
-                  <li>Providing accurate and complete registration information</li>
-                  <li>Maintaining the security of your account credentials</li>
-                  <li>All activities that occur under your account</li>
-                  <li>Notifying us immediately of any unauthorized use of your account</li>
-                </ul>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <h2 className="text-xl font-semibold text-foreground mb-3">5. Subscriptions and Payments</h2>
-              <div className="space-y-4 text-muted-foreground">
-                <div>
-                  <h3 className="font-medium text-foreground mb-2">5.1 Subscription Terms</h3>
-                  <p>FamilyBridge offers subscription-based access to premium features. Subscriptions automatically renew at the end of each billing period unless cancelled.</p>
-                </div>
-                <div>
-                  <h3 className="font-medium text-foreground mb-2">5.2 Billing</h3>
-                  <ul className="list-disc list-inside space-y-1">
-                    <li>Payment will be charged to your selected payment method at confirmation of purchase.</li>
-                    <li>Subscriptions renew automatically unless cancelled before the end of the current billing period.</li>
-                  </ul>
-                </div>
-                <div>
-                  <h3 className="font-medium text-foreground mb-2">5.3 Cancellation</h3>
-                  <p>You may cancel your subscription at any time through your account settings. Cancellation takes effect at the end of the current billing period. No refunds are provided for partial billing periods.</p>
-                </div>
-                <div>
-                  <h3 className="font-medium text-foreground mb-2">5.4 Price Changes</h3>
-                  <p>We may change subscription prices at any time. Price changes will be communicated in advance and will apply to the next billing cycle.</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <h2 className="text-xl font-semibold text-foreground mb-3">6. User Conduct</h2>
-              <div className="space-y-3 text-muted-foreground">
-                <p>You agree not to:</p>
-                <ul className="list-disc list-inside space-y-1">
-                  <li>Use the App for any illegal purpose</li>
-                  <li>Harass, abuse, or harm other users</li>
-                  <li>Share false or misleading information</li>
-                  <li>Attempt to gain unauthorized access to the App or other accounts</li>
-                  <li>Interfere with the proper functioning of the App</li>
-                  <li>Share content that is obscene, defamatory, or violates others' rights</li>
-                  <li>Use the App in any way that violates these Terms</li>
-                </ul>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <h2 className="text-xl font-semibold text-foreground mb-3">7. Content and Intellectual Property</h2>
-              <div className="space-y-3 text-muted-foreground">
-                <p><strong>Your Content:</strong> You retain ownership of content you submit to the App. By submitting content, you grant us a license to use, store, and display that content as necessary to provide the service.</p>
-                <p><strong>Our Content:</strong> The App and its original content, features, and functionality are owned by FamilyBridge and are protected by copyright, trademark, and other intellectual property laws.</p>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <h2 className="text-xl font-semibold text-foreground mb-3">8. Privacy</h2>
-              <p className="text-muted-foreground">
-                Your use of the App is also governed by our Privacy Policy, which is incorporated into these Terms by reference. Please review our Privacy Policy to understand our practices regarding your personal information.
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <h2 className="text-xl font-semibold text-foreground mb-3">9. AI-Assisted Features</h2>
-              <div className="space-y-3 text-muted-foreground">
-                <p>Some FamilyBridge features use AI to generate suggestions or extract information from content you choose to submit, including messages, screenshots, documents, and medication-label photos.</p>
-                <ul className="list-disc list-inside space-y-1">
-                  <li>These features are optional and provided for support and convenience only.</li>
-                  <li>You are responsible for reviewing AI-generated output before relying on it or sharing it with others.</li>
-                  <li>You should avoid submitting unrelated sensitive information when it is not necessary for the feature you are using.</li>
-                  <li>AI output may be inaccurate, incomplete, or inappropriate and is not a substitute for professional judgment.</li>
-                </ul>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <h2 className="text-xl font-semibold text-foreground mb-3">10. Disclaimer of Warranties</h2>
-              <div className="space-y-3 text-muted-foreground">
-                <p>THE APP IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTIES OF ANY KIND, EXPRESS OR IMPLIED. WE DO NOT WARRANT THAT THE APP WILL BE UNINTERRUPTED, ERROR-FREE, OR SECURE.</p>
-                <p><strong>Important:</strong> FamilyBridge is not a substitute for professional medical, mental health, or addiction treatment services. If you or someone you know may be in immediate danger, call 911 now. In the U.S. and Canada, call or text 988 for immediate crisis support.</p>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <h2 className="text-xl font-semibold text-foreground mb-3">11. Limitation of Liability</h2>
-              <p className="text-muted-foreground">
-                TO THE MAXIMUM EXTENT PERMITTED BY LAW, FAMILYBRIDGE SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, OR ANY LOSS OF PROFITS OR REVENUES, WHETHER INCURRED DIRECTLY OR INDIRECTLY, OR ANY LOSS OF DATA, USE, GOODWILL, OR OTHER INTANGIBLE LOSSES RESULTING FROM YOUR USE OF THE APP.
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <h2 className="text-xl font-semibold text-foreground mb-3">12. Indemnification</h2>
-              <p className="text-muted-foreground">
-                You agree to indemnify and hold harmless FamilyBridge and its officers, directors, employees, and agents from any claims, damages, losses, liabilities, and expenses arising out of your use of the App or violation of these Terms.
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <h2 className="text-xl font-semibold text-foreground mb-3">13. Termination</h2>
-              <p className="text-muted-foreground">
-                We may terminate or suspend your account and access to the App at any time, without prior notice, for conduct that we believe violates these Terms or is harmful to other users, us, or third parties, or for any other reason at our sole discretion.
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <h2 className="text-xl font-semibold text-foreground mb-3">14. Governing Law</h2>
-              <p className="text-muted-foreground">
-                These Terms shall be governed by and construed in accordance with the laws of the United States, without regard to its conflict of law provisions.
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <h2 className="text-xl font-semibold text-foreground mb-3">15. Contact Us</h2>
-              <p className="text-muted-foreground mb-3">
-                If you have any questions about these Terms, please contact us at:
-              </p>
-              <a 
-                href="mailto:matt@freedominterventions.com"
-                className="text-primary hover:underline font-medium"
-              >
-                matt@freedominterventions.com
-              </a>
-            </CardContent>
-          </Card>
-
-          <div className="mt-8">
-            <PublicCrisisHelp className="max-w-2xl mx-auto mb-4" />
-            <p className="text-xs text-muted-foreground max-w-md mx-auto text-center">
-              FamilyBridge provides educational and support-focused content only. It does not offer medical, mental health, or crisis services.
-            </p>
-          </div>
-        </div>
-      </main>
-
-      <BrandedFooter />
-    </div>
-  );
-};
+const TermsOfService = () => (
+  <LegalPage
+    title="Terms of Service"
+    path="/terms"
+    description="The terms for using FamilyBridge: families, professionals, subscriptions and SOS sessions, AI features, drug-test results, and your account."
+    updated="September 2026"
+    intro={<p>These terms explain how FamilyBridge works, what you can expect from us, and what we ask of you. We've tried to keep them plain.</p>}
+    sections={sections}
+  />
+);
 
 export default TermsOfService;

@@ -27,6 +27,8 @@ export const BrandedFooter = () => {
           <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 sm:gap-4 text-xs sm:text-sm text-muted-foreground">
             <Link to="/terms" className="hover:text-foreground transition-colors">Terms</Link>
             <Link to="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
+            <Link to="/eula" className="hover:text-foreground transition-colors">EULA</Link>
+            <Link to="/support" className="hover:text-foreground transition-colors">Support</Link>
           </div>
           <span className="text-xs text-muted-foreground">© {currentYear} {organization.name}</span>
         </div>
@@ -49,9 +51,11 @@ export const BrandedFooter = () => {
         <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 sm:gap-4 text-xs sm:text-sm text-muted-foreground">
           <Link to="/terms" className="hover:text-foreground transition-colors">Terms</Link>
           <Link to="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
+          <Link to="/eula" className="hover:text-foreground transition-colors">EULA</Link>
           <Link to="/support" className="hover:text-foreground transition-colors">Support</Link>
+          <Link to="/for-providers" className="hover:text-foreground transition-colors">For professionals</Link>
         </div>
-        <span className="text-xs text-muted-foreground">© {currentYear} FamilyBridge</span>
+        <span className="text-xs text-muted-foreground">© {currentYear} FamilyBridge · Freedom Interventions, LLC</span>
       </div>
     </footer>
   );

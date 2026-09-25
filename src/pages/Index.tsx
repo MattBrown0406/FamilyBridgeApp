@@ -1,276 +1,349 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import {
+  ArrowRight, BadgeCheck, Briefcase, CalendarCheck, ClipboardList, Ear, FileText, FlaskConical, GitBranch, Heart,
+  HeartHandshake, LifeBuoy, Lock, LogOut, Mail, MessagesSquare, Pill, ShieldCheck, Sparkles, Sunrise, Target, Users, Wallet,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
-import { useOrganization } from '@/hooks/useOrganization';
 import { useProviderAdmin } from '@/hooks/useProviderAdmin';
 import { supabase } from '@/integrations/supabase/client';
 import { BrandedFooter } from '@/components/BrandedFooter';
 import { SEOHead, createOrganizationSchema } from '@/components/SEOHead';
-import FeatureTiers from '@/components/home/FeatureTiers';
-import GovernanceTrustBanner from '@/components/home/GovernanceTrustBanner';
-import AdditionalTools from '@/components/home/AdditionalTools';
-import AnimatedHomeHero from '@/components/home/AnimatedHomeHero';
 import PublicCrisisHelp from '@/components/PublicCrisisHelp';
-import familyBridgeLogo from '@/assets/familybridge-logo.png';
-import { ArrowRight, Building2, Check, LogOut, Heart, Phone } from 'lucide-react';
+import { AppStoreBadge, Phone, SiteHeader } from '@/components/site/SiteChrome';
+import todayShot from '@/assets/app/today.webp';
+import insightsShot from '@/assets/app/insights.webp';
+import chatShot from '@/assets/app/chat.webp';
+import testsShot from '@/assets/app/tests.webp';
+import planShot from '@/assets/app/plan.webp';
+import sosShot from '@/assets/app/sos.webp';
+import liveShot from '@/assets/app/live.webp';
+import caseloadShot from '@/assets/app/caseload.webp';
 
-const APP_STORE_URL = 'https://apps.apple.com/app/id6744403069';
+const TOOL_GROUPS: { title: string; blurb: string; items: { icon: React.ElementType; name: string; text: string }[] }[] = [
+  {
+    title: 'Accountability',
+    blurb: 'One honest record everyone can see, so nobody has to be the bad guy.',
+    items: [
+      { icon: Wallet, name: 'Money & requests', text: 'Requests, family votes, receipts, a monthly limit, and a “no cash” rule.' },
+      { icon: Users, name: 'Meetings', text: 'AA, NA, SMART, Al-Anon — everyone logs, everyone has a goal.' },
+      { icon: CalendarCheck, name: 'Appointments', text: 'Therapy, psychiatry, IOP and sponsor check-ins, with reminders.' },
+      { icon: Pill, name: 'Medications', text: 'Daily doses and refills — shared only if the person chooses.' },
+      { icon: FlaskConical, name: 'Drug tests', text: 'Home, program and lab results. Scan a lab report and AI fills it in.' },
+    ],
+  },
+  {
+    title: 'Getting on the same page',
+    blurb: 'Agreements the whole family signs off on — and sticks to.',
+    items: [
+      { icon: ShieldCheck, name: 'Family agreement', text: 'If-then boundaries everyone agrees to, with a record of when they held.' },
+      { icon: Target, name: 'Shared goals', text: 'Personal and family goals broken into small steps.' },
+      { icon: GitBranch, name: 'Relapse response plan', text: 'Warning signs and who does what — decided calmly, in advance.' },
+      { icon: ClipboardList, name: 'Aftercare import', text: 'Photograph a discharge plan and AI turns it into your family’s plan.' },
+    ],
+  },
+  {
+    title: 'Communicating well',
+    blurb: 'The hardest part of helping someone — made a little easier.',
+    items: [
+      { icon: MessagesSquare, name: 'Family chat', text: 'A respect filter stops insults and threats before they’re sent.' },
+      { icon: Sparkles, name: 'AI coach', text: 'Help with what to say, trained on CRAFT and motivational interviewing.' },
+      { icon: Ear, name: 'Live Coaching', text: 'Real-time cues during a hard call or conversation. Nothing is recorded.' },
+      { icon: FileText, name: 'Intervention letters', text: 'Write your letter with kind, honest feedback — never visible to your loved one.' },
+    ],
+  },
+];
 
-const AppStoreBadge = ({ className = '' }: { className?: string }) => (
-  <a
-    href={APP_STORE_URL}
-    target="_blank"
-    rel="noopener noreferrer"
-    aria-label="Download FamilyBridge on the App Store"
-    className={`inline-block shrink-0 ${className}`}
-  >
-    <svg xmlns="http://www.w3.org/2000/svg" width="135" height="40" viewBox="0 0 135 40" aria-hidden="true">
-      <rect width="135" height="40" rx="8" fill="#000" />
-      <text x="67.5" y="13" textAnchor="middle" fill="#fff" fontSize="8" fontFamily="-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif" letterSpacing="0.3">Download on the</text>
-      <text x="67.5" y="27" textAnchor="middle" fill="#fff" fontSize="16" fontWeight="600" fontFamily="-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif">App Store</text>
-      <path d="M18.5 10.5c.8-1 1.3-2.3 1.2-3.7-1.2.1-2.7.8-3.5 1.9-.8.9-1.4 2.3-1.2 3.6 1.3.1 2.7-.6 3.5-1.8zm1.2 2c-2-.1-3.6 1.1-4.6 1.1s-2.4-1-4-1c-2 0-3.9 1.2-4.9 3-2.1 3.6-.5 9 1.5 12 1 1.4 2.2 3 3.7 2.9 1.5-.1 2-.9 3.8-.9s2.2.9 3.8.9c1.6 0 2.6-1.4 3.6-2.9.7-1 1.3-2.1 1.7-3.3-2.5-1-3.8-3.4-3.6-5.8z" fill="#fff" />
-    </svg>
-  </a>
-);
-
-const GooglePlaySoon = ({ className = '' }: { className?: string }) => (
-  <div className={`inline-flex items-center gap-2 px-4 h-[40px] rounded-lg bg-black/90 border border-white/10 shrink-0 ${className}`}>
-    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path d="M3 3.5v17l9-8.5-9-8.5z" fill="#4CAF50" />
-      <path d="M3 3.5l9 8.5 5.5-5.2L3 3.5z" fill="#2196F3" />
-      <path d="M3 20.5l14.5-8.7-5.5-5.3L3 20.5z" fill="#F44336" />
-      <path d="M12 12l5.5 5.2L3 20.5 12 12z" fill="#FFC107" />
-    </svg>
-    <div className="flex flex-col leading-none">
-      <span className="text-[9px] text-white/60 font-medium tracking-wide uppercase">Coming Soon</span>
-      <span className="text-[13px] text-white font-semibold leading-tight">Google Play</span>
-    </div>
-  </div>
-);
+const FAQ = [
+  { q: 'Who is FamilyBridge for?', a: 'Families of someone struggling with alcohol or drugs — before, during and after treatment — and the professionals who work with them: interventionists, treatment centers, therapists, recovery coaches, sober living and outpatient programs.' },
+  { q: 'Does my loved one have to use it?', a: 'No. Many families start before their loved one is ready for help. If your loved one joins, they get their own view — check-ins, meetings, meds, wins — and never see intervention letters, conversation notes or Family Insights.' },
+  { q: 'Is FamilyBridge free?', a: 'Yes — every tool is free for every family. Family Plus ($19.99 a month or $179 a year) adds much more AI coaching and covers everyone in your family with one subscription. If you work with a professional on a FamilyBridge plan, Family Plus is often included.' },
+  { q: 'Is the AI reading everything?', a: 'Only if you say so. AI features are off until you agree, and Family Insights only runs if someone in your family turns it on. Everything is processed by Claude (Anthropic), which doesn’t train on your information. You can turn AI off anytime.' },
+  { q: 'What happens when I tap SOS?', a: 'If you have a professional, SOS sends them an urgent message. If you don’t, you can open a 24-hour messaging session with a certified interventionist — one is included each billing cycle. In an emergency, always call 911 or 988 first.' },
+  { q: 'Can a professional see everything?', a: 'No. A parent or partner chooses exactly what each professional can see — money, meetings, appointments, medications, tests, your plan, check-ins, chat — and can change it or disconnect at any time.' },
+];
 
 const Index = () => {
   const { user, loading, signOut } = useAuth();
-  const { organization, isWhiteLabeled } = useOrganization();
   const { isProvider, isLoading: isProviderLoading } = useProviderAdmin();
   const navigate = useNavigate();
   const [dashboardPath, setDashboardPath] = useState('/dashboard');
-  const [isResolvingDashboard, setIsResolvingDashboard] = useState(false);
 
+  // People still signed in to the previous web app keep a way back to it.
   useEffect(() => {
-    const resolveDashboardPath = async () => {
-      if (!user || isProviderLoading) {
-        setDashboardPath('/dashboard');
-        return;
-      }
-
-      if (isProvider) {
-        setDashboardPath('/moderator-dashboard');
-        return;
-      }
-
-      setIsResolvingDashboard(true);
+    const resolve = async () => {
+      if (!user || isProviderLoading) return setDashboardPath('/dashboard');
+      if (isProvider) return setDashboardPath('/moderator-dashboard');
       try {
-        const { count, error } = await supabase
-          .from('family_members')
-          .select('id', { count: 'exact', head: true })
-          .eq('user_id', user.id)
-          .eq('role', 'moderator');
-
-        if (error) throw error;
+        const { count } = await supabase.from('family_members').select('id', { count: 'exact', head: true }).eq('user_id', user.id).eq('role', 'moderator');
         setDashboardPath((count || 0) > 0 ? '/moderator-dashboard' : '/dashboard');
-      } catch (error) {
-        console.error('Error resolving dashboard route:', error);
+      } catch {
         setDashboardPath('/dashboard');
-      } finally {
-        setIsResolvingDashboard(false);
       }
     };
-
-    void resolveDashboardPath();
+    void resolve();
   }, [isProvider, isProviderLoading, user]);
-
-  const handleDashboardClick = () => {
-    navigate(dashboardPath);
-  };
-
-  const tagline = isWhiteLabeled && organization?.tagline
-    ? organization.tagline
-    : 'A private space for families affected by addiction to communicate, set boundaries, and support loved ones with more clarity and consistency.';
 
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="FamilyBridge — Family Recovery Support and Coordination"
-        description="FamilyBridge helps families support a loved one in recovery through communication, coordinated actions, clear boundaries, and authorized professional collaboration."
+        title="FamilyBridge — Recovery Is a Family Journey"
+        description="Keep your family on the same page through a loved one's recovery: shared accountability, AI coaching for hard conversations, and real help when it matters."
         canonicalPath="/"
         structuredData={createOrganizationSchema()}
       />
 
-      {/* NAV */}
-      <header className="sticky top-0 z-50 backdrop-blur-md bg-background/80 border-b border-border/40">
-        <nav className="container mx-auto px-4 py-2.5 flex items-center justify-between">
-          <button
-            type="button"
-            onClick={() => navigate('/')}
-            className="flex shrink-0 items-center gap-2 text-left"
-            aria-label="FamilyBridge home"
-          >
-            <img
-              src={familyBridgeLogo}
-              alt="FamilyBridge"
-              className="h-7 sm:h-8 w-auto object-contain"
-            />
-            <span className="hidden sm:inline text-base sm:text-lg font-display font-semibold text-foreground">
-              FamilyBridge
-            </span>
-          </button>
-          <div className="flex items-center gap-1.5 sm:gap-3">
-            <Button variant="ghost" size="sm" className="hidden sm:inline-flex h-8 text-xs sm:text-sm text-muted-foreground" onClick={() => navigate('/demo')}>
-              Demo
-            </Button>
-            <Button variant="ghost" size="sm" className="h-8 px-2 sm:px-3 text-xs sm:text-sm text-muted-foreground" asChild>
-              <a href="tel:458-298-8003" aria-label="Call us at 458-298-8003">
-                <Phone className="h-4 w-4 sm:mr-1" />
-                <span className="hidden sm:inline">Call</span>
-              </a>
-            </Button>
-            {/* App Store badge — desktop only in nav */}
-            <a
-              href={APP_STORE_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Download on the App Store"
-              className="hidden lg:flex items-center gap-1.5 h-8 px-3 rounded-md bg-foreground text-background text-xs font-semibold hover:bg-foreground/90 transition-colors shrink-0"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
-              </svg>
-              App Store
-            </a>
-            {user ? (
-              <>
-                <Button size="sm" onClick={handleDashboardClick} disabled={loading || isProviderLoading || isResolvingDashboard} className="h-8 px-3 text-xs sm:text-sm bg-primary text-primary-foreground hover:bg-primary/90">
-                  Dashboard
-                </Button>
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={() => signOut()}>
-                  <LogOut className="h-4 w-4" />
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button variant="ghost" size="sm" className="h-8 text-xs sm:text-sm text-muted-foreground" onClick={() => navigate('/join')}>
-                  Join with code
-                </Button>
-                <Button variant="ghost" size="sm" className="h-8 text-xs sm:text-sm text-muted-foreground" onClick={() => navigate('/auth')}>
-                  Sign In
-                </Button>
-                <Button size="sm" className="hidden sm:inline-flex h-8 px-3 text-xs sm:text-sm bg-primary text-primary-foreground" onClick={() => navigate('/family-purchase')}>
-                  Get Started
-                </Button>
-              </>
-            )}
-          </div>
-        </nav>
-      </header>
-
-      <AnimatedHomeHero
-        tagline={tagline}
-        onStart={() => navigate('/family-purchase')}
-        onDemo={() => navigate('/demo')}
+      <SiteHeader
+        right={
+          user ? (
+            <>
+              <Button size="sm" variant="outline" onClick={() => navigate(dashboardPath)} disabled={loading}>Dashboard</Button>
+              <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => signOut()} aria-label="Sign out"><LogOut className="h-4 w-4" /></Button>
+            </>
+          ) : (
+            <a href="#download" className="hidden sm:inline-flex h-9 items-center rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground hover:bg-primary/90">Get the app</a>
+          )
+        }
       />
 
-      {/* TIERED FEATURE SHOWCASE */}
-      <FeatureTiers />
-
-      {/* AI GOVERNANCE TRUST BANNER */}
-      <GovernanceTrustBanner />
-
-      {/* ADDITIONAL TOOLS */}
-      <AdditionalTools />
-
-      {/* PROVIDER CTA */}
-      <section className="py-12 sm:py-20">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto bg-card border border-border/50 rounded-2xl p-6 sm:p-10 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-bl-full" />
-            <div className="flex flex-col md:flex-row items-start gap-6 relative z-10">
-              <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                <Building2 className="h-7 w-7 text-primary" />
-              </div>
-              <div className="flex-1">
-                <h3 className="text-xl sm:text-2xl font-display font-bold text-foreground mb-2">
-                  Are you a recovery provider?
-                </h3>
-                <p className="text-sm sm:text-base text-muted-foreground mb-5 max-w-lg">
-                  Help families in your care with structured tools for communication, shared commitments, and documented follow-through.
-                </p>
-                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-6">
-                  {['Authorized family activity review', 'Care transition and handoff management', 'Documented support follow-through', 'Custom branding and white-label'].map((item) => (
-                    <li key={item} className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Check className="h-4 w-4 text-primary shrink-0" />
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-                <div className="flex flex-col sm:flex-row gap-3 flex-wrap">
-                  <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90 group">
-                    <Link to="/for-providers">
-                      FamilyBridge for treatment providers
-                      <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
-                    </Link>
-                  </Button>
-                  <Button variant="outline" onClick={() => navigate('/features/provider-outcomes')}>
-                    Provider outcomes demo
-                  </Button>
-                  <Button variant="outline" onClick={() => navigate('/features/intervention-outcomes')}>
-                    Intervention outcomes demo
-                  </Button>
-                  <Button variant="outline" onClick={() => navigate('/features/fiis-guidance')}>
-                    FIIS guidance demo
-                  </Button>
-                </div>
-              </div>
+      {/* HERO */}
+      <section className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-secondary/70 to-background" aria-hidden="true" />
+        <div className="container relative mx-auto px-4 max-w-6xl pt-12 pb-16 sm:pt-20 sm:pb-24 grid gap-12 lg:grid-cols-[1.1fr_0.9fr] items-center">
+          <div className="max-w-xl">
+            <p className="inline-flex items-center gap-2 rounded-full bg-accent/15 px-3 py-1 text-sm font-semibold text-[#9A5A1C]">
+              <Sunrise className="h-4 w-4" /> Built by a certified interventionist
+            </p>
+            <h1 className="mt-5 text-4xl sm:text-6xl font-extrabold tracking-tight text-foreground [text-wrap:balance]">
+              Recovery is a family journey.
+            </h1>
+            <p className="mt-5 text-lg sm:text-xl leading-relaxed text-muted-foreground">
+              FamilyBridge keeps everyone on the same page — money, meetings, appointments, medications, tests and boundaries — with coaching that helps you say the right thing, and real help when it matters most.
+            </p>
+            <div id="download" className="mt-8 flex flex-wrap items-center gap-3 scroll-mt-24">
+              <AppStoreBadge />
+              <Link to="/for-providers" className="inline-flex h-12 items-center gap-2 rounded-xl border border-border bg-card px-5 font-semibold text-foreground hover:bg-muted">
+                For professionals <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+            <p className="mt-4 text-sm text-muted-foreground">Free for every family. In English and Spanish.</p>
+          </div>
+          <div className="relative mx-auto w-full max-w-[340px] lg:max-w-[360px]">
+            <Phone src={todayShot} alt="The FamilyBridge Today screen: days in recovery, a recommended next step, Family Insights and the family unity score" />
+            <div className="absolute -left-10 bottom-16 hidden sm:block w-56 rounded-2xl border border-border bg-card p-4 shadow-xl">
+              <p className="flex items-center gap-1.5 text-xs font-bold text-[#9A5A1C]"><Sparkles className="h-3.5 w-3.5" /> Family Insights</p>
+              <p className="mt-1.5 text-sm font-semibold text-foreground leading-snug">A window may be opening</p>
+              <p className="mt-1 text-xs text-muted-foreground">Jordan asked about getting help. Sam may be the best person to reach out.</p>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="pb-4 sm:pb-8">
-        <div className="container mx-auto px-4 max-w-3xl">
-          <PublicCrisisHelp />
+      {/* WHY */}
+      <section className="container mx-auto px-4 max-w-6xl py-14 sm:py-20">
+        <div className="grid gap-6 md:grid-cols-3">
+          {[
+            { icon: Users, t: 'Everyone on the same page', d: 'Parents, partners, siblings and your loved one share one plan, one record and one set of agreements.' },
+            { icon: HeartHandshake, t: 'Coaching for the hard moments', d: 'Know what to say — before, during and after the conversations that matter most.' },
+            { icon: LifeBuoy, t: 'Real help, built in', d: 'Your treatment team inside the app, and an SOS line to a certified interventionist when you need it.' },
+          ].map(({ icon: Icon, t, d }) => (
+            <div key={t} className="rounded-2xl border border-border bg-card p-6">
+              <Icon className="h-6 w-6 text-primary" />
+              <h2 className="mt-4 text-lg font-bold text-foreground">{t}</h2>
+              <p className="mt-2 text-muted-foreground leading-relaxed">{d}</p>
+            </div>
+          ))}
         </div>
       </section>
 
-      {/* FINAL CTA */}
-      <section className="py-12 sm:py-20">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center bg-primary rounded-2xl p-8 sm:p-14 relative overflow-hidden">
-            <div className="absolute inset-0 opacity-10">
-              <div className="absolute top-4 left-4 w-24 h-24 border border-primary-foreground/30 rounded-full" />
-              <div className="absolute bottom-6 right-8 w-16 h-16 border border-primary-foreground/20 rounded-full" />
-            </div>
-            <div className="relative z-10">
-              <Heart className="h-8 w-8 text-primary-foreground/80 mx-auto mb-4" />
-              <h2 className="text-2xl sm:text-4xl font-display font-bold text-primary-foreground mb-3">
-                Recovery starts with seeing clearly.
-              </h2>
-              <p className="text-sm sm:text-base text-primary-foreground/80 mb-8 max-w-md mx-auto">
-                Use shared information, clear actions, and compassionate communication to support recovery.
-              </p>
-              <Button size="lg" className="h-12 px-6 bg-card text-foreground hover:bg-card/90 shadow-xl group" onClick={() => navigate('/family-purchase')}>
-                Create Your Family Group
-                <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
-              </Button>
-              <div className="flex flex-row flex-wrap items-center justify-center gap-3 mt-5">
-                <AppStoreBadge />
-                <GooglePlaySoon />
-              </div>
-            </div>
+      {/* FAMILY INSIGHTS */}
+      <section className="bg-[#134A51] text-white">
+        <div className="container mx-auto px-4 max-w-6xl py-16 sm:py-24 grid gap-12 lg:grid-cols-2 items-center">
+          <div className="order-2 lg:order-1 mx-auto w-full max-w-[320px]">
+            <Phone src={insightsShot} alt="Family Insights: the window with your loved one, who they'll listen to, and coaching for you" />
+          </div>
+          <div className="order-1 lg:order-2 max-w-xl">
+            <p className="text-sm font-bold uppercase tracking-wider text-[#EE9B4A]">Family Insights</p>
+            <h2 className="mt-3 text-3xl sm:text-4xl font-extrabold tracking-tight [text-wrap:balance]">Know when they're ready — and who they'll listen to.</h2>
+            <p className="mt-4 text-lg text-white/80 leading-relaxed">
+              Family Insights looks across your family's chat, conversation notes, check-ins and agreements, and coaches each of you — privately.
+            </p>
+            <ul className="mt-6 space-y-4">
+              {[
+                ['A window may be opening', 'Spots the moments your loved one may be ready to accept help — with the quotes that show it, what to say, and when.'],
+                ['Who they will hear', 'Ranks the family members your loved one is most likely to listen to right now.'],
+                ['Coaching for you', 'What’s working, your own words rewritten more effectively, and a next line to try.'],
+                ['Where you’re drifting', 'Notices when boundaries slip, money goes out against the plan, or goals stall.'],
+              ].map(([t, d]) => (
+                <li key={t} className="flex gap-3">
+                  <BadgeCheck className="mt-0.5 h-5 w-5 shrink-0 text-[#9ED6DB]" />
+                  <span><span className="font-semibold">{t}.</span> <span className="text-white/75">{d}</span></span>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-6 text-sm text-white/60">Your loved one never sees Family Insights. It's coaching, not a diagnosis — and it only runs if your family turns it on.</p>
           </div>
         </div>
       </section>
 
+      {/* TOOLS */}
+      <section id="features" className="container mx-auto px-4 max-w-6xl py-16 sm:py-24 scroll-mt-20">
+        <div className="max-w-2xl">
+          <p className="text-sm font-bold uppercase tracking-wider text-primary">Everything in one place</p>
+          <h2 className="mt-3 text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground [text-wrap:balance]">The tools families actually need.</h2>
+        </div>
+        <div className="mt-10 grid gap-8 lg:grid-cols-3">
+          {TOOL_GROUPS.map((g) => (
+            <div key={g.title} className="rounded-2xl border border-border bg-card p-6">
+              <h3 className="text-lg font-bold text-foreground">{g.title}</h3>
+              <p className="mt-1 text-sm text-muted-foreground">{g.blurb}</p>
+              <ul className="mt-5 space-y-4">
+                {g.items.map(({ icon: Icon, name, text }) => (
+                  <li key={name} className="flex gap-3">
+                    <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-secondary"><Icon className="h-[18px] w-[18px] text-primary" /></span>
+                    <span><span className="block font-semibold text-foreground">{name}</span><span className="text-sm text-muted-foreground">{text}</span></span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+        <div className="mt-14 grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-4">
+          {[
+            [testsShot, 'Drug tests with a negative streak, a lab kit and results'],
+            [planShot, 'Our plan: how much the family agrees on, and boundaries that need a conversation'],
+            [chatShot, 'Family chat with a respect filter and a reply from the family’s coach'],
+            [liveShot, 'Live Coaching setup for a hard conversation'],
+          ].map(([src, alt]) => (
+            <Phone key={src} src={src} alt={alt} />
+          ))}
+        </div>
+      </section>
+
+      {/* SOS */}
+      <section className="bg-card border-y border-border">
+        <div className="container mx-auto px-4 max-w-6xl py-16 sm:py-24 grid gap-12 lg:grid-cols-2 items-center">
+          <div className="max-w-xl">
+            <p className="text-sm font-bold uppercase tracking-wider text-destructive">SOS</p>
+            <h2 className="mt-3 text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground [text-wrap:balance]">When it's too much, a real person answers.</h2>
+            <p className="mt-4 text-lg text-muted-foreground leading-relaxed">
+              One tap brings up 911, 988 and overdose steps. Then it connects you with a human: an urgent message to your own professional — or, if you don't have one, a 24-hour messaging session with a certified interventionist.
+            </p>
+            <ul className="mt-6 space-y-2 text-foreground">
+              <li className="flex gap-2"><Heart className="h-5 w-5 text-destructive shrink-0" /> One 24-hour session included every billing cycle</li>
+              <li className="flex gap-2"><Heart className="h-5 w-5 text-destructive shrink-0" /> Your professional can invite you to keep working together afterward</li>
+            </ul>
+          </div>
+          <div className="mx-auto w-full max-w-[320px]"><Phone src={sosShot} alt="The SOS screen: 911, 988, SAMHSA and reaching your care team" /></div>
+        </div>
+      </section>
+
+      {/* PROFESSIONALS */}
+      <section className="container mx-auto px-4 max-w-6xl py-16 sm:py-24">
+        <div className="grid gap-12 lg:grid-cols-2 items-center">
+          <div className="mx-auto w-full max-w-[320px] order-2 lg:order-1"><Phone src={caseloadShot} alt="The professional caseload: families that need attention, watch, and on track" /></div>
+          <div className="max-w-xl order-1 lg:order-2">
+            <p className="text-sm font-bold uppercase tracking-wider text-primary">With your professionals</p>
+            <h2 className="mt-3 text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground [text-wrap:balance]">Your treatment team, on the same page too.</h2>
+            <p className="mt-4 text-lg text-muted-foreground leading-relaxed">
+              Connect your interventionist, treatment center, therapist, coach, sober living or IOP with a code. You choose exactly what they see. When care moves from one provider to the next, your history moves with you — only with your approval.
+            </p>
+            <div className="mt-6 flex flex-wrap gap-2">
+              {['You choose what they see', 'Handoffs with your history', 'Their logo and colors in your app', 'Family Plus often included'].map((x) => (
+                <span key={x} className="rounded-full bg-secondary px-3 py-1 text-sm font-medium text-secondary-foreground">{x}</span>
+              ))}
+            </div>
+            <Link to="/for-providers" className="mt-8 inline-flex items-center gap-2 font-semibold text-primary hover:underline">
+              <Briefcase className="h-4 w-4" /> FamilyBridge for professionals <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* PRIVACY */}
+      <section className="bg-secondary/60">
+        <div className="container mx-auto px-4 max-w-6xl py-14 sm:py-20">
+          <div className="max-w-2xl">
+            <p className="text-sm font-bold uppercase tracking-wider text-primary">Privacy by design</p>
+            <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-foreground">Your family's story stays yours.</h2>
+          </div>
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              ['You decide what’s shared', 'Professionals see only the areas a parent or partner turns on — and every view is logged.'],
+              ['Private where it matters', 'Letters, conversation notes and Family Insights are never visible to your loved one.'],
+              ['AI only with permission', 'AI features stay off until you agree, and Anthropic doesn’t train on your information.'],
+              ['Delete anytime', 'Delete your account and your data from inside the app.'],
+            ].map(([t, d]) => (
+              <div key={t} className="rounded-2xl bg-card border border-border p-5">
+                <Lock className="h-5 w-5 text-primary" />
+                <p className="mt-3 font-semibold text-foreground">{t}</p>
+                <p className="mt-1 text-sm text-muted-foreground">{d}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* PRICING */}
+      <section id="pricing" className="container mx-auto px-4 max-w-6xl py-16 sm:py-24 scroll-mt-20">
+        <div className="max-w-2xl">
+          <p className="text-sm font-bold uppercase tracking-wider text-primary">Pricing</p>
+          <h2 className="mt-3 text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">One price for the whole family.</h2>
+        </div>
+        <div className="mt-10 grid gap-6 md:grid-cols-2 max-w-4xl">
+          <div className="rounded-2xl border border-border bg-card p-7">
+            <h3 className="text-xl font-bold text-foreground">Free</h3>
+            <p className="mt-1 text-muted-foreground">Every tool, for every family.</p>
+            <p className="mt-6 text-4xl font-extrabold text-foreground">$0</p>
+            <ul className="mt-6 space-y-2 text-sm text-foreground">
+              {['Every accountability and planning tool', 'Family chat with the respect filter', 'Family Insights, Live Coaching and letter feedback', 'Drug tests, lab-report scanning and aftercare import', 'One 24-hour SOS session each billing cycle', 'AI Coach: 10 questions a day per person'].map((x) => <li key={x} className="flex gap-2"><BadgeCheck className="h-4 w-4 mt-0.5 text-primary shrink-0" />{x}</li>)}
+            </ul>
+          </div>
+          <div className="rounded-2xl border-2 border-primary bg-card p-7 relative">
+            <h3 className="text-xl font-bold text-foreground">Family Plus</h3>
+            <p className="mt-1 text-muted-foreground">Covers everyone in your family.</p>
+            <p className="mt-6 text-4xl font-extrabold text-foreground">$19.99<span className="text-lg font-semibold text-muted-foreground">/month</span></p>
+            <p className="text-sm text-muted-foreground">or $179/year — save 25%</p>
+            <ul className="mt-6 space-y-2 text-sm text-foreground">
+              {['Everything in Free', '6× more AI Coach: 60 questions a day per person', 'One subscription covers everyone in the family', 'Funds the AI and new tools, so every family keeps them free'].map((x) => <li key={x} className="flex gap-2"><BadgeCheck className="h-4 w-4 mt-0.5 text-primary shrink-0" />{x}</li>)}
+            </ul>
+          </div>
+        </div>
+        <p className="mt-6 max-w-4xl text-sm text-muted-foreground">Working with a professional on a FamilyBridge plan? Family Plus is often included while you're in their care. Subscriptions are billed through your Apple ID and renew automatically until cancelled.</p>
+      </section>
+
+      {/* FAQ */}
+      <section className="bg-card border-t border-border">
+        <div className="container mx-auto px-4 py-16 sm:py-20 max-w-3xl">
+          <h2 className="text-3xl font-extrabold tracking-tight text-foreground">Questions families ask</h2>
+          <div className="mt-8 divide-y divide-border">
+            {FAQ.map(({ q, a }) => (
+              <details key={q} className="group py-4">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold text-foreground">
+                  {q}
+                  <span className="text-primary transition-transform group-open:rotate-45 text-2xl leading-none">+</span>
+                </summary>
+                <p className="mt-3 text-muted-foreground leading-relaxed">{a}</p>
+              </details>
+            ))}
+          </div>
+          <p className="mt-8 text-muted-foreground">
+            More questions? Visit <Link to="/support" className="font-semibold text-primary hover:underline">Support</Link> or email{' '}
+            <a href="mailto:matt@freedominterventions.com" className="font-semibold text-primary hover:underline"><Mail className="inline h-4 w-4 mr-0.5" />matt@freedominterventions.com</a>.
+          </p>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="bg-[#134A51]">
+        <div className="container mx-auto px-4 max-w-6xl py-16 text-center">
+          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white [text-wrap:balance]">Start today. Your family doesn't have to do this alone.</h2>
+          <div className="mt-8 flex justify-center"><AppStoreBadge dark={false} /></div>
+        </div>
+      </section>
+
+      <div className="container mx-auto px-4 py-8 max-w-3xl"><PublicCrisisHelp /></div>
       <BrandedFooter />
     </div>
   );
