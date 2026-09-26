@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   ArrowRight, BadgeCheck, Bell, Brush, FileSignature, FlaskConical, Gift, KeyRound, LifeBuoy, Mail, MessagesSquare, Phone as PhoneIcon,
@@ -23,10 +24,59 @@ const FEATURES = [
 ];
 
 const PLANS = [
-  { name: 'Solo', price: '$149', families: 'Up to 15 families', who: 'Interventionists, recovery coaches and therapists' },
-  { name: 'Practice', price: '$399', families: 'Up to 50 families', who: 'Group practices, sober living and outpatient programs', featured: true },
-  { name: 'Organization', price: '$1,499', families: 'Unlimited families', who: 'Treatment centers and multi-site programs' },
+  { name: 'Solo', price: { monthly: 149, quarterly: 425, annual: 1520 }, families: 'Up to 15 families', who: 'Interventionists, recovery coaches and therapists' },
+  { name: 'Practice', price: { monthly: 399, quarterly: 1137, annual: 4070 }, families: 'Up to 50 families', who: 'Group practices, sober living and outpatient programs', featured: true },
+  { name: 'Organization', price: { monthly: 1499, quarterly: 4272, annual: 15290 }, families: 'Unlimited families', who: 'Treatment centers and multi-site programs' },
 ];
+
+type Period = 'monthly' | 'quarterly' | 'annual';
+const PERIODS: { id: Period; label: string; unit: string; billed: string; months: number; save?: string }[] = [
+  { id: 'monthly', label: 'Monthly', unit: '/month', billed: 'Billed monthly', months: 1 },
+  { id: 'quarterly', label: 'Quarterly', unit: '/quarter', billed: 'billed every 3 months', months: 3, save: 'Save 5%' },
+  { id: 'annual', label: 'Annual', unit: '/year', billed: 'billed once a year', months: 12, save: 'Save 15%' },
+];
+const usd = (n: number) => `$${n.toLocaleString('en-US')}`;
+
+const PlanCards = () => {
+  const [period, setPeriod] = useState<Period>('monthly');
+  const current = PERIODS.find((p) => p.id === period)!;
+  return (
+    <>
+      <div role="radiogroup" aria-label="Billing period" className="mt-8 grid w-full grid-cols-3 gap-1 rounded-2xl border border-border bg-card p-1 shadow-sm sm:inline-flex sm:w-auto sm:rounded-full">
+        {PERIODS.map((p) => (
+          <button
+            key={p.id}
+            role="radio"
+            aria-checked={period === p.id}
+            onClick={() => setPeriod(p.id)}
+            className={`flex flex-col items-center justify-center gap-1 rounded-xl px-2 py-2 text-sm font-semibold transition-colors sm:h-9 sm:flex-row sm:gap-2 sm:rounded-full sm:px-4 sm:py-0 ${period === p.id ? 'bg-primary text-primary-foreground shadow' : 'text-muted-foreground hover:text-foreground'}`}
+          >
+            {p.label}
+            {p.save ? <span className={`rounded-full px-1.5 py-0.5 text-[11px] font-bold ${period === p.id ? 'bg-white/20' : 'bg-accent/20 text-[#9A5A1C]'}`}>{p.save}</span> : null}
+          </button>
+        ))}
+      </div>
+      <div className="mt-8 grid gap-6 md:grid-cols-3">
+        {PLANS.map((p) => (
+          <div key={p.name} className={`rounded-2xl bg-card p-7 ${p.featured ? 'border-2 border-primary' : 'border border-border'}`}>
+            <h3 className="text-xl font-bold text-foreground">{p.name}</h3>
+            <p className="mt-1 text-sm text-muted-foreground min-h-[2.5rem]">{p.who}</p>
+            <p className="mt-5 text-4xl font-extrabold text-foreground tabular-nums">{usd(p.price[period])}<span className="text-lg font-semibold text-muted-foreground">{current.unit}</span></p>
+            <p className="mt-1 text-sm text-muted-foreground min-h-[1.25rem]">
+              {current.months > 1 ? `About ${usd(Math.round(p.price[period] / current.months))}/month · ${current.billed}` : current.billed}
+            </p>
+            <p className="mt-2 font-semibold text-primary">{p.families}</p>
+            <ul className="mt-5 space-y-2 text-sm text-foreground">
+              {['Unlimited staff', 'White label: your logo and colors', 'Family Plus for your families', 'AI Assistant and Family Insights'].map((x) => (
+                <li key={x} className="flex gap-2"><BadgeCheck className="h-4 w-4 mt-0.5 text-primary shrink-0" />{x}</li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </>
+  );
+};
 
 const ForProviders = () => (
   <div className="min-h-screen bg-background">
@@ -98,21 +148,7 @@ const ForProviders = () => (
         <h2 className="mt-3 text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">Simple pricing, everything included.</h2>
         <p className="mt-3 text-muted-foreground">Every plan includes white label, the AI Assistant, handoffs, and Family Plus for the families you work with. Try it free with up to 3 families.</p>
       </div>
-      <div className="mt-10 grid gap-6 md:grid-cols-3">
-        {PLANS.map((p) => (
-          <div key={p.name} className={`rounded-2xl bg-card p-7 ${p.featured ? 'border-2 border-primary' : 'border border-border'}`}>
-            <h3 className="text-xl font-bold text-foreground">{p.name}</h3>
-            <p className="mt-1 text-sm text-muted-foreground min-h-[2.5rem]">{p.who}</p>
-            <p className="mt-5 text-4xl font-extrabold text-foreground">{p.price}<span className="text-lg font-semibold text-muted-foreground">/month</span></p>
-            <p className="mt-1 font-semibold text-primary">{p.families}</p>
-            <ul className="mt-5 space-y-2 text-sm text-foreground">
-              {['Unlimited staff', 'White label: your logo and colors', 'Family Plus for your families', 'AI Assistant and Family Insights'].map((x) => (
-                <li key={x} className="flex gap-2"><BadgeCheck className="h-4 w-4 mt-0.5 text-primary shrink-0" />{x}</li>
-              ))}
-            </ul>
-          </div>
-        ))}
-      </div>
+      <PlanCards />
       <div className="mt-10 flex flex-col sm:flex-row gap-4 sm:items-center">
         <p className="text-foreground font-semibold">Ready to bring your families in?</p>
         <div className="flex flex-wrap gap-3">
@@ -120,7 +156,7 @@ const ForProviders = () => (
           <a href="tel:458-298-8003" className="inline-flex h-11 items-center gap-2 rounded-xl border border-border bg-card px-5 font-semibold text-foreground hover:bg-muted"><PhoneIcon className="h-4 w-4" /> 458-298-8003</a>
         </div>
       </div>
-      <p className="mt-4 text-sm text-muted-foreground">Plans are billed monthly, directly by FamilyBridge. Download the app, create your practice, and start with up to 3 families free.</p>
+      <p className="mt-4 text-sm text-muted-foreground">Billed monthly, quarterly (save 5%) or annually (save 15%), directly by FamilyBridge. Download the app, create your practice, and start with up to 3 families free.</p>
       <div className="mt-6"><AppStoreBadge /></div>
     </section>
 
