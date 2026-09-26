@@ -6,16 +6,16 @@ import {
 import { BrandedFooter } from '@/components/BrandedFooter';
 import { SEOHead, createBreadcrumbSchema } from '@/components/SEOHead';
 import PublicCrisisHelp from '@/components/PublicCrisisHelp';
-import { AppStoreBadge, Phone, SiteHeader, WEB_APP_URL } from '@/components/site/SiteChrome';
+import { AppStoreBadge, ComingSoon, Phone, SiteHeader, WEB_APP_URL } from '@/components/site/SiteChrome';
 import caseloadShot from '@/assets/app/caseload.webp';
 import journeyShot from '@/assets/app/journey.webp';
 
 const FEATURES = [
-  { icon: Bell, t: 'A caseload that tells you who needs you', d: 'Families sorted into needs attention, watch and on track — from positive or missed tests, missed appointments, slipping medications, high obsessive thinking, boundary slips, cash requests and unanswered messages.' },
-  { icon: KeyRound, t: 'Consent built in', d: 'Families connect with your practice code, and a parent or partner chooses exactly what you see: money, meetings, appointments, medications, drug tests, the family plan, check-ins and family chat. Every view is logged for them.' },
+  { icon: Bell, t: 'A caseload that tells you who needs you', d: 'Families sorted into needs attention, watch and on track — from missed appointments, slipping medications, high obsessive thinking, boundary slips, cash requests and unanswered messages.' },
+  { icon: KeyRound, t: 'Consent built in', d: 'Families connect with your practice code, and a parent or partner chooses exactly what you see: money, meetings, appointments, medications, the family plan, check-ins and family chat. Every view is logged for them.' },
   { icon: MessagesSquare, t: 'Work alongside the family', d: 'Message the family, assign tasks, schedule sessions and keep private notes. If they share their family chat, you can read it and reply right inside it — clearly labeled as you.' },
   { icon: Sparkles, t: 'AI that does the paperwork', d: 'Weekly summaries, session prep, next steps, draft messages and handoff notes from what the family has shared. Family Insights shows readiness windows and who the loved one listens to.' },
-  { icon: FlaskConical, t: 'Drug tests and lab results', d: 'Log program screens that the family can see but not edit. Partner-lab results arrive lab-verified and locked.' },
+  { icon: FlaskConical, t: 'Drug tests and lab results', d: 'Log program screens that the family can see but not edit. Partner-lab results arrive lab-verified and locked. Part of a new premium plan.', soon: true },
   { icon: Route, t: 'Handoffs that keep the story', d: 'Refer a family to the next level of care — treatment, sober living, IOP — with a handoff note. With the family’s approval, their whole history follows them, and you can stay involved or step back.' },
   { icon: LifeBuoy, t: 'SOS routes to you', d: 'When a family you work with taps SOS, you get an urgent push and email — not a stranger.' },
   { icon: Brush, t: 'Your brand, included', d: 'Families see your logo, name and colors throughout their app, with a small “with FamilyBridge.” White label is included with every plan.' },
@@ -32,7 +32,7 @@ const ForProviders = () => (
   <div className="min-h-screen bg-background">
     <SEOHead
       title="FamilyBridge for Treatment Professionals"
-      description="A consent-based caseload, family chat, AI summaries, drug tests, handoffs between levels of care and white label for the families you serve. From $149/month."
+      description="A consent-based caseload, family chat, AI summaries, handoffs between levels of care and white label for the families you serve. From $149/month."
       canonicalPath="/for-providers"
       structuredData={createBreadcrumbSchema([{ name: 'Home', url: '/' }, { name: 'For professionals', url: '/for-providers' }])}
     />
@@ -59,10 +59,10 @@ const ForProviders = () => (
 
     <section className="container mx-auto px-4 max-w-6xl py-16 sm:py-20">
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {FEATURES.map(({ icon: Icon, t, d }) => (
+        {FEATURES.map(({ icon: Icon, t, d, soon }: { icon: React.ElementType; t: string; d: string; soon?: boolean }) => (
           <div key={t} className="rounded-2xl border border-border bg-card p-6">
             <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary"><Icon className="h-5 w-5 text-primary" /></span>
-            <h2 className="mt-4 text-lg font-bold text-foreground">{t}</h2>
+            <h2 className="mt-4 flex flex-wrap items-center gap-2 text-lg font-bold text-foreground">{t}{soon ? <ComingSoon /> : null}</h2>
             <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{d}</p>
           </div>
         ))}

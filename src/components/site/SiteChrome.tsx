@@ -25,6 +25,10 @@ export const AppStoreBadge = ({ className = '', dark = true }: { className?: str
   </a>
 );
 
+export const ComingSoon = () => (
+  <span className="inline-flex items-center rounded-full bg-accent/20 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-[#9A5A1C]">Coming soon</span>
+);
+
 /** A real screen from the app in a phone frame. */
 export const Phone = ({ src, alt, className = '' }: { src: string; alt: string; className?: string }) => (
   <div className={`relative rounded-[2.2rem] bg-[#0E2F34] p-2 shadow-[0_30px_60px_-20px_rgba(19,74,81,0.45)] ${className}`}>

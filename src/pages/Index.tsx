@@ -6,18 +6,18 @@ import {
 import { BrandedFooter } from '@/components/BrandedFooter';
 import { SEOHead, createOrganizationSchema } from '@/components/SEOHead';
 import PublicCrisisHelp from '@/components/PublicCrisisHelp';
-import { AppStoreBadge, Phone, SiteHeader } from '@/components/site/SiteChrome';
+import { AppStoreBadge, ComingSoon, Phone, SiteHeader } from '@/components/site/SiteChrome';
 import { HeroDynamic } from '@/components/site/HeroDynamic';
 import todayShot from '@/assets/app/today.webp';
 import insightsShot from '@/assets/app/insights.webp';
 import chatShot from '@/assets/app/chat.webp';
-import testsShot from '@/assets/app/tests.webp';
+import journeyShot from '@/assets/app/journey.webp';
 import planShot from '@/assets/app/plan.webp';
 import sosShot from '@/assets/app/sos.webp';
 import liveShot from '@/assets/app/live.webp';
 import caseloadShot from '@/assets/app/caseload.webp';
 
-const TOOL_GROUPS: { title: string; blurb: string; items: { icon: React.ElementType; name: string; text: string }[] }[] = [
+const TOOL_GROUPS: { title: string; blurb: string; items: { icon: React.ElementType; name: string; text: string; soon?: boolean }[] }[] = [
   {
     title: 'Accountability',
     blurb: 'One honest record everyone can see, so nobody has to be the bad guy.',
@@ -26,7 +26,7 @@ const TOOL_GROUPS: { title: string; blurb: string; items: { icon: React.ElementT
       { icon: Users, name: 'Meetings', text: 'AA, NA, SMART, Al-Anon — everyone logs, everyone has a goal.' },
       { icon: CalendarCheck, name: 'Appointments', text: 'Therapy, psychiatry, IOP and sponsor check-ins, with reminders.' },
       { icon: Pill, name: 'Medications', text: 'Daily doses and refills — shared only if the person chooses.' },
-      { icon: FlaskConical, name: 'Drug tests', text: 'Home, program and lab results. Scan a lab report and AI fills it in.' },
+      { icon: FlaskConical, name: 'Drug testing', text: 'Home, program and partner-lab results in one honest record.', soon: true },
     ],
   },
   {
@@ -57,7 +57,7 @@ const FAQ = [
   { q: 'Is FamilyBridge free?', a: 'Yes — every tool is free for every family. Family Plus ($19.99 a month or $179 a year) adds much more AI coaching and covers everyone in your family with one subscription. If you work with a professional on a FamilyBridge plan, Family Plus is often included.' },
   { q: 'Is the AI reading everything?', a: 'Only if you say so. AI features are off until you agree, and Family Insights only runs if someone in your family turns it on. Everything is processed by Claude (Anthropic), which doesn’t train on your information. You can turn AI off anytime.' },
   { q: 'What happens when I tap SOS?', a: 'If you have a professional, SOS sends them an urgent message. If you don’t, you can open a 24-hour messaging session with a certified interventionist — one is included each billing cycle. In an emergency, always call 911 or 988 first.' },
-  { q: 'Can a professional see everything?', a: 'No. A parent or partner chooses exactly what each professional can see — money, meetings, appointments, medications, tests, your plan, check-ins, chat — and can change it or disconnect at any time.' },
+  { q: 'Can a professional see everything?', a: 'No. A parent or partner chooses exactly what each professional can see — money, meetings, appointments, medications, your plan, check-ins, chat — and can change it or disconnect at any time.' },
 ];
 
 const Index = () => {
@@ -135,10 +135,10 @@ const Index = () => {
               <h3 className="text-lg font-bold text-foreground">{g.title}</h3>
               <p className="mt-1 text-sm text-muted-foreground">{g.blurb}</p>
               <ul className="mt-5 space-y-4">
-                {g.items.map(({ icon: Icon, name, text }) => (
+                {g.items.map(({ icon: Icon, name, text, soon }) => (
                   <li key={name} className="flex gap-3">
                     <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-secondary"><Icon className="h-[18px] w-[18px] text-primary" /></span>
-                    <span><span className="block font-semibold text-foreground">{name}</span><span className="text-sm text-muted-foreground">{text}</span></span>
+                    <span><span className="flex flex-wrap items-center gap-2 font-semibold text-foreground">{name}{soon ? <ComingSoon /> : null}</span><span className="text-sm text-muted-foreground">{text}</span></span>
                   </li>
                 ))}
               </ul>
@@ -147,7 +147,7 @@ const Index = () => {
         </div>
         <div className="mt-14 grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-4">
           {[
-            [testsShot, 'Drug tests with a negative streak, a lab kit and results'],
+            [journeyShot, 'The family’s recovery journey: milestones, wins and progress over time'],
             [planShot, 'Our plan: how much the family agrees on, and boundaries that need a conversation'],
             [chatShot, 'Family chat with a respect filter and a reply from the family’s coach'],
             [liveShot, 'Live Coaching setup for a hard conversation'],
@@ -233,7 +233,7 @@ const Index = () => {
             <p className="mt-1 text-muted-foreground">Every tool, for every family.</p>
             <p className="mt-6 text-4xl font-extrabold text-foreground">$0</p>
             <ul className="mt-6 space-y-2 text-sm text-foreground">
-              {['Every accountability and planning tool', 'Family chat with the respect filter', 'Family Insights, Live Coaching and letter feedback', 'Drug tests, lab-report scanning and aftercare import', 'One 24-hour SOS session each billing cycle', 'AI Coach: 10 questions a day per person'].map((x) => <li key={x} className="flex gap-2"><BadgeCheck className="h-4 w-4 mt-0.5 text-primary shrink-0" />{x}</li>)}
+              {['Every accountability and planning tool', 'Family chat with the respect filter', 'Family Insights, Live Coaching and letter feedback', 'Aftercare plan import', 'One 24-hour SOS session each billing cycle', 'AI Coach: 10 questions a day per person'].map((x) => <li key={x} className="flex gap-2"><BadgeCheck className="h-4 w-4 mt-0.5 text-primary shrink-0" />{x}</li>)}
             </ul>
           </div>
           <div className="rounded-2xl border-2 border-primary bg-card p-7 relative">
@@ -245,6 +245,10 @@ const Index = () => {
               {['Everything in Free', '6× more AI Coach: 60 questions a day per person', 'One subscription covers everyone in the family', 'Funds the AI and new tools, so every family keeps them free'].map((x) => <li key={x} className="flex gap-2"><BadgeCheck className="h-4 w-4 mt-0.5 text-primary shrink-0" />{x}</li>)}
             </ul>
           </div>
+        </div>
+        <div className="mt-6 max-w-4xl flex gap-3 rounded-2xl border border-dashed border-accent/60 bg-accent/10 p-5">
+          <FlaskConical className="h-5 w-5 mt-0.5 shrink-0 text-[#9A5A1C]" />
+          <p className="text-sm text-foreground"><span className="font-semibold">Coming soon: drug testing.</span> Home, program and partner-lab results in one honest record, with lab kits included. It will be part of a new premium plan for families and professionals.</p>
         </div>
         <p className="mt-6 max-w-4xl text-sm text-muted-foreground">Working with a professional on a FamilyBridge plan? Family Plus is often included while you're in their care. Subscriptions are billed through your Apple ID and renew automatically until cancelled.</p>
       </section>
