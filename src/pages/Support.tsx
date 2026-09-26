@@ -19,6 +19,7 @@ const TOPICS: { icon: React.ElementType; title: string; items: { q: string; a: R
     items: [
       { q: 'How do I set up my family?', a: 'Download FamilyBridge from the App Store, create an account, and choose “Start our family.” Share your family’s invite code from Tools → Family Members (others choose “Join my family”). People who join with the code wait for a parent or partner to approve them.' },
       { q: 'Does my loved one need to join?', a: 'No. Many families start before their loved one is ready. If they join, they get their own view and never see intervention letters, conversation notes or Family Insights.' },
+      { q: 'Can I use FamilyBridge on a computer?', a: <>Yes. Sign in at <a href="https://app.familybridgeapp.com">app.familybridgeapp.com</a> with the same email and password you use in the app. Professionals can work their whole caseload from a computer. Notifications and purchases are on iPhone only.</> },
       { q: 'Can I use FamilyBridge in Spanish?', a: 'Yes. FamilyBridge follows your phone’s language, and you can switch between English and Spanish in Tools → Family Members.' },
     ],
   },
@@ -26,7 +27,7 @@ const TOPICS: { icon: React.ElementType; title: string; items: { q: string; a: R
     icon: KeyRound,
     title: 'Your account',
     items: [
-      { q: 'I forgot my password.', a: 'On the sign-in screen, enter your email, choose Sign in, then tap “Forgot password?” We’ll email you a link that opens the app so you can choose a new password.' },
+      { q: 'I forgot my password.', a: 'On the sign-in screen, enter your email, choose Sign in, then tap “Forgot password?” We’ll email you a link to choose a new password — it opens the app on your phone, or the web version if you asked from a computer.' },
       { q: 'How do I delete my account?', a: 'In the app: Settings (Tools → Family Members, or Practice for professionals) → Privacy & account → Delete my account, then type DELETE to confirm. This permanently deletes your account and personal information. If you’re the only account in your family or practice, it’s deleted too.' },
       { q: 'How do I get a copy of my data?', a: 'Email us using the form on this page and we’ll help.' },
     ],
