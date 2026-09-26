@@ -61,6 +61,7 @@ const sections: LegalSection[] = [
             <tbody>
               <tr><td>AI Coach</td><td>Your question, your recent coaching conversation, a short description of your family, and any screenshots you attach</td></tr>
               <tr><td>Live Coaching</td><td>The text of the recent conversation (never audio)</td></tr>
+              <tr><td>Practice a conversation</td><td>What you type or say during practice, the topic you choose, your loved one’s first name and relationship, and a few of your family’s boundaries. Your practice and its feedback are saved privately for you — no one else in your family, including the person in recovery, and no professional can see them.</td></tr>
               <tr><td>Lab report and aftercare reading</td><td>The photo, PDF or text you choose</td></tr>
               <tr><td>Letter feedback</td><td>The letter text</td></tr>
               <tr><td>Family Insights</td><td>The family's last 30 days of chat, conversation notes, check-ins, agreements, goals, appointments, tests and money requests — only if a family helper turns Family Insights on</td></tr>

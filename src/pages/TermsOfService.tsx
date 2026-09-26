@@ -64,7 +64,7 @@ const sections: LegalSection[] = [
     title: 'AI features',
     body: (
       <>
-        <p>AI features (AI Coach, Live Coaching, document reading, letter feedback, Family Insights and the professional AI Assistant) are powered by Anthropic's Claude. They stay off until you agree in the App, and you can turn them off at any time in Settings → Privacy &amp; account. Family Insights runs only if a family helper turns it on.</p>
+        <p>AI features (AI Coach, Live Coaching, conversation practice, document reading, letter feedback, Family Insights and the professional AI Assistant) are powered by Anthropic's Claude. They stay off until you agree in the App, and you can turn them off at any time in Settings → Privacy &amp; account. Family Insights runs only if a family helper turns it on.</p>
         <p>AI output may be inaccurate or incomplete and is not a substitute for professional judgment. Review it before relying on it or sharing it, and use your own judgment about what to say and do.</p>
       </>
     ),
