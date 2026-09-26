@@ -6,7 +6,7 @@ import {
   BadgeCheck,
   CalendarCheck,
   ClipboardList,
-  FlaskConical,
+  Pill,
   Heart,
   MessagesSquare,
   Sparkles,
@@ -17,7 +17,6 @@ import {
 import { AppStoreBadge, WEB_APP_URL } from '@/components/site/SiteChrome';
 import todayShot from '@/assets/app/today.webp';
 import chatShot from '@/assets/app/chat.webp';
-import testsShot from '@/assets/app/tests.webp';
 import planShot from '@/assets/app/plan.webp';
 import caseloadShot from '@/assets/app/caseload.webp';
 import insightsShot from '@/assets/app/insights.webp';
@@ -38,7 +37,6 @@ const SCREENS: Record<Audience, { src: string; alt: string }[]> = {
       alt: 'Today: days in recovery, a next step and the family unity score',
     },
     { src: chatShot, alt: 'Family chat with a respect filter' },
-    { src: testsShot, alt: 'Drug-test history the whole family can see' },
     {
       src: planShot,
       alt: 'The family plan: boundaries, goals and a relapse plan',
@@ -81,10 +79,10 @@ const MOMENTS: Record<Audience, Moment[]> = {
       detail: 'No cash — 21 days strong',
     },
     {
-      icon: FlaskConical,
+      icon: Pill,
       tone: 'teal',
-      title: 'Drug test logged',
-      detail: 'Negative · all panels',
+      title: 'Morning dose taken',
+      detail: 'Jordan · 7 days in a row',
     },
     {
       icon: Sparkles,
@@ -107,10 +105,10 @@ const MOMENTS: Record<Audience, Moment[]> = {
       detail: '“We held the boundary this week.”',
     },
     {
-      icon: FlaskConical,
+      icon: CalendarCheck,
       tone: 'teal',
-      title: 'Lab result received',
-      detail: 'Carter family · negative',
+      title: 'Session booked',
+      detail: 'Carter family · Monday 7:00 PM',
     },
     {
       icon: BadgeCheck,
@@ -136,12 +134,12 @@ const MOMENTS: Record<Audience, Moment[]> = {
 const COPY: Record<Audience, { title: string; body: string; foot: string }> = {
   family: {
     title: 'Recovery is a family journey.',
-    body: 'FamilyBridge keeps everyone on the same page — money, meetings, appointments, medications, tests and boundaries — with coaching that helps you say the right thing, and real help when it matters most.',
+    body: 'FamilyBridge keeps everyone on the same page — money, meetings, appointments, medications and boundaries — with coaching that helps you say the right thing, and real help when it matters most.',
     foot: 'Free for every family. In English and Spanish.',
   },
   pro: {
     title: 'See how every family is really doing.',
-    body: 'A live, consent-based view of each family’s check-ins, tests, meetings and money — with one place to coach them from the first call through aftercare. On iPhone or at your desk.',
+    body: 'A live, consent-based view of each family’s check-ins, meetings, medications and money — with one place to coach them from the first call through aftercare. On iPhone or at your desk.',
     foot: 'Plans from $149 a month · Your branding included · iPhone and web',
   },
 };

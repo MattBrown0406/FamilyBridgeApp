@@ -20,7 +20,7 @@ const indexableRoutes = [
   {
     path: '/for-providers',
     title: 'FamilyBridge for Treatment Professionals',
-    description: 'A consent-based caseload, family chat, AI summaries, drug tests, handoffs between levels of care and white label for the families you serve. From $149/month.',
+    description: 'A consent-based caseload, family chat, AI summaries, handoffs between levels of care and white label for the families you serve. From $149/month.',
   },
   {
     path: '/provider-purchase',
