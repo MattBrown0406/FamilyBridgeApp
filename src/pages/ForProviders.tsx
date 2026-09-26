@@ -24,7 +24,7 @@ const FEATURES = [
 ];
 
 const PLANS = [
-  { name: 'Solo', price: { monthly: 149, quarterly: 425, annual: 1520 }, families: 'Up to 15 families', who: 'Interventionists, recovery coaches and therapists' },
+  { name: 'Solo', price: { monthly: 149, quarterly: 424.99, annual: 1520 }, families: 'Up to 15 families', who: 'Interventionists, recovery coaches and therapists' },
   { name: 'Practice', price: { monthly: 399, quarterly: 1137, annual: 4070 }, families: 'Up to 50 families', who: 'Group practices, sober living and outpatient programs', featured: true },
   { name: 'Organization', price: { monthly: 1499, quarterly: 4272, annual: 15290 }, families: 'Unlimited families', who: 'Treatment centers and multi-site programs' },
 ];
@@ -35,7 +35,7 @@ const PERIODS: { id: Period; label: string; unit: string; billed: string; months
   { id: 'quarterly', label: 'Quarterly', unit: '/quarter', billed: 'billed every 3 months', months: 3, save: 'Save 5%' },
   { id: 'annual', label: 'Annual', unit: '/year', billed: 'billed once a year', months: 12, save: 'Save 15%' },
 ];
-const usd = (n: number) => `$${n.toLocaleString('en-US')}`;
+const usd = (n: number) => `$${n.toLocaleString('en-US', { minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 })}`;
 
 const PlanCards = () => {
   const [period, setPeriod] = useState<Period>('monthly');
@@ -71,6 +71,12 @@ const PlanCards = () => {
                 <li key={x} className="flex gap-2"><BadgeCheck className="h-4 w-4 mt-0.5 text-primary shrink-0" />{x}</li>
               ))}
             </ul>
+            <a
+              href={`${WEB_APP_URL}/pro/billing?plan=${p.name.toLowerCase()}&period=${period}`}
+              className={`mt-6 inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl px-5 font-semibold ${p.featured ? 'bg-primary text-primary-foreground hover:bg-primary/90' : 'border border-border bg-card text-foreground hover:bg-muted'}`}
+            >
+              Get started <ArrowRight className="h-4 w-4" />
+            </a>
           </div>
         ))}
       </div>
@@ -156,7 +162,7 @@ const ForProviders = () => (
           <a href="tel:458-298-8003" className="inline-flex h-11 items-center gap-2 rounded-xl border border-border bg-card px-5 font-semibold text-foreground hover:bg-muted"><PhoneIcon className="h-4 w-4" /> 458-298-8003</a>
         </div>
       </div>
-      <p className="mt-4 text-sm text-muted-foreground">Billed monthly, quarterly (save 5%) or annually (save 15%), directly by FamilyBridge. Download the app, create your practice, and start with up to 3 families free.</p>
+      <p className="mt-4 text-sm text-muted-foreground">Pay securely online with Square — monthly, quarterly (save 5%) or annually (save 15%), renewing automatically until you cancel. Solo and Practice monthly plans are also available as subscriptions in the iPhone app. New to FamilyBridge? Create your practice in the app first and start with up to 3 families free.</p>
       <div className="mt-6"><AppStoreBadge /></div>
     </section>
 
