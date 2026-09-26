@@ -58,6 +58,7 @@ import ProviderOutcomes from "./pages/features/ProviderOutcomes";
 import InterventionOutcomes from "./pages/features/InterventionOutcomes";
 import FIISGuidance from "./pages/features/FIISGuidance";
 import ScrollToTop from "./components/ScrollToTop";
+import { WebAppRedirect } from "@/components/site/WebAppRedirect";
 import NativePushInitializer from "./components/NativePushInitializer";
 import { usePlatform } from "@/hooks/usePlatform";
 
@@ -82,9 +83,9 @@ const App = () => {
               <main>
               <Routes>
               <Route path="/" element={isNative ? <NativeHome /> : <Index />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/moderator-dashboard" element={<ModeratorDashboard />} />
+              <Route path="/auth" element={<WebAppRedirect legacy={<Auth />} />} />
+              <Route path="/dashboard" element={<WebAppRedirect legacy={<Dashboard />} />} />
+              <Route path="/moderator-dashboard" element={<WebAppRedirect to="/pro" legacy={<ModeratorDashboard />} />} />
               <Route path="/family/:familyId" element={<FamilyChat />} />
               <Route path="/meetings" element={<Meetings />} />
               <Route path="/enabling-exercise" element={<EnablingExercise />} />
@@ -92,19 +93,19 @@ const App = () => {
                 path="/subscription"
                 element={paymentsWebOnly ? <Navigate to="/family-purchase" replace /> : <Subscription />}
               />
-              <Route path="/provider-admin" element={<ProviderAdmin />} />
-              <Route path="/provider-workspace" element={<ProviderWorkspace />} />
+              <Route path="/provider-admin" element={<WebAppRedirect to="/pro" legacy={<ProviderAdmin />} />} />
+              <Route path="/provider-workspace" element={<WebAppRedirect to="/pro" legacy={<ProviderWorkspace />} />} />
               <Route path="/professional-invite" element={<ProfessionalInvite />} />
               <Route path="/professional-family/:familyId" element={<ProfessionalFamilyWorkspace />} />
               <Route path="/provider-coordination" element={<ProviderCoordination />} />
               <Route path="/provider-purchase" element={<ProviderPurchase />} />
               <Route path="/family-purchase" element={<FamilyPurchase />} />
               <Route path="/family-setup" element={<FamilySetup />} />
-              <Route path="/join" element={<JoinFamily />} />
-              <Route path="/join-family" element={<JoinFamily />} />
+              <Route path="/join" element={<WebAppRedirect legacy={<JoinFamily />} />} />
+              <Route path="/join-family" element={<WebAppRedirect legacy={<JoinFamily />} />} />
               <Route path="/for-providers" element={<ForProviders />} />
               <Route path="/moderator-purchase" element={<ModeratorPurchase />} />
-              <Route path="/super-admin" element={<SuperAdmin />} />
+              <Route path="/super-admin" element={<WebAppRedirect to="/admin" legacy={<SuperAdmin />} />} />
               <Route path="/demo" element={<Demo />} />
               <Route path="/demo/family" element={<DemoFamily />} />
               <Route path="/demo/provider" element={<DemoProvider />} />

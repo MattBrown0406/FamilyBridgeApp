@@ -6,7 +6,7 @@ import {
 import { BrandedFooter } from '@/components/BrandedFooter';
 import { SEOHead, createBreadcrumbSchema } from '@/components/SEOHead';
 import PublicCrisisHelp from '@/components/PublicCrisisHelp';
-import { AppStoreBadge, Phone, SiteHeader } from '@/components/site/SiteChrome';
+import { AppStoreBadge, Phone, SiteHeader, WEB_APP_URL } from '@/components/site/SiteChrome';
 import caseloadShot from '@/assets/app/caseload.webp';
 import journeyShot from '@/assets/app/journey.webp';
 
@@ -51,6 +51,7 @@ const ForProviders = () => (
             <a href="#plans" className="inline-flex h-12 items-center gap-2 rounded-xl bg-primary px-5 font-semibold text-primary-foreground hover:bg-primary/90">See plans <ArrowRight className="h-4 w-4" /></a>
             <a href="mailto:matt@freedominterventions.com?subject=FamilyBridge%20for%20my%20practice" className="inline-flex h-12 items-center gap-2 rounded-xl border border-border bg-card px-5 font-semibold text-foreground hover:bg-muted"><Mail className="h-4 w-4" /> Talk with us</a>
           </div>
+          <p className="mt-4 text-sm text-muted-foreground">On iPhone, or at your desk — <a href={WEB_APP_URL} className="font-semibold text-primary underline-offset-4 hover:underline">sign in on the web</a> with the same account.</p>
         </div>
         <div className="mx-auto w-full max-w-[330px]"><Phone src={caseloadShot} alt="The FamilyBridge caseload for professionals" /></div>
       </div>

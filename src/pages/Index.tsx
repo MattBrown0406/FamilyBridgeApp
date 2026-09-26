@@ -1,13 +1,8 @@
-import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import {
   ArrowRight, BadgeCheck, Briefcase, CalendarCheck, ClipboardList, Ear, FileText, FlaskConical, GitBranch, Heart,
-  HeartHandshake, LifeBuoy, Lock, LogOut, Mail, MessagesSquare, Pill, ShieldCheck, Sparkles, Sunrise, Target, Users, Wallet,
+  HeartHandshake, LifeBuoy, Lock, Mail, MessagesSquare, Pill, ShieldCheck, Sparkles, Sunrise, Target, Users, Wallet,
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { useAuth } from '@/hooks/useAuth';
-import { useProviderAdmin } from '@/hooks/useProviderAdmin';
-import { supabase } from '@/integrations/supabase/client';
 import { BrandedFooter } from '@/components/BrandedFooter';
 import { SEOHead, createOrganizationSchema } from '@/components/SEOHead';
 import PublicCrisisHelp from '@/components/PublicCrisisHelp';
@@ -65,26 +60,6 @@ const FAQ = [
 ];
 
 const Index = () => {
-  const { user, loading, signOut } = useAuth();
-  const { isProvider, isLoading: isProviderLoading } = useProviderAdmin();
-  const navigate = useNavigate();
-  const [dashboardPath, setDashboardPath] = useState('/dashboard');
-
-  // People still signed in to the previous web app keep a way back to it.
-  useEffect(() => {
-    const resolve = async () => {
-      if (!user || isProviderLoading) return setDashboardPath('/dashboard');
-      if (isProvider) return setDashboardPath('/moderator-dashboard');
-      try {
-        const { count } = await supabase.from('family_members').select('id', { count: 'exact', head: true }).eq('user_id', user.id).eq('role', 'moderator');
-        setDashboardPath((count || 0) > 0 ? '/moderator-dashboard' : '/dashboard');
-      } catch {
-        setDashboardPath('/dashboard');
-      }
-    };
-    void resolve();
-  }, [isProvider, isProviderLoading, user]);
-
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
@@ -95,16 +70,7 @@ const Index = () => {
       />
 
       <SiteHeader
-        right={
-          user ? (
-            <>
-              <Button size="sm" variant="outline" onClick={() => navigate(dashboardPath)} disabled={loading}>Dashboard</Button>
-              <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => signOut()} aria-label="Sign out"><LogOut className="h-4 w-4" /></Button>
-            </>
-          ) : (
-            <a href="#download" className="hidden sm:inline-flex h-9 items-center rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground hover:bg-primary/90">Get the app</a>
-          )
-        }
+        right={<a href="#download" className="hidden sm:inline-flex h-9 items-center rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground hover:bg-primary/90">Get the app</a>}
       />
 
       {/* HERO */}
