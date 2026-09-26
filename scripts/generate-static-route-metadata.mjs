@@ -152,6 +152,8 @@ const privateNoIndexPaths = [
   '/ai-learning/governance',
   '/input-reconciliation',
   '/update-payment',
+  '/practice-billing',
+  '/practice-billing/complete',
 ];
 
 noIndexRoutes.push(...privateNoIndexPaths.map((path) => ({
