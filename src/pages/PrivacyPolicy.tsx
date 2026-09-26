@@ -61,7 +61,7 @@ const sections: LegalSection[] = [
             <tbody>
               <tr><td>AI Coach</td><td>Your question, your recent coaching conversation, a short description of your family, and any screenshots you attach</td></tr>
               <tr><td>Live Coaching</td><td>The text of the recent conversation (never audio)</td></tr>
-              <tr><td>Practice a conversation</td><td>What you type or say during practice, the topic you choose, your loved one’s first name and relationship, and a few of your family’s boundaries. Your practice and its feedback are saved privately for you — no one else in your family, including the person in recovery, and no professional can see them.</td></tr>
+              <tr><td>Practice a conversation</td><td>What you type or say during practice, the topic you choose, your loved one’s first name and relationship, and a few of your family’s boundaries (to Anthropic). If you choose to hear replies out loud, the text of the AI’s replies — never your voice — is sent to ElevenLabs to create the spoken voice. Your practice and its feedback are saved privately for you — no one else in your family, including the person in recovery, and no professional can see them.</td></tr>
               <tr><td>Lab report and aftercare reading</td><td>The photo, PDF or text you choose</td></tr>
               <tr><td>Letter feedback</td><td>The letter text</td></tr>
               <tr><td>Family Insights</td><td>The family's last 30 days of chat, conversation notes, check-ins, agreements, goals, appointments, tests and money requests — only if a family helper turns Family Insights on</td></tr>
@@ -69,14 +69,14 @@ const sections: LegalSection[] = [
             </tbody>
           </table>
         </div>
-        <p>Anthropic processes this information to generate the response on our behalf and <strong>does not use it to train its models</strong>. AI output can be wrong and is not medical, legal or clinical advice.</p>
+        <p>Anthropic processes this information to generate the response on our behalf and <strong>does not use it to train its models</strong>. ElevenLabs only turns the AI’s own practice replies into speech. AI output can be wrong and is not medical, legal or clinical advice.</p>
       </>
     ),
   },
   {
     id: 'providers',
     title: 'Service providers',
-    body: <p>We use a small number of providers to run FamilyBridge, each only for its purpose: Supabase (secure database, file storage and sign-in), Anthropic (AI features you've agreed to), Apple and RevenueCat (subscriptions and purchases), Expo (push notifications) and Resend (email).</p>,
+    body: <p>We use a small number of providers to run FamilyBridge, each only for its purpose: Supabase (secure database, file storage and sign-in), Anthropic (AI features you've agreed to), ElevenLabs (spoken voices in conversation practice), Apple and RevenueCat (subscriptions and purchases), Expo (push notifications) and Resend (email).</p>,
   },
   {
     id: 'security',
