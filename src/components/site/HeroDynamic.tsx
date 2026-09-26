@@ -9,6 +9,7 @@ import {
   Pill,
   Heart,
   MessagesSquare,
+  Mic,
   Sparkles,
   Sunrise,
   Target,
@@ -71,6 +72,12 @@ const MOMENTS: Record<Audience, Moment[]> = {
       tone: 'teal',
       title: 'Meeting logged',
       detail: 'NA · Tuesday night',
+    },
+    {
+      icon: Mic,
+      tone: 'teal',
+      title: 'Practice complete',
+      detail: 'Stayed calm 5/5 · Held your boundary 4/5',
     },
     {
       icon: Target,
