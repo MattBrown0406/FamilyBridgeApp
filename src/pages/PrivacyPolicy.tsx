@@ -1,201 +1,133 @@
-import { BrandedHeader } from "@/components/BrandedHeader";
-import { BrandedFooter } from "@/components/BrandedFooter";
-import { Card, CardContent } from "@/components/ui/card";
-import { SEOHead, createBreadcrumbSchema } from "@/components/SEOHead";
-import PublicCrisisHelp from "@/components/PublicCrisisHelp";
+import { Link } from 'react-router-dom';
+import { LegalPage, type LegalSection } from '@/components/site/LegalPage';
 
-const PrivacyPolicy = () => {
-  const breadcrumbSchema = createBreadcrumbSchema([
-    { name: 'Home', url: '/' },
-    { name: 'Privacy Policy', url: '/privacy' },
-  ]);
-
-  return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <SEOHead
-        title="Privacy Policy | FamilyBridge"
-        description="Read how FamilyBridge handles personal information, family data, authorized professional access, and privacy choices."
-        canonicalPath="/privacy"
-        structuredData={breadcrumbSchema}
-      />
-      <BrandedHeader showHomeButton />
-      
-      <main className="flex-1 container mx-auto px-3 sm:px-4 py-4 sm:py-8 max-w-4xl">
-        <div className="text-center mb-4 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">Privacy Policy</h1>
-          <p className="text-sm sm:text-base text-muted-foreground">
-            Last updated: April 2026
-          </p>
+const sections: LegalSection[] = [
+  {
+    id: 'collect',
+    title: 'Information we collect',
+    body: (
+      <>
+        <p><strong>Account information.</strong> Your email address and password (stored securely by our sign-in provider — we never see your password), and the name, role and relationship you enter for yourself in your family (for example “Mom” or “in recovery”).</p>
+        <p><strong>Family information you add.</strong> Depending on the features your family uses: family chat messages; money requests, votes and receipt photos; recovery meetings; appointments; medications and doses taken; drug-test results (including results sent by a partner lab when your family registers a test kit); daily check-ins (mood, stress, obsessive thinking, self-care); boundaries, goals, relapse plan, wins and family-meeting agenda; care-team contacts; conversation notes; intervention letters; and your recovery start date.</p>
+        <p><strong>Photos and documents you choose to upload.</strong> Receipt photos, lab reports, discharge or aftercare plans, and screenshots you ask the coach to look at. Lab reports, aftercare plans and screenshots are read once to give you a result and are not stored.</p>
+        <p><strong>Professional information.</strong> If you use FamilyBridge as a professional: your name, title, practice name and your practice's branding (logo and colors), plus the notes, tasks, sessions and messages you create for families who connect with you.</p>
+        <p><strong>Purchases.</strong> Whether you have an active subscription or a purchased SOS session, handled through Apple and our subscription provider. We never receive your card details.</p>
+        <p><strong>Device information.</strong> A push-notification token (so we can send the notifications you allow), your language, and basic technical information needed to run the app.</p>
+        <p><strong>Live Coaching.</strong> When you use Live Coaching, speech is turned into text on your phone. <strong>Audio is never recorded, stored or uploaded.</strong> Only the text of the recent conversation is sent to our AI provider to generate a suggestion, and it isn't stored.</p>
+      </>
+    ),
+  },
+  {
+    id: 'use',
+    title: 'How we use your information',
+    body: (
+      <>
+        <ul>
+          <li>To run FamilyBridge and show your information to the people you've chosen to share it with</li>
+          <li>To send notifications about activity in your family or practice (you can turn these off in your phone's settings)</li>
+          <li>To provide the AI coaching features you choose to use</li>
+          <li>To provide SOS support sessions you start</li>
+          <li>To process subscriptions and purchases</li>
+          <li>To keep FamilyBridge secure, prevent abuse (including the family chat respect filter), and respond to support requests</li>
+        </ul>
+        <p><strong>We do not sell your personal information, and we do not use it for advertising.</strong></p>
+      </>
+    ),
+  },
+  {
+    id: 'sharing',
+    title: 'Who can see your information',
+    body: (
+      <>
+        <p><strong>Your family.</strong> Information you add to your family is visible to the other approved members of your family, as the app describes. Some items are more private: medications are visible to your family only if you choose to share them, and intervention letters are private to the writer unless shared. <strong>The person in recovery can never see intervention letters, conversation notes or Family Insights.</strong></p>
+        <p><strong>Professionals you connect.</strong> A parent or partner decides whether to connect a professional (for example an interventionist, treatment center, therapist, coach, sober living or outpatient program) and chooses exactly which areas they can see — money, meetings, appointments, medications, drug tests, your plan, check-ins and family chat (off unless you turn it on). A professional who can see family chat can also post in it, clearly labeled. You can change these choices or disconnect at any time, and your family can see a log of when professionals viewed your information.</p>
+        <p><strong>Handoffs between professionals.</strong> When a professional refers your family to another provider, nothing is shared until a parent or partner approves and chooses what the new provider can see. If your care history is included, the new provider can read earlier providers' session summaries, tasks and messages — and their clinical notes only if the referring professional chose to share them.</p>
+        <p><strong>SOS sessions.</strong> If you start a 24-hour SOS session, the FamilyBridge SOS line (a certified interventionist at Freedom Interventions) can read and reply to the messages in that session only — not your other family information. A summary and transcript of the session are kept by FamilyBridge for continuity of care.</p>
+        <p><strong>Lab partners.</strong> If you register a drug-test kit from a partner lab, the lab sends the result to FamilyBridge and it appears in your family's drug tests.</p>
+        <p><strong>Legal requirements.</strong> We may disclose information if required by law, or to protect someone's safety or our rights.</p>
+      </>
+    ),
+  },
+  {
+    id: 'ai',
+    title: 'AI features',
+    body: (
+      <>
+        <p>FamilyBridge's coaching features use <strong>Claude, an AI model made by Anthropic</strong>. Before any of your information is sent to Anthropic, the app asks for your permission, and you can turn AI features off at any time in <strong>Settings → Privacy &amp; account</strong>. Everything else in FamilyBridge works without AI.</p>
+        <p>When you use an AI feature, we send only what that feature needs:</p>
+        <div className="overflow-x-auto">
+          <table>
+            <thead><tr><th>Feature</th><th>What's sent</th></tr></thead>
+            <tbody>
+              <tr><td>AI Coach</td><td>Your question, your recent coaching conversation, a short description of your family, and any screenshots you attach</td></tr>
+              <tr><td>Live Coaching</td><td>The text of the recent conversation (never audio)</td></tr>
+              <tr><td>Lab report and aftercare reading</td><td>The photo, PDF or text you choose</td></tr>
+              <tr><td>Letter feedback</td><td>The letter text</td></tr>
+              <tr><td>Family Insights</td><td>The family's last 30 days of chat, conversation notes, check-ins, agreements, goals, appointments, tests and money requests — only if a family helper turns Family Insights on</td></tr>
+              <tr><td>Professional AI Assistant</td><td>The information the family has shared with that professional</td></tr>
+            </tbody>
+          </table>
         </div>
+        <p>Anthropic processes this information to generate the response on our behalf and <strong>does not use it to train its models</strong>. AI output can be wrong and is not medical, legal or clinical advice.</p>
+      </>
+    ),
+  },
+  {
+    id: 'providers',
+    title: 'Service providers',
+    body: <p>We use a small number of providers to run FamilyBridge, each only for its purpose: Supabase (secure database, file storage and sign-in), Anthropic (AI features you've agreed to), Apple and RevenueCat (subscriptions and purchases), Expo (push notifications) and Resend (email).</p>,
+  },
+  {
+    id: 'security',
+    title: 'Security',
+    body: <p>Your information is encrypted in transit and at rest. Access rules are enforced on our servers for every record — not just in the app — so people see only what they've been given access to. Receipts are stored privately and shown through short-lived links. No system is perfectly secure, but we work hard to protect your information and will notify you as required by law if a breach affects you.</p>,
+  },
+  {
+    id: 'choices',
+    title: 'Your choices and rights',
+    body: (
+      <>
+        <ul>
+          <li><strong>See and correct</strong> your information in the app at any time.</li>
+          <li><strong>Control sharing</strong> with professionals (what they see, or disconnect) and with AI (Settings → Privacy &amp; account).</li>
+          <li><strong>Delete your account</strong> in the app: Settings → Privacy &amp; account → Delete my account. This permanently deletes your account and your personal information. If you're the only account in your family (or on your practice's team), the family or practice is deleted too. Other family members keep their own information.</li>
+          <li><strong>Request a copy</strong> of your data by emailing us.</li>
+        </ul>
+        <p>Deleting your account doesn't cancel a subscription purchased through Apple — cancel it in your iPhone's Settings → your name → Subscriptions.</p>
+      </>
+    ),
+  },
+  {
+    id: 'health',
+    title: 'Health information',
+    body: <p>FamilyBridge helps families organize and share information about a loved one's recovery and is not a healthcare provider. Professionals who use FamilyBridge are responsible for their own obligations for the records they keep; if your program is subject to HIPAA or 42 CFR Part 2, contact us about agreements before inviting families.</p>,
+  },
+  {
+    id: 'children',
+    title: 'Children',
+    body: <p>FamilyBridge isn't directed to children under 13, and we don't knowingly collect their information. A family may add a young child as a member without an account (just a name) so they're included in family activities.</p>,
+  },
+  {
+    id: 'changes',
+    title: 'Changes to this policy',
+    body: <p>We'll post any changes here and update the date above. If a change materially affects how we use your information, we'll let you know in the app.</p>,
+  },
+  {
+    id: 'contact',
+    title: 'Contact us',
+    body: <p>FamilyBridge is operated by Freedom Interventions, LLC. Questions or requests: <a href="mailto:matt@freedominterventions.com">matt@freedominterventions.com</a>, or visit <Link to="/support">Support</Link>.</p>,
+  },
+];
 
-        <div className="space-y-6">
-          <Card>
-            <CardContent className="pt-6">
-              <h2 className="text-xl font-semibold text-foreground mb-3">Introduction</h2>
-              <p className="text-muted-foreground">
-                FamilyBridge ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our application. Please read this privacy policy carefully. By using FamilyBridge, you agree to the collection and use of information in accordance with this policy.
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <h2 className="text-xl font-semibold text-foreground mb-3">Information We Collect</h2>
-              <div className="space-y-4 text-muted-foreground">
-                <div>
-                  <h3 className="font-medium text-foreground mb-1">Personal Information</h3>
-                  <p>When you create an account, we collect your name, email address, and profile information you choose to provide.</p>
-                </div>
-                <div>
-                  <h3 className="font-medium text-foreground mb-1">Family Group Information</h3>
-                  <p>We collect information about family groups you create or join, including messages, boundaries, goals, and financial requests shared within your family group.</p>
-                </div>
-                <div>
-                  <h3 className="font-medium text-foreground mb-1">Location Information</h3>
-                  <p>With your permission, we collect location data for meeting check-ins and location check-in requests. This data is shared only with members of your family group.</p>
-                </div>
-                <div>
-                  <h3 className="font-medium text-foreground mb-1">Payment Information</h3>
-                  <p>Payment usernames (Venmo, PayPal, Cash App) you provide for family financial support are encrypted and stored securely. Subscription payments are processed securely through our payment provider.</p>
-                </div>
-                <div>
-                  <h3 className="font-medium text-foreground mb-1">Uploaded Files and Images</h3>
-                  <p>When you upload files, screenshots, receipts, medication label photos, avatars, or other images, we store them to operate the service and show them to the people in your FamilyBridge experience who are authorized to access them.</p>
-                </div>
-                <div>
-                  <h3 className="font-medium text-foreground mb-1">Device Information</h3>
-                  <p>We may collect device identifiers, operating system version, and app version for analytics and to improve our services.</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <h2 className="text-xl font-semibold text-foreground mb-3">How We Use Your Information</h2>
-              <ul className="space-y-2 text-muted-foreground list-disc list-inside">
-                <li>To provide and maintain our service</li>
-                <li>To facilitate communication within family groups</li>
-                <li>To process meeting check-ins and location sharing</li>
-                <li>To manage financial support requests between family members</li>
-                <li>To send notifications about activity in your family group</li>
-                <li>To improve and personalize your experience</li>
-                <li>To respond to your inquiries and support requests</li>
-              </ul>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <h2 className="text-xl font-semibold text-foreground mb-3">Data Sharing and Disclosure</h2>
-              <div className="space-y-4 text-muted-foreground">
-                <p>We do not sell your personal information. We may share your information in the following circumstances:</p>
-                <ul className="space-y-2 list-disc list-inside">
-                  <li><strong>Within Family Groups:</strong> Information you share is visible to other members of your family group as intended by the app's functionality.</li>
-                  <li><strong>With Service Providers:</strong> We use trusted third-party services to help operate our platform (hosting, storage, payment processing, email delivery, and AI processing for features you choose to use).</li>
-                  <li><strong>AI-Assisted Features:</strong> If you use coaching, communication help, document analysis, or medication-label analysis, the content you submit for those features may be processed by AI providers on our behalf to generate suggestions or structured results.</li>
-                  <li><strong>Legal Requirements:</strong> We may disclose information if required by law or to protect our rights and safety.</li>
-                </ul>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <h2 className="text-xl font-semibold text-foreground mb-3">AI Features and Sensitive Content</h2>
-              <div className="space-y-4 text-muted-foreground">
-                <p>Some FamilyBridge features use AI to help summarize documents, suggest communication, and analyze messages, screenshots, or medication labels that you choose to submit.</p>
-                <ul className="space-y-2 list-disc list-inside">
-                  <li>These features are optional.</li>
-                  <li>Use them only for content you are comfortable sending for processing.</li>
-                  <li>Please avoid including unrelated personal identifiers when they are not needed.</li>
-                  <li>AI output can be wrong or incomplete and should be reviewed by a human before you rely on it.</li>
-                </ul>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <h2 className="text-xl font-semibold text-foreground mb-3">Data Security</h2>
-              <p className="text-muted-foreground">
-                We implement appropriate technical and organizational security measures to protect your personal information. This includes encryption of sensitive data, secure authentication, controlled file access, expiring file links where appropriate, and regular security assessments. However, no method of transmission over the internet is 100% secure, and we cannot guarantee absolute security.
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <h2 className="text-xl font-semibold text-foreground mb-3">Your Rights</h2>
-              <ul className="space-y-2 text-muted-foreground list-disc list-inside">
-                <li>Access and review your personal information</li>
-                <li>Update or correct your account information</li>
-                <li>Delete your account and associated data</li>
-                <li>Opt out of promotional communications</li>
-                <li>Request a copy of your data</li>
-              </ul>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <h2 className="text-xl font-semibold text-foreground mb-3">Children's Privacy</h2>
-              <p className="text-muted-foreground">
-                FamilyBridge is not intended for children under 13 years of age. We do not knowingly collect personal information from children under 13. If you believe we have collected information from a child under 13, please contact us immediately.
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <h2 className="text-xl font-semibold text-foreground mb-3">Subscriptions & Payments</h2>
-              <div className="space-y-4 text-muted-foreground">
-                <p>FamilyBridge offers subscription services:</p>
-                <ul className="space-y-2 list-disc list-inside">
-                  <li>Payments are securely processed through our payment provider. We do not store your credit card information.</li>
-                  <li>Subscriptions auto-renew unless cancelled before the end of the current billing period.</li>
-                </ul>
-                <p>You can manage or cancel subscriptions through your account settings.</p>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <h2 className="text-xl font-semibold text-foreground mb-3">Changes to This Policy</h2>
-              <p className="text-muted-foreground">
-                We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the "Last updated" date. You are advised to review this Privacy Policy periodically for any changes.
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <h2 className="text-xl font-semibold text-foreground mb-3">Contact Us</h2>
-              <p className="text-muted-foreground mb-3">
-                If you have any questions about this Privacy Policy, please contact us at:
-              </p>
-              <a 
-                href="mailto:matt@freedominterventions.com"
-                className="text-primary hover:underline font-medium"
-              >
-                matt@freedominterventions.com
-              </a>
-            </CardContent>
-          </Card>
-
-          <div className="mt-8">
-            <PublicCrisisHelp className="max-w-2xl mx-auto mb-4" />
-            <p className="text-xs text-muted-foreground max-w-md mx-auto text-center">
-              FamilyBridge provides educational and support-focused content only. It does not offer medical, mental health, or crisis services.
-            </p>
-          </div>
-        </div>
-      </main>
-
-      <BrandedFooter />
-    </div>
-  );
-};
+const PrivacyPolicy = () => (
+  <LegalPage
+    title="Privacy Policy"
+    path="/privacy"
+    description="How FamilyBridge handles your family's information: what we collect, who can see it, AI features with your permission, and deleting your account."
+    updated="September 2026"
+    intro={<p>FamilyBridge helps families affected by a loved one's substance use stay connected, accountable and supported — together with the professionals they choose. This policy explains what we collect, how we use it, who can see it, and the choices you have.</p>}
+    sections={sections}
+  />
+);
 
 export default PrivacyPolicy;

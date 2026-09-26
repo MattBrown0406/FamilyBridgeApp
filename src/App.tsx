@@ -34,6 +34,7 @@ import NativeHome from "./pages/NativeHome";
 import Support from "./pages/Support";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
+import Eula from "./pages/Eula";
 import NotFound from "./pages/NotFound";
 import SignHIPAA from "./pages/SignHIPAA";
 import UpdatePayment from "./pages/UpdatePayment";
@@ -110,6 +111,7 @@ const App = () => {
               <Route path="/support" element={<Support />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="/terms" element={<TermsOfService />} />
+              <Route path="/eula" element={<Eula />} />
               <Route path="/sign-hipaa" element={<SignHIPAA />} />
               <Route path="/intervention-readiness" element={<InterventionReadiness />} />
               <Route path="/intervention-execution" element={<InterventionExecution />} />

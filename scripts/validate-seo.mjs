@@ -15,7 +15,7 @@ const match = (html, pattern) => html.match(pattern)?.[1] ?? '';
 const sitemap = await readFile(join(distDir, 'sitemap.xml'), 'utf8');
 const sitemapUrls = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((item) => item[1]);
 
-assert(sitemapUrls.length === 17, `Expected 17 sitemap URLs, found ${sitemapUrls.length}`);
+assert(sitemapUrls.length === 18, `Expected 18 sitemap URLs, found ${sitemapUrls.length}`);
 assert(new Set(sitemapUrls).size === sitemapUrls.length, 'Sitemap contains duplicate URLs');
 assert(sitemapUrls.every((url) => url.startsWith(`${siteUrl}/`)), 'Sitemap contains a noncanonical host');
 
