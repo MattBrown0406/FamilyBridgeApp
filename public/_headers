@@ -75,6 +75,10 @@
   X-Robots-Tag: noindex, nofollow, noarchive
 /update-payment
   X-Robots-Tag: noindex, nofollow, noarchive
+/practice-billing
+  X-Robots-Tag: noindex, nofollow, noarchive
+/practice-billing/complete
+  X-Robots-Tag: noindex, nofollow, noarchive
 /subscription
   X-Robots-Tag: noindex, nofollow, noarchive
 /moderator-purchase

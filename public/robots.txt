@@ -18,6 +18,7 @@ Disallow: /join-family
 Disallow: /moderator-purchase
 Disallow: /sign-hipaa
 Disallow: /update-payment
+Disallow: /practice-billing
 Disallow: /intervention-readiness
 Disallow: /intervention-execution
 Disallow: /post-intervention

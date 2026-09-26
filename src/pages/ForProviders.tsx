@@ -7,7 +7,8 @@ import {
 import { BrandedFooter } from '@/components/BrandedFooter';
 import { SEOHead, createBreadcrumbSchema } from '@/components/SEOHead';
 import PublicCrisisHelp from '@/components/PublicCrisisHelp';
-import { AppStoreBadge, ComingSoon, Phone, SiteHeader, WEB_APP_URL } from '@/components/site/SiteChrome';
+import { AppStoreBadge, ComingSoon, Phone, SiteHeader } from '@/components/site/SiteChrome';
+import { PERIODS, PLANS, usd, type Period } from '@/lib/practicePlans';
 import caseloadShot from '@/assets/app/caseload.webp';
 import journeyShot from '@/assets/app/journey.webp';
 
@@ -22,20 +23,6 @@ const FEATURES = [
   { icon: Brush, t: 'Your brand, included', d: 'Families see your logo, name and colors throughout their app, with a small “with FamilyBridge.” White label is included with every plan.' },
   { icon: Gift, t: 'Family Plus for your families', d: 'Families you work with get Family Plus included on any paid plan — and keep it for 14 days after you complete their care.' },
 ];
-
-const PLANS = [
-  { name: 'Solo', price: { monthly: 149, quarterly: 425, annual: 1520 }, families: 'Up to 15 families', who: 'Interventionists, recovery coaches and therapists' },
-  { name: 'Practice', price: { monthly: 399, quarterly: 1137, annual: 4070 }, families: 'Up to 50 families', who: 'Group practices, sober living and outpatient programs', featured: true },
-  { name: 'Organization', price: { monthly: 1499, quarterly: 4272, annual: 15290 }, families: 'Unlimited families', who: 'Treatment centers and multi-site programs' },
-];
-
-type Period = 'monthly' | 'quarterly' | 'annual';
-const PERIODS: { id: Period; label: string; unit: string; billed: string; months: number; save?: string }[] = [
-  { id: 'monthly', label: 'Monthly', unit: '/month', billed: 'Billed monthly', months: 1 },
-  { id: 'quarterly', label: 'Quarterly', unit: '/quarter', billed: 'billed every 3 months', months: 3, save: 'Save 5%' },
-  { id: 'annual', label: 'Annual', unit: '/year', billed: 'billed once a year', months: 12, save: 'Save 15%' },
-];
-const usd = (n: number) => `$${n.toLocaleString('en-US')}`;
 
 const PlanCards = () => {
   const [period, setPeriod] = useState<Period>('monthly');
@@ -71,6 +58,12 @@ const PlanCards = () => {
                 <li key={x} className="flex gap-2"><BadgeCheck className="h-4 w-4 mt-0.5 text-primary shrink-0" />{x}</li>
               ))}
             </ul>
+            <Link
+              to={`/practice-billing?plan=${p.id}&period=${period}`}
+              className={`mt-6 inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl px-5 font-semibold ${p.featured ? 'bg-primary text-primary-foreground hover:bg-primary/90' : 'border border-border bg-card text-foreground hover:bg-muted'}`}
+            >
+              Get started <ArrowRight className="h-4 w-4" />
+            </Link>
           </div>
         ))}
       </div>
@@ -101,7 +94,7 @@ const ForProviders = () => (
             <a href="#plans" className="inline-flex h-12 items-center gap-2 rounded-xl bg-primary px-5 font-semibold text-primary-foreground hover:bg-primary/90">See plans <ArrowRight className="h-4 w-4" /></a>
             <a href="mailto:matt@freedominterventions.com?subject=FamilyBridge%20for%20my%20practice" className="inline-flex h-12 items-center gap-2 rounded-xl border border-border bg-card px-5 font-semibold text-foreground hover:bg-muted"><Mail className="h-4 w-4" /> Talk with us</a>
           </div>
-          <p className="mt-4 text-sm text-muted-foreground">On iPhone, or at your desk — <a href={WEB_APP_URL} className="font-semibold text-primary underline-offset-4 hover:underline">sign in on the web</a> with the same account.</p>
+          <p className="mt-4 text-sm text-muted-foreground">Works on iPhone and iPad. Manage your plan anytime in <Link to="/practice-billing" className="font-semibold text-primary underline-offset-4 hover:underline">Practice billing</Link>.</p>
         </div>
         <div className="mx-auto w-full max-w-[330px]"><Phone src={caseloadShot} alt="The FamilyBridge caseload for professionals" /></div>
       </div>
@@ -156,7 +149,7 @@ const ForProviders = () => (
           <a href="tel:458-298-8003" className="inline-flex h-11 items-center gap-2 rounded-xl border border-border bg-card px-5 font-semibold text-foreground hover:bg-muted"><PhoneIcon className="h-4 w-4" /> 458-298-8003</a>
         </div>
       </div>
-      <p className="mt-4 text-sm text-muted-foreground">Billed monthly, quarterly (save 5%) or annually (save 15%), directly by FamilyBridge. Download the app, create your practice, and start with up to 3 families free.</p>
+      <p className="mt-4 text-sm text-muted-foreground">Pay securely online with Square — monthly, quarterly (save 5%) or annually (save 15%), renewing automatically until you cancel. Solo and Practice monthly plans are also available as subscriptions in the iPhone app. New to FamilyBridge? Download the app, create your practice, and start with up to 3 families free — then come back here to choose a plan.</p>
       <div className="mt-6"><AppStoreBadge /></div>
     </section>
 

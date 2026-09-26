@@ -14,7 +14,7 @@ import {
   Target,
   Wallet,
 } from 'lucide-react';
-import { AppStoreBadge, WEB_APP_URL } from '@/components/site/SiteChrome';
+import { AppStoreBadge } from '@/components/site/SiteChrome';
 import todayShot from '@/assets/app/today.webp';
 import chatShot from '@/assets/app/chat.webp';
 import planShot from '@/assets/app/plan.webp';
@@ -139,8 +139,8 @@ const COPY: Record<Audience, { title: string; body: string; foot: string }> = {
   },
   pro: {
     title: 'See how every family is really doing.',
-    body: 'A live, consent-based view of each family’s check-ins, meetings, medications and money — with one place to coach them from the first call through aftercare. On iPhone or at your desk.',
-    foot: 'Plans from $149 a month · Your branding included · iPhone and web',
+    body: 'A live, consent-based view of each family’s check-ins, meetings, medications and money — with one place to coach them from the first call through aftercare. On iPhone and iPad.',
+    foot: 'Plans from $149 a month · Your branding included · iPhone and iPad',
   },
 };
 
@@ -295,12 +295,7 @@ export const HeroDynamic = () => {
                   >
                     See plans <ArrowRight className="h-4 w-4" />
                   </Link>
-                  <a
-                    href={WEB_APP_URL}
-                    className="inline-flex h-12 items-center gap-2 rounded-xl border border-border bg-card px-5 font-semibold text-foreground hover:bg-muted"
-                  >
-                    Sign in on the web
-                  </a>
+                  <AppStoreBadge />
                 </>
               )}
             </div>

@@ -79,6 +79,8 @@ const noIndexPaths = [
   '/ai-learning/governance',
   '/input-reconciliation',
   '/update-payment',
+  '/practice-billing',
+  '/practice-billing/complete',
 ];
 
 for (const path of noIndexPaths) {
