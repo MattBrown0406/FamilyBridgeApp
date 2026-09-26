@@ -43,7 +43,7 @@ const sections: LegalSection[] = [
     body: (
       <>
         <p>Professionals and their staff may see only what a family chooses to share and must use it only to support that family's care. Professionals are solely responsible for their own services, licensing, records, and compliance with the laws that apply to them (including, where applicable, HIPAA and 42 CFR Part 2), and for any fees they charge families, which are arranged directly between the professional and the family.</p>
-        <p>Professional plans (Solo, Practice and Organization) are billed directly by FamilyBridge under the plan the practice selects. We may limit the number of connected families according to the practice's plan.</p>
+        <p>Professional plans (Solo, Practice and Organization) are billed directly by FamilyBridge under the plan and billing period (monthly, quarterly or annual) the practice selects. Quarterly and annual plans are paid in advance for the full period. We may limit the number of connected families according to the practice's plan.</p>
       </>
     ),
   },
