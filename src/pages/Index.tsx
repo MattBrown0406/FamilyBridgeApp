@@ -7,6 +7,7 @@ import { BrandedFooter } from '@/components/BrandedFooter';
 import { SEOHead, createOrganizationSchema } from '@/components/SEOHead';
 import PublicCrisisHelp from '@/components/PublicCrisisHelp';
 import { AppStoreBadge, Phone, SiteHeader } from '@/components/site/SiteChrome';
+import { HeroDynamic } from '@/components/site/HeroDynamic';
 import todayShot from '@/assets/app/today.webp';
 import insightsShot from '@/assets/app/insights.webp';
 import chatShot from '@/assets/app/chat.webp';
@@ -73,38 +74,7 @@ const Index = () => {
         right={<a href="#download" className="hidden sm:inline-flex h-9 items-center rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground hover:bg-primary/90">Get the app</a>}
       />
 
-      {/* HERO */}
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-secondary/70 to-background" aria-hidden="true" />
-        <div className="container relative mx-auto px-4 max-w-6xl pt-12 pb-16 sm:pt-20 sm:pb-24 grid gap-12 lg:grid-cols-[1.1fr_0.9fr] items-center">
-          <div className="max-w-xl">
-            <p className="inline-flex items-center gap-2 rounded-full bg-accent/15 px-3 py-1 text-sm font-semibold text-[#9A5A1C]">
-              <Sunrise className="h-4 w-4" /> Built by a certified interventionist
-            </p>
-            <h1 className="mt-5 text-4xl sm:text-6xl font-extrabold tracking-tight text-foreground [text-wrap:balance]">
-              Recovery is a family journey.
-            </h1>
-            <p className="mt-5 text-lg sm:text-xl leading-relaxed text-muted-foreground">
-              FamilyBridge keeps everyone on the same page — money, meetings, appointments, medications, tests and boundaries — with coaching that helps you say the right thing, and real help when it matters most.
-            </p>
-            <div id="download" className="mt-8 flex flex-wrap items-center gap-3 scroll-mt-24">
-              <AppStoreBadge />
-              <Link to="/for-providers" className="inline-flex h-12 items-center gap-2 rounded-xl border border-border bg-card px-5 font-semibold text-foreground hover:bg-muted">
-                For professionals <ArrowRight className="h-4 w-4" />
-              </Link>
-            </div>
-            <p className="mt-4 text-sm text-muted-foreground">Free for every family. In English and Spanish.</p>
-          </div>
-          <div className="relative mx-auto w-full max-w-[340px] lg:max-w-[360px]">
-            <Phone src={todayShot} alt="The FamilyBridge Today screen: days in recovery, a recommended next step, Family Insights and the family unity score" />
-            <div className="absolute -left-10 bottom-16 hidden sm:block w-56 rounded-2xl border border-border bg-card p-4 shadow-xl">
-              <p className="flex items-center gap-1.5 text-xs font-bold text-[#9A5A1C]"><Sparkles className="h-3.5 w-3.5" /> Family Insights</p>
-              <p className="mt-1.5 text-sm font-semibold text-foreground leading-snug">A window may be opening</p>
-              <p className="mt-1 text-xs text-muted-foreground">Jordan asked about getting help. Sam may be the best person to reach out.</p>
-            </div>
-          </div>
-        </div>
-      </section>
+      <HeroDynamic />
 
       {/* WHY */}
       <section className="container mx-auto px-4 max-w-6xl py-14 sm:py-20">
