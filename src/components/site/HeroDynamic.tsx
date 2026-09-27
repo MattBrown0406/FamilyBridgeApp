@@ -142,7 +142,7 @@ const COPY: Record<Audience, { title: string; body: string; foot: string }> = {
   family: {
     title: 'Recovery is a family journey.',
     body: 'FamilyBridge keeps everyone on the same page — money, meetings, appointments, medications and boundaries — with coaching that helps you say the right thing, and real help when it matters most.',
-    foot: 'Free for every family. In English and Spanish.',
+    foot: 'Free to start. AI coaching with Family Plus. In English and Spanish.',
   },
   pro: {
     title: 'See how every family is really doing.',

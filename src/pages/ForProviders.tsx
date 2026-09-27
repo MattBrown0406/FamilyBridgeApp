@@ -139,7 +139,7 @@ const ForProviders = () => (
       <div className="max-w-2xl">
         <p className="text-sm font-bold uppercase tracking-wider text-primary">Plans</p>
         <h2 className="mt-3 text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">Simple pricing, everything included.</h2>
-        <p className="mt-3 text-muted-foreground">Every plan includes white label, the AI Assistant, handoffs, and Family Plus for the families you work with. Try it free with up to 3 families.</p>
+        <p className="mt-3 text-muted-foreground">Every plan includes white label, the AI Assistant, handoffs, and Family Plus for the families you work with. Try it free with up to 3 families (the AI Assistant is included with paid plans).</p>
       </div>
       <PlanCards />
       <div className="mt-10 flex flex-col sm:flex-row gap-4 sm:items-center">
