@@ -23,6 +23,10 @@ export const AppStoreBadge = ({ className = '', dark = true }: { className?: str
   </a>
 );
 
+export const NewBadge = () => (
+  <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-primary">New</span>
+);
+
 export const ComingSoon = () => (
   <span className="inline-flex items-center rounded-full bg-accent/20 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-[#9A5A1C]">Coming soon</span>
 );
