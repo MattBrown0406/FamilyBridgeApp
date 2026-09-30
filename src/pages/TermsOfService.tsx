@@ -52,7 +52,7 @@ const sections: LegalSection[] = [
     title: 'Subscriptions and purchases',
     body: (
       <>
-        <p><strong>Family Plus</strong> is an auto-renewing subscription ($19.99 per month or $179 per year, or as shown in the App) that covers everyone in your family and includes the App's AI features and one 24-hour SOS session each billing cycle. Families working with a professional on a paid FamilyBridge plan may have Family Plus included while connected, and for 14 days after that professional completes their care.</p>
+        <p><strong>Family Plus</strong> is an auto-renewing subscription ($19.99 per month or $179 per year, or as shown in the App) that covers everyone in your family and includes the App's AI features, the full family program and one 24-hour SOS session each billing cycle. Families working with a professional on a paid FamilyBridge plan may have Family Plus included while connected, and for 14 days after that professional completes their care.</p>
         <p><strong>SOS sessions.</strong> Family Plus includes one 24-hour SOS session per billing cycle. Any family can buy a session as a one-time in-app purchase.</p>
         <p><strong>Billing through Apple.</strong> In-app purchases are charged to your Apple ID. Subscriptions renew automatically unless cancelled at least 24 hours before the end of the current period. Manage or cancel them in your iPhone's Settings → your name → Subscriptions. Refunds are handled by Apple under its policies. Deleting your account does not cancel a subscription.</p>
         <p>We may change prices for future billing periods; Apple will notify you as required before a change takes effect.</p>

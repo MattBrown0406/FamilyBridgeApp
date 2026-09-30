@@ -1,19 +1,20 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  ArrowRight, BadgeCheck, Bell, Brush, FileSignature, FlaskConical, Gift, KeyRound, LifeBuoy, Mail, MessagesSquare, Phone as PhoneIcon,
+  ArrowRight, BadgeCheck, Bell, Brush, Compass, FileSignature, FlaskConical, Gift, KeyRound, LifeBuoy, Mail, MessagesSquare, Phone as PhoneIcon,
   Route, ShieldCheck, Sparkles,
 } from 'lucide-react';
 import { BrandedFooter } from '@/components/BrandedFooter';
 import { SEOHead, createBreadcrumbSchema } from '@/components/SEOHead';
 import PublicCrisisHelp from '@/components/PublicCrisisHelp';
-import { AppStoreBadge, ComingSoon, Phone, SiteHeader } from '@/components/site/SiteChrome';
+import { AppStoreBadge, ComingSoon, NewBadge, Phone, SiteHeader } from '@/components/site/SiteChrome';
 import { PERIODS, PLANS, usd, type Period } from '@/lib/practicePlans';
 import caseloadShot from '@/assets/app/caseload.webp';
 import journeyShot from '@/assets/app/journey.webp';
 
-const FEATURES = [
+const FEATURES: { icon: React.ElementType; t: string; d: string; soon?: boolean; isNew?: boolean }[] = [
   { icon: Bell, t: 'A caseload that tells you who needs you', d: 'Families sorted into needs attention, watch and on track — from missed appointments, slipping medications, high obsessive thinking, boundary slips, cash requests and unanswered messages.' },
+  { icon: Compass, t: 'See how united each family is', d: 'With the family’s permission, see their alignment — where they agree and where they’re split (never who said what) — whether everyone has signed their family pact, how consistently they answer asks, and their progress through the weekly family program.', isNew: true },
   { icon: KeyRound, t: 'Consent built in', d: 'Families connect with your practice code, and a parent or partner chooses exactly what you see: money, meetings, appointments, medications, the family plan, check-ins and family chat. Every view is logged for them.' },
   { icon: MessagesSquare, t: 'Work alongside the family', d: 'Message the family, assign tasks, schedule sessions and keep private notes. If they share their family chat, you can read it and reply right inside it — clearly labeled as you.' },
   { icon: Sparkles, t: 'AI that does the paperwork', d: 'Weekly summaries, session prep, next steps, draft messages and handoff notes from what the family has shared. Family Insights shows readiness windows and who the loved one listens to.' },
@@ -102,10 +103,10 @@ const ForProviders = () => (
 
     <section className="container mx-auto px-4 max-w-6xl py-16 sm:py-20">
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {FEATURES.map(({ icon: Icon, t, d, soon }: { icon: React.ElementType; t: string; d: string; soon?: boolean }) => (
+        {FEATURES.map(({ icon: Icon, t, d, soon, isNew }) => (
           <div key={t} className="rounded-2xl border border-border bg-card p-6">
             <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary"><Icon className="h-5 w-5 text-primary" /></span>
-            <h2 className="mt-4 flex flex-wrap items-center gap-2 text-lg font-bold text-foreground">{t}{soon ? <ComingSoon /> : null}</h2>
+            <h2 className="mt-4 flex flex-wrap items-center gap-2 text-lg font-bold text-foreground">{t}{soon ? <ComingSoon /> : null}{isNew ? <NewBadge /> : null}</h2>
             <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{d}</p>
           </div>
         ))}
