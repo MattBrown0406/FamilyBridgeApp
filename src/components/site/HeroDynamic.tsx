@@ -6,9 +6,11 @@ import {
   BadgeCheck,
   CalendarCheck,
   ClipboardList,
-  Pill,
+  GraduationCap,
+  Hand,
   Heart,
   MessagesSquare,
+  ScrollText,
   Mic,
   Sparkles,
   Sunrise,
@@ -18,7 +20,8 @@ import {
 import { AppStoreBadge } from '@/components/site/SiteChrome';
 import todayShot from '@/assets/app/today.webp';
 import chatShot from '@/assets/app/chat.webp';
-import planShot from '@/assets/app/plan.webp';
+import togetherShot from '@/assets/app/together.webp';
+import alignmentShot from '@/assets/app/alignment.webp';
 import caseloadShot from '@/assets/app/caseload.webp';
 import insightsShot from '@/assets/app/insights.webp';
 import journeyShot from '@/assets/app/journey.webp';
@@ -37,10 +40,13 @@ const SCREENS: Record<Audience, { src: string; alt: string }[]> = {
       src: todayShot,
       alt: 'Today: days in recovery, a next step and the family unity score',
     },
-    { src: chatShot, alt: 'Family chat with a respect filter' },
     {
-      src: planShot,
-      alt: 'The family plan: boundaries, goals and a relapse plan',
+      src: togetherShot,
+      alt: 'Together: how closely the family agrees, the family pact and answering with one voice',
+    },
+    {
+      src: alignmentShot,
+      alt: 'Where we stand: where the family agrees and where it is split — never who said what',
     },
   ],
   pro: [
@@ -56,10 +62,28 @@ const SCREENS: Record<Audience, { src: string; alt: string }[]> = {
 const MOMENTS: Record<Audience, Moment[]> = {
   family: [
     {
+      icon: Sparkles,
+      tone: 'amber',
+      title: 'Family alignment',
+      detail: 'Up 34 points since last month',
+    },
+    {
+      icon: Hand,
+      tone: 'teal',
+      title: 'One voice',
+      detail: 'Mom held the line on a cash request',
+    },
+    {
       icon: Heart,
       tone: 'rose',
       title: 'Jordan checked in',
       detail: 'Feeling hopeful today',
+    },
+    {
+      icon: ScrollText,
+      tone: 'teal',
+      title: 'Family pact signed',
+      detail: 'Everyone signed version 2',
     },
     {
       icon: Wallet,
@@ -86,10 +110,10 @@ const MOMENTS: Record<Audience, Moment[]> = {
       detail: 'No cash — 21 days strong',
     },
     {
-      icon: Pill,
+      icon: GraduationCap,
       tone: 'teal',
-      title: 'Morning dose taken',
-      detail: 'Jordan · 7 days in a row',
+      title: 'This week’s lesson',
+      detail: 'Dad and Sam finished “Talking so they can hear”',
     },
     {
       icon: Sparkles,
@@ -140,9 +164,9 @@ const MOMENTS: Record<Audience, Moment[]> = {
 
 const COPY: Record<Audience, { title: string; body: string; foot: string }> = {
   family: {
-    title: 'Recovery is a family journey.',
-    body: 'FamilyBridge keeps everyone on the same page — money, meetings, appointments, medications and boundaries — with coaching that helps you say the right thing, and real help when it matters most.',
-    foot: 'Free to start. AI coaching with Family Plus. In English and Spanish.',
+    title: 'From divided to united.',
+    body: 'When someone you love is struggling with alcohol or drugs, families split — everyone tries to help in a different way. FamilyBridge shows where each of you stands, helps you agree on one plan and answer with one voice, and coaches your family week by week — before, during and after treatment.',
+    foot: 'Free to start. The full family program and AI coaching with Family Plus. In English and Spanish.',
   },
   pro: {
     title: 'See how every family is really doing.',
