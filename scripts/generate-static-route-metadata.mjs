@@ -1,166 +1,14 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { indexableRoutes, movedRoutes, noIndexRoutes } from './site-routes.mjs';
+import { loadPosts, postSummaries, SITE_URL } from './blog/content.mjs';
+import { blogFiles, blogSitemapEntries, renderMoved } from './blog/render.mjs';
 
 const projectRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 const distDir = join(projectRoot, 'dist');
 const baseUrl = 'https://familybridgeapp.com';
 
-const indexableRoutes = [
-  {
-    path: '/',
-    title: 'FamilyBridge — Recovery Is a Family Journey',
-    description: 'Keep your family on the same page through a loved one\'s recovery: shared accountability, AI coaching for hard conversations, and real help when it matters.',
-  },
-  {
-    path: '/family-purchase',
-    title: 'Family Recovery Support Plan | FamilyBridge',
-    description: 'Explore the FamilyBridge family plan for shared communication, boundaries, decisions, recovery support actions, and coordinated follow-through.',
-  },
-  {
-    path: '/for-providers',
-    title: 'FamilyBridge for Treatment Professionals',
-    description: 'A consent-based caseload, family chat, AI summaries, handoffs between levels of care and white label for the families you serve. From $149/month.',
-  },
-  {
-    path: '/provider-purchase',
-    title: 'Recovery Support Software for Providers | FamilyBridge',
-    description: 'Explore FamilyBridge provider plans for authorized family collaboration, structured handoffs, documented support actions, and privacy-conscious coordination.',
-  },
-  {
-    path: '/demo',
-    title: 'FamilyBridge Product Demo',
-    description: 'See how FamilyBridge organizes family communication, shared decisions, recovery support actions, financial coordination, and authorized professional collaboration.',
-  },
-  {
-    path: '/meetings',
-    title: 'Recovery Meeting Finder and Check-Ins | FamilyBridge',
-    description: 'Find recovery meetings and use FamilyBridge check-ins to keep family support informed without treating attendance as proof of sobriety.',
-  },
-  {
-    path: '/enabling-exercise',
-    title: 'Family Enabling Patterns Exercise | FamilyBridge',
-    description: 'Use a guided FamilyBridge exercise to reflect on enabling patterns, boundaries, and healthier ways to support a loved one affected by addiction.',
-  },
-  {
-    path: '/features/fiis-intelligence',
-    title: 'AI-Assisted Family Recovery Insights | FamilyBridge',
-    description: 'Learn how FIIS organizes authorized family activity and documented recovery-support patterns for compassionate, human-reviewed next steps.',
-  },
-  {
-    path: '/features/recovery-trajectory',
-    title: 'Recovery Progress and Concern Tracking | FamilyBridge',
-    description: 'Organize documented recovery progress, family observations, and shared concerns in one privacy-conscious FamilyBridge view.',
-  },
-  {
-    path: '/features/document-analysis',
-    title: 'Recovery Support Document Analysis | FamilyBridge',
-    description: 'Extract boundaries, commitments, and action items from authorized intervention letters and aftercare documents for human review.',
-  },
-  {
-    path: '/features/medication-compliance',
-    title: 'Medication Consistency Support | FamilyBridge',
-    description: 'Explore user-directed medication scheduling and consistency tools that support coordination without prescribing or replacing medical advice.',
-  },
-  {
-    path: '/features/financial-coordination',
-    title: 'Family Financial Coordination in Recovery | FamilyBridge',
-    description: 'Coordinate family financial requests, shared decisions, pledges, receipts, and boundaries with greater transparency during recovery.',
-  },
-  {
-    path: '/features/care-transitions',
-    title: 'Privacy-Conscious Recovery Care Transitions | FamilyBridge',
-    description: 'Support authorized provider handoffs with clear next steps, limited information sharing, consent controls, and documented follow-through.',
-  },
-  {
-    path: '/features/conversation-coaching',
-    title: 'Family Recovery Conversation Coaching | FamilyBridge',
-    description: 'Use AI-assisted prompts for calmer, compassionate, non-shaming family communication during difficult recovery conversations.',
-  },
-  {
-    path: '/support',
-    title: 'FamilyBridge Support',
-    description: 'Help with FamilyBridge: family setup, passwords, deleting your account, subscriptions, SOS, working with professionals, and privacy.',
-  },
-  {
-    path: '/privacy',
-    title: 'Privacy Policy | FamilyBridge',
-    description: 'How FamilyBridge handles your family\'s information: what we collect, who can see it, AI features with your permission, and deleting your account.',
-  },
-  {
-    path: '/terms',
-    title: 'Terms of Service | FamilyBridge',
-    description: 'The terms for using FamilyBridge: families, professionals, subscriptions and SOS sessions, AI features, drug-test results, and your account.',
-  },
-  {
-    path: '/eula',
-    title: 'End User License Agreement | FamilyBridge',
-    description: 'The FamilyBridge End User License Agreement for the iOS app: your license, maintenance and support, warranty, and Apple\'s role as third-party beneficiary.',
-  },
-];
-
-const noIndexRoutes = [
-  {
-    path: '/demo/family',
-    title: 'Family Dashboard Demo | FamilyBridge',
-    description: 'Interactive demonstration of the FamilyBridge family workspace using fictional sample data.',
-  },
-  {
-    path: '/demo/provider',
-    title: 'Provider Dashboard Demo | FamilyBridge',
-    description: 'Interactive demonstration of the FamilyBridge provider workspace using fictional sample data.',
-  },
-  {
-    path: '/features/provider-outcomes',
-    title: 'Provider Outcomes Demo | FamilyBridge',
-    description: 'Demonstration of privacy-thresholded provider reporting using fictional sample data.',
-  },
-  {
-    path: '/features/intervention-outcomes',
-    title: 'Intervention Outcomes Demo | FamilyBridge',
-    description: 'Demonstration of intervention outcome reporting using fictional sample data.',
-  },
-  {
-    path: '/features/fiis-guidance',
-    title: 'FIIS Guidance Demo | FamilyBridge',
-    description: 'Demonstration of FIIS guidance workflows using fictional sample data.',
-  },
-];
-
-const privateNoIndexPaths = [
-  '/auth',
-  '/dashboard',
-  '/moderator-dashboard',
-  '/subscription',
-  '/provider-admin',
-  '/provider-workspace',
-  '/professional-invite',
-  '/provider-coordination',
-  '/family-setup',
-  '/join',
-  '/join-family',
-  '/moderator-purchase',
-  '/super-admin',
-  '/sign-hipaa',
-  '/intervention-readiness',
-  '/intervention-execution',
-  '/post-intervention',
-  '/accountability-engine',
-  '/outcome-predictions',
-  '/ai-learning',
-  '/ai-learning/stage-2',
-  '/ai-learning/governance',
-  '/input-reconciliation',
-  '/update-payment',
-  '/practice-billing',
-  '/practice-billing/complete',
-];
-
-noIndexRoutes.push(...privateNoIndexPaths.map((path) => ({
-  path,
-  title: 'Private FamilyBridge Workspace',
-  description: 'This FamilyBridge route is private, transactional, invitation-based, or intended for authenticated workspace use.',
-})));
 
 const escapeHtml = (value) => value
   .replaceAll('&', '&amp;')
@@ -215,22 +63,60 @@ const renderRouteHtml = (template, route, noIndex = false) => {
   );
 };
 
-const template = await readFile(join(distDir, 'index.html'), 'utf8');
-
-for (const route of [...indexableRoutes, ...noIndexRoutes]) {
-  const rendered = renderRouteHtml(template, route, noIndexRoutes.includes(route));
-  if (route.path === '/') {
-    await writeFile(join(distDir, 'index.html'), rendered, 'utf8');
-    continue;
-  }
-
-  const routePath = route.path.slice(1);
-  const cleanUrlPath = join(distDir, `${routePath}.html`);
-  const directoryIndexPath = join(distDir, routePath, 'index.html');
-  await mkdir(dirname(cleanUrlPath), { recursive: true });
-  await mkdir(dirname(directoryIndexPath), { recursive: true });
-  await writeFile(cleanUrlPath, rendered, 'utf8');
-  await writeFile(directoryIndexPath, rendered, 'utf8');
+let template = await readFile(join(distDir, 'index.html'), 'utf8');
+const posts = loadPosts(projectRoot);
+if (posts.length) {
+  template = template.replace('</head>', `  <link rel="alternate" type="application/rss+xml" title="FamilyBridge blog" href="${SITE_URL}/blog/rss.xml" />\n  </head>`);
 }
 
-console.log(`Generated static metadata for ${indexableRoutes.length} indexable and ${noIndexRoutes.length} noindex existing routes.`);
+// Clean URLs: /path is served from path.html, and /path/ from path/index.html.
+const writePage = async (path, html) => {
+  if (path === '/') {
+    await writeFile(join(distDir, 'index.html'), html, 'utf8');
+    return;
+  }
+  const routePath = path.slice(1);
+  for (const file of [join(distDir, `${routePath}.html`), join(distDir, routePath, 'index.html')]) {
+    await mkdir(dirname(file), { recursive: true });
+    await writeFile(file, html, 'utf8');
+  }
+};
+
+for (const route of [...indexableRoutes, ...noIndexRoutes]) {
+  await writePage(route.path, renderRouteHtml(template, route, noIndexRoutes.includes(route)));
+}
+for (const route of movedRoutes) {
+  await writePage(route.path, renderMoved(route.to));
+}
+
+// The blog: every article, topic, author page and the RSS feed as complete static pages (see scripts/blog/).
+const analytics = template.match(/<!-- Google tag \(gtag\.js\) -->[\s\S]*?<\/script>\s*<script>[\s\S]*?<\/script>/)?.[0] ?? '';
+const blog = blogFiles(posts, { analytics: analytics ? `${analytics}\n` : '' });
+for (const [path, page] of blog) {
+  if (path.endsWith('.xml')) await writeFile(join(distDir, path.slice(1)), page.body, 'utf8');
+  else await writePage(path, page.body);
+}
+
+// The sitemap lists every indexable page, articles included, so new articles are found on the next crawl.
+const sitemapEntries = [...indexableRoutes, ...blogSitemapEntries(posts)];
+const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${sitemapEntries.map((entry) => `  <url>
+    <loc>${baseUrl}${entry.path}</loc>${entry.lastmod ? `\n    <lastmod>${entry.lastmod}</lastmod>` : ''}
+    <changefreq>${entry.changefreq}</changefreq>
+    <priority>${entry.priority}</priority>
+  </url>`).join('\n')}
+</urlset>
+`;
+await writeFile(join(distDir, 'sitemap.xml'), sitemap, 'utf8');
+
+// AI assistants read llms.txt; list the articles there too.
+if (posts.length) {
+  const section = `\n## Guides for families (blog)\n\nPractical guides by Matt Brown, certified interventionist, for families of someone with a substance use problem: ${SITE_URL}/blog\n\n${postSummaries(posts).map((post) => `- [${post.seoTitle}](${SITE_URL}${post.path}): ${post.description}`).join('\n')}\n`;
+  for (const file of ['llms.txt', 'llms-full.txt']) {
+    const path = join(distDir, file);
+    await writeFile(path, `${(await readFile(path, 'utf8')).trimEnd()}\n${section}`, 'utf8');
+  }
+}
+
+console.log(`Generated static pages for ${indexableRoutes.length} indexable, ${noIndexRoutes.length} noindex and ${movedRoutes.length} moved routes, and ${posts.length} blog articles (${blog.size} blog files); sitemap has ${sitemapEntries.length} URLs.`);

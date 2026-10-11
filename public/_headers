@@ -35,6 +35,8 @@
   Cache-Control: public, max-age=3600
 
 # Existing deep demos use fictional sample data and are not search results.
+/demo
+  X-Robots-Tag: noindex, nofollow, noarchive
 /demo/family
   X-Robots-Tag: noindex, nofollow, noarchive
 /demo/provider

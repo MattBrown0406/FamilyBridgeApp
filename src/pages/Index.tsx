@@ -10,6 +10,7 @@ import { APP_STORE_URL } from '@/components/site/SiteChrome';
 import PublicCrisisHelp from '@/components/PublicCrisisHelp';
 import { AppStoreBadge, ComingSoon, NewBadge, Phone, PlusBadge, SiteHeader } from '@/components/site/SiteChrome';
 import { HeroDynamic } from '@/components/site/HeroDynamic';
+import { blogPosts } from 'virtual:familybridge-blog';
 import todayShot from '@/assets/app/today.webp';
 import insightsShot from '@/assets/app/insights.webp';
 import chatShot from '@/assets/app/chat.webp';
@@ -360,6 +361,32 @@ const Index = () => {
         </div>
         <p className="mt-6 max-w-4xl text-sm text-muted-foreground">Working with a professional on a FamilyBridge plan? Family Plus is often included while you're in their care. Subscriptions are billed through your Apple ID and renew automatically until cancelled.</p>
       </section>
+
+      {/* GUIDES — the newest blog articles (static pages, so plain links) */}
+      {blogPosts.length > 0 && (
+        <section id="guides" className="container mx-auto px-4 max-w-6xl py-16 sm:py-24 scroll-mt-20">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div className="max-w-2xl">
+              <p className="text-sm font-bold uppercase tracking-wider text-primary">Guides for families</p>
+              <h2 className="mt-3 text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground [text-wrap:balance]">Straight answers from an interventionist.</h2>
+              <p className="mt-3 text-lg text-muted-foreground">Practical help for the hardest moments: money requests, boundaries, getting on the same page, treatment and relapse.</p>
+            </div>
+            <a href="/blog" className="font-semibold text-primary hover:underline">All guides →</a>
+          </div>
+          <ul className="mt-10 grid gap-5 md:grid-cols-3">
+            {blogPosts.slice(0, 3).map((post) => (
+              <li key={post.slug} className="relative flex flex-col rounded-2xl border border-border bg-card p-6 hover:border-primary transition-colors">
+                <span className="text-xs font-bold uppercase tracking-wider text-primary">{post.topicName}</span>
+                <h3 className="mt-2 text-lg font-bold leading-snug text-foreground">
+                  <a href={post.path} className="after:absolute after:inset-0">{post.seoTitle}</a>
+                </h3>
+                <p className="mt-2 flex-1 text-sm text-muted-foreground">{post.description}</p>
+                <span className="mt-4 text-xs text-muted-foreground">{post.minutes} min read</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {/* FAQ */}
       <section id="faq" className="bg-card border-t border-border scroll-mt-20">

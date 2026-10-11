@@ -67,6 +67,7 @@ const InterventionOutcomes = lazy(() => import("./pages/features/InterventionOut
 const FIISGuidance = lazy(() => import("./pages/features/FIISGuidance"));
 const PracticeBilling = lazy(() => import("./pages/PracticeBilling"));
 const PracticeBillingComplete = lazy(() => import("./pages/PracticeBillingComplete"));
+const StaticPage = lazy(() => import("./components/site/StaticPage"));
 
 const queryClient = new QueryClient();
 
@@ -147,6 +148,8 @@ const App = () => {
                 path="/update-payment"
                 element={paymentsWebOnly ? <Navigate to="/auth" replace /> : <UpdatePayment />}
               />
+              {/* The blog is static pages built by scripts/blog; the host serves them directly. */}
+              <Route path="/blog/*" element={<StaticPage />} />
               <Route path="*" element={<NotFound />} />
               </Routes>
               </Suspense>

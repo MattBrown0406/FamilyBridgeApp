@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
+import { blogPosts } from 'virtual:familybridge-blog';
 
 /** The App Store listing for FamilyBridge. */
 export const APP_STORE_URL = 'https://apps.apple.com/app/id6757375159';
@@ -53,6 +54,8 @@ export const SiteHeader = ({ right }: { right?: React.ReactNode }) => (
         <a href="/#features" className="hover:text-foreground">Features</a>
         <Link to="/for-providers" className="hover:text-foreground">For professionals</Link>
         <a href="/#pricing" className="hover:text-foreground">Pricing</a>
+        {/* The blog is static pages (scripts/blog), so a plain link, not a router link. */}
+        {blogPosts.length > 0 && <a href="/blog" className="hover:text-foreground">Blog</a>}
         <Link to="/support" className="hover:text-foreground">Support</Link>
       </div>
       <div className="flex items-center gap-2">
