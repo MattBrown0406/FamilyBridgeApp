@@ -41,6 +41,9 @@ export default defineConfig(({ mode }) => ({
         manualChunks(id) {
           if (!id.includes("node_modules")) return;
 
+          // Tiny helpers used everywhere (and by charts): their own chunk, so the homepage
+          // never has to download the charts library just to reach them.
+          if (/[\\/]node_modules[\\/](clsx|tailwind-merge|class-variance-authority)[\\/]/.test(id)) return "vendor-utils";
           if (id.includes("recharts")) return "vendor-recharts";
           if (id.includes("@supabase")) return "vendor-supabase";
           if (id.includes("@radix-ui")) return "vendor-radix";

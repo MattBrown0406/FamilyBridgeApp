@@ -10,7 +10,7 @@ export const AppStoreBadge = ({ className = '', dark = true }: { className?: str
     href={APP_STORE_URL}
     target="_blank"
     rel="noopener noreferrer"
-    aria-label="Download FamilyBridge on the App Store"
+    aria-label="Download on the App Store: FamilyBridge"
     className={`inline-flex items-center gap-2.5 h-12 px-4 rounded-xl ${dark ? 'bg-black text-white' : 'bg-white text-black'} shadow-sm hover:opacity-90 transition-opacity ${className}`}
   >
     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -38,7 +38,7 @@ export const ComingSoon = () => (
 /** A real screen from the app in a phone frame. */
 export const Phone = ({ src, alt, className = '' }: { src: string; alt: string; className?: string }) => (
   <div className={`relative rounded-[2.2rem] bg-[#0E2F34] p-2 shadow-[0_30px_60px_-20px_rgba(19,74,81,0.45)] ${className}`}>
-    <img src={src} alt={alt} loading="lazy" className="block w-full rounded-[1.7rem] aspect-[390/844] object-cover object-top" />
+    <img src={src} alt={alt} width={720} height={1558} loading="lazy" decoding="async" className="block w-full h-auto rounded-[1.7rem] aspect-[390/844] object-cover object-top" />
   </div>
 );
 

@@ -23,8 +23,8 @@ const Meetings = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="Recovery Meeting Finder and Check-Ins | FamilyBridge"
-        description="Find recovery meetings and use FamilyBridge check-ins to keep family support informed without treating attendance as proof of sobriety."
+        title="Al-Anon, Nar-Anon & Recovery Meeting Finder | FamilyBridge"
+        description="Find Al-Anon, Nar-Anon, CRAFT, AA and NA meetings near you or online — support groups for families of someone with addiction, and for the person in recovery."
         canonicalPath="/meetings"
         structuredData={breadcrumbSchema}
       />

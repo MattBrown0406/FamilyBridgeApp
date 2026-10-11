@@ -54,6 +54,8 @@ export const BrandedFooter = () => {
           <Link to="/eula" className="hover:text-foreground transition-colors">EULA</Link>
           <Link to="/support" className="hover:text-foreground transition-colors">Support</Link>
           <Link to="/for-providers" className="hover:text-foreground transition-colors">For professionals</Link>
+          <Link to="/enabling-exercise" className="hover:text-foreground transition-colors">Am I enabling?</Link>
+          <Link to="/meetings" className="hover:text-foreground transition-colors">Find a meeting</Link>
         </div>
         <span className="text-xs text-muted-foreground">© {currentYear} FamilyBridge · Freedom Interventions, LLC</span>
       </div>

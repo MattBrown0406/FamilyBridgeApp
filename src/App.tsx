@@ -3,66 +3,70 @@ import { CrisisHelpButton } from "@/components/CrisisHelpButton";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { RevenueCatProvider } from "@/hooks/useRevenueCat";
 import { OrganizationProvider } from "@/hooks/useOrganization";
 import Index from "./pages/Index";
-import Auth from "./pages/Auth";
-import Dashboard from "./pages/Dashboard";
-import ModeratorDashboard from "./pages/ModeratorDashboard";
-import FamilyChat from "./pages/FamilyChat";
-import Meetings from "./pages/Meetings";
-import EnablingExercise from "./pages/EnablingExercise";
-import Subscription from "./pages/Subscription";
-import ProviderAdmin from "./pages/ProviderAdmin";
-import ProviderPurchase from "./pages/ProviderPurchase";
-import ProviderWorkspace from "./pages/ProviderWorkspace";
-import ProfessionalInvite from "./pages/ProfessionalInvite";
-import ProfessionalFamilyWorkspace from "./pages/ProfessionalFamilyWorkspace";
-import ProviderCoordination from "./pages/ProviderCoordination";
-import FamilyPurchase from "./pages/FamilyPurchase";
-import FamilySetup from "./pages/FamilySetup";
-import JoinFamily from "./pages/JoinFamily";
-import ForProviders from "./pages/ForProviders";
-import ModeratorPurchase from "./pages/ModeratorPurchase";
-import SuperAdmin from "./pages/SuperAdmin";
-import Demo from "./pages/Demo";
-import DemoFamily from "./pages/DemoFamily";
-import DemoProvider from "./pages/DemoProvider";
-import NativeHome from "./pages/NativeHome";
-import Support from "./pages/Support";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
-import TermsOfService from "./pages/TermsOfService";
-import Eula from "./pages/Eula";
-import NotFound from "./pages/NotFound";
-import SignHIPAA from "./pages/SignHIPAA";
-import UpdatePayment from "./pages/UpdatePayment";
-import InterventionReadiness from "./pages/InterventionReadiness";
-import InterventionExecution from "./pages/InterventionExecution";
-import AccountabilityEngine from "./pages/AccountabilityEngine";
-import PostInterventionContinuity from "./pages/PostInterventionContinuity";
-import OutcomePredictions from "./pages/OutcomePredictions";
-import AILearningLayer from "./pages/AILearningLayer";
-import AILearningLayerStage2 from "./pages/AILearningLayerStage2";
-import AIGovernance from "./pages/AIGovernance";
-import InputReconciliation from "./pages/InputReconciliation";
-import FIISIntelligence from "./pages/features/FIISIntelligence";
-import RecoveryTrajectory from "./pages/features/RecoveryTrajectory";
-import DocumentAnalysis from "./pages/features/DocumentAnalysis";
-import MedicationCompliance from "./pages/features/MedicationCompliance";
-import FinancialCoordination from "./pages/features/FinancialCoordination";
-import CareTransitions from "./pages/features/CareTransitions";
-import ConversationCoaching from "./pages/features/ConversationCoaching";
-import ProviderOutcomes from "./pages/features/ProviderOutcomes";
-import InterventionOutcomes from "./pages/features/InterventionOutcomes";
-import FIISGuidance from "./pages/features/FIISGuidance";
 import ScrollToTop from "./components/ScrollToTop";
 import { LegacyRedirect } from "@/components/site/LegacyRedirect";
-import PracticeBilling from "./pages/PracticeBilling";
-import PracticeBillingComplete from "./pages/PracticeBillingComplete";
 import NativePushInitializer from "./components/NativePushInitializer";
 import { usePlatform } from "@/hooks/usePlatform";
+
+// Every page except the homepage loads on demand, so visitors download only the page they open
+// (the homepage used to ship the whole legacy web app in one 1.7 MB bundle).
+const Auth = lazy(() => import("./pages/Auth"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const ModeratorDashboard = lazy(() => import("./pages/ModeratorDashboard"));
+const FamilyChat = lazy(() => import("./pages/FamilyChat"));
+const Meetings = lazy(() => import("./pages/Meetings"));
+const EnablingExercise = lazy(() => import("./pages/EnablingExercise"));
+const Subscription = lazy(() => import("./pages/Subscription"));
+const ProviderAdmin = lazy(() => import("./pages/ProviderAdmin"));
+const ProviderPurchase = lazy(() => import("./pages/ProviderPurchase"));
+const ProviderWorkspace = lazy(() => import("./pages/ProviderWorkspace"));
+const ProfessionalInvite = lazy(() => import("./pages/ProfessionalInvite"));
+const ProfessionalFamilyWorkspace = lazy(() => import("./pages/ProfessionalFamilyWorkspace"));
+const ProviderCoordination = lazy(() => import("./pages/ProviderCoordination"));
+const FamilyPurchase = lazy(() => import("./pages/FamilyPurchase"));
+const FamilySetup = lazy(() => import("./pages/FamilySetup"));
+const JoinFamily = lazy(() => import("./pages/JoinFamily"));
+const ForProviders = lazy(() => import("./pages/ForProviders"));
+const ModeratorPurchase = lazy(() => import("./pages/ModeratorPurchase"));
+const SuperAdmin = lazy(() => import("./pages/SuperAdmin"));
+const Demo = lazy(() => import("./pages/Demo"));
+const DemoFamily = lazy(() => import("./pages/DemoFamily"));
+const DemoProvider = lazy(() => import("./pages/DemoProvider"));
+const NativeHome = lazy(() => import("./pages/NativeHome"));
+const Support = lazy(() => import("./pages/Support"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const TermsOfService = lazy(() => import("./pages/TermsOfService"));
+const Eula = lazy(() => import("./pages/Eula"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const SignHIPAA = lazy(() => import("./pages/SignHIPAA"));
+const UpdatePayment = lazy(() => import("./pages/UpdatePayment"));
+const InterventionReadiness = lazy(() => import("./pages/InterventionReadiness"));
+const InterventionExecution = lazy(() => import("./pages/InterventionExecution"));
+const AccountabilityEngine = lazy(() => import("./pages/AccountabilityEngine"));
+const PostInterventionContinuity = lazy(() => import("./pages/PostInterventionContinuity"));
+const OutcomePredictions = lazy(() => import("./pages/OutcomePredictions"));
+const AILearningLayer = lazy(() => import("./pages/AILearningLayer"));
+const AILearningLayerStage2 = lazy(() => import("./pages/AILearningLayerStage2"));
+const AIGovernance = lazy(() => import("./pages/AIGovernance"));
+const InputReconciliation = lazy(() => import("./pages/InputReconciliation"));
+const FIISIntelligence = lazy(() => import("./pages/features/FIISIntelligence"));
+const RecoveryTrajectory = lazy(() => import("./pages/features/RecoveryTrajectory"));
+const DocumentAnalysis = lazy(() => import("./pages/features/DocumentAnalysis"));
+const MedicationCompliance = lazy(() => import("./pages/features/MedicationCompliance"));
+const FinancialCoordination = lazy(() => import("./pages/features/FinancialCoordination"));
+const CareTransitions = lazy(() => import("./pages/features/CareTransitions"));
+const ConversationCoaching = lazy(() => import("./pages/features/ConversationCoaching"));
+const ProviderOutcomes = lazy(() => import("./pages/features/ProviderOutcomes"));
+const InterventionOutcomes = lazy(() => import("./pages/features/InterventionOutcomes"));
+const FIISGuidance = lazy(() => import("./pages/features/FIISGuidance"));
+const PracticeBilling = lazy(() => import("./pages/PracticeBilling"));
+const PracticeBillingComplete = lazy(() => import("./pages/PracticeBillingComplete"));
 
 const queryClient = new QueryClient();
 
@@ -83,6 +87,7 @@ const App = () => {
               <NativePushInitializer />
               <CrisisHelpButton />
               <main>
+              <Suspense fallback={<div className="min-h-screen" aria-busy="true" />}>
               <Routes>
               <Route path="/" element={isNative ? <NativeHome /> : <Index />} />
               <Route path="/auth" element={<LegacyRedirect to="/#download" legacy={<Auth />} />} />
@@ -100,8 +105,8 @@ const App = () => {
               <Route path="/professional-invite" element={<ProfessionalInvite />} />
               <Route path="/professional-family/:familyId" element={<ProfessionalFamilyWorkspace />} />
               <Route path="/provider-coordination" element={<ProviderCoordination />} />
-              <Route path="/provider-purchase" element={<ProviderPurchase />} />
-              <Route path="/family-purchase" element={<FamilyPurchase />} />
+              <Route path="/provider-purchase" element={<LegacyRedirect to="/for-providers" legacy={<ProviderPurchase />} />} />
+              <Route path="/family-purchase" element={<LegacyRedirect to="/#pricing" legacy={<FamilyPurchase />} />} />
               <Route path="/family-setup" element={<FamilySetup />} />
               <Route path="/join" element={<LegacyRedirect to="/#download" legacy={<JoinFamily />} />} />
               <Route path="/join-family" element={<LegacyRedirect to="/#download" legacy={<JoinFamily />} />} />
@@ -127,13 +132,14 @@ const App = () => {
               <Route path="/ai-learning/stage-2" element={<AILearningLayerStage2 />} />
               <Route path="/ai-learning/governance" element={<AIGovernance />} />
               <Route path="/input-reconciliation" element={<InputReconciliation />} />
-              <Route path="/features/fiis-intelligence" element={<FIISIntelligence />} />
-              <Route path="/features/recovery-trajectory" element={<RecoveryTrajectory />} />
-              <Route path="/features/document-analysis" element={<DocumentAnalysis />} />
-              <Route path="/features/medication-compliance" element={<MedicationCompliance />} />
-              <Route path="/features/financial-coordination" element={<FinancialCoordination />} />
-              <Route path="/features/care-transitions" element={<CareTransitions />} />
-              <Route path="/features/conversation-coaching" element={<ConversationCoaching />} />
+              {/* The previous web app's feature pages described features it no longer has; they point to the current pages. */}
+              <Route path="/features/fiis-intelligence" element={<LegacyRedirect to="/#insights" legacy={<FIISIntelligence />} />} />
+              <Route path="/features/recovery-trajectory" element={<LegacyRedirect to="/for-providers" legacy={<RecoveryTrajectory />} />} />
+              <Route path="/features/document-analysis" element={<LegacyRedirect to="/#features" legacy={<DocumentAnalysis />} />} />
+              <Route path="/features/medication-compliance" element={<LegacyRedirect to="/#features" legacy={<MedicationCompliance />} />} />
+              <Route path="/features/financial-coordination" element={<LegacyRedirect to="/#features" legacy={<FinancialCoordination />} />} />
+              <Route path="/features/care-transitions" element={<LegacyRedirect to="/for-providers" legacy={<CareTransitions />} />} />
+              <Route path="/features/conversation-coaching" element={<LegacyRedirect to="/#features" legacy={<ConversationCoaching />} />} />
               <Route path="/features/provider-outcomes" element={<ProviderOutcomes />} />
               <Route path="/features/intervention-outcomes" element={<InterventionOutcomes />} />
               <Route path="/features/fiis-guidance" element={<FIISGuidance />} />
@@ -143,6 +149,7 @@ const App = () => {
               />
               <Route path="*" element={<NotFound />} />
               </Routes>
+              </Suspense>
               </main>
             </BrowserRouter>
           </OrganizationProvider>
