@@ -123,7 +123,7 @@ h1{margin:.5rem 0 0;font-size:clamp(1.875rem,4.5vw,2.75rem);line-height:1.15;fon
 .card{position:relative}
 .card p{margin:.5rem 0 0;font-size:.9375rem;color:var(--muted);flex:1}
 .card .meta{margin-top:.9rem;font-size:.8125rem;color:var(--muted)}
-.cover{margin:1.75rem 0 0}.cover img{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;border-radius:1rem}.card .thumb{display:block;width:calc(100% + 2px);max-width:none;height:auto;aspect-ratio:16/9;object-fit:cover;border-radius:.75rem;margin:0 0 .875rem}
+.cover{margin:1.75rem 0 0}.cover img{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;border-radius:1rem}.card .thumb{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;border-radius:.75rem;margin:0 0 .875rem}
 .hero{max-width:48rem;padding:2.5rem 0 0}
 .hero h1{font-size:clamp(2rem,5vw,3rem)}
 .hero p{margin:1rem 0 0;font-size:1.1875rem;color:var(--muted)}
