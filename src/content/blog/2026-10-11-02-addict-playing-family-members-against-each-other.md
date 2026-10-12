@@ -7,6 +7,8 @@ slug: addict-playing-family-members-against-each-other
 topic: getting-on-the-same-page
 date: 2026-10-11
 author: matt-brown
+image: /blog-images/addict-playing-family-members-against-each-other.jpg
+imageAlt: Parents standing united while talking with their son in the kitchen
 ---
 Your daughter calls and tells you, her dad, that Mom already agreed to cover her car insurance this month. You call your wife. She says she told your daughter she’d “think about it.” By the time you hang up, your daughter has called her grandmother, said you’re both “being cruel,” and asked Grandma for the money instead.
 

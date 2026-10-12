@@ -7,6 +7,8 @@ slug: talk-about-drinking-without-fighting
 topic: communication
 date: 2026-10-11
 author: matt-brown
+image: /blog-images/talk-about-drinking-without-fighting.jpg
+imageAlt: A woman gently talking with her husband on the patio
 ---
 It’s Saturday morning. Your husband is quiet and pale after another night of “just a few,” and the words are right there: we need to talk about your drinking. You also know exactly how it will go. He’ll get defensive, you’ll get louder, someone will bring up something from three years ago, and by noon nobody is speaking.
 

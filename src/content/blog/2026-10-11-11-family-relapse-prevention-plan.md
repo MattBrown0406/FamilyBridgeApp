@@ -7,6 +7,8 @@ slug: family-relapse-prevention-plan
 topic: relapse
 date: 2026-10-11
 author: matt-brown
+image: /blog-images/family-relapse-prevention-plan.jpg
+imageAlt: Parents and their daughter writing a family plan together
 ---
 Your son has been home from treatment for six weeks. He’s going to meetings, he laughed at dinner last night, and the house finally feels quiet in a good way. But late at night, a question you haven’t said out loud keeps you awake: *What if it happens again?*
 

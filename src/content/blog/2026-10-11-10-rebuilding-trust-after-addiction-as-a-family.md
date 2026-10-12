@@ -7,6 +7,8 @@ slug: rebuilding-trust-after-addiction-as-a-family
 topic: treatment-and-recovery
 date: 2026-10-11
 author: matt-brown
+image: /blog-images/rebuilding-trust-after-addiction-as-a-family.jpg
+imageAlt: A mother and her adult son cooking dinner together and smiling
 ---
 Your son has been sober for three months. He goes to meetings, he’s working, he’s kind at dinner. And still, when he says he’s heading to a friend’s house, your stomach tightens. You check his location. You smell his jacket when he isn’t looking, then feel guilty for doing it.
 

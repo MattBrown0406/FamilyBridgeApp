@@ -7,6 +7,8 @@ slug: family-secrets-and-addiction
 topic: communication
 date: 2026-10-11
 author: matt-brown
+image: /blog-images/family-secrets-and-addiction.jpg
+imageAlt: A family talking openly in a sunlit living room
 ---
 You’re sitting in the grocery store parking lot, sending $200 to your daughter’s account. You’ve already decided you won’t mention it at dinner. She asked you not to, your husband would only get angry, and honestly, it’s easier this way.
 

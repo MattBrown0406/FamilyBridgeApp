@@ -7,6 +7,8 @@ slug: what-families-should-do-while-loved-one-in-rehab
 topic: treatment-and-recovery
 date: 2026-10-11
 author: matt-brown
+image: /blog-images/what-families-should-do-while-loved-one-in-rehab.jpg
+imageAlt: Families sitting in a circle at a treatment center family program
 ---
 The first night after your daughter checks in, the house is strangely quiet. No phone buzzing at 1 a.m. No listening for the car in the driveway. Part of you is relieved. Another part has no idea what to do with all that worry now that it has nowhere to go.
 

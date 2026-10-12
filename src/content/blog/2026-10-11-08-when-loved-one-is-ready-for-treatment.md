@@ -7,6 +7,8 @@ slug: when-loved-one-is-ready-for-treatment
 topic: before-treatment
 date: 2026-10-11
 author: matt-brown
+image: /blog-images/when-loved-one-is-ready-for-treatment.jpg
+imageAlt: A father supporting his thoughtful son by a sunny window
 ---
 Your son calls at 2 a.m. after being pulled over. Or your sister misses her daughter’s birthday party and calls you the next day in tears, saying, “I don’t know what I’m doing anymore.” Something in the voice is different this time.
 

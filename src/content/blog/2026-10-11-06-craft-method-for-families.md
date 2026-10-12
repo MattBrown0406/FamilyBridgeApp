@@ -7,6 +7,8 @@ slug: craft-method-for-families
 topic: before-treatment
 date: 2026-10-11
 author: matt-brown
+image: /blog-images/craft-method-for-families.jpg
+imageAlt: A mother listening warmly to her adult son on a park bench
 ---
 You’ve had the big talk more times than you can count. You’ve pleaded, you’ve threatened, and you’ve gone quiet for a week to “let them figure it out.” Nothing has really changed, except that everyone in the house is more tired and more on edge.
 
