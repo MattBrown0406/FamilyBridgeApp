@@ -20,9 +20,9 @@ Parents usually disagree because each one is trying to protect their son from a 
 
 Those fears come from real places:
 
-> **• Different histories.** A parent who grew up around drinking, or who is in recovery, may spot warning signs sooner and react more strongly.
-> **• Different information.** The parent your son texts late at night often knows things the other doesn’t.
-> **• Different temperaments.** Some people run toward a problem. Others need time before they can face it.
+- **Different histories.** A parent who grew up around drinking, or who is in recovery, may spot warning signs sooner and react more strongly.
+- **Different information.** The parent your son texts late at night often knows things the other doesn’t.
+- **Different temperaments.** Some people run toward a problem. Others need time before they can face it.
 
 There’s also a pattern I see constantly: the softer one parent gets, the firmer the other becomes to balance things out, and then the first softens even more. Over months, you drift further apart than either of you would be alone.
 
@@ -30,9 +30,9 @@ There’s also a pattern I see constantly: the softer one parent gets, the firme
 
 A divided home gives the addiction room to grow, because your son learns that one parent’s “no” isn’t the final answer. It also wears down your marriage and the rest of the family.
 
-> **• Quiet rescues.** Consequences get softened in secret, so the cost of using never quite reaches him.
-> **• Easy openings.** When parents are split, it’s easy for a loved one to [play family members against each other](/blog/addict-playing-family-members-against-each-other), often without fully planning to.
-> **• A marriage under strain.** Many parents tell me the fighting between them hurts more than the using itself.
+- **Quiet rescues.** Consequences get softened in secret, so the cost of using never quite reaches him.
+- **Easy openings.** When parents are split, it’s easy for a loved one to [play family members against each other](/blog/addict-playing-family-members-against-each-other), often without fully planning to.
+- **A marriage under strain.** Many parents tell me the fighting between them hurts more than the using itself.
 
 ## Does one of us have to be right?
 
@@ -70,9 +70,9 @@ Decide in advance how you’ll settle the times you still disagree. Some couples
 
 Assume fear before betrayal, and bring it back to the agreement instead of fighting about it in front of your son.
 
-> **• Say what happened without blame.** “On Tuesday you gave him forty dollars after we agreed on no cash. I’m not trying to start a fight. I want to understand what happened.”
-> **• Ask what made it hard, and adjust if needed.** Often it was a frightening text at the worst moment. If one of you can’t follow the plan, the plan needs changing, not the parent.
-> **• Don’t secretly “balance it out.”** Taking away the car to make up for the forty dollars just restarts the cycle.
+- **Say what happened without blame.** “On Tuesday you gave him forty dollars after we agreed on no cash. I’m not trying to start a fight. I want to understand what happened.”
+- **Ask what made it hard, and adjust if needed.** Often it was a frightening text at the worst moment. If one of you can’t follow the plan, the plan needs changing, not the parent.
+- **Don’t secretly “balance it out.”** Taking away the car to make up for the forty dollars just restarts the cycle.
 
 One exception: if disagreements in your home involve threats, intimidation or one person controlling another, whether it’s your partner or your son, that’s a safety issue, not a parenting difference. Your safety comes first. Don’t confront anyone or deliver an ultimatum without a safety plan. The National Domestic Violence Hotline, 1-800-799-7233, can help you make one.
 
@@ -88,9 +88,9 @@ This is the problem FamilyBridge was built to help with. In the app’s family a
 
 Protect your own health, sleep and support, because an exhausted parent can’t hold any plan for long.
 
-> **• Get support of your own.** Al-Anon, Nar-Anon and other family groups are full of parents who have been where you are. You can go together or separately.
-> **• Protect couple time that isn’t about your son.** Even a 20-minute walk with a “no son talk” rule counts.
-> **• See a counselor if the fighting feels constant.** Helping your relationship isn’t giving up on your son.
+- **Get support of your own.** Al-Anon, Nar-Anon and other family groups are full of parents who have been where you are. You can go together or separately.
+- **Protect couple time that isn’t about your son.** Even a 20-minute walk with a “no son talk” rule counts.
+- **See a counselor if the fighting feels constant.** Helping your relationship isn’t giving up on your son.
 
 Some things are worth agreeing on no matter who is “right.” If anyone is in immediate danger or you suspect an overdose, call 911. For a mental health or suicide crisis, call or text 988. SAMHSA’s National Helpline, 1-800-662-4357, is free, confidential and available 24/7. Naloxone (Narcan), which can reverse an opioid overdose, is available without a prescription at most U.S. pharmacies.
 

@@ -75,11 +75,11 @@ You don’t need to debate it. If your loved one argues, try: “We’ve decided
 
 Expect to be tested, follow through calmly every time, and back each other up, especially right after someone holds the line.
 
-> **• Expect it to get louder before it gets better.** Testing is normal when old patterns stop working.
-> **• Let the action be the message.** No lectures, no “I told you so.” Just do what you said.
-> **• Allow natural consequences.** When using leads to a missed shift or a ruined weekend, don’t rush to fix it. That’s different from adding punishments.
-> **• If someone caves, reset without blame.** “We didn’t hold this last week. We’re starting again today.”
-> **• Support whoever held it.** A quick text like “That was hard. You did it. We’re with you” keeps people going.
+- **Expect it to get louder before it gets better.** Testing is normal when old patterns stop working.
+- **Let the action be the message.** No lectures, no “I told you so.” Just do what you said.
+- **Allow natural consequences.** When using leads to a missed shift or a ruined weekend, don’t rush to fix it. That’s different from adding punishments.
+- **If someone caves, reset without blame.** “We didn’t hold this last week. We’re starting again today.”
+- **Support whoever held it.** A quick text like “That was hard. You did it. We’re with you” keeps people going.
 
 If holding a boundary leads to threats, violence or someone trying to control you, your safety comes first. Don’t deliver ultimatums without a safety plan; the National Domestic Violence Hotline, 1-800-799-7233, can help. If anyone is in immediate danger or you suspect an overdose, call 911. For a mental health or suicide crisis, call or text 988.
 

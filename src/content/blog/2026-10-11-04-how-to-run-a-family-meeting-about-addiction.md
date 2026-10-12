@@ -1,6 +1,6 @@
 ---
 title: How to Run a Family Meeting About Addiction When Every Conversation Turns Into a Fight
-seoTitle: How to Run a Family Meeting About Addiction When Every Conversation Turns Into a Fight
+seoTitle: How to Run a Family Meeting About Addiction
 description: Here’s how to run a family meeting about addiction that doesn’t end in shouting: a simple weekly format with an agenda, one topic and decisions in writing.
 keyword: how to run a family meeting about addiction
 slug: how-to-run-a-family-meeting-about-addiction
@@ -54,11 +54,11 @@ Close with something to look forward to, even if it’s just ordering pizza. End
 
 Agree on a few rules before the first meeting: one person talks at a time, no insults, stay on today’s topic, and anyone can call a short break.
 
-> **• Speak for yourself.** “I was scared when you didn’t come home Saturday” lands very differently from “You’re so selfish.”
-> **• Stay in the present.** Talk about this week, not every hurt from the last ten years.
-> **• Keep a “parking lot.”** Write side issues down for a future agenda instead of chasing them.
-> **• Phones away,** and no one drinks or uses before or during the meeting.
-> **• Breaks are allowed.** Anyone can say, “I need ten minutes. I’m coming back.” And then they come back.
+- **Speak for yourself.** “I was scared when you didn’t come home Saturday” lands very differently from “You’re so selfish.”
+- **Stay in the present.** Talk about this week, not every hurt from the last ten years.
+- **Keep a “parking lot.”** Write side issues down for a future agenda instead of chasing them.
+- **Phones away,** and no one drinks or uses before or during the meeting.
+- **Breaks are allowed.** Anyone can say, “I need ten minutes. I’m coming back.” And then they come back.
 
 ## Should our loved one be in the family meeting?
 
@@ -84,11 +84,11 @@ Let your loved one add topics too. Being asked “What would you like us to talk
 
 Avoid turning it into a trial, a surprise confrontation, or a venting session that never reaches a decision.
 
-> **• Don’t ambush.** Never spring a “meeting” on your loved one to corner them. If you’re considering an intervention, work with a professional who does it with care and preparation.
-> **• Don’t pile on.** Five people listing failures will shut anyone down.
-> **• Don’t tackle everything at once.** One topic done well beats six done badly.
-> **• Don’t make threats in the heat of the moment.** [Boundaries should be decided calmly, ahead of time](/blog/boundaries-as-a-family-addicted-loved-one).
-> **• Don’t skip the good weeks.** Meeting when things are calm builds the habit you’ll need when they aren’t.
+- **Don’t ambush.** Never spring a “meeting” on your loved one to corner them. If you’re considering an intervention, work with a professional who does it with care and preparation.
+- **Don’t pile on.** Five people listing failures will shut anyone down.
+- **Don’t tackle everything at once.** One topic done well beats six done badly.
+- **Don’t make threats in the heat of the moment.** [Boundaries should be decided calmly, ahead of time](/blog/boundaries-as-a-family-addicted-loved-one).
+- **Don’t skip the good weeks.** Meeting when things are calm builds the habit you’ll need when they aren’t.
 
 If your loved one has been violent or threatening, your safety comes first. Don’t include them in meetings about boundaries, and don’t announce a big decision without a safety plan. The National Domestic Violence Hotline, 1-800-799-7233, can help you make one.
 

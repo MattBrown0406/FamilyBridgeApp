@@ -56,9 +56,9 @@ Say something short, honest and calm that keeps the door to help open. Your love
 
 Here are a few things you can actually say:
 
-> **• “I’m scared, and I love you. I want to help you get back on track.”**
-> **• “Thank you for being honest with me. Who should we call?”**
-> **• “I’m not going to argue tonight. Let’s talk tomorrow when we’re both calmer.”**
+- **“I’m scared, and I love you. I want to help you get back on track.”**
+- **“Thank you for being honest with me. Who should we call?”**
+- **“I’m not going to argue tonight. Let’s talk tomorrow when we’re both calmer.”**
 
 What usually backfires:
 

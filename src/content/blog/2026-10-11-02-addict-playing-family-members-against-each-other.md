@@ -1,6 +1,6 @@
 ---
 title: “But Mom Said Yes”: What to Do About an Addict Playing Family Members Against Each Other
-seoTitle: “But Mom Said Yes”
+seoTitle: When an Addict Plays Family Members Against Each Other
 description: Is an addict playing family members against each other in your home? Learn why it happens and how your family can answer every request with one calm voice.
 keyword: addict playing family members against each other
 slug: addict-playing-family-members-against-each-other
@@ -38,9 +38,9 @@ After more than two decades of sitting with families, I can tell you this patter
 
 Because it turns the people who love your loved one into opponents, and a family fighting itself can’t hold any plan.
 
-> **• Trust between relatives wears thin.** Everyone starts wondering what the others are hiding.
-> **• Roles harden.** The “soft” relative gets worn down, sometimes financially drained. The “strict” one becomes the villain and may pull away.
-> **• No one sees the whole picture.** When one person knows about missed shifts and another knows about new friends, warning signs slip through. That’s not just a family problem. It can be a safety problem.
+- **Trust between relatives wears thin.** Everyone starts wondering what the others are hiding.
+- **Roles harden.** The “soft” relative gets worn down, sometimes financially drained. The “strict” one becomes the villain and may pull away.
+- **No one sees the whole picture.** When one person knows about missed shifts and another knows about new friends, warning signs slip through. That’s not just a family problem. It can be a safety problem.
 
 ## How do we answer with one voice?
 
