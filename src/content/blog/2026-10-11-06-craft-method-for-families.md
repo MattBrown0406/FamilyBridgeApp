@@ -38,7 +38,7 @@ When researchers have compared these approaches, CRAFT has helped more families 
 
 ## What are the core skills of CRAFT?
 
-There are five: [positive communication](/blog/how-to-talk-to-someone-about-their-drinking-without-fighting), rewarding sober time, allowing natural consequences, taking care of yourself, and [inviting your loved one to treatment](/blog/how-to-know-when-a-loved-one-is-ready-for-treatment) at the right moment. All five work better once you understand your loved one’s pattern.
+There are five: [positive communication](/blog/talk-about-drinking-without-fighting), rewarding sober time, allowing natural consequences, taking care of yourself, and [inviting your loved one to treatment](/blog/when-loved-one-is-ready-for-treatment) at the right moment. All five work better once you understand your loved one’s pattern.
 
 ### First, learn the pattern
 

@@ -83,7 +83,7 @@ Keep it short, warm and the same every time: acknowledge what he’s facing, say
 
 - “I love you, and I’m not going to send cash. If the rent is real, send me the landlord’s information and we’ll talk as a family about paying it directly.”
 - “I can’t pay for that. I can bring groceries over on Saturday.”
-- “If you’re ready to [talk to someone about treatment](/blog/how-to-know-when-a-loved-one-is-ready-for-treatment), I’ll help you make that call today.”
+- “If you’re ready to [talk to someone about treatment](/blog/when-loved-one-is-ready-for-treatment), I’ll help you make that call today.”
 
 Skip the lectures and the list of past debts, and avoid “You’ll just spend it on drugs.” Even if it’s true, it starts a fight and gives him something to argue with instead of something to think about.
 
