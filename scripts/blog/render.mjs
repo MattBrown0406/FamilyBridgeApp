@@ -123,6 +123,7 @@ h1{margin:.5rem 0 0;font-size:clamp(1.875rem,4.5vw,2.75rem);line-height:1.15;fon
 .card{position:relative}
 .card p{margin:.5rem 0 0;font-size:.9375rem;color:var(--muted);flex:1}
 .card .meta{margin-top:.9rem;font-size:.8125rem;color:var(--muted)}
+.cover{margin:1.75rem 0 0}.cover img{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;border-radius:1rem}.card .thumb{display:block;width:calc(100% + 2px);max-width:none;height:auto;aspect-ratio:16/9;object-fit:cover;border-radius:.75rem;margin:0 0 .875rem}
 .hero{max-width:48rem;padding:2.5rem 0 0}
 .hero h1{font-size:clamp(2rem,5vw,3rem)}
 .hero p{margin:1rem 0 0;font-size:1.1875rem;color:var(--muted)}
@@ -198,7 +199,7 @@ const breadcrumbs = (items) => `<nav class="crumbs" aria-label="Breadcrumb"><ol>
   ? `<li><span aria-current="page">${escapeHtml(item.name)}</span></li>`
   : `<li><a href="${item.path}">${escapeHtml(item.name)}</a></li>`)).join('')}</ol></nav>`;
 
-const card = (post) => `<li class="card"><span class="topic">${escapeHtml(TOPICS[post.topic].name)}</span><h3><a href="${post.path}">${escapeHtml(post.title)}</a></h3><p>${escapeHtml(post.description)}</p><span class="meta"><time datetime="${post.date}">${longDate(post.date)}</time> · ${post.minutes} min read</span></li>`;
+const card = (post) => `<li class="card">${post.image ? `<img class="thumb" src="${escapeHtml(post.image)}" alt="" width="1600" height="912" loading="lazy" decoding="async">` : ''}<span class="topic">${escapeHtml(TOPICS[post.topic].name)}</span><h3><a href="${post.path}">${escapeHtml(post.title)}</a></h3><p>${escapeHtml(post.description)}</p><span class="meta"><time datetime="${post.date}">${longDate(post.date)}</time> · ${post.minutes} min read</span></li>`;
 
 const topicChips = (posts, current = '') => {
   const counts = topicPostCounts(posts);
@@ -269,6 +270,7 @@ ${breadcrumbs(crumbs)}
 <p class="dek">${escapeHtml(post.description)}</p>
 <div class="byline"><span>By <a href="${authorPath(author.slug)}" rel="author">${escapeHtml(author.name)}</a>, certified interventionist</span><span>Published <time datetime="${post.date}">${longDate(post.date)}</time></span>${post.updated !== post.date ? `<span>Updated <time datetime="${post.updated}">${longDate(post.updated)}</time></span>` : ''}<span>${post.minutes} min read</span></div>
 </header>
+${post.image ? `<figure class="cover"><img src="${escapeHtml(post.image)}" alt="${escapeHtml(post.imageAlt || post.title)}" width="1600" height="912" fetchpriority="high" decoding="async"></figure>` : ''}
 ${toc}
 <div class="prose">
 ${post.html}
