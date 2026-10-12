@@ -178,6 +178,7 @@ const Demo = () => {
         title="FamilyBridge Product Demo"
         description="See how FamilyBridge organizes family communication, shared decisions, recovery support actions, financial coordination, and authorized professional collaboration."
         canonicalPath="/demo"
+        noIndex
         structuredData={breadcrumbSchema}
       />
       {/* Header */}

@@ -1,48 +1,33 @@
 # FamilyBridge
 
-> Recovery is a family journey. FamilyBridge is an iPhone app that keeps families of a loved one with a substance-use problem on the same page — before, during and after treatment.
+> FamilyBridge is the iPhone and iPad app for families of someone with addiction. It takes a family from divided to united — before, during and after treatment — and connects them with the professionals who help them.
 
-Families share accountability (money requests, meetings, appointments, medications), agreements (boundaries, goals, relapse response plan), and a family chat with a respect filter. Families can also rehearse hard conversations with an AI playing their loved one (Practice a conversation), in a realistic voice, with feedback afterward. AI coaching (Claude by Anthropic, only with the user's permission) helps with hard conversations: an AI Coach, Live Coaching during calls, intervention-letter feedback, and Family Insights, which spots readiness windows and who the loved one is likely to listen to. SOS connects families with their own professional or a 24-hour messaging session with a certified interventionist. Professionals (interventionists, treatment centers, therapists, coaches, sober living, IOP) work alongside families with consent-based sharing, a caseload, handoffs between levels of care and white label. Every accountability and planning tool is free; Family Plus ($19.99/month or $179/year) adds every AI feature (AI Coach, Live Coaching, conversation practice, Family Insights, letter feedback, document reading) and a 24-hour SOS session each billing cycle; professional plans start at $149/month, with quarterly (save 5%) and annual (save 15%) billing. FamilyBridge runs on iPhone and iPad; practice owners can also buy or manage plans online at https://familybridgeapp.com/practice-billing (processed by Square). FamilyBridge is a support platform, not a medical, mental health, treatment, emergency, or crisis service.
+Families get on the same page with a private monthly Alignment Check (everyone answers privately; the family sees where it agrees and where it's split, never who said what), a family pact everyone signs, and "Before you say yes" — when the loved one asks one person for money, a ride or a place to stay, they see the family's agreed answer and the words to use, and the family is told. A weekly family program (short, CRAFT-informed lessons in English and Spanish) and guided family meetings keep everyone pulling in the same direction. A treatment plan keeps everything ready for the moment the loved one says yes, and the person in recovery can tell the family "I need help" in one tap. In early recovery, a trust ladder agreed by the whole family shows what rebuilds trust.
 
-## Primary public pages
+Families also share accountability (money requests with family votes and receipts, meetings, appointments, medications), boundaries, a relapse response plan and a family chat with a respect filter. AI coaching (Claude by Anthropic, only with the user's permission) helps with hard conversations: an AI Coach, Live Coaching during calls, conversation practice with an AI playing the loved one, intervention-letter feedback, and Family Insights, which spots readiness windows. SOS shows 911, 988 and overdose steps first, then reaches the family's professional or a 24-hour messaging session with a certified interventionist.
 
-- [Homepage](https://familybridgeapp.com/): Family recovery support and coordination overview.
-- [Family plan](https://familybridgeapp.com/family-purchase): Family plan details and signup.
-- [For professionals](https://familybridgeapp.com/for-providers): Consent-based caseload, handoffs, white label and plans for professionals.
-- [Provider plan](https://familybridgeapp.com/provider-purchase): Provider plan details.
-- [Product demo](https://familybridgeapp.com/demo): Overview of the demonstration experience.
-- [Recovery meeting check-ins](https://familybridgeapp.com/meetings): Meeting-finder and check-in tools.
-- [Enabling exercise](https://familybridgeapp.com/enabling-exercise): Guided reflection on support, boundaries, and enabling patterns.
+Professionals (interventionists, treatment centers, therapists, coaches, sober living, IOP) work alongside families with consent-based sharing, a caseload, handoffs between levels of care and white label.
+
+Pricing: the app is free, including the Alignment Check, family pact, Before you say yes, family meetings, treatment plan, trust ladder, every accountability tool and the first three program lessons. Family Plus ($19.99/month) adds the full family program, every AI feature and a 24-hour SOS session each billing cycle, for the whole family. Professional plans start at $149/month. FamilyBridge is a support platform, not a medical, mental health, treatment, emergency, or crisis service.
+
+## Pages
+
+- [Homepage](https://familybridgeapp.com/): What FamilyBridge does for families, features, pricing and FAQ.
+- [For professionals](https://familybridgeapp.com/for-providers): Consent-based caseload, family alignment, handoffs, white label and plans.
+- [Am I enabling?](https://familybridgeapp.com/enabling-exercise): A free, eight-question exercise that helps families tell a real crisis from chaos.
+- [Meeting finder](https://familybridgeapp.com/meetings): Al-Anon, Nar-Anon, CRAFT, AA, NA and other meetings for families and people in recovery.
 - [Support](https://familybridgeapp.com/support): Help and contact information.
-- [Privacy policy](https://familybridgeapp.com/privacy): FamilyBridge privacy practices.
-- [Terms of service](https://familybridgeapp.com/terms): Terms governing use of FamilyBridge.
-- [EULA](https://familybridgeapp.com/eula): End User License Agreement for the iOS app.
-
-## Existing feature pages
-
-- [FIIS recovery intelligence](https://familybridgeapp.com/features/fiis-intelligence)
-- [Recovery trajectory](https://familybridgeapp.com/features/recovery-trajectory)
-- [Document analysis](https://familybridgeapp.com/features/document-analysis)
-- [Medication consistency](https://familybridgeapp.com/features/medication-compliance)
-- [Financial coordination](https://familybridgeapp.com/features/financial-coordination)
-- [Care transitions](https://familybridgeapp.com/features/care-transitions)
-- [Conversation coaching](https://familybridgeapp.com/features/conversation-coaching)
+- [Privacy policy](https://familybridgeapp.com/privacy)
+- [Terms of service](https://familybridgeapp.com/terms)
+- [EULA](https://familybridgeapp.com/eula)
+- [Download on the App Store](https://apps.apple.com/app/id6757375159)
 
 ## Important limitations
 
-FamilyBridge does not diagnose, treat, prescribe, guarantee recovery, forecast readiness, or predict an individual's outcome. AI-assisted features organize authorized information and suggest items for human review. Professional access is limited by explicit authorization and does not expose private family or clinical information broadly.
+FamilyBridge does not diagnose, treat, prescribe, guarantee recovery, or predict an individual's outcome. AI-assisted features organize information the family chose to share and suggest things for people to consider. Each person's Alignment Check answers are private. Professionals see only the areas a parent or partner shares, and every view is logged.
 
 For immediate danger in the United States, call 911. For a mental health or suicide crisis, call or text 988.
 
 ## About
 
-FamilyBridge was founded by Matt Brown, an addiction interventionist with more than 20 years of experience and long-term personal recovery.
-
-## Contact
-
-- Email: matt@freedominterventions.com
-- Website: https://familybridgeapp.com/
-
-For a fuller description of FamilyBridge, use [llms-full.txt](https://familybridgeapp.com/llms-full.txt).
-
-Coming soon: drug testing with partner labs (home, program and lab results), as part of a new premium plan for families and professionals.
+FamilyBridge was founded by Matt Brown, a certified addiction interventionist with more than 20 years of experience and long-term personal recovery (Freedom Interventions, LLC). Contact: matt@freedominterventions.com

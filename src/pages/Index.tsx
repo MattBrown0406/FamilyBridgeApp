@@ -5,10 +5,12 @@ import {
   TrendingUp, Users, UsersRound, Wallet,
 } from 'lucide-react';
 import { BrandedFooter } from '@/components/BrandedFooter';
-import { SEOHead, createOrganizationSchema } from '@/components/SEOHead';
+import { SEOHead } from '@/components/SEOHead';
+import { APP_STORE_URL } from '@/components/site/SiteChrome';
 import PublicCrisisHelp from '@/components/PublicCrisisHelp';
 import { AppStoreBadge, ComingSoon, NewBadge, Phone, PlusBadge, SiteHeader } from '@/components/site/SiteChrome';
 import { HeroDynamic } from '@/components/site/HeroDynamic';
+import { blogPosts } from 'virtual:familybridge-blog';
 import todayShot from '@/assets/app/today.webp';
 import insightsShot from '@/assets/app/insights.webp';
 import chatShot from '@/assets/app/chat.webp';
@@ -83,14 +85,44 @@ const FAQ = [
   { q: 'Can a professional see everything?', a: 'No. A parent or partner chooses exactly what each professional can see — money, meetings, appointments, medications, your plan, check-ins, chat — and can change it or disconnect at any time.' },
 ];
 
+// The app itself (free, with Family Plus in-app) and the FAQ below, for search engines and AI answers.
+// The Organization and WebSite are declared once for every page in index.html.
+const HOME_SCHEMA = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'MobileApplication',
+      '@id': 'https://familybridgeapp.com/#app',
+      name: 'FamilyBridge',
+      alternateName: 'Family Bridge Recovery',
+      description: 'The app for families of someone with addiction: a private Alignment Check, a signed family pact, one-voice answers to money and other asks, a weekly CRAFT-informed family program, AI coaching for hard conversations, and an SOS line to a certified interventionist.',
+      operatingSystem: 'iOS, iPadOS',
+      applicationCategory: 'LifestyleApplication',
+      inLanguage: ['en', 'es'],
+      installUrl: APP_STORE_URL,
+      url: 'https://familybridgeapp.com/',
+      publisher: { '@id': 'https://familybridgeapp.com/#organization' },
+      offers: [
+        { '@type': 'Offer', name: 'Free', price: '0', priceCurrency: 'USD' },
+        { '@type': 'Offer', name: 'Family Plus (monthly)', price: '19.99', priceCurrency: 'USD' },
+      ],
+    },
+    {
+      '@type': 'FAQPage',
+      '@id': 'https://familybridgeapp.com/#faq',
+      mainEntity: FAQ.map(({ q, a }) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })),
+    },
+  ],
+};
+
 const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="FamilyBridge — Recovery Is a Family Journey"
-        description="Take your family from divided to united through a loved one's addiction and recovery: see where everyone stands, agree on one plan, answer with one voice, and learn week by week what actually helps."
+        title="FamilyBridge — App for Families of Someone with Addiction"
+        description="Help a loved one with addiction as one family: see where everyone stands, agree on one plan, and get coaching for hard conversations. Free on iPhone."
         canonicalPath="/"
-        structuredData={createOrganizationSchema()}
+        structuredData={HOME_SCHEMA}
       />
 
       <SiteHeader
@@ -117,7 +149,7 @@ const Index = () => {
       </section>
 
       {/* FROM DIVIDED TO UNITED */}
-      <section className="bg-card border-y border-border">
+      <section id="together" className="bg-card border-y border-border scroll-mt-20">
         <div className="container mx-auto px-4 max-w-6xl py-16 sm:py-24">
           <div className="max-w-2xl">
             <p className="text-sm font-bold uppercase tracking-wider text-[#7A5C99]">New · Together</p>
@@ -167,7 +199,7 @@ const Index = () => {
       </section>
 
       {/* FAMILY INSIGHTS */}
-      <section className="bg-[#134A51] text-white">
+      <section id="insights" className="bg-[#134A51] text-white scroll-mt-20">
         <div className="container mx-auto px-4 max-w-6xl py-16 sm:py-24 grid gap-12 lg:grid-cols-2 items-center">
           <div className="order-2 lg:order-1 mx-auto w-full max-w-[320px]">
             <Phone src={insightsShot} alt="Family Insights: the window with your loved one, who they'll listen to, and coaching for you" />
@@ -330,8 +362,34 @@ const Index = () => {
         <p className="mt-6 max-w-4xl text-sm text-muted-foreground">Working with a professional on a FamilyBridge plan? Family Plus is often included while you're in their care. Subscriptions are billed through your Apple ID and renew automatically until cancelled.</p>
       </section>
 
+      {/* GUIDES — the newest blog articles (static pages, so plain links) */}
+      {blogPosts.length > 0 && (
+        <section id="guides" className="container mx-auto px-4 max-w-6xl py-16 sm:py-24 scroll-mt-20">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div className="max-w-2xl">
+              <p className="text-sm font-bold uppercase tracking-wider text-primary">Guides for families</p>
+              <h2 className="mt-3 text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground [text-wrap:balance]">Straight answers from an interventionist.</h2>
+              <p className="mt-3 text-lg text-muted-foreground">Practical help for the hardest moments: money requests, boundaries, getting on the same page, treatment and relapse.</p>
+            </div>
+            <a href="/blog" className="font-semibold text-primary hover:underline">All guides →</a>
+          </div>
+          <ul className="mt-10 grid gap-5 md:grid-cols-3">
+            {blogPosts.slice(0, 3).map((post) => (
+              <li key={post.slug} className="relative flex flex-col rounded-2xl border border-border bg-card p-6 hover:border-primary transition-colors">
+                <span className="text-xs font-bold uppercase tracking-wider text-primary">{post.topicName}</span>
+                <h3 className="mt-2 text-lg font-bold leading-snug text-foreground">
+                  <a href={post.path} className="after:absolute after:inset-0">{post.seoTitle}</a>
+                </h3>
+                <p className="mt-2 flex-1 text-sm text-muted-foreground">{post.description}</p>
+                <span className="mt-4 text-xs text-muted-foreground">{post.minutes} min read</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
       {/* FAQ */}
-      <section className="bg-card border-t border-border">
+      <section id="faq" className="bg-card border-t border-border scroll-mt-20">
         <div className="container mx-auto px-4 py-16 sm:py-20 max-w-3xl">
           <h2 className="text-3xl font-extrabold tracking-tight text-foreground">Questions families ask</h2>
           <div className="mt-8 divide-y divide-border">

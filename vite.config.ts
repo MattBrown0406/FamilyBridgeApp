@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
+import { familyBridgeBlog } from "./scripts/blog/vite-plugin.mjs";
 
 // Publishable Lovable Cloud values. These are safe to ship in the browser
 // bundle (RLS protects the data). They are used as a build-time fallback so a
@@ -29,7 +30,8 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
   },
-  plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
+  // familyBridgeBlog: the blog articles in src/content/blog (static pages; see scripts/blog/).
+  plugins: [react(), familyBridgeBlog(), mode === "development" && componentTagger()].filter(Boolean),
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
@@ -41,6 +43,9 @@ export default defineConfig(({ mode }) => ({
         manualChunks(id) {
           if (!id.includes("node_modules")) return;
 
+          // Tiny helpers used everywhere (and by charts): their own chunk, so the homepage
+          // never has to download the charts library just to reach them.
+          if (/[\\/]node_modules[\\/](clsx|tailwind-merge|class-variance-authority)[\\/]/.test(id)) return "vendor-utils";
           if (id.includes("recharts")) return "vendor-recharts";
           if (id.includes("@supabase")) return "vendor-supabase";
           if (id.includes("@radix-ui")) return "vendor-radix";

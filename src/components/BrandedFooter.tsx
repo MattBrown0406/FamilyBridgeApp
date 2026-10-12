@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useOrganization } from '@/hooks/useOrganization';
 import familyBridgeLogo from '@/assets/familybridge-logo.png';
+import { blogPosts } from 'virtual:familybridge-blog';
 
 export const BrandedFooter = () => {
   const { organization, isWhiteLabeled } = useOrganization();
@@ -54,6 +55,9 @@ export const BrandedFooter = () => {
           <Link to="/eula" className="hover:text-foreground transition-colors">EULA</Link>
           <Link to="/support" className="hover:text-foreground transition-colors">Support</Link>
           <Link to="/for-providers" className="hover:text-foreground transition-colors">For professionals</Link>
+          {blogPosts.length > 0 && <a href="/blog" className="hover:text-foreground transition-colors">Blog</a>}
+          <Link to="/enabling-exercise" className="hover:text-foreground transition-colors">Am I enabling?</Link>
+          <Link to="/meetings" className="hover:text-foreground transition-colors">Find a meeting</Link>
         </div>
         <span className="text-xs text-muted-foreground">© {currentYear} FamilyBridge · Freedom Interventions, LLC</span>
       </div>

@@ -1,6 +1,6 @@
 # FamilyBridge
 
-> Privacy-conscious recovery support and family coordination for people affected by addiction.
+> The iPhone and iPad app for families of someone with addiction — from divided to united, before, during and after treatment.
 
 FamilyBridge helps people in recovery, their families, and authorized professionals coordinate support through shared communication, actions, decisions, boundaries, and follow-through. It is a support and coordination platform, not a medical provider, mental health provider, treatment program, emergency service, or substitute for professional care.
 
@@ -20,56 +20,54 @@ FamilyBridge helps people in recovery, their families, and authorized profession
 
 FamilyBridge does not give professionals unrestricted access to private family information. Professional access is recipient-bound, capability-limited, time-limited, revocable, and dependent on authorization.
 
-## What FamilyBridge helps coordinate
+## How FamilyBridge brings a family together
 
-### Shared family communication
+Addiction pulls families apart: one parent gives money, another says no, a grandparent pays the phone bill, and the loved one hears five different answers. FamilyBridge closes those gaps in four steps.
 
-FamilyBridge gives a family one organized place for recovery-related communication. The goal is to reduce scattered conversations, clarify what was actually decided, and keep next steps visible without shame or coercion.
+### 1. See where everyone stands — the Alignment Check
 
-### Shared actions and decisions
+Once a month, each family member who helps the loved one answers the same short set of questions privately (how serious things are, money, living at home, stepping in, what to ask for, how to talk about it; trust and checking up in early recovery). The family sees only the combined picture — where it agrees and where it is split — never who said what, and nothing is shown until at least two people have answered. The person in recovery does not take the check and never sees it.
 
-Families can document actions, assign ownership, record decisions, and follow through on agreed next steps. The platform is designed to make family support more consistent and understandable.
+### 2. Agree on one plan — the family pact
 
-### Boundaries and financial coordination
+The family writes one living agreement: its goal, what it will and won't do, its answer to money, housing, rides, bills and bail, and an invitation written for the loved one. Every change creates a new version that everyone signs again. "Our words" are the lines the family agrees to use in hard moments, and each can be rehearsed.
 
-FamilyBridge can help families organize boundaries and coordinate financial requests, pledges, receipts, and shared decisions. These tools support transparency; they do not make financial, legal, or clinical decisions for users.
+### 3. Answer with one voice — Before you say yes
 
-### Recovery support check-ins
+When the loved one asks one person for something, that person takes ten seconds in the app: the family's agreed answer and words appear; they choose to hold the line, bring it to the family, say yes, or ask for support; and the rest of the family is told. This keeps a loved one from playing family members against each other.
 
-The platform includes recovery meeting check-ins and support tools. A check-in is a coordination signal, not proof of sobriety or a clinical assessment.
+### 4. Grow together — the family program and family meetings
 
-### AI-assisted organization and guidance
+A five-minute lesson each week, informed by CRAFT (Community Reinforcement and Family Training), in plain English and Spanish: twelve lessons while the loved one is still using, eight for treatment and early recovery. Each lesson has a try-this-week, a practice conversation and a question for the weekly family meeting. Guided family meetings give everyone two minutes, work on one topic, and record decisions, which can be added to the pact.
 
-Some FamilyBridge features use AI to organize authorized information, identify documented patterns, and suggest questions or next steps for human consideration. AI output is not a diagnosis, clinical judgment, prediction of recovery, or guarantee of an outcome.
+### Ready for every stage
 
-### Authorized professional collaboration
+- Treatment plan: programs the family has already called, insurance notes, who drives, what to pack and the invitation — so when the loved one says yes, the family can move the same day. The person in recovery can tell the family "I need help" in one tap.
+- Trust ladder: in early recovery, the family (including the loved one) agrees ahead of time on what rebuilds trust and what each step earns back.
+- Support for family members: Al-Anon, Nar-Anon, SMART Recovery Family & Friends, counseling and crisis lines, with a nudge when someone's check-ins show a lot of stress.
 
-Families may choose to share limited information with an authorized provider or professional. FamilyBridge supports privacy-conscious handoffs and controlled collaboration while keeping private family and professional information segregated.
+### Accountability, coaching and safety
+
+- Money requests with family votes, receipts, a monthly limit and a no-cash rule; recovery meetings; appointments; medications (shared only if the person chooses); daily check-ins and wins; a relapse response plan; a family chat with a respect filter.
+- AI coaching, only with the user's permission (Claude by Anthropic, which does not train on users' information): AI Coach, Live Coaching during hard calls, conversation practice with an AI playing the loved one in a realistic voice, intervention-letter feedback, document reading, and Family Insights (readiness windows and who the loved one listens to). The AI Coach follows the family's pact.
+- SOS: 911, 988 and overdose steps first; then an urgent message to the family's own professional, or a 24-hour messaging session with a certified interventionist.
+
+### With professionals
+
+Interventionists, treatment centers, therapists, recovery coaches, sober living and outpatient programs connect with a family by code. A parent or partner chooses exactly what each professional sees (money, meetings, appointments, medications, the plan, check-ins, chat), every view is logged, and the family can change or end sharing at any time. Professionals get a caseload sorted by who needs attention, a summary of how united each family is (with permission), tasks, messages, sessions, private notes, AI summaries, handoffs between levels of care, and white label.
+
+### Pricing
+
+The app is free, including every accountability and planning tool, the Alignment Check, family pact, Before you say yes, family meetings, treatment plan, trust ladder and the first three program lessons. Family Plus ($19.99/month, billed through the App Store) adds the full family program, every AI feature and one 24-hour SOS session each billing cycle, for the whole family; families working with a professional on a paid plan often have it included. Professional plans start at $149/month (Solo), with Practice and Organization plans and quarterly or annual billing.
 
 ## Public pages
 
-### Main platform pages
-
-- [Homepage](https://familybridgeapp.com/): FamilyBridge overview for families and recovery support.
-- [Family plan](https://familybridgeapp.com/family-purchase): Current family plan information and signup.
-- [For treatment providers](https://familybridgeapp.com/for-providers): How authorized provider collaboration works.
-- [Provider plan](https://familybridgeapp.com/provider-purchase): Current provider plan information.
-- [Product demo](https://familybridgeapp.com/demo): Overview of the FamilyBridge demonstration experience.
-
-### Existing support tools
-
-- [Recovery meeting check-ins](https://familybridgeapp.com/meetings): Meeting-finder and check-in tools.
-- [Enabling exercise](https://familybridgeapp.com/enabling-exercise): A guided exercise for examining family support and enabling patterns.
-
-### Existing feature explanations
-
-- [FIIS recovery intelligence](https://familybridgeapp.com/features/fiis-intelligence): AI-assisted organization of documented family and recovery-support patterns.
-- [Recovery trajectory](https://familybridgeapp.com/features/recovery-trajectory): Visual organization of recovery-related progress and concerns for human review.
-- [Document analysis](https://familybridgeapp.com/features/document-analysis): Extraction of boundaries, commitments, and action items from authorized documents.
-- [Medication consistency](https://familybridgeapp.com/features/medication-compliance): User-directed medication scheduling and consistency tools; not prescribing or medical advice.
-- [Financial coordination](https://familybridgeapp.com/features/financial-coordination): Shared review of requests, pledges, receipts, and family decisions.
-- [Care transitions](https://familybridgeapp.com/features/care-transitions): Authorized, privacy-conscious support for provider handoffs.
-- [Conversation coaching](https://familybridgeapp.com/features/conversation-coaching): AI-assisted prompts for calmer, non-shaming communication.
+- [Homepage](https://familybridgeapp.com/): FamilyBridge for families — the four steps, features, pricing and FAQ.
+- [For professionals](https://familybridgeapp.com/for-providers): How consent-based collaboration works, and professional plans.
+- [Am I enabling?](https://familybridgeapp.com/enabling-exercise): A free, guided exercise for telling a real crisis from chaos.
+- [Meeting finder](https://familybridgeapp.com/meetings): Al-Anon, Nar-Anon, CRAFT, AA, NA and other meetings.
+- [Support](https://familybridgeapp.com/support), [Privacy policy](https://familybridgeapp.com/privacy), [Terms of service](https://familybridgeapp.com/terms), [EULA](https://familybridgeapp.com/eula)
+- [FamilyBridge on the App Store](https://apps.apple.com/app/id6757375159) (iPhone and iPad; English and Spanish)
 
 ## Safety and limitations
 
@@ -77,7 +75,7 @@ FamilyBridge is not an emergency or crisis service. In the United States, call 9
 
 ## About the founder
 
-FamilyBridge was founded by Matt Brown, an addiction interventionist with more than 20 years of experience and long-term personal recovery. The platform reflects a family-systems approach centered on compassion, honesty, boundaries, shared responsibility, privacy, and sustained family recovery.
+FamilyBridge was founded by Matt Brown, a certified addiction interventionist with more than 20 years of experience and long-term personal recovery. The platform reflects a family-systems approach centered on compassion, honesty, boundaries, shared responsibility, privacy, and sustained family recovery.
 
 ## Contact
 

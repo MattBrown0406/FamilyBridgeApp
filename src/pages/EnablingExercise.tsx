@@ -190,8 +190,8 @@ const EnablingExercise = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="Family Enabling Patterns Exercise | FamilyBridge"
-        description="Use a guided FamilyBridge exercise to reflect on enabling patterns, boundaries, and healthier ways to support a loved one affected by addiction."
+        title="Am I Enabling? A Free Exercise for Families | FamilyBridge"
+        description="Helping or enabling? Eight honest questions to tell a real crisis from chaos — for parents, partners and families of someone with addiction."
         canonicalPath="/enabling-exercise"
       />
       <header className="container mx-auto px-3 sm:px-4 py-3 sm:py-4 border-b border-border">

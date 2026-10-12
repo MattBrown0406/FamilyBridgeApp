@@ -75,7 +75,7 @@ const PlanCards = () => {
 const ForProviders = () => (
   <div className="min-h-screen bg-background">
     <SEOHead
-      title="FamilyBridge for Treatment Professionals"
+      title="FamilyBridge for Interventionists & Treatment Providers"
       description="A consent-based caseload, family chat, AI summaries, handoffs between levels of care and white label for the families you serve. From $149/month."
       canonicalPath="/for-providers"
       structuredData={createBreadcrumbSchema([{ name: 'Home', url: '/' }, { name: 'For professionals', url: '/for-providers' }])}
