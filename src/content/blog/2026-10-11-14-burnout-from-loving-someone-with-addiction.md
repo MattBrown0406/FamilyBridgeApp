@@ -7,6 +7,8 @@ slug: burnout-from-loving-someone-with-addiction
 topic: family-wellbeing
 date: 2026-10-11
 author: matt-brown
+image: /blog-images/burnout-from-loving-someone-with-addiction.jpg
+imageAlt: A tired woman taking a restful breath on a forest walk
 ---
 It’s 3:14 a.m. and you’re awake again, checking the location app and listening for the front door. You have to be at work in five hours. You can’t remember the last time you ate a meal without your phone face-up beside the plate.
 

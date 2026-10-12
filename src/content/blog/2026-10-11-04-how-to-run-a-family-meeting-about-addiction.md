@@ -7,6 +7,8 @@ slug: how-to-run-a-family-meeting-about-addiction
 topic: communication
 date: 2026-10-11
 author: matt-brown
+image: /blog-images/how-to-run-a-family-meeting-about-addiction.jpg
+imageAlt: A family holding a calm meeting around the dining table
 ---
 You finally got everyone in one room to talk about your husband’s drinking: his parents, his sister, your two oldest kids. Ten minutes in, his mother is defending him, your daughter is in tears, and the conversation has drifted to an argument from years ago. Everyone leaves more upset than they came.
 

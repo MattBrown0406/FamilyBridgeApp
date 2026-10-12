@@ -7,6 +7,8 @@ slug: siblings-of-someone-with-addiction
 topic: family-wellbeing
 date: 2026-10-11
 author: matt-brown
+image: /blog-images/siblings-of-someone-with-addiction.jpg
+imageAlt: A brother and sister talking on the front steps at sunset
 ---
 Your younger daughter brings home a great report card on the same night her brother doesn’t come home at all. You sign it at the kitchen counter, half listening, phone in your other hand. She says, “It’s fine,” and goes upstairs.
 

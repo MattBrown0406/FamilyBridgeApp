@@ -7,6 +7,8 @@ slug: boundaries-as-a-family-addicted-loved-one
 topic: boundaries
 date: 2026-10-11
 author: matt-brown
+image: /blog-images/boundaries-as-a-family-addicted-loved-one.jpg
+imageAlt: A family standing together on their front porch
 ---
 You told your daughter she couldn’t come over high. So she went to her aunt’s, and her aunt let her sleep on the couch. You stopped paying her car insurance, and her grandfather quietly paid it instead. Every boundary you set seems to have a back door, and you’re the one who ends up looking like the bad guy.
 

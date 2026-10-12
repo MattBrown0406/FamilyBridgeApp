@@ -7,6 +7,8 @@ slug: what-to-do-when-loved-one-relapses
 topic: relapse
 date: 2026-10-12
 author: matt-brown
+image: /blog-images/what-to-do-when-loved-one-relapses.jpg
+imageAlt: A wife holds her husband’s hand at the kitchen table after a relapse
 ---
 You smell it the moment your husband walks through the door. Eight months of meetings and finally sleeping through the night, and in one second your stomach drops. Within the hour, his mother wants to know what you did, your sister says you should have seen it coming, and your teenager has gone quiet.
 

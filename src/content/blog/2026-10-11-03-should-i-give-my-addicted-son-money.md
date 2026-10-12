@@ -7,6 +7,8 @@ slug: should-i-give-my-addicted-son-money
 topic: money
 date: 2026-10-11
 author: matt-brown
+image: /blog-images/should-i-give-my-addicted-son-money.jpg
+imageAlt: A mother reading a text asking for money, with bills and her wallet on the table
 ---
 The text arrives at 9:47 p.m.: “Mom I need $200 for rent by tomorrow or they’re kicking me out. I’ll pay you back Friday I promise.” Your stomach drops. You picture him with nowhere to sleep. You also remember the last three times he promised to pay you back.
 

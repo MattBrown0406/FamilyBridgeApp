@@ -7,6 +7,8 @@ slug: working-with-an-interventionist-as-a-family
 topic: working-with-professionals
 date: 2026-10-11
 author: matt-brown
+image: /blog-images/working-with-an-interventionist-as-a-family.jpg
+imageAlt: An interventionist meeting with a family in their living room
 ---
 You finally made the call. Maybe it was to an interventionist, maybe to a treatment center you found at midnight. Now there are intake coordinators, therapists, case managers and a stack of forms, and you can’t tell whether you’re supposed to be in the room or out of the way.
 

@@ -7,6 +7,8 @@ slug: parents-disagree-about-addicted-son
 topic: getting-on-the-same-page
 date: 2026-10-11
 author: matt-brown
+image: /blog-images/parents-disagree-about-addicted-son.jpg
+imageAlt: Two parents talking calmly on the couch to get on the same page
 ---
 It’s late. Your son just walked out the door again, and the argument starts before his car leaves the driveway. “You’re too easy on him.” “You’re too hard on him.” An hour later, the two of you aren’t talking about him anymore. You’re talking about each other.
 
