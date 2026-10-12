@@ -42,9 +42,9 @@ Have a short, private check-in with the key adults — a spouse, parents, an adu
 
 ### Agree on three things
 
-> **1 Who will talk with your loved one first.** Pick the calmest person, not the most hurt one.
-> **2 What you will offer.** For example, help calling their counselor, getting to a meeting, or seeing a doctor.
-> **3 What you won’t do.** For example, no cash, no covering for them at work, and no big decisions about living arrangements until everyone has talked.
+1. **Who will talk with your loved one first.** Pick the calmest person, not the most hurt one.
+2. **What you will offer.** For example, help calling their counselor, getting to a meeting, or seeing a doctor.
+3. **What you won’t do.** For example, no cash, no covering for them at work, and no big decisions about living arrangements until everyone has talked.
 
 If your family already wrote a [family relapse prevention plan](/blog/family-relapse-prevention-plan) while things were calm, now is the time to pull it out and follow it. If you didn’t, that’s okay. These three agreements are a good start.
 
