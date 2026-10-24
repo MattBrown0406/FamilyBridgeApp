@@ -137,7 +137,7 @@ Check that it’s licensed by your state and look for accreditation from The Joi
 
 ### What if our loved one refuses the program we chose?
 
-Stay calm and keep the plan steady. Sometimes offering two acceptable options gives them a sense of choice without reopening the whole decision. If refusal continues, a professional interventionist or a CRAFT-trained therapist can help your family plan next steps.
+Stay calm and keep the plan steady. Sometimes offering two acceptable options gives them a sense of choice without reopening the whole decision. If refusal continues, a professional interventionist or a [CRAFT-trained therapist](/blog/craft-method-for-families) can help your family plan next steps.
 
 ### Does insurance cover rehab?
 
