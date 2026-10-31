@@ -50,7 +50,7 @@ Skip vague rules like "respect this house." Clear rules sound like this:
 
 A one-page "living-at-home agreement" in plain language keeps everyone honest, parents included. When memories differ later, the page settles it, not whoever argues loudest.
 
-Consider adding what the parents agree to do, too: no yelling, no bringing up old history at dinner. Rules that go both ways feel fair. Our guide to [setting boundaries as a family](/blog/setting-boundaries-as-a-family) can help you put those limits into words.
+Consider adding what the parents agree to do, too: no yelling, no bringing up old history at dinner. Rules that go both ways feel fair. Our guide to [setting boundaries as a family](/blog/boundaries-as-a-family-addicted-loved-one) can help you put those limits into words.
 
 ## How do we get every family member to agree on the rules?
 
