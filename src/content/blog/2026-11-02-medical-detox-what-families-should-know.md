@@ -1,5 +1,5 @@
 ---
-title: 'Medical Detox: "Can''t He Just Stop Drinking on His Own at Home?"'
+title: Medical Detox: “Can’t He Just Stop Drinking on His Own at Home?”
 seoTitle: Medical Detox — What Families Should Know
 description: Is medical detox necessary? Learn when quitting at home is risky, what to ask a detox program and how your family can share one plan for what comes next.
 keyword: medical detox
