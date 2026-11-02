@@ -8,7 +8,7 @@ topic: before-treatment
 date: 2026-11-02
 author: matt-brown
 image: /blog-images/medical-detox-what-families-should-know.jpg
-imageAlt: A wife and teenage son at a kitchen table on a speakerphone call with a doctor's office, a notepad of questions between them
+imageAlt: Two adults at a kitchen table in the evening on a speakerphone call, a notepad of questions and coffee cups beside them
 ---
 It's Sunday night, and your husband is shaking so badly he can't hold his coffee cup. He swears he's done drinking, starting right now. Your mother-in-law says, "Good, let him tough it out." Your sister texts a link about medical detox. Your teenager asks quietly, "Is Dad going to be okay?" And you're standing in the kitchen with no idea who's right.
 
