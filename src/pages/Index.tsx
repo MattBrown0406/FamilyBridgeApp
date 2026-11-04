@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom';
 import {
   ArrowRight, BadgeCheck, Briefcase, CalendarCheck, ClipboardList, Compass, Ear, FileText, FlaskConical, GitBranch, GraduationCap,
-  Hand, Heart, HeartHandshake, LifeBuoy, Lock, Mail, MessagesSquare, Mic, Pill, ScrollText, ShieldCheck, Sparkles, Sunrise,
-  TrendingUp, Users, UsersRound, Wallet,
+  Hand, Heart, HeartHandshake, LifeBuoy, Lock, Mail, MessagesSquare, Mic, Pill, Radar, ScrollText, Send, ShieldCheck, ShieldPlus,
+  Sparkles, Sunrise, TrendingUp, Users, UsersRound, Wallet, Zap,
 } from 'lucide-react';
 import { BrandedFooter } from '@/components/BrandedFooter';
 import { SEOHead } from '@/components/SEOHead';
@@ -24,6 +24,8 @@ import trustShot from '@/assets/app/trust.webp';
 import sosShot from '@/assets/app/sos.webp';
 import liveShot from '@/assets/app/live.webp';
 import caseloadShot from '@/assets/app/caseload.webp';
+import rightNowShot from '@/assets/app/rightnow.webp';
+import naloxoneShot from '@/assets/app/naloxone.webp';
 
 const TOOL_GROUPS: { title: string; blurb: string; items: { icon: React.ElementType; name: string; text: string; soon?: boolean; isNew?: boolean; plus?: boolean }[] }[] = [
   {
@@ -44,8 +46,8 @@ const TOOL_GROUPS: { title: string; blurb: string; items: { icon: React.ElementT
     items: [
       { icon: GraduationCap, name: 'Family program', text: 'One five-minute lesson a week, built on CRAFT principles — then a week to try it and a question for your family meeting. The first three lessons are free.', isNew: true },
       { icon: Mic, name: 'Practice a conversation', text: 'Rehearse a hard talk with AI playing your loved one — in a realistic voice matched to their age — then get kind, specific feedback.', plus: true },
-      { icon: Sparkles, name: 'AI coach', text: 'Help with what to say, trained on CRAFT and motivational interviewing — and it follows your family pact.', plus: true },
-      { icon: Ear, name: 'Live Coaching', text: 'Real-time cues during a hard call or conversation. Nothing is recorded.', plus: true },
+      { icon: Sparkles, name: 'AI coach', text: 'Help with what to say, trained on CRAFT and motivational interviewing — and it follows your family pact. Try a few questions a day free.', plus: true },
+      { icon: Ear, name: 'Live Coaching', text: 'Real-time suggestions during a hard conversation — in person, or a call on speaker. FamilyBridge records nothing.', plus: true },
       { icon: MessagesSquare, name: 'Family chat', text: 'A respect filter stops insults and threats before they’re sent.' },
       { icon: FileText, name: 'Intervention letters', text: 'Write your letter with kind, honest feedback — never visible to your loved one.' },
     ],
@@ -63,7 +65,7 @@ const TOOL_GROUPS: { title: string; blurb: string; items: { icon: React.ElementT
   },
   {
     title: 'Ready for every stage',
-    blurb: 'Before treatment, during it, and in the months after.',
+    blurb: 'Tell FamilyBridge where your loved one is — still using, in treatment or early recovery — and the right tools come first.',
     items: [
       { icon: Sunrise, name: 'Treatment plan', text: 'Programs you’ve already called, insurance, who drives, what to pack and the words to use — so when they say yes, you go the same day.', isNew: true },
       { icon: TrendingUp, name: 'Trust ladder', text: 'In early recovery, agree ahead of time on what rebuilds trust — and what each step earns back.', isNew: true },
@@ -77,10 +79,11 @@ const FAQ = [
   { q: 'Who is FamilyBridge for?', a: 'Families of someone struggling with alcohol or drugs — before, during and after treatment — and the professionals who work with them: interventionists, treatment centers, therapists, recovery coaches, sober living and outpatient programs.' },
   { q: 'Does my loved one have to use it?', a: 'No. Many families start before their loved one is ready for help. If your loved one joins, they get their own view — check-ins, meetings, meds, wins — and never see intervention letters, conversation notes or Family Insights.' },
   { q: 'Our family can’t agree on what to do. Can FamilyBridge help?', a: 'That’s exactly what it’s for. Each of you takes a private Alignment Check, and the family sees where you agree and where you’re split — never who said what. You turn what you agree on into a family pact everyone signs, answer your loved one’s asks with one voice, and work through one split topic at a time at a guided weekly family meeting. Most families see their alignment climb month by month.' },
-  { q: 'Is the Alignment Check really private?', a: 'Yes. Your answers are never shown to anyone — not your family, not your loved one, not your professional. Everyone sees only the combined picture (how many people chose each answer), and nothing is shown until at least two people have answered. Your loved one doesn’t take the check and never sees it.' },
-  { q: 'Is FamilyBridge free?', a: 'Every accountability and planning tool is free for every family — the Alignment Check, family pact, Before you say yes, guided family meetings, treatment plan, trust ladder, money, meetings, appointments, medications, check-ins, boundaries, goals, the relapse plan, family chat and the first three lessons of the family program. Family Plus ($19.99 a month) adds the full family program and every AI feature — the AI Coach, Live Coaching, conversation practice, Family Insights, letter feedback and document reading — plus a 24-hour SOS session each billing cycle, for everyone in your family. If you work with a professional on a FamilyBridge plan, Family Plus is often included.' },
+  { q: 'Is the Alignment Check really private?', a: 'Yes. Your answers are never shown to anyone — not your family, not your loved one, not your professional. Everyone sees only the combined picture (how many people chose each answer), and nothing is shown until at least three people have answered. Your loved one doesn’t take the check and never sees it.' },
+  { q: 'Is FamilyBridge free?', a: 'Every accountability, planning and safety tool is free for every family — the Alignment Check, family pact, Before you say yes, guided family meetings, treatment plan, trust ladder, money, meetings, appointments, medications, check-ins, boundaries, goals, the relapse plan, family chat, the safety tools (60-second plans for hard moments, the Early-Warning Radar, Overdose Ready and Reach Out) and the first three lessons of the family program. You can try the AI for free too: a few AI Coach questions and text rewrites a day, and one Family Insights read a month. Family Plus ($19.99 a month) adds the full family program and every AI feature — the AI Coach, Live Coaching, conversation practice, Family Insights, letter feedback and document reading — plus a 24-hour SOS session each billing cycle, for everyone in your family. If you work with a professional on a FamilyBridge plan, Family Plus is often included.' },
   { q: 'Can I practice what to say before a hard conversation?', a: 'Yes, with Family Plus. Practice a conversation lets you rehearse with an AI playing your loved one — matched to their age, and to how they tend to react — in a realistic voice. You go first, they push back like they might, and afterward you get kind, specific feedback and a line to try. Your practice is private; your loved one never sees it.' },
-  { q: 'Is the AI reading everything?', a: 'Only if you say so. AI features are off until you agree, and Family Insights only runs if someone in your family turns it on. Everything is processed by Claude (Anthropic), which doesn’t train on your information. You can turn AI off anytime.' },
+  { q: 'Is the AI reading everything?', a: 'Only if you say so. AI features are off until you agree, and Family Insights only runs if someone in your family turns it on. Everything is processed by Claude (Anthropic), which doesn’t train on your information. If you choose to hear conversation practice out loud, ElevenLabs turns the AI’s replies into speech — it never receives your voice. You can turn AI off anytime.' },
+  { q: 'What if something is happening right now?', a: 'Open What’s happening right now? and pick what’s going on — your loved one is using again, asking for money, angry, or won’t wake up. You get a 60-second plan: safety first, then what to say, what not to do and what your family already agreed. If anyone may be in danger, call 911 first. For thoughts of suicide or a mental-health crisis, call or text 988.' },
   { q: 'What happens when I tap SOS?', a: 'SOS always shows 911, 988 and overdose steps first. If you have a professional, it sends them an urgent message. If you don’t, you can open a 24-hour messaging session with a certified interventionist — one is included each billing cycle with Family Plus, or you can buy one when you need it. In an emergency, always call 911 or 988 first.' },
   { q: 'Can a professional see everything?', a: 'No. A parent or partner chooses exactly what each professional can see — money, meetings, appointments, medications, your plan, check-ins, chat — and can change it or disconnect at any time.' },
 ];
@@ -95,7 +98,7 @@ const HOME_SCHEMA = {
       '@id': 'https://familybridgeapp.com/#app',
       name: 'FamilyBridge',
       alternateName: 'Family Bridge Recovery',
-      description: 'The app for families of someone with addiction: a private Alignment Check, a signed family pact, one-voice answers to money and other asks, a weekly CRAFT-informed family program, AI coaching for hard conversations, and an SOS line to a certified interventionist.',
+      description: 'The app for families of someone with addiction: a private Alignment Check, a signed family pact, one-voice answers to money and other asks, a weekly CRAFT-informed family program, early-warning and overdose-ready safety tools, AI coaching for hard conversations, and an SOS line to a certified interventionist.',
       operatingSystem: 'iOS, iPadOS',
       applicationCategory: 'LifestyleApplication',
       inLanguage: ['en', 'es'],
@@ -159,7 +162,7 @@ const Index = () => {
             </p>
           </div>
           <div className="mt-12 grid gap-10 lg:grid-cols-[1fr_1.1fr] items-center">
-            <div className="grid grid-cols-2 gap-4 sm:gap-6 max-w-[560px] mx-auto w-full">
+            <div className="grid grid-cols-2 items-start gap-4 sm:gap-6 max-w-[560px] mx-auto w-full">
               <Phone src={alignmentShot} alt="Where we stand: the family agrees on money and is split on how much to trust — never who said what" />
               <Phone src={askShot} alt="Before you say yes: what the family agreed about cash, the words to use, and how to respond" className="mt-10" />
             </div>
@@ -266,6 +269,41 @@ const Index = () => {
         </div>
       </section>
 
+      {/* FAMILY SAFETY */}
+      <section id="safety" className="bg-[#FBF4EC] border-t border-[#F1E2CF] scroll-mt-20">
+        <div className="container mx-auto px-4 max-w-6xl py-16 sm:py-24">
+          <div className="max-w-2xl">
+            <p className="text-sm font-bold uppercase tracking-wider text-[#9A5A1C]">New · Family safety</p>
+            <h2 className="mt-3 text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground [text-wrap:balance]">Ready before it’s a crisis.</h2>
+            <p className="mt-4 text-lg text-muted-foreground leading-relaxed">
+              Most crises give warning. These tools help your family see it coming, know what to do in the moment, and stay close without piling on. All four are free for every family.
+            </p>
+          </div>
+          <div className="mt-12 grid gap-10 lg:grid-cols-[1fr_1.1fr] items-center">
+            <div className="grid grid-cols-2 items-start gap-4 sm:gap-6 max-w-[560px] mx-auto w-full">
+              <Phone src={rightNowShot} alt="What's happening right now? Pick a moment — someone won't wake up, using again, asking for money — for a 60-second plan" />
+              <Phone src={naloxoneShot} alt="Overdose Ready: where the family's naloxone is, who has it, when it expires and who has practiced" className="mt-10" />
+            </div>
+            <ul className="space-y-6">
+              {[
+                { icon: Zap, t: 'What’s happening right now?', d: 'Pick what’s happening — they’re using again, asking for money, angry, or won’t wake up — and get a 60-second plan: safety first, then what to say, what not to do and what your family already agreed.' },
+                { icon: Radar, t: 'Early-Warning Radar', d: 'Relapse usually starts weeks before anyone uses. Each of you taps the signs you notice; when they add up, FamilyBridge suggests a calm family huddle — before a crisis.' },
+                { icon: ShieldPlus, t: 'Overdose Ready', d: 'Where your naloxone (Narcan) is, who has it, when it expires and who has practiced — a reminder when tolerance may be lower after treatment or detox, and where to get naloxone in your state.' },
+                { icon: Send, t: 'Reach Out', d: 'One warm message at a time, not six worried texts. Take turns, send it from your own phone, and your family sees who reached out — so nobody piles on.' },
+              ].map(({ icon: Icon, t, d }) => (
+                <li key={t} className="flex gap-4">
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#F6E3CC] text-[#9A5A1C]"><Icon className="h-5 w-5" /></span>
+                  <span>
+                    <span className="block text-lg font-bold text-foreground">{t}</span>
+                    <span className="mt-1 block text-muted-foreground leading-relaxed">{d}</span>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </section>
+
       {/* SOS */}
       <section className="bg-card border-y border-border">
         <div className="container mx-auto px-4 max-w-6xl py-16 sm:py-24 grid gap-12 lg:grid-cols-2 items-center">
@@ -342,16 +380,15 @@ const Index = () => {
             <p className="mt-1 text-muted-foreground">Everything you need to get on the same page.</p>
             <p className="mt-6 text-4xl font-extrabold text-foreground">$0</p>
             <ul className="mt-6 space-y-2 text-sm text-foreground">
-              {['Alignment Check, family pact and Before you say yes', 'Guided family meetings, treatment plan and trust ladder', 'The first three lessons of the family program', 'Money requests, meetings, appointments and medications', 'Family agreement, goals and relapse response plan', 'Daily check-ins, wins and family chat with the respect filter', 'Connect your professionals', 'SOS: crisis lines, plus a 24-hour session you can buy anytime'].map((x) => <li key={x} className="flex gap-2"><BadgeCheck className="h-4 w-4 mt-0.5 text-primary shrink-0" />{x}</li>)}
+              {['Alignment Check, family pact and Before you say yes', 'Guided family meetings, treatment plan and trust ladder', 'The first three lessons of the family program', 'Money requests, meetings, appointments and medications', 'Family agreement, goals and relapse response plan', 'Daily check-ins, wins and family chat with the respect filter', 'Safety tools: 60-second plans for hard moments, Early-Warning Radar, Overdose Ready and Reach Out', 'A few AI Coach questions and text rewrites a day, and one Family Insights read a month', 'Connect your professionals', 'SOS: crisis lines, plus a 24-hour session you can buy anytime'].map((x) => <li key={x} className="flex gap-2"><BadgeCheck className="h-4 w-4 mt-0.5 text-primary shrink-0" />{x}</li>)}
             </ul>
           </div>
           <div className="rounded-2xl border-2 border-primary bg-card p-7 relative">
             <h3 className="text-xl font-bold text-foreground">Family Plus</h3>
             <p className="mt-1 text-muted-foreground">The full program and every AI feature, for your whole family.</p>
             <p className="mt-6 text-4xl font-extrabold text-foreground">$19.99<span className="text-lg font-semibold text-muted-foreground">/month</span></p>
-            <p className="text-sm text-muted-foreground">or $179/year — save 25%</p>
             <ul className="mt-6 space-y-2 text-sm text-foreground">
-              {['Everything in Free', 'The full family program — a new lesson every week', 'AI Coach — private, judgment-free help any time', 'Live Coaching during hard conversations', 'Conversation practice with realistic voices', 'Family Insights, letter feedback and document reading', 'One 24-hour SOS session each billing cycle', 'One subscription covers everyone in the family'].map((x) => <li key={x} className="flex gap-2"><BadgeCheck className="h-4 w-4 mt-0.5 text-primary shrink-0" />{x}</li>)}
+              {['Everything in Free', 'The full family program — a new lesson every week', 'AI Coach — up to 60 questions a day for each of you', 'Live Coaching during hard conversations', 'Conversation practice with realistic voices', 'Daily Family Insights, letter feedback and document reading', 'One 24-hour SOS session each billing cycle', 'One subscription covers everyone in the family'].map((x) => <li key={x} className="flex gap-2"><BadgeCheck className="h-4 w-4 mt-0.5 text-primary shrink-0" />{x}</li>)}
             </ul>
           </div>
         </div>
