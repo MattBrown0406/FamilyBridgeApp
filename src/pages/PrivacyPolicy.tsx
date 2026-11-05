@@ -8,12 +8,12 @@ const sections: LegalSection[] = [
     body: (
       <>
         <p><strong>Account information.</strong> Your email address and password (stored securely by our sign-in provider — we never see your password), and the name, role and relationship you enter for yourself in your family (for example “Mom” or “in recovery”).</p>
-        <p><strong>Family information you add.</strong> Depending on the features your family uses: family chat messages; money requests, votes and receipt photos; recovery meetings; appointments; medications and doses taken; drug-test results (including results sent by a partner lab when your family registers a test kit); daily check-ins (mood, stress, obsessive thinking, self-care); boundaries, goals, relapse plan, wins and family-meeting agenda; care-team contacts; conversation notes; intervention letters; and your recovery start date.</p>
+        <p><strong>Family information you add.</strong> Depending on the features your family uses: family chat messages; money requests, votes and receipt photos; recovery meetings; appointments; medications and doses taken; drug-test results (including results sent by a partner lab when your family registers a test kit); daily check-ins (mood, stress, obsessive thinking, self-care); boundaries, goals, relapse plan, wins and family-meeting agenda; care-team contacts; conversation notes; intervention letters; and your recovery start date. With the Together and safety tools: your Alignment Check answers; the family pact and who signed each version; your answers in Before you say yes; family-program progress; the treatment plan (programs you've called, insurance notes, who drives); the trust ladder; where your loved one is right now (still using, in treatment or early recovery); warning signs you note on the Early-Warning Radar; where your family's naloxone kits are, who has them and when they expire; and the Reach Out messages you log (who reached out, when, and what was sent).</p>
         <p><strong>Photos and documents you choose to upload.</strong> Receipt photos, lab reports, discharge or aftercare plans, and screenshots you ask the coach to look at. Lab reports, aftercare plans and screenshots are read once to give you a result and are not stored.</p>
         <p><strong>Professional information.</strong> If you use FamilyBridge as a professional: your name, title, practice name and your practice's branding (logo and colors), plus the notes, tasks, sessions and messages you create for families who connect with you.</p>
         <p><strong>Purchases.</strong> Whether you have an active subscription or a purchased SOS session, handled through Apple and our subscription provider. We never receive your card details.</p>
         <p><strong>Device information.</strong> A push-notification token (so we can send the notifications you allow), your language, and basic technical information needed to run the app.</p>
-        <p><strong>Live Coaching.</strong> When you use Live Coaching, speech is turned into text on your phone. <strong>Audio is never recorded, stored or uploaded.</strong> Only the text of the recent conversation is sent to our AI provider to generate a suggestion, and it isn't stored.</p>
+        <p><strong>Live Coaching and spoken practice.</strong> When you speak to Live Coaching or conversation practice, your device's speech service turns speech into text — on the device itself when it supports that; otherwise Apple's speech service (or, in a web browser, the browser's) may process the audio. <strong>FamilyBridge never records, stores or uploads audio.</strong> For Live Coaching, only the text of the recent conversation is sent to our AI provider to generate a suggestion, and FamilyBridge doesn't store it.</p>
       </>
     ),
   },
@@ -39,8 +39,8 @@ const sections: LegalSection[] = [
     title: 'Who can see your information',
     body: (
       <>
-        <p><strong>Your family.</strong> Information you add to your family is visible to the other approved members of your family, as the app describes. Some items are more private: medications are visible to your family only if you choose to share them, and intervention letters are private to the writer unless shared. <strong>The person in recovery can never see intervention letters, conversation notes or Family Insights.</strong></p>
-        <p><strong>Professionals you connect.</strong> A parent or partner decides whether to connect a professional (for example an interventionist, treatment center, therapist, coach, sober living or outpatient program) and chooses exactly which areas they can see — money, meetings, appointments, medications, drug tests, your plan, check-ins and family chat (off unless you turn it on). A professional who can see family chat can also post in it, clearly labeled. You can change these choices or disconnect at any time, and your family can see a log of when professionals viewed your information.</p>
+        <p><strong>Your family.</strong> Information you add to your family is visible to the other approved members of your family, as the app describes. Some items are more private: medications are visible to your family only if you choose to share them, and intervention letters are private to the writer unless shared. <strong>The person in recovery can never see intervention letters, conversation notes or Family Insights.</strong> Your Alignment Check answers are never shown to anyone: your family sees only the combined picture, and only once at least three people have answered.</p>
+        <p><strong>Professionals you connect.</strong> A parent or partner decides whether to connect a professional (for example an interventionist, treatment center, therapist, coach, sober living or outpatient program) and chooses exactly which areas they can see — money, meetings, appointments, medications, drug tests, your plan, check-ins and family chat (off unless you turn it on). "Your plan" includes the family pact, Before you say yes answers, family meetings, the treatment plan, the trust ladder and your naloxone kits; family chat includes your Reach Out log. A professional who can see family chat can also post in it, clearly labeled. You can change these choices or disconnect at any time, and your family can see a log of when professionals viewed your information.</p>
         <p><strong>Handoffs between professionals.</strong> When a professional refers your family to another provider, nothing is shared until a parent or partner approves and chooses what the new provider can see. If your care history is included, the new provider can read earlier providers' session summaries, tasks and messages — and their clinical notes only if the referring professional chose to share them.</p>
         <p><strong>SOS sessions.</strong> If you start a 24-hour SOS session, the FamilyBridge SOS line (a certified interventionist at Freedom Interventions) can read and reply to the messages in that session only — not your other family information. A summary and transcript of the session are kept by FamilyBridge for continuity of care.</p>
         <p><strong>Lab partners.</strong> If you register a drug-test kit from a partner lab, the lab sends the result to FamilyBridge and it appears in your family's drug tests.</p>
@@ -53,7 +53,7 @@ const sections: LegalSection[] = [
     title: 'AI features',
     body: (
       <>
-        <p>FamilyBridge's coaching features use <strong>Claude, an AI model made by Anthropic</strong>. Before any of your information is sent to Anthropic, the app asks for your permission, and you can turn AI features off at any time in <strong>Settings → Privacy &amp; account</strong>. Everything else in FamilyBridge works without AI.</p>
+        <p>FamilyBridge's coaching features use <strong>Claude, an AI model made by Anthropic</strong>. Before any of your information is sent to Anthropic, the app asks for your permission, and you can turn AI features off at any time in <strong>Tools → Family Members → Privacy &amp; account</strong> (professionals: the Practice tab). Everything else in FamilyBridge works without AI.</p>
         <p>When you use an AI feature, we send only what that feature needs:</p>
         <div className="overflow-x-auto">
           <table>
@@ -62,6 +62,7 @@ const sections: LegalSection[] = [
               <tr><td>AI Coach</td><td>Your question, your recent coaching conversation, a short description of your family, and any screenshots you attach</td></tr>
               <tr><td>Live Coaching</td><td>The text of the recent conversation (never audio)</td></tr>
               <tr><td>Practice a conversation</td><td>What you type or say during practice, the topic you choose, your loved one’s first name and relationship, and a few of your family’s boundaries (to Anthropic). If you choose to hear replies out loud, the text of the AI’s replies — never your voice — is sent to ElevenLabs to create the spoken voice. Your practice and its feedback are saved privately for you — no one else in your family, including the person in recovery, and no professional can see them.</td></tr>
+              <tr><td>Reach Out (“Help me say it kindly”)</td><td>The message you're writing, or the message your loved one sent you; your relationship to them; their first name and relationship; and where they are right now (still using, in treatment or early recovery)</td></tr>
               <tr><td>Lab report and aftercare reading</td><td>The photo, PDF or text you choose</td></tr>
               <tr><td>Letter feedback</td><td>The letter text</td></tr>
               <tr><td>Family Insights</td><td>The family's last 30 days of chat, conversation notes, check-ins, agreements, goals, appointments, tests and money requests — only if a family helper turns Family Insights on</td></tr>
@@ -76,7 +77,7 @@ const sections: LegalSection[] = [
   {
     id: 'providers',
     title: 'Service providers',
-    body: <p>We use a small number of providers to run FamilyBridge, each only for its purpose: Supabase (secure database, file storage and sign-in), Anthropic (AI features you've agreed to), ElevenLabs (spoken voices in conversation practice), Apple and RevenueCat (subscriptions and purchases), Expo (push notifications) and Resend (email).</p>,
+    body: <p>We use a small number of providers to run FamilyBridge, each only for its purpose: Supabase (secure database, file storage and sign-in), Anthropic (AI features you've agreed to), ElevenLabs (spoken voices in conversation practice), Apple and RevenueCat (subscriptions and purchases), Square (online payments for professional plans), Expo (push notifications) and Resend (email).</p>,
   },
   {
     id: 'security',
@@ -125,7 +126,7 @@ const PrivacyPolicy = () => (
     title="Privacy Policy"
     path="/privacy"
     description="How FamilyBridge handles your family's information: what we collect, who can see it, AI features with your permission, and deleting your account."
-    updated="September 2026"
+    updated="November 2026"
     intro={<p>FamilyBridge helps families affected by a loved one's substance use stay connected, accountable and supported — together with the professionals they choose. This policy explains what we collect, how we use it, who can see it, and the choices you have.</p>}
     sections={sections}
   />

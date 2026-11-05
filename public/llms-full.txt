@@ -26,7 +26,7 @@ Addiction pulls families apart: one parent gives money, another says no, a grand
 
 ### 1. See where everyone stands — the Alignment Check
 
-Once a month, each family member who helps the loved one answers the same short set of questions privately (how serious things are, money, living at home, stepping in, what to ask for, how to talk about it; trust and checking up in early recovery). The family sees only the combined picture — where it agrees and where it is split — never who said what, and nothing is shown until at least two people have answered. The person in recovery does not take the check and never sees it.
+Once a month, each family member who helps the loved one answers the same short set of questions privately (how serious things are, money, living at home, stepping in, what to ask for, how to talk about it; trust and checking up in early recovery). The family sees only the combined picture — where it agrees and where it is split — never who said what, and nothing is shown until at least three people have answered. The person in recovery does not take the check and never sees it.
 
 ### 2. Agree on one plan — the family pact
 
@@ -42,23 +42,34 @@ A five-minute lesson each week, informed by CRAFT (Community Reinforcement and F
 
 ### Ready for every stage
 
+At setup the family says where the loved one is right now: still using, in treatment, or early recovery. The Tools tab puts that stage's tools first, the family program follows the same stage, and the family can change it at any time.
+
 - Treatment plan: programs the family has already called, insurance notes, who drives, what to pack and the invitation — so when the loved one says yes, the family can move the same day. The person in recovery can tell the family "I need help" in one tap.
 - Trust ladder: in early recovery, the family (including the loved one) agrees ahead of time on what rebuilds trust and what each step earns back.
 - Support for family members: Al-Anon, Nar-Anon, SMART Recovery Family & Friends, counseling and crisis lines, with a nudge when someone's check-ins show a lot of stress.
 
+### Ready before a crisis — family safety tools
+
+- What's happening right now?: the family member picks what is happening (the loved one is using again, asking for money, angry or threatening, won't wake up, and more) and gets a 60-second plan: safety first, then what to say, what not to do and what the family already agreed.
+- Early-Warning Radar: relapse usually starts weeks before anyone uses. Each family member taps the warning signs they notice (skipped meetings, old friends, not sleeping); when signs add up, FamilyBridge suggests a calm family huddle. The person in recovery can note their own warning signs too.
+- Overdose Ready: where the family's naloxone (Narcan) kits are, who has them, when they expire and who has practiced; a reminder that tolerance may be lower after treatment, detox, jail or a hospital stay; and links to naloxone programs in all 50 states and DC.
+- Reach Out: instead of six worried people texting at once, family members take turns sending one short, warm message from their own phone, and the family sees who reached out and when.
+
+These tools are free for every family.
+
 ### Accountability, coaching and safety
 
 - Money requests with family votes, receipts, a monthly limit and a no-cash rule; recovery meetings; appointments; medications (shared only if the person chooses); daily check-ins and wins; a relapse response plan; a family chat with a respect filter.
-- AI coaching, only with the user's permission (Claude by Anthropic, which does not train on users' information): AI Coach, Live Coaching during hard calls, conversation practice with an AI playing the loved one in a realistic voice, intervention-letter feedback, document reading, and Family Insights (readiness windows and who the loved one listens to). The AI Coach follows the family's pact.
+- AI coaching, only with the user's permission (Claude by Anthropic, which does not train on users' information): AI Coach, Live Coaching during hard conversations (in person, or a call on speaker; FamilyBridge records nothing), conversation practice with an AI playing the loved one in a realistic voice, intervention-letter feedback, document reading, and Family Insights (readiness windows and who the loved one listens to). The AI Coach follows the family's pact.
 - SOS: 911, 988 and overdose steps first; then an urgent message to the family's own professional, or a 24-hour messaging session with a certified interventionist.
 
 ### With professionals
 
-Interventionists, treatment centers, therapists, recovery coaches, sober living and outpatient programs connect with a family by code. A parent or partner chooses exactly what each professional sees (money, meetings, appointments, medications, the plan, check-ins, chat), every view is logged, and the family can change or end sharing at any time. Professionals get a caseload sorted by who needs attention, a summary of how united each family is (with permission), tasks, messages, sessions, private notes, AI summaries, handoffs between levels of care, and white label.
+Interventionists, treatment centers, therapists, recovery coaches, sober living and outpatient programs connect with a family by code. A parent or partner chooses exactly what each professional sees (money, meetings, appointments, medications, the plan, check-ins, chat), every view is logged, and the family can change or end sharing at any time. Professionals get a caseload sorted by who needs attention, a summary of how united each family is (with permission), tasks, messages, sessions, private notes, AI summaries, a monthly outcomes report (families engaged, session attendance, reply time and family activity, from what families share), handoffs between levels of care, and white label.
 
 ### Pricing
 
-The app is free, including every accountability and planning tool, the Alignment Check, family pact, Before you say yes, family meetings, treatment plan, trust ladder and the first three program lessons. Family Plus ($19.99/month, billed through the App Store) adds the full family program, every AI feature and one 24-hour SOS session each billing cycle, for the whole family; families working with a professional on a paid plan often have it included. Professional plans start at $149/month (Solo), with Practice and Organization plans and quarterly or annual billing.
+The app is free, including every accountability and planning tool, the Alignment Check, family pact, Before you say yes, family meetings, treatment plan, trust ladder, the safety tools and the first three program lessons, plus a few AI Coach questions and text rewrites a day and one Family Insights read a month. Family Plus ($19.99/month, billed through the App Store) adds the full family program, every AI feature and one 24-hour SOS session each billing cycle, for the whole family; families working with a professional on a paid plan often have it included. Professional plans start at $149/month (Solo), with Practice and Organization plans and quarterly or annual billing.
 
 ## Public pages
 

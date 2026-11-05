@@ -20,6 +20,7 @@ const TOPICS: { icon: React.ElementType; title: string; items: { q: string; a: R
       { q: 'How do I set up my family?', a: 'Download FamilyBridge from the App Store, create an account, and choose “Start our family.” Share your family’s invite code from Tools → Family Members (others choose “Join my family”). People who join with the code wait for a parent or partner to approve them.' },
       { q: 'Does my loved one need to join?', a: 'No. Many families start before their loved one is ready. If they join, they get their own view and never see intervention letters, conversation notes or Family Insights.' },
       { q: 'Can I use FamilyBridge on a computer?', a: <>FamilyBridge runs on iPhone and iPad. Practice owners can choose or manage their plan online in <a href="/practice-billing">Practice billing</a>.</> },
+      { q: 'Why does the app ask where my loved one is?', a: 'When you set up your family, you choose where your loved one is right now — still using, in treatment, or early recovery. Tools shows that stage’s tools first (“Show all tools” shows the rest), and the family program follows the same stage. Change it anytime from “Where we are” at the top of the Together tab.' },
       { q: 'Can I use FamilyBridge in Spanish?', a: 'Yes. FamilyBridge follows your phone’s language, and you can switch between English and Spanish in Tools → Family Members.' },
     ],
   },
@@ -36,7 +37,7 @@ const TOPICS: { icon: React.ElementType; title: string; items: { q: string; a: R
     icon: CreditCard,
     title: 'Subscriptions and billing',
     items: [
-      { q: 'What does Family Plus include?', a: 'Family Plus ($19.99 a month or $179 a year) covers everyone in your family with one subscription and gives each person 6× more AI Coach — 60 questions a day instead of 10. Every other tool is free for every family.' },
+      { q: 'What does Family Plus include?', a: 'Family Plus ($19.99 a month) covers everyone in your family with one subscription. It includes the full family program, every AI feature — the AI Coach (up to 60 questions a day each), Live Coaching, conversation practice, daily Family Insights, letter feedback and document reading — and one 24-hour SOS session each billing cycle. Without it, every planning, accountability and safety tool stays free, along with the first three lessons, a few AI Coach questions and text rewrites a day, and one Family Insights read a month. Subscribe in Tools → Family Members → FamilyBridge Plus.' },
       { q: 'How do I cancel or change my subscription?', a: 'Subscriptions are billed by Apple. On your iPhone, open Settings → your name → Subscriptions → FamilyBridge. Deleting your account doesn’t cancel a subscription.' },
       { q: 'How do refunds work?', a: 'Refunds for App Store purchases are handled by Apple at reportaproblem.apple.com.' },
       { q: 'My practice covers our family. Why am I seeing a price?', a: 'Family Plus is included while your practice’s plan is active and for 14 days after they complete your care. After that, you can continue on your own subscription.' },
@@ -44,8 +45,9 @@ const TOPICS: { icon: React.ElementType; title: string; items: { q: string; a: R
   },
   {
     icon: LifeBuoy,
-    title: 'SOS',
+    title: 'SOS and safety',
     items: [
+      { q: 'Where are the safety tools?', a: 'On the Tools tab: What’s happening right now? (a 60-second plan for hard moments), the Early-Warning Radar, Overdose Ready (your family’s naloxone kits, and where to get naloxone in your state) and Reach Out. They’re free for every family.' },
       { q: 'What happens when I tap SOS?', a: 'You’ll see 911, 988 and overdose steps first. If you work with a professional, SOS sends them an urgent message. Otherwise you can open a 24-hour messaging session with a certified interventionist — one is included every billing cycle, and extra sessions can be purchased in the app.' },
       { q: 'Is SOS an emergency service?', a: 'No. If anyone may be in danger, call 911. For a mental-health crisis, call or text 988.' },
     ],
@@ -56,6 +58,7 @@ const TOPICS: { icon: React.ElementType; title: string; items: { q: string; a: R
     items: [
       { q: 'How do we connect our professional?', a: 'Ask them for their family connect code, then go to Tools → Our Professionals. A parent or partner chooses exactly what they can see, and can change it or disconnect anytime.' },
       { q: 'I’m a professional. How do I start?', a: <>Download the app, create an account and choose “Set up my practice” — you can work with up to 3 families free. See <Link to="/for-providers">plans for professionals</Link>.</> },
+      { q: 'Is there a report for my practice?', a: 'Yes. On the Practice tab, open Monthly outcomes report: families connected and engaged, session attendance, your median reply time and family activity, counted only from what each family shares with you. You can share it with your team, funders or referral partners.' },
       { q: 'What happens in a handoff?', a: 'When a professional refers your family to another provider, you get a notice in the app. Nothing is shared until a parent or partner accepts and chooses what the new provider can see.' },
     ],
   },
@@ -63,8 +66,8 @@ const TOPICS: { icon: React.ElementType; title: string; items: { q: string; a: R
     icon: Sparkles,
     title: 'Privacy and AI',
     items: [
-      { q: 'How do AI features work?', a: <>AI features use Claude by Anthropic and stay off until you agree. You can turn them off in Settings → Privacy &amp; account. Anthropic doesn’t train on your information. See our <Link to="/privacy">Privacy Policy</Link>.</> },
-      { q: 'Does Live Coaching record my calls?', a: 'No. Speech is turned into text on your phone and nothing is recorded or saved. Everyone in the conversation should know you’re using it — some states require their consent.' },
+      { q: 'How do AI features work?', a: <>AI features use Claude by Anthropic and stay off until you agree. You can turn them off in Tools → Family Members → Privacy &amp; account (professionals: the Practice tab). Anthropic doesn’t train on your information. If you choose to hear conversation practice out loud, ElevenLabs turns the AI’s replies into speech — it never receives your voice. See our <Link to="/privacy">Privacy Policy</Link>.</> },
+      { q: 'Does Live Coaching record my calls?', a: 'No. FamilyBridge records and saves nothing. Your phone’s speech service turns speech into text — on the phone itself when it supports that, otherwise Apple’s speech service may process it — and only the latest words are sent for coaching. For a phone call, put the call on speaker on another phone or a landline: iPhone doesn’t let any app listen to a call on the same phone. Everyone in the conversation should know you’re using it — some states require their consent.' },
     ],
   },
 ];

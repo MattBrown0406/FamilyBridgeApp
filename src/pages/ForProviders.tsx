@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  ArrowRight, BadgeCheck, Bell, Brush, Compass, FileSignature, FlaskConical, Gift, KeyRound, LifeBuoy, Mail, MessagesSquare, Phone as PhoneIcon,
-  Route, ShieldCheck, Sparkles,
+  ArrowRight, BadgeCheck, BarChart3, Bell, Brush, Compass, FileSignature, FlaskConical, Gift, KeyRound, LifeBuoy, Mail, MessagesSquare, Phone as PhoneIcon,
+  Route, ShieldCheck, Sparkles, UsersRound,
 } from 'lucide-react';
 import { BrandedFooter } from '@/components/BrandedFooter';
 import { SEOHead, createBreadcrumbSchema } from '@/components/SEOHead';
@@ -20,6 +20,8 @@ const FEATURES: { icon: React.ElementType; t: string; d: string; soon?: boolean;
   { icon: Sparkles, t: 'AI that does the paperwork', d: 'Weekly summaries, session prep, next steps, draft messages and handoff notes from what the family has shared. Family Insights shows readiness windows and who the loved one listens to.' },
   { icon: FlaskConical, t: 'Drug tests and lab results', d: 'Log program screens that the family can see but not edit. Partner-lab results arrive lab-verified and locked. Part of a new premium plan.', soon: true },
   { icon: Route, t: 'Handoffs that keep the story', d: 'Refer a family to the next level of care — treatment, sober living, IOP — with a handoff note. With the family’s approval, their whole history follows them, and you can stay involved or step back.' },
+  { icon: BarChart3, t: 'A monthly outcomes report', d: 'Families connected and engaged, session attendance, your median reply time and family activity — counted only from what families share with you. Share it with your team, funders or referral partners.', isNew: true },
+  { icon: UsersRound, t: 'Your whole team', d: 'Staff join with your practice’s staff code, and you approve each one. They see every family connected to your practice — within what each family shares.' },
   { icon: LifeBuoy, t: 'SOS routes to you', d: 'When a family you work with taps SOS, you get an urgent push and email — not a stranger.' },
   { icon: Brush, t: 'Your brand, included', d: 'Families see your logo, name and colors throughout their app, with a small “with FamilyBridge.” White label is included with every plan.' },
   { icon: Gift, t: 'Family Plus for your families', d: 'Families you work with get Family Plus included on any paid plan — and keep it for 14 days after you complete their care.' },
@@ -150,7 +152,7 @@ const ForProviders = () => (
           <a href="tel:458-298-8003" className="inline-flex h-11 items-center gap-2 rounded-xl border border-border bg-card px-5 font-semibold text-foreground hover:bg-muted"><PhoneIcon className="h-4 w-4" /> 458-298-8003</a>
         </div>
       </div>
-      <p className="mt-4 text-sm text-muted-foreground">Pay securely online with Square — monthly, quarterly (save 5%) or annually (save 15%), renewing automatically until you cancel. Solo and Practice monthly plans are also available as subscriptions in the iPhone app. New to FamilyBridge? Download the app, create your practice, and start with up to 3 families free — then come back here to choose a plan.</p>
+      <p className="mt-4 text-sm text-muted-foreground">Pay securely online with Square — monthly, quarterly (save 5%) or annually (save 15%), renewing automatically until you cancel. Solo (monthly or quarterly) and Practice (monthly) are also available as subscriptions in the iPhone app. New to FamilyBridge? Download the app, create your practice, and start with up to 3 families free — then come back here to choose a plan.</p>
       <div className="mt-6"><AppStoreBadge /></div>
     </section>
 

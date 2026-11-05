@@ -16,6 +16,8 @@ type Status = {
   plan: PlanId | 'none';
   planUntil: string | null;
   billingPeriod: Period | null;
+  /** The plan on the practice's billing record, kept after it ends (so a lapsed plan isn't called a free trial). */
+  lastPlan?: PlanId | null;
   source: 'apple' | 'square' | null;
   status: 'active' | 'canceling' | 'past_due' | 'canceled' | 'manual' | null;
   squareReady: boolean;
@@ -250,6 +252,8 @@ const PracticeBilling = () => {
                 <p className={`mt-1 text-sm ${status.status === 'past_due' ? 'text-destructive' : 'text-muted-foreground'}`}>{statusLine}</p>
                 <p className="mt-1 text-sm text-muted-foreground">{status.source === 'apple' ? 'Billed through the App Store' : status.source === 'square' ? 'Billed online with Square' : 'Billed by FamilyBridge'}</p>
               </>
+            ) : status.lastPlan && isPlan(status.lastPlan) ? (
+              <p className="mt-2 text-foreground">Your {PLANS.find((p) => p.id === status.lastPlan)!.name} plan has ended, so the free trial’s limit applies: up to 3 families.</p>
             ) : (
               <p className="mt-2 text-foreground">Free trial — up to 3 families.</p>
             )}
