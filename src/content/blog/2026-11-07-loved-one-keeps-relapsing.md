@@ -1,5 +1,5 @@
 ---
-title: 'Loved One Keeps Relapsing: "We''ve Done Rehab Four Times. Why Would This Time Be Different?"'
+title: 'Loved One Keeps Relapsing: “We’ve Done Rehab Four Times. Why Would This Time Be Different?”'
 seoTitle: Loved One Keeps Relapsing: What Families Can Do
 description: Loved one keeps relapsing? Learn why repeated relapse happens, what to change this time, and how your family can respond as one team without giving up hope.
 keyword: loved one keeps relapsing
