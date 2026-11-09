@@ -1,5 +1,5 @@
 ---
-title: "Medication for Addiction Treatment: \"Isn't That Just Trading One Drug for Another?\""
+title: Medication for Addiction Treatment: “Isn’t That Just Trading One Drug for Another?”
 seoTitle: Medication for Addiction Treatment: A Family Guide
 description: Medication for addiction treatment can save lives, but families often disagree about it. Learn how it works and how to get on the same page with the doctor.
 keyword: medication for addiction treatment
