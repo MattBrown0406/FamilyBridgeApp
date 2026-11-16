@@ -34,13 +34,18 @@
   Content-Type: text/plain; charset=utf-8
   Cache-Control: public, max-age=3600
 
+# The live demo page (/demo) is a public page. The app it frames (/app-demo/, a web build of the app holding a
+# fictional sample family) is not a search result. Its files carry a hash in their names, so they can be kept.
+/app-demo/*
+  X-Robots-Tag: noindex, nofollow, noarchive
+/app-demo/index.html
+  Cache-Control: no-cache
+/app-demo/bundle/*
+  Cache-Control: public, max-age=31536000, immutable
+/app-demo/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
 # Existing deep demos use fictional sample data and are not search results.
-/demo
-  X-Robots-Tag: noindex, nofollow, noarchive
-/demo/family
-  X-Robots-Tag: noindex, nofollow, noarchive
-/demo/provider
-  X-Robots-Tag: noindex, nofollow, noarchive
 /features/provider-outcomes
   X-Robots-Tag: noindex, nofollow, noarchive
 /features/intervention-outcomes

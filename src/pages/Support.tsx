@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { CheckCircle, Clock, CreditCard, KeyRound, LifeBuoy, Loader2, Mail, MessageCircle, Phone, Send, ShieldCheck, Sparkles, Stethoscope, Users } from 'lucide-react';
+import { CheckCircle, Clock, CreditCard, KeyRound, LifeBuoy, Loader2, Mail, MapPin, MessageCircle, Phone, Send, ShieldCheck, Sparkles, Stethoscope, Users } from 'lucide-react';
 import { BrandedFooter } from '@/components/BrandedFooter';
 import { SEOHead, createBreadcrumbSchema } from '@/components/SEOHead';
 import PublicCrisisHelp from '@/components/PublicCrisisHelp';
@@ -50,6 +50,19 @@ const TOPICS: { icon: React.ElementType; title: string; items: { q: string; a: R
       { q: 'Where are the safety tools?', a: 'On the Tools tab: What’s happening right now? (a 60-second plan for hard moments), the Early-Warning Radar, Overdose Ready (your family’s naloxone kits, and where to get naloxone in your state) and Reach Out. They’re free for every family.' },
       { q: 'What happens when I tap SOS?', a: 'You’ll see 911, 988 and overdose steps first. If you work with a professional, SOS sends them an urgent message. Otherwise you can open a 24-hour messaging session with a certified interventionist — one is included every billing cycle, and extra sessions can be purchased in the app.' },
       { q: 'Is SOS an emergency service?', a: 'No. If anyone may be in danger, call 911. For a mental-health crisis, call or text 988.' },
+    ],
+  },
+  {
+    icon: MapPin,
+    title: 'Meetings, location and documents',
+    items: [
+      { q: 'How do I find a meeting?', a: 'Tools → Find a Meeting. Choose who it’s for, then use your location or type a city. The app searches NA across the US, AA in more than 40 metro areas and online, Recovery Dharma, Refuge Recovery and Crystal Meth Anonymous. Fellowships that keep their lists on their own sites (Al-Anon, Nar-Anon, PAL, Families Anonymous, SMART and others) open their own finder in one tap.' },
+      { q: 'Why does it say AA’s list for my area isn’t open to other apps?', a: 'AA has no single national list. Each local office publishes its own, and some don’t allow other apps to read theirs. Where that’s the case FamilyBridge says so and points you to AA’s own Meeting Guide, rather than showing “no meetings”.' },
+      { q: 'Does FamilyBridge track anyone’s location?', a: 'No. Location is read once, only when you tap a button: to check in or check out, to search for meetings near you, or to answer a family member who asked where you are. Nothing is ever read in the background.' },
+      { q: 'Who can ask where I am, and who sees my answer?', a: 'Only your family’s helpers can ask, and only if you turned on “Let my family ask where I am” (Tools → Location Check-ins). You choose each time whether to share or say “not now”, and only the person who asked sees your answer. A helper’s location is never shown to the person in recovery. A request lapses after two hours.' },
+      { q: 'How long are locations kept?', a: 'Exact map points are deleted after 90 days. The place name and time stay as your family’s record until you delete the check-in or your account. An answer you gave to someone who asked stays with the two of you.' },
+      { q: 'Who can open a document I add?', a: 'You choose for each one: your whole family, the family’s helpers only, or only you, and whether a professional you’re connected with can open it. Documents can be a PDF or a photo, up to 10 MB. A parent or partner can also remove a document that was shared with the family.' },
+      { q: 'What is a release of information?', a: 'Your own written permission for a provider to talk with the family members you name, about the things you choose, for a length of time you choose (from 3 months to 2 years). You sign it for your own information only, and you can revoke it at any time. It is a convenience for families and providers, not legal advice; your provider may still need its own form.' },
     ],
   },
   {

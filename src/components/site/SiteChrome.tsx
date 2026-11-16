@@ -52,6 +52,7 @@ export const SiteHeader = ({ right }: { right?: React.ReactNode }) => (
       </Link>
       <div className="hidden md:flex items-center gap-6 text-sm font-medium text-muted-foreground">
         <a href="/#features" className="hover:text-foreground">Features</a>
+        <Link to="/demo" className="hover:text-foreground">Live demo</Link>
         <Link to="/for-providers" className="hover:text-foreground">For professionals</Link>
         <a href="/#pricing" className="hover:text-foreground">Pricing</a>
         {/* The blog is static pages (scripts/blog), so a plain link, not a router link. */}
