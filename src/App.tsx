@@ -11,6 +11,7 @@ import { OrganizationProvider } from "@/hooks/useOrganization";
 import Index from "./pages/Index";
 import ScrollToTop from "./components/ScrollToTop";
 import { LegacyRedirect } from "@/components/site/LegacyRedirect";
+import AppDemoReturn from "@/components/site/AppDemoReturn";
 import NativePushInitializer from "./components/NativePushInitializer";
 import { usePlatform } from "@/hooks/usePlatform";
 
@@ -115,8 +116,10 @@ const App = () => {
               <Route path="/moderator-purchase" element={<ModeratorPurchase />} />
               <Route path="/super-admin" element={<LegacyRedirect to="/" legacy={<SuperAdmin />} />} />
               <Route path="/demo" element={<Demo />} />
-              <Route path="/demo/family" element={<DemoFamily />} />
-              <Route path="/demo/provider" element={<DemoProvider />} />
+              <Route path="/app-demo/*" element={<AppDemoReturn />} />
+              {/* The two older demos are now one live demo of the app itself (the previous native build keeps its own screens). */}
+              <Route path="/demo/family" element={<LegacyRedirect to="/demo" legacy={<DemoFamily />} />} />
+              <Route path="/demo/provider" element={<LegacyRedirect to="/demo?as=pro" legacy={<DemoProvider />} />} />
               <Route path="/support" element={<Support />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="/terms" element={<TermsOfService />} />

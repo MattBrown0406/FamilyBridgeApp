@@ -63,6 +63,15 @@ These tools are free for every family.
 - AI coaching, only with the user's permission (Claude by Anthropic, which does not train on users' information): AI Coach, Live Coaching during hard conversations (in person, or a call on speaker; FamilyBridge records nothing), conversation practice with an AI playing the loved one in a realistic voice, intervention-letter feedback, document reading, and Family Insights (readiness windows and who the loved one listens to). The AI Coach follows the family's pact.
 - SOS: 911, 988 and overdose steps first; then an urgent message to the family's own professional, or a 24-hour messaging session with a certified interventionist.
 
+### Meetings, location, documents and what changed lately
+
+- Find a Meeting: searches Narcotics Anonymous across the US, Alcoholics Anonymous in more than 40 metro areas and online, Recovery Dharma, Refuge Recovery and Crystal Meth Anonymous, by the phone's location or a typed city. Fellowships that keep their lists on their own sites (Al-Anon, Nar-Anon, PAL, Families Anonymous, SMART Recovery and others) open their own finder in one tap. Where a local AA office does not let other apps read its list, FamilyBridge says so instead of showing "no meetings".
+- Location check-ins: location is read once, only when someone taps a button: a search for meetings nearby, "I'm here" (checking in or out), a check-in at a meeting, or an answer to a family member who asked where they are. FamilyBridge never tracks location in the background. Only the family's helpers can ask, only if the person turned that on for themselves, and the person chooses each time whether to share. A helper's location is never shown to the person in recovery, and professionals cannot see location. Exact map points are deleted after 90 days.
+- Documents and releases: discharge plans, insurance cards, court papers and aftercare schedules in one private place. For each document the person who adds it chooses who can open it (the whole family, the family's helpers, or only them) and whether a connected professional can. The person in recovery can sign a release of information naming a provider, the family members it covers, what may be shared and an end date, and can revoke it at any time. It is a convenience, not legal advice.
+- What changed lately: a calm summary for the family's helpers of what has shifted over recent weeks in what the family logs (meetings, check-ins, appointments, money requests, shared medication). It is worked out by simple arithmetic, not AI, and the person in recovery is told about it.
+
+These tools are free for every family.
+
 ### With professionals
 
 Interventionists, treatment centers, therapists, recovery coaches, sober living and outpatient programs connect with a family by code. A parent or partner chooses exactly what each professional sees (money, meetings, appointments, medications, the plan, check-ins, chat), every view is logged, and the family can change or end sharing at any time. Professionals get a caseload sorted by who needs attention, a summary of how united each family is (with permission), tasks, messages, sessions, private notes, AI summaries, a monthly outcomes report (families engaged, session attendance, reply time and family activity, from what families share), handoffs between levels of care, and white label.
@@ -74,6 +83,7 @@ The app is free, including every accountability and planning tool, the Alignment
 ## Public pages
 
 - [Homepage](https://familybridgeapp.com/): FamilyBridge for families — the four steps, features, pricing and FAQ.
+- [Live demo](https://familybridgeapp.com/demo): the real app with a sample family, to click through as a family member or as a professional. Nothing leaves the visitor's browser and no account is needed.
 - [For professionals](https://familybridgeapp.com/for-providers): How consent-based collaboration works, and professional plans.
 - [Am I enabling?](https://familybridgeapp.com/enabling-exercise): A free, guided exercise for telling a real crisis from chaos.
 - [Meeting finder](https://familybridgeapp.com/meetings): Al-Anon, Nar-Anon, CRAFT, AA, NA and other meetings.

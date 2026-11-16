@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   ArrowRight, BadgeCheck, BarChart3, Bell, Brush, Compass, FileSignature, FlaskConical, Gift, KeyRound, LifeBuoy, Mail, MessagesSquare, Phone as PhoneIcon,
-  Route, ShieldCheck, Sparkles, UsersRound,
+  Route, ShieldCheck, Sparkles, UsersRound, FolderLock,
 } from 'lucide-react';
 import { BrandedFooter } from '@/components/BrandedFooter';
 import { SEOHead, createBreadcrumbSchema } from '@/components/SEOHead';
@@ -14,13 +14,14 @@ import journeyShot from '@/assets/app/journey.webp';
 
 const FEATURES: { icon: React.ElementType; t: string; d: string; soon?: boolean; isNew?: boolean }[] = [
   { icon: Bell, t: 'A caseload that tells you who needs you', d: 'Families sorted into needs attention, watch and on track — from missed appointments, slipping medications, high obsessive thinking, boundary slips, cash requests and unanswered messages.' },
-  { icon: Compass, t: 'See how united each family is', d: 'With the family’s permission, see their alignment — where they agree and where they’re split (never who said what) — whether everyone has signed their family pact, how consistently they answer asks, and their progress through the weekly family program.', isNew: true },
+  { icon: Compass, t: 'See how united each family is', d: 'With the family’s permission, see their alignment — where they agree and where they’re split (never who said what) — whether everyone has signed their family pact, how consistently they answer asks, and their progress through the weekly family program.' },
   { icon: KeyRound, t: 'Consent built in', d: 'Families connect with your practice code, and a parent or partner chooses exactly what you see: money, meetings, appointments, medications, the family plan, check-ins and family chat. Every view is logged for them.' },
   { icon: MessagesSquare, t: 'Work alongside the family', d: 'Message the family, assign tasks, schedule sessions and keep private notes. If they share their family chat, you can read it and reply right inside it — clearly labeled as you.' },
   { icon: Sparkles, t: 'AI that does the paperwork', d: 'Weekly summaries, session prep, next steps, draft messages and handoff notes from what the family has shared. Family Insights shows readiness windows and who the loved one listens to.' },
   { icon: FlaskConical, t: 'Drug tests and lab results', d: 'Log program screens that the family can see but not edit. Partner-lab results arrive lab-verified and locked. Part of a new premium plan.', soon: true },
+  { icon: FolderLock, t: 'Documents and releases', d: 'Families can share a discharge plan, an insurance card or a court notice with your practice, document by document. A release of information signed in the app names your practice and the family members the signer allows you to talk with, and the signer can revoke it at any time. It does not replace your own consent forms.', isNew: true },
   { icon: Route, t: 'Handoffs that keep the story', d: 'Refer a family to the next level of care — treatment, sober living, IOP — with a handoff note. With the family’s approval, their whole history follows them, and you can stay involved or step back.' },
-  { icon: BarChart3, t: 'A monthly outcomes report', d: 'Families connected and engaged, session attendance, your median reply time and family activity — counted only from what families share with you. Share it with your team, funders or referral partners.', isNew: true },
+  { icon: BarChart3, t: 'A monthly outcomes report', d: 'Families connected and engaged, session attendance, your median reply time and family activity — counted only from what families share with you. Share it with your team, funders or referral partners.' },
   { icon: UsersRound, t: 'Your whole team', d: 'Staff join with your practice’s staff code, and you approve each one. They see every family connected to your practice — within what each family shares.' },
   { icon: LifeBuoy, t: 'SOS routes to you', d: 'When a family you work with taps SOS, you get an urgent push and email — not a stranger.' },
   { icon: Brush, t: 'Your brand, included', d: 'Families see your logo, name and colors throughout their app, with a small “with FamilyBridge.” White label is included with every plan.' },
@@ -95,6 +96,7 @@ const ForProviders = () => (
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <a href="#plans" className="inline-flex h-12 items-center gap-2 rounded-xl bg-primary px-5 font-semibold text-primary-foreground hover:bg-primary/90">See plans <ArrowRight className="h-4 w-4" /></a>
+            <Link to="/demo?as=pro" className="inline-flex h-12 items-center gap-2 rounded-xl border border-border bg-card px-5 font-semibold text-foreground hover:bg-muted">Try the live demo</Link>
             <a href="mailto:matt@freedominterventions.com?subject=FamilyBridge%20for%20my%20practice" className="inline-flex h-12 items-center gap-2 rounded-xl border border-border bg-card px-5 font-semibold text-foreground hover:bg-muted"><Mail className="h-4 w-4" /> Talk with us</a>
           </div>
           <p className="mt-4 text-sm text-muted-foreground">Works on iPhone and iPad. Manage your plan anytime in <Link to="/practice-billing" className="font-semibold text-primary underline-offset-4 hover:underline">Practice billing</Link>.</p>

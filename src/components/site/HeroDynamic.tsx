@@ -311,12 +311,12 @@ export const HeroDynamic = () => {
               {audience === 'family' ? (
                 <>
                   <AppStoreBadge />
-                  <a
-                    href="#features"
+                  <Link
+                    to="/demo"
                     className="inline-flex h-12 items-center gap-2 rounded-xl border border-border bg-card px-5 font-semibold text-foreground hover:bg-muted"
                   >
-                    See how it works <ArrowRight className="h-4 w-4" />
-                  </a>
+                    Try the live demo <ArrowRight className="h-4 w-4" />
+                  </Link>
                 </>
               ) : (
                 <>
@@ -325,6 +325,12 @@ export const HeroDynamic = () => {
                     className="inline-flex h-12 items-center gap-2 rounded-xl bg-primary px-5 font-semibold text-primary-foreground hover:bg-primary/90"
                   >
                     See plans <ArrowRight className="h-4 w-4" />
+                  </Link>
+                  <Link
+                    to="/demo?as=pro"
+                    className="inline-flex h-12 items-center gap-2 rounded-xl border border-border bg-card px-5 font-semibold text-foreground hover:bg-muted"
+                  >
+                    Try the live demo
                   </Link>
                   <AppStoreBadge />
                 </>

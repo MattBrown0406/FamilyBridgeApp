@@ -1,690 +1,327 @@
-import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { SEOHead, createBreadcrumbSchema } from '@/components/SEOHead';
-import {
-  Building2, 
-  Users, 
-  MessageCircle, 
-  DollarSign, 
-  MapPin, 
-  Shield, 
-  ArrowRight,
-  Eye,
-  Check,
-  Play,
-  Sparkles,
-  Pill,
-  Brain,
-  CreditCard,
-  Trash2,
-  ShieldCheck,
-  FileText,
-  Activity
-} from 'lucide-react';
-import familyBridgeLogo from '@/assets/familybridge-logo.png';
-import { usePlatform } from '@/hooks/usePlatform';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
+import { ArrowLeft, ArrowRight, Briefcase, Home, RotateCcw } from 'lucide-react';
+import { BrandedFooter } from '@/components/BrandedFooter';
+import PublicCrisisHelp from '@/components/PublicCrisisHelp';
+import { SEOHead } from '@/components/SEOHead';
+import { AppStoreBadge, NewBadge, SiteHeader } from '@/components/site/SiteChrome';
+
+/**
+ * The live demo: the real FamilyBridge app, built for the web in demo-only mode (public/app-demo, made by the app's
+ * scripts/export-site-demo.sh), shown in a phone frame with a guided tour beside it. The app holds a made-up family in
+ * this browser only: no account, no server. The tour steers it through a small set of messages the app's demo build
+ * listens for (its DemoSiteBridge), and the app reports back where the visitor is.
+ */
+
+type Audience = 'family' | 'pro';
+type Step = {
+  id: string;
+  title: string;
+  /** The screen inside the app. */
+  path: string;
+  /** What this screen is for, in a sentence or two. */
+  what: string;
+  /** Something to tap. */
+  tryIt: string;
+  isNew?: boolean;
+  /** Family tour only: look as the person in recovery instead of his mom. */
+  who?: 'recovery';
+};
+
+const TOURS: Record<Audience, { label: string; icon: React.ElementType; intro: string; steps: Step[] }> = {
+  family: {
+    label: 'For families',
+    icon: Home,
+    intro: 'Meet the Carters. You are Dana, whose son Jordan is about three months into recovery. Her husband Mike and Jordan’s sister Sam are in the family too.',
+    steps: [
+      { id: 'today', title: 'Today', path: '/', what: 'What Dana sees each morning: how Jordan’s recovery is going, what needs her attention, and one thing to try saying.', tryIt: 'Scroll down to the family’s to-do cards, then tap one.' },
+      { id: 'together', title: 'Together', path: '/plan', what: 'How closely the family agrees, the family’s signed pact, and this week’s five-minute lesson.', tryIt: 'Tap the Alignment card to see where the family agrees and where it’s split, never who said what.' },
+      { id: 'ask', title: 'Before you say yes', path: '/tools/ask', what: 'When Jordan asks one of them for money or a ride, the family’s agreed answer and the words to use.', tryIt: 'Pick “Money” and read what the family already decided.' },
+      { id: 'money', title: 'Money & requests', path: '/tools/finances', what: 'Requests, family votes, receipts and a monthly limit, so nobody has to be the bad guy.', tryIt: 'Open the bus pass request. Dana has already said yes, and it needs two. Tap Decline to see a vote change.' },
+      { id: 'finder', title: 'Find a meeting', path: '/tools/meeting-finder', isNew: true, what: 'Search meetings near you or online. Where a fellowship doesn’t share its list, one tap opens its own finder.', tryIt: 'Tap “For someone in recovery”, then “Use my location”, and scroll down. The demo shows sample meetings.' },
+      { id: 'location', title: 'Location check-ins', path: '/tools/location', isNew: true, what: 'Share where you are once, by choice. A helper can ask only someone who has turned asking on, and nothing is tracked in the background.', tryIt: 'Tap “Check in here”. In this demo it records a sample place, not yours.' },
+      { id: 'documents', title: 'Documents & releases', path: '/tools/documents', isNew: true, what: 'The discharge plan, the insurance card and signed releases of information in one private place.', tryIt: 'Scroll to the release Jordan signed so Harbor Recovery can talk with his parents.' },
+      { id: 'changed', title: 'What changed lately', path: '/tools/insights', isNew: true, what: 'A plain summary of what is different in the last two weeks, with a gentle way to bring each change up. It’s arithmetic on what the family logged, not AI.', tryIt: 'Read the card at the top: Jordan has been going to more meetings. Then scroll through Family Insights below it.' },
+      { id: 'rightnow', title: 'What’s happening right now?', path: '/tools/right-now', what: 'A 60-second plan for the hardest moments: safety first, what to say, what not to do.', tryIt: 'Pick “Jordan is asking for money”.' },
+      { id: 'naloxone', title: 'Overdose Ready', path: '/tools/naloxone', what: 'Where the family’s naloxone is, when it expires and who has practiced.', tryIt: 'Open a kit to see who holds it.' },
+      { id: 'chat', title: 'Family chat', path: '/chat', what: 'One place to talk, with a respect filter that stops insults and threats before they’re sent.', tryIt: 'Type a message to the family.' },
+      { id: 'sos', title: 'SOS', path: '/tools/crisis', what: '911, 988 and overdose steps first, then a way to reach a person. The phone numbers here are real: tapping one starts a real call. An SOS session in the demo is a sample, with nobody on the other end.', tryIt: 'Scroll through the crisis lines and overdose steps.' },
+      { id: 'jordan', title: 'See it as Jordan', path: '/', who: 'recovery', what: 'Jordan has his own view: his check-ins, meetings and wins. He never sees letters, Family Insights, what changed lately, or where his parents are.', tryIt: 'Open Tools and notice what is not there.' },
+    ],
+  },
+  pro: {
+    label: 'For professionals',
+    icon: Briefcase,
+    intro: 'Meet Harbor Recovery, a made-up practice. You are Rachel, the family recovery coach who runs it, with a caseload of families who chose what she can see.',
+    steps: [
+      { id: 'caseload', title: 'Caseload', path: '/pro', what: 'Every family you work with, sorted by who needs you: needs attention, watch, on track.', tryIt: 'Tap the first family in the list.' },
+      { id: 'file', title: 'A family’s file', path: '/pro/family/demo-family-carter', what: 'The Carters’ overview: the signals this week, and only the areas the family chose to share.', tryIt: 'Tap the tabs at the top: Plan, Tests, Journey.' },
+      { id: 'pdocs', title: 'Documents & releases', path: '/pro/family/demo-family-carter?tab=documents', isNew: true, what: 'The documents a family shared with your practice, and the releases of information that name you.', tryIt: 'Read the release Jordan signed: who Harbor Recovery may talk with, about what, and until when.' },
+      { id: 'messages', title: 'Messages & tasks', path: '/pro/family/demo-family-carter?tab=messages', what: 'Message a family, set tasks and log sessions. Your private notes are never shown to them.', tryIt: 'Send the Carters a message.' },
+      { id: 'inbox', title: 'Inbox', path: '/pro/inbox', what: 'Message threads across your families, with whoever has waited longest for your reply at the top.', tryIt: 'Open the thread at the top.' },
+      { id: 'practice', title: 'Your practice', path: '/pro/practice', what: 'Staff, your connect code, your logo and colors in your families’ app, and an outcomes report to share.', tryIt: 'Open the outcomes report.' },
+    ],
+  },
+};
+
+const MODE_KEY = 'familybridge:mode';
+const DEMO_KEYS = ['familybridge:v1', 'familybridge:proDemo:v1'];
+const modeFor = (a: Audience) => (a === 'pro' ? 'proDemo' : 'demo');
+const MESSAGE = 'familybridge-demo';
+
+// The sample family this page was built with. A visitor who tried an earlier demo still has that one's family in
+// their browser, without whatever the tour now points at: when this changes, they start from the new one.
+const DEMO_DATA_KEY = 'familybridge:demoSite';
+const DEMO_DATA = '6.3-3';
+
+/** The app reads which demo to open from this browser's storage, so it starts where the tour is. */
+function presetMode(audience: Audience) {
+  try {
+    if (window.localStorage.getItem(DEMO_DATA_KEY) !== DEMO_DATA) {
+      for (const key of DEMO_KEYS) window.localStorage.removeItem(key);
+      window.localStorage.setItem(DEMO_DATA_KEY, DEMO_DATA);
+    }
+    window.localStorage.setItem(MODE_KEY, modeFor(audience));
+  } catch {
+    /* storage blocked: the app shows its own "explore the demo" screen instead */
+  }
+}
 
 const Demo = () => {
-  const navigate = useNavigate();
-  const { isNative, isIOS } = usePlatform();
-  const demoPrimaryColor = '#6366f1';
-  const demoName = 'App Review Demo';
-  const demoLogo = null;
-  const logoNeedsBackground = false;
+  const [params, setParams] = useSearchParams();
+  const audience: Audience = params.get('as') === 'pro' ? 'pro' : 'family';
+  const tour = TOURS[audience];
+  const [stepId, setStepId] = useState(tour.steps[0].id);
+  const step = tour.steps.find((s) => s.id === stepId) ?? tour.steps[0];
+  const index = tour.steps.indexOf(step);
+  // A new frame is made only on first load and on "start over": moving between steps talks to the app instead.
+  const [frameKey, setFrameKey] = useState(0);
+  const frame = useRef<HTMLIFrameElement>(null);
+  const ready = useRef(false);
+  // What the tour last asked the app for, sent (again) once the app says it is up.
+  const wanted = useRef<{ audience: Audience; step: Step }>({ audience, step });
+  wanted.current = { audience, step };
+  // Whose eyes the tour last asked for (the family demo only), until the app says it is so. After that the visitor's
+  // own "view as" switch inside the app is left alone.
+  const viewerAsked = useRef<'helper' | 'recovery' | null>(audience === 'family' ? step.who ?? 'helper' : null);
 
-  const features = [
-    {
-      icon: Sparkles,
-      title: 'FIIS Recovery Intelligence',
-      description: 'AI-assisted pattern review highlights recovery trends and structured observations for providers.',
-      badge: 'AI',
-    },
-    {
-      icon: Pill,
-      title: 'Medication Compliance',
-      description: 'AI helps read medication labels, track doses, and notify authorized supporters about missed check-ins.',
-      badge: 'AI',
-    },
-    {
-      icon: MessageCircle,
-      title: 'Secure Family Communication',
-      description: 'Safe, filtered messaging keeps families connected while blocking harmful content.',
-      badge: 'Family',
-    },
-    {
-      icon: DollarSign,
-      title: 'Financial Coordination',
-      description: 'Group-approved financial requests with voting, pledges, and accountability tracking.',
-      badge: 'Family',
-    },
-    {
-      icon: MapPin,
-      title: 'Meeting Check-ins',
-      description: 'Meeting finder and location-assisted check-ins with nearby-risk context for user review.',
-      badge: 'Family',
-    },
-    {
-      icon: Shield,
-      title: 'Boundary Management',
-      description: 'AI-assisted document review pulls out likely boundaries from intervention letters for human review.',
-      badge: 'AI',
-    },
-    {
-      icon: Building2,
-      title: 'Care Transition Management',
-      description: 'Track movement between intervention, treatment, IOP, and aftercare phases.',
-      badge: 'Provider',
-    },
-    {
-      icon: Users,
-      title: 'Provider Handoffs',
-      description: 'Structured family handoffs between organizations with key context preserved for the next team.',
-      badge: 'Provider',
-    },
-  ];
+  // Decided once per frame, before it loads: the demo to open and the screen to open it on.
+  const firstSrc = useMemo(() => {
+    presetMode(wanted.current.audience);
+    return `/app-demo/index.html?go=${encodeURIComponent(wanted.current.step.path)}`;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [frameKey]);
 
-  const demoFamilies = [
-    {
-      id: 'johnson',
-      name: 'Johnson Family',
-      scenario: 'Positive recovery and aftercare',
-      description: 'A stable family using chat, check-ins, coaching, financial requests, documents, and recovery tracking after treatment and sober living.',
-      status: {
-        tone: 'calm' as const,
-        toneLabel: 'Calm',
-        fiisScore: 82,
-        fiisTrend: '+4',
-        recoveryDay: 147,
-        lastActivity: '2 hrs ago',
-        signals: [
-          { label: 'Check-ins this week', value: '6 / 7' },
-          { label: 'Aftercare adherence', value: '94%' },
-          { label: 'Open alerts', value: '0' },
-        ],
-        recentLine: '"Made it to my Wednesday meeting. Sponsor call tonight." — Michael',
-      },
-      members: [
-        { name: 'Matt Brown', role: 'moderator', relationship: 'Case Manager' },
-        { name: 'Sarah Johnson', role: 'member', relationship: 'Parent' },
-        { name: 'Michael Johnson', role: 'recovering', relationship: 'Person in Recovery' },
-        { name: 'Emily Johnson', role: 'member', relationship: 'Spouse' },
-      ],
-    },
-    {
-      id: 'davis',
-      name: 'Davis Family',
-      scenario: 'Active crisis and boundary stress',
-      description: 'A high-friction family showing what the app looks like when active addiction, money requests, and safety concerns are still in play.',
-      status: {
-        tone: 'crisis' as const,
-        toneLabel: 'Crisis',
-        fiisScore: 38,
-        fiisTrend: '−9',
-        recoveryDay: 0,
-        lastActivity: '17 min ago',
-        signals: [
-          { label: 'Urgent money asks (7d)', value: '4' },
-          { label: 'Boundary contradictions', value: '3' },
-          { label: 'Open alerts', value: '5' },
-        ],
-        recentLine: '"He says he just needs $200 for the car. Don\'t tell Mark." — Linda',
-      },
-      members: [
-        { name: 'Tasha Miller', role: 'moderator', relationship: 'Support Moderator' },
-        { name: 'Linda Davis', role: 'member', relationship: 'Parent' },
-        { name: 'Chris Davis', role: 'recovering', relationship: 'Loved One' },
-        { name: 'Mark Davis', role: 'member', relationship: 'Parent' },
-      ],
-    },
-    {
-      id: 'mitchell',
-      name: 'Mitchell Family',
-      scenario: 'Treatment transition and discharge planning',
-      description: 'A realistic provider-supported family moving from intervention into treatment, sober living, and aftercare planning.',
-      status: {
-        tone: 'transition' as const,
-        toneLabel: 'Transition',
-        fiisScore: 61,
-        fiisTrend: '+11',
-        recoveryDay: 23,
-        lastActivity: '38 min ago',
-        signals: [
-          { label: 'Discharge tasks complete', value: '8 / 11' },
-          { label: 'HIPAA releases signed', value: '3 / 3' },
-          { label: 'Open alerts', value: '1' },
-        ],
-        recentLine: '"Sober living tour confirmed Friday 2pm. Insurance pre-auth in." — Matt',
-      },
-      members: [
-        { name: 'Matt Brown', role: 'moderator', relationship: 'Interventionist' },
-        { name: 'Jessica Mitchell', role: 'member', relationship: 'Sister' },
-        { name: 'Tyler Mitchell', role: 'recovering', relationship: 'Loved One' },
-        { name: 'Robert Mitchell', role: 'member', relationship: 'Parent' },
-      ],
-    },
-  ];
+  const post = useCallback((message: Record<string, unknown>) => {
+    frame.current?.contentWindow?.postMessage({ type: MESSAGE, ...message }, window.location.origin);
+  }, []);
 
-  const breadcrumbSchema = createBreadcrumbSchema([
-    { name: 'Home', url: '/' },
-    { name: 'Demo', url: '/demo' },
-  ]);
+  const send = useCallback(() => {
+    const { audience: a, step: s } = wanted.current;
+    post({ action: 'start', role: a, path: s.path });
+  }, [post]);
+
+  // The app reports where the visitor is. That is when it is ready to be steered, and when to switch whose eyes the
+  // family demo is seen through (only possible once the family demo is the one running).
+  useEffect(() => {
+    const onMessage = (e: MessageEvent) => {
+      if (e.origin !== window.location.origin || e.source !== frame.current?.contentWindow) return;
+      const data = e.data as { type?: string; event?: string; mode?: string; viewer?: string } | null;
+      if (data?.type !== MESSAGE || data.event !== 'state') return;
+      // Still reading what this browser has saved: it can't be steered yet.
+      if (data.mode === 'loading') return;
+      if (!ready.current) {
+        ready.current = true;
+        // Whatever the tour is on by now, which may not be where the frame was first sent.
+        send();
+      }
+      if (viewerAsked.current && wanted.current.audience === 'family' && data.mode === 'demo') {
+        if (data.viewer === viewerAsked.current) viewerAsked.current = null;
+        else post({ action: 'as', who: viewerAsked.current });
+      }
+    };
+    window.addEventListener('message', onMessage);
+    return () => window.removeEventListener('message', onMessage);
+  }, [post, send]);
+
+  const go = (next: Step, a: Audience = audience) => {
+    wanted.current = { audience: a, step: next };
+    setStepId(next.id);
+    viewerAsked.current = a === 'family' ? next.who ?? 'helper' : null;
+    if (ready.current) {
+      post({ action: 'start', role: a, path: next.path });
+      if (a === 'family') post({ action: 'as', who: next.who ?? 'helper' });
+    }
+  };
+
+  // The audience lives in the address (?as=pro), so it can change without a tap on this page's own switch: a link to
+  // /demo from the header, or the browser's back button. Whichever way it changed, the app follows.
+  const steered = useRef(audience);
+  useEffect(() => {
+    if (steered.current === audience) return;
+    steered.current = audience;
+    go(TOURS[audience].steps[0], audience);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [audience]);
+
+  const switchTo = (a: Audience) => {
+    if (a === audience) return;
+    setParams(
+      (now) => {
+        const next = new URLSearchParams(now);
+        if (a === 'pro') next.set('as', 'pro');
+        else next.delete('as');
+        return next;
+      },
+      { replace: true },
+    );
+  };
+
+  const startOver = () => {
+    try {
+      for (const key of DEMO_KEYS) window.localStorage.removeItem(key);
+    } catch {
+      /* storage blocked */
+    }
+    ready.current = false;
+    wanted.current = { audience, step: tour.steps[0] };
+    viewerAsked.current = audience === 'family' ? 'helper' : null;
+    setStepId(tour.steps[0].id);
+    setFrameKey((k) => k + 1);
+  };
 
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="FamilyBridge Product Demo"
-        description="See how FamilyBridge organizes family communication, shared decisions, recovery support actions, financial coordination, and authorized professional collaboration."
+        title="Try FamilyBridge: a Live Demo for Families and Professionals"
+        description="Use the real FamilyBridge app in your browser with a sample family: the family pact, money requests, meeting finder, location check-ins and the professional caseload."
         canonicalPath="/demo"
-        noIndex
-        structuredData={breadcrumbSchema}
       />
-      {/* Header */}
-      <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <img src={familyBridgeLogo} alt="FamilyBridge" className="h-8 w-8 sm:h-10 sm:w-10 object-contain" />
-            <span className="font-display font-bold text-lg sm:text-xl">FamilyBridge</span>
+      <SiteHeader right={<a href="/#download" className="hidden sm:inline-flex h-9 items-center rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground hover:bg-primary/90">Get the app</a>} />
+
+      <main className="container mx-auto px-4 max-w-6xl py-10 sm:py-14">
+        <div className="max-w-2xl">
+          <p className="text-sm font-bold uppercase tracking-wider text-primary">Live demo</p>
+          <h1 className="mt-3 text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground [text-wrap:balance]">Try FamilyBridge right here.</h1>
+          <p className="mt-4 text-lg text-muted-foreground leading-relaxed">
+            This is the real app, running in your browser with a made-up family. Tap anything. Nothing you do is saved anywhere but this browser, and no message reaches a real person. Only the crisis phone numbers are real.
+          </p>
+        </div>
+
+        <div className="mt-8 inline-flex rounded-xl border border-border bg-card p-1" role="group" aria-label="Choose a tour">
+          {(Object.keys(TOURS) as Audience[]).map((a) => {
+            const Icon = TOURS[a].icon;
+            return (
+              <button
+                key={a}
+                aria-pressed={a === audience}
+                onClick={() => switchTo(a)}
+                className={`inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-colors ${a === audience ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+              >
+                <Icon className="h-4 w-4" /> {TOURS[a].label}
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_420px] lg:gap-12 items-start">
+          {/* The tour */}
+          <div className="order-2 lg:order-1 min-w-0">
+            <p className="text-muted-foreground leading-relaxed">{tour.intro}</p>
+
+            <ol className="mt-6 flex gap-2 overflow-x-auto pb-2 lg:grid lg:grid-cols-2 lg:overflow-visible lg:pb-0" aria-label={`${tour.label} tour`}>
+              {tour.steps.map((s, i) => (
+                <li key={s.id} className="shrink-0 lg:shrink">
+                  <button
+                    onClick={() => go(s)}
+                    aria-current={s.id === step.id ? 'step' : undefined}
+                    className={`flex w-full items-center gap-3 rounded-xl border px-3 py-2.5 text-left text-sm font-semibold transition-colors ${s.id === step.id ? 'border-primary bg-primary/10 text-foreground' : 'border-border bg-card text-muted-foreground hover:border-primary/50 hover:text-foreground'}`}
+                  >
+                    <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold ${s.id === step.id ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'}`}>{i + 1}</span>
+                    <span className="whitespace-nowrap lg:whitespace-normal">{s.title}</span>
+                    {s.isNew ? <NewBadge /> : null}
+                  </button>
+                </li>
+              ))}
+            </ol>
+
+            <div className="mt-6 rounded-2xl border border-border bg-card p-6">
+              <div aria-live="polite">
+                <p className="text-sm font-bold text-primary">Step {index + 1} of {tour.steps.length}</p>
+                <h2 className="mt-1 flex flex-wrap items-center gap-2 text-xl font-bold text-foreground">{step.title}{step.isNew ? <NewBadge /> : null}</h2>
+                <p className="mt-2 text-muted-foreground leading-relaxed">{step.what}</p>
+                <p className="mt-4 rounded-xl bg-secondary px-4 py-3 text-sm text-foreground"><span className="font-semibold">Try this:</span> {step.tryIt}</p>
+              </div>
+              <div className="mt-5 flex flex-wrap items-center gap-3">
+                <button onClick={() => go(tour.steps[index - 1])} disabled={index === 0} className="inline-flex h-10 items-center gap-2 rounded-lg border border-border px-4 text-sm font-semibold text-foreground hover:bg-muted disabled:opacity-40 disabled:hover:bg-transparent">
+                  <ArrowLeft className="h-4 w-4" /> Back
+                </button>
+                {index < tour.steps.length - 1 ? (
+                  <button onClick={() => go(tour.steps[index + 1])} className="inline-flex h-10 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground hover:bg-primary/90">
+                    Next: {tour.steps[index + 1].title} <ArrowRight className="h-4 w-4" />
+                  </button>
+                ) : (
+                  <button onClick={() => switchTo(audience === 'family' ? 'pro' : 'family')} className="inline-flex h-10 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground hover:bg-primary/90">
+                    Now see it {audience === 'family' ? 'as a professional' : 'as a family'} <ArrowRight className="h-4 w-4" />
+                  </button>
+                )}
+                <button onClick={startOver} className="inline-flex h-10 items-center gap-2 rounded-lg px-3 text-sm font-semibold text-muted-foreground hover:text-foreground">
+                  <RotateCcw className="h-4 w-4" /> Start over
+                </button>
+              </div>
+            </div>
+
+            <ul className="mt-6 space-y-2 text-sm text-muted-foreground">
+              <li>You don’t have to follow the steps. Tap around the app itself and the tour keeps its place.</li>
+              <li>The AI Coach and purchases are switched off in the demo, and an SOS session is a sample with nobody on the other end. Meeting search shows sample meetings, and the sample documents have no file behind them.</li>
+              <li>The Carters and Harbor Recovery are fictional. “Start over” puts everything back.</li>
+            </ul>
+
+            <div className="mt-8 rounded-2xl bg-[#134A51] p-6 text-white">
+              <p className="text-lg font-bold">Ready to use it with your own family?</p>
+              <p className="mt-1 text-white/80">Every planning, accountability and safety tool is free.</p>
+              <div className="mt-4 flex flex-wrap items-center gap-4">
+                <AppStoreBadge dark={false} />
+                <Link to={audience === 'pro' ? '/for-providers' : '/#features'} className="font-semibold text-white underline-offset-4 hover:underline">
+                  {audience === 'pro' ? 'FamilyBridge for professionals' : 'See every feature'}
+                </Link>
+              </div>
+            </div>
           </div>
-          <div className="flex items-center gap-2 sm:gap-3">
-            <Button variant="outline" size="sm" onClick={() => navigate('/')}>
-              Exit
-            </Button>
-            {!(isNative && isIOS) && (
-              <Button size="sm" onClick={() => navigate('/provider-purchase')}>
-                Get Started
-              </Button>
-            )}
+
+          {/* The app */}
+          <div className="order-1 lg:order-2 lg:sticky lg:top-20">
+            {/* On a phone the full tour sits below the app: this keeps the current step, and the way on, in view above it. */}
+            <div className="lg:hidden mb-4 rounded-2xl border border-border bg-card p-4">
+              <div className="flex items-center justify-between gap-2">
+                <button onClick={() => go(tour.steps[index - 1])} disabled={index === 0} aria-label="Previous step" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-border text-foreground disabled:opacity-40">
+                  <ArrowLeft className="h-4 w-4" />
+                </button>
+                <p className="min-w-0 text-center text-sm font-bold text-foreground">
+                  <span className="text-primary">{index + 1} of {tour.steps.length}</span> · {step.title}
+                </p>
+                <button onClick={() => go(tour.steps[index + 1])} disabled={index === tour.steps.length - 1} aria-label="Next step" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground disabled:opacity-40">
+                  <ArrowRight className="h-4 w-4" />
+                </button>
+              </div>
+              <p className="mt-2 text-sm text-muted-foreground">{step.what}</p>
+            </div>
+            <div className="mx-auto w-full max-w-[420px] rounded-[2.6rem] bg-[#0E2F34] p-2.5 shadow-[0_30px_60px_-20px_rgba(19,74,81,0.45)]">
+              <iframe
+                key={frameKey}
+                ref={frame}
+                src={firstSrc}
+                title={`FamilyBridge live demo: ${tour.label.toLowerCase()}`}
+                className="block h-[min(780px,calc(100vh-7.5rem))] min-h-[560px] w-full rounded-[2rem] bg-[#F5F1EC]"
+              />
+            </div>
+            <p className="mt-3 text-center text-xs text-muted-foreground">A sample family, held only in this browser.</p>
           </div>
         </div>
-      </header>
+      </main>
 
-      {/* Hero */}
-      <section className="container mx-auto px-4 py-8 sm:py-12 text-center">
-        <Badge className="mb-3 sm:mb-4" variant="secondary">
-          Interactive Demo
-        </Badge>
-        <h1 className="text-2xl sm:text-4xl md:text-5xl font-display font-bold text-foreground mb-3 sm:mb-4">
-          See FamilyBridge in Action
-        </h1>
-        <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto mb-6 sm:mb-8 px-2">
-          Experience how your family or recovery support organization can benefit from structured support, 
-          communication and accountability through each stage of the recovery process.
-        </p>
-      </section>
-
-      {/* Demo Sections */}
-      <Tabs defaultValue="review" className="container mx-auto px-3 sm:px-4 pb-8 sm:pb-12">
-        <TabsList className="grid w-full max-w-3xl mx-auto grid-cols-4 mb-6 sm:mb-8 h-12 sm:h-14 p-1 sm:p-1.5 bg-primary/10 border border-primary/20 rounded-xl shadow-md">
-          <TabsTrigger value="review" className="h-full text-xs sm:text-base font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg rounded-lg transition-all flex flex-col sm:flex-row items-center gap-0.5 sm:gap-2 px-1 sm:px-3">
-            <ShieldCheck className="h-4 w-4 sm:h-5 sm:w-5" />
-            <span className="hidden sm:inline">Review Mode</span>
-            <span className="sm:hidden text-[10px] leading-tight text-center">Review</span>
-          </TabsTrigger>
-          <TabsTrigger value="provider-demo" className="h-full text-xs sm:text-base font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg rounded-lg transition-all flex flex-col sm:flex-row items-center gap-0.5 sm:gap-2 px-1 sm:px-3">
-            <Building2 className="h-4 w-4 sm:h-5 sm:w-5" />
-            <span className="hidden sm:inline">Provider Demo</span>
-            <span className="sm:hidden text-[10px] leading-tight text-center">Provider</span>
-          </TabsTrigger>
-          <TabsTrigger value="family" className="h-full text-xs sm:text-base font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg rounded-lg transition-all flex flex-col sm:flex-row items-center gap-0.5 sm:gap-2 px-1 sm:px-3">
-            <Users className="h-4 w-4 sm:h-5 sm:w-5" />
-            <span className="hidden sm:inline">Family Demo</span>
-            <span className="sm:hidden text-[10px] leading-tight text-center">Family</span>
-          </TabsTrigger>
-          <TabsTrigger value="features" className="h-full text-xs sm:text-base font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg rounded-lg transition-all flex flex-col sm:flex-row items-center gap-0.5 sm:gap-2 px-1 sm:px-3">
-            <Eye className="h-4 w-4 sm:h-5 sm:w-5" />
-            <span className="hidden sm:inline">Features</span>
-            <span className="sm:hidden text-[10px] leading-tight text-center">Features</span>
-          </TabsTrigger>
-        </TabsList>
-
-        {/* App Review Demo */}
-        <TabsContent value="review" className="space-y-8">
-          <div className="max-w-4xl mx-auto">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <ShieldCheck className="h-5 w-5" />
-                  App Review Demo Mode
-                </CardTitle>
-                <CardDescription>
-                  A complete, pre-populated path for Apple Review. No setup, website extraction, or blank account required.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="grid gap-4 md:grid-cols-2">
-                  <Card className="border-primary/20 bg-primary/5">
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2 text-lg">
-                        <Users className="h-5 w-5" />
-                        Family Review Path
-                      </CardTitle>
-                      <CardDescription>
-                        Opens a populated family workspace with chat, FIIS signals, check-ins, documents, boundaries, medication, and financial requests.
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      <Button className="w-full justify-between" onClick={() => navigate('/demo/family', { state: { initialFamily: 'johnson' } })}>
-                        Stable Aftercare Family
-                        <ArrowRight className="h-4 w-4" />
-                      </Button>
-                      <Button className="w-full justify-between" variant="outline" onClick={() => navigate('/demo/family', { state: { initialFamily: 'davis' } })}>
-                        Crisis / Boundary Stress Family
-                        <ArrowRight className="h-4 w-4" />
-                      </Button>
-                      <Button className="w-full justify-between" variant="outline" onClick={() => navigate('/demo/family', { state: { initialFamily: 'mitchell' } })}>
-                        Treatment Transition Family
-                        <ArrowRight className="h-4 w-4" />
-                      </Button>
-                    </CardContent>
-                  </Card>
-
-                  <Card className="border-primary/20 bg-primary/5">
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2 text-lg">
-                        <Building2 className="h-5 w-5" />
-                        Provider Review Path
-                      </CardTitle>
-                      <CardDescription>
-                        Opens a populated provider workspace with families, notes, team messaging, coordination cases, outcomes, and CRM context.
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      <Button className="w-full justify-between" onClick={() => navigate('/demo/provider')}>
-                        Provider Workspace
-                        <ArrowRight className="h-4 w-4" />
-                      </Button>
-                      <Button className="w-full justify-between" variant="outline" onClick={() => navigate('/features/fiis-intelligence')}>
-                        FIIS Intelligence
-                        <ArrowRight className="h-4 w-4" />
-                      </Button>
-                      <Button className="w-full justify-between" variant="outline" onClick={() => navigate('/features/provider-outcomes')}>
-                        Provider Outcomes
-                        <ArrowRight className="h-4 w-4" />
-                      </Button>
-                    </CardContent>
-                  </Card>
-                </div>
-
-                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                  {[
-                    { icon: MessageCircle, title: 'Secure Family Communication', text: 'Populated message threads and filtered-response examples.' },
-                    { icon: Activity, title: 'Accountability & Check-ins', text: 'Meeting check-ins, emotional check-ins, and recovery timeline data.' },
-                    { icon: Brain, title: 'FIIS Recovery Intelligence', text: 'Risk signals, trend summaries, observations, and system alignment.' },
-                    { icon: DollarSign, title: 'Financial Requests', text: 'Requests, votes, pledges, approvals, and boundary context.' },
-                    { icon: Shield, title: 'Boundaries', text: 'Family values, commitments, and documented support limits.' },
-                    { icon: FileText, title: 'Documents', text: 'Receipts, support files, medication labels, and intervention letters.' },
-                    { icon: CreditCard, title: 'Subscriptions', text: 'Family and provider plans route to in-app purchase screens.' },
-                    { icon: Trash2, title: 'Account Deletion', text: 'Signed-in users can delete from Dashboard, Settings, Delete Account.' },
-                  ].map((item) => (
-                    <Card key={item.title}>
-                      <CardContent className="p-4">
-                        <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-md bg-primary/10 text-primary">
-                          <item.icon className="h-5 w-5" />
-                        </div>
-                        <h4 className="text-sm font-semibold">{item.title}</h4>
-                        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{item.text}</p>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-
-                <div className="rounded-xl border bg-muted/30 p-4">
-                  <div className="grid gap-3 md:grid-cols-[1fr_auto] md:items-center">
-                    <div>
-                      <h4 className="font-semibold">Account review requirements</h4>
-                      <p className="mt-1 text-sm text-muted-foreground">
-                        Reviewers can use this demo mode immediately, and the App Review demo account should still be provided for live account deletion, purchase restore, and authenticated settings checks.
-                      </p>
-                    </div>
-                    <Button variant="outline" onClick={() => navigate('/auth')}>
-                      Sign In for Authenticated Checks
-                    </Button>
-                  </div>
-                </div>
-
-                <Card className="border-primary/25 bg-primary/5">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                      <CreditCard className="h-5 w-5" />
-                      In-App Purchase Review Paths
-                    </CardTitle>
-                    <CardDescription>
-                      Direct links for Apple Review to locate purchasable App Store products. The guidance window opens the signed-in family purchase path.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="grid gap-3 md:grid-cols-3">
-                    <Button className="w-full justify-between" onClick={() => navigate('/family-purchase')}>
-                      Family Subscription
-                      <ArrowRight className="h-4 w-4" />
-                    </Button>
-                    <Button className="w-full justify-between" variant="outline" onClick={() => navigate('/provider-purchase')}>
-                      Provider Subscription
-                      <ArrowRight className="h-4 w-4" />
-                    </Button>
-                    <Button className="w-full justify-between" variant="outline" onClick={() => navigate('/moderator-purchase')}>
-                      Guidance Window
-                      <ArrowRight className="h-4 w-4" />
-                    </Button>
-                  </CardContent>
-                </Card>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        {/* Provider Demo */}
-        <TabsContent value="provider-demo" className="space-y-8">
-          <div className="max-w-4xl mx-auto">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Building2 className="h-5 w-5" />
-                  Provider Dashboard Demo
-                </CardTitle>
-                <CardDescription>
-                  Experience the current provider workspace with notes, messaging, coordination, admin views, CRM context, and FIIS support tools.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div className="space-y-4">
-                    <h4 className="font-medium text-lg">Hope Harbor Interventions Demo</h4>
-                    <p className="text-sm text-muted-foreground">
-                      See how professional recovery organizations now move between workspace, coordination, and admin surfaces while staying synced with the family-facing experience.
-                    </p>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex items-center gap-2">
-                        <Check className="h-4 w-4 text-green-600" />
-                        <span>Provider workspace with notes, messaging, and FIIS summaries</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Check className="h-4 w-4 text-green-600" />
-                        <span>Coordination cases for crisis, transition, and aftercare</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Check className="h-4 w-4 text-green-600" />
-                        <span>Admin views for families, moderators, CRM, branding, and analytics</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Check className="h-4 w-4 text-green-600" />
-                        <span>Three realistic demo families mapped to provider-side context</span>
-                      </div>
-                    </div>
-                    <Button onClick={() => navigate('/demo/provider', { state: { branding: { primaryColor: demoPrimaryColor, logo: demoLogo, logoNeedsBackground, name: demoName } } })} className="w-full">
-                      <Play className="h-4 w-4 mr-2" />
-                      Enter Provider Demo
-                    </Button>
-                  </div>
-                  <div className="bg-gradient-to-br from-violet-50 to-purple-50 dark:from-violet-950/30 dark:to-purple-950/30 rounded-xl p-6 border border-violet-200 dark:border-violet-800">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
-                        <Building2 className="h-6 w-6 text-white" />
-                      </div>
-                      <div>
-                        <h4 className="font-semibold">Hope Harbor Interventions</h4>
-                        <p className="text-xs text-muted-foreground">Demo Organization</p>
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-2 text-center">
-                      <div className="bg-white/60 dark:bg-white/10 rounded-lg p-3">
-                        <p className="text-2xl font-bold text-violet-600">12</p>
-                        <p className="text-xs text-muted-foreground">Active Families</p>
-                      </div>
-                      <div className="bg-white/60 dark:bg-white/10 rounded-lg p-3">
-                        <p className="text-2xl font-bold text-violet-600">4</p>
-                        <p className="text-xs text-muted-foreground">Open Cases</p>
-                      </div>
-                      <div className="bg-white/60 dark:bg-white/10 rounded-lg p-3">
-                        <p className="text-2xl font-bold text-rose-600">2</p>
-                        <p className="text-xs text-muted-foreground">In Crisis</p>
-                      </div>
-                      <div className="bg-white/60 dark:bg-white/10 rounded-lg p-3">
-                        <p className="text-2xl font-bold text-emerald-600">7</p>
-                        <p className="text-xs text-muted-foreground">Stable</p>
-                      </div>
-                    </div>
-                    <div className="mt-4 pt-4 border-t border-violet-200/60 dark:border-violet-800/60">
-                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-2">Today on the dashboard</p>
-                      <ul className="space-y-1.5 text-xs text-foreground/85">
-                        <li className="flex items-start gap-2">
-                          <span className="text-rose-500 mt-0.5">●</span>
-                          <span>Davis family — 4th urgent money ask this week</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <span className="text-amber-500 mt-0.5">●</span>
-                          <span>Mitchell — discharge planning meeting Friday</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <span className="text-emerald-500 mt-0.5">●</span>
-                          <span>Johnson — aftercare adherence at 94%</span>
-                        </li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        {/* Family Demo */}
-        <TabsContent value="family" className="space-y-8">
-          <div className="max-w-4xl mx-auto">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Users className="h-5 w-5" />
-                  Demo Family Group
-                </CardTitle>
-                <CardDescription>
-                  Explore three pre-populated family journeys so prospects can see how the live app changes across crisis, treatment transition, and aftercare.
-                </CardDescription>
-                {!isNative && (
-                <div className="mt-3 p-3 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 border border-green-200 dark:border-green-800 rounded-lg">
-                  <p className="text-sm font-medium text-green-800 dark:text-green-200 flex items-center gap-2">
-                    <Sparkles className="h-4 w-4" />
-                    Founding family price: FIIS Support at $49.99/month while active
-                  </p>
-                  <p className="text-xs text-green-700 dark:text-green-300 mt-1 ml-6">
-                    For individual families not using a provider invite code
-                  </p>
-                </div>
-                )}
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="grid gap-4 md:grid-cols-3">
-                  {demoFamilies.map((family) => {
-                    const toneStyles = {
-                      calm: { ring: 'border-emerald-300/60 bg-emerald-50/60 dark:bg-emerald-950/20', pill: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-200', dot: 'bg-emerald-500', score: 'text-emerald-700 dark:text-emerald-300', trend: 'text-emerald-600' },
-                      crisis: { ring: 'border-rose-300/60 bg-rose-50/60 dark:bg-rose-950/20', pill: 'bg-rose-100 text-rose-700 dark:bg-rose-900/50 dark:text-rose-200', dot: 'bg-rose-500 animate-pulse', score: 'text-rose-700 dark:text-rose-300', trend: 'text-rose-600' },
-                      transition: { ring: 'border-amber-300/60 bg-amber-50/60 dark:bg-amber-950/20', pill: 'bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-200', dot: 'bg-amber-500', score: 'text-amber-700 dark:text-amber-300', trend: 'text-amber-600' },
-                    }[family.status.tone];
-
-                    return (
-                    <Card key={family.id} className={`border-2 shadow-sm transition hover:shadow-md ${toneStyles.ring}`}>
-                      <CardHeader className="pb-3">
-                        <div className="flex items-start justify-between gap-3">
-                          <div>
-                            <CardTitle className="text-base">{family.name}</CardTitle>
-                            <CardDescription>{family.scenario}</CardDescription>
-                          </div>
-                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${toneStyles.pill}`}>
-                            <span className={`h-2 w-2 rounded-full ${toneStyles.dot}`}></span>
-                            {family.status.toneLabel}
-                          </span>
-                        </div>
-                      </CardHeader>
-                      <CardContent className="space-y-4">
-                        {/* Live-looking status panel */}
-                        <div className="rounded-lg bg-background/80 border p-3 space-y-2.5">
-                          <div className="flex items-baseline justify-between">
-                            <div>
-                              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">FIIS™ score</p>
-                              <p className={`text-2xl font-bold ${toneStyles.score} leading-none`}>
-                                {family.status.fiisScore}
-                                <span className={`text-xs font-semibold ml-1.5 ${toneStyles.trend}`}>{family.status.fiisTrend}</span>
-                              </p>
-                            </div>
-                            <div className="text-right">
-                              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
-                                {family.status.recoveryDay > 0 ? 'Recovery day' : 'Pre-treatment'}
-                              </p>
-                              <p className="text-lg font-bold text-foreground leading-none">
-                                {family.status.recoveryDay > 0 ? family.status.recoveryDay : '—'}
-                              </p>
-                            </div>
-                          </div>
-                          <div className="space-y-1 pt-1 border-t border-border/50">
-                            {family.status.signals.map((s) => (
-                              <div key={s.label} className="flex justify-between text-xs">
-                                <span className="text-muted-foreground">{s.label}</span>
-                                <span className="font-semibold text-foreground">{s.value}</span>
-                              </div>
-                            ))}
-                          </div>
-                          <div className="pt-2 border-t border-border/50">
-                            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1">Latest signal · {family.status.lastActivity}</p>
-                            <p className="text-xs italic text-foreground/80 leading-snug">{family.status.recentLine}</p>
-                          </div>
-                        </div>
-
-                        <p className="text-xs text-muted-foreground leading-relaxed">{family.description}</p>
-                        <div className="space-y-1.5">
-                          {family.members.map((member, index) => (
-                            <div key={index} className="flex items-center justify-between rounded-md bg-background/60 p-2 border">
-                              <div>
-                                <p className="text-xs font-medium">{member.name}</p>
-                                <p className="text-[10px] text-muted-foreground">{member.relationship}</p>
-                              </div>
-                              <Badge variant={member.role === 'moderator' ? 'default' : member.role === 'recovering' ? 'secondary' : 'outline'} className="text-[10px]">
-                                {member.role}
-                              </Badge>
-                            </div>
-                          ))}
-                        </div>
-                        <Button
-                          onClick={() => navigate('/demo/family', {
-                            state: {
-                              branding: {
-                                primaryColor: demoPrimaryColor,
-                                logo: demoLogo,
-                                logoNeedsBackground,
-                                name: demoName
-                              },
-                              initialFamily: family.id,
-                            }
-                          })}
-                          className="w-full"
-                        >
-                          <Play className="h-4 w-4 mr-2" />
-                          Open {family.name}
-                        </Button>
-                      </CardContent>
-                    </Card>
-                    );
-                  })}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Quick Actions */}
-            <div className="grid md:grid-cols-3 gap-4 mt-6">
-              <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/demo/family', { state: { branding: { primaryColor: demoPrimaryColor, logo: demoLogo, logoNeedsBackground, name: demoName }, initialFamily: 'johnson' } })}>
-                <CardContent className="pt-6">
-                  <MessageCircle className="h-8 w-8 text-primary mb-3" />
-                  <h4 className="font-medium">Johnson Family</h4>
-                  <p className="text-sm text-muted-foreground">Stable aftercare view with realistic chat and recovery tracking</p>
-                </CardContent>
-              </Card>
-              <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/demo/family', { state: { branding: { primaryColor: demoPrimaryColor, logo: demoLogo, logoNeedsBackground, name: demoName }, initialFamily: 'davis' } })}>
-                <CardContent className="pt-6">
-                  <DollarSign className="h-8 w-8 text-primary mb-3" />
-                  <h4 className="font-medium">Davis Family</h4>
-                  <p className="text-sm text-muted-foreground">Crisis demo with boundary stress, urgent requests, and active FIIS signals</p>
-                </CardContent>
-              </Card>
-              <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/demo/family', { state: { branding: { primaryColor: demoPrimaryColor, logo: demoLogo, logoNeedsBackground, name: demoName }, initialFamily: 'mitchell' } })}>
-                <CardContent className="pt-6">
-                  <MapPin className="h-8 w-8 text-primary mb-3" />
-                  <h4 className="font-medium">Mitchell Family</h4>
-                  <p className="text-sm text-muted-foreground">Treatment transition demo with discharge planning and provider coordination</p>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </TabsContent>
-
-        {/* Features */}
-        <TabsContent value="features" className="space-y-8">
-          <div className="max-w-4xl mx-auto">
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {features.map((feature, index) => (
-                <Card key={index} className="relative">
-                  <CardContent className="pt-6">
-                    {feature.badge && (
-                      <Badge 
-                        variant="secondary" 
-                        className={`absolute top-3 right-3 text-xs ${
-                          feature.badge === 'AI' ? 'bg-violet-100 text-violet-700 dark:bg-violet-900 dark:text-violet-300' :
-                          feature.badge === 'Provider' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300' :
-                          'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
-                        }`}
-                      >
-                        {feature.badge}
-                      </Badge>
-                    )}
-                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-3">
-                      <feature.icon className="h-5 w-5 text-primary" />
-                    </div>
-                    <h4 className="font-medium mb-1 text-sm">{feature.title}</h4>
-                    <p className="text-xs text-muted-foreground">{feature.description}</p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-
-            {/* CTA */}
-            <Card className="mt-8 bg-primary text-primary-foreground">
-              <CardContent className="py-8 text-center">
-                <h3 className="text-2xl font-display font-bold mb-2">
-                  Ready to Get Started?
-                </h3>
-                <p className="opacity-90 mb-6 max-w-md mx-auto">
-                  Offer your clients a branded family communication platform to support their recovery journey.
-                </p>
-                <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                  <Button 
-                    variant="secondary" 
-                    size="lg"
-                    onClick={() => navigate('/provider-purchase')}
-                  >
-                    For Providers
-                  </Button>
-                  <Button 
-                    variant="secondary" 
-                    size="lg"
-                    onClick={() => navigate('/family-purchase')}
-                  >
-                    For Families
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="lg"
-                    className="border-white bg-white/20 text-white font-semibold hover:bg-white hover:text-primary"
-                    onClick={() => navigate('/demo/family')}
-                  >
-                    Continue Demo
-                    <ArrowRight className="h-4 w-4 ml-2" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-      </Tabs>
+      <div className="container mx-auto px-4 py-8 max-w-3xl"><PublicCrisisHelp /></div>
+      <BrandedFooter />
     </div>
   );
 };

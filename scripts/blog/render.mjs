@@ -429,7 +429,7 @@ ${items}
 
 /** A page that moved: an instant redirect that search engines treat as permanent, for hosts without server redirects. */
 export function renderMoved(to) {
-  const canonical = absolute(to.split('#')[0] || '/');
+  const canonical = absolute(to.split(/[#?]/)[0] || '/');
   return `<!doctype html>
 <html lang="en">
 <head>
