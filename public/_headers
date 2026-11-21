@@ -80,6 +80,13 @@
   X-Robots-Tag: noindex, nofollow, noarchive
 /join-family
   X-Robots-Tag: noindex, nofollow, noarchive
+# Practice connect links and family invite links (each carries a code).
+/connect
+  X-Robots-Tag: noindex, nofollow, noarchive
+/connect/*
+  X-Robots-Tag: noindex, nofollow, noarchive
+/join/*
+  X-Robots-Tag: noindex, nofollow, noarchive
 /update-payment
   X-Robots-Tag: noindex, nofollow, noarchive
 /practice-billing

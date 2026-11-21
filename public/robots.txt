@@ -15,6 +15,7 @@ Disallow: /professional-family/
 Disallow: /family-setup
 Disallow: /join
 Disallow: /join-family
+Disallow: /connect
 Disallow: /moderator-purchase
 Disallow: /sign-hipaa
 Disallow: /update-payment
