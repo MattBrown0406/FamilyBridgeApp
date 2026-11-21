@@ -68,6 +68,7 @@ const InterventionOutcomes = lazy(() => import("./pages/features/InterventionOut
 const FIISGuidance = lazy(() => import("./pages/features/FIISGuidance"));
 const PracticeBilling = lazy(() => import("./pages/PracticeBilling"));
 const PracticeBillingComplete = lazy(() => import("./pages/PracticeBillingComplete"));
+const AppLink = lazy(() => import("./pages/AppLink"));
 const StaticPage = lazy(() => import("./components/site/StaticPage"));
 
 const queryClient = new QueryClient();
@@ -112,6 +113,10 @@ const App = () => {
               <Route path="/family-setup" element={<FamilySetup />} />
               <Route path="/join" element={<LegacyRedirect to="/#download" legacy={<JoinFamily />} />} />
               <Route path="/join-family" element={<LegacyRedirect to="/#download" legacy={<JoinFamily />} />} />
+              {/* Practice connect links and family invite links. The iPhone app opens these directly when installed. */}
+              <Route path="/connect" element={<AppLink kind="connect" />} />
+              <Route path="/connect/:code" element={<AppLink kind="connect" />} />
+              <Route path="/join/:code" element={<AppLink kind="join" />} />
               <Route path="/for-providers" element={<ForProviders />} />
               <Route path="/moderator-purchase" element={<ModeratorPurchase />} />
               <Route path="/super-admin" element={<LegacyRedirect to="/" legacy={<SuperAdmin />} />} />

@@ -121,13 +121,16 @@ assert(robots.includes(`Sitemap: ${siteUrl}/sitemap.xml`), 'robots.txt does not 
 for (const privatePath of ['/auth', '/dashboard', '/family/', '/professional-invite', '/professional-family/', '/provider-admin']) {
   assert(robots.includes(`Disallow: ${privatePath}`), `robots.txt does not protect ${privatePath}`);
 }
+for (const linkPath of ['/connect', '/join']) {
+  assert(robots.includes(`Disallow: ${linkPath}\n`), `robots.txt does not protect ${linkPath} links`);
+}
 assert(!/^Disallow: \/blog/m.test(robots), 'robots.txt blocks the blog');
 
 const headers = await readFile(join(distDir, '_headers'), 'utf8');
 for (const path of noIndexPaths) {
   assert(headers.includes(`\n${path}\n  X-Robots-Tag: noindex, nofollow, noarchive`), `${path}: X-Robots-Tag header is missing`);
 }
-for (const path of ['/family/*', '/professional-family/*', '/ai-learning/*']) {
+for (const path of ['/family/*', '/professional-family/*', '/ai-learning/*', '/connect/*', '/join/*']) {
   assert(headers.includes(`\n${path}\n  X-Robots-Tag: noindex, nofollow, noarchive`), `${path}: wildcard X-Robots-Tag header is missing`);
 }
 
