@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  ArrowRight, BadgeCheck, BarChart3, Bell, Brush, Compass, FileSignature, FlaskConical, Gift, KeyRound, LifeBuoy, Mail, MessagesSquare, Phone as PhoneIcon,
-  Route, ShieldCheck, Sparkles, UsersRound, FolderLock,
+  ArrowRight, BadgeCheck, BarChart3, Bell, Brush, ClipboardList, Compass, FileSignature, FlaskConical, Gift, KeyRound, LifeBuoy, Mail, MessagesSquare, Phone as PhoneIcon,
+  Route, ShieldCheck, Sparkles, UserSearch, UsersRound, FolderLock,
 } from 'lucide-react';
 import { BrandedFooter } from '@/components/BrandedFooter';
 import { SEOHead, createBreadcrumbSchema } from '@/components/SEOHead';
@@ -13,16 +13,18 @@ import caseloadShot from '@/assets/app/caseload.webp';
 import journeyShot from '@/assets/app/journey.webp';
 
 const FEATURES: { icon: React.ElementType; t: string; d: string; soon?: boolean; isNew?: boolean }[] = [
-  { icon: Bell, t: 'A caseload that tells you who needs you', d: 'Families sorted into needs attention, watch and on track — from missed appointments, slipping medications, high obsessive thinking, boundary slips, cash requests and unanswered messages.' },
+  { icon: Bell, t: 'A caseload that tells you who needs you', d: 'Families sorted into needs attention, watch and on track — from missed appointments, slipping medications, high obsessive thinking, boundary slips, cash requests and unanswered messages. On a paid plan, a morning summary (a notification and an email, counts only) tells you how many of your families need you today, and why.' },
+  { icon: UserSearch, t: 'Families can find you', d: 'On a paid plan, each professional on your team gets a listing in Find a professional, where families in the states you serve answer a few questions and ask you for help. You accept or decline each request. Every listing confirms you take no payment from treatment programs for placements, and FamilyBridge reviews it, including licenses, first. On the 1st of each month, an email shows how often your team was viewed and how many families asked.', isNew: true },
   { icon: Compass, t: 'See how united each family is', d: 'With the family’s permission, see their alignment — where they agree and where they’re split (never who said what) — whether everyone has signed their family pact, how consistently they answer asks, and their progress through the weekly family program.' },
-  { icon: KeyRound, t: 'Consent built in', d: 'Families connect with your practice code, and a parent or partner chooses exactly what you see: money, meetings, appointments, medications, the family plan, check-ins and family chat. Every view is logged for them.' },
-  { icon: MessagesSquare, t: 'Work alongside the family', d: 'Message the family, assign tasks, schedule sessions and keep private notes. If they share their family chat, you can read it and reply right inside it — clearly labeled as you.' },
-  { icon: Sparkles, t: 'AI that does the paperwork', d: 'Weekly summaries, session prep, next steps, draft messages and handoff notes from what the family has shared. Family Insights shows readiness windows and who the loved one listens to.' },
+  { icon: KeyRound, t: 'Consent built in', d: 'Families connect with your practice code. When your paid plan provides their FamilyBridge, you see every family-wide area — money requests, the plan and boundaries, pacts, meetings, appointments, daily check-ins and family documents — and each person’s own messages, notes, location check-ins, medications and private documents under their own signed release, which they can take back. On the free trial, a parent or partner chooses what you see. Every view is logged for the family.' },
+  { icon: MessagesSquare, t: 'Work alongside the family', d: 'Message the family, assign tasks, schedule sessions and keep private notes. Read their family chat and reply right inside it, clearly labeled as you: on a paid plan, each person’s messages come with their own release; on the free trial, when the family shares its chat.' },
+  { icon: Sparkles, t: 'AI that does the paperwork', d: 'Weekly summaries, session prep, DAP and SOAP progress-note drafts, next steps, draft messages and handoff notes from what the family has shared. Family Insights shows readiness windows and who the loved one listens to.' },
+  { icon: ClipboardList, t: 'Intake and progress reports', d: 'Set up your intake once: your questions, your service agreement and cancellation policy. Each family helper fills it in and signs in the app. Make a progress report for a court, probation, an employer or a referring program in one tap — only under an authorization the person in recovery signs, naming who receives it, what’s in it and until when.', isNew: true },
   { icon: FlaskConical, t: 'Drug tests and lab results', d: 'Log program screens that the family can see but not edit. Partner-lab results arrive lab-verified and locked. Part of a new premium plan.', soon: true },
   { icon: FolderLock, t: 'Documents and releases', d: 'Families can share a discharge plan, an insurance card or a court notice with your practice, document by document. A release of information signed in the app names your practice and the family members the signer allows you to talk with, and the signer can revoke it at any time. It does not replace your own consent forms.', isNew: true },
   { icon: Route, t: 'Handoffs that keep the story', d: 'Refer a family to the next level of care — treatment, sober living, IOP — with a handoff note. With the family’s approval, their whole history follows them, and you can stay involved or step back.' },
   { icon: BarChart3, t: 'A monthly outcomes report', d: 'Families connected and engaged, session attendance, your median reply time and family activity — counted only from what families share with you. Share it with your team, funders or referral partners.' },
-  { icon: UsersRound, t: 'Your whole team', d: 'Staff join with your practice’s staff code, and you approve each one. They see every family connected to your practice — within what each family shares.' },
+  { icon: UsersRound, t: 'Your whole team', d: 'Staff join with your practice’s staff code, and you approve each one. You assign who is responsible for each family, and the whole team can see and reply — within what each family shares.' },
   { icon: LifeBuoy, t: 'SOS routes to you', d: 'When a family you work with taps SOS, you get an urgent push and email — not a stranger.' },
   { icon: Brush, t: 'Your brand, included', d: 'Families see your logo, name and colors throughout their app, with a small “with FamilyBridge.” White label is included with every plan.' },
   { icon: Gift, t: 'Family Plus for your families', d: 'Families you work with get Family Plus included on any paid plan — and keep it for 14 days after you complete their care.' },
@@ -58,7 +60,7 @@ const PlanCards = () => {
             </p>
             <p className="mt-2 font-semibold text-primary">{p.families}</p>
             <ul className="mt-5 space-y-2 text-sm text-foreground">
-              {['Unlimited staff', 'White label: your logo and colors', 'Family Plus for your families', 'AI Assistant and Family Insights'].map((x) => (
+              {['Unlimited staff', 'White label: your logo and colors', 'Family Plus for your families', 'AI Assistant, Family Insights and progress-note drafts', 'A listing in Find a professional', 'Morning summary, intake and progress reports'].map((x) => (
                 <li key={x} className="flex gap-2"><BadgeCheck className="h-4 w-4 mt-0.5 text-primary shrink-0" />{x}</li>
               ))}
             </ul>
@@ -79,7 +81,7 @@ const ForProviders = () => (
   <div className="min-h-screen bg-background">
     <SEOHead
       title="FamilyBridge for Interventionists & Treatment Providers"
-      description="A consent-based caseload, family chat, AI summaries, handoffs between levels of care and white label for the families you serve. From $149/month."
+      description="A consent-based caseload, a listing in Find a professional, AI progress notes, intake and court reports, and your branding. From $149/month."
       canonicalPath="/for-providers"
       structuredData={createBreadcrumbSchema([{ name: 'Home', url: '/' }, { name: 'For professionals', url: '/for-providers' }])}
     />
@@ -144,7 +146,7 @@ const ForProviders = () => (
       <div className="max-w-2xl">
         <p className="text-sm font-bold uppercase tracking-wider text-primary">Plans</p>
         <h2 className="mt-3 text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">Simple pricing, everything included.</h2>
-        <p className="mt-3 text-muted-foreground">Every plan includes white label, the AI Assistant, handoffs, and Family Plus for the families you work with. Try it free with up to 3 families (the AI Assistant is included with paid plans).</p>
+        <p className="mt-3 text-muted-foreground">Every plan includes white label, the AI Assistant, handoffs, a listing for each professional in Find a professional, and Family Plus for the families you work with. Try it free with up to 3 families, including 5 AI Assistant answers.</p>
       </div>
       <PlanCards />
       <div className="mt-10 flex flex-col sm:flex-row gap-4 sm:items-center">
@@ -154,7 +156,7 @@ const ForProviders = () => (
           <a href="tel:458-298-8003" className="inline-flex h-11 items-center gap-2 rounded-xl border border-border bg-card px-5 font-semibold text-foreground hover:bg-muted"><PhoneIcon className="h-4 w-4" /> 458-298-8003</a>
         </div>
       </div>
-      <p className="mt-4 text-sm text-muted-foreground">Pay securely online with Square — monthly, quarterly (save 5%) or annually (save 15%), renewing automatically until you cancel. Solo (monthly or quarterly) and Practice (monthly) are also available as subscriptions in the iPhone app. New to FamilyBridge? Download the app, create your practice, and start with up to 3 families free — then come back here to choose a plan.</p>
+      <p className="mt-4 text-sm text-muted-foreground">Pay securely online with Square — monthly, quarterly (save 5%) or annually (save 15%), renewing automatically until you cancel. Solo (monthly or quarterly) and Practice (monthly) are also available as subscriptions in the iPhone app. New to FamilyBridge? Download the app, create your practice, and start with up to 3 families free — then come back here to choose a plan. When your plan’s family limit is reached, new referrals from Find a professional pause until you upgrade or a spot opens. If a plan lapses, you have 3 days to renew before your families are asked to find a new professional or subscribe to Family Plus themselves.</p>
       <div className="mt-6"><AppStoreBadge /></div>
     </section>
 
@@ -165,7 +167,7 @@ const ForProviders = () => (
           <div>
             <h2 className="text-xl font-bold text-foreground">Privacy and your obligations</h2>
             <p className="mt-2 text-muted-foreground leading-relaxed">
-              Families control what your practice sees and can revoke it at any time. Access is enforced on our servers for every record, every view is logged for the family, and clinical notes stay private unless you choose to share them in a handoff. If your program is subject to HIPAA or 42 CFR Part 2, talk with us about your agreements before inviting families.
+              Families control what your practice sees. On a paid plan you see every family-wide area, and each person’s own information only under their signed release, which they can take back at any time. Progress reports go out only under the person in recovery’s signed authorization. Access is enforced on our servers for every record, every view is logged for the family, and clinical notes stay private unless you choose to share them in a handoff. If your program is subject to HIPAA or 42 CFR Part 2, talk with us about your agreements before inviting families.
             </p>
             <Link to="/privacy" className="mt-3 inline-flex items-center gap-1 font-semibold text-primary hover:underline"><FileSignature className="h-4 w-4" /> Read our privacy policy</Link>
           </div>

@@ -15,6 +15,7 @@ import {
   Sparkles,
   Sunrise,
   Target,
+  UserSearch,
   Wallet,
 } from 'lucide-react';
 import { AppStoreBadge } from '@/components/site/SiteChrome';
@@ -124,6 +125,12 @@ const MOMENTS: Record<Audience, Moment[]> = {
   ],
   pro: [
     {
+      icon: Sunrise,
+      tone: 'amber',
+      title: 'Morning summary',
+      detail: '3 families need you today',
+    },
+    {
       icon: AlertCircle,
       tone: 'rose',
       title: 'The Nguyen Family',
@@ -148,16 +155,22 @@ const MOMENTS: Record<Audience, Moment[]> = {
       detail: 'Parents shared their plan with IOP',
     },
     {
+      icon: UserSearch,
+      tone: 'teal',
+      title: 'A family asked for help',
+      detail: 'Through Find a professional',
+    },
+    {
       icon: ClipboardList,
       tone: 'teal',
-      title: 'Task completed',
-      detail: 'Family meeting agenda shared',
+      title: 'Intake signed',
+      detail: 'Brooks family · service agreement',
     },
     {
       icon: Sparkles,
       tone: 'amber',
       title: 'AI Assistant',
-      detail: 'Session prep ready for tomorrow',
+      detail: 'SOAP note drafted from Monday’s session',
     },
   ],
 };
@@ -170,7 +183,7 @@ const COPY: Record<Audience, { title: string; body: string; foot: string }> = {
   },
   pro: {
     title: 'See how every family is really doing.',
-    body: 'A live, consent-based view of each family’s check-ins, meetings, medications and money — with one place to coach them from the first call through aftercare. On iPhone and iPad.',
+    body: 'A live, consent-based view of each family’s check-ins, meetings, medications and money — with one place to coach them from the first call through aftercare. Paid plans add a listing in Find a professional, a morning summary of who needs you, AI progress-note drafts, intake and court-ready progress reports.',
     foot: 'Plans from $149 a month · Your branding included · iPhone and iPad',
   },
 };
