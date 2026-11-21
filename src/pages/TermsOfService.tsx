@@ -12,7 +12,7 @@ const sections: LegalSection[] = [
     title: 'What FamilyBridge is — and isn’t',
     body: (
       <>
-        <p>FamilyBridge helps families affected by a loved one's substance use communicate and stay accountable: money requests, meetings, appointments, medications, drug tests, check-ins, boundaries, goals and plans; optional AI coaching; optional connections with professionals the family chooses; and optional SOS messaging sessions.</p>
+        <p>FamilyBridge helps families affected by a loved one's substance use communicate and stay accountable: money requests, meetings, appointments, medications, drug tests, check-ins, boundaries, goals and plans; optional AI coaching; optional connections with professionals the family chooses; Find a professional, a directory of professionals families can ask for help; and optional SOS messaging sessions.</p>
         <p><strong>FamilyBridge is not a medical, mental-health, legal or emergency service</strong>, and nothing in the App is a diagnosis, treatment or professional advice. SOS sessions are time-limited messaging support from a certified interventionist; they are not an emergency response and are not monitored continuously. <strong>If anyone may be in danger, call 911. For a mental-health crisis, call or text 988.</strong></p>
       </>
     ),
@@ -32,7 +32,7 @@ const sections: LegalSection[] = [
     title: 'Families',
     body: (
       <>
-        <p>A family is a private group. People join with the family's invite code and are approved by a parent or partner. Parents and partners make decisions that affect the whole family, such as approving members, connecting professionals, choosing what professionals can see, and accepting handoffs.</p>
+        <p>A family is a private group. People join with the family's invite code and are approved by a parent or partner. Parents and partners make decisions that affect the whole family, such as approving members, connecting professionals, choosing what professionals can see (for a practice that doesn't provide the family's FamilyBridge), and accepting handoffs. A practice that provides the family's FamilyBridge sees the family-wide areas described in our <Link to="/privacy">Privacy Policy</Link> while it does; the family's way to stop that is to disconnect.</p>
         <p>Share only information you have the right to share, and respect the privacy of the other people in your family. Family chat has a respect filter that blocks insults, threats and shaming language; please use the App kindly.</p>
       </>
     ),
@@ -42,8 +42,35 @@ const sections: LegalSection[] = [
     title: 'Professionals',
     body: (
       <>
-        <p>Professionals and their staff may see only what a family chooses to share and must use it only to support that family's care. Professionals are solely responsible for their own services, licensing, records, and compliance with the laws that apply to them (including, where applicable, HIPAA and 42 CFR Part 2), and for any fees they charge families, which are arranged directly between the professional and the family.</p>
+        <p>Professionals and their staff may see only what a family shares with their practice — the areas the family chooses, or, for a practice that provides the family's FamilyBridge, the family-wide areas plus each person's own information under that person's release — and must use it only to support that family's care. Professionals are solely responsible for their own services, licensing, records, and compliance with the laws that apply to them (including, where applicable, HIPAA and 42 CFR Part 2), and for any fees they charge families, which are arranged directly between the professional and the family.</p>
+        <p>Professionals are responsible for their own legal, consent and confidentiality duties for everything they receive through FamilyBridge and everything they send outside it, including intake answers and service agreements, information shared under releases, and progress reports. A progress report may be made only under a standing authorization signed in the App by the person in recovery, only for the recipient it names and only with what it allows; the professional is responsible for checking that the report is appropriate to send and for how it is sent. Once information leaves FamilyBridge, it is outside our control. Progress-note drafts and other AI output are drafts for the professional to review; the professional is responsible for anything they file or share.</p>
         <p>Professional plans (Solo, Practice and Organization) are billed monthly, quarterly or annually, in advance for each period, and renew automatically until cancelled. Plans bought online are processed by Square and can be cancelled anytime at familybridgeapp.com/practice-billing; the plan stays active through the period already paid. Plans bought in the iPhone app are billed through your Apple ID and managed in your Apple ID settings. We may limit the number of connected families according to the practice's plan.</p>
+      </>
+    ),
+  },
+  {
+    id: 'releases',
+    title: 'Releases and authorizations',
+    body: <p>Signing a release to a practice, or an authorization for progress reports, is always your choice. If you don't sign, you can keep using FamilyBridge. You can take a release or an authorization back at any time in the App; that stops sharing from then on, but it can't undo what was already shared while it stood, and a report already sent can't be unsent. A practice's release ends when your family's connection with that practice ends. What each release and authorization covers is shown in the App before you sign and described in our <Link to="/privacy">Privacy Policy</Link>.</p>,
+  },
+  {
+    id: 'directory',
+    title: 'Find a professional',
+    body: (
+      <>
+        <p>Find a professional lists professionals at practices on a paid FamilyBridge plan. To be listed, a professional must confirm that they receive no payment from any treatment program for placements, and must keep their listing accurate and current. FamilyBridge reviews each listing, and any change to it, before families see it, and may decline, hide or remove a listing. A listing drops out of the directory while its practice's plan isn't paid. The order of results is not a ranking or a recommendation.</p>
+        <p><strong>FamilyBridge does not endorse, recommend or guarantee any professional</strong>, their credentials, their services or any outcome, and is not a party to any arrangement between a family and a professional. Families should make their own choice and check credentials themselves. Asking a professional for help through the directory shares the information described in our <Link to="/privacy">Privacy Policy</Link>; if a professional accepts, connecting is still your family's choice.</p>
+        <p><strong>The directory is not for emergencies.</strong> Requests for help may not be seen or answered quickly. If anyone may be in danger, call 911. For a mental-health crisis, call or text 988.</p>
+      </>
+    ),
+  },
+  {
+    id: 'reviews',
+    title: 'Reviews',
+    body: (
+      <>
+        <p>Family members (other than the person in recovery) can review professionals who have worked with their family through FamilyBridge. Reviews are shown with the reviewer's first name and state. Write only about your own experience, honestly. Don't name or identify anyone, share private or health details about anyone (including yourself or your loved one), or post anything abusive, threatening or false. Professionals may reply publicly, but must never discuss anyone's care in a reply.</p>
+        <p>Anyone signed in can report a review or a reply. FamilyBridge may hide reviews or replies that identify someone, share private details or are abusive, but will not hide a review for being negative. Reviews are the opinions of their writers, not of FamilyBridge.</p>
       </>
     ),
   },
@@ -64,7 +91,7 @@ const sections: LegalSection[] = [
     title: 'AI features',
     body: (
       <>
-        <p>AI features (AI Coach, Live Coaching, conversation practice, document reading, letter feedback, Family Insights and the professional AI Assistant) are powered by Anthropic's Claude. Family AI features are part of Family Plus (free families get a limited number of tries), and the professional AI Assistant is included with paid professional plans. They stay off until you agree in the App, and you can turn them off at any time in Settings → Privacy &amp; account. Family Insights runs only if a family helper turns it on.</p>
+        <p>AI features (AI Coach, Live Coaching, conversation practice, document reading, letter feedback, Family Insights, and the professional AI Assistant and progress-note drafts) are powered by Anthropic's Claude. Family AI features are part of Family Plus (free families get a limited number of tries), and the professional AI Assistant is included with paid professional plans. They stay off until you agree in the App, and you can turn them off at any time in Settings → Privacy &amp; account. Family Insights runs only if a family helper turns it on. A practice that provides a family's FamilyBridge can use its AI Assistant with what it sees of that family, as described in our <Link to="/privacy">Privacy Policy</Link>.</p>
         <p>AI output may be inaccurate or incomplete and is not a substitute for professional judgment. Review it before relying on it or sharing it, and use your own judgment about what to say and do.</p>
       </>
     ),
@@ -127,8 +154,8 @@ const TermsOfService = () => (
   <LegalPage
     title="Terms of Service"
     path="/terms"
-    description="The terms for using FamilyBridge: families, professionals, subscriptions and SOS sessions, AI features, drug-test results, and your account."
-    updated="November 2026"
+    description="The terms for using FamilyBridge: families, professionals, releases and authorizations, Find a professional and reviews, subscriptions and SOS sessions, AI features, drug-test results, and your account."
+    updated="November 20, 2026"
     intro={<p>These terms explain how FamilyBridge works, what you can expect from us, and what we ask of you. We've tried to keep them plain.</p>}
     sections={sections}
   />
