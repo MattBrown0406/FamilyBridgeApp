@@ -5,7 +5,7 @@
 export const indexableRoutes = [
   {
     path: '/',
-    lastmod: '2026-11-16',
+    lastmod: '2026-11-20',
     title: 'FamilyBridge — App for Families of Someone with Addiction',
     description: 'Help a loved one with addiction as one family: see where everyone stands, agree on one plan, and get coaching for hard conversations. Free on iPhone.',
     changefreq: 'weekly',
@@ -13,9 +13,9 @@ export const indexableRoutes = [
   },
   {
     path: '/for-providers',
-    lastmod: '2026-11-16',
+    lastmod: '2026-11-20',
     title: 'FamilyBridge for Interventionists & Treatment Providers',
-    description: 'A consent-based caseload, family chat, AI summaries, handoffs between levels of care and white label for the families you serve. From $149/month.',
+    description: 'A consent-based caseload, a listing in Find a professional, AI progress notes, intake and court reports, and your branding. From $149/month.',
     changefreq: 'monthly',
     priority: '0.9',
   },
@@ -29,9 +29,9 @@ export const indexableRoutes = [
   },
   {
     path: '/demo',
-    lastmod: '2026-11-16',
+    lastmod: '2026-11-20',
     title: 'Try FamilyBridge: a Live Demo for Families and Professionals',
-    description: 'Use the real FamilyBridge app in your browser with a sample family: the family pact, money requests, meeting finder, location check-ins and the professional caseload.',
+    description: 'Use the real FamilyBridge app in your browser with a sample family: the family pact, money requests, meeting finder, Find a professional and the professional caseload.',
     changefreq: 'monthly',
     priority: '0.8',
   },
@@ -45,7 +45,7 @@ export const indexableRoutes = [
   },
   {
     path: '/support',
-    lastmod: '2026-11-16',
+    lastmod: '2026-11-20',
     title: 'FamilyBridge Support',
     description: 'Help with FamilyBridge: family setup, passwords, deleting your account, subscriptions, SOS, working with professionals, and privacy.',
     changefreq: 'monthly',

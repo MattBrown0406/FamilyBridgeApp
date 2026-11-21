@@ -41,6 +41,7 @@ const TOURS: Record<Audience, { label: string; icon: React.ElementType; intro: s
       { id: 'finder', title: 'Find a meeting', path: '/tools/meeting-finder', isNew: true, what: 'Search meetings near you or online. Where a fellowship doesn’t share its list, one tap opens its own finder.', tryIt: 'Tap “For someone in recovery”, then “Use my location”, and scroll down. The demo shows sample meetings.' },
       { id: 'location', title: 'Location check-ins', path: '/tools/location', isNew: true, what: 'Share where you are once, by choice. A helper can ask only someone who has turned asking on, and nothing is tracked in the background.', tryIt: 'Tap “Check in here”. In this demo it records a sample place, not yours.' },
       { id: 'documents', title: 'Documents & releases', path: '/tools/documents', isNew: true, what: 'The discharge plan, the insurance card and signed releases of information in one private place.', tryIt: 'Scroll to the release Jordan signed so Harbor Recovery can talk with his parents.' },
+      { id: 'professional', title: 'Find a professional', path: '/tools/find-professional', isNew: true, what: 'A few short questions, then interventionists, family coaches, therapists and counselors who fit your family, never treatment programs. Every professional listed was reviewed by FamilyBridge and takes no payment from treatment programs for placements.', tryIt: 'Answer the questions. The demo stops before the list: in the app, you’d see professionals who fit and could ask them for help.' },
       { id: 'changed', title: 'What changed lately', path: '/tools/insights', isNew: true, what: 'A plain summary of what is different in the last two weeks, with a gentle way to bring each change up. It’s arithmetic on what the family logged, not AI.', tryIt: 'Read the card at the top: Jordan has been going to more meetings. Then scroll through Family Insights below it.' },
       { id: 'rightnow', title: 'What’s happening right now?', path: '/tools/right-now', what: 'A 60-second plan for the hardest moments: safety first, what to say, what not to do.', tryIt: 'Pick “Jordan is asking for money”.' },
       { id: 'naloxone', title: 'Overdose Ready', path: '/tools/naloxone', what: 'Where the family’s naloxone is, when it expires and who has practiced.', tryIt: 'Open a kit to see who holds it.' },
@@ -57,9 +58,10 @@ const TOURS: Record<Audience, { label: string; icon: React.ElementType; intro: s
       { id: 'caseload', title: 'Caseload', path: '/pro', what: 'Every family you work with, sorted by who needs you: needs attention, watch, on track.', tryIt: 'Tap the first family in the list.' },
       { id: 'file', title: 'A family’s file', path: '/pro/family/demo-family-carter', what: 'The Carters’ overview: the signals this week, and only the areas the family chose to share.', tryIt: 'Tap the tabs at the top: Plan, Tests, Journey.' },
       { id: 'pdocs', title: 'Documents & releases', path: '/pro/family/demo-family-carter?tab=documents', isNew: true, what: 'The documents a family shared with your practice, and the releases of information that name you.', tryIt: 'Read the release Jordan signed: who Harbor Recovery may talk with, about what, and until when.' },
+      { id: 'intake', title: 'Intake & progress reports', path: '/pro/family/demo-family-carter?tab=intake', isNew: true, what: 'Each family helper fills in your intake and signs your service agreement in the app. Progress reports for a court, an employer or a referring program are made only under an authorization the person in recovery signs.', tryIt: 'Read how intake works here, then tap the Reports tab.' },
       { id: 'messages', title: 'Messages & tasks', path: '/pro/family/demo-family-carter?tab=messages', what: 'Message a family, set tasks and log sessions. Your private notes are never shown to them.', tryIt: 'Send the Carters a message.' },
       { id: 'inbox', title: 'Inbox', path: '/pro/inbox', what: 'Message threads across your families, with whoever has waited longest for your reply at the top.', tryIt: 'Open the thread at the top.' },
-      { id: 'practice', title: 'Your practice', path: '/pro/practice', what: 'Staff, your connect code, your logo and colors in your families’ app, and an outcomes report to share.', tryIt: 'Open the outcomes report.' },
+      { id: 'practice', title: 'Your practice', path: '/pro/practice', what: 'Staff, your connect code, your logo and colors in your families’ app, your listing in Find a professional, and an outcomes report to share.', tryIt: 'Open the outcomes report.' },
     ],
   },
 };
@@ -72,7 +74,7 @@ const MESSAGE = 'familybridge-demo';
 // The sample family this page was built with. A visitor who tried an earlier demo still has that one's family in
 // their browser, without whatever the tour now points at: when this changes, they start from the new one.
 const DEMO_DATA_KEY = 'familybridge:demoSite';
-const DEMO_DATA = '6.3-3';
+const DEMO_DATA = '6.3.1-1';
 
 /** The app reads which demo to open from this browser's storage, so it starts where the tour is. */
 function presetMode(audience: Audience) {
@@ -194,7 +196,7 @@ const Demo = () => {
     <div className="min-h-screen bg-background">
       <SEOHead
         title="Try FamilyBridge: a Live Demo for Families and Professionals"
-        description="Use the real FamilyBridge app in your browser with a sample family: the family pact, money requests, meeting finder, location check-ins and the professional caseload."
+        description="Use the real FamilyBridge app in your browser with a sample family: the family pact, money requests, meeting finder, Find a professional and the professional caseload."
         canonicalPath="/demo"
       />
       <SiteHeader right={<a href="/#download" className="hidden sm:inline-flex h-9 items-center rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground hover:bg-primary/90">Get the app</a>} />
@@ -273,7 +275,7 @@ const Demo = () => {
 
             <ul className="mt-6 space-y-2 text-sm text-muted-foreground">
               <li>You don’t have to follow the steps. Tap around the app itself and the tour keeps its place.</li>
-              <li>The AI Coach and purchases are switched off in the demo, and an SOS session is a sample with nobody on the other end. Meeting search shows sample meetings, and the sample documents have no file behind them.</li>
+              <li>The AI Coach, purchases and the Find a professional list are switched off in the demo, and an SOS session is a sample with nobody on the other end. Meeting search shows sample meetings, and the sample documents have no file behind them.</li>
               <li>The Carters and Harbor Recovery are fictional. “Start over” puts everything back.</li>
             </ul>
 
