@@ -57,6 +57,46 @@ serve(async (req) => {
       // Handle "already subscribed" case
       if (data.title === 'Member Exists') {
         console.log(`${email} is already subscribed to Mailchimp`);
+
+        try {
+          const memberUrl = `${url}/${encodeURIComponent(email.toLowerCase())}`;
+          const mailchimpHeaders = {
+            'Authorization': `Basic ${btoa(`anystring:${apiKey}`)}`,
+            'Content-Type': 'application/json',
+          };
+          const memberResponse = await fetch(memberUrl, { headers: mailchimpHeaders });
+          const memberData = await memberResponse.json();
+
+          if (!memberResponse.ok) {
+            console.error('Failed to fetch existing Mailchimp member:', memberResponse.status, memberData);
+          } else if (memberData.status === 'transactional') {
+            const updateResponse = await fetch(memberUrl, {
+              method: 'PATCH',
+              headers: mailchimpHeaders,
+              body: JSON.stringify({ status: 'subscribed' }),
+            });
+            const updateData = await updateResponse.json();
+
+            if (!updateResponse.ok) {
+              console.error('Failed to subscribe transactional Mailchimp member:', updateResponse.status, updateData);
+            } else {
+              const tagsResponse = await fetch(`${memberUrl}/tags`, {
+                method: 'POST',
+                headers: mailchimpHeaders,
+                body: JSON.stringify({
+                  tags: [{ name: 'premium-waitlist', status: 'active' }],
+                }),
+              });
+
+              if (!tagsResponse.ok) {
+                console.error('Failed to tag subscribed Mailchimp member:', tagsResponse.status, await tagsResponse.text());
+              }
+            }
+          }
+        } catch (error) {
+          console.error('Error recovering transactional Mailchimp member:', error);
+        }
+
         await enqueueSpineEvent("lead_captured", {
           email: email,
           props: { source: "mailchimp_waitlist" },
