@@ -3,10 +3,9 @@ import { useParams } from 'react-router-dom';
 import { Check, Copy } from 'lucide-react';
 import { BrandedFooter } from '@/components/BrandedFooter';
 import { SEOHead } from '@/components/SEOHead';
-import { APP_STORE_URL, SiteHeader } from '@/components/site/SiteChrome';
+import { APP_STORE_URL, SiteHeader, WEB_APP_URL } from '@/components/site/SiteChrome';
 
 /** The FamilyBridge web app, for people who would rather not install the iPhone app. */
-const WEB_APP_URL = 'https://familybridge-app.vercel.app';
 
 type Kind = 'connect' | 'join';
 

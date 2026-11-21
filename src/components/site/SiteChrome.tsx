@@ -5,6 +5,9 @@ import { blogPosts } from 'virtual:familybridge-blog';
 /** The App Store listing for FamilyBridge. */
 export const APP_STORE_URL = 'https://apps.apple.com/app/id6757375159';
 
+/** The FamilyBridge web app (same accounts as the iPhone app): families, professionals and admins sign in there. */
+export const WEB_APP_URL = 'https://app.familybridgeapp.com';
+
 
 export const AppStoreBadge = ({ className = '', dark = true }: { className?: string; dark?: boolean }) => (
   <a
@@ -60,6 +63,7 @@ export const SiteHeader = ({ right }: { right?: React.ReactNode }) => (
         <Link to="/support" className="hover:text-foreground">Support</Link>
       </div>
       <div className="flex items-center gap-2">
+        <a href={WEB_APP_URL} className="inline-flex h-9 items-center rounded-lg border border-border px-3 text-sm font-semibold text-foreground hover:bg-muted">Sign in</a>
         <Link to="/practice-billing" className="hidden sm:inline-flex h-9 items-center rounded-lg px-3 text-sm font-semibold text-foreground hover:bg-muted">Practice billing</Link>
         {right}
       </div>
