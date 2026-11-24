@@ -450,6 +450,12 @@
 }
 
 .fb-hero .fb-float { animation: fbFloat 7s ease-in-out infinite; }
+/* A tall app screen in the hero phone: rests at the top, scrolls slowly to its bottom, rests there. */
+.fb-hero .fb-scroll { animation: fbScroll var(--fb-scroll-ms, 6500ms) ease-in-out forwards; }
+@keyframes fbScroll {
+  0%, 14% { transform: translateY(0); }
+  86%, 100% { transform: translateY(var(--fb-shift, 0%)); }
+}
 @keyframes fbFloat {
   0%, 100% { transform: translateY(0) rotate(0deg); }
   50% { transform: translateY(-10px) rotate(0.4deg); }

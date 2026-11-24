@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
 import {
   AlertCircle,
@@ -19,10 +19,10 @@ import {
   Wallet,
 } from 'lucide-react';
 import { AppStoreBadge } from '@/components/site/SiteChrome';
-import todayShot from '@/assets/app/today.webp';
-import chatShot from '@/assets/app/chat.webp';
-import togetherShot from '@/assets/app/together.webp';
-import alignmentShot from '@/assets/app/alignment.webp';
+import heroToday from '@/assets/app/hero-today.webp';
+import heroChat from '@/assets/app/hero-chat.webp';
+import heroLive from '@/assets/app/hero-live.webp';
+import heroAsk from '@/assets/app/hero-ask.webp';
 import caseloadShot from '@/assets/app/caseload.webp';
 import insightsShot from '@/assets/app/insights.webp';
 import journeyShot from '@/assets/app/journey.webp';
@@ -35,28 +35,24 @@ type Moment = {
   detail: string;
 };
 
-const SCREENS: Record<Audience, { src: string; alt: string }[]> = {
+/**
+ * The phone's screens, real captures of the app's demo family (made from the site's own /demo build). `h` is a screen's
+ * full height at the phone's 390-point width: a screen taller than the phone (844) scrolls slowly from top to bottom
+ * while it shows, the way someone would read it.
+ */
+type Screen = { src: string; alt: string; label: string; h?: number };
+const PHONE_H = 844;
+const SCREENS: Record<Audience, Screen[]> = {
   family: [
-    {
-      src: todayShot,
-      alt: 'Today: days in recovery, a next step and the family unity score',
-    },
-    {
-      src: togetherShot,
-      alt: 'Together: how closely the family agrees, the family pact and answering with one voice',
-    },
-    {
-      src: alignmentShot,
-      alt: 'Where we stand: where the family agrees and where it is split — never who said what',
-    },
+    { src: heroToday, h: 1750, label: 'Today', alt: 'Today: days in recovery, the next step, what’s happening right now, and how closely the family agrees' },
+    { src: heroChat, label: 'Family chat', alt: 'Family chat: the whole family and their professional in one conversation, with a respect filter' },
+    { src: heroLive, label: 'Live Coaching', alt: 'Live Coaching during a hard talk: a cue on screen as the conversation heats up, and what it’s hearing' },
+    { src: heroAsk, h: 1700, label: 'Before you say yes', alt: 'Before you say yes: when Jordan asks for money, the family’s agreed answer and the words to use' },
   ],
   pro: [
-    {
-      src: caseloadShot,
-      alt: 'The professional caseload, sorted by who needs attention',
-    },
-    { src: insightsShot, alt: 'Family Insights for a family on the caseload' },
-    { src: journeyShot, alt: 'A family’s recovery journey over time' },
+    { src: caseloadShot, label: 'Caseload', alt: 'The professional caseload, sorted by who needs attention' },
+    { src: insightsShot, label: 'Family Insights', alt: 'Family Insights for a family on the caseload' },
+    { src: journeyShot, label: 'Recovery journey', alt: 'A family’s recovery journey over time' },
   ],
 };
 
@@ -188,7 +184,8 @@ const COPY: Record<Audience, { title: string; body: string; foot: string }> = {
   },
 };
 
-const SCREEN_MS = 3800;
+// Long enough to read a screen, and for a tall one to scroll from top to bottom.
+const SCREEN_MS = 6500;
 const MOMENT_MS = 2600;
 const AUDIENCE_MS = SCREEN_MS * 4;
 
@@ -361,20 +358,30 @@ export const HeroDynamic = () => {
             style={{ animationPlayState: running ? 'running' : 'paused' }}
           >
             <div className="relative overflow-hidden rounded-[1.7rem] aspect-[390/844] bg-[#F6F1E9]">
-              {screens.map((s, i) => (
-                <img
-                  key={s.src}
-                  src={s.src}
-                  alt={i === screen ? s.alt : ''}
-                  aria-hidden={i !== screen}
-                  loading={i === 0 ? 'eager' : 'lazy'}
-                  className={`absolute inset-0 h-full w-full object-cover object-top transition-all duration-700 ease-out ${i === screen ? 'opacity-100 scale-100' : 'opacity-0 scale-[1.03]'}`}
-                />
-              ))}
+              {screens.map((s, i) => {
+                const on = i === screen;
+                // The screen fading out keeps where its scroll ended, so it doesn't jump back to the top mid-fade.
+                const leaving = i === (screen + screens.length - 1) % screens.length;
+                const tall = !!s.h && s.h > PHONE_H;
+                // How far a tall screen moves to show its bottom, as a share of its own height.
+                const shift = tall ? `-${((1 - PHONE_H / s.h!) * 100).toFixed(2)}%` : '0%';
+                return (
+                  <img
+                    key={s.src}
+                    src={s.src}
+                    alt={on ? s.alt : ''}
+                    aria-hidden={!on}
+                    loading={i === 0 ? 'eager' : 'lazy'}
+                    style={tall ? ({ '--fb-shift': shift, '--fb-scroll-ms': `${SCREEN_MS}ms`, animationPlayState: running ? 'running' : 'paused' } as CSSProperties) : undefined}
+                    className={`absolute inset-x-0 top-0 w-full ${tall ? 'h-auto' : 'h-full object-cover object-top'} transition-opacity duration-700 ease-out ${on ? 'opacity-100' : 'opacity-0'} ${(on || leaving) && tall && !reduced ? 'fb-scroll' : ''}`}
+                  />
+                );
+              })}
             </div>
           </div>
 
-          <div className="mt-4 flex justify-center gap-1.5" aria-hidden="true">
+          <p className="mt-4 text-center text-sm font-semibold text-primary" aria-hidden="true">{screens[screen]?.label}</p>
+          <div className="mt-2 flex justify-center gap-1.5" aria-hidden="true">
             {screens.map((s, i) => (
               <span
                 key={s.src}
