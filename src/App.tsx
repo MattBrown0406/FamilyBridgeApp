@@ -96,7 +96,7 @@ const App = () => {
               <Route path="/auth" element={<LegacyRedirect to="/#download" legacy={<Auth />} />} />
               <Route path="/dashboard" element={<LegacyRedirect to="/#download" legacy={<Dashboard />} />} />
               <Route path="/moderator-dashboard" element={<LegacyRedirect to="/practice-billing" legacy={<ModeratorDashboard />} />} />
-              <Route path="/family/:familyId" element={<FamilyChat />} />
+              <Route path="/family/:familyId" element={<LegacyRedirect to="/#download" legacy={<FamilyChat />} />} />
               <Route path="/meetings" element={<Meetings />} />
               <Route path="/enabling-exercise" element={<EnablingExercise />} />
               <Route
@@ -105,12 +105,12 @@ const App = () => {
               />
               <Route path="/provider-admin" element={<LegacyRedirect to="/practice-billing" legacy={<ProviderAdmin />} />} />
               <Route path="/provider-workspace" element={<LegacyRedirect to="/practice-billing" legacy={<ProviderWorkspace />} />} />
-              <Route path="/professional-invite" element={<ProfessionalInvite />} />
-              <Route path="/professional-family/:familyId" element={<ProfessionalFamilyWorkspace />} />
-              <Route path="/provider-coordination" element={<ProviderCoordination />} />
+              <Route path="/professional-invite" element={<LegacyRedirect to="/for-providers" legacy={<ProfessionalInvite />} />} />
+              <Route path="/professional-family/:familyId" element={<LegacyRedirect to="/for-providers" legacy={<ProfessionalFamilyWorkspace />} />} />
+              <Route path="/provider-coordination" element={<LegacyRedirect to="/for-providers" legacy={<ProviderCoordination />} />} />
               <Route path="/provider-purchase" element={<LegacyRedirect to="/for-providers" legacy={<ProviderPurchase />} />} />
               <Route path="/family-purchase" element={<LegacyRedirect to="/#pricing" legacy={<FamilyPurchase />} />} />
-              <Route path="/family-setup" element={<FamilySetup />} />
+              <Route path="/family-setup" element={<LegacyRedirect to="/#download" legacy={<FamilySetup />} />} />
               <Route path="/join" element={<LegacyRedirect to="/#download" legacy={<JoinFamily />} />} />
               <Route path="/join-family" element={<LegacyRedirect to="/#download" legacy={<JoinFamily />} />} />
               {/* Practice connect links and family invite links. The iPhone app opens these directly when installed. */}
@@ -118,7 +118,7 @@ const App = () => {
               <Route path="/connect/:code" element={<AppLink kind="connect" />} />
               <Route path="/join/:code" element={<AppLink kind="join" />} />
               <Route path="/for-providers" element={<ForProviders />} />
-              <Route path="/moderator-purchase" element={<ModeratorPurchase />} />
+              <Route path="/moderator-purchase" element={<LegacyRedirect to="/#pricing" legacy={<ModeratorPurchase />} />} />
               <Route path="/super-admin" element={<LegacyRedirect to="/" legacy={<SuperAdmin />} />} />
               <Route path="/demo" element={<Demo />} />
               <Route path="/app-demo/*" element={<AppDemoReturn />} />
@@ -131,16 +131,16 @@ const App = () => {
               <Route path="/eula" element={<Eula />} />
               <Route path="/practice-billing" element={<PracticeBilling />} />
               <Route path="/practice-billing/complete" element={<PracticeBillingComplete />} />
-              <Route path="/sign-hipaa" element={<SignHIPAA />} />
-              <Route path="/intervention-readiness" element={<InterventionReadiness />} />
-              <Route path="/intervention-execution" element={<InterventionExecution />} />
-              <Route path="/post-intervention" element={<PostInterventionContinuity />} />
-              <Route path="/accountability-engine" element={<AccountabilityEngine />} />
-              <Route path="/outcome-predictions" element={<OutcomePredictions />} />
-              <Route path="/ai-learning" element={<AILearningLayer />} />
-              <Route path="/ai-learning/stage-2" element={<AILearningLayerStage2 />} />
-              <Route path="/ai-learning/governance" element={<AIGovernance />} />
-              <Route path="/input-reconciliation" element={<InputReconciliation />} />
+              <Route path="/sign-hipaa" element={<LegacyRedirect to="/for-providers" legacy={<SignHIPAA />} />} />
+              <Route path="/intervention-readiness" element={<LegacyRedirect to="/" legacy={<InterventionReadiness />} />} />
+              <Route path="/intervention-execution" element={<LegacyRedirect to="/" legacy={<InterventionExecution />} />} />
+              <Route path="/post-intervention" element={<LegacyRedirect to="/" legacy={<PostInterventionContinuity />} />} />
+              <Route path="/accountability-engine" element={<LegacyRedirect to="/" legacy={<AccountabilityEngine />} />} />
+              <Route path="/outcome-predictions" element={<LegacyRedirect to="/for-providers" legacy={<OutcomePredictions />} />} />
+              <Route path="/ai-learning" element={<LegacyRedirect to="/" legacy={<AILearningLayer />} />} />
+              <Route path="/ai-learning/stage-2" element={<LegacyRedirect to="/" legacy={<AILearningLayerStage2 />} />} />
+              <Route path="/ai-learning/governance" element={<LegacyRedirect to="/" legacy={<AIGovernance />} />} />
+              <Route path="/input-reconciliation" element={<LegacyRedirect to="/" legacy={<InputReconciliation />} />} />
               {/* The previous web app's feature pages described features it no longer has; they point to the current pages. */}
               <Route path="/features/fiis-intelligence" element={<LegacyRedirect to="/#insights" legacy={<FIISIntelligence />} />} />
               <Route path="/features/recovery-trajectory" element={<LegacyRedirect to="/for-providers" legacy={<RecoveryTrajectory />} />} />
@@ -149,9 +149,9 @@ const App = () => {
               <Route path="/features/financial-coordination" element={<LegacyRedirect to="/#features" legacy={<FinancialCoordination />} />} />
               <Route path="/features/care-transitions" element={<LegacyRedirect to="/for-providers" legacy={<CareTransitions />} />} />
               <Route path="/features/conversation-coaching" element={<LegacyRedirect to="/#features" legacy={<ConversationCoaching />} />} />
-              <Route path="/features/provider-outcomes" element={<ProviderOutcomes />} />
-              <Route path="/features/intervention-outcomes" element={<InterventionOutcomes />} />
-              <Route path="/features/fiis-guidance" element={<FIISGuidance />} />
+              <Route path="/features/provider-outcomes" element={<LegacyRedirect to="/for-providers" legacy={<ProviderOutcomes />} />} />
+              <Route path="/features/intervention-outcomes" element={<LegacyRedirect to="/for-providers" legacy={<InterventionOutcomes />} />} />
+              <Route path="/features/fiis-guidance" element={<LegacyRedirect to="/#features" legacy={<FIISGuidance />} />} />
               <Route
                 path="/update-payment"
                 element={paymentsWebOnly ? <Navigate to="/auth" replace /> : <UpdatePayment />}

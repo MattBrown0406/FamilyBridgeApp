@@ -44,6 +44,9 @@ const TOURS: Record<Audience, { label: string; icon: React.ElementType; intro: s
       { id: 'professional', title: 'Find a professional', path: '/tools/find-professional', isNew: true, what: 'A few short questions, then interventionists, family coaches, therapists and counselors who fit your family, never treatment programs. Every professional listed was reviewed by FamilyBridge and takes no payment from treatment programs for placements.', tryIt: 'Answer the questions. The demo stops before the list: in the app, you’d see professionals who fit and could ask them for help.' },
       { id: 'changed', title: 'What changed lately', path: '/tools/insights', isNew: true, what: 'A plain summary of what is different in the last two weeks, with a gentle way to bring each change up. It’s arithmetic on what the family logged, not AI.', tryIt: 'Read the card at the top: Jordan has been going to more meetings. Then scroll through Family Insights below it.' },
       { id: 'rightnow', title: 'What’s happening right now?', path: '/tools/right-now', what: 'A 60-second plan for the hardest moments: safety first, what to say, what not to do.', tryIt: 'Pick “Jordan is asking for money”.' },
+      { id: 'live-person', title: 'Live Coaching: in person', path: '/tools/live-coach?setting=in_person', isNew: true, what: 'During a hard talk, the phone lies face-up between you and listens. Short cues appear on screen as things heat up or calm down, and on iPhone they can be spoken quietly into your earbuds. Nothing is recorded.', tryIt: 'Tap “Watch a sample conversation”: Jordan asks for the car to go to a party.' },
+      { id: 'live-phone', title: 'Live Coaching: a phone call', path: '/tools/live-coach?setting=phone', isNew: true, what: 'The same live cues for a call: put the call on speaker on another phone or a landline, and set FamilyBridge beside it.', tryIt: 'Tap “Watch a sample conversation”: Jordan calls about an overdue phone bill.' },
+      { id: 'live-text', title: 'Live Coaching: a text message', path: '/tools/reply-check', isNew: true, what: 'Before answering a text, paste what they sent and what you’re about to send. The AI Coach points out what could start a fight and offers a calmer version in your words. You send it yourself.', tryIt: 'Jordan’s text and Dana’s first reply are filled in. Tap “Check it”.' },
       { id: 'naloxone', title: 'Overdose Ready', path: '/tools/naloxone', what: 'Where the family’s naloxone is, when it expires and who has practiced.', tryIt: 'Open a kit to see who holds it.' },
       { id: 'chat', title: 'Family chat', path: '/chat', what: 'One place to talk, with a respect filter that stops insults and threats before they’re sent.', tryIt: 'Type a message to the family.' },
       { id: 'sos', title: 'SOS', path: '/tools/crisis', what: '911, 988 and overdose steps first, then a way to reach a person. The phone numbers here are real: tapping one starts a real call. An SOS session in the demo is a sample, with nobody on the other end.', tryIt: 'Scroll through the crisis lines and overdose steps.' },
@@ -74,7 +77,7 @@ const MESSAGE = 'familybridge-demo';
 // The sample family this page was built with. A visitor who tried an earlier demo still has that one's family in
 // their browser, without whatever the tour now points at: when this changes, they start from the new one.
 const DEMO_DATA_KEY = 'familybridge:demoSite';
-const DEMO_DATA = '6.3.1-1';
+const DEMO_DATA = '6.3.1-2';
 
 /** The app reads which demo to open from this browser's storage, so it starts where the tour is. */
 function presetMode(audience: Audience) {
