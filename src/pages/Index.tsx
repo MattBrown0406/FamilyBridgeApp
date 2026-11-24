@@ -111,7 +111,7 @@ const HOME_SCHEMA = {
       name: 'FamilyBridge',
       alternateName: 'Family Bridge Recovery',
       description: 'The app for families of someone with addiction: a private Alignment Check, a signed family pact, one-voice answers to money and other asks, a weekly CRAFT-informed family program, a meeting finder, by-choice location check-ins, a private document vault, a reviewed directory of interventionists, family coaches, therapists and counselors (never treatment programs), early-warning and overdose-ready safety tools, AI coaching for hard conversations, and an SOS line to a certified interventionist.',
-      operatingSystem: 'iOS, iPadOS',
+      operatingSystem: 'iOS, iPadOS, Web',
       applicationCategory: 'LifestyleApplication',
       inLanguage: ['en', 'es'],
       installUrl: APP_STORE_URL,

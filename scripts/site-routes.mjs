@@ -91,25 +91,12 @@ export const movedRoutes = [
   { path: '/features/financial-coordination', to: '/#features' },
   { path: '/features/care-transitions', to: '/for-providers' },
   { path: '/features/conversation-coaching', to: '/#features' },
+  { path: '/features/provider-outcomes', to: '/for-providers' },
+  { path: '/features/intervention-outcomes', to: '/for-providers' },
+  { path: '/features/fiis-guidance', to: '/#features' },
 ];
 
-export const noIndexRoutes = [
-  {
-    path: '/features/provider-outcomes',
-    title: 'Provider Outcomes Demo | FamilyBridge',
-    description: 'Demonstration of privacy-thresholded provider reporting using fictional sample data.',
-  },
-  {
-    path: '/features/intervention-outcomes',
-    title: 'Intervention Outcomes Demo | FamilyBridge',
-    description: 'Demonstration of intervention outcome reporting using fictional sample data.',
-  },
-  {
-    path: '/features/fiis-guidance',
-    title: 'FIIS Guidance Demo | FamilyBridge',
-    description: 'Demonstration of FIIS guidance workflows using fictional sample data.',
-  },
-];
+export const noIndexRoutes = [];
 
 export const privateNoIndexPaths = [
   '/auth',
