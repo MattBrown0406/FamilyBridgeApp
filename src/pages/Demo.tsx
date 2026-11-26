@@ -37,7 +37,7 @@ const TOURS: Record<Audience, { label: string; icon: React.ElementType; intro: s
       { id: 'today', title: 'Today', path: '/', what: 'What Dana sees each morning: how Jordan’s recovery is going, what needs her attention, and one thing to try saying.', tryIt: 'Scroll down to the family’s to-do cards, then tap one.' },
       { id: 'together', title: 'Together', path: '/plan', what: 'How closely the family agrees, the family’s signed pact, and this week’s five-minute lesson.', tryIt: 'Tap the Alignment card to see where the family agrees and where it’s split, never who said what.' },
       { id: 'ask', title: 'Before you say yes', path: '/tools/ask', what: 'When Jordan asks one of them for money or a ride, the family’s agreed answer and the words to use.', tryIt: 'Pick “Money” and read what the family already decided.' },
-      { id: 'money', title: 'Money & requests', path: '/tools/finances', what: 'Requests, family votes, receipts and a monthly limit, so nobody has to be the bad guy.', tryIt: 'Open the bus pass request. Dana has already said yes, and it needs two. Tap Decline to see a vote change.' },
+      { id: 'money', title: 'Money & requests', path: '/tools/finances', isNew: true, what: 'Every request says what it’s for. Bills come with the bill, and every approved request is followed by a receipt. An AI check looks for numbers that don’t match or images that look edited, and flags them for a parent. Until the receipt is in, no new request can be made, and only a parent can lift that.', tryIt: 'Find Jordan’s $85 bus pass under Needs a decision. Dana already said yes, but Approve is greyed out: Jordan still owes the receipt for the $60 of gas he was given (it’s in History below). Scroll down to the groceries receipt the check flagged, and try Accept receipt, Ask for a new photo or Unlock new requests.' },
       { id: 'finder', title: 'Find a meeting', path: '/tools/meeting-finder', isNew: true, what: 'Search meetings near you or online. Where a fellowship doesn’t share its list, one tap opens its own finder.', tryIt: 'Tap “For someone in recovery”, then “Use my location”, and scroll down. The demo shows sample meetings.' },
       { id: 'location', title: 'Location check-ins', path: '/tools/location', isNew: true, what: 'Share where you are once, by choice. A helper can ask only someone who has turned asking on, and nothing is tracked in the background.', tryIt: 'Tap “Check in here”. In this demo it records a sample place, not yours.' },
       { id: 'documents', title: 'Documents & releases', path: '/tools/documents', isNew: true, what: 'The discharge plan, the insurance card and signed releases of information in one private place.', tryIt: 'Scroll to the release Jordan signed so Harbor Recovery can talk with his parents.' },
@@ -77,7 +77,7 @@ const MESSAGE = 'familybridge-demo';
 // The sample family this page was built with. A visitor who tried an earlier demo still has that one's family in
 // their browser, without whatever the tour now points at: when this changes, they start from the new one.
 const DEMO_DATA_KEY = 'familybridge:demoSite';
-const DEMO_DATA = '6.3.1-2';
+const DEMO_DATA = '6.3.2-1';
 
 /** The app reads which demo to open from this browser's storage, so it starts where the tour is. */
 function presetMode(audience: Audience) {

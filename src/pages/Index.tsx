@@ -58,7 +58,7 @@ const TOOL_GROUPS: { title: string; blurb: string; items: { icon: React.ElementT
     title: 'Accountability',
     blurb: 'One honest record everyone can see, so nobody has to be the bad guy.',
     items: [
-      { icon: Wallet, name: 'Money & requests', text: 'Requests, family votes, receipts, a monthly limit, and a “no cash” rule.' },
+      { icon: Wallet, name: 'Money & requests', text: 'Requests by type, proof for bills, a receipt after every approved request, an AI check that flags edited or mismatched images for a parent, and a lock only a parent can lift. Plus family votes, a monthly limit and a “no cash” rule.', isNew: true },
       { icon: Users, name: 'Meetings', text: 'AA, NA, SMART, Al-Anon — everyone logs, everyone has a goal.' },
       { icon: Search, name: 'Find a meeting', text: 'Search NA across the US, AA in more than 40 metro areas and online, Recovery Dharma and more — and one tap to the finders for Al-Anon, Nar-Anon, PAL and other family groups.', isNew: true },
       { icon: MapPin, name: 'Location check-ins', text: '“I’m here”, shared once, by choice. A helper can ask only someone who has turned asking on. Nothing is tracked in the background.', isNew: true },
