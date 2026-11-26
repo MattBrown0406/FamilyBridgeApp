@@ -58,7 +58,7 @@ const TOOL_GROUPS: { title: string; blurb: string; items: { icon: React.ElementT
     title: 'Accountability',
     blurb: 'One honest record everyone can see, so nobody has to be the bad guy.',
     items: [
-      { icon: Wallet, name: 'Money & requests', text: 'Requests, family votes, receipts, a monthly limit, and a “no cash” rule.' },
+      { icon: Wallet, name: 'Money & requests', text: 'Requests by type, proof for bills, a receipt after every approved request, an AI check that flags edited or mismatched images for a parent, and a lock only a parent can lift. Plus family votes, a monthly limit and a “no cash” rule.', isNew: true },
       { icon: Users, name: 'Meetings', text: 'AA, NA, SMART, Al-Anon — everyone logs, everyone has a goal.' },
       { icon: Search, name: 'Find a meeting', text: 'Search NA across the US, AA in more than 40 metro areas and online, Recovery Dharma and more — and one tap to the finders for Al-Anon, Nar-Anon, PAL and other family groups.', isNew: true },
       { icon: MapPin, name: 'Location check-ins', text: '“I’m here”, shared once, by choice. A helper can ask only someone who has turned asking on. Nothing is tracked in the background.', isNew: true },
@@ -85,6 +85,7 @@ const TOOL_GROUPS: { title: string; blurb: string; items: { icon: React.ElementT
 const FAQ = [
   { q: 'Who is FamilyBridge for?', a: 'Families of someone struggling with alcohol or drugs — before, during and after treatment — and the professionals who work with them: interventionists, treatment centers, therapists, recovery coaches, sober living and outpatient programs.' },
   { q: 'Does my loved one have to use it?', a: 'No. Many families start before their loved one is ready for help. If your loved one joins, they get their own view — check-ins, meetings, meds, wins — and never see intervention letters, conversation notes or Family Insights.' },
+  { q: 'What if someone in my family doesn’t have an iPhone?', a: 'They can still join. FamilyBridge works in any web browser at app.familybridgeapp.com, on a computer or an Android phone, with the same account, and the family invite link offers it. An Android app is on the way.' },
   { q: 'Our family can’t agree on what to do. Can FamilyBridge help?', a: 'That’s exactly what it’s for. Each of you takes a private Alignment Check, and the family sees where you agree and where you’re split — never who said what. You turn what you agree on into a family pact everyone signs, answer your loved one’s asks with one voice, and work through one split topic at a time at a guided weekly family meeting. Most families see their alignment climb month by month.' },
   { q: 'Is the Alignment Check really private?', a: 'Yes. Your answers are never shown to anyone — not your family, not your loved one, not your professional. Everyone sees only the combined picture (how many people chose each answer), and nothing is shown until at least three people have answered. Your loved one doesn’t take the check and never sees it.' },
   { q: 'Is FamilyBridge free?', a: 'Every accountability, planning and safety tool is free for every family — the Alignment Check, family pact, Before you say yes, guided family meetings, treatment plan, trust ladder, money, meetings and the meeting finder, location check-ins, documents and releases, Find a professional, appointments, medications, check-ins, boundaries, goals, the relapse plan, family chat, the safety tools (60-second plans for hard moments, the Early-Warning Radar, Overdose Ready and Reach Out) and the first three lessons of the family program. You can try the AI for free too: a few AI Coach questions and text rewrites a day, and one Family Insights read a month. Family Plus ($19.99 a month) adds the full family program and every AI feature — the AI Coach, Live Coaching, conversation practice, Family Insights, letter feedback and document reading — plus a 24-hour SOS session each billing cycle, for everyone in your family. If you work with a professional on a FamilyBridge plan, Family Plus is often included.' },
@@ -110,7 +111,7 @@ const HOME_SCHEMA = {
       name: 'FamilyBridge',
       alternateName: 'Family Bridge Recovery',
       description: 'The app for families of someone with addiction: a private Alignment Check, a signed family pact, one-voice answers to money and other asks, a weekly CRAFT-informed family program, a meeting finder, by-choice location check-ins, a private document vault, a reviewed directory of interventionists, family coaches, therapists and counselors (never treatment programs), early-warning and overdose-ready safety tools, AI coaching for hard conversations, and an SOS line to a certified interventionist.',
-      operatingSystem: 'iOS, iPadOS',
+      operatingSystem: 'iOS, iPadOS, Web',
       applicationCategory: 'LifestyleApplication',
       inLanguage: ['en', 'es'],
       installUrl: APP_STORE_URL,
